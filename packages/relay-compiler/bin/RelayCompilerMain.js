@@ -403,6 +403,7 @@ function getRelayFileWriter(
           queryTransforms,
         },
         customScalars: customScalars || {},
+        keepFileInGeneratedFolder: languagePlugin.keepFileInGeneratedFolder,
         formatModule: languagePlugin.formatModule,
         optionalInputFieldsForFlow: [],
         schemaExtensions,
