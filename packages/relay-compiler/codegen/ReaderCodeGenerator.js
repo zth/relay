@@ -73,7 +73,7 @@ function generate(node: Fragment): ReaderFragment {
         // $FlowFixMe
         connection: refetch.connection,
         // $FlowFixMe
-        operation: CodeMarker.moduleDependency(refetch.operation + '.graphql'),
+        operation: CodeMarker.moduleDependency(refetch.operation + '_graphql'),
         // $FlowFixMe
         fragmentPathInResult: refetch.fragmentPathInResult,
       };

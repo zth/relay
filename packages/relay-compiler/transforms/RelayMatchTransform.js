@@ -371,7 +371,7 @@ function visitFragmentSpread(
   }
   const moduleId = [documentName, ...path].join('.');
   const normalizationName =
-    getNormalizationOperationName(spread.name) + '.graphql';
+    getNormalizationOperationName(spread.name) + '_graphql';
   const componentKey = getModuleComponentKey(documentName);
   const componentField: ScalarField = {
     alias: componentKey,

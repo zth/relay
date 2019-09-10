@@ -65,7 +65,7 @@ async function writeRelayGeneratedFile(
   const moduleName =
     (generatedNode.kind === 'Request'
       ? generatedNode.params.name
-      : generatedNode.name) + '.graphql';
+      : generatedNode.name) + '_graphql';
   const platformName =
     platform != null && platform.length > 0
       ? moduleName + '.' + platform
