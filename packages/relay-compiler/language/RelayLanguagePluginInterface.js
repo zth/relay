@@ -41,6 +41,7 @@ export type PluginInterface = {
   isGeneratedFile?: IsGeneratedFileFn,
   getFileFilter?: GetFileFilter,
   keepFileInGeneratedFolder?: KeepFileInGeneratedFolder,
+  getRefetchOperationModuleImportPath?: (operationName: string) => string,
 };
 
 /**
