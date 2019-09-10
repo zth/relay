@@ -353,6 +353,7 @@ function writeAll({
             writerConfig.extension,
             writerConfig.printModuleDependency,
             writerConfig.repersist ?? false,
+            languagePlugin,
           );
         }),
       );

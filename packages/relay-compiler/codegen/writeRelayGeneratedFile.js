@@ -20,7 +20,10 @@ const invariant = require('invariant');
 const {RelayConcreteNode} = require('relay-runtime');
 
 import type {GeneratedDefinition} from '../core/GraphQLIR';
-import type {FormatModule} from '../language/RelayLanguagePluginInterface';
+import type {
+  FormatModule,
+  PluginInterface,
+} from '../language/RelayLanguagePluginInterface';
 import type CodegenDirectory from './CodegenDirectory';
 import type {GeneratedNode} from 'relay-runtime';
 
@@ -58,14 +61,19 @@ async function writeRelayGeneratedFile(
     moduleName: string,
   ) => string = printRequireModuleDependency,
   shouldRepersist: boolean,
+  languagePlugin: PluginInterface,
 ): Promise<?GeneratedNode> {
   let generatedNode = _generatedNode;
   // Copy to const so Flow can refine.
   const persistQuery = _persistQuery;
-  const moduleName =
-    (generatedNode.kind === 'Request'
+  const operationName =
+    generatedNode.kind === 'Request'
       ? generatedNode.params.name
-      : generatedNode.name) + '_graphql';
+      : generatedNode.name;
+
+  const moduleName = languagePlugin.getModuleName
+    ? languagePlugin.getModuleName(operationName)
+    : operationName + '.graphql';
   const platformName =
     platform != null && platform.length > 0
       ? moduleName + '.' + platform
