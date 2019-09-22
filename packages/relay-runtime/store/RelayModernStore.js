@@ -33,6 +33,7 @@ import type {
   ConnectionID,
   ConnectionInternalEvent,
   ConnectionReference,
+  ConnectionResolver,
   ConnectionSnapshot,
 } from './RelayConnection';
 import type {GetDataID} from './RelayResponseNormalizer';
@@ -64,6 +65,7 @@ type ConnectionEvents = {|
 type ConnectionSubscription<TEdge, TState> = {|
   +callback: (state: TState) => void,
   +id: string,
+  +resolver: ConnectionResolver<TEdge, TState>,
   snapshot: ConnectionSnapshot<TEdge, TState>,
   backup: ?ConnectionSnapshot<TEdge, TState>,
   stale: boolean,
@@ -135,6 +137,15 @@ class RelayModernStore implements Store {
     return this._optimisticSource ?? this._recordSource;
   }
 
+  getConnectionEvents_UNSTABLE(
+    connectionID: ConnectionID,
+  ): ?$ReadOnlyArray<ConnectionInternalEvent> {
+    const events = this._connectionEvents.get(connectionID);
+    if (events != null) {
+      return events.optimistic ?? events.final;
+    }
+  }
+
   check(selector: NormalizationSelector): boolean {
     const source = this._optimisticSource ?? this._recordSource;
     return DataChecker.check(
@@ -144,6 +155,7 @@ class RelayModernStore implements Store {
       [],
       this._operationLoader,
       this._getDataID,
+      id => this.getConnectionEvents_UNSTABLE(id),
     );
   }
 
@@ -199,6 +211,7 @@ class RelayModernStore implements Store {
         return;
       }
       const nextSnapshot = this._updateConnection_UNSTABLE(
+        subscription.resolver,
         subscription.snapshot,
         source,
         null,
@@ -282,13 +295,14 @@ class RelayModernStore implements Store {
   }
 
   lookupConnection_UNSTABLE<TEdge, TState>(
-    connectionReference: ConnectionReference<TEdge, TState>,
+    connectionReference: ConnectionReference<TEdge>,
+    resolver: ConnectionResolver<TEdge, TState>,
   ): ConnectionSnapshot<TEdge, TState> {
     invariant(
       RelayFeatureFlags.ENABLE_CONNECTION_RESOLVERS,
       'RelayModernStore: Connection resolvers are not yet supported.',
     );
-    const {id, resolver} = connectionReference;
+    const {id} = connectionReference;
     const initialState: TState = resolver.initialize();
     const connectionEvents = this._connectionEvents.get(id);
     const events: ?$ReadOnlyArray<ConnectionInternalEvent> =
@@ -306,6 +320,7 @@ class RelayModernStore implements Store {
       return initialSnapshot;
     }
     return this._reduceConnection_UNSTABLE(
+      resolver,
       connectionReference,
       initialSnapshot,
       events,
@@ -314,6 +329,7 @@ class RelayModernStore implements Store {
 
   subscribeConnection_UNSTABLE<TEdge, TState>(
     snapshot: ConnectionSnapshot<TEdge, TState>,
+    resolver: ConnectionResolver<TEdge, TState>,
     callback: TState => void,
   ): Disposable {
     invariant(
@@ -325,6 +341,7 @@ class RelayModernStore implements Store {
       backup: null,
       callback,
       id,
+      resolver,
       snapshot,
       stale: false,
     };
@@ -387,6 +404,7 @@ class RelayModernStore implements Store {
         return;
       }
       const nextSnapshot = this._updateConnection_UNSTABLE(
+        subscription.resolver,
         subscription.snapshot,
         null,
         pendingEvents,
@@ -399,11 +417,13 @@ class RelayModernStore implements Store {
   }
 
   _updateConnection_UNSTABLE<TEdge, TState>(
+    resolver: ConnectionResolver<TEdge, TState>,
     snapshot: ConnectionSnapshot<TEdge, TState>,
     source: ?RecordSource,
     pendingEvents: ?Array<ConnectionInternalEvent>,
   ): ?ConnectionSnapshot<TEdge, TState> {
     const nextSnapshot = this._reduceConnection_UNSTABLE(
+      resolver,
       snapshot.reference,
       snapshot,
       pendingEvents ?? [],
@@ -419,19 +439,20 @@ class RelayModernStore implements Store {
   }
 
   _reduceConnection_UNSTABLE<TEdge, TState>(
-    connectionReference: ConnectionReference<TEdge, TState>,
+    resolver: ConnectionResolver<TEdge, TState>,
+    connectionReference: ConnectionReference<TEdge>,
     snapshot: ConnectionSnapshot<TEdge, TState>,
     events: $ReadOnlyArray<ConnectionInternalEvent>,
     source: ?RecordSource = null,
   ): ConnectionSnapshot<TEdge, TState> {
-    const {edgeField, id, resolver, variables} = connectionReference;
+    const {edgesField, id, variables} = connectionReference;
     const fragment: ReaderFragment = {
       kind: 'Fragment',
-      name: edgeField.name,
-      type: edgeField.concreteType ?? '__Any',
+      name: edgesField.name,
+      type: edgesField.concreteType ?? '__Any',
       metadata: null,
       argumentDefinitions: [],
-      selections: edgeField.selections,
+      selections: edgesField.selections,
     };
     const seenRecords = {};
     const edgeSnapshots = {...snapshot.edgeSnapshots};
@@ -471,10 +492,11 @@ class RelayModernStore implements Store {
     const state: TState = events.reduce(
       (prevState: TState, event: ConnectionInternalEvent) => {
         if (event.kind === 'fetch') {
-          const edgeData = {};
+          const edges = [];
           event.edgeIDs.forEach(edgeID => {
             if (edgeID == null) {
-              return edgeID;
+              edges.push(edgeID);
+              return;
             }
             const edgeSnapshot = RelayReader.read(
               this.getSource(),
@@ -483,13 +505,12 @@ class RelayModernStore implements Store {
             Object.assign(seenRecords, edgeSnapshot.seenRecords);
             const itemData = ((edgeSnapshot.data: $FlowFixMe): ?TEdge);
             edgeSnapshots[edgeID] = edgeSnapshot;
-            edgeData[edgeID] = itemData;
+            edges.push(itemData);
           });
           return resolver.reduce(prevState, {
             kind: 'fetch',
             args: event.args,
-            edgeIDs: event.edgeIDs,
-            edgeData,
+            edges,
             pageInfo: event.pageInfo,
           });
         } else if (event.kind === 'insert') {
@@ -508,7 +529,6 @@ class RelayModernStore implements Store {
           return resolver.reduce(prevState, {
             args: event.args,
             edge: itemData,
-            edgeID: event.edgeID,
             kind: 'insert',
           });
         } else {
@@ -589,6 +609,7 @@ class RelayModernStore implements Store {
         // connection from scratch and check ifs value changes.
         const baseSnapshot = this.lookupConnection_UNSTABLE(
           subscription.snapshot.reference,
+          subscription.resolver,
         );
         const nextState = recycleNodesInto(
           subscription.snapshot.state,
@@ -623,26 +644,39 @@ class RelayModernStore implements Store {
       return;
     }
     const references = new Set();
+    const connectionReferences = new Set();
     // Mark all records that are traversable from a root
     this._roots.forEach(selector => {
       RelayReferenceMarker.mark(
         this._recordSource,
         selector,
         references,
+        connectionReferences,
+        id => this.getConnectionEvents_UNSTABLE(id),
         this._operationLoader,
       );
     });
-    // Short-circuit if *nothing* is referenced
-    if (!references.size) {
+    if (references.size === 0) {
+      // Short-circuit if *nothing* is referenced
       this._recordSource.clear();
-      return;
+    } else {
+      // Evict any unreferenced nodes
+      const storeIDs = this._recordSource.getRecordIDs();
+      for (let ii = 0; ii < storeIDs.length; ii++) {
+        const dataID = storeIDs[ii];
+        if (!references.has(dataID)) {
+          this._recordSource.remove(dataID);
+        }
+      }
     }
-    // Evict any unreferenced nodes
-    const storeIDs = this._recordSource.getRecordIDs();
-    for (let ii = 0; ii < storeIDs.length; ii++) {
-      const dataID = storeIDs[ii];
-      if (!references.has(dataID)) {
-        this._recordSource.remove(dataID);
+    if (connectionReferences.size === 0) {
+      this._connectionEvents.clear();
+    } else {
+      // Evict any unreferenced connections
+      for (const connectionID of this._connectionEvents.keys()) {
+        if (!connectionReferences.has(connectionID)) {
+          this._connectionEvents.delete(connectionID);
+        }
       }
     }
   }

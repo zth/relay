@@ -28,6 +28,10 @@ export type ConnectionRecord = {|
 
 export type ConnectionMap = {[ConnectionID]: ?ConnectionRecord};
 
+export type GetConnectionEvents = (
+  connectionID: ConnectionID,
+) => ?$ReadOnlyArray<ConnectionInternalEvent>;
+
 export type ConnectionInternalEvent =
   | {|
       +kind: 'fetch',
@@ -49,12 +53,11 @@ export type ConnectionEvent<TEdge> =
   | {|
       +kind: 'fetch',
       +args: Variables,
-      +edgeIDs: $ReadOnlyArray<?DataID>,
-      +edgeData: {[DataID]: ?TEdge},
+      +edges: $ReadOnlyArray<?TEdge>,
       +pageInfo: PageInfo,
     |}
   | {|+kind: 'update', edgeData: {[DataID]: ?TEdge}|}
-  | {|+kind: 'insert', args: Variables, edge: ?TEdge, edgeID: DataID|};
+  | {|+kind: 'insert', args: Variables, edge: ?TEdge|};
 
 export interface ConnectionResolver<TEdge, TState> {
   initialize(): TState;
@@ -62,22 +65,24 @@ export interface ConnectionResolver<TEdge, TState> {
 }
 
 // Intentionally inexact
-export type ConnectionReferenceObject<TEdge, TState> = {
-  +__connection: ConnectionReference<TEdge, TState>,
+export type ConnectionReferenceObject<TEdge> = {
+  +__connection: ConnectionReference<TEdge>,
 };
 
-export type ConnectionReference<TEdge, TState> = {|
+// Note: The phantom TEdge type allows propagation of the `edges` field
+// selections.
+// eslint-disable-next-line no-unused-vars
+export type ConnectionReference<TEdge> = {|
   +variables: Variables,
-  +edgeField: ReaderLinkedField,
+  +edgesField: ReaderLinkedField,
   +id: ConnectionID,
   +label: string,
-  +resolver: ConnectionResolver<TEdge, TState>,
 |};
 
 export type ConnectionSnapshot<TEdge, TState> = {|
   +edgeSnapshots: {[DataID]: TypedSnapshot<TEdge>},
   +id: ConnectionID,
-  +reference: ConnectionReference<TEdge, TState>,
+  +reference: ConnectionReference<TEdge>,
   +seenRecords: RecordMap,
   +state: TState,
 |};

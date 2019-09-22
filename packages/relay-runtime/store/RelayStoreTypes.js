@@ -26,7 +26,10 @@ import type {
   NormalizationSplitOperation,
 } from '../util/NormalizationNode';
 import type {ReaderFragment} from '../util/ReaderNode';
-import type {ConcreteRequest} from '../util/RelayConcreteNode';
+import type {
+  ConcreteRequest,
+  RequestParameters,
+} from '../util/RelayConcreteNode';
 import type {
   CacheConfig,
   DataID,
@@ -38,6 +41,7 @@ import type {
   ConnectionID,
   ConnectionInternalEvent,
   ConnectionReference,
+  ConnectionResolver,
   ConnectionSnapshot,
 } from './RelayConnection';
 import type RelayOperationTracker from './RelayOperationTracker';
@@ -265,11 +269,13 @@ export interface Store {
   holdGC(): Disposable;
 
   lookupConnection_UNSTABLE<TEdge, TState>(
-    connectionReference: ConnectionReference<TEdge, TState>,
+    connectionReference: ConnectionReference<TEdge>,
+    resolver: ConnectionResolver<TEdge, TState>,
   ): ConnectionSnapshot<TEdge, TState>;
 
   subscribeConnection_UNSTABLE<TEdge, TState>(
     snapshot: ConnectionSnapshot<TEdge, TState>,
+    resolver: ConnectionResolver<TEdge, TState>,
     callback: (state: TState) => void,
   ): Disposable;
 
@@ -281,6 +287,14 @@ export interface Store {
     events: Array<ConnectionInternalEvent>,
     final: boolean,
   ): void;
+
+  /**
+   * Get a read-only view of the store's internal connection events for a given
+   * connection.
+   */
+  getConnectionEvents_UNSTABLE(
+    connectionID: ConnectionID,
+  ): ?$ReadOnlyArray<ConnectionInternalEvent>;
 
   /**
    * Record a backup/snapshot of the current state of the store, including
@@ -380,6 +394,39 @@ export interface Logger {
 export interface LoggerProvider {
   getLogger(config: LoggerTransactionConfig): Logger;
 }
+
+export type LogEvent =
+  | {|
+      +name: 'execute.info',
+      +transactionID: number,
+      +info: mixed,
+    |}
+  | {|
+      +name: 'execute.start',
+      +transactionID: number,
+      +params: RequestParameters,
+      +variables: Variables,
+    |}
+  | {|
+      +name: 'execute.next',
+      +transactionID: number,
+      +response: GraphQLResponse,
+    |}
+  | {|
+      +name: 'execute.error',
+      +transactionID: number,
+      +error: Error,
+    |}
+  | {|
+      +name: 'execute.complete',
+      +transactionID: number,
+    |}
+  | {|
+      +name: 'execute.unsubscribe',
+      +transactionID: number,
+    |};
+export type LogFunction = LogEvent => void;
+export type LogRequestInfoFunction = mixed => void;
 
 /**
  * The public API of Relay core. Represents an encapsulated environment with its

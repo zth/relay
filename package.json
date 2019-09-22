@@ -1,7 +1,7 @@
 {
   "name": "relay",
   "description": "A framework for building data-driven React applications.",
-  "version": "5.0.0",
+  "version": "6.0.0",
   "license": "MIT",
   "homepage": "https://relay.dev",
   "bugs": "https://github.com/facebook/relay/issues",
@@ -53,7 +53,7 @@
     "fb-watchman": "^2.0.0",
     "fbjs": "^1.0.0",
     "fbjs-scripts": "^1.1.0",
-    "flow-bin": "^0.107.0",
+    "flow-bin": "^0.108.0",
     "graphql": "^14.2.0",
     "gulp": "4.0.0",
     "gulp-babel": "8.0.0",

@@ -27,8 +27,10 @@ import type {
 import type CodegenDirectory from './CodegenDirectory';
 import type {GeneratedNode} from 'relay-runtime';
 
-function printRequireModuleDependency(moduleName: string): string {
-  return `require('${moduleName}')`;
+function createPrintRequireModuleDependency(
+  extension: string,
+): string => string {
+  return moduleName => `require('./${moduleName + extension}')`;
 }
 
 function getConcreteType(node: GeneratedNode): string {
@@ -59,7 +61,7 @@ async function writeRelayGeneratedFile(
   extension: string,
   printModuleDependency: (
     moduleName: string,
-  ) => string = printRequireModuleDependency,
+  ) => string = createPrintRequireModuleDependency(extension),
   shouldRepersist: boolean,
   languagePlugin: PluginInterface,
 ): Promise<?GeneratedNode> {
@@ -78,6 +80,7 @@ async function writeRelayGeneratedFile(
     platform != null && platform.length > 0
       ? moduleName + '.' + platform
       : moduleName;
+
   const filename = platformName + '.' + extension;
   const typeName = getConcreteType(generatedNode);
 

@@ -530,7 +530,7 @@ if (__DEV__) {
       fragmentRefPathInResponse: $ReadOnlyArray<string | number>,
       environment: IEnvironment,
     ): ?DebugIDandTypename {
-      const RelayModernRecord = require('relay-runtime').Record;
+      const {Record} = require('relay-runtime');
       const id = memoRefetchVariables?.id;
       if (
         fragmentRefPathInResponse.length !== 1 ||
@@ -541,7 +541,7 @@ if (__DEV__) {
       }
       const recordSource = environment.getStore().getSource();
       const record = recordSource.get(id);
-      const typename = record && RelayModernRecord.getType(record);
+      const typename = record && Record.getType(record);
       if (typename == null) {
         return null;
       }
@@ -557,13 +557,13 @@ if (__DEV__) {
       fragmentNode: ReaderFragment,
       componentDisplayName: string,
     ): void {
-      const RelayModernRecord = require('relay-runtime').Record;
+      const {Record} = require('relay-runtime');
       if (!previousIDAndType) {
         return;
       }
       const recordSource = environment.getStore().getSource();
       const record = recordSource.get(previousIDAndType.id);
-      const typename = record && RelayModernRecord.getType(record);
+      const typename = record && Record.getType(record);
       if (typename !== previousIDAndType.typename) {
         warning(
           false,

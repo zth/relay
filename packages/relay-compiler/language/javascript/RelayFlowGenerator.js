@@ -20,6 +20,7 @@ const RelayRefetchableFragmentTransform = require('../../transforms/RelayRefetch
 const RelayRelayDirectiveTransform = require('../../transforms/RelayRelayDirectiveTransform');
 
 const {isAbstractType} = require('../../core/GraphQLSchemaUtils');
+const {createUserError} = require('../../core/RelayCompilerError');
 const {
   anyTypeAlias,
   declareExportOpaqueType,
@@ -60,6 +61,7 @@ export type State = {|
   +generatedInputObjectTypes: {
     [name: string]: GraphQLInputObjectType | 'pending',
   },
+  hasConnectionResolver: boolean,
   +usedEnums: {[name: string]: GraphQLEnumType},
   +usedFragments: Set<string>,
   +matchFields: Map<string, mixed>,
@@ -277,6 +279,7 @@ function createVisitor(options: TypeGeneratorOptions) {
     existingFragmentNames: options.existingFragmentNames,
     generatedFragments: new Set(),
     generatedInputObjectTypes: {},
+    hasConnectionResolver: false,
     optionalInputFields: options.optionalInputFields,
     usedEnums: {},
     usedFragments: new Set(),
@@ -327,10 +330,15 @@ function createVisitor(options: TypeGeneratorOptions) {
           state,
           node.metadata,
         );
+        let importedTypes: ?Array<string>;
+        if (state.hasConnectionResolver) {
+          importedTypes = ['ConnectionReference'];
+        }
         const babelNodes = [
           ...(refetchableFragmentName
             ? generateFragmentRefsForRefetchable(refetchableFragmentName)
             : getFragmentImports(state)),
+          ...(importedTypes ? importTypes(importedTypes, 'relay-runtime') : []),
           ...getEnumDefinitions(state),
           ...inputObjectTypes,
           inputVariablesType,
@@ -416,11 +424,14 @@ function createVisitor(options: TypeGeneratorOptions) {
           ? readOnlyArrayOfType(baseType)
           : baseType;
         const importedTypes = ['FragmentReference'];
+        if (state.hasConnectionResolver) {
+          importedTypes.push('ConnectionReference');
+        }
 
         return t.program([
           ...getFragmentImports(state),
           ...getEnumDefinitions(state),
-          importTypes(importedTypes, 'relay-runtime'),
+          importTypes(importedTypes.sort(), 'relay-runtime'),
           ...fragmentTypes,
           exportType(node.name, type),
           exportType(dataTypeName, dataType),
@@ -451,7 +462,10 @@ function createVisitor(options: TypeGeneratorOptions) {
       ScalarField(node) {
         return visitScalarField(node, state);
       },
-      ConnectionField: visitConnectionField,
+      Connection(node) {
+        return visitConnection(node, state);
+      },
+      ConnectionField: visitLinkedField,
       LinkedField: visitLinkedField,
       ModuleImport(node) {
         return [
@@ -506,22 +520,49 @@ function visitScalarField(node, state) {
   ];
 }
 
-function visitConnectionField(node) {
+function visitConnection(node, state) {
+  state.hasConnectionResolver = true;
+  /* $FlowFixMe: selections have already been transformed */
+  const babel = selectionsToBabel(node.selections, state, false, null);
+  if (
+    babel == null ||
+    typeof babel !== 'object' ||
+    babel.type !== 'ObjectTypeAnnotation' ||
+    !Array.isArray(babel.properties)
+  ) {
+    throw createUserError(
+      'Cannot generate flow types for connection field, expected an edges ' +
+        'selection.',
+      [node.loc],
+    );
+  }
+  const edgesProperty: $FlowFixMe = babel.properties.find(prop => {
+    return (
+      prop != null &&
+      typeof prop === 'object' &&
+      prop.type === 'ObjectTypeProperty' &&
+      prop.key != null &&
+      typeof prop.key === 'object' &&
+      prop.key.name === 'edges'
+    );
+  });
+  const edgeTypeParams =
+    edgesProperty?.value?.typeAnnotation?.typeParameters?.params;
+  const edgeType = Array.isArray(edgeTypeParams) ? edgeTypeParams[0] : null;
+  if (edgeType == null) {
+    throw createUserError(
+      'Cannot generate flow types for connection field, expected an edges ' +
+        'selection.',
+      [node.loc],
+    );
+  }
   return [
     {
-      key: node.alias,
-      schemaName: node.name,
-      nodeType: node.type,
-      nodeSelections: selectionsToMap(
-        flattenArray(
-          // $FlowFixMe
-          node.selections,
-        ),
-        /*
-         * append concreteType to key so overlapping fields with different
-         * concreteTypes don't get overwritten by each other
-         */
-        true,
+      key: '__connection',
+      conditional: true,
+      value: t.genericTypeAnnotation(
+        t.identifier('ConnectionReference'),
+        t.typeParameterInstantiation([edgeType]),
       ),
     },
   ];
@@ -674,7 +715,10 @@ function createRawResponseTypeVisitor(state: State) {
       ScalarField(node) {
         return visitScalarField(node, state);
       },
-      ConnectionField: visitConnectionField,
+      Connection(node) {
+        return visitConnection(node, state);
+      },
+      ConnectionField: visitLinkedField,
       LinkedField: visitLinkedField,
       ClientExtension(node) {
         return flattenArray(
