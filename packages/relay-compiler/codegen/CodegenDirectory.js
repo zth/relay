@@ -16,7 +16,6 @@ const crypto = require('crypto');
 const invariant = require('invariant');
 const path = require('path');
 
-import type {KeepFileInGeneratedFolder} from './RelayFileWriter';
 import type {SourceControl} from './SourceControl';
 
 type Changes = {|
@@ -280,9 +279,7 @@ class CodegenDirectory {
    * Deletes all non-generated files, except for invisible "dot" files (ie.
    * files with names starting with ".").
    */
-  deleteExtraFiles(
-    keepFileInGeneratedFolder?: KeepFileInGeneratedFolder,
-  ): void {
+  deleteExtraFiles(): void {
     Profiler.run('CodegenDirectory.deleteExtraFiles', () => {
       if (this._shards > 1) {
         this._filesystem.readdirSync(this._dir).forEach(firstLevel => {
@@ -301,11 +298,7 @@ class CodegenDirectory {
             if (this._files.has(actualFile)) {
               return;
             }
-            if (
-              !this.onlyValidate ||
-              !keepFileInGeneratedFolder ||
-              !keepFileInGeneratedFolder(actualFile)
-            ) {
+            if (!this.onlyValidate) {
               try {
                 this._filesystem.unlinkSync(
                   path.join(firstLevelPath, actualFile),

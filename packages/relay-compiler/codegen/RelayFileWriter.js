@@ -53,8 +53,6 @@ export type GenerateExtraFiles = (
 
 export type ValidationRule = (context: ValidationContext) => any;
 
-export type KeepFileInGeneratedFolder = (fileName: string) => boolean;
-
 export type WriterConfig = {
   baseDir: string,
   compilerTransforms: RelayCompilerTransforms,
@@ -175,7 +173,6 @@ function compileAll({
 function writeAll({
   config: writerConfig,
   onlyValidate,
-  keepFileInGeneratedFolder,
   baseDocuments,
   documents,
   schema: baseSchema,
@@ -183,7 +180,6 @@ function writeAll({
   sourceControl,
   languagePlugin,
 }: {|
-  keepFileInGeneratedFolder?: KeepFileInGeneratedFolder,
   config: WriterConfig,
   onlyValidate: boolean,
   baseDocuments: ImmutableMap<string, DocumentNode>,
@@ -388,7 +384,7 @@ function writeAll({
       }
 
       allOutputDirectories.forEach(dir => {
-        dir.deleteExtraFiles(keepFileInGeneratedFolder);
+        dir.deleteExtraFiles();
       });
       if (sourceControl && !onlyValidate) {
         await CodegenDirectory.sourceControlAddRemove(
