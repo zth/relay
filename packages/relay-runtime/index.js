@@ -35,7 +35,6 @@ const RelayOperationTracker = require('./store/RelayOperationTracker');
 const RelayProfiler = require('./util/RelayProfiler');
 const RelayQueryResponseCache = require('./network/RelayQueryResponseCache');
 const RelayRecordSource = require('./store/RelayRecordSource');
-const RelayModernRecord = require('./store/RelayModernRecord');
 const RelayStoreUtils = require('./store/RelayStoreUtils');
 const ViewerPattern = require('./store/ViewerPattern');
 
