@@ -21,7 +21,6 @@ import type {
   NormalizationSplitOperation,
   ReaderFragment,
 } from 'relay-runtime';
-import type {PluginInterface} from '../language/RelayLanguagePluginInterface';
 
 /**
  * @public
@@ -29,22 +28,10 @@ import type {PluginInterface} from '../language/RelayLanguagePluginInterface';
  * Converts a GraphQLIR node into a plain JS object representation that can be
  * used at runtime.
  */
-declare function generate(
-  node: Fragment,
-  languagePlugin: PluginInterface,
-): ReaderFragment;
-declare function generate(
-  node: Request,
-  languagePlugin: PluginInterface,
-): ConcreteRequest;
-declare function generate(
-  node: SplitOperation,
-  languagePlugin: PluginInterface,
-): NormalizationSplitOperation;
-function generate(
-  node: Fragment | Request | SplitOperation,
-  languagePlugin: PluginInterface,
-): any {
+declare function generate(node: Fragment): ReaderFragment;
+declare function generate(node: Request): ConcreteRequest;
+declare function generate(node: SplitOperation): NormalizationSplitOperation;
+function generate(node: Fragment | Request | SplitOperation): any {
   switch (node.kind) {
     case 'Fragment':
       if (node.metadata?.inlineData === true) {
@@ -53,11 +40,11 @@ function generate(
           name: node.name,
         };
       }
-      return ReaderCodeGenerator.generate(node, languagePlugin);
+      return ReaderCodeGenerator.generate(node);
     case 'Request':
       return {
         kind: 'Request',
-        fragment: ReaderCodeGenerator.generate(node.fragment, languagePlugin),
+        fragment: ReaderCodeGenerator.generate(node.fragment),
         operation: NormalizationCodeGenerator.generate(node.root),
         params: {
           operationKind: node.root.operation,

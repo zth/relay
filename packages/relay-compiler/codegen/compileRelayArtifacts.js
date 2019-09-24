@@ -20,7 +20,6 @@ import type CompilerContext from '../core/GraphQLCompilerContext';
 import type {IRTransform} from '../core/GraphQLCompilerContext';
 import type {IRValidation} from '../core/GraphQLCompilerContext';
 import type {GeneratedDefinition} from '../core/GraphQLIR';
-import type {PluginInterface} from '../language/RelayLanguagePluginInterface';
 import type {GraphQLReporter as Reporter} from '../reporters/GraphQLReporter';
 import type {GeneratedNode} from 'relay-runtime';
 
@@ -98,7 +97,6 @@ function compile(
   fragmentContext: CompilerContext,
   printContext: CompilerContext,
   codeGenContext: CompilerContext,
-  languagePlugin: PluginInterface,
 ): $ReadOnlyArray<[GeneratedDefinition, GeneratedNode]> {
   const results = [];
 
@@ -126,19 +124,16 @@ function compile(
         root: node,
         text: printOperation(printContext, fragment.name),
       };
-      results.push([
-        request,
-        RelayCodeGenerator.generate(request, languagePlugin),
-      ]);
+      results.push([request, RelayCodeGenerator.generate(request)]);
     } else {
-      results.push([node, RelayCodeGenerator.generate(node, languagePlugin)]);
+      results.push([node, RelayCodeGenerator.generate(node)]);
     }
   }
 
   // Add all the Fragments from the fragmentContext for the reader ASTs.
   for (const node of fragmentContext.documents()) {
     if (node.kind === 'Fragment') {
-      results.push([node, RelayCodeGenerator.generate(node, languagePlugin)]);
+      results.push([node, RelayCodeGenerator.generate(node)]);
     }
   }
   return results;
@@ -168,19 +163,12 @@ function printOperation(printContext: CompilerContext, name: string): string {
  * `commonTransforms` appears in each artifacts' application, it will not result
  * in repeated work as long as the order remains consistent across each context.
  */
-function compileRelayArtifacts({
-  context,
-  transforms,
-  reporter,
-  validations,
-  languagePlugin,
-}: {|
+function compileRelayArtifacts(
   context: CompilerContext,
   transforms: RelayCompilerTransforms,
   reporter?: Reporter,
   validations?: RelayCompilerValidations,
-  languagePlugin: PluginInterface,
-|}): $ReadOnlyArray<[GeneratedDefinition, GeneratedNode]> {
+): $ReadOnlyArray<[GeneratedDefinition, GeneratedNode]> {
   return Profiler.run('GraphQLCompiler.compile', () => {
     const fragmentContext = createFragmentContext(
       context,
@@ -199,13 +187,7 @@ function compileRelayArtifacts({
       reporter,
       validations,
     );
-    return compile(
-      context,
-      fragmentContext,
-      printContext,
-      codeGenContext,
-      languagePlugin,
-    );
+    return compile(context, fragmentContext, printContext, codeGenContext);
   });
 }
 

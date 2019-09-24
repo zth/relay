@@ -155,12 +155,11 @@ function compileAll({
     ],
     reporter,
   );
-  const artifacts = compileRelayArtifacts({
-    context: compilerContext,
-    transforms: compilerTransforms,
+  const artifacts = compileRelayArtifacts(
+    compilerContext,
+    compilerTransforms,
     reporter,
-    languagePlugin,
-  });
+  );
 
   return {
     artifacts,

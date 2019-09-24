@@ -43,7 +43,6 @@ import type {
   ReaderScalarField,
   ReaderSelection,
 } from 'relay-runtime';
-import type {PluginInterface} from '../language/RelayLanguagePluginInterface';
 const {getRawType, isAbstractType, getNullableType} = SchemaUtils;
 
 /**
@@ -52,10 +51,7 @@ const {getRawType, isAbstractType, getNullableType} = SchemaUtils;
  * Converts a GraphQLIR node into a plain JS object representation that can be
  * used at runtime.
  */
-function generate(
-  node: Fragment,
-  languagePlugin: PluginInterface,
-): ReaderFragment {
+function generate(node: Fragment): ReaderFragment {
   if (node == null) {
     return node;
   }
@@ -77,16 +73,11 @@ function generate(
     }
     if (typeof refetch === 'object') {
       metadata = metadata ?? {};
-      const refetch = metadata.refetch ?? {};
-      const {connection} = metadata;
-      const operation = refetch.operation || '';
       metadata.refetch = {
-        connection,
-        operation: CodeMarker.moduleDependency(
-          languagePlugin.getRefetchOperationModuleImportPath
-            ? languagePlugin.getRefetchOperationModuleImportPath(operation)
-            : operation + '.graphql',
-        ),
+        // $FlowFixMe
+        connection: refetch.connection,
+        // $FlowFixMe
+        operation: CodeMarker.moduleDependency(refetch.operation + '.graphql'),
         // $FlowFixMe
         fragmentPathInResult: refetch.fragmentPathInResult,
       };

@@ -48,12 +48,12 @@ describe('compileRelayArtifacts', () => {
       const compilerContext = new CompilerContext(TestSchema, schema).addAll(
         definitions,
       );
-      return compileRelayArtifacts({
-        context: compilerContext,
-        transforms: RelayIRTransforms,
-        validations: RelayIRValidations,
-        languagePlugin: getLanguagePlugin(),
-      })
+      return compileRelayArtifacts(
+        compilerContext,
+        RelayIRTransforms,
+        undefined,
+        RelayIRValidations,
+      )
         .map(([_definition, node]) => {
           if (node.kind === 'Request') {
             const {
