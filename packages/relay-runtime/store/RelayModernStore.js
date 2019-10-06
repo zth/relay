@@ -63,7 +63,7 @@ type ConnectionEvents = {|
   optimistic: ?Array<ConnectionInternalEvent>,
 |};
 type ConnectionSubscription<TEdge, TState> = {|
-  +callback: (state: TState) => void,
+  +callback: (snapshot: ConnectionSnapshot<TEdge, TState>) => void,
   +id: string,
   +resolver: ConnectionResolver<TEdge, TState>,
   snapshot: ConnectionSnapshot<TEdge, TState>,
@@ -191,7 +191,7 @@ class RelayModernStore implements Store {
     this._connectionSubscriptions.forEach((subscription, id) => {
       if (subscription.stale) {
         subscription.stale = false;
-        subscription.callback(subscription.snapshot.state);
+        subscription.callback(subscription.snapshot);
       }
     });
     this._updatedConnectionIDs = {};
@@ -330,7 +330,7 @@ class RelayModernStore implements Store {
   subscribeConnection_UNSTABLE<TEdge, TState>(
     snapshot: ConnectionSnapshot<TEdge, TState>,
     resolver: ConnectionResolver<TEdge, TState>,
-    callback: TState => void,
+    callback: (ConnectionSnapshot<TEdge, TState>) => void,
   ): Disposable {
     invariant(
       RelayFeatureFlags.ENABLE_CONNECTION_RESOLVERS,
@@ -512,6 +512,7 @@ class RelayModernStore implements Store {
             args: event.args,
             edges,
             pageInfo: event.pageInfo,
+            stream: event.stream,
           });
         } else if (event.kind === 'insert') {
           const edgeSnapshot = RelayReader.read(
@@ -530,6 +531,31 @@ class RelayModernStore implements Store {
             args: event.args,
             edge: itemData,
             kind: 'insert',
+          });
+        } else if (event.kind === 'stream.edge') {
+          const edgeSnapshot = RelayReader.read(
+            this.getSource(),
+            createReaderSelector(
+              fragment,
+              event.edgeID,
+              variables,
+              event.request,
+            ),
+          );
+          Object.assign(seenRecords, edgeSnapshot.seenRecords);
+          const itemData = ((edgeSnapshot.data: $FlowFixMe): ?TEdge);
+          edgeSnapshots[event.edgeID] = edgeSnapshot;
+          return resolver.reduce(prevState, {
+            args: event.args,
+            edge: itemData,
+            index: event.index,
+            kind: 'stream.edge',
+          });
+        } else if (event.kind === 'stream.pageInfo') {
+          return resolver.reduce(prevState, {
+            args: event.args,
+            kind: 'stream.pageInfo',
+            pageInfo: event.pageInfo,
           });
         } else {
           (event.kind: empty);

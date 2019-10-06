@@ -131,7 +131,7 @@ declare export opaque type FeedbackComments_feedback$fragmentType: FeedbackComme
 export type FeedbackComments_feedback = {|
   +comments: ?{|
     +count: ?number,
-    +__connection?: ConnectionReference<?{|
+    +__connection?: ConnectionReference<{|
       +node: ?{|
         +id: string,
         +__id: string,
@@ -1974,6 +1974,69 @@ export type RefetchableFragmentQueryResponse = {|
 export type RefetchableFragmentQuery = {|
   variables: RefetchableFragmentQueryVariables,
   response: RefetchableFragmentQueryResponse,
+|};
+`;
+
+exports[`Snapshot tests for useHaste matches expected output: relay-client-id-field.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query RelayClientIDFieldQuery($id: ID!) {
+  __id # ok on query type
+  me {
+    __id # ok on object type with 'id'
+    __typename
+    id
+  }
+  node(id: $id) {
+    __id # ok on interface type
+    __typename
+    id
+    ... on Comment {
+      commentBody(supported: ["PlainCommentBody"]) {
+        __id # ok on union type
+        __typename
+        ... on PlainCommentBody {
+          __id # ok on object type w/o 'id'
+          text {
+            __id # ok on object type w/o 'id'
+            __typename
+            text
+          }
+        }
+      }
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// RelayClientIDFieldQuery.graphql
+export type RelayClientIDFieldQueryVariables = {|
+  id: string
+|};
+export type RelayClientIDFieldQueryResponse = {|
+  +__id: string,
+  +me: ?{|
+    +__id: string,
+    +__typename: string,
+    +id: string,
+  |},
+  +node: ?{|
+    +__id: string,
+    +__typename: string,
+    +id: string,
+    +commentBody?: ?{|
+      +__id: string,
+      +__typename: string,
+      +text?: ?{|
+        +__id: string,
+        +__typename: string,
+        +text: ?string,
+      |},
+    |},
+  |},
+|};
+export type RelayClientIDFieldQuery = {|
+  variables: RelayClientIDFieldQueryVariables,
+  response: RelayClientIDFieldQueryResponse,
 |};
 `;
 

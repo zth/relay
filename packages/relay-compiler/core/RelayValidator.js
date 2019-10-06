@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict
  * @format
  */
 
@@ -16,35 +16,31 @@ const util = require('util');
 
 const {
   FragmentsOnCompositeTypesRule,
-  KnownArgumentNamesRule,
-  KnownTypeNamesRule,
   LoneAnonymousOperationRule,
   NoUnusedVariablesRule,
   PossibleFragmentSpreadsRule,
   UniqueArgumentNamesRule,
   UniqueFragmentNamesRule,
   UniqueInputFieldNamesRule,
-  UniqueOperationNamesRule,
   UniqueVariableNamesRule,
-  ValuesOfCorrectTypeRule,
   VariablesAreInputTypesRule,
   formatError,
-  validate,
 } = require('graphql');
 
+import type {Schema} from './Schema';
 import type {
   DocumentNode,
   FieldNode,
-  GraphQLSchema,
+  ValidationRule,
   ValidationContext,
 } from 'graphql';
 
 function validateOrThrow(
+  schema: Schema,
   document: DocumentNode,
-  schema: GraphQLSchema,
-  rules: $ReadOnlyArray<Function>,
+  rules: $ReadOnlyArray<ValidationRule>,
 ): void {
-  const validationErrors = validate(schema, document, rules);
+  const validationErrors = schema.DEPRECATED__validate(document, rules);
   if (validationErrors && validationErrors.length > 0) {
     const formattedErrors = validationErrors.map(formatError);
     const errorMessages = validationErrors.map(e => e.toString());
@@ -55,7 +51,7 @@ function validateOrThrow(
         errorMessages.join('\n'),
       ),
     );
-    (error: any).validationErrors = formattedErrors;
+    (error: $FlowFixMe).validationErrors = formattedErrors;
     throw error;
   }
 }
@@ -82,7 +78,6 @@ function DisallowIdAsAliasValidationRule(
 
 module.exports = {
   GLOBAL_RULES: [
-    KnownArgumentNamesRule,
     /* Some rules are not enabled (potentially non-exhaustive)
      *
      * - KnownFragmentNamesRule: RelayClassic generates fragments at runtime,
@@ -101,7 +96,6 @@ module.exports = {
     UniqueArgumentNamesRule,
     UniqueFragmentNamesRule,
     UniqueInputFieldNamesRule,
-    UniqueOperationNamesRule,
     UniqueVariableNamesRule,
   ],
   LOCAL_RULES: [
@@ -119,18 +113,16 @@ module.exports = {
      *   variables.
      */
     FragmentsOnCompositeTypesRule,
-    KnownTypeNamesRule,
     LoneAnonymousOperationRule,
     PossibleFragmentSpreadsRule,
-    ValuesOfCorrectTypeRule,
     VariablesAreInputTypesRule,
 
     // Relay-specific validation
     DisallowIdAsAliasValidationRule,
   ],
   validate: (Profiler.instrument(validateOrThrow, 'RelayValidator.validate'): (
+    schema: Schema,
     document: DocumentNode,
-    schema: GraphQLSchema,
-    rules: $ReadOnlyArray<any>,
+    rules: $ReadOnlyArray<ValidationRule>,
   ) => void),
 };

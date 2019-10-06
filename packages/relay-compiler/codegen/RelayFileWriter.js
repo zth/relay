@@ -11,13 +11,12 @@
 'use strict';
 
 const ASTConvert = require('../core/ASTConvert');
+const CodegenDirectory = require('./CodegenDirectory');
 const CompilerContext = require('../core/GraphQLCompilerContext');
 const Profiler = require('../core/GraphQLCompilerProfiler');
 const RelayParser = require('../core/RelayParser');
 const RelayValidator = require('../core/RelayValidator');
-const SchemaUtils = require('../core/GraphQLSchemaUtils');
 
-const CodegenDirectory = require('./CodegenDirectory');
 const compileRelayArtifacts = require('./compileRelayArtifacts');
 const crypto = require('crypto');
 const graphql = require('graphql');
@@ -29,9 +28,10 @@ const writeRelayGeneratedFile = require('./writeRelayGeneratedFile');
 const {
   getReaderSourceDefinitionName,
 } = require('../core/GraphQLDerivedFromMetadata');
+const {isExecutableDefinitionAST} = require('../core/SchemaUtils');
 const {Map: ImmutableMap} = require('immutable');
 
-import type {DocumentNode, GraphQLSchema, ValidationContext} from 'graphql';
+import type {Schema} from '../core/Schema';
 import type {
   FormatModule,
   PluginInterface,
@@ -42,8 +42,7 @@ import type {GraphQLReporter as Reporter} from '../reporters/GraphQLReporter';
 import type {Filesystem} from './CodegenDirectory';
 import type {SourceControl} from './SourceControl';
 import type {RelayCompilerTransforms} from './compileRelayArtifacts';
-
-const {isExecutableDefinitionAST} = SchemaUtils;
+import type {DocumentNode, ValidationContext} from 'graphql';
 
 export type GenerateExtraFiles = (
   getOutputDirectory: (path?: string) => CodegenDirectory,
@@ -84,18 +83,17 @@ export type WriterConfig = {
 function compileAll({
   baseDir,
   baseDocuments,
-  baseSchema,
+  schema,
   compilerTransforms,
   documents,
   extraValidationRules,
   reporter,
-  schemaExtensions,
   typeGenerator,
   languagePlugin,
 }: {|
   baseDir: string,
   baseDocuments: $ReadOnlyArray<DocumentNode>,
-  baseSchema: GraphQLSchema,
+  schema: Schema,
   compilerTransforms: RelayCompilerTransforms,
   documents: $ReadOnlyArray<DocumentNode>,
   extraValidationRules?: {
@@ -103,20 +101,9 @@ function compileAll({
     LOCAL_RULES?: $ReadOnlyArray<ValidationRule>,
   },
   reporter: Reporter,
-  schemaExtensions: $ReadOnlyArray<string>,
   typeGenerator: TypeGenerator,
   languagePlugin: PluginInterface,
 |}) {
-  // Can't convert to IR unless the schema already has Relay-local extensions
-  const transformedSchema = ASTConvert.transformASTSchema(
-    baseSchema,
-    schemaExtensions,
-  );
-  const extendedSchema = ASTConvert.extendASTSchema(transformedSchema, [
-    ...baseDocuments,
-    ...documents,
-  ]);
-
   // Verify using local and global rules, can run global verifications here
   // because all files are processed together
   let validationRules = [
@@ -132,17 +119,13 @@ function compileAll({
   }
 
   const definitions = ASTConvert.convertASTDocumentsWithBase(
-    extendedSchema,
+    schema,
     baseDocuments,
     documents,
     validationRules,
     RelayParser.transform,
   );
-
-  const compilerContext = new CompilerContext(
-    baseSchema,
-    extendedSchema,
-  ).addAll(definitions);
+  const compilerContext = new CompilerContext(schema).addAll(definitions);
 
   const transformedTypeContext = compilerContext.applyTransforms(
     typeGenerator.transforms,
@@ -174,7 +157,7 @@ function writeAll({
   onlyValidate,
   baseDocuments,
   documents,
-  schema: baseSchema,
+  schema,
   reporter,
   sourceControl,
   languagePlugin,
@@ -183,7 +166,7 @@ function writeAll({
   onlyValidate: boolean,
   baseDocuments: ImmutableMap<string, DocumentNode>,
   documents: ImmutableMap<string, DocumentNode>,
-  schema: GraphQLSchema,
+  schema: Schema,
   reporter: Reporter,
   sourceControl: ?SourceControl,
   languagePlugin: PluginInterface,
@@ -195,14 +178,13 @@ function writeAll({
       transformedTypeContext,
       transformedQueryContext,
     } = compileAll({
+      schema,
       baseDir: writerConfig.baseDir,
       baseDocuments: baseDocuments.valueSeq().toArray(),
-      baseSchema,
       compilerTransforms: writerConfig.compilerTransforms,
       documents: documents.valueSeq().toArray(),
       extraValidationRules: writerConfig.validationRules,
       reporter,
-      schemaExtensions: writerConfig.schemaExtensions,
       typeGenerator: writerConfig.typeGenerator,
       languagePlugin,
     });
@@ -342,6 +324,7 @@ function writeAll({
           );
 
           await writeRelayGeneratedFile(
+            schema,
             getGeneratedDirectory(nodeName),
             definition,
             node,

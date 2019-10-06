@@ -11,39 +11,19 @@
 'use strict';
 
 const GraphQLIRVisitor = require('../core/GraphQLIRVisitor');
-const GraphQLSchemaUtils = require('../core/GraphQLSchemaUtils');
+const SchemaUtils = require('../core/SchemaUtils');
 
 const getLiteralArgumentValues = require('../core/getLiteralArgumentValues');
 const inferRootArgumentDefinitions = require('../core/inferRootArgumentDefinitions');
-const isEquivalentType = require('../core/isEquivalentType');
-const nullthrows = require('nullthrows');
 
 const {
   createCombinedError,
-  createCompilerError,
   createUserError,
   eachWithErrors,
 } = require('../core/RelayCompilerError');
-const {
-  assertAbstractType,
-  assertCompositeType,
-  getNullableType,
-  GraphQLID,
-  GraphQLInterfaceType,
-  GraphQLList,
-  GraphQLNonNull,
-  GraphQLObjectType,
-  GraphQLSchema,
-} = require('graphql');
+const {generateIDField} = require('../core/SchemaUtils');
 
 import type GraphQLCompilerContext from '../core/GraphQLCompilerContext';
-import type {GraphQLCompositeType} from 'graphql';
-const {
-  isAbstractType,
-  implementsInterface,
-  generateIDField,
-} = GraphQLSchemaUtils;
-
 import type {
   Argument,
   ArgumentDefinition,
@@ -53,6 +33,7 @@ import type {
   LocalArgumentDefinition,
   Root,
 } from '../core/GraphQLIR';
+import type {Schema} from '../core/Schema';
 import type {ReaderPaginationMetadata} from 'relay-runtime';
 
 type RefetchRoot = {|
@@ -91,11 +72,10 @@ const SCHEMA_EXTENSION = `
 function relayRefetchableFragmentTransform(
   context: GraphQLCompilerContext,
 ): GraphQLCompilerContext {
-  const schema = context.serverSchema;
-  const queryType = schema.getQueryType();
-  if (queryType == null) {
-    throw createUserError('Expected the schema to define a query type.');
-  }
+  const schema = context.getSchema();
+  // This will throw (if Query is not available in the schema)
+  const queryType = schema.expectQueryType();
+
   const refetchOperations = buildRefetchMap(context);
   let nextContext = context;
   const errors = eachWithErrors(
@@ -106,34 +86,49 @@ function relayRefetchableFragmentTransform(
       // functions provide detailed validation as well as case-specific
       // error messages.
       let refetchDescriptor;
-      if (isEquivalentType(fragment.type, queryType)) {
+      if (schema.areEqualTypes(fragment.type, queryType)) {
         refetchDescriptor = buildRefetchOperationOnQueryType(
+          context,
           schema,
           fragment,
           refetchName,
         );
-      } else if (String(fragment.type) === VIEWER_TYPE_NAME) {
+      } else if (schema.getTypeString(fragment.type) === VIEWER_TYPE_NAME) {
         // Validate that the schema conforms to the informal Viewer spec
         // and build the refetch query accordingly.
         refetchDescriptor = buildRefetchOperationOnViewerType(
+          context,
           schema,
           fragment,
           refetchName,
         );
       } else if (
-        String(fragment.type) === NODE_TYPE_NAME ||
-        (fragment.type instanceof GraphQLObjectType &&
-          fragment.type
-            .getInterfaces()
-            .some(interfaceType => String(interfaceType) === NODE_TYPE_NAME)) ||
-        (isAbstractType(fragment.type) &&
-          getImplementations(fragment.type, schema).every(possibleType =>
-            implementsInterface(possibleType, NODE_TYPE_NAME),
+        schema.getTypeString(fragment.type) === NODE_TYPE_NAME ||
+        (schema.isObject(fragment.type) &&
+          schema
+            .getInterfaces(schema.assertCompositeType(fragment.type))
+            .some(interfaceType =>
+              schema.areEqualTypes(
+                interfaceType,
+                schema.expectTypeFromString(NODE_TYPE_NAME),
+              ),
+            )) ||
+        (schema.isAbstractType(fragment.type) &&
+          Array.from(
+            schema.getPossibleTypes(schema.assertAbstractType(fragment.type)),
+          ).every(possibleType =>
+            schema.implementsInterface(
+              schema.assertCompositeType(possibleType),
+              schema.assertInterfaceType(
+                schema.expectTypeFromString(NODE_TYPE_NAME),
+              ),
+            ),
           ))
       ) {
         // Validate that the schema conforms to the Object Identity (Node) spec
         // and build the refetch query accordingly.
         refetchDescriptor = buildRefetchOperationOnNodeType(
+          context,
           schema,
           fragment,
           refetchName,
@@ -149,6 +144,7 @@ function relayRefetchableFragmentTransform(
       if (refetchDescriptor != null) {
         const {path, node, transformedFragment} = refetchDescriptor;
         const connectionMetadata = extractConnectionMetadata(
+          context.getSchema(),
           transformedFragment,
         );
         nextContext = nextContext.replace({
@@ -177,14 +173,6 @@ function relayRefetchableFragmentTransform(
     throw createCombinedError(errors, 'RelayRefetchableFragmentTransform');
   }
   return nextContext;
-}
-
-function getImplementations(
-  type: GraphQLCompositeType,
-  schema: GraphQLSchema,
-): $ReadOnlyArray<GraphQLObjectType> {
-  const abstractType = assertAbstractType(assertCompositeType(type));
-  return schema.getPossibleTypes(abstractType);
 }
 
 /**
@@ -237,23 +225,42 @@ function buildRefetchMap(
  * if there is no connection.
  */
 function extractConnectionMetadata(
+  schema: Schema,
   fragment: Fragment,
 ): ReaderPaginationMetadata | void {
   const fields = [];
   let connectionField = null;
   let path = null;
   GraphQLIRVisitor.visit(fragment, {
+    ConnectionField: {
+      enter(field) {
+        fields.push(field);
+        // Disallow connections within plurals
+        const pluralOnPath = fields.find(pathField =>
+          schema.isList(schema.getNullableType(pathField.type)),
+        );
+        if (pluralOnPath) {
+          throw createUserError(
+            `Invalid use of @refetchable with @connection in fragment '${
+              fragment.name
+            }', refetchable connections cannot appear inside plural fields.`,
+            [field.loc, pluralOnPath.loc],
+          );
+        }
+        connectionField = field;
+        path = fields.map(pathField => pathField.alias);
+      },
+      leave() {
+        fields.pop();
+      },
+    },
     LinkedField: {
       enter(field) {
         fields.push(field);
         if (
+          field.connection === true ||
           (field.handles &&
-            field.handles.some(handle => handle.name === 'connection')) ||
-          field.directives.some(
-            directive =>
-              directive.name === 'connection' ||
-              directive.name === 'stream_connection',
-          )
+            field.handles.some(handle => handle.name === 'connection'))
         ) {
           // Disallow multiple @connections
           if (connectionField != null) {
@@ -265,8 +272,8 @@ function extractConnectionMetadata(
             );
           }
           // Disallow connections within plurals
-          const pluralOnPath = fields.find(
-            pathField => getNullableType(pathField.type) instanceof GraphQLList,
+          const pluralOnPath = fields.find(pathField =>
+            schema.isList(schema.getNullableType(pathField.type)),
           );
           if (pluralOnPath) {
             throw createUserError(
@@ -395,11 +402,12 @@ function buildFragmentSpread(fragment: Fragment): FragmentSpread {
 }
 
 function buildRefetchOperationOnQueryType(
-  schema: GraphQLSchema,
+  context: GraphQLCompilerContext,
+  schema: Schema,
   fragment: Fragment,
   queryName: string,
 ): RefetchRoot {
-  const queryType = nullthrows(schema.getQueryType());
+  const queryType = schema.expectQueryType();
   return {
     path: [],
     node: {
@@ -420,22 +428,25 @@ function buildRefetchOperationOnQueryType(
 }
 
 function buildRefetchOperationOnViewerType(
-  schema: GraphQLSchema,
+  context: GraphQLCompilerContext,
+  schema: Schema,
   fragment: Fragment,
   queryName: string,
 ): RefetchRoot {
   // Handle fragments on viewer
-  const queryType = nullthrows(schema.getQueryType());
-  const viewerType = schema.getType(VIEWER_TYPE_NAME);
-  const viewerField = queryType.getFields()[VIEWER_FIELD_NAME];
+  const queryType = schema.expectQueryType();
+  const viewerType = schema.getTypeFromString(VIEWER_TYPE_NAME);
+  const viewerField = schema.getFieldConfig(
+    schema.expectField(queryType, VIEWER_FIELD_NAME),
+  );
   if (
     !(
-      viewerType instanceof GraphQLObjectType &&
-      viewerField != null &&
-      viewerField.type instanceof GraphQLObjectType &&
-      isEquivalentType(viewerField.type, viewerType) &&
+      viewerType &&
+      schema.isObject(viewerType) &&
+      schema.isObject(viewerField.type) &&
+      schema.areEqualTypes(viewerField.type, viewerType) &&
       viewerField.args.length === 0 &&
-      isEquivalentType(fragment.type, viewerType)
+      schema.areEqualTypes(fragment.type, viewerType)
     )
   ) {
     throw createUserError(
@@ -461,6 +472,7 @@ function buildRefetchOperationOnViewerType(
         {
           alias: VIEWER_FIELD_NAME,
           args: [],
+          connection: false,
           directives: [],
           handles: null,
           kind: 'LinkedField',
@@ -468,7 +480,7 @@ function buildRefetchOperationOnViewerType(
           metadata: null,
           name: VIEWER_FIELD_NAME,
           selections: [buildFragmentSpread(fragment)],
-          type: viewerType,
+          type: schema.assertLinkedFieldType(viewerType),
         },
       ],
       type: queryType,
@@ -478,31 +490,43 @@ function buildRefetchOperationOnViewerType(
 }
 
 function buildRefetchOperationOnNodeType(
-  schema: GraphQLSchema,
+  context: GraphQLCompilerContext,
+  schema: Schema,
   fragment: Fragment,
   queryName: string,
 ): RefetchRoot {
-  const queryType = nullthrows(schema.getQueryType());
-  const nodeType = schema.getType(NODE_TYPE_NAME);
-  const nodeField = queryType.getFields()[NODE_FIELD_NAME];
+  const queryType = schema.expectQueryType();
+  const nodeType = schema.getTypeFromString(NODE_TYPE_NAME);
+  const nodeField = schema.getFieldConfig(
+    schema.expectField(queryType, NODE_FIELD_NAME),
+  );
   if (
     !(
-      nodeType instanceof GraphQLInterfaceType &&
-      nodeField != null &&
-      nodeField.type instanceof GraphQLInterfaceType &&
-      isEquivalentType(nodeField.type, nodeType) &&
+      nodeType &&
+      schema.isInterface(nodeType) &&
+      schema.isInterface(nodeField.type) &&
+      schema.areEqualTypes(nodeField.type, nodeType) &&
       nodeField.args.length === 1 &&
-      isEquivalentType(getNullableType(nodeField.args[0].type), GraphQLID) &&
+      schema.areEqualTypes(
+        schema.getNullableType(nodeField.args[0].type),
+        schema.expectIdType(),
+      ) &&
       // the fragment must be on Node or on a type that implements Node
-      ((fragment.type instanceof GraphQLObjectType &&
-        fragment.type
-          .getInterfaces()
-          .some(interfaceType => isEquivalentType(interfaceType, nodeType))) ||
-        (isAbstractType(fragment.type) &&
-          getImplementations(fragment.type, schema).every(possibleType =>
-            possibleType
-              .getInterfaces()
-              .some(interfaceType => isEquivalentType(interfaceType, nodeType)),
+      ((schema.isObject(fragment.type) &&
+        schema
+          .getInterfaces(schema.assertCompositeType(fragment.type))
+          .some(interfaceType =>
+            schema.areEqualTypes(interfaceType, nodeType),
+          )) ||
+        (schema.isAbstractType(fragment.type) &&
+          Array.from(
+            schema.getPossibleTypes(schema.assertAbstractType(fragment.type)),
+          ).every(possibleType =>
+            schema
+              .getInterfaces(schema.assertCompositeType(possibleType))
+              .some(interfaceType =>
+                schema.areEqualTypes(interfaceType, nodeType),
+              ),
           )))
     )
   ) {
@@ -519,7 +543,7 @@ function buildRefetchOperationOnNodeType(
   const idArgName = nodeField.args[0].name;
   const idArgType = nodeField.args[0].type;
   // name and type of the query variable
-  const idVariableType = new GraphQLNonNull(GraphQLID);
+  const idVariableType = SchemaUtils.getNonNullIdInput(schema);
   const idVariableName = 'id';
 
   const argumentDefinitions = buildOperationArgumentDefinitions(
@@ -563,7 +587,7 @@ function buildRefetchOperationOnNodeType(
               kind: 'Argument',
               loc: {kind: 'Derived', source: fragment.loc},
               name: idArgName,
-              type: idArgType,
+              type: schema.assertInputType(idArgType),
               value: {
                 kind: 'Variable',
                 loc: {kind: 'Derived', source: fragment.loc},
@@ -572,6 +596,7 @@ function buildRefetchOperationOnNodeType(
               },
             },
           ],
+          connection: false,
           directives: [],
           handles: null,
           kind: 'LinkedField',
@@ -579,29 +604,35 @@ function buildRefetchOperationOnNodeType(
           metadata: null,
           name: NODE_FIELD_NAME,
           selections: [buildFragmentSpread(fragment)],
-          type: nodeType,
+          type: schema.assertLinkedFieldType(nodeType),
         },
       ],
       type: queryType,
     },
-    transformedFragment: enforceIDField(fragment),
+    transformedFragment: enforceIDField(context.getSchema(), fragment),
   };
 }
 
-function enforceIDField(fragment: Fragment): Fragment {
+function enforceIDField(schema: Schema, fragment: Fragment): Fragment {
   const idSelection = fragment.selections.find(
     selection =>
       selection.kind === 'ScalarField' &&
       selection.name === 'id' &&
       selection.alias === 'id' &&
-      isEquivalentType(getNullableType(selection.type), GraphQLID),
+      schema.areEqualTypes(
+        schema.getNullableType(selection.type),
+        schema.expectIdType(),
+      ),
   );
   if (idSelection) {
     return fragment;
   }
   return {
     ...fragment,
-    selections: [...fragment.selections, generateIDField(GraphQLID)],
+    selections: [
+      ...fragment.selections,
+      generateIDField(schema.expectIdType()),
+    ],
   };
 }
 

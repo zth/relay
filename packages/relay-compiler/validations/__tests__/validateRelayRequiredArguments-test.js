@@ -4,6 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
+ * @flow strict-local
  * @format
  * @emails oncall+relay
  */
@@ -12,6 +13,7 @@
 
 const GraphQLCompilerContext = require('../../core/GraphQLCompilerContext');
 const RelayIRTransforms = require('../../core/RelayIRTransforms');
+const Schema = require('../../core/Schema');
 
 const validateRelayRequiredArguments = require('../validateRelayRequiredArguments');
 
@@ -30,8 +32,10 @@ describe('validateRelayRequiredArguments-test', () => {
   generateTestsFromFixtures(
     `${__dirname}/fixtures/required-arguments`,
     text => {
-      const {definitions, schema} = parseGraphQLText(relaySchema, text);
-      const codegenContext = new GraphQLCompilerContext(TestSchema, schema)
+      const {definitions} = parseGraphQLText(relaySchema, text);
+      const codegenContext = new GraphQLCompilerContext(
+        Schema.DEPRECATED__create(TestSchema, relaySchema),
+      )
         .addAll(definitions)
         .applyTransforms([
           ...RelayIRTransforms.commonTransforms,

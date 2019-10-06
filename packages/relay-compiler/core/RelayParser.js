@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow
+ * @flow strict-local
  * @format
  */
 
@@ -12,41 +12,19 @@
 
 const Profiler = require('./GraphQLCompilerProfiler');
 
+const orList = require('../util/orList');
 const partitionArray = require('../util/partitionArray');
 
 const {DEFAULT_HANDLE_KEY} = require('../util/DefaultHandleKey');
-const {
-  getNullableType,
-  isExecutableDefinitionAST,
-} = require('./GraphQLSchemaUtils');
 const {
   createCombinedError,
   createCompilerError,
   createUserError,
   eachWithErrors,
 } = require('./RelayCompilerError');
+const {isExecutableDefinitionAST} = require('./SchemaUtils');
 const {getFieldDefinitionLegacy} = require('./getFieldDefinition');
-const {
-  assertCompositeType,
-  assertInputType,
-  assertOutputType,
-  extendSchema,
-  getNamedType,
-  GraphQLEnumType,
-  GraphQLID,
-  GraphQLInputObjectType,
-  GraphQLList,
-  GraphQLNonNull,
-  GraphQLScalarType,
-  isLeafType,
-  isType,
-  typeFromAST,
-  isTypeSubTypeOf,
-  parse: parseGraphQL,
-  parseType,
-  print,
-  Source,
-} = require('graphql');
+const {parse: parseGraphQL, parseType, Source} = require('graphql');
 
 import type {
   Argument,
@@ -61,10 +39,16 @@ import type {
   LocalArgumentDefinition,
   Location,
   Root,
-  ScalarFieldType,
   Selection,
   Variable,
 } from './GraphQLIR';
+import type {
+  Schema,
+  TypeID,
+  FieldID,
+  InputTypeID,
+  FieldArgument,
+} from './Schema';
 import type {GetFieldDefinitionFn} from './getFieldDefinition';
 import type {
   ASTNode,
@@ -78,11 +62,6 @@ import type {
   FloatValueNode,
   FragmentDefinitionNode,
   FragmentSpreadNode,
-  GraphQLArgument,
-  GraphQLInputType,
-  GraphQLOutputType,
-  GraphQLSchema,
-  GraphQLType,
   InlineFragmentNode,
   IntValueNode,
   ListValueNode,
@@ -91,7 +70,6 @@ import type {
   OperationDefinitionNode,
   SelectionSetNode,
   StringValueNode,
-  TypeNode,
   ValueNode,
   VariableNode,
 } from 'graphql';
@@ -111,8 +89,13 @@ type VariableDefinition = {|
   ast: ASTNode,
   name: string,
   defaultValue: mixed,
-  type: GraphQLInputType,
+  type: InputTypeID,
   defined: boolean,
+|};
+
+type UnknownVariable = {|
+  ast: VariableNode,
+  type: ?TypeID,
 |};
 
 const ARGUMENT_DEFINITIONS = 'argumentDefinitions';
@@ -144,14 +127,17 @@ const IF = 'if';
  * intermediate representation (IR).
  */
 function parse(
-  schema: GraphQLSchema,
+  schema: Schema,
   text: string,
   filename?: string,
 ): $ReadOnlyArray<Root | Fragment> {
   const ast = parseGraphQL(new Source(text, filename));
+
   // TODO T24511737 figure out if this is dangerous
-  schema = extendSchema(schema, ast, {assumeValid: true});
-  const parser = new RelayParser(schema, ast.definitions);
+  const parser = new RelayParser(
+    schema.DEPRECATED__extend(ast),
+    ast.definitions,
+  );
   return parser.transform();
 }
 
@@ -160,7 +146,7 @@ function parse(
  * internal, strongly-typed intermediate representation (IR).
  */
 function transform(
-  schema: GraphQLSchema,
+  schema: Schema,
   definitions: $ReadOnlyArray<DefinitionNode>,
 ): $ReadOnlyArray<Root | Fragment> {
   return Profiler.run('RelayParser.transform', () => {
@@ -170,30 +156,14 @@ function transform(
 }
 
 /**
- * Helper for calling `typeFromAST()` with a clear warning when the type does
- * not exist. This enables the pattern `assertXXXType(getTypeFromAST(...))`,
- * emitting distinct errors for unknown types vs types of the wrong category.
- */
-function getTypeFromAST(schema: GraphQLSchema, ast: TypeNode): GraphQLType {
-  const type = typeFromAST(schema, ast);
-  if (!isType(type)) {
-    throw createUserError(`Unknown type: '${print(ast)}'.`, null, [ast]);
-  }
-  return (type: $FlowFixMe);
-}
-
-/**
  * @private
  */
 class RelayParser {
   _definitions: Map<string, ASTDefinitionNode>;
   _getFieldDefinition: GetFieldDefinitionFn;
-  _schema: GraphQLSchema;
+  +_schema: Schema;
 
-  constructor(
-    schema: GraphQLSchema,
-    definitions: $ReadOnlyArray<DefinitionNode>,
-  ) {
+  constructor(schema: Schema, definitions: $ReadOnlyArray<DefinitionNode>) {
     this._definitions = new Map();
     // leaving this configurable to make it easy to experiment w changing later
     this._getFieldDefinition = getFieldDefinitionLegacy;
@@ -211,7 +181,7 @@ class RelayParser {
       }
     });
     if (duplicated.size) {
-      throw new Error(
+      throw createUserError(
         'RelayParser: Encountered duplicate definitions for one or more ' +
           'documents: each document must have a unique name. Duplicated documents:\n' +
           Array.from(duplicated, name => `- ${name}`).join('\n'),
@@ -354,10 +324,28 @@ class RelayParser {
       }
 
       const typeAST = parseType(typeString);
-      const type = assertInputType(getTypeFromAST(this._schema, typeAST));
+      const argType = this._schema.expectTypeFromAST(
+        typeAST,
+        `Unknown type "${typeString}" referenced in the argument definitions.`,
+        null,
+        [arg],
+      );
+      if (!this._schema.isInputType(argType)) {
+        throw createUserError(
+          `Expected type "${this._schema.getTypeString(
+            argType,
+          )}" to be an input type in the "${
+            arg.name.value
+          }" argument definitions.`,
+          null,
+          [arg.value],
+        );
+      }
+      const type = this._schema.assertInputType(argType);
       const defaultValue =
         defaultValueNode != null
           ? transformValue(
+              this._schema,
               defaultValueNode,
               type,
               variableAst => {
@@ -394,10 +382,22 @@ class RelayParser {
   _buildOperationArgumentDefinitions(
     operation: OperationDefinitionNode,
   ): VariableDefinitions {
+    const schema = this._schema;
     const variableDefinitions = new Map();
     (operation.variableDefinitions || []).forEach(def => {
       const name = getName(def.variable);
-      const type = assertInputType(getTypeFromAST(this._schema, def.type));
+      const defType = schema.expectTypeFromAST(def.type);
+      if (!schema.isInputType(defType)) {
+        throw createUserError(
+          `Expected type "${schema.getTypeString(
+            defType,
+          )}" to be an input type.`,
+          null,
+          [def.type],
+        );
+      }
+
+      const type = schema.assertInputType(defType);
       const defaultValue = def.defaultValue
         ? transformLiteralValue(def.defaultValue, def)
         : null;
@@ -425,7 +425,7 @@ class RelayParser {
  * @private
  */
 function parseDefinition(
-  schema: GraphQLSchema,
+  schema: Schema,
   getFieldDefinition: GetFieldDefinitionFn,
   entries: Map<
     string,
@@ -457,13 +457,13 @@ class GraphQLDefinitionParser {
     |},
   >;
   _getFieldDefinition: GetFieldDefinitionFn;
-  _schema: GraphQLSchema;
+  _schema: Schema;
   _variableDefinitions: VariableDefinitions;
-  _unknownVariables: Map<string, {ast: VariableNode, type: ?GraphQLInputType}>;
+  _unknownVariables: Map<string, UnknownVariable>;
   _directiveLocations: ?Map<string, $ReadOnlyArray<DirectiveLocationEnum>>;
 
   constructor(
-    schema: GraphQLSchema,
+    schema: Schema,
     getFieldDefinition: GetFieldDefinitionFn,
     entries: Map<
       string,
@@ -502,7 +502,7 @@ class GraphQLDefinitionParser {
   _recordAndVerifyVariableReference(
     variable: VariableNode,
     name: string,
-    usedAsType: ?GraphQLInputType,
+    usedAsType: ?TypeID,
   ): void {
     // Special case for variables used in @arguments where we currently
     // aren't guaranteed to be able to resolve the type.
@@ -525,9 +525,12 @@ class GraphQLDefinitionParser {
       if (variableDefinition.defaultValue != null) {
         // If a default value is defined then it is guaranteed to be used
         // at runtime such that the effective type of the variable is non-null
-        effectiveType = new GraphQLNonNull(getNullableType(effectiveType));
+        effectiveType = this._schema.getNonNullType(
+          this._schema.getNullableType(effectiveType),
+        );
       }
-      if (!isTypeSubTypeOf(this._schema, effectiveType, usedAsType)) {
+
+      if (!this._schema.isTypeSubTypeOf(effectiveType, usedAsType)) {
         throw createUserError(
           `Variable '\$${name}' was defined as type '${String(
             variableDefinition.type,
@@ -548,11 +551,11 @@ class GraphQLDefinitionParser {
           type: usedAsType,
         });
       } else {
-        const {type: previousType, ast: previousVariable} = previous;
+        const {ast: previousVariable, type: previousType} = previous;
         if (
           !(
-            isTypeSubTypeOf(this._schema, usedAsType, previousType) ||
-            isTypeSubTypeOf(this._schema, previousType, usedAsType)
+            this._schema.isTypeSubTypeOf(usedAsType, previousType) ||
+            this._schema.isTypeSubTypeOf(previousType, usedAsType)
           )
         ) {
           throw createUserError(
@@ -566,7 +569,7 @@ class GraphQLDefinitionParser {
 
         // If the new used type has stronger requirements, use that type as reference,
         // otherwise keep referencing the previous type
-        if (isTypeSubTypeOf(this._schema, usedAsType, previousType)) {
+        if (this._schema.isTypeSubTypeOf(usedAsType, previousType)) {
           this._unknownVariables.set(name, {
             ast: variable,
             type: usedAsType,
@@ -627,9 +630,17 @@ class GraphQLDefinitionParser {
       ),
       'FRAGMENT_DEFINITION',
     );
-    const type = assertCompositeType(
-      getTypeFromAST(this._schema, fragment.typeCondition),
+    const type = this._schema.assertCompositeType(
+      this._schema.expectTypeFromAST(
+        fragment.typeCondition,
+        `Unknown type '${
+          fragment.typeCondition.name.value
+        }' on the fragment definition '${fragment.name.value}'.`,
+        null,
+        [fragment.typeCondition],
+      ),
     );
+
     const selections = this._transformSelections(fragment.selectionSet, type);
     const argumentDefinitions = [
       ...buildArgumentDefinitions(this._variableDefinitions),
@@ -639,7 +650,6 @@ class GraphQLDefinitionParser {
         kind: 'RootArgumentDefinition',
         loc: buildLocation(variableReference.ast.loc),
         name,
-        // $FlowFixMe - could be null
         type: variableReference.type,
       });
     }
@@ -651,6 +661,7 @@ class GraphQLDefinitionParser {
       name: getName(fragment),
       selections,
       type,
+      // $FlowFixMe - could be null
       argumentDefinitions,
     };
   }
@@ -681,20 +692,21 @@ class GraphQLDefinitionParser {
       definition.directives || [],
       this._getLocationFromOperation(definition),
     );
-    let type;
+    let type: TypeID;
     let operation;
+    const schema = this._schema;
     switch (definition.operation) {
       case 'query':
         operation = 'query';
-        type = assertCompositeType(this._schema.getQueryType());
+        type = schema.expectQueryType(null, null, [definition]);
         break;
       case 'mutation':
         operation = 'mutation';
-        type = assertCompositeType(this._schema.getMutationType());
+        type = schema.expectMutationType(null, null, [definition]);
         break;
       case 'subscription':
         operation = 'subscription';
-        type = assertCompositeType(this._schema.getSubscriptionType());
+        type = schema.expectSubscriptionType(null, null, [definition]);
         break;
       default:
         (definition.operation: empty);
@@ -738,7 +750,7 @@ class GraphQLDefinitionParser {
 
   _transformSelections(
     selectionSet: SelectionSetNode,
-    parentType: GraphQLOutputType,
+    parentType: TypeID,
   ): $ReadOnlyArray<Selection> {
     return selectionSet.selections.map(selection => {
       let node;
@@ -773,11 +785,12 @@ class GraphQLDefinitionParser {
 
   _transformInlineFragment(
     fragment: InlineFragmentNode,
-    parentType: GraphQLOutputType,
+    parentType: TypeID,
   ): InlineFragment {
-    const typeCondition = assertCompositeType(
-      fragment.typeCondition
-        ? getTypeFromAST(this._schema, fragment.typeCondition)
+    const schema = this._schema;
+    const typeCondition = schema.assertCompositeType(
+      fragment.typeCondition != null
+        ? schema.expectTypeFromAST(fragment.typeCondition)
         : parentType,
     );
     const directives = this._transformDirectives(
@@ -800,7 +813,7 @@ class GraphQLDefinitionParser {
 
   _transformFragmentSpread(
     fragmentSpread: FragmentSpreadNode,
-    parentType: GraphQLOutputType,
+    parentType: TypeID,
   ): FragmentSpread {
     const fragmentName = getName(fragmentSpread);
     const [argumentDirectives, otherDirectives] = partitionArray(
@@ -898,32 +911,34 @@ class GraphQLDefinitionParser {
     };
   }
 
-  _transformField(field: FieldNode, parentType: GraphQLOutputType): Field {
+  _transformField(field: FieldNode, parentType: TypeID): Field {
+    const schema = this._schema;
     const name = getName(field);
-    const fieldDef = this._getFieldDefinition(
-      this._schema,
-      parentType,
-      name,
-      field,
-    );
-
+    const fieldDef = this._getFieldDefinition(schema, parentType, name, field);
     if (fieldDef == null) {
       throw createUserError(
-        `Unknown field '${name}' on type '${String(parentType)}'.`,
+        `Unknown field '${name}' on type '${schema.getTypeString(
+          parentType,
+        )}'.`,
         null,
         [field],
       );
     }
     const alias = field.alias?.value ?? name;
-    const args = this._transformArguments(field.arguments || [], fieldDef.args);
+    const args = this._transformArguments(
+      field.arguments || [],
+      schema.getFieldArgs(fieldDef),
+      fieldDef,
+    );
     const [otherDirectives, clientFieldDirectives] = partitionArray(
       field.directives || [],
       directive => getName(directive) !== CLIENT_FIELD,
     );
     const directives = this._transformDirectives(otherDirectives, 'FIELD');
-    const type = assertOutputType(fieldDef.type);
+    const type = schema.assertOutputType(schema.getFieldType(fieldDef));
+
     const handles = this._transformHandle(name, args, clientFieldDirectives);
-    if (isLeafType(getNamedType(type))) {
+    if (schema.isLeafType(schema.getRawType(type))) {
       if (
         field.selectionSet &&
         field.selectionSet.selections &&
@@ -944,7 +959,7 @@ class GraphQLDefinitionParser {
         loc: buildLocation(field.loc),
         metadata: null,
         name,
-        type: assertScalarFieldType(type),
+        type: schema.assertScalarFieldType(type),
       };
     } else {
       const selections = field.selectionSet
@@ -952,7 +967,7 @@ class GraphQLDefinitionParser {
         : null;
       if (selections == null || selections.length === 0) {
         throw createUserError(
-          `Expected at least one selection for non-scalar field '${name}' on type '${String(
+          `Expected at least one selection for non-scalar field '${name}' on type '${schema.getTypeString(
             type,
           )}'.`,
           null,
@@ -963,13 +978,14 @@ class GraphQLDefinitionParser {
         kind: 'LinkedField',
         alias,
         args,
+        connection: false,
         directives,
         handles,
         loc: buildLocation(field.loc),
         metadata: null,
         name,
         selections,
-        type,
+        type: schema.assertLinkedFieldType(type),
       };
     }
   }
@@ -1077,7 +1093,15 @@ class GraphQLDefinitionParser {
       }
       const args = this._transformArguments(
         directive.arguments || [],
-        directiveDef.args,
+        directiveDef.args.map(item => {
+          return {
+            name: item.name,
+            type: item.type,
+            defaultValue: item.defaultValue,
+          };
+        }),
+        null,
+        name,
       );
       return {
         kind: 'Directive',
@@ -1090,14 +1114,28 @@ class GraphQLDefinitionParser {
 
   _transformArguments(
     args: $ReadOnlyArray<ArgumentNode>,
-    argumentDefinitions: $ReadOnlyArray<GraphQLArgument>,
+    argumentDefinitions: $ReadOnlyArray<FieldArgument>,
+    field?: ?FieldID,
+    directiveName?: ?string,
   ): $ReadOnlyArray<Argument> {
     return args.map(arg => {
       const argName = getName(arg);
       const argDef = argumentDefinitions.find(def => def.name === argName);
       if (argDef == null) {
-        throw createUserError(`Unknown argument '${argName}'.`, null, [arg]);
+        const message =
+          `Unknown argument '${argName}'` +
+          (field
+            ? ` on field '${this._schema.getFieldName(field)}'` +
+              ` of type '${this._schema.getTypeString(
+                this._schema.getFieldParentType(field),
+              )}'.`
+            : directiveName != null
+            ? ` on directive '@${directiveName}'.`
+            : '.');
+
+        throw createUserError(message, null, [arg]);
       }
+
       const value = this._transformValue(arg.value, argDef.type);
       return {
         kind: 'Argument',
@@ -1160,10 +1198,7 @@ class GraphQLDefinitionParser {
     return [sortedConditions, otherDirectives];
   }
 
-  _transformVariable(
-    ast: VariableNode,
-    usedAsType: ?GraphQLInputType,
-  ): Variable {
+  _transformVariable(ast: VariableNode, usedAsType: ?InputTypeID): Variable {
     const variableName = getName(ast);
     this._recordAndVerifyVariableReference(ast, variableName, usedAsType);
     return {
@@ -1174,9 +1209,13 @@ class GraphQLDefinitionParser {
     };
   }
 
-  _transformValue(ast: ValueNode, type: GraphQLInputType): ArgumentValue {
-    return transformValue(ast, type, (variableAst, variableType) =>
-      this._transformVariable(variableAst, variableType),
+  _transformValue(ast: ValueNode, type: InputTypeID): ArgumentValue {
+    return transformValue(
+      this._schema,
+      ast,
+      type,
+      (variableAst, variableType) =>
+        this._transformVariable(variableAst, variableType),
     );
   }
 }
@@ -1186,11 +1225,12 @@ class GraphQLDefinitionParser {
  * type.
  */
 function transformValue(
+  schema: Schema,
   ast: ValueNode,
-  type: GraphQLInputType,
+  type: InputTypeID,
   transformVariable: (
     variableAst: VariableNode,
-    variableType: GraphQLInputType,
+    variableType: InputTypeID,
   ) => ArgumentValue,
   options: {|+nonStrictEnums: boolean|} = {nonStrictEnums: false},
 ): ArgumentValue {
@@ -1199,7 +1239,7 @@ function transformValue(
     return transformVariable(ast, type);
   } else if (ast.kind === 'NullValue') {
     // Special case null literals since there is no value to parse
-    if (type instanceof GraphQLNonNull) {
+    if (schema.isNonNull(type)) {
       throw createUserError(
         `Expected a value matching type '${String(type)}'.`,
         null,
@@ -1212,7 +1252,13 @@ function transformValue(
       value: null,
     };
   } else {
-    return transformNonNullLiteral(ast, type, transformVariable, options);
+    return transformNonNullLiteral(
+      schema,
+      ast,
+      type,
+      transformVariable,
+      options,
+    );
   }
 }
 
@@ -1221,11 +1267,12 @@ function transformValue(
  * according to the expected type.
  */
 function transformNonNullLiteral(
+  schema: Schema,
   ast: NonNullLiteralValueNode,
-  type: GraphQLInputType,
+  type: InputTypeID,
   transformVariable: (
     variableAst: VariableNode,
-    variableType: GraphQLInputType,
+    variableType: InputTypeID,
   ) => ArgumentValue,
   options: {|+nonStrictEnums: boolean|},
 ): ArgumentValue {
@@ -1234,24 +1281,37 @@ function transformNonNullLiteral(
   // since that accurately describes to the user what the expected
   // type is (using nullableType would suggest that `null` is legal
   // even when it may not be, for example).
-  const nullableType = getNullableType(type);
-  if (nullableType instanceof GraphQLList) {
+  const nullableType = schema.getNullableType(type);
+  if (schema.isList(nullableType)) {
     if (ast.kind !== 'ListValue') {
       // Parse singular (non-list) values flowing into a list type
       // as scalars, ie without wrapping them in an array.
+      if (!schema.isInputType(schema.getListItemType(nullableType))) {
+        throw new createUserError(
+          `Expected type ${schema.getTypeString(
+            nullableType,
+          )} to be an input type.`,
+          null,
+          [ast],
+        );
+      }
       return transformValue(
+        schema,
         ast,
-        nullableType.ofType,
+        schema.assertInputType(schema.getListItemType(nullableType)),
         transformVariable,
         options,
       );
     }
-    const itemType = assertInputType(nullableType.ofType);
+    const itemType = schema.assertInputType(
+      schema.getListItemType(nullableType),
+    );
     const literalList = [];
     const items = [];
     let areAllItemsScalar = true;
     ast.values.forEach(item => {
       const itemValue = transformValue(
+        schema,
         item,
         itemType,
         transformVariable,
@@ -1276,11 +1336,10 @@ function transformNonNullLiteral(
         items,
       };
     }
-  } else if (nullableType instanceof GraphQLInputObjectType) {
-    const objectType = nullableType;
+  } else if (schema.isInputObject(nullableType)) {
     if (ast.kind !== 'ObjectValue') {
       throw createUserError(
-        `Expected a value matching type '${String(type)}'.`,
+        `Expected a value matching type '${schema.getTypeString(type)}'.`,
         null,
         [ast],
       );
@@ -1288,18 +1347,23 @@ function transformNonNullLiteral(
     const literalObject = {};
     const fields = [];
     let areAllFieldsScalar = true;
+    const inputType = schema.assertInputObjectType(nullableType);
     ast.fields.forEach(field => {
       const fieldName = getName(field);
-      const fieldConfig = objectType.getFields()[fieldName];
-      if (fieldConfig == null) {
+      const fieldID = schema.getFieldByName(inputType, fieldName);
+      if (!fieldID) {
         throw createUserError(
-          `Uknown field '${fieldName}' on type '${String(type)}'.`,
+          `Unknown field '${fieldName}' on type '${schema.getTypeString(
+            inputType,
+          )}'.`,
           null,
           [field],
         );
       }
-      const fieldType = assertInputType(fieldConfig.type);
+      const fieldConfig = schema.getFieldConfig(fieldID);
+      const fieldType = schema.assertInputType(fieldConfig.type);
       const fieldValue = transformValue(
+        schema,
         field.value,
         fieldType,
         transformVariable,
@@ -1329,7 +1393,7 @@ function transformNonNullLiteral(
         fields,
       };
     }
-  } else if (nullableType === GraphQLID) {
+  } else if (schema.isId(nullableType)) {
     // GraphQLID's parseLiteral() always returns the string value. However
     // the int/string distinction may be important at runtime, so this
     // transform parses int/string literals into the corresponding JS types.
@@ -1347,19 +1411,22 @@ function transformNonNullLiteral(
       };
     } else {
       throw createUserError(
-        `Invalid value, expected a value matching type '${String(type)}'.`,
+        `Invalid value, expected a value matching type '${schema.getTypeString(
+          type,
+        )}'.`,
         null,
         [ast],
       );
     }
-  } else if (nullableType instanceof GraphQLEnumType) {
-    const value = nullableType.parseLiteral(ast);
+  } else if (schema.isEnum(nullableType)) {
+    const enumType = schema.assertEnumType(nullableType);
+    const value = schema.parseLiteral(enumType, ast);
     if (value == null) {
       if (options.nonStrictEnums) {
         if (ast.kind === 'StringValue' || ast.kind === 'EnumValue') {
           const alternateValue =
-            nullableType.parseValue(ast.value.toUpperCase()) ??
-            nullableType.parseValue(ast.value.toLowerCase());
+            schema.parseValue(enumType, ast.value.toUpperCase()) ??
+            schema.parseValue(enumType, ast.value.toLowerCase());
           if (alternateValue != null) {
             // Use the original raw value
             return {
@@ -1370,10 +1437,14 @@ function transformNonNullLiteral(
           }
         }
       }
+      const suggestions = schema.getEnumValues(enumType);
+
       // parseLiteral() should return a non-null JavaScript value
       // if the ast value is valid for the type.
       throw createUserError(
-        `Expected a value matching type '${String(type)}'.`,
+        `Expected a value matching type '${schema.getTypeString(
+          type,
+        )}'. Possible values: ${orList(suggestions)}?'`,
         null,
         [ast],
       );
@@ -1383,13 +1454,16 @@ function transformNonNullLiteral(
       loc: buildLocation(ast.loc),
       value,
     };
-  } else if (nullableType instanceof GraphQLScalarType) {
-    const value = nullableType.parseLiteral(ast);
+  } else if (schema.isScalar(nullableType)) {
+    const value = schema.parseLiteral(
+      schema.assertScalarType(nullableType),
+      ast,
+    );
     if (value == null) {
       // parseLiteral() should return a non-null JavaScript value
       // if the ast value is valid for the type.
       throw createUserError(
-        `Expected a value matching type '${String(type)}'.`,
+        `Expected a value matching type '${schema.getTypeString(type)}'.`,
         null,
         [ast],
       );
@@ -1400,9 +1474,8 @@ function transformNonNullLiteral(
       value,
     };
   } else {
-    (nullableType: empty);
     throw createCompilerError(
-      `Unsupported type '${String(
+      `Unsupported type '${schema.getTypeString(
         type,
       )}' for input value, expected a GraphQLList, ` +
         'GraphQLInputObjectType, GraphQLEnumType, or GraphQLScalarType.',
@@ -1460,7 +1533,7 @@ function transformLiteralValue(ast: ValueNode, context: ASTNode): mixed {
 function buildArgumentDefinitions(
   variables: VariableDefinitions,
 ): $ReadOnlyArray<LocalArgumentDefinition> {
-  return Array.from(variables.values(), ({ast, name, type, defaultValue}) => {
+  return Array.from(variables.values(), ({ast, name, defaultValue, type}) => {
     return {
       kind: 'LocalArgumentDefinition',
       loc: buildLocation(ast.loc),
@@ -1484,29 +1557,6 @@ function buildLocation(loc: ?ASTLocation): Location {
     end: loc.end,
     source: loc.source,
   };
-}
-
-/**
- * @private
- */
-function isScalarFieldType(type: GraphQLOutputType): boolean {
-  const namedType = getNamedType(type);
-  return (
-    namedType instanceof GraphQLScalarType ||
-    namedType instanceof GraphQLEnumType
-  );
-}
-
-/**
- * @private
- */
-function assertScalarFieldType(type: GraphQLOutputType): ScalarFieldType {
-  if (!isScalarFieldType(type)) {
-    throw createUserError(
-      `Expected a scalar field type, got type '${String(type)}'.`,
-    );
-  }
-  return (type: any);
 }
 
 /**

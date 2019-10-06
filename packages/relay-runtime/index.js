@@ -22,14 +22,12 @@ const RelayDefaultMissingFieldHandlers = require('./handlers/RelayDefaultMissing
 const RelayError = require('./util/RelayError');
 const RelayFeatureFlags = require('./util/RelayFeatureFlags');
 const RelayModernEnvironment = require('./store/RelayModernEnvironment');
-const RelayModernFragmentOwner = require('./store/RelayModernFragmentOwner');
 const RelayModernGraphQLTag = require('./query/RelayModernGraphQLTag');
 const RelayModernOperationDescriptor = require('./store/RelayModernOperationDescriptor');
 const RelayModernRecord = require('./store/RelayModernRecord');
 const RelayModernSelector = require('./store/RelayModernSelector');
 const RelayModernStore = require('./store/RelayModernStore');
 const RelayNetwork = require('./network/RelayNetwork');
-const RelayNetworkLoggerTransaction = require('./network/RelayNetworkLoggerTransaction');
 const RelayObservable = require('./network/RelayObservable');
 const RelayOperationTracker = require('./store/RelayOperationTracker');
 const RelayProfiler = require('./util/RelayProfiler');
@@ -43,7 +41,6 @@ const commitLocalUpdate = require('./mutations/commitLocalUpdate');
 const commitMutation = require('./mutations/commitMutation');
 const createFragmentSpecResolver = require('./store/createFragmentSpecResolver');
 const createRelayContext = require('./store/createRelayContext');
-const createRelayNetworkLogger = require('./network/createRelayNetworkLogger');
 const deepFreeze = require('./util/deepFreeze');
 const fetchQuery = require('./query/fetchQuery');
 const fetchQueryInternal = require('./query/fetchQueryInternal');
@@ -82,15 +79,11 @@ export type {
   MutationParameters,
 } from './mutations/commitMutation';
 export type {
-  RelayNetworkLog,
-  LoggerTransactionConfig,
-} from './network/RelayNetworkLoggerTransaction';
-export type {
   ExecuteFunction,
   FetchFunction,
   GraphQLResponse,
   LogRequestInfoFunction,
-  Network as INetwork,
+  INetwork,
   PayloadData,
   PayloadError,
   SubscribeFunction,
@@ -103,10 +96,6 @@ export type {
   Subscribable,
   Subscription,
 } from './network/RelayObservable';
-export type {
-  GraphiQLPrinter,
-  NetworkLogger,
-} from './network/createRelayNetworkLogger';
 export type {GraphQLTaggedNode} from './query/RelayModernGraphQLTag';
 export type {
   ConnectionEvent,
@@ -120,16 +109,14 @@ export type {ConnectionState} from './store/RelayConnectionResolver';
 export type {TaskScheduler} from './store/RelayModernQueryExecutor';
 export type {RecordState} from './store/RelayRecordState';
 export type {
-  Environment as IEnvironment,
   FragmentMap,
   FragmentPointer,
   FragmentReference,
   FragmentSpecResolver,
   HandleFieldPayload,
+  IEnvironment,
   LogEvent,
   LogFunction,
-  Logger,
-  LoggerProvider,
   MissingFieldHandler,
   ModuleImportPointer,
   NormalizationSelector,
@@ -243,8 +230,6 @@ module.exports = {
   getDataIDsFromFragment: RelayModernSelector.getDataIDsFromFragment,
   getDataIDsFromObject: RelayModernSelector.getDataIDsFromObject,
   getFragment: RelayModernGraphQLTag.getFragment,
-  getFragmentOwner: RelayModernFragmentOwner.getFragmentOwner,
-  getFragmentOwners: RelayModernFragmentOwner.getFragmentOwners,
   getInlineDataFragment: RelayModernGraphQLTag.getInlineDataFragment,
   getModuleComponentKey: RelayStoreUtils.getModuleComponentKey,
   getModuleOperationKey: RelayStoreUtils.getModuleOperationKey,
@@ -295,7 +280,6 @@ module.exports = {
   RelayConcreteNode: RelayConcreteNode,
   RelayError: RelayError,
   RelayFeatureFlags: RelayFeatureFlags,
-  RelayNetworkLoggerTransaction: RelayNetworkLoggerTransaction,
   DEFAULT_HANDLE_KEY: RelayDefaultHandleKey.DEFAULT_HANDLE_KEY,
   FRAGMENTS_KEY: RelayStoreUtils.FRAGMENTS_KEY,
   FRAGMENT_OWNER_KEY: RelayStoreUtils.FRAGMENT_OWNER_KEY,
@@ -306,7 +290,6 @@ module.exports = {
   ROOT_TYPE: RelayStoreUtils.ROOT_TYPE,
   TYPENAME_KEY: RelayStoreUtils.TYPENAME_KEY,
 
-  createRelayNetworkLogger: createRelayNetworkLogger,
   deepFreeze: deepFreeze,
   generateClientID: generateClientID,
   getRelayHandleKey: getRelayHandleKey,

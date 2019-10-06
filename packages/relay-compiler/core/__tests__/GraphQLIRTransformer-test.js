@@ -4,6 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
+ * @flow strict-local
  * @format
  * @emails oncall+relay
  */
@@ -12,6 +13,7 @@
 
 const GraphQLCompilerContext = require('../GraphQLCompilerContext');
 const GraphQLIRTransformer = require('../GraphQLIRTransformer');
+const Schema = require('../Schema');
 
 const {transformASTSchema} = require('../ASTConvert');
 const {TestSchema, parseGraphQLText} = require('relay-test-utils-internal');
@@ -71,7 +73,9 @@ describe('GraphQLIRTransformer', () => {
    }
  `,
     );
-    const context = new GraphQLCompilerContext(TestSchema).addAll(definitions);
+    const context = new GraphQLCompilerContext(
+      Schema.DEPRECATED__create(TestSchema),
+    ).addAll(definitions);
 
     const astKinds = [
       'Argument',
