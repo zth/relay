@@ -86,8 +86,9 @@ function transformGraphQLScalarType(typeName: string, state: State) {
     case 'String':
       return t.stringTypeAnnotation();
     case 'Float':
+      return t.genericTypeAnnotation(t.identifier("float"));
     case 'Int':
-      return t.numberTypeAnnotation();
+      return t.genericTypeAnnotation(t.identifier("int"));
     case 'Boolean':
       return t.booleanTypeAnnotation();
     case 'JSDependency':
