@@ -19,7 +19,8 @@ import type {CacheConfig, Variables} from '../util/RelayRuntimeTypes';
 import type {
   FetchFunction,
   GraphQLResponse,
-  Network,
+  LogRequestInfoFunction,
+  INetwork,
   SubscribeFunction,
   UploadableMap,
 } from './RelayNetworkTypes';
@@ -32,7 +33,7 @@ import type RelayObservable from './RelayObservable';
 function create(
   fetchFn: FetchFunction,
   subscribe?: SubscribeFunction,
-): Network {
+): INetwork {
   // Convert to functions that returns RelayObservable.
   const observeFetch = convertFetch(fetchFn);
 
@@ -41,6 +42,7 @@ function create(
     variables: Variables,
     cacheConfig: CacheConfig,
     uploadables?: ?UploadableMap,
+    logRequestInfo: ?LogRequestInfoFunction,
   ): RelayObservable<GraphQLResponse> {
     if (request.operationKind === 'subscription') {
       invariant(
@@ -65,7 +67,13 @@ function create(
       return observeFetch(request, variables, {force: true}).poll(pollInterval);
     }
 
-    return observeFetch(request, variables, cacheConfig, uploadables);
+    return observeFetch(
+      request,
+      variables,
+      cacheConfig,
+      uploadables,
+      logRequestInfo,
+    );
   }
 
   return {execute};

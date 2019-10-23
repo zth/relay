@@ -14,14 +14,10 @@
 const getPaginationMetadata = require('./getPaginationMetadata');
 const useLoadMoreFunction = require('./useLoadMoreFunction');
 const useRefetchableFragmentNode = require('./useRefetchableFragmentNode');
-const useStaticPropWarning = require('./useStaticPropWarning');
+const useStaticFragmentNodeWarning = require('./useStaticFragmentNodeWarning');
 
 const {useCallback, useState} = require('react');
-const {
-  getFragment,
-  getFragmentIdentifier,
-  getFragmentOwner,
-} = require('relay-runtime');
+const {getFragment, getFragmentIdentifier} = require('relay-runtime');
 
 import type {LoadMoreFn, UseLoadMoreFunctionArgs} from './useLoadMoreFunction';
 import type {RefetchFnDynamic} from './useRefetchableFragmentNode';
@@ -62,12 +58,12 @@ function useLegacyPaginationFragment<
     TKey,
   >,
 > {
-  useStaticPropWarning(
-    fragmentInput,
+  const fragmentNode = getFragment(fragmentInput);
+  useStaticFragmentNodeWarning(
+    fragmentNode,
     'first argument of useLegacyPaginationFragment()',
   );
   const componentDisplayName = 'useLegacyPaginationFragment()';
-  const fragmentNode = getFragment(fragmentInput);
 
   const {
     connectionPathInFragmentData,
@@ -82,9 +78,6 @@ function useLegacyPaginationFragment<
   >(fragmentNode, parentFragmentRef, componentDisplayName);
   const fragmentIdentifier = getFragmentIdentifier(fragmentNode, fragmentRef);
 
-  // $FlowFixMe - TODO T39154660 Use FragmentPointer type instead of mixed
-  const fragmentOwner = getFragmentOwner(fragmentNode, fragmentRef);
-
   // Backward pagination
   const [
     loadPrevious,
@@ -94,8 +87,8 @@ function useLegacyPaginationFragment<
   ] = useLoadMore({
     direction: 'backward',
     fragmentNode,
+    fragmentRef,
     fragmentIdentifier,
-    fragmentOwner,
     fragmentData,
     connectionPathInFragmentData,
     fragmentRefPathInResponse,
@@ -108,8 +101,8 @@ function useLegacyPaginationFragment<
   const [loadNext, hasNext, isLoadingNext, disposeFetchNext] = useLoadMore({
     direction: 'forward',
     fragmentNode,
+    fragmentRef,
     fragmentIdentifier,
-    fragmentOwner,
     fragmentData,
     connectionPathInFragmentData,
     fragmentRefPathInResponse,

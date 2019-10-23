@@ -18,9 +18,10 @@ import type RelayObservable, {ObservableFromValue} from './RelayObservable';
  * An interface for fetching the data for one or more (possibly interdependent)
  * queries.
  */
-export type Network = {|
+export type INetwork = {|
   execute: ExecuteFunction,
 |};
+export type LogRequestInfoFunction = mixed => void;
 
 export type PayloadData = {[key: string]: mixed};
 
@@ -66,6 +67,7 @@ export type ExecuteFunction = (
   variables: Variables,
   cacheConfig: CacheConfig,
   uploadables?: ?UploadableMap,
+  logRequestInfo?: ?LogRequestInfoFunction,
 ) => RelayObservable<GraphQLResponse>;
 
 /**
@@ -79,6 +81,7 @@ export type FetchFunction = (
   variables: Variables,
   cacheConfig: CacheConfig,
   uploadables: ?UploadableMap,
+  logRequestInfo?: ?LogRequestInfoFunction,
 ) => ObservableFromValue<GraphQLResponse>;
 
 /**

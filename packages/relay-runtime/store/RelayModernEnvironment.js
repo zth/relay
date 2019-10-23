@@ -21,24 +21,29 @@ const RelayPublishQueue = require('./RelayPublishQueue');
 const RelayRecordSource = require('./RelayRecordSource');
 
 const defaultGetDataID = require('./defaultGetDataID');
+const generateID = require('../util/generateID');
 const invariant = require('invariant');
-const normalizeRelayPayload = require('./normalizeRelayPayload');
 
 import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
-import type {LoggerTransactionConfig} from '../network/RelayNetworkLoggerTransaction';
 import type {
   GraphQLResponse,
-  Network,
+  INetwork,
+  LogRequestInfoFunction,
   PayloadData,
   UploadableMap,
 } from '../network/RelayNetworkTypes';
-import type {CacheConfig, Disposable} from '../util/RelayRuntimeTypes';
+import type {Observer} from '../network/RelayObservable';
+import type {RequestParameters} from '../util/RelayConcreteNode';
+import type {
+  CacheConfig,
+  Disposable,
+  Variables,
+} from '../util/RelayRuntimeTypes';
 import type {TaskScheduler} from './RelayModernQueryExecutor';
 import type {GetDataID} from './RelayResponseNormalizer';
 import type {
-  Environment,
-  Logger,
-  LoggerProvider,
+  IEnvironment,
+  LogFunction,
   MissingFieldHandler,
   NormalizationSelector,
   OperationDescriptor,
@@ -57,25 +62,25 @@ import type {
 export type EnvironmentConfig = {|
   +configName?: string,
   +handlerProvider?: ?HandlerProvider,
+  +log?: ?LogFunction,
   +operationLoader?: ?OperationLoader,
-  +network: Network,
+  +network: INetwork,
   +scheduler?: ?TaskScheduler,
   +store: Store,
   +missingFieldHandlers?: ?$ReadOnlyArray<MissingFieldHandler>,
   +operationTracker?: ?OperationTracker,
-  +loggerProvider?: ?LoggerProvider,
-  /*
-    This method is likely to change in future versions, use at your own risk.
-    It can potentially break existing calls like store.get(<id>),
-    because the internal ID might not be the `id` field on the node anymore
-  */
+  /**
+   * This method is likely to change in future versions, use at your own risk.
+   * It can potentially break existing calls like store.get(<id>),
+   * because the internal ID might not be the `id` field on the node anymore
+   */
   +UNSTABLE_DO_NOT_USE_getDataID?: ?GetDataID,
 |};
 
-class RelayModernEnvironment implements Environment {
-  _loggerProvider: ?LoggerProvider;
+class RelayModernEnvironment implements IEnvironment {
+  __log: LogFunction;
   _operationLoader: ?OperationLoader;
-  _network: Network;
+  _network: INetwork;
   _publishQueue: PublishQueue;
   _scheduler: ?TaskScheduler;
   _store: Store;
@@ -102,7 +107,7 @@ class RelayModernEnvironment implements Environment {
         );
       }
     }
-    this._loggerProvider = config.loggerProvider;
+    this.__log = config.log ?? emptyFunction;
     this._operationLoader = operationLoader;
     this._network = config.network;
     this._getDataID = config.UNSTABLE_DO_NOT_USE_getDataID ?? defaultGetDataID;
@@ -144,19 +149,12 @@ class RelayModernEnvironment implements Environment {
     return this._store;
   }
 
-  getNetwork(): Network {
+  getNetwork(): INetwork {
     return this._network;
   }
 
   getOperationTracker(): RelayOperationTracker {
     return this._operationTracker;
-  }
-
-  getLogger(config: LoggerTransactionConfig): ?Logger {
-    if (!this._loggerProvider) {
-      return null;
-    }
-    return this._loggerProvider.getLogger(config);
   }
 
   applyUpdate(optimisticUpdate: OptimisticUpdateFunction): Disposable {
@@ -216,15 +214,21 @@ class RelayModernEnvironment implements Environment {
   }
 
   commitPayload(operation: OperationDescriptor, payload: PayloadData): void {
-    // Do not handle stripped nulls when committing a payload
-    const relayPayload = normalizeRelayPayload(
-      operation.root,
-      payload,
-      null /* errors */,
-      {getDataID: this._getDataID, request: operation.request},
-    );
-    this._publishQueue.commitPayload(operation, relayPayload);
-    this._publishQueue.run();
+    RelayObservable.create(sink => {
+      const executor = RelayModernQueryExecutor.execute({
+        operation: operation,
+        operationLoader: this._operationLoader,
+        optimisticConfig: null,
+        publishQueue: this._publishQueue,
+        scheduler: null, // make sure the first payload is sync
+        sink,
+        source: RelayObservable.from({data: payload}),
+        updater: null,
+        operationTracker: this._operationTracker,
+        getDataID: this._getDataID,
+      });
+      return () => executor.cancel();
+    }).subscribe({});
   }
 
   commitUpdate(updater: StoreUpdater): void {
@@ -259,6 +263,7 @@ class RelayModernEnvironment implements Environment {
       handlers,
       this._operationLoader,
       this._getDataID,
+      id => this._store.getConnectionEvents_UNSTABLE(id),
     );
     if (target.size() > 0) {
       this._publishQueue.commitSource(target);
@@ -284,11 +289,17 @@ class RelayModernEnvironment implements Environment {
     cacheConfig?: ?CacheConfig,
     updater?: ?SelectorStoreUpdater,
   }): RelayObservable<GraphQLResponse> {
+    const [logObserver, logRequestInfo] = this.__createLogObserver(
+      operation.request.node.params,
+      operation.request.variables,
+    );
     return RelayObservable.create(sink => {
       const source = this._network.execute(
         operation.request.node.params,
         operation.request.variables,
         cacheConfig || {},
+        null,
+        logRequestInfo,
       );
       const executor = RelayModernQueryExecutor.execute({
         operation,
@@ -303,7 +314,7 @@ class RelayModernEnvironment implements Environment {
         getDataID: this._getDataID,
       });
       return () => executor.cancel();
-    });
+    }).do(logObserver);
   }
 
   /**
@@ -329,6 +340,10 @@ class RelayModernEnvironment implements Environment {
     updater?: ?SelectorStoreUpdater,
     uploadables?: ?UploadableMap,
   |}): RelayObservable<GraphQLResponse> {
+    const [logObserver, logRequestInfo] = this.__createLogObserver(
+      operation.request.node.params,
+      operation.request.variables,
+    );
     return RelayObservable.create(sink => {
       let optimisticConfig;
       if (optimisticResponse || optimisticUpdater) {
@@ -343,6 +358,7 @@ class RelayModernEnvironment implements Environment {
         operation.request.variables,
         {force: true},
         uploadables,
+        logRequestInfo,
       );
       const executor = RelayModernQueryExecutor.execute({
         operation,
@@ -357,7 +373,7 @@ class RelayModernEnvironment implements Environment {
         getDataID: this._getDataID,
       });
       return () => executor.cancel();
-    });
+    }).do(logObserver);
   }
 
   /**
@@ -395,11 +411,65 @@ class RelayModernEnvironment implements Environment {
   toJSON(): mixed {
     return `RelayModernEnvironment(${this.configName ?? ''})`;
   }
+
+  __createLogObserver(
+    params: RequestParameters,
+    variables: Variables,
+  ): [Observer<GraphQLResponse>, LogRequestInfoFunction] {
+    const transactionID = generateID();
+    const log = this.__log;
+    const logObserver = {
+      start: subscription => {
+        log({
+          name: 'execute.start',
+          transactionID,
+          params,
+          variables,
+        });
+      },
+      next: response => {
+        log({
+          name: 'execute.next',
+          transactionID,
+          response,
+        });
+      },
+      error: error => {
+        log({
+          name: 'execute.error',
+          transactionID,
+          error,
+        });
+      },
+      complete: () => {
+        log({
+          name: 'execute.complete',
+          transactionID,
+        });
+      },
+      unsubscribe: () => {
+        log({
+          name: 'execute.unsubscribe',
+          transactionID,
+        });
+      },
+    };
+    const logRequestInfo = info => {
+      log({
+        name: 'execute.info',
+        transactionID,
+        info,
+      });
+    };
+    return [logObserver, logRequestInfo];
+  }
 }
 
 // Add a sigil for detection by `isRelayModernEnvironment()` to avoid a
 // realm-specific instanceof check, and to aid in module tree-shaking to
 // avoid requiring all of RelayRuntime just to detect its environment.
 (RelayModernEnvironment: any).prototype['@@RelayModernEnvironment'] = true;
+
+function emptyFunction() {}
 
 module.exports = RelayModernEnvironment;
