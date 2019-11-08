@@ -32,7 +32,7 @@ const {
   fragmentTransforms,
   printTransforms,
   queryTransforms,
-  schemaExtensions,
+  schemaExtensions: relaySchemaExtensions,
 } = RelayIRTransforms;
 
 import type {ScalarTypeMapping} from '../language/javascript/RelayFlowTypeTransformers';
@@ -291,6 +291,9 @@ function getCodegenRunner(config: Config): CodegenRunner {
   const defaultIsGeneratedFile = (filePath: string) =>
     filePath.endsWith('.graphql.' + outputExtension) &&
     filePath.includes(generatedDirectoryName);
+  const schemaExtensions = languagePlugin.schemaExtensions
+    ? [...languagePlugin.schemaExtensions, ...relaySchemaExtensions]
+    : relaySchemaExtensions;
   const parserConfigs = {
     [sourceParserName]: {
       baseDir: config.src,
@@ -387,6 +390,9 @@ function getRelayFileWriter(
         return id;
       };
     }
+    const schemaExtensions = languagePlugin.schemaExtensions
+      ? [...languagePlugin.schemaExtensions, ...relaySchemaExtensions]
+      : relaySchemaExtensions;
     const results = await RelayFileWriter.writeAll({
       config: {
         baseDir,

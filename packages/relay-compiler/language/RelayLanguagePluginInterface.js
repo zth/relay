@@ -41,6 +41,7 @@ export type PluginInterface = {
   isGeneratedFile?: IsGeneratedFileFn,
   getModuleName?: (operationName: string) => string,
   getFileFilter?: GetFileFilter,
+  schemaExtensions?: $ReadOnlyArray<string>,
 };
 
 /**
