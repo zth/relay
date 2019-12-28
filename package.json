@@ -111,7 +111,5 @@
     ],
     "testEnvironment": "node"
   },
-  "devDependencies": {
-    "@babel/cli": "^7.6.0"
-  }
+  "devDependencies": {}
 }
