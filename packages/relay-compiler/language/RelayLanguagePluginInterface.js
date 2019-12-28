@@ -8,13 +8,15 @@
  * @format
  */
 
+// flowlint ambiguous-object-type:error
+
 'use strict';
 
 const {RelayConcreteNode} = require('relay-runtime');
 
 import type {IsGeneratedFileFn} from '../codegen/CodegenRunner';
-import type {IRTransform} from '../core/GraphQLCompilerContext';
-import type {GeneratedDefinition, Root, Fragment} from '../core/GraphQLIR';
+import type {IRTransform} from '../core/CompilerContext';
+import type {GeneratedDefinition, Root, Fragment} from '../core/IR';
 import type {GetFileFilter} from '../core/RelaySourceModuleParser';
 import type {Schema} from '../core/Schema';
 import type {ScalarTypeMapping} from './javascript/RelayFlowTypeTransformers';
@@ -42,6 +44,7 @@ export type PluginInterface = {
   getModuleName?: (operationName: string) => string,
   getFileFilter?: GetFileFilter,
   schemaExtensions?: $ReadOnlyArray<string>,
+  ...
 };
 
 /**
@@ -63,7 +66,6 @@ export type GraphQLTag = {
    *  grapqhl`fragment MyFragment on MyType { … }`
    */
   template: string,
-
   /**
    * In the case this tag was part of a fragment container and it used a node
    * map as fragment spec, rather than a single tagged node, this should hold
@@ -80,7 +82,6 @@ export type GraphQLTag = {
    *
    */
   keyName: ?string,
-
   /**
    * The location in the source file that the tag is placed at.
    */
@@ -99,6 +100,7 @@ export type GraphQLTag = {
      */
     column: number,
   |},
+  ...
 };
 
 /**
@@ -269,7 +271,6 @@ export type TypeGenerator = {
    * GraphQL document before passing to the `generate` function.
    */
   transforms: $ReadOnlyArray<IRTransform>,
-
   /**
    * Given GraphQL document IR, this function should generate type information
    * for e.g. the selections made. It can, however, also generate any other
@@ -280,4 +281,5 @@ export type TypeGenerator = {
     node: Root | Fragment,
     options: TypeGeneratorOptions,
   ) => string,
+  ...
 };
