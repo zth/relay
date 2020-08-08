@@ -227,6 +227,11 @@ export type OperationAvailability =
 
 export type {InvalidationState} from './RelayModernStore';
 
+export type ReadSnapshot = (
+  recordSource: RecordSource,
+  selector: SingularReaderSelector,
+) => Snapshot;
+
 /**
  * An interface for keeping multiple views of data consistent across an
  * application.
@@ -334,6 +339,11 @@ export interface Store {
     invalidationState: InvalidationState,
     callback: () => void,
   ): Disposable;
+
+  /**
+   * Get the function used for reading snapshots from the store.
+   */
+  getSnapshotReader(): ReadSnapshot;
 }
 
 /**

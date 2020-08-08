@@ -16,12 +16,13 @@
 const isRelayEnvironment = require('../isRelayEnvironment');
 
 const {Environment} = require('relay-runtime');
+const RelayReader = require('relay-runtime/store/RelayReader');
 
 describe('isRelayEnvironment()', () => {
   it('returns true for `RelayEnvironment` instances', () => {
     const environment = new Environment({
       network: (null: $FlowFixMe),
-      store: (null: $FlowFixMe),
+      store: ({getSnapshotReader: () => RelayReader.read}: $FlowFixMe),
     });
     expect(isRelayEnvironment(environment)).toBe(true);
   });

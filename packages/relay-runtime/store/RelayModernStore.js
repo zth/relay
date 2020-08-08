@@ -46,6 +46,7 @@ import type {
   Snapshot,
   Store,
   UpdatedRecords,
+  ReadSnapshot,
 } from './RelayStoreTypes';
 
 export opaque type InvalidationState = {|
@@ -108,6 +109,7 @@ class RelayModernStore implements Store {
   _shouldScheduleGC: boolean;
   _subscriptions: Set<Subscription>;
   _updatedRecordIDs: UpdatedRecords;
+  _readSnapshot: ReadSnapshot;
 
   constructor(
     source: MutableRecordSource,
@@ -118,6 +120,7 @@ class RelayModernStore implements Store {
       UNSTABLE_DO_NOT_USE_getDataID?: ?GetDataID,
       gcReleaseBufferSize?: ?number,
       queryCacheExpirationTime?: ?number,
+      readSnapshot?: ReadSnapshot,
     |},
   ) {
     // Prevent mutation of a record from outside the store.
@@ -151,6 +154,7 @@ class RelayModernStore implements Store {
     this._shouldScheduleGC = false;
     this._subscriptions = new Set();
     this._updatedRecordIDs = {};
+    this._readSnapshot = options?.readSnapshot ?? RelayReader.read;
 
     initializeRecordSource(this._recordSource);
   }
@@ -273,7 +277,7 @@ class RelayModernStore implements Store {
 
   lookup(selector: SingularReaderSelector): Snapshot {
     const source = this.getSource();
-    const snapshot = RelayReader.read(source, selector);
+    const snapshot = this._readSnapshot(source, selector);
     if (__DEV__) {
       deepFreeze(snapshot);
     }
@@ -419,6 +423,10 @@ class RelayModernStore implements Store {
     return 'RelayModernStore()';
   }
 
+  getSnapshotReader(): ReadSnapshot {
+    return this._readSnapshot;
+  }
+
   // Internal API
   __getUpdatedRecordIDs(): UpdatedRecords {
     return this._updatedRecordIDs;
@@ -440,7 +448,7 @@ class RelayModernStore implements Store {
     }
     let nextSnapshot: Snapshot =
       hasOverlappingUpdates || !backup
-        ? RelayReader.read(source, snapshot.selector)
+        ? this._readSnapshot(source, snapshot.selector)
         : backup;
     const nextData = recycleNodesInto(snapshot.data, nextSnapshot.data);
     nextSnapshot = ({
@@ -558,7 +566,7 @@ class RelayModernStore implements Store {
         return;
       }
       const snapshot = subscription.snapshot;
-      const backup = RelayReader.read(this.getSource(), snapshot.selector);
+      const backup = this._readSnapshot(this.getSource(), snapshot.selector);
       const nextData = recycleNodesInto(snapshot.data, backup.data);
       (backup: $FlowFixMe).data = nextData; // backup owns the snapshot and can safely mutate
       subscription.backup = backup;

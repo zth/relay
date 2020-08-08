@@ -14,6 +14,7 @@ const ErrorUtils = require('ErrorUtils');
 const RelayModernRecord = require('../RelayModernRecord');
 const RelayModernStore = require('../RelayModernStore');
 const RelayPublishQueue = require('../RelayPublishQueue');
+const RelayReader = require('../RelayReader');
 const RelayRecordSourceMapImpl = require('../RelayRecordSourceMapImpl');
 
 const defaultGetDataID = require('../defaultGetDataID');
@@ -35,8 +36,11 @@ const {
 const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
 
 describe('RelayPublishQueue', () => {
+  let getSnapshotReader;
+
   beforeEach(() => {
     jest.resetModules();
+    getSnapshotReader = () => RelayReader.read;
 
     ErrorUtils.applyWithGuard = jest.fn((callback, context, params) => {
       try {
@@ -795,6 +799,7 @@ describe('RelayPublishQueue', () => {
         holdGC: jest.fn(),
         restore: jest.fn(),
         snapshot: jest.fn(() => []),
+        getSnapshotReader,
       };
       const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       const publishSource = new RelayRecordSourceMapImpl();
@@ -830,6 +835,7 @@ describe('RelayPublishQueue', () => {
         holdGC: jest.fn(),
         restore: jest.fn(),
         snapshot: jest.fn(() => []),
+        getSnapshotReader,
       };
       const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       const {ActorQuery} = generateAndCompile(
@@ -926,6 +932,7 @@ describe('RelayPublishQueue', () => {
         holdGC: jest.fn(),
         restore: jest.fn(),
         snapshot: jest.fn(() => []),
+        getSnapshotReader,
       };
       const ScreennameHandler = {
         update(storeProxy, payload) {
@@ -1354,6 +1361,7 @@ describe('RelayPublishQueue', () => {
         holdGC: jest.fn(),
         restore: jest.fn(),
         snapshot: jest.fn(() => []),
+        getSnapshotReader,
       };
       const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       const {ActorQuery} = generateAndCompile(
@@ -1422,6 +1430,7 @@ describe('RelayPublishQueue', () => {
         holdGC: jest.fn(),
         restore: jest.fn(),
         snapshot: jest.fn(() => []),
+        getSnapshotReader,
       };
       const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       const {ActorQuery} = generateAndCompile(
@@ -1497,6 +1506,7 @@ describe('RelayPublishQueue', () => {
         holdGC: jest.fn(),
         restore: jest.fn(),
         snapshot: jest.fn(() => []),
+        getSnapshotReader,
       };
       const queue = new RelayPublishQueue(store, null, defaultGetDataID);
 
@@ -1700,6 +1710,7 @@ describe('RelayPublishQueue', () => {
         holdGC: jest.fn(),
         restore: jest.fn(),
         snapshot: jest.fn(() => []),
+        getSnapshotReader,
       };
       const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       queue.commitUpdate(storeProxy => {
@@ -1730,6 +1741,7 @@ describe('RelayPublishQueue', () => {
         holdGC: jest.fn(),
         restore: jest.fn(),
         snapshot: jest.fn(() => []),
+        getSnapshotReader,
       };
       const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       queue.commitUpdate(storeProxy => {
@@ -1755,6 +1767,7 @@ describe('RelayPublishQueue', () => {
         holdGC: jest.fn(),
         restore: jest.fn(),
         snapshot: jest.fn(() => []),
+        getSnapshotReader,
       };
       const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       queue.commitUpdate(storeProxy => {
@@ -1785,6 +1798,7 @@ describe('RelayPublishQueue', () => {
         holdGC: jest.fn(),
         restore: jest.fn(),
         snapshot: jest.fn(() => []),
+        getSnapshotReader,
       };
       const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       queue.run();
@@ -1803,6 +1817,7 @@ describe('RelayPublishQueue', () => {
         holdGC: jest.fn(),
         restore: jest.fn(),
         snapshot: jest.fn(() => []),
+        getSnapshotReader,
       };
       const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       queue.applyUpdate({
@@ -1827,6 +1842,7 @@ describe('RelayPublishQueue', () => {
         holdGC: jest.fn(),
         restore,
         snapshot: jest.fn(() => []),
+        getSnapshotReader,
       };
       const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       const mutation = {
@@ -1857,6 +1873,7 @@ describe('RelayPublishQueue', () => {
         holdGC: jest.fn(),
         restore: jest.fn(),
         snapshot: jest.fn(() => []),
+        getSnapshotReader,
       };
       const queue = new RelayPublishQueue(store, null, defaultGetDataID);
 
@@ -1894,6 +1911,7 @@ describe('RelayPublishQueue', () => {
         holdGC,
         restore: jest.fn(),
         snapshot: jest.fn(() => []),
+        getSnapshotReader,
       };
       const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       const mutation = {
@@ -1916,6 +1934,7 @@ describe('RelayPublishQueue', () => {
         holdGC,
         restore: jest.fn(),
         snapshot: jest.fn(() => []),
+        getSnapshotReader,
       };
       const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       queue.run();
@@ -1935,6 +1954,7 @@ describe('RelayPublishQueue', () => {
         holdGC,
         restore: jest.fn(),
         snapshot: jest.fn(() => []),
+        getSnapshotReader,
       };
       const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       const mutation = {

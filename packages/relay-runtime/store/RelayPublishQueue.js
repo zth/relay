@@ -37,6 +37,7 @@ import type {
   SingularReaderSelector,
   Store,
   StoreUpdater,
+  ReadSnapshot,
 } from './RelayStoreTypes';
 
 type PendingCommit = PendingRelayPayload | PendingRecordSource | PendingUpdater;
@@ -85,6 +86,7 @@ class RelayPublishQueue implements PublishQueue {
   // Garbage collection hold, should rerun gc on dispose
   _gcHold: ?Disposable;
   _isRunning: ?boolean;
+  _readSnapshot: ReadSnapshot;
 
   constructor(
     store: Store,
@@ -100,6 +102,7 @@ class RelayPublishQueue implements PublishQueue {
     this._appliedOptimisticUpdates = new Set();
     this._gcHold = null;
     this._getDataID = getDataID;
+    this._readSnapshot = store.getSnapshotReader();
   }
 
   /**
@@ -264,7 +267,7 @@ class RelayPublishQueue implements PublishQueue {
         recordSourceProxy,
         selector,
       );
-      const selectorData = lookupSelector(source, selector);
+      const selectorData = lookupSelector(source, selector, this._readSnapshot);
       updater(recordSourceSelectorProxy, selectorData);
     }
     const idsMarkedForInvalidation = recordSourceProxy.getIDsMarkedForInvalidation();
@@ -352,7 +355,11 @@ class RelayPublishQueue implements PublishQueue {
         let selectorData;
         if (source) {
           recordSourceProxy.publishSource(source, fieldPayloads);
-          selectorData = lookupSelector(source, operation.fragment);
+          selectorData = lookupSelector(
+            source,
+            operation.fragment,
+            this._readSnapshot,
+          );
         }
         if (updater) {
           ErrorUtils.applyWithGuard(
@@ -387,8 +394,10 @@ class RelayPublishQueue implements PublishQueue {
 function lookupSelector(
   source: RecordSource,
   selector: SingularReaderSelector,
+  readSnapshot?: ReadSnapshot,
 ): ?SelectorData {
-  const selectorData = RelayReader.read(source, selector).data;
+  const read = readSnapshot ?? RelayReader.read;
+  const selectorData = read(source, selector).data;
   if (__DEV__) {
     const deepFreeze = require('../util/deepFreeze');
     if (selectorData) {
