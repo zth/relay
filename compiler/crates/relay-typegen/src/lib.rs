@@ -1205,7 +1205,11 @@ impl<'a> TypeGenerator<'a> {
         let scalar_name = self.schema.scalar(scalar).name;
         if scalar_name == *TYPE_ID || scalar_name == *TYPE_STRING {
             AST::String
-        } else if scalar_name == *TYPE_FLOAT || scalar_name == *TYPE_INT {
+        } else if scalar_name == *TYPE_FLOAT {
+            AST::RawType("float".intern())
+        } else if scalar_name == *TYPE_INT {
+            AST::RawType("int".intern())
+        } else if scalar_name == "number".intern() {
             AST::Number
         } else if scalar_name == *TYPE_BOOLEAN {
             AST::Boolean
