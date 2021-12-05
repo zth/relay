@@ -1,37 +1,31 @@
-use std::{
-    io::{Read, Write},
-    process::{Command, Stdio},
-};
+use std::process::{Command, Stdio};
 
 use graphql_ir::FragmentDefinition;
 use relay_transforms::RelayDirective;
 use serde::Serialize;
 
 #[derive(Serialize)]
-pub struct ReasonRelayConnectionConfig {
+pub struct RescriptRelayConnectionConfig {
     pub key: String,
     pub at_object_path: Vec<String>,
     pub field_name: String,
 }
 
 #[derive(Serialize)]
-pub struct ReasonRelayOperationType {
+pub struct RescriptRelayOperationType {
     pub operation: String,
     pub operation_value: Option<String>,
     pub fragment_value: Option<(String, bool)>,
 }
 
 #[derive(Serialize)]
-pub struct ReasonRelayOperationConfig {
+pub struct RescriptRelayOperationConfig {
     pub content: String,
-    pub operation_type: ReasonRelayOperationType,
+    pub operation_type: RescriptRelayOperationType,
     pub operation_node: String,
-    pub operation_hash: Option<String>,
-    pub operation_request_id: Option<String>,
-    pub raw_js: String,
 }
 
-pub fn generate_rescript_types(config_type: ReasonRelayOperationConfig) -> Vec<u8> {
+pub fn generate_rescript_types(config_type: RescriptRelayOperationConfig) -> String {
     match serde_json::to_string(&config_type) {
         Ok(config) => {
             let cmd = Command::new("./ReasonRelayBin.exe")
@@ -41,13 +35,13 @@ pub fn generate_rescript_types(config_type: ReasonRelayOperationConfig) -> Vec<u
                 .spawn()
                 .expect("Failed to spawn external command");
 
-            Write::write_all(&mut cmd.stdin.unwrap(), config.as_bytes())
+            std::io::Write::write_all(&mut cmd.stdin.unwrap(), config.as_bytes())
                 .expect("Could not run external command.");
 
-            let mut buf = vec![];
-            Read::read_to_end(&mut cmd.stdout.unwrap(), &mut buf).unwrap();
+            let mut res = String::new();
+            std::io::Read::read_to_string(&mut cmd.stdout.unwrap(), &mut res).unwrap();
 
-            buf
+            res
         }
         Err(_) => panic!("Could not build ReasonRelay config."),
     }
