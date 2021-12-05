@@ -5,3 +5,11 @@ module Query = %relay(`
     }
   }
 `)
+
+graphql`
+  query AppQuery {
+    node(id: "test") {
+      ...Component_node
+    }
+  }
+`

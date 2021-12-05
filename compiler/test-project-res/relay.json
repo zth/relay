@@ -7,10 +7,11 @@
     "LICENSE file in the root directory of this source tree."
   ],
   "sources": {
-    "compiler/test-project-res": "test"
+    "compiler/test-project-res": "test-res"
   },
   "projects": {
-    "test": {
+    "test-res": {
+      "language": "flow",
       "customScalarTypes": {},
       "enumModuleSuffix": ".test",
       "schema": "packages/relay-test-utils-internal/testschema.graphql"

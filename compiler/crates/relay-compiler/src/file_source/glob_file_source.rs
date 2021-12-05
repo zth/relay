@@ -42,8 +42,7 @@ impl<'config> GlobFileSource<'config> {
         for project in config.enabled_projects() {
             match project.typegen_config.language {
                 TypegenLanguage::Flow => {
-                    file_extensions.insert("js");
-                    file_extensions.insert("jsx");
+                    file_extensions.insert("res");
                 }
                 TypegenLanguage::TypeScript => {
                     file_extensions.insert("js");

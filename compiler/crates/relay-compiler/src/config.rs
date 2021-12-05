@@ -455,7 +455,11 @@ impl fmt::Debug for Config {
         } = self;
 
         fn option_fn_to_string<T>(option: &Option<T>) -> &'static str {
-            if option.is_some() { "Some(Fn)" } else { "None" }
+            if option.is_some() {
+                "Some(Fn)"
+            } else {
+                "None"
+            }
         }
 
         f.debug_struct("Config")
@@ -705,7 +709,7 @@ impl From<SingleProjectConfigFile> for MultiProjectConfigFile {
             schema_extensions: oss_config.schema_extensions,
             persist: oss_config.persist_config,
             typegen_config: TypegenConfig {
-                language: oss_config.language.unwrap_or(TypegenLanguage::TypeScript),
+                language: oss_config.language.unwrap_or(TypegenLanguage::Flow),
                 custom_scalar_types: oss_config.custom_scalars,
                 eager_es_modules: oss_config.eager_es_modules,
                 flow_typegen: FlowTypegenConfig {
