@@ -1,24 +1,23 @@
-use std::process::{Command, Stdio};
-
 use graphql_ir::FragmentDefinition;
 use relay_transforms::RelayDirective;
 use serde::Serialize;
+use std::process::{Command, Stdio};
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug)]
 pub struct RescriptRelayConnectionConfig {
     pub key: String,
     pub at_object_path: Vec<String>,
     pub field_name: String,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug)]
 pub struct RescriptRelayOperationType {
     pub operation: String,
     pub operation_value: Option<String>,
     pub fragment_value: Option<(String, bool)>,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug)]
 pub struct RescriptRelayOperationConfig {
     pub content: String,
     pub operation_type: RescriptRelayOperationType,
@@ -28,7 +27,7 @@ pub struct RescriptRelayOperationConfig {
 pub fn generate_rescript_types(config_type: RescriptRelayOperationConfig) -> String {
     match serde_json::to_string(&config_type) {
         Ok(config) => {
-            let cmd = Command::new("./ReasonRelayBin.exe")
+            let cmd = Command::new("./RescriptRelayBin.exe")
                 .arg("generate-from-flow")
                 .stdout(Stdio::piped())
                 .stdin(Stdio::piped())
