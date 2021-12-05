@@ -313,7 +313,7 @@ impl<'b> JSONPrinter<'b> {
                 write_static_storage_key(f, self.builder, *field_name, *key)
             }
             Primitive::GraphQLModuleDependency(key) => match self.js_module_format {
-                JsModuleFormat::CommonJS => write!(f, "require('./{}.graphql')", key),
+                JsModuleFormat::CommonJS => write!(f, "node_{}", key),
                 JsModuleFormat::Haste => write!(f, "require('{}.graphql')", key),
             },
             Primitive::JSModuleDependency(key) => match self.js_module_format {
