@@ -84,15 +84,15 @@ impl<'a> Iterator for CharReader<'a> {
 /// Extract graphql`text` literals and @RelayResolver comments from JS-like code.
 // This should work for Flow or TypeScript alike.
 pub fn extract(input: &str) -> Vec<JavaScriptSourceFeature> {
-    if !input.contains("graphql`") && !input.contains("@RelayResolver") {
+    if !input.contains("%relay(`") && !input.contains("@RelayResolver") {
         return vec![];
     }
     let mut res = vec![];
     let mut it = CharReader::new(input);
     'code: while let Some((i, c)) = it.next() {
         match c {
-            'g' => {
-                for expected in ['r', 'a', 'p', 'h', 'q', 'l', '`'] {
+            '%' => {
+                for expected in ['r', 'e', 'l', 'a', 'y', '(', '`'] {
                     if let Some((_, c)) = it.next() {
                         if c != expected {
                             consume_identifier(&mut it);
