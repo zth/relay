@@ -1,4 +1,4 @@
-/* @sourceLoc App.res */
+/* @sourceLoc Component.res */
 /* @generated */
 %%raw("/* @generated */")
 type relayOperationNode
@@ -15,11 +15,19 @@ module Types = {
     node: option<response_node>,
   }
   type rawResponse = response
-  type refetchVariables = unit
+  type refetchVariables = {
+    id: option<string>,
+  }
   let makeRefetchVariables = (
-  ) => ()
+    ~id=?,
+    ()
+  ): refetchVariables => {
+    id: id
+  }
   
-  type variables = unit
+  type variables = {
+    id: string,
+  }
 }
 
 module Internal = {
@@ -69,7 +77,13 @@ module Internal = {
 
 
 module Utils = {
-
+  @@ocaml.warning("-33")
+  open Types
+  let makeVariables = (
+    ~id
+  ): variables => {
+    id: id
+  }
 }
 
 

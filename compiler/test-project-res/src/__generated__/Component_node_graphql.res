@@ -1,6 +1,8 @@
 /* @sourceLoc Component.res */
 /* @generated */
 %%raw("/* @generated */")
+type relayOperationNode
+type operationType = RescriptRelay.fragmentNode<relayOperationNode>
 
 module Types = {
   @@ocaml.warning("-30")

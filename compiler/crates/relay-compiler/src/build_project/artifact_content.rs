@@ -767,6 +767,38 @@ fn generate_operation_rescript(
         writeln!(content).unwrap();
     }
 
+    // Print operation node types
+    writeln!(
+        content,
+        "type relayOperationNode\ntype operationType = RescriptRelay.{}Node<relayOperationNode>",
+        match typegen_operation.kind {
+            OperationKind::Query => {
+                "query"
+            }
+            OperationKind::Mutation => {
+                "mutation"
+            }
+            OperationKind::Subscription => {
+                "subscription"
+            }
+        }
+    )
+    .unwrap();
+
+    writeln!(
+        content,
+        "{}",
+        match typegen_operation.kind {
+            OperationKind::Query => {
+                "type queryRef"
+            }
+            OperationKind::Mutation | OperationKind::Subscription => {
+                ""
+            }
+        }
+    )
+    .unwrap();
+
     let op_type = RescriptRelayOperationType {
         operation: typegen_operation.kind.to_string().to_lowercase(),
         operation_value: Some(typegen_operation.name.item.to_string()),
@@ -847,6 +879,14 @@ fn generate_fragment_rescript(
         write_react_flight_client_annotation(&mut content, relay_client_component_metadata)
             .unwrap();
     }
+
+    // Print the operation type
+    writeln!(
+        content,
+        "type relayOperationNode\ntype operationType = RescriptRelay.{}Node<relayOperationNode>",
+        "fragment"
+    )
+    .unwrap();
 
     let fragment_type = RescriptRelayOperationType {
         operation: String::from("fragment"),

@@ -1,5 +1,5 @@
 module Fragment = %relay(`
-  fragment Component_node on Node {
+  fragment Component_node on Node @refetchable(queryName: "ComponentRefetchQuery") {
     id
   }
 `)
