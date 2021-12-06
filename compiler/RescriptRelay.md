@@ -17,8 +17,8 @@
 ## TODO:
 * [x] Make interfacing with `RescriptRelayBin.exe` work
 * [x] Handle `Query.load`
-* Add transforms that automatically insert `__typename` on interfaces and unions in the type selection, without the user needing to know
+* [ ] Add transforms that automatically insert `__typename` on interfaces and unions in the type selection, without the user needing to know
 * [x] Handle refetchable nodes
-* Handle connections
+* [ ] Handle connections
 * [x] Emit `@sourceLoc`
 * [x] Print operation type

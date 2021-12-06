@@ -1,3 +1,4 @@
+use common::SourceLocationKey;
 use graphql_ir::FragmentDefinition;
 use lazy_static::lazy_static;
 use regex::Regex;
@@ -133,6 +134,26 @@ pub fn rescript_make_operation_type_and_node_text(concrete_text: &str) -> String
     }
 
     str
+}
+
+// Write a @sourceLoc annotation pointing to where this thing was found
+pub fn rescript_get_source_loc_text(source_file: &SourceLocationKey) -> String {
+    match source_file {
+        SourceLocationKey::Standalone { path } | SourceLocationKey::Embedded { path, index: _ } => {
+            format!(
+                "/* @sourceLoc {} */",
+                std::path::Path::new(&path.to_string())
+                    .file_name()
+                    .unwrap()
+                    .to_string_lossy()
+            )
+        }
+        SourceLocationKey::Generated => String::from(""),
+    }
+}
+
+pub fn rescript_get_comments_for_generated() -> String {
+    String::from("/* @generated */\n%%raw(\"/* @generated */\")")
 }
 
 #[cfg(test)]

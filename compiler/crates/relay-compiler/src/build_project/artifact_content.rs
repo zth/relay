@@ -6,7 +6,8 @@
  */
 
 use super::rescript_relay_utils::{
-    generate_rescript_types, is_plural, rescript_make_operation_type_and_node_text,
+    generate_rescript_types, is_plural, rescript_get_comments_for_generated,
+    rescript_get_source_loc_text, rescript_make_operation_type_and_node_text,
     RescriptRelayOperationConfig, RescriptRelayOperationType,
 };
 use crate::config::{Config, ProjectConfig};
@@ -728,8 +729,14 @@ fn generate_operation_rescript(
         type_condition: reader_operation.type_,
     };
     let mut content = String::new();
-    rescript_write_source_loc(&mut content, &source_file).unwrap();
-    rescript_write_generated_comments(&mut content).unwrap();
+
+    writeln!(
+        &mut content,
+        "{}",
+        rescript_get_source_loc_text(&source_file)
+    )
+    .unwrap();
+    writeln!(&mut content, "{}", rescript_get_comments_for_generated()).unwrap();
 
     if let Some(QueryID::Persisted { text_hash, .. }) = id_and_text_hash {
         writeln!(content, "/* @relayHash {} */\n", text_hash).unwrap();
@@ -873,8 +880,13 @@ fn generate_fragment_rescript(
     source_file: &SourceLocationKey,
 ) -> Vec<u8> {
     let mut content = String::new();
-    rescript_write_source_loc(&mut content, &source_file).unwrap();
-    rescript_write_generated_comments(&mut content).unwrap();
+    writeln!(
+        &mut content,
+        "{}",
+        rescript_get_source_loc_text(&source_file)
+    )
+    .unwrap();
+    writeln!(&mut content, "{}", rescript_get_comments_for_generated()).unwrap();
 
     let data_driven_dependency_metadata = reader_fragment
         .directives
@@ -938,30 +950,4 @@ fn generate_fragment_rescript(
     .unwrap();
 
     content.into_bytes()
-}
-
-// Write a @sourceLoc annotation pointing to where this thing was found
-fn rescript_write_source_loc(content: &mut String, source_file: &SourceLocationKey) -> Result {
-    match source_file {
-        SourceLocationKey::Standalone { path } | SourceLocationKey::Embedded { path, index: _ } => {
-            writeln!(
-                content,
-                "/* @sourceLoc {} */",
-                std::path::Path::new(&path.to_string())
-                    .file_name()
-                    .unwrap()
-                    .to_string_lossy()
-            )?;
-        }
-        SourceLocationKey::Generated => {
-            writeln!(content)?;
-        }
-    }
-
-    Ok(())
-}
-
-fn rescript_write_generated_comments(content: &mut String) -> Result {
-    writeln!(content, "/* @generated */\n%%raw(\"/* @generated */\")").unwrap();
-    Ok(())
 }
