@@ -17,6 +17,7 @@
 ## TODO:
 * [x] Make interfacing with `RescriptRelayBin.exe` work
 * [x] Handle `Query.load`
+* [x] Add validation that disallows selecting invalid ReScript names
 * [ ] Add transforms that automatically insert `__typename` on interfaces and unions in the type selection, without the user needing to know
 * [x] Handle refetchable nodes
 * [ ] Handle connections
