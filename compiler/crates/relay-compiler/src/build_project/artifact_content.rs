@@ -84,7 +84,6 @@ impl ArtifactContent {
                 text,
                 id_and_text_hash,
                 skip_types,
-                &source_file,
             ),
             ArtifactContent::SplitOperation {
                 normalization_operation,
@@ -112,7 +111,6 @@ impl ArtifactContent {
                 typegen_fragment,
                 source_hash,
                 skip_types,
-                &source_file,
             ),
             ArtifactContent::Generic { content } => content.clone(),
         }
@@ -712,7 +710,6 @@ fn generate_operation_rescript(
     text: &str,
     id_and_text_hash: &Option<QueryID>,
     _skip_types: bool,
-    source_file: &SourceLocationKey,
 ) -> Vec<u8> {
     let mut request_parameters = build_request_params(normalization_operation);
     if id_and_text_hash.is_some() {
@@ -733,7 +730,7 @@ fn generate_operation_rescript(
     writeln!(
         &mut content,
         "{}",
-        rescript_get_source_loc_text(&source_file)
+        rescript_get_source_loc_text(&reader_operation.name.location.source_location())
     )
     .unwrap();
     writeln!(&mut content, "{}", rescript_get_comments_for_generated()).unwrap();
@@ -877,13 +874,12 @@ fn generate_fragment_rescript(
     typegen_fragment: &FragmentDefinition,
     _source_hash: &str,
     _skip_types: bool,
-    source_file: &SourceLocationKey,
 ) -> Vec<u8> {
     let mut content = String::new();
     writeln!(
         &mut content,
         "{}",
-        rescript_get_source_loc_text(&source_file)
+        rescript_get_source_loc_text(&reader_fragment.name.location.source_location())
     )
     .unwrap();
     writeln!(&mut content, "{}", rescript_get_comments_for_generated()).unwrap();
