@@ -9,6 +9,7 @@ mod deprecated_fields;
 mod disallow_circular_no_inline_fragments;
 mod disallow_reserved_aliases;
 mod disallow_typename_on_root;
+mod rescript_relay_disallow_invalid_names;
 pub(crate) mod validate_assignable_directive;
 mod validate_connections;
 mod validate_global_variables;
@@ -27,6 +28,7 @@ pub use deprecated_fields::{deprecated_fields, deprecated_fields_for_executable_
 pub use disallow_circular_no_inline_fragments::disallow_circular_no_inline_fragments;
 pub use disallow_reserved_aliases::disallow_reserved_aliases;
 pub use disallow_typename_on_root::disallow_typename_on_root;
+pub use rescript_relay_disallow_invalid_names::rescript_relay_disallow_invalid_names;
 pub use validate_assignable_directive::validate_assignable_directive;
 pub use validate_connections::validate_connections;
 pub use validate_global_variables::validate_global_variables;

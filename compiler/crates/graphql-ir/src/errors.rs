@@ -914,6 +914,12 @@ pub enum ValidationMessage {
 
     #[error("Assignable fragments cannot appear within inline fragments")]
     AssignableFragmentSpreadNotWithinInlineFragment,
+
+    #[error("RescriptRelay does not allow using field name `{0}`. Please alias your field to something else.")]
+    RescriptRelayDisallowSelectionName(StringKey),
+
+    #[error("RescriptRelay does not allow capitalized selections on fields. Please alias this selection to something that is not capitalized.")]
+    RescriptRelayDisallowCapitalizedNames,
 }
 
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
