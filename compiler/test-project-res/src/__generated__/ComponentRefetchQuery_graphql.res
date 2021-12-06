@@ -1,8 +1,6 @@
 /* @sourceLoc Component.res */
 /* @generated */
 %%raw("/* @generated */")
-type relayOperationNode
-type operationType = RescriptRelay.queryNode<relayOperationNode>
 
 module Types = {
   @@ocaml.warning("-30")
@@ -84,6 +82,10 @@ module Utils = {
     id: id
   }
 }
+
+
+type relayOperationNode
+type operationType = RescriptRelay.queryNode<relayOperationNode>
 
 
 let node: operationType = %raw(json`(function(){
@@ -175,6 +177,7 @@ return {
   }
 };
 })()`)
+
 type queryRef
 include RescriptRelay.MakeLoadQuery({
     type variables = Types.variables

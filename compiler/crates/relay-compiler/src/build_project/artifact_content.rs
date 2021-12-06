@@ -6,7 +6,8 @@
  */
 
 use super::rescript_relay_utils::{
-    generate_rescript_types, is_plural, RescriptRelayOperationConfig, RescriptRelayOperationType,
+    generate_rescript_types, is_plural, rescript_make_operation_type_and_node_text,
+    RescriptRelayOperationConfig, RescriptRelayOperationType,
 };
 use crate::config::{Config, ProjectConfig};
 use common::{NamedItem, SourceLocationKey};
@@ -767,24 +768,6 @@ fn generate_operation_rescript(
         writeln!(content).unwrap();
     }
 
-    // Print operation node types
-    writeln!(
-        content,
-        "type relayOperationNode\ntype operationType = RescriptRelay.{}Node<relayOperationNode>",
-        match typegen_operation.kind {
-            OperationKind::Query => {
-                "query"
-            }
-            OperationKind::Mutation => {
-                "mutation"
-            }
-            OperationKind::Subscription => {
-                "subscription"
-            }
-        }
-    )
-    .unwrap();
-
     let op_type = RescriptRelayOperationType {
         operation: typegen_operation.kind.to_string().to_lowercase(),
         operation_value: Some(typegen_operation.name.item.to_string()),
@@ -804,17 +787,34 @@ fn generate_operation_rescript(
 
     writeln!(content, "{}", generate_rescript_types(config_type)).unwrap();
 
-    // TODO: Figure out how to account for refetchable operation
+    // Print operation node types
+    writeln!(
+        content,
+        "type relayOperationNode\ntype operationType = RescriptRelay.{}Node<relayOperationNode>\n\n",
+        match typegen_operation.kind {
+            OperationKind::Query => {
+                "query"
+            }
+            OperationKind::Mutation => {
+                "mutation"
+            }
+            OperationKind::Subscription => {
+                "subscription"
+            }
+        }
+    )
+    .unwrap();
+
     // Print node type
     writeln!(
         content,
-        "let node: operationType = %raw(json`{}`)",
-        printer.print_request(
+        "{}",
+        rescript_make_operation_type_and_node_text(&printer.print_request(
             schema,
             normalization_operation,
             &operation_fragment,
             request_parameters,
-        )
+        ))
     )
     .unwrap();
 
@@ -897,14 +897,6 @@ fn generate_fragment_rescript(
             .unwrap();
     }
 
-    // Print the operation type
-    writeln!(
-        content,
-        "type relayOperationNode\ntype operationType = RescriptRelay.{}Node<relayOperationNode>",
-        "fragment"
-    )
-    .unwrap();
-
     let fragment_type = RescriptRelayOperationType {
         operation: String::from("fragment"),
         fragment_value: Some((
@@ -927,15 +919,24 @@ fn generate_fragment_rescript(
     let rescript_types = generate_rescript_types(config_type);
 
     writeln!(content, "{}", rescript_types).unwrap();
+    // Print the operation type
+    writeln!(
+        content,
+        "type relayOperationNode\ntype operationType = RescriptRelay.{}Node<relayOperationNode>\n\n",
+        "fragment"
+    )
+    .unwrap();
 
-    // TODO: Figure out how to account for refetchable operation
     // Print node type
     writeln!(
         content,
-        "let node: operationType = %raw(json`{}`)",
-        printer.print_fragment(schema, reader_fragment)
+        "{}",
+        rescript_make_operation_type_and_node_text(
+            &printer.print_fragment(schema, reader_fragment)
+        )
     )
     .unwrap();
+
     content.into_bytes()
 }
 

@@ -1,8 +1,6 @@
 /* @sourceLoc Component.res */
 /* @generated */
 %%raw("/* @generated */")
-type relayOperationNode
-type operationType = RescriptRelay.fragmentNode<relayOperationNode>
 
 module Types = {
   @@ocaml.warning("-30")
@@ -38,7 +36,13 @@ module Utils = {
 }
 
 
-let node: operationType = %raw(json`{
+type relayOperationNode
+type operationType = RescriptRelay.fragmentNode<relayOperationNode>
+
+
+%%private(let makeNode = (rescript_graphql_node_ComponentRefetchQuery): operationType => {
+  ignore(rescript_graphql_node_ComponentRefetchQuery)
+  %raw(json`{
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": {
@@ -47,7 +51,7 @@ let node: operationType = %raw(json`{
       "fragmentPathInResult": [
         "node"
       ],
-      "operation": node_ComponentRefetchQuery,
+      "operation": rescript_graphql_node_ComponentRefetchQuery,
       "identifierField": "id"
     }
   },
@@ -64,3 +68,6 @@ let node: operationType = %raw(json`{
   "type": "Node",
   "abstractKey": "__isNode"
 }`)
+})
+let node: operationType = makeNode(ComponentRefetchQuery_graphql.node)
+

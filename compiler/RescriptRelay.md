@@ -15,10 +15,10 @@
 * Put anything that's possible to put in its own module, again to make maintenance easier
 
 ## TODO:
-* Make interfacing with `RescriptRelayBin.exe` work
-* Handle `Query.load`
+* [x] Make interfacing with `RescriptRelayBin.exe` work
+* [x] Handle `Query.load`
 * Add transforms that automatically insert `__typename` on interfaces and unions in the type selection, without the user needing to know
-* Handle refetchable nodes
+* [x] Handle refetchable nodes
 * Handle connections
-* Emit `@sourceLoc`
-* Print operation type
+* [x] Emit `@sourceLoc`
+* [x] Print operation type
