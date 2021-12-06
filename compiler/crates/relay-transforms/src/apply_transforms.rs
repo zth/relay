@@ -437,6 +437,14 @@ fn apply_typegen_transforms(
         relay_actor_change_transform(&program, &feature_flags.actor_change_support)
     })?;
 
+    // RescriptRelay Note: This ensures that `__typename` is selected in the
+    // Flow type generation of all abstract types, without the user needing to
+    // explicitly select it. This can be removed when we do _actual_ typegen
+    // here in Rust at some point. But, as long as our typegen operates on the
+    // generated Flow types, __typename needs to be present in them for the
+    // typegen to understand about unions/interfaces properly.
+    program = log_event.time("generate_typename", || generate_typename(&program, false));
+
     log_event.complete();
 
     Ok(Arc::new(program))

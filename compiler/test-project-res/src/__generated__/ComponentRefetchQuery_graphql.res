@@ -6,6 +6,7 @@ module Types = {
   @@ocaml.warning("-30")
   
   type rec response_node = {
+    __typename: string,
     fragmentRefs: RescriptRelay.fragmentRefs<[ | #Component_node]>
   }
   type response = {
@@ -102,6 +103,33 @@ v1 = [
     "name": "id",
     "variableName": "id"
   }
+],
+v2 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "__typename",
+  "storageKey": null
+},
+v3 = [
+  {
+    "alias": null,
+    "args": null,
+    "concreteType": "Text",
+    "kind": "LinkedField",
+    "name": "text",
+    "plural": false,
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
+        "name": "text",
+        "storageKey": null
+      }
+    ],
+    "storageKey": null
+  }
 ];
 return {
   "fragment": {
@@ -144,13 +172,7 @@ return {
         "name": "node",
         "plural": false,
         "selections": [
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "__typename",
-            "storageKey": null
-          },
+          (v2/*: any*/),
           {
             "kind": "TypeDiscriminator",
             "abstractKey": "__isNode"
@@ -161,6 +183,43 @@ return {
             "kind": "ScalarField",
             "name": "id",
             "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": null,
+                "args": [
+                  {
+                    "kind": "Literal",
+                    "name": "supported",
+                    "value": []
+                  }
+                ],
+                "concreteType": null,
+                "kind": "LinkedField",
+                "name": "commentBody",
+                "plural": false,
+                "selections": [
+                  (v2/*: any*/),
+                  {
+                    "kind": "InlineFragment",
+                    "selections": (v3/*: any*/),
+                    "type": "PlainCommentBody",
+                    "abstractKey": null
+                  },
+                  {
+                    "kind": "InlineFragment",
+                    "selections": (v3/*: any*/),
+                    "type": "MarkdownCommentBody",
+                    "abstractKey": null
+                  }
+                ],
+                "storageKey": "commentBody(supported:[])"
+              }
+            ],
+            "type": "Comment",
+            "abstractKey": null
           }
         ],
         "storageKey": null
@@ -168,12 +227,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "a319e42585150068f00674cc410539bd",
+    "cacheID": "5a299db28f3b5aa88af9df0d37fe6785",
     "id": null,
     "metadata": {},
     "name": "ComponentRefetchQuery",
     "operationKind": "query",
-    "text": "query ComponentRefetchQuery(\n  $id: ID!\n) {\n  node(id: $id) {\n    __typename\n    ...Component_node\n    id\n  }\n}\n\nfragment Component_node on Node {\n  __isNode: __typename\n  id\n}\n"
+    "text": "query ComponentRefetchQuery(\n  $id: ID!\n) {\n  node(id: $id) {\n    __typename\n    ...Component_node\n    id\n  }\n}\n\nfragment Component_node on Node {\n  __isNode: __typename\n  id\n  ... on Comment {\n    commentBody(supported: []) {\n      __typename\n      ... on PlainCommentBody {\n        text {\n          text\n        }\n      }\n      ... on MarkdownCommentBody {\n        text {\n          text\n        }\n      }\n    }\n  }\n}\n"
   }
 };
 })()`)
