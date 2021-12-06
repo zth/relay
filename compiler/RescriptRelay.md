@@ -18,8 +18,9 @@
 * [x] Make interfacing with `RescriptRelayBin.exe` work
 * [x] Handle `Query.load`
 * [x] Add validation that disallows selecting invalid ReScript names
-* [ ] Add transforms that automatically insert `__typename` on interfaces and unions in the type selection, without the user needing to know
+* [x] Add transforms that automatically insert `__typename` on interfaces and unions in the type selection, without the user needing to know
 * [x] Handle refetchable nodes
-* [ ] Handle connections
+* [ ] Handle generating connection access helpers (prep for generating general accessors)
+* [ ] Variables that are put into store updater directives - $connections in `@appendEdge(connections: $connections)` - print types as `array<RescriptRelay.dataId>` rather than `ID/string`
 * [x] Emit `@sourceLoc`
 * [x] Print operation type
