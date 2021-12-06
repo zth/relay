@@ -21,7 +21,6 @@ pub struct RescriptRelayOperationType {
 pub struct RescriptRelayOperationConfig {
     pub content: String,
     pub operation_type: RescriptRelayOperationType,
-    pub operation_node: String,
 }
 
 pub fn generate_rescript_types(config_type: RescriptRelayOperationConfig) -> String {

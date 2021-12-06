@@ -785,20 +785,6 @@ fn generate_operation_rescript(
     )
     .unwrap();
 
-    writeln!(
-        content,
-        "{}",
-        match typegen_operation.kind {
-            OperationKind::Query => {
-                "type queryRef"
-            }
-            OperationKind::Mutation | OperationKind::Subscription => {
-                ""
-            }
-        }
-    )
-    .unwrap();
-
     let op_type = RescriptRelayOperationType {
         operation: typegen_operation.kind.to_string().to_lowercase(),
         operation_value: Some(typegen_operation.name.item.to_string()),
@@ -814,15 +800,46 @@ fn generate_operation_rescript(
             &project_config.typegen_config,
         ),
         operation_type: op_type,
-        operation_node: printer.print_request(
+    };
+
+    writeln!(content, "{}", generate_rescript_types(config_type)).unwrap();
+
+    // TODO: Figure out how to account for refetchable operation
+    // Print node type
+    writeln!(
+        content,
+        "let node: operationType = %raw(json`{}`)",
+        printer.print_request(
             schema,
             normalization_operation,
             &operation_fragment,
             request_parameters,
-        ),
-    };
+        )
+    )
+    .unwrap();
 
-    writeln!(content, "{}", generate_rescript_types(config_type)).unwrap();
+    // Print other assets specific to various operation types.
+    writeln!(
+        content,
+        "{}",
+        match typegen_operation.kind {
+            OperationKind::Query => {
+                // TODO: Replace functor at some point
+                "type queryRef\ninclude RescriptRelay.MakeLoadQuery({
+    type variables = Types.variables
+    type loadedQueryRef = queryRef
+    type response = Types.response
+    type node = relayOperationNode
+    let query = node
+    let convertVariables = Internal.convertVariables
+});"
+            }
+            OperationKind::Mutation | OperationKind::Subscription => {
+                ""
+            }
+        }
+    )
+    .unwrap();
 
     // Write below types
     if is_operation_preloadable(normalization_operation) && id_and_text_hash.is_some() {
@@ -905,12 +922,20 @@ fn generate_fragment_rescript(
             &project_config.typegen_config,
         ),
         operation_type: fragment_type,
-        operation_node: printer.print_fragment(schema, reader_fragment),
     };
 
     let rescript_types = generate_rescript_types(config_type);
 
     writeln!(content, "{}", rescript_types).unwrap();
+
+    // TODO: Figure out how to account for refetchable operation
+    // Print node type
+    writeln!(
+        content,
+        "let node: operationType = %raw(json`{}`)",
+        printer.print_fragment(schema, reader_fragment)
+    )
+    .unwrap();
     content.into_bytes()
 }
 

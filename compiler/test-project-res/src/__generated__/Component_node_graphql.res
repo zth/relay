@@ -38,3 +38,29 @@ module Utils = {
 }
 
 
+let node: operationType = %raw(json`{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": {
+    "refetch": {
+      "connection": null,
+      "fragmentPathInResult": [
+        "node"
+      ],
+      "operation": node_ComponentRefetchQuery,
+      "identifierField": "id"
+    }
+  },
+  "name": "Component_node",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "id",
+      "storageKey": null
+    }
+  ],
+  "type": "Node",
+  "abstractKey": "__isNode"
+}`)

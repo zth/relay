@@ -1,5 +1,5 @@
 module Query = %relay(`
-  query AppQuery {
+  query AppQuery @preloadable {
     node(id: "test") {
       ...Component_node
     }
