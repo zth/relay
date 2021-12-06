@@ -5,11 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::rescript_relay_utils::{
-    generate_rescript_types, is_plural, rescript_get_comments_for_generated,
-    rescript_get_source_loc_text, rescript_make_operation_type_and_node_text,
-    RescriptRelayOperationConfig, RescriptRelayOperationType,
-};
+use super::rescript_relay_utils::*;
+use super::rescript_relay_visitor::RescriptRelayVisitorState;
 use crate::config::{Config, ProjectConfig};
 use common::{NamedItem, SourceLocationKey};
 use graphql_ir::{Directive, FragmentDefinition, OperationDefinition};
@@ -778,6 +775,13 @@ fn generate_operation_rescript(
         fragment_value: None,
     };
 
+    let mut meta_data_state = RescriptRelayVisitorState {
+        connection_config: None,
+        variables_with_connection_data_ids: vec![],
+    };
+
+    rescript_get_operation_meta_data(schema, &mut meta_data_state, typegen_operation);
+
     let config_type = RescriptRelayOperationConfig {
         content: relay_typegen::generate_operation_type(
             typegen_operation,
@@ -787,6 +791,12 @@ fn generate_operation_rescript(
             &project_config.typegen_config,
         ),
         operation_type: op_type,
+        print_config: Some(RescriptRelayPrintConfig {
+            connection: meta_data_state.connection_config,
+            variables_holding_connection_ids: Some(
+                meta_data_state.variables_with_connection_data_ids,
+            ),
+        }),
     };
 
     writeln!(content, "{}", generate_rescript_types(config_type)).unwrap();
@@ -905,6 +915,13 @@ fn generate_fragment_rescript(
             .unwrap();
     }
 
+    let mut meta_data_state = RescriptRelayVisitorState {
+        connection_config: None,
+        variables_with_connection_data_ids: vec![],
+    };
+
+    rescript_get_fragment_meta_data(schema, &mut meta_data_state, typegen_fragment);
+
     let fragment_type = RescriptRelayOperationType {
         operation: String::from("fragment"),
         fragment_value: Some((
@@ -922,6 +939,12 @@ fn generate_fragment_rescript(
             &project_config.typegen_config,
         ),
         operation_type: fragment_type,
+        print_config: Some(RescriptRelayPrintConfig {
+            connection: meta_data_state.connection_config,
+            variables_holding_connection_ids: Some(
+                meta_data_state.variables_with_connection_data_ids,
+            ),
+        }),
     };
 
     let rescript_types = generate_rescript_types(config_type);

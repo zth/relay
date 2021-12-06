@@ -1,8 +1,9 @@
 use common::SourceLocationKey;
-use graphql_ir::FragmentDefinition;
+use graphql_ir::{FragmentDefinition, OperationDefinition, Visitor};
 use lazy_static::lazy_static;
 use regex::Regex;
 use relay_transforms::RelayDirective;
+use schema::SDLSchema;
 use serde::Serialize;
 use std::{
     fmt::Write,
@@ -10,11 +11,19 @@ use std::{
     process::{Command, Stdio},
 };
 
+use super::rescript_relay_visitor::{RescriptRelayVisitor, RescriptRelayVisitorState};
+
 #[derive(Serialize, Debug)]
 pub struct RescriptRelayConnectionConfig {
     pub key: String,
     pub at_object_path: Vec<String>,
     pub field_name: String,
+}
+
+#[derive(Serialize, Debug)]
+pub struct RescriptRelayPrintConfig {
+    pub variables_holding_connection_ids: Option<Vec<String>>,
+    pub connection: Option<RescriptRelayConnectionConfig>,
 }
 
 #[derive(Serialize, Debug)]
@@ -28,6 +37,7 @@ pub struct RescriptRelayOperationType {
 pub struct RescriptRelayOperationConfig {
     pub content: String,
     pub operation_type: RescriptRelayOperationType,
+    pub print_config: Option<RescriptRelayPrintConfig>,
 }
 
 pub fn generate_rescript_types(config_type: RescriptRelayOperationConfig) -> String {
@@ -154,6 +164,24 @@ pub fn rescript_get_source_loc_text(source_file: &SourceLocationKey) -> String {
 
 pub fn rescript_get_comments_for_generated() -> String {
     String::from("/* @generated */\n%%raw(\"/* @generated */\")")
+}
+
+pub fn rescript_get_fragment_meta_data(
+    schema: &SDLSchema,
+    state: &mut RescriptRelayVisitorState,
+    fragment: &FragmentDefinition,
+) {
+    let mut visitor = RescriptRelayVisitor::new(schema, state, String::from("fragment"));
+    visitor.visit_fragment(fragment)
+}
+
+pub fn rescript_get_operation_meta_data(
+    schema: &SDLSchema,
+    state: &mut RescriptRelayVisitorState,
+    operation: &OperationDefinition,
+) {
+    let mut visitor = RescriptRelayVisitor::new(schema, state, String::from("response"));
+    visitor.visit_operation(operation)
 }
 
 #[cfg(test)]
