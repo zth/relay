@@ -157,7 +157,8 @@ fn validate_field_name(
     let first_letter_untouched = the_field_name_as_str.chars().collect::<Vec<char>>()[0];
 
     // Check if first letter is uppercased
-    if first_letter_as_uppercase == first_letter_untouched {
+    if first_letter_untouched.is_alphabetic() && first_letter_as_uppercase == first_letter_untouched
+    {
         validation_errors.push(Diagnostic::error(
             ValidationMessage::RescriptRelayDisallowCapitalizedNames,
             location,
