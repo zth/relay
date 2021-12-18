@@ -5,7 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::rescript_relay_utils::*;
 use super::ArtifactGeneratedTypes;
 use crate::config::{Config, ProjectConfig};
 use common::{NamedItem, SourceLocationKey};
@@ -670,10 +669,17 @@ fn generate_operation_rescript(
     writeln!(
         &mut content,
         "{}",
-        rescript_get_source_loc_text(&reader_operation.name.location.source_location())
+        super::rescript_relay_utils::rescript_get_source_loc_text(
+            &reader_operation.name.location.source_location()
+        )
     )
     .unwrap();
-    writeln!(&mut content, "{}", rescript_get_comments_for_generated()).unwrap();
+    writeln!(
+        &mut content,
+        "{}",
+        super::rescript_relay_utils::rescript_get_comments_for_generated()
+    )
+    .unwrap();
 
     if let Some(QueryID::Persisted { text_hash, .. }) = id_and_text_hash {
         writeln!(content, "/* @relayHash {} */\n", text_hash).unwrap();
@@ -748,12 +754,14 @@ fn generate_operation_rescript(
     writeln!(
         content,
         "{}",
-        rescript_make_operation_type_and_node_text(&printer.print_request(
-            schema,
-            normalization_operation,
-            &operation_fragment,
-            request_parameters,
-        ))
+        super::rescript_relay_utils::rescript_make_operation_type_and_node_text(
+            &printer.print_request(
+                schema,
+                normalization_operation,
+                &operation_fragment,
+                request_parameters,
+            )
+        )
     )
     .unwrap();
 
@@ -815,10 +823,17 @@ fn generate_fragment_rescript(
     writeln!(
         &mut content,
         "{}",
-        rescript_get_source_loc_text(&reader_fragment.name.location.source_location())
+        super::rescript_relay_utils::rescript_get_source_loc_text(
+            &reader_fragment.name.location.source_location()
+        )
     )
     .unwrap();
-    writeln!(&mut content, "{}", rescript_get_comments_for_generated()).unwrap();
+    writeln!(
+        &mut content,
+        "{}",
+        super::rescript_relay_utils::rescript_get_comments_for_generated()
+    )
+    .unwrap();
 
     let data_driven_dependency_metadata = reader_fragment
         .directives
@@ -866,7 +881,7 @@ fn generate_fragment_rescript(
     writeln!(
         content,
         "{}",
-        rescript_make_operation_type_and_node_text(
+        super::rescript_relay_utils::rescript_make_operation_type_and_node_text(
             &printer.print_fragment(schema, reader_fragment)
         )
     )
