@@ -17,7 +17,6 @@ pub mod generate_extra_artifacts;
 mod log_program_stats;
 mod persist_operations;
 mod rescript_relay_utils;
-mod rescript_relay_visitor;
 mod source_control;
 mod validate;
 

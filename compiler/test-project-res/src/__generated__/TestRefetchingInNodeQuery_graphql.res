@@ -1,107 +1,96 @@
-/* @sourceLoc Component.res */
+/* @sourceLoc Test_refetchingInNode.res */
 /* @generated */
 %%raw("/* @generated */")
-
 module Types = {
   @@ocaml.warning("-30")
-  
+
   type rec response_node = {
-    __typename: string,
-    fragmentRefs: RescriptRelay.fragmentRefs<[ | #Component_node]>
+    __typename: [ | #User],
+    fragmentRefs: RescriptRelay.fragmentRefs<[ | #TestRefetchingInNode_user]>,
   }
   type response = {
     node: option<response_node>,
   }
   type rawResponse = response
+  type variables = {
+    userId: string,
+  }
   type refetchVariables = {
-    id: option<string>,
+    userId: option<string>,
   }
   let makeRefetchVariables = (
-    ~id=?,
+    ~userId=?,
     ()
   ): refetchVariables => {
-    id: id
-  }
-  
-  type variables = {
-    id: string,
+    userId: userId
   }
 }
 
 module Internal = {
+  let variablesConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
+    json`{}`
+  )
+  let variablesConverterMap = ()
+  let convertVariables = v => v->RescriptRelay.convertObj(
+    variablesConverter,
+    variablesConverterMap,
+    Js.undefined
+  )
   type wrapResponseRaw
-  let wrapResponseConverter: 
-    Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = 
-    %raw(
-      json`{"__root":{"node":{"f":"","n":""}}}`
-    )
-  
+  let wrapResponseConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
+    json`{"__root":{"node":{"tnf":"User","n":"","f":""}}}`
+  )
   let wrapResponseConverterMap = ()
   let convertWrapResponse = v => v->RescriptRelay.convertObj(
-    wrapResponseConverter, 
-    wrapResponseConverterMap, 
+    wrapResponseConverter,
+    wrapResponseConverterMap,
     Js.null
   )
   type responseRaw
-  let responseConverter: 
-    Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = 
-    %raw(
-      json`{"__root":{"node":{"f":"","n":""}}}`
-    )
-  
+  let responseConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
+    json`{"__root":{"node":{"tnf":"User","n":"","f":""}}}`
+  )
   let responseConverterMap = ()
   let convertResponse = v => v->RescriptRelay.convertObj(
-    responseConverter, 
-    responseConverterMap, 
+    responseConverter,
+    responseConverterMap,
     Js.undefined
   )
   type wrapRawResponseRaw = wrapResponseRaw
   let convertWrapRawResponse = convertWrapResponse
   type rawResponseRaw = responseRaw
   let convertRawResponse = convertResponse
-  let variablesConverter: 
-    Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = 
-    %raw(
-      json`{}`
-    )
-  
-  let variablesConverterMap = ()
-  let convertVariables = v => v->RescriptRelay.convertObj(
-    variablesConverter, 
-    variablesConverterMap, 
-    Js.undefined
-  )
 }
 
+type queryRef
 
 module Utils = {
   @@ocaml.warning("-33")
   open Types
   let makeVariables = (
-    ~id
+    ~userId
   ): variables => {
-    id: id
+    userId: userId
   }
 }
-
 
 type relayOperationNode
 type operationType = RescriptRelay.queryNode<relayOperationNode>
 
 
-let node: operationType = %raw(json`(function(){
+let node: operationType = %raw(json` (function(){
 var v0 = [
   {
     "defaultValue": null,
     "kind": "LocalArgument",
-    "name": "id"
+    "name": "userId"
   }
 ],
 v1 = [
   {
     "kind": "Variable",
     "name": "id",
-    "variableName": "id"
+    "variableName": "userId"
   }
 ],
 v2 = {
@@ -110,33 +99,13 @@ v2 = {
   "kind": "ScalarField",
   "name": "__typename",
   "storageKey": null
-},
-v3 = [
-  {
-    "alias": null,
-    "args": null,
-    "concreteType": "Text",
-    "kind": "LinkedField",
-    "name": "text",
-    "plural": false,
-    "selections": [
-      {
-        "alias": null,
-        "args": null,
-        "kind": "ScalarField",
-        "name": "text",
-        "storageKey": null
-      }
-    ],
-    "storageKey": null
-  }
-];
+};
 return {
   "fragment": {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Fragment",
     "metadata": null,
-    "name": "ComponentRefetchQuery",
+    "name": "TestRefetchingInNodeQuery",
     "selections": [
       {
         "alias": null,
@@ -146,10 +115,18 @@ return {
         "name": "node",
         "plural": false,
         "selections": [
+          (v2/*: any*/),
           {
-            "args": null,
-            "kind": "FragmentSpread",
-            "name": "Component_node"
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "args": null,
+                "kind": "FragmentSpread",
+                "name": "TestRefetchingInNode_user"
+              }
+            ],
+            "type": "User",
+            "abstractKey": null
           }
         ],
         "storageKey": null
@@ -162,7 +139,7 @@ return {
   "operation": {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Operation",
-    "name": "ComponentRefetchQuery",
+    "name": "TestRefetchingInNodeQuery",
     "selections": [
       {
         "alias": null,
@@ -173,10 +150,6 @@ return {
         "plural": false,
         "selections": [
           (v2/*: any*/),
-          {
-            "kind": "TypeDiscriminator",
-            "abstractKey": "__isNode"
-          },
           {
             "alias": null,
             "args": null,
@@ -189,36 +162,40 @@ return {
             "selections": [
               {
                 "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "firstName",
+                "storageKey": null
+              },
+              {
+                "alias": null,
                 "args": [
                   {
                     "kind": "Literal",
-                    "name": "supported",
-                    "value": []
+                    "name": "statuses",
+                    "value": [
+                      "Online",
+                      "Offline"
+                    ]
                   }
                 ],
-                "concreteType": null,
+                "concreteType": "UserConnection",
                 "kind": "LinkedField",
-                "name": "commentBody",
+                "name": "friendsConnection",
                 "plural": false,
                 "selections": [
-                  (v2/*: any*/),
                   {
-                    "kind": "InlineFragment",
-                    "selections": (v3/*: any*/),
-                    "type": "PlainCommentBody",
-                    "abstractKey": null
-                  },
-                  {
-                    "kind": "InlineFragment",
-                    "selections": (v3/*: any*/),
-                    "type": "MarkdownCommentBody",
-                    "abstractKey": null
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "totalCount",
+                    "storageKey": null
                   }
                 ],
-                "storageKey": "commentBody(supported:[])"
+                "storageKey": "friendsConnection(statuses:[\"Online\",\"Offline\"])"
               }
             ],
-            "type": "Comment",
+            "type": "User",
             "abstractKey": null
           }
         ],
@@ -227,17 +204,16 @@ return {
     ]
   },
   "params": {
-    "cacheID": "5a299db28f3b5aa88af9df0d37fe6785",
+    "cacheID": "79c28e4ac7972486b1a6034f8c257222",
     "id": null,
     "metadata": {},
-    "name": "ComponentRefetchQuery",
+    "name": "TestRefetchingInNodeQuery",
     "operationKind": "query",
-    "text": "query ComponentRefetchQuery(\n  $id: ID!\n) {\n  node(id: $id) {\n    __typename\n    ...Component_node\n    id\n  }\n}\n\nfragment Component_node on Node {\n  __isNode: __typename\n  id\n  ... on Comment {\n    commentBody(supported: []) {\n      __typename\n      ... on PlainCommentBody {\n        text {\n          text\n        }\n      }\n      ... on MarkdownCommentBody {\n        text {\n          text\n        }\n      }\n    }\n  }\n}\n"
+    "text": "query TestRefetchingInNodeQuery(\n  $userId: ID!\n) {\n  node(id: $userId) {\n    __typename\n    ... on User {\n      ...TestRefetchingInNode_user\n    }\n    id\n  }\n}\n\nfragment TestRefetchingInNode_user on User {\n  firstName\n  friendsConnection(statuses: [Online, Offline]) {\n    totalCount\n  }\n  id\n}\n"
   }
 };
-})()`)
+})() `)
 
-type queryRef
 include RescriptRelay.MakeLoadQuery({
     type variables = Types.variables
     type loadedQueryRef = queryRef

@@ -1,0 +1,132 @@
+scalar Datetime
+
+interface Node {
+  id: ID!
+}
+
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
+}
+
+enum OnlineStatus {
+  Online
+  Idle
+  Offline
+}
+
+type User implements Node {
+  id: ID!
+  firstName: String!
+  lastName: String!
+  avatarUrl: String
+  isOnline: Boolean
+  onlineStatus: OnlineStatus
+  nicknames: [String!]!
+  createdAt: Datetime!
+  friends(beforeDate: Datetime): [User!]!
+  friendsConnection(
+    statuses: [OnlineStatus!]
+    after: String
+    first: Int
+    before: String
+    last: Int
+  ): UserConnection!
+  memberOf: [Member]
+}
+
+type Group implements Node {
+  id: ID!
+  name: String!
+  avatarUrl: String
+  members: [Member]
+  adminsConnection(
+    after: String
+    first: Int
+    before: String
+    last: Int
+  ): UserConnection!
+}
+
+union Member = User | Group
+
+type UserConnection {
+  totalCount: Int!
+  pageInfo: PageInfo!
+  edges: [UserEdge]
+}
+
+type UserEdge {
+  node: User
+  cursor: String!
+}
+
+type MemberConnection {
+  totalCount: Int!
+  pageInfo: PageInfo!
+  edges: [MemberEdge]
+}
+
+type MemberEdge {
+  node: Member
+  cursor: String!
+}
+
+type AddFriendPayload {
+  addedFriend: User
+}
+
+type RemoveFriendPayload {
+  removedFriendId: ID
+}
+
+type UpdateUserAvatarPayload {
+  user: User
+}
+
+type UserUpdatedPayload {
+  user: User
+}
+
+type SetOnlineStatusPayload {
+  user: User
+}
+
+input SetOnlineStatusInput {
+  onlineStatus: OnlineStatus!
+}
+
+type Query {
+  node(id: ID!): Node
+  loggedInUser: User!
+  member(id: ID!): Member
+  members(
+    groupId: ID!
+    onlineStatuses: [OnlineStatus]
+    after: String
+    first: Int
+    before: String
+    last: Int
+  ): MemberConnection
+  users(
+    status: OnlineStatus
+    after: String
+    first: Int
+    before: String
+    last: Int
+  ): UserConnection
+}
+
+type Mutation {
+  updateUserAvatar(avatarUrl: String): UpdateUserAvatarPayload
+  addFriend(friendId: ID!): AddFriendPayload
+  removeFriend(friendId: ID!): RemoveFriendPayload
+  setOnlineStatus(onlineStatus: OnlineStatus!): SetOnlineStatusPayload
+  setOnlineStatusComplex(input: SetOnlineStatusInput!): SetOnlineStatusPayload
+}
+
+type Subscription {
+  userUpdated(id: ID!): UserUpdatedPayload
+}

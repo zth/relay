@@ -5,7 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::rescript_relay_utils::RescriptRelayConnectionConfig;
 use graphql_ir::{
     ConstantValue, Directive, Field, LinkedField, ScalarField, Value, Variable, Visitor,
 };
@@ -13,8 +12,15 @@ use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
 use schema::SDLSchema;
 
-#[allow(dead_code)]
-pub struct RescriptRelayVisitorState {
+#[derive(Debug)]
+pub struct RescriptRelayConnectionConfig {
+    pub key: String,
+    pub at_object_path: Vec<String>,
+    pub field_name: String,
+}
+
+#[derive(Debug)]
+pub struct RescriptRelayOperationMetaData {
     pub connection_config: Option<RescriptRelayConnectionConfig>,
     pub variables_with_connection_data_ids: Vec<String>,
 }
@@ -22,13 +28,13 @@ pub struct RescriptRelayVisitorState {
 pub struct RescriptRelayVisitor<'a> {
     schema: &'a SDLSchema,
     current_path: Vec<String>,
-    state: &'a mut RescriptRelayVisitorState,
+    state: &'a mut RescriptRelayOperationMetaData,
 }
 
 impl<'a> RescriptRelayVisitor<'a> {
     pub fn new(
         schema: &'a SDLSchema,
-        state: &'a mut RescriptRelayVisitorState,
+        state: &'a mut RescriptRelayOperationMetaData,
         initial_path: String,
     ) -> Self {
         Self {

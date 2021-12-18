@@ -11,10 +11,11 @@
   },
   "projects": {
     "test-res": {
-      "language": "flow",
-      "customScalarTypes": {},
-      "enumModuleSuffix": ".test",
-      "schema": "packages/relay-test-utils-internal/testschema.graphql"
+      "language": "rescript",
+      "customScalarTypes": {
+        "Datetime": "Datetime"
+      },
+      "schema": "compiler/test-project-res/schema.graphql"
     }
   }
 }

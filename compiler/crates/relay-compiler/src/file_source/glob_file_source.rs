@@ -41,8 +41,12 @@ impl<'config> GlobFileSource<'config> {
         file_extensions.insert("graphql");
         for project in config.enabled_projects() {
             match project.typegen_config.language {
-                TypegenLanguage::Flow => {
+                TypegenLanguage::ReScript => {
                     file_extensions.insert("res");
+                }
+                TypegenLanguage::Flow => {
+                    file_extensions.insert("js");
+                    file_extensions.insert("jsx");
                 }
                 TypegenLanguage::TypeScript => {
                     file_extensions.insert("js");

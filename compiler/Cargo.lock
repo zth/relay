@@ -1559,6 +1559,7 @@ dependencies = [
  "intern",
  "itertools",
  "lazy_static",
+ "log",
  "relay-codegen",
  "relay-test-schema",
  "relay-transforms",

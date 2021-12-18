@@ -15,12 +15,10 @@
 * Put anything that's possible to put in its own module, again to make maintenance easier
 
 ## TODO:
-* [x] Make interfacing with `RescriptRelayBin.exe` work
-* [x] Handle `Query.load`
-* [x] Add validation that disallows selecting invalid ReScript names
-* [x] Add transforms that automatically insert `__typename` on interfaces and unions in the type selection, without the user needing to know
-* [x] Handle refetchable nodes
-* [ ] Handle generating connection access helpers (prep for generating general accessors)
-* [ ] Variables that are put into store updater directives - $connections in `@appendEdge(connections: $connections)` - print types as `array<RescriptRelay.dataId>` rather than `ID/string`
-* [x] Emit `@sourceLoc`
-* [x] Print operation type
+* [x] Print connection utils
+* [x] Transform ID on things passed into $connections on store directives to `RescriptRelay.dataId`
+* [ ] Handle top level node field special treatment
+
+
+## Changes
+* `makeOptimisticResponse` is now only printed if there's a `@raw_response_type` annotation on a mutation. And it's only printed for one level, not all levels as previously.

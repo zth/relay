@@ -1,70 +1,7 @@
 use common::SourceLocationKey;
-use graphql_ir::{FragmentDefinition, OperationDefinition, Visitor};
 use lazy_static::lazy_static;
 use regex::Regex;
-use relay_transforms::RelayDirective;
-use schema::SDLSchema;
-use serde::Serialize;
-use std::{
-    fmt::Write,
-    ops::RangeTo,
-    process::{Command, Stdio},
-};
-
-use super::rescript_relay_visitor::{RescriptRelayVisitor, RescriptRelayVisitorState};
-
-#[derive(Serialize, Debug)]
-pub struct RescriptRelayConnectionConfig {
-    pub key: String,
-    pub at_object_path: Vec<String>,
-    pub field_name: String,
-}
-
-#[derive(Serialize, Debug)]
-pub struct RescriptRelayPrintConfig {
-    pub variables_holding_connection_ids: Option<Vec<String>>,
-    pub connection: Option<RescriptRelayConnectionConfig>,
-}
-
-#[derive(Serialize, Debug)]
-pub struct RescriptRelayOperationType {
-    pub operation: String,
-    pub operation_value: Option<String>,
-    pub fragment_value: Option<(String, bool)>,
-}
-
-#[derive(Serialize, Debug)]
-pub struct RescriptRelayOperationConfig {
-    pub content: String,
-    pub operation_type: RescriptRelayOperationType,
-    pub print_config: Option<RescriptRelayPrintConfig>,
-}
-
-pub fn generate_rescript_types(config_type: RescriptRelayOperationConfig) -> String {
-    match serde_json::to_string(&config_type) {
-        Ok(config) => {
-            let cmd = Command::new("./RescriptRelayBin.exe")
-                .arg("generate-from-flow")
-                .stdout(Stdio::piped())
-                .stdin(Stdio::piped())
-                .spawn()
-                .expect("Failed to spawn external command");
-
-            std::io::Write::write_all(&mut cmd.stdin.unwrap(), config.as_bytes())
-                .expect("Could not run external command.");
-
-            let mut res = String::new();
-            std::io::Read::read_to_string(&mut cmd.stdout.unwrap(), &mut res).unwrap();
-
-            res
-        }
-        Err(_) => panic!("Could not build ReasonRelay config."),
-    }
-}
-
-pub fn is_plural(node: &FragmentDefinition) -> bool {
-    RelayDirective::find(&node.directives).map_or(false, |relay_directive| relay_directive.plural)
-}
+use std::{fmt::Write, ops::RangeTo};
 
 pub fn rescript_find_references_graphql_nodes(concrete_text: &str) -> Vec<String> {
     lazy_static! {
@@ -93,12 +30,12 @@ pub fn rescript_make_operation_type_and_node_text(concrete_text: &str) -> String
 
     let mut str = String::new();
 
-    let refrenced_graphql_nodes = rescript_find_references_graphql_nodes(&concrete_text);
+    let referenced_graphql_nodes = rescript_find_references_graphql_nodes(&concrete_text);
 
-    if refrenced_graphql_nodes.len() == 0 {
+    if referenced_graphql_nodes.len() == 0 {
         writeln!(
             str,
-            "let node: operationType = %raw(json`{}`)",
+            "let node: operationType = %raw(json` {} `)",
             &concrete_text
         )
         .unwrap()
@@ -107,7 +44,7 @@ pub fn rescript_make_operation_type_and_node_text(concrete_text: &str) -> String
         writeln!(
             str,
             "%%private(let makeNode = ({}): operationType => {{",
-            refrenced_graphql_nodes
+            referenced_graphql_nodes
                 .iter()
                 .map(|module_name| format!("{}{}", *PREFIX, module_name))
                 .collect::<Vec<String>>()
@@ -119,7 +56,7 @@ pub fn rescript_make_operation_type_and_node_text(concrete_text: &str) -> String
         writeln!(
             str,
             "{}",
-            refrenced_graphql_nodes
+            referenced_graphql_nodes
                 .iter()
                 .map(|module_name| format!("  ignore({}{})", *PREFIX, module_name))
                 .collect::<Vec<String>>()
@@ -134,7 +71,7 @@ pub fn rescript_make_operation_type_and_node_text(concrete_text: &str) -> String
         writeln!(
             str,
             "let node: operationType = makeNode({})",
-            refrenced_graphql_nodes
+            referenced_graphql_nodes
                 .iter()
                 .map(|module_name| format!("{}_graphql.node", module_name))
                 .collect::<Vec<String>>()
@@ -164,24 +101,6 @@ pub fn rescript_get_source_loc_text(source_file: &SourceLocationKey) -> String {
 
 pub fn rescript_get_comments_for_generated() -> String {
     String::from("/* @generated */\n%%raw(\"/* @generated */\")")
-}
-
-pub fn rescript_get_fragment_meta_data(
-    schema: &SDLSchema,
-    state: &mut RescriptRelayVisitorState,
-    fragment: &FragmentDefinition,
-) {
-    let mut visitor = RescriptRelayVisitor::new(schema, state, String::from("fragment"));
-    visitor.visit_fragment(fragment)
-}
-
-pub fn rescript_get_operation_meta_data(
-    schema: &SDLSchema,
-    state: &mut RescriptRelayVisitorState,
-    operation: &OperationDefinition,
-) {
-    let mut visitor = RescriptRelayVisitor::new(schema, state, String::from("response"));
-    visitor.visit_operation(operation)
 }
 
 #[cfg(test)]

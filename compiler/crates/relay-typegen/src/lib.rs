@@ -11,6 +11,10 @@
 
 mod config;
 mod flow;
+mod rescript;
+mod rescript_ast;
+mod rescript_relay_visitor;
+mod rescript_utils;
 mod typescript;
 mod writer;
 
@@ -76,8 +80,13 @@ pub fn generate_fragment_type(
     js_module_format: JsModuleFormat,
     typegen_config: &TypegenConfig,
 ) -> String {
-    let mut generator =
-        TypeGenerator::new(schema, js_module_format, typegen_config, fragment.name.item);
+    let mut generator = TypeGenerator::new(
+        schema,
+        js_module_format,
+        typegen_config,
+        fragment.name.item,
+        rescript::DefinitionType::Fragment(fragment.clone()),
+    );
     generator.generate_fragment_type(fragment).unwrap();
     generator.into_string()
 }
@@ -91,7 +100,13 @@ pub fn generate_operation_type(
 ) -> String {
     let rollout_key = RefetchableDerivedFromMetadata::find(&typegen_operation.directives)
         .map_or(typegen_operation.name.item, |metadata| metadata.0);
-    let mut generator = TypeGenerator::new(schema, js_module_format, typegen_config, rollout_key);
+    let mut generator = TypeGenerator::new(
+        schema,
+        js_module_format,
+        typegen_config,
+        rollout_key,
+        rescript::DefinitionType::Operation(typegen_operation.clone()),
+    );
     generator
         .generate_operation_type(typegen_operation, normalization_operation)
         .unwrap();
@@ -110,6 +125,7 @@ pub fn generate_split_operation_type(
         js_module_format,
         typegen_config,
         typegen_operation.name.item,
+        rescript::DefinitionType::Operation(typegen_operation.clone()),
     );
     generator
         .generate_split_operation_type(typegen_operation, normalization_operation)
@@ -151,6 +167,7 @@ impl<'a> TypeGenerator<'a> {
         js_module_format: JsModuleFormat,
         typegen_config: &'a TypegenConfig,
         rollout_key: StringKey,
+        typegen_definition: rescript::DefinitionType,
     ) -> Self {
         let flow_typegen_phase = typegen_config.flow_typegen.phase(rollout_key);
         Self {
@@ -166,6 +183,10 @@ impl<'a> TypeGenerator<'a> {
             match_fields: Default::default(),
             runtime_imports: RuntimeImports::default(),
             writer: match &typegen_config.language {
+                TypegenLanguage::ReScript => Box::new(rescript::ReScriptPrinter::new(
+                    rescript_utils::get_rescript_relay_meta_data(&schema, &typegen_definition),
+                    typegen_definition,
+                )),
                 TypegenLanguage::Flow => Box::new(FlowPrinter::new(flow_typegen_phase)),
                 TypegenLanguage::TypeScript => Box::new(TypeScriptPrinter::new(typegen_config)),
             },
@@ -249,7 +270,6 @@ impl<'a> TypeGenerator<'a> {
                     .write_export_type(&new_variables_identifier, &input_variables_type)?;
             }
         }
-
 
         let response_identifier = match self.flow_typegen_phase {
             FlowTypegenPhase::Phase4 => {
@@ -1323,6 +1343,7 @@ impl<'a> TypeGenerator<'a> {
 
     fn write_enum_definitions(&mut self) -> Result {
         let mut enum_ids: Vec<_> = self.used_enums.iter().cloned().collect();
+
         enum_ids.sort_by_key(|enum_id| self.schema.enum_(*enum_id).name);
         for enum_id in enum_ids {
             let enum_type = self.schema.enum_(enum_id);
@@ -1550,7 +1571,6 @@ impl TypeSelection {
             }),
         )
     }
-
 
     fn get_field_name_or_alias(&self) -> Option<StringKey> {
         match self {

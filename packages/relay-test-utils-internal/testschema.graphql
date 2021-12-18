@@ -39,7 +39,7 @@ directive @live_query(
 type Query {
   checkinSearchQuery(query: CheckinSearchInput): CheckinSearchResult
   defaultSettings: Settings
-  route(waypoints: [WayPoint!]!): Route
+  route(waypoints: [WayPoint!]!, from: String, to: String): Route
   items(filter: ItemFilterInput): ItemFilterResult
   maybeNodeInterface: MaybeNodeInterface
   maybeNode: MaybeNode

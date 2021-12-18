@@ -317,6 +317,13 @@ fn apply_normalization_transforms(
         print_stats("generate_typename", &program);
     }
 
+    program = log_event.time("rescript_relay_generate_typename", || {
+        rescript_relay_generate_typename(&program)
+    });
+    if let Some(print_stats) = maybe_print_stats {
+        print_stats("rescript_relay_generate_typename", &program);
+    }
+
     log_event.time("flatten", || flatten(&mut program, true, false))?;
     if let Some(print_stats) = maybe_print_stats {
         print_stats("flatten", &program);
@@ -370,6 +377,9 @@ fn apply_operation_text_transforms(
     });
     program = log_event.time("skip_unreachable_node", || skip_unreachable_node(&program))?;
     program = log_event.time("generate_typename", || generate_typename(&program, false));
+    program = log_event.time("rescript_relay_generate_typename", || {
+        rescript_relay_generate_typename(&program)
+    });
     program = log_event.time("skip_null_arguments_transform", || {
         skip_null_arguments_transform(&program)
     });
@@ -443,7 +453,9 @@ fn apply_typegen_transforms(
     // here in Rust at some point. But, as long as our typegen operates on the
     // generated Flow types, __typename needs to be present in them for the
     // typegen to understand about unions/interfaces properly.
-    program = log_event.time("generate_typename", || generate_typename(&program, false));
+    program = log_event.time("rescript_relay_generate_typename", || {
+        rescript_relay_generate_typename(&program)
+    });
 
     log_event.complete();
 

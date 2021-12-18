@@ -19,6 +19,7 @@ type FnvIndexSet<T> = IndexSet<T, FnvBuildHasher>;
 pub enum TypegenLanguage {
     Flow,
     TypeScript,
+    ReScript,
 }
 
 impl Default for TypegenLanguage {

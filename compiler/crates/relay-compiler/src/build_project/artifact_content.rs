@@ -6,7 +6,6 @@
  */
 
 use super::rescript_relay_utils::*;
-use super::rescript_relay_visitor::RescriptRelayVisitorState;
 use crate::config::{Config, ProjectConfig};
 use common::{NamedItem, SourceLocationKey};
 use graphql_ir::{Directive, FragmentDefinition, OperationDefinition};
@@ -283,7 +282,7 @@ fn generate_operation(
         TypegenLanguage::Flow => {
             writeln!(content, "*/\n").unwrap();
         }
-        TypegenLanguage::TypeScript => {
+        TypegenLanguage::TypeScript | TypegenLanguage::ReScript => {
             writeln!(content).unwrap();
         }
     }
@@ -402,7 +401,7 @@ fn generate_split_operation(
         TypegenLanguage::Flow => {
             writeln!(content, "*/\n").unwrap();
         }
-        TypegenLanguage::TypeScript => {
+        TypegenLanguage::TypeScript | TypegenLanguage::ReScript => {
             writeln!(content).unwrap();
         }
     }
@@ -546,7 +545,7 @@ fn generate_fragment(
     }
     match project_config.typegen_config.language {
         TypegenLanguage::Flow => writeln!(content, "*/\n").unwrap(),
-        TypegenLanguage::TypeScript => writeln!(content).unwrap(),
+        TypegenLanguage::TypeScript | TypegenLanguage::ReScript => writeln!(content).unwrap(),
     }
 
     write_variable_value_with_type(
@@ -593,6 +592,7 @@ fn write_variable_value_with_type(
         TypegenLanguage::TypeScript => {
             writeln!(content, "const {}: {} = {};\n", variable_name, type_, value)
         }
+        TypegenLanguage::ReScript => Ok(()),
     }
 }
 
@@ -606,6 +606,7 @@ fn write_disable_lint_header(language: &TypegenLanguage, content: &mut String) -
         TypegenLanguage::Flow => {
             writeln!(content, "/* eslint-disable */\n")
         }
+        TypegenLanguage::ReScript => Ok(()),
     }
 }
 
@@ -618,6 +619,7 @@ fn write_import_type_from(
     match language {
         TypegenLanguage::Flow => writeln!(content, "import type {{ {} }} from '{}';", type_, from),
         TypegenLanguage::TypeScript => writeln!(content, "import {{ {} }} from '{}';", type_, from),
+        TypegenLanguage::ReScript => Ok(()),
     }
 }
 
@@ -631,6 +633,7 @@ fn write_export_generated_node(
         writeln!(content, "export default {};", variable_node)
     } else {
         match (typegen_config.language, forced_type) {
+            (TypegenLanguage::ReScript, _) => Ok(()),
             (TypegenLanguage::Flow, None) => {
                 writeln!(content, "module.exports = {};", variable_node)
             }
@@ -667,6 +670,7 @@ fn write_source_hash(
     if let Some(is_dev_variable_name) = &config.is_dev_variable_name {
         writeln!(content, "if ({}) {{", is_dev_variable_name)?;
         match language {
+            TypegenLanguage::ReScript => writeln!(content, "")?,
             TypegenLanguage::Flow => {
                 writeln!(content, "  (node/*: any*/).hash = \"{}\";", source_hash)?
             }
@@ -677,6 +681,7 @@ fn write_source_hash(
         writeln!(content, "}}\n")?;
     } else {
         match language {
+            TypegenLanguage::ReScript => writeln!(content, "")?,
             TypegenLanguage::Flow => {
                 writeln!(content, "(node/*: any*/).hash = \"{}\";\n", source_hash)?
             }
@@ -694,7 +699,7 @@ fn write_source_hash(
  * from the original one, in order to make it easier to maintain the
  * fork/see what differences we've applied to support RescriptRelay.
  */
-#[allow(clippy::too_many_arguments)]
+#[allow(clippy::too_many_arguments, dead_code)]
 fn generate_operation_rescript(
     _config: &Config,
     project_config: &ProjectConfig,
@@ -769,37 +774,18 @@ fn generate_operation_rescript(
         writeln!(content).unwrap();
     }
 
-    let op_type = RescriptRelayOperationType {
-        operation: typegen_operation.kind.to_string().to_lowercase(),
-        operation_value: Some(typegen_operation.name.item.to_string()),
-        fragment_value: None,
-    };
-
-    let mut meta_data_state = RescriptRelayVisitorState {
-        connection_config: None,
-        variables_with_connection_data_ids: vec![],
-    };
-
-    rescript_get_operation_meta_data(schema, &mut meta_data_state, typegen_operation);
-
-    let config_type = RescriptRelayOperationConfig {
-        content: relay_typegen::generate_operation_type(
+    writeln!(
+        content,
+        "{}",
+        relay_typegen::generate_operation_type(
             typegen_operation,
             normalization_operation,
             schema,
             project_config.js_module_format,
             &project_config.typegen_config,
-        ),
-        operation_type: op_type,
-        print_config: Some(RescriptRelayPrintConfig {
-            connection: meta_data_state.connection_config,
-            variables_holding_connection_ids: Some(
-                meta_data_state.variables_with_connection_data_ids,
-            ),
-        }),
-    };
-
-    writeln!(content, "{}", generate_rescript_types(config_type)).unwrap();
+        )
+    )
+    .unwrap();
 
     // Print operation node types
     writeln!(
@@ -839,7 +825,7 @@ fn generate_operation_rescript(
         match typegen_operation.kind {
             OperationKind::Query => {
                 // TODO: Replace functor at some point
-                "type queryRef\ninclude RescriptRelay.MakeLoadQuery({
+                "include RescriptRelay.MakeLoadQuery({
     type variables = Types.variables
     type loadedQueryRef = queryRef
     type response = Types.response
@@ -874,7 +860,7 @@ RescriptRelay note: This is intentionally a separate function, copied
 from the original one, in order to make it easier to maintain the
 fork/see what differences we've applied to support RescriptRelay.
 */
-#[allow(clippy::too_many_arguments)]
+#[allow(clippy::too_many_arguments, dead_code)]
 fn generate_fragment_rescript(
     _config: &Config,
     project_config: &ProjectConfig,
@@ -915,41 +901,18 @@ fn generate_fragment_rescript(
             .unwrap();
     }
 
-    let mut meta_data_state = RescriptRelayVisitorState {
-        connection_config: None,
-        variables_with_connection_data_ids: vec![],
-    };
-
-    rescript_get_fragment_meta_data(schema, &mut meta_data_state, typegen_fragment);
-
-    let fragment_type = RescriptRelayOperationType {
-        operation: String::from("fragment"),
-        fragment_value: Some((
-            typegen_fragment.name.item.to_string(),
-            is_plural(typegen_fragment),
-        )),
-        operation_value: None,
-    };
-
-    let config_type = RescriptRelayOperationConfig {
-        content: generate_fragment_type(
+    writeln!(
+        content,
+        "{}",
+        generate_fragment_type(
             typegen_fragment,
             schema,
             project_config.js_module_format,
             &project_config.typegen_config,
-        ),
-        operation_type: fragment_type,
-        print_config: Some(RescriptRelayPrintConfig {
-            connection: meta_data_state.connection_config,
-            variables_holding_connection_ids: Some(
-                meta_data_state.variables_with_connection_data_ids,
-            ),
-        }),
-    };
+        )
+    )
+    .unwrap();
 
-    let rescript_types = generate_rescript_types(config_type);
-
-    writeln!(content, "{}", rescript_types).unwrap();
     // Print the operation type
     writeln!(
         content,
