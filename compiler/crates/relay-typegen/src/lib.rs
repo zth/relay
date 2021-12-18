@@ -1372,7 +1372,6 @@ impl<'a> TypeGenerator<'a> {
 
     fn write_enum_definitions(&mut self) -> FmtResult {
         let mut enum_ids: Vec<_> = self.used_enums.iter().cloned().collect();
-
         enum_ids.sort_by_key(|enum_id| self.schema.enum_(*enum_id).name);
         for enum_id in enum_ids {
             let enum_type = self.schema.enum_(enum_id);
