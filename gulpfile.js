@@ -51,7 +51,6 @@ const VERSION = RELEASE_COMMIT_SHA
   ? `0.0.0-main-${RELEASE_COMMIT_SHA.substr(0, 8)}`
   : process.env.npm_package_version;
 
-const SCRIPT_HASHBANG = '#!/usr/bin/env node\n';
 const DEVELOPMENT_HEADER = `/**
  * Relay v${VERSION}
  */
@@ -197,21 +196,6 @@ const builds = [
     ],
   },
   {
-    package: 'relay-config',
-    exports: {
-      index: 'index.js',
-    },
-    bundles: [
-      {
-        entry: 'index.js',
-        output: 'relay-config',
-        libraryName: 'RelayConfig',
-        target: 'node',
-        noMinify: true, // Note: uglify can't yet handle modern JS
-      },
-    ],
-  },
-  {
     package: 'relay-test-utils-internal',
     exports: {
       index: 'index.js',
@@ -263,6 +247,13 @@ builds.forEach((build) => {
     function copyLicense() {
       return gulp
         .src(['LICENSE'])
+        .pipe(gulp.dest(path.join(DIST, build.package)));
+    },
+    function copyReadmeFile() {
+      return gulp
+        .src(['README.md'], {
+          cwd: path.join(PACKAGES, build.package),
+        })
         .pipe(gulp.dest(path.join(DIST, build.package)));
     },
     function copyTestschema() {
@@ -350,7 +341,7 @@ const relayCompiler = gulp.parallel(
   },
   function copyPackageFiles() {
     return gulp
-      .src(['package.json', 'cli.js', 'index.js'], {
+      .src(['README.md', 'package.json', 'cli.js', 'index.js'], {
         cwd: path.join(PACKAGES, 'relay-compiler'),
       })
       .pipe(gulp.dest(path.join(DIST, 'relay-compiler')));

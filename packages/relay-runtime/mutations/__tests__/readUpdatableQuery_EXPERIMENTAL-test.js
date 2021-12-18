@@ -32,6 +32,15 @@ const updatableQuery = graphql`
       __typename
       id
       name
+      author {
+        client_best_friend {
+          ...readUpdatableQueryEXPERIMENTALTest_user
+          name
+        }
+      }
+      author2: author {
+        client_nickname
+      }
       ...readUpdatableQueryEXPERIMENTALTest_user
     }
     node(id: "4") {
@@ -69,6 +78,12 @@ const regularQuery = graphql`
     me {
       id
       name
+      author {
+        client_best_friend {
+          name
+        }
+        client_nickname
+      }
     }
     node(id: "4") {
       __typename
@@ -98,6 +113,12 @@ graphql`
   }
 `;
 
+graphql`
+  fragment readUpdatableQueryEXPERIMENTALTest_node on Node @assignable {
+    __typename
+  }
+`;
+
 describe('readUpdatableQuery', () => {
   let environment;
   let operation;
@@ -122,6 +143,7 @@ describe('readUpdatableQuery', () => {
         id: '4',
         __typename: 'User',
         name: 'Zuck',
+        author: null,
       },
       node: null,
       node2: null,
@@ -149,6 +171,7 @@ describe('readUpdatableQuery', () => {
         id: '4',
         __typename: 'User',
         name: 'Zuck',
+        author: null,
       },
       node: null,
       node2: null,
@@ -185,6 +208,7 @@ describe('readUpdatableQuery', () => {
         id: '4',
         __typename: 'User',
         name: 'Zuck',
+        author: null,
       },
       node: null,
       node2: null,
@@ -297,6 +321,7 @@ describe('readUpdatableQuery', () => {
         __typename: 'User',
         id: '42',
         name: 'NotZuck',
+        author: null,
       },
       node: {
         __typename: 'User',
@@ -355,6 +380,7 @@ describe('readUpdatableQuery', () => {
         __typename: 'User',
         id: '42',
         name: 'NotZuck',
+        author: null,
       },
       node: {
         __typename: 'User',
@@ -401,6 +427,7 @@ describe('readUpdatableQuery', () => {
         __typename: 'User',
         id: '42',
         name: 'NotZuck',
+        author: null,
       },
       node: {
         __typename: 'User',
@@ -694,5 +721,174 @@ describe('readUpdatableQuery', () => {
         );
       expect(updatableData.node?.__typename).toBe('Metahuman');
     });
+  });
+
+  it('does not throw when accessing a client extension field', () => {
+    environment.commitPayload(operation, {
+      me: {
+        __typename: 'User',
+        id: '4',
+        name: 'Mark',
+        author: {
+          id: '5',
+          client_best_friend: {
+            id: '6',
+            name: 'Sheryl',
+          },
+          client_nickname: 'Zucc',
+        },
+      },
+      node: null,
+      node2: null,
+    });
+
+    commitLocalUpdate(environment, store => {
+      const updatableData =
+        store.readUpdatableQuery_EXPERIMENTAL<readUpdatableQueryEXPERIMENTALTestUpdatableQuery>(
+          updatableQuery,
+          {},
+        );
+      expect(() => {
+        // The author field contains client_best_friend, which is a client extension
+        updatableData.me?.author;
+      }).not.toThrowError();
+      expect(() => {
+        // The author field contains client_nickname, which is a client extension
+        updatableData.me?.author2;
+      }).not.toThrowError();
+    });
+  });
+
+  it('lets you update client extension linked fields', () => {
+    environment.commitPayload(operation, {
+      me: {
+        __typename: 'User',
+        id: '4',
+        name: 'Mark',
+        author: {
+          id: '5',
+          client_best_friend: {
+            id: '6',
+            name: 'Sheryl',
+          },
+          client_nickname: 'Zucc',
+        },
+      },
+      node: {
+        id: '4',
+        __typename: 'User',
+        name: 'Mark',
+      },
+      node2: null,
+    });
+
+    commitLocalUpdate(environment, store => {
+      const updatableData =
+        store.readUpdatableQuery_EXPERIMENTAL<readUpdatableQueryEXPERIMENTALTestUpdatableQuery>(
+          updatableQuery,
+          {},
+        );
+
+      const source = environment.getStore().getSource();
+      const selector = operation.fragment;
+      const readOnlyData = ((RelayReader.read(source, selector) // $FlowFixMe[unclear-type] Just to cast it to a better type!
+        .data: any): readUpdatableQueryEXPERIMENTALTestRegularQuery['response']);
+
+      if (updatableData.me?.author != null) {
+        updatableData.me.author.client_best_friend = readOnlyData.node;
+      } else {
+        throw new Error('Expected author to exist');
+      }
+      expect(readOnlyData.node?.name).toBe('Mark');
+      expect(updatableData.me?.author?.client_best_friend?.name).toBe('Mark');
+    });
+    const source = environment.getStore().getSource();
+    const selector = operation.fragment;
+    const readOnlyData = ((RelayReader.read(source, selector) // $FlowFixMe[unclear-type] Just to cast it to a better type!
+      .data: any): readUpdatableQueryEXPERIMENTALTestRegularQuery['response']);
+    expect(readOnlyData.me?.author?.client_best_friend?.name).toBe('Mark');
+  });
+
+  it('lets you update client extension scalar fields', () => {
+    environment.commitPayload(operation, {
+      me: {
+        __typename: 'User',
+        id: '4',
+        name: 'Mark',
+        author: {
+          id: '5',
+          client_best_friend: {
+            id: '6',
+            name: 'Sheryl',
+          },
+          client_nickname: 'Zucc',
+        },
+      },
+      node: null,
+      node2: null,
+    });
+
+    commitLocalUpdate(environment, store => {
+      const updatableData =
+        store.readUpdatableQuery_EXPERIMENTAL<readUpdatableQueryEXPERIMENTALTestUpdatableQuery>(
+          updatableQuery,
+          {},
+        );
+
+      if (updatableData.me?.author2 != null) {
+        updatableData.me.author2.client_nickname = 'Mr. Right';
+      } else {
+        throw new Error('Expected author to exist');
+      }
+      expect(updatableData.me?.author2?.client_nickname).toBe('Mr. Right');
+    });
+    const source = environment.getStore().getSource();
+    const selector = operation.fragment;
+    const readOnlyData = ((RelayReader.read(source, selector) // $FlowFixMe[unclear-type] Just to cast it to a better type!
+      .data: any): readUpdatableQueryEXPERIMENTALTestRegularQuery['response']);
+    expect(readOnlyData.me?.author?.client_nickname).toBe('Mr. Right');
+  });
+
+  it('lets you navigate through client extension fields and update nested scalar fields', () => {
+    environment.commitPayload(operation, {
+      me: {
+        __typename: 'User',
+        id: '4',
+        name: 'Mark',
+        author: {
+          id: '5',
+          client_best_friend: {
+            id: '6',
+            name: 'Sheryl',
+          },
+          client_nickname: 'Zucc',
+        },
+      },
+      node: null,
+      node2: null,
+    });
+
+    commitLocalUpdate(environment, store => {
+      const updatableData =
+        store.readUpdatableQuery_EXPERIMENTAL<readUpdatableQueryEXPERIMENTALTestUpdatableQuery>(
+          updatableQuery,
+          {},
+        );
+
+      if (updatableData.me?.author?.client_best_friend != null) {
+        updatableData.me.author.client_best_friend.name = 'Mr. Right';
+      } else {
+        throw new Error('Expected author to exist');
+      }
+      expect(updatableData.me?.author?.client_best_friend.name).toBe(
+        'Mr. Right',
+      );
+    });
+
+    const source = environment.getStore().getSource();
+    const selector = operation.fragment;
+    const readOnlyData = ((RelayReader.read(source, selector) // $FlowFixMe[unclear-type] Just to cast it to a better type!
+      .data: any): readUpdatableQueryEXPERIMENTALTestRegularQuery['response']);
+    expect(readOnlyData.me?.author?.client_best_friend?.name).toBe('Mr. Right');
   });
 });

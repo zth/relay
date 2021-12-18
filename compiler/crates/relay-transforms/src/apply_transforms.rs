@@ -8,11 +8,10 @@
 use crate::match_::hash_supported_argument;
 
 use super::*;
-use common::{sync::try_join, DiagnosticsResult, FeatureFlags, PerfLogEvent, PerfLogger};
-use fnv::FnvHashSet;
+use common::{sync::try_join, DiagnosticsResult, PerfLogEvent, PerfLogger};
 use graphql_ir::Program;
-use intern::string_key::StringKey;
-use regex::Regex;
+use intern::string_key::StringKeySet;
+use relay_config::ProjectConfig;
 use std::sync::Arc;
 
 #[derive(Debug)]
@@ -25,12 +24,9 @@ pub struct Programs {
 }
 
 pub fn apply_transforms<TPerfLogger>(
-    project_name: StringKey,
+    project_config: &ProjectConfig,
     program: Arc<Program>,
-    base_fragment_names: Arc<FnvHashSet<StringKey>>,
-    connection_interface: &ConnectionInterface,
-    feature_flags: Arc<FeatureFlags>,
-    test_path_regex: &Option<Regex>,
+    base_fragment_names: Arc<StringKeySet>,
     perf_logger: Arc<TPerfLogger>,
     print_stats: Option<fn(extra_info: &'static str, program: &Program) -> ()>,
 ) -> DiagnosticsResult<Programs>
@@ -52,10 +48,8 @@ where
     let (((normalization_program, text_program), reader_program), typegen_program) = try_join(
         || {
             let common_program = apply_common_transforms(
-                project_name,
+                project_config,
                 Arc::clone(&program),
-                connection_interface,
-                Arc::clone(&feature_flags),
                 Arc::clone(&base_fragment_names),
                 Arc::clone(&perf_logger),
             )?;
@@ -63,9 +57,8 @@ where
             try_join(
                 || {
                     let operation_program = apply_operation_transforms(
-                        project_name,
+                        project_config,
                         Arc::clone(&common_program),
-                        connection_interface,
                         Arc::clone(&base_fragment_names),
                         Arc::clone(&perf_logger),
                     )?;
@@ -73,21 +66,18 @@ where
                     try_join(
                         || {
                             apply_normalization_transforms(
-                                project_name,
+                                project_config,
                                 Arc::clone(&operation_program),
                                 Arc::clone(&base_fragment_names),
-                                Arc::clone(&feature_flags),
-                                test_path_regex.clone(),
                                 Arc::clone(&perf_logger),
                                 print_stats,
                             )
                         },
                         || {
                             apply_operation_text_transforms(
-                                project_name,
+                                project_config,
                                 Arc::clone(&operation_program),
                                 Arc::clone(&base_fragment_names),
-                                Arc::clone(&feature_flags),
                                 Arc::clone(&perf_logger),
                             )
                         },
@@ -95,9 +85,8 @@ where
                 },
                 || {
                     apply_reader_transforms(
-                        project_name,
+                        project_config,
                         Arc::clone(&common_program),
-                        Arc::clone(&feature_flags),
                         Arc::clone(&base_fragment_names),
                         Arc::clone(&perf_logger),
                     )
@@ -106,9 +95,8 @@ where
         },
         || {
             apply_typegen_transforms(
-                project_name,
+                project_config,
                 Arc::clone(&program),
-                Arc::clone(&feature_flags),
                 Arc::clone(&base_fragment_names),
                 Arc::clone(&perf_logger),
             )
@@ -126,24 +114,22 @@ where
 
 /// Applies transforms that apply to every output.
 fn apply_common_transforms(
-    project_name: StringKey,
+    project_config: &ProjectConfig,
     program: Arc<Program>,
-    connection_interface: &ConnectionInterface,
-    feature_flags: Arc<FeatureFlags>,
-    base_fragment_names: Arc<FnvHashSet<StringKey>>,
+    base_fragment_names: Arc<StringKeySet>,
     perf_logger: Arc<impl PerfLogger>,
 ) -> DiagnosticsResult<Arc<Program>> {
     let log_event = perf_logger.create_event("apply_common_transforms");
-    log_event.string("project", project_name.to_string());
+    log_event.string("project", project_config.name.to_string());
     let mut program = log_event.time("transform_connections", || {
-        transform_connections(&program, connection_interface)
+        transform_connections(&program, &project_config.schema_config.connection_interface)
     });
     program = log_event.time("mask", || mask(&program));
     program = log_event.time("transform_defer_stream", || {
         transform_defer_stream(&program)
     })?;
     program = log_event.time("transform_match", || {
-        transform_match(&program, &feature_flags)
+        transform_match(&program, &project_config.feature_flags)
     })?;
     program = log_event.time("transform_subscriptions", || {
         transform_subscriptions(&program)
@@ -155,18 +141,21 @@ fn apply_common_transforms(
     program = log_event.time("client_edges", || client_edges(&program))?;
 
     program = log_event.time("relay_resolvers", || {
-        relay_resolvers(&program, feature_flags.enable_relay_resolver_transform)
+        relay_resolvers(
+            &program,
+            project_config.feature_flags.enable_relay_resolver_transform,
+        )
     })?;
 
-    if feature_flags.enable_flight_transform {
+    if project_config.feature_flags.enable_flight_transform {
         program = log_event.time("react_flight", || react_flight(&program))?;
         program = log_event.time("relay_client_component", || {
-            relay_client_component(&program, &feature_flags)
+            relay_client_component(&program, &project_config.feature_flags)
         })?;
     }
 
     program = log_event.time("relay_actor_change_transform", || {
-        relay_actor_change_transform(&program, &feature_flags.actor_change_support)
+        relay_actor_change_transform(&program, &project_config.feature_flags.actor_change_support)
     })?;
 
     program = log_event.time("provided_variable_fragment_transform", || {
@@ -181,26 +170,24 @@ fn apply_common_transforms(
 /// Applies transforms only for generated reader code.
 /// Corresponds to the "fragment transforms" in the JS compiler.
 fn apply_reader_transforms(
-    project_name: StringKey,
+    project_config: &ProjectConfig,
     program: Arc<Program>,
-    feature_flags: Arc<FeatureFlags>,
-    base_fragment_names: Arc<FnvHashSet<StringKey>>,
+    base_fragment_names: Arc<StringKeySet>,
     perf_logger: Arc<impl PerfLogger>,
 ) -> DiagnosticsResult<Arc<Program>> {
     let log_event = perf_logger.create_event("apply_reader_transforms");
-    log_event.string("project", project_name.to_string());
-    let mut program = log_event.time("required_directive", || {
-        required_directive(&program, &feature_flags)
-    })?;
+    log_event.string("project", project_config.name.to_string());
+    let mut program = log_event.time("required_directive", || required_directive(&program))?;
 
     program = log_event.time("client_extensions", || client_extensions(&program));
     program = log_event.time("handle_field_transform", || {
         handle_field_transform(&program)
     });
 
-    program = log_event.time("transform_assignable_fragment_spreads", || {
-        transform_assignable_fragment_spreads(&program)
-    })?;
+    program = log_event.time(
+        "transform_assignable_fragment_spreads_in_regular_queries",
+        || transform_assignable_fragment_spreads_in_regular_queries(&program),
+    )?;
 
     program = log_event.time("inline_data_fragment", || inline_data_fragment(&program))?;
     program = log_event.time("skip_unreachable_node", || skip_unreachable_node(&program))?;
@@ -214,7 +201,7 @@ fn apply_reader_transforms(
         generate_data_driven_dependency_metadata(&program)
     });
     program = log_event.time("hash_supported_argument", || {
-        hash_supported_argument(&program, &feature_flags)
+        hash_supported_argument(&program, &project_config.feature_flags)
     })?;
 
     log_event.complete();
@@ -225,14 +212,13 @@ fn apply_reader_transforms(
 /// Applies transforms that apply to all operation artifacts.
 /// Corresponds to the "query transforms" in the JS compiler.
 fn apply_operation_transforms(
-    project_name: StringKey,
+    project_config: &ProjectConfig,
     program: Arc<Program>,
-    connection_interface: &ConnectionInterface,
-    base_fragment_names: Arc<FnvHashSet<StringKey>>,
+    base_fragment_names: Arc<StringKeySet>,
     perf_logger: Arc<impl PerfLogger>,
 ) -> DiagnosticsResult<Arc<Program>> {
     let log_event = perf_logger.create_event("apply_operation_transforms");
-    log_event.string("project", project_name.to_string());
+    log_event.string("project", project_config.name.to_string());
 
     let mut program = log_event.time("preserve_client_edge_backing_ids", || {
         preserve_client_edge_backing_ids(&program)
@@ -243,7 +229,10 @@ fn apply_operation_transforms(
     });
     program = log_event.time("generate_id_field", || generate_id_field(&program));
     program = log_event.time("declarative_connection", || {
-        transform_declarative_connection(&program, connection_interface)
+        transform_declarative_connection(
+            &program,
+            &project_config.schema_config.connection_interface,
+        )
     })?;
 
     // TODO(T67052528): execute FB-specific transforms only if config options is provided
@@ -264,16 +253,14 @@ fn apply_operation_transforms(
 ///
 /// Corresponds to the "codegen transforms" in the JS compiler
 fn apply_normalization_transforms(
-    project_name: StringKey,
+    project_config: &ProjectConfig,
     program: Arc<Program>,
-    base_fragment_names: Arc<FnvHashSet<StringKey>>,
-    feature_flags: Arc<FeatureFlags>,
-    test_path_regex: Option<Regex>,
+    base_fragment_names: Arc<StringKeySet>,
     perf_logger: Arc<impl PerfLogger>,
     maybe_print_stats: Option<fn(extra_info: &'static str, program: &Program) -> ()>,
 ) -> DiagnosticsResult<Arc<Program>> {
     let log_event = perf_logger.create_event("apply_normalization_transforms");
-    log_event.string("project", project_name.to_string());
+    log_event.string("project", project_config.name.to_string());
     if let Some(print_stats) = maybe_print_stats {
         print_stats("normalization start", &program);
     }
@@ -282,7 +269,7 @@ fn apply_normalization_transforms(
         apply_fragment_arguments(
             &program,
             true,
-            &feature_flags.no_inline,
+            &project_config.feature_flags.no_inline,
             &base_fragment_names,
         )
     })?;
@@ -291,7 +278,7 @@ fn apply_normalization_transforms(
     }
 
     program = log_event.time("hash_supported_argument", || {
-        hash_supported_argument(&program, &feature_flags)
+        hash_supported_argument(&program, &project_config.feature_flags)
     })?;
     if let Some(print_stats) = maybe_print_stats {
         print_stats("hash_supported_argument", &program);
@@ -335,7 +322,7 @@ fn apply_normalization_transforms(
     }
 
     program = log_event.time("generate_test_operation_metadata", || {
-        generate_test_operation_metadata(&program, &test_path_regex)
+        generate_test_operation_metadata(&program, &project_config.test_path_regex)
     })?;
     if let Some(print_stats) = maybe_print_stats {
         print_stats("generate_test_operation_metadata", &program);
@@ -351,20 +338,19 @@ fn apply_normalization_transforms(
 ///
 /// Corresponds to the "print transforms" in the JS compiler
 fn apply_operation_text_transforms(
-    project_name: StringKey,
+    project_config: &ProjectConfig,
     program: Arc<Program>,
-    base_fragment_names: Arc<FnvHashSet<StringKey>>,
-    feature_flags: Arc<FeatureFlags>,
+    base_fragment_names: Arc<StringKeySet>,
     perf_logger: Arc<impl PerfLogger>,
 ) -> DiagnosticsResult<Arc<Program>> {
     let log_event = perf_logger.create_event("apply_operation_text_transforms");
-    log_event.string("project", project_name.to_string());
+    log_event.string("project", project_config.name.to_string());
 
     let mut program = log_event.time("apply_fragment_arguments", || {
         apply_fragment_arguments(
             &program,
             false,
-            &feature_flags.no_inline,
+            &project_config.feature_flags.no_inline,
             &base_fragment_names,
         )
     })?;
@@ -406,31 +392,32 @@ fn apply_operation_text_transforms(
 }
 
 fn apply_typegen_transforms(
-    project_name: StringKey,
+    project_config: &ProjectConfig,
     program: Arc<Program>,
-    feature_flags: Arc<FeatureFlags>,
-    base_fragment_names: Arc<FnvHashSet<StringKey>>,
+    base_fragment_names: Arc<StringKeySet>,
     perf_logger: Arc<impl PerfLogger>,
 ) -> DiagnosticsResult<Arc<Program>> {
     let log_event = perf_logger.create_event("apply_typegen_transforms");
-    log_event.string("project", project_name.to_string());
+    log_event.string("project", project_config.name.to_string());
 
     let mut program = log_event.time("mask", || mask(&program));
     program = log_event.time("transform_match", || {
-        transform_match(&program, &feature_flags)
+        transform_match(&program, &project_config.feature_flags)
     })?;
     program = log_event.time("transform_subscriptions", || {
         transform_subscriptions(&program)
     })?;
-    program = log_event.time("required_directive", || {
-        required_directive(&program, &feature_flags)
-    })?;
+    program = log_event.time("required_directive", || required_directive(&program))?;
     program = log_event.time("client_edges", || client_edges(&program))?;
-    program = log_event.time("transform_assignable_fragment_spreads", || {
-        transform_assignable_fragment_spreads(&program)
-    })?;
+    program = log_event.time(
+        "transform_assignable_fragment_spreads_in_regular_queries",
+        || transform_assignable_fragment_spreads_in_regular_queries(&program),
+    )?;
     program = log_event.time("relay_resolvers", || {
-        relay_resolvers(&program, feature_flags.enable_relay_resolver_transform)
+        relay_resolvers(
+            &program,
+            project_config.feature_flags.enable_relay_resolver_transform,
+        )
     })?;
     program = log_event.time("preserve_client_edge_selections", || {
         preserve_client_edge_selections(&program)
@@ -444,7 +431,7 @@ fn apply_typegen_transforms(
     });
 
     program = log_event.time("relay_actor_change_transform", || {
-        relay_actor_change_transform(&program, &feature_flags.actor_change_support)
+        relay_actor_change_transform(&program, &project_config.feature_flags.actor_change_support)
     })?;
 
     // RescriptRelay Note: This ensures that `__typename` is selected in the

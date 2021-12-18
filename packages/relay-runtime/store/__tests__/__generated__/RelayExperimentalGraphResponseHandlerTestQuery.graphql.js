@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4951927199975057b16338acddcc9a00>>
+ * @generated SignedSource<<26a7bd0c2b1e683293f8cfa80e25cbda>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,18 +16,17 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayReaderRequiredFieldsTest1Query$variables = {||};
-export type RelayReaderRequiredFieldsTest1QueryVariables = RelayReaderRequiredFieldsTest1Query$variables;
-export type RelayReaderRequiredFieldsTest1Query$data = {|
+export type RelayExperimentalGraphResponseHandlerTestQuery$variables = {||};
+export type RelayExperimentalGraphResponseHandlerTestQueryVariables = RelayExperimentalGraphResponseHandlerTestQuery$variables;
+export type RelayExperimentalGraphResponseHandlerTestQuery$data = {|
   +me: ?{|
-    +firstName: ?string,
-    +lastName: string,
+    +name: ?string,
   |},
 |};
-export type RelayReaderRequiredFieldsTest1QueryResponse = RelayReaderRequiredFieldsTest1Query$data;
-export type RelayReaderRequiredFieldsTest1Query = {|
-  variables: RelayReaderRequiredFieldsTest1QueryVariables,
-  response: RelayReaderRequiredFieldsTest1Query$data,
+export type RelayExperimentalGraphResponseHandlerTestQueryResponse = RelayExperimentalGraphResponseHandlerTestQuery$data;
+export type RelayExperimentalGraphResponseHandlerTestQuery = {|
+  variables: RelayExperimentalGraphResponseHandlerTestQueryVariables,
+  response: RelayExperimentalGraphResponseHandlerTestQuery$data,
 |};
 */
 
@@ -36,14 +35,7 @@ var v0 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
-  "name": "firstName",
-  "storageKey": null
-},
-v1 = {
-  "alias": null,
-  "args": null,
-  "kind": "ScalarField",
-  "name": "lastName",
+  "name": "name",
   "storageKey": null
 };
 return {
@@ -51,7 +43,7 @@ return {
     "argumentDefinitions": [],
     "kind": "Fragment",
     "metadata": null,
-    "name": "RelayReaderRequiredFieldsTest1Query",
+    "name": "RelayExperimentalGraphResponseHandlerTestQuery",
     "selections": [
       {
         "alias": null,
@@ -61,13 +53,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
-          {
-            "kind": "RequiredField",
-            "field": (v1/*: any*/),
-            "action": "LOG",
-            "path": "me.lastName"
-          }
+          (v0/*: any*/)
         ],
         "storageKey": null
       }
@@ -79,7 +65,7 @@ return {
   "operation": {
     "argumentDefinitions": [],
     "kind": "Operation",
-    "name": "RelayReaderRequiredFieldsTest1Query",
+    "name": "RelayExperimentalGraphResponseHandlerTestQuery",
     "selections": [
       {
         "alias": null,
@@ -90,7 +76,6 @@ return {
         "plural": false,
         "selections": [
           (v0/*: any*/),
-          (v1/*: any*/),
           {
             "alias": null,
             "args": null,
@@ -104,21 +89,21 @@ return {
     ]
   },
   "params": {
-    "cacheID": "30b5a8332673c1d594cb3bb389440b85",
+    "cacheID": "bf669cd6fcdb8a72b4090fc580279a0a",
     "id": null,
     "metadata": {},
-    "name": "RelayReaderRequiredFieldsTest1Query",
+    "name": "RelayExperimentalGraphResponseHandlerTestQuery",
     "operationKind": "query",
-    "text": "query RelayReaderRequiredFieldsTest1Query {\n  me {\n    firstName\n    lastName\n    id\n  }\n}\n"
+    "text": "query RelayExperimentalGraphResponseHandlerTestQuery {\n  me {\n    name\n    id\n  }\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "81351b34c481771ea47e3a0a2b0e97f1";
+  (node/*: any*/).hash = "e3a809d086b3029881acae93cbf5999d";
 }
 
 module.exports = ((node/*: any*/)/*: Query<
-  RelayReaderRequiredFieldsTest1Query$variables,
-  RelayReaderRequiredFieldsTest1Query$data,
+  RelayExperimentalGraphResponseHandlerTestQuery$variables,
+  RelayExperimentalGraphResponseHandlerTestQuery$data,
 >*/);

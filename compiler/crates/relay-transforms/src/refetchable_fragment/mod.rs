@@ -21,13 +21,12 @@ use crate::{
 use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
 use errors::validate_map;
 use fetchable_query_generator::FETCHABLE_QUERY_GENERATOR;
-use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{
     Directive, FragmentDefinition, OperationDefinition, Program, Selection, ValidationMessage,
     VariableDefinition,
 };
 use graphql_syntax::OperationKind;
-use intern::string_key::StringKey;
+use intern::string_key::{StringKey, StringKeyMap, StringKeySet};
 use node_query_generator::NODE_QUERY_GENERATOR;
 use query_query_generator::QUERY_QUERY_GENERATOR;
 use schema::{SDLSchema, Schema};
@@ -55,7 +54,7 @@ pub use self::refetchable_directive::REFETCHABLE_NAME;
 ///    Fragment to Root IR nodes.
 pub fn transform_refetchable_fragment(
     program: &Program,
-    base_fragment_names: &'_ FnvHashSet<StringKey>,
+    base_fragment_names: &'_ StringKeySet,
     for_typegen: bool,
 ) -> DiagnosticsResult<Program> {
     let mut next_program = Program::new(Arc::clone(&program.schema));
@@ -96,14 +95,13 @@ pub fn transform_refetchable_fragment(
     Ok(next_program)
 }
 
-type ExistingRefetchOperations = FnvHashMap<StringKey, WithLocation<StringKey>>;
+type ExistingRefetchOperations = StringKeyMap<WithLocation<StringKey>>;
 
 pub struct RefetchableFragment<'program> {
     connection_constants: ConnectionConstants,
     existing_refetch_operations: ExistingRefetchOperations,
     for_typegen: bool,
     program: &'program Program,
-    visitor: InferVariablesVisitor<'program>,
 }
 
 impl<'program> RefetchableFragment<'program> {
@@ -113,7 +111,6 @@ impl<'program> RefetchableFragment<'program> {
             existing_refetch_operations: Default::default(),
             for_typegen,
             program,
-            visitor: InferVariablesVisitor::new(program),
         }
     }
 
@@ -142,8 +139,9 @@ impl<'program> RefetchableFragment<'program> {
             RefetchableDirective::from_directive(&self.program.schema, directive)?;
         self.validate_sibling_directives(fragment)?;
         self.validate_refetch_name(fragment, &refetchable_directive)?;
+        let variables_map =
+            InferVariablesVisitor::new(self.program).infer_fragment_variables(fragment);
 
-        let variables_map = self.visitor.infer_fragment_variables(fragment);
         for generator in GENERATORS.iter() {
             if let Some(refetch_root) = (generator.build_refetch_operation)(
                 &self.program.schema,

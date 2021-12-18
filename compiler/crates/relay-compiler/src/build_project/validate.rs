@@ -8,13 +8,13 @@
 use common::{DiagnosticsResult, FeatureFlags};
 use errors::try_all;
 use graphql_ir::Program;
+use relay_config::ProjectConfig;
 use relay_transforms::{
     disallow_circular_no_inline_fragments, disallow_reserved_aliases, disallow_typename_on_root,
-    rescript_relay_disallow_invalid_names, validate_assignable_directive, validate_connections,
-    validate_module_names, validate_no_double_underscore_alias,
-    validate_no_inline_fragments_with_raw_response_type, validate_relay_directives,
-    validate_unused_fragment_variables, validate_unused_variables, validate_updatable_directive,
-    ConnectionInterface,
+    validate_assignable_directive, validate_connections, validate_module_names,
+    validate_no_double_underscore_alias, validate_no_inline_fragments_with_raw_response_type,
+    validate_relay_directives, validate_unused_fragment_variables, validate_unused_variables,
+    validate_updatable_directive,
 };
 
 pub type AdditionalValidations =
@@ -22,8 +22,7 @@ pub type AdditionalValidations =
 
 pub fn validate(
     program: &Program,
-    feature_flags: &FeatureFlags,
-    connection_interface: &ConnectionInterface,
+    project_config: &ProjectConfig,
     additional_validations: &Option<AdditionalValidations>,
 ) -> DiagnosticsResult<()> {
     try_all(vec![
@@ -31,20 +30,20 @@ pub fn validate(
         validate_no_double_underscore_alias(program),
         validate_unused_variables(program),
         validate_unused_fragment_variables(program),
-        validate_connections(program, connection_interface),
+        validate_connections(program, &project_config.schema_config.connection_interface),
         validate_relay_directives(program),
         validate_module_names(program),
         validate_no_inline_fragments_with_raw_response_type(program),
         disallow_typename_on_root(program),
         if let Some(ref validate) = additional_validations {
-            validate(program, feature_flags)
+            validate(program, &project_config.feature_flags)
         } else {
             Ok(())
         },
         disallow_circular_no_inline_fragments(program),
         validate_updatable_directive(program),
         validate_assignable_directive(program),
-        rescript_relay_disallow_invalid_names(program),
+        relay_transforms::rescript_relay_disallow_invalid_names(program),
     ])?;
 
     Ok(())

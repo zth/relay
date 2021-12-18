@@ -10,15 +10,17 @@ use common::{
     SourceLocationKey::{self, Generated},
 };
 
-use fnv::FnvHashSet;
 use graphql_ir::Program;
 
 use graphql_text_printer::{self, PrinterOptions};
 use intern::string_key::Intern;
 use relay_codegen::{print_fragment, print_operation, JsModuleFormat};
+use relay_config::ProjectConfig;
 use relay_schema::build_schema_with_extensions;
-use relay_transforms::{apply_transforms, ConnectionInterface, Programs};
-use relay_typegen::{generate_fragment_type, generate_operation_type, TypegenConfig};
+use relay_transforms::{apply_transforms, Programs};
+use relay_typegen::{
+    generate_fragment_type_exports_section, generate_operation_type_exports_section, TypegenConfig,
+};
 use schema::SDLSchema;
 use serde::Serialize;
 
@@ -86,7 +88,6 @@ pub fn parse_to_ir(schema_text: &str, document_text: &str) -> String {
 pub fn parse_to_ir_impl(schema_text: &str, document_text: &str) -> PlaygroundResult {
     let document = graphql_syntax::parse_executable(document_text, Generated)
         .map_err(|diagnostics| map_diagnostics(diagnostics, &InputType::Document(document_text)))?;
-
 
     let schema = Arc::new(
         build_schema_with_extensions(&[schema_text], &Vec::<(&str, SourceLocationKey)>::new())
@@ -213,17 +214,26 @@ pub fn parse_to_types_impl(
     let types_string = programs
         .typegen
         .fragments()
-        .map(|def| generate_fragment_type(def, &schema, JsModuleFormat::Haste, &typegen_config))
+        .map(|def| {
+            generate_fragment_type_exports_section(
+                def,
+                &schema,
+                JsModuleFormat::Haste,
+                false,
+                &typegen_config,
+            )
+        })
         .chain(programs.typegen.operations().map(|typegen_operation| {
             let normalization_operation = programs
                 .normalization
                 .operation(typegen_operation.name.item)
                 .unwrap();
-            generate_operation_type(
+            generate_operation_type_exports_section(
                 typegen_operation,
                 normalization_operation,
                 &schema,
                 JsModuleFormat::Haste,
+                false,
                 &typegen_config,
             )
         }))
@@ -283,26 +293,25 @@ fn get_programs(
     let document = graphql_syntax::parse_executable(document_text, Generated)
         .map_err(|diagnostics| map_diagnostics(diagnostics, &InputType::Document(document_text)))?;
 
-
     let ir = graphql_ir::build(schema, &document.definitions)
         .map_err(|diagnostics| map_diagnostics(diagnostics, &InputType::Document(document_text)))?;
 
     let program = Program::from_definitions(schema.clone(), ir);
 
     let project_name = "test_project".intern();
-    let base_fragment_names = Arc::new(FnvHashSet::default());
-    let connection_interface = ConnectionInterface::default();
+    let base_fragment_names = Arc::new(Default::default());
     let feature_flags: FeatureFlags = serde_json::from_str(feature_flags_json)
         .map_err(|err| PlaygroundError::ConfigError(format!("{}", err)))?;
     let perf_logger = NoopPerfLogger;
-
+    let project_config = ProjectConfig {
+        name: project_name,
+        feature_flags: Arc::new(feature_flags),
+        ..Default::default()
+    };
     apply_transforms(
-        project_name,
+        &project_config,
         Arc::new(program),
         base_fragment_names,
-        &connection_interface,
-        Arc::new(feature_flags),
-        &None,
         Arc::new(perf_logger),
         None,
     )

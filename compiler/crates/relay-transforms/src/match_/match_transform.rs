@@ -22,7 +22,7 @@ use graphql_ir::{
     Selection, Transformed, TransformedValue, Transformer, ValidationMessage, Value,
 };
 use indexmap::IndexSet;
-use intern::string_key::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey, StringKeyMap};
 use schema::{FieldID, ScalarID, Schema, Type, TypeReference};
 use std::{
     hash::{Hash, Hasher},
@@ -80,7 +80,7 @@ pub struct MatchTransform<'program, 'flag> {
     enable_3d_branch_arg_generation: bool,
     no_inline_flag: &'flag FeatureFlag,
     // Stores the fragments that should use @no_inline and their parent document name
-    no_inline_fragments: FnvHashMap<StringKey, Vec<StringKey>>,
+    no_inline_fragments: StringKeyMap<Vec<StringKey>>,
 }
 
 impl<'program, 'flag> MatchTransform<'program, 'flag> {

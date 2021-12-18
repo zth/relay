@@ -19,9 +19,9 @@ use intern::string_key::Intern;
 use relay_codegen::{
     build_request_params, print_fragment, print_operation, print_request, JsModuleFormat,
 };
-use relay_compiler::validate;
+use relay_compiler::{validate, ProjectConfig};
 use relay_test_schema::{get_test_schema, get_test_schema_with_extensions};
-use relay_transforms::{apply_transforms, ConnectionInterface, DIRECTIVE_SPLIT_OPERATION};
+use relay_transforms::{apply_transforms, DIRECTIVE_SPLIT_OPERATION};
 use std::{array, sync::Arc};
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
@@ -59,19 +59,8 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
     let program = Program::from_definitions(Arc::clone(&schema), ir);
 
-    let connection_interface = ConnectionInterface::default();
-
-    validate(
-        &program,
-        &FeatureFlags::default(),
-        &connection_interface,
-        &None,
-    )
-    .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
-
     let feature_flags = FeatureFlags {
         enable_flight_transform: true,
-        enable_required_transform: true,
         hash_supported_argument: FeatureFlag::Limited {
             allowlist: array::IntoIter::new(["UserNameRenderer".intern()]).collect(),
         },
@@ -84,14 +73,20 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         enable_provided_variables: FeatureFlag::Enabled,
     };
 
+    let project_config = ProjectConfig {
+        name: "test".intern(),
+        feature_flags: Arc::new(feature_flags),
+        ..Default::default()
+    };
+
+    validate(&program, &project_config, &None)
+        .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
+
     // TODO pass base fragment names
     let programs = apply_transforms(
-        "test".intern(),
+        &project_config,
         Arc::new(program),
         Default::default(),
-        &connection_interface,
-        Arc::new(feature_flags),
-        &None,
         Arc::new(ConsoleLogger),
         None,
     )

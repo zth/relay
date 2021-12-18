@@ -9,7 +9,6 @@
 #![deny(rust_2018_idioms)]
 #![deny(clippy::all)]
 
-mod config;
 mod flow;
 mod rescript;
 mod rescript_ast;
@@ -22,33 +21,32 @@ use crate::flow::FlowPrinter;
 use crate::typescript::TypeScriptPrinter;
 use crate::writer::{GetterSetterPairProp, KeyValuePairProp, SpreadProp, Writer};
 use common::NamedItem;
-use config::FlowTypegenPhase;
-pub use config::{FlowTypegenConfig, TypegenConfig, TypegenLanguage};
 use fnv::FnvHashSet;
 use graphql_ir::{
     Condition, Directive, FragmentDefinition, FragmentSpread, InlineFragment, LinkedField,
-    OperationDefinition, ScalarField, Selection,
+    OperationDefinition, ProvidedVariableMetadata, ScalarField, Selection,
 };
 use indexmap::{map::Entry, IndexMap, IndexSet};
 use intern::string_key::{Intern, StringKey};
 use itertools::Itertools;
 use lazy_static::lazy_static;
-use relay_codegen::JsModuleFormat;
+use relay_config::JsModuleFormat;
+pub use relay_config::{FlowTypegenPhase, TypegenConfig, TypegenLanguage};
 use relay_transforms::{
     ModuleMetadata, RefetchableDerivedFromMetadata, RefetchableMetadata, RelayDirective,
     RelayResolverSpreadMetadata, RequiredMetadataDirective, CHILDREN_CAN_BUBBLE_METADATA_KEY,
-    CLIENT_EXTENSION_DIRECTIVE_NAME, RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
-    UPDATABLE_DIRECTIVE_NAME,
+    CLIENT_EXTENSION_DIRECTIVE_NAME, RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN, UPDATABLE_DIRECTIVE,
 };
 use schema::{EnumID, SDLSchema, ScalarID, Schema, Type, TypeReference};
 use std::hash::Hash;
-use std::{fmt::Result, path::Path};
+use std::{fmt::Result as FmtResult, path::Path};
 use writer::{Prop, AST};
 
 static REACT_RELAY_MULTI_ACTOR: &str = "react-relay/multi-actor";
 static RELAY_RUNTIME: &str = "relay-runtime";
 static LOCAL_3D_PAYLOAD: &str = "Local3DPayload";
 static ACTOR_CHANGE_POINT: &str = "ActorChangePoint";
+pub static PROVIDED_VARIABLE_TYPE: &str = "ProvidedVariableProviderType";
 
 lazy_static! {
     pub(crate) static ref KEY_DATA: StringKey = "$data".intern();
@@ -74,28 +72,33 @@ lazy_static! {
     static ref SPREAD_KEY: StringKey = "\0SPREAD".intern();
 }
 
-pub fn generate_fragment_type(
+pub fn generate_fragment_type_exports_section(
     fragment: &FragmentDefinition,
     schema: &SDLSchema,
     js_module_format: JsModuleFormat,
+    has_unified_output: bool,
     typegen_config: &TypegenConfig,
 ) -> String {
     let mut generator = TypeGenerator::new(
         schema,
         js_module_format,
+        has_unified_output,
         typegen_config,
         fragment.name.item,
         rescript::DefinitionType::Fragment(fragment.clone()),
     );
-    generator.generate_fragment_type(fragment).unwrap();
+    generator
+        .write_fragment_type_exports_section(fragment)
+        .unwrap();
     generator.into_string()
 }
 
-pub fn generate_operation_type(
+pub fn generate_operation_type_exports_section(
     typegen_operation: &OperationDefinition,
     normalization_operation: &OperationDefinition,
     schema: &SDLSchema,
     js_module_format: JsModuleFormat,
+    has_unified_output: bool,
     typegen_config: &TypegenConfig,
 ) -> String {
     let rollout_key = RefetchableDerivedFromMetadata::find(&typegen_operation.directives)
@@ -103,32 +106,35 @@ pub fn generate_operation_type(
     let mut generator = TypeGenerator::new(
         schema,
         js_module_format,
+        has_unified_output,
         typegen_config,
         rollout_key,
         rescript::DefinitionType::Operation(typegen_operation.clone()),
     );
     generator
-        .generate_operation_type(typegen_operation, normalization_operation)
+        .write_operation_type_exports_section(typegen_operation, normalization_operation)
         .unwrap();
     generator.into_string()
 }
 
-pub fn generate_split_operation_type(
+pub fn generate_split_operation_type_exports_section(
     typegen_operation: &OperationDefinition,
     normalization_operation: &OperationDefinition,
     schema: &SDLSchema,
     js_module_format: JsModuleFormat,
+    has_unified_output: bool,
     typegen_config: &TypegenConfig,
 ) -> String {
     let mut generator = TypeGenerator::new(
         schema,
         js_module_format,
+        has_unified_output,
         typegen_config,
         typegen_operation.name.item,
         rescript::DefinitionType::Operation(typegen_operation.clone()),
     );
     generator
-        .generate_split_operation_type(typegen_operation, normalization_operation)
+        .write_split_operation_type_exports_section(typegen_operation, normalization_operation)
         .unwrap();
     generator.into_string()
 }
@@ -154,6 +160,7 @@ struct TypeGenerator<'a> {
     used_fragments: FnvHashSet<StringKey>,
     typegen_config: &'a TypegenConfig,
     js_module_format: JsModuleFormat,
+    has_unified_output: bool,
     runtime_imports: RuntimeImports,
     match_fields: IndexMap<StringKey, AST>,
     writer: Box<dyn Writer>,
@@ -165,6 +172,7 @@ impl<'a> TypeGenerator<'a> {
     fn new(
         schema: &'a SDLSchema,
         js_module_format: JsModuleFormat,
+        has_unified_output: bool,
         typegen_config: &'a TypegenConfig,
         rollout_key: StringKey,
         typegen_definition: rescript::DefinitionType,
@@ -179,6 +187,7 @@ impl<'a> TypeGenerator<'a> {
             used_enums: Default::default(),
             used_fragments: Default::default(),
             js_module_format,
+            has_unified_output,
             typegen_config,
             match_fields: Default::default(),
             runtime_imports: RuntimeImports::default(),
@@ -200,16 +209,16 @@ impl<'a> TypeGenerator<'a> {
         self.writer.into_string()
     }
 
-    fn generate_operation_type(
+    fn write_operation_type_exports_section(
         &mut self,
         typegen_operation: &OperationDefinition,
         normalization_operation: &OperationDefinition,
-    ) -> Result {
+    ) -> FmtResult {
         let old_variables_identifier = format!("{}Variables", typegen_operation.name.item);
 
         self.is_updatable_operation = typegen_operation
             .directives
-            .named(*UPDATABLE_DIRECTIVE_NAME)
+            .named(*UPDATABLE_DIRECTIVE)
             .is_some();
 
         let input_variables_type = self.generate_input_variables_type(typegen_operation);
@@ -374,15 +383,17 @@ impl<'a> TypeGenerator<'a> {
                 }
             }
         }
+
+        self.generate_provided_variables_type(normalization_operation)?;
         self.is_updatable_operation = false;
         Ok(())
     }
 
-    fn generate_split_operation_type(
+    fn write_split_operation_type_exports_section(
         &mut self,
         typegen_operation: &OperationDefinition,
         normalization_operation: &OperationDefinition,
-    ) -> Result {
+    ) -> FmtResult {
         let raw_response_selections =
             self.raw_response_visit_selections(&normalization_operation.selections);
         let raw_response_type =
@@ -402,7 +413,7 @@ impl<'a> TypeGenerator<'a> {
         Ok(())
     }
 
-    fn generate_fragment_type(&mut self, node: &FragmentDefinition) -> Result {
+    fn write_fragment_type_exports_section(&mut self, node: &FragmentDefinition) -> FmtResult {
         let mut selections = self.visit_selections(&node.selections);
         if !node.type_condition.is_abstract_type() {
             let num_concrete_selections = selections
@@ -476,7 +487,14 @@ impl<'a> TypeGenerator<'a> {
             let variables_name = format!("{}$variables", refetchable_metadata.operation_name);
             match self.js_module_format {
                 JsModuleFormat::CommonJS => {
-                    self.writer.write_any_type_definition(&variables_name)?;
+                    if self.has_unified_output {
+                        self.writer.write_import_fragment_type(
+                            &[&variables_name],
+                            &format!("./{}.graphql", refetchable_metadata.operation_name),
+                        )?;
+                    } else {
+                        self.writer.write_any_type_definition(&variables_name)?;
+                    }
                 }
                 JsModuleFormat::Haste => {
                     self.writer.write_import_fragment_type(
@@ -580,7 +598,7 @@ impl<'a> TypeGenerator<'a> {
         type_selections.push(TypeSelection::ScalarField(TypeSelectionScalarField {
             field_name_or_alias: key,
             special_field: None,
-            value: AST::FunctionReturnType(local_resolver_name),
+            value: AST::ReturnTypeOfFunctionWithName(local_resolver_name),
             conditional: false,
             concrete_type: None,
         }));
@@ -1106,10 +1124,9 @@ impl<'a> TypeGenerator<'a> {
                         value: scalar_field.value,
                         optional,
                         // all fields outside of updatable operations are read-only, and within updatable operations,
-                        // the typename field (handled above) and id fields are read-only.
-                        read_only: !is_updatable_operation
-                            || scalar_field.special_field
-                                == Some(ScalarFieldSpecialSchemaField::Id),
+                        // all special fields are read only
+                        read_only: !self.is_updatable_operation
+                            || scalar_field.special_field.is_some(),
                     })
                 }
             }
@@ -1223,7 +1240,9 @@ impl<'a> TypeGenerator<'a> {
 
     fn transform_graphql_scalar_type(&mut self, scalar: ScalarID) -> AST {
         let scalar_name = self.schema.scalar(scalar).name;
-        if scalar_name == *TYPE_ID || scalar_name == *TYPE_STRING {
+        if let Some(&custom_scalar) = self.typegen_config.custom_scalar_types.get(&scalar_name) {
+            AST::RawType(custom_scalar)
+        } else if scalar_name == *TYPE_ID || scalar_name == *TYPE_STRING {
             AST::String
         } else if scalar_name == *TYPE_FLOAT {
             AST::RawType("float".intern())
@@ -1233,10 +1252,6 @@ impl<'a> TypeGenerator<'a> {
             AST::Number
         } else if scalar_name == *TYPE_BOOLEAN {
             AST::Boolean
-        } else if let Some(&custom_scalar) =
-            self.typegen_config.custom_scalar_types.get(&scalar_name)
-        {
-            AST::RawType(custom_scalar)
         } else {
             if self.typegen_config.require_custom_scalar_types {
                 panic!(
@@ -1253,7 +1268,7 @@ impl<'a> TypeGenerator<'a> {
         AST::Identifier(self.schema.enum_(enum_id).name)
     }
 
-    fn write_runtime_imports(&mut self) -> Result {
+    fn write_runtime_imports(&mut self) -> FmtResult {
         match self.runtime_imports {
             RuntimeImports {
                 local_3d_payload: true,
@@ -1281,13 +1296,20 @@ impl<'a> TypeGenerator<'a> {
         }
     }
 
-    fn write_fragment_imports(&mut self) -> Result {
+    fn write_fragment_imports(&mut self) -> FmtResult {
         for used_fragment in self.used_fragments.iter().sorted() {
             if !self.generated_fragments.contains(used_fragment) {
                 let fragment_type_name = format!("{}$fragmentType", used_fragment);
                 match self.js_module_format {
                     JsModuleFormat::CommonJS => {
-                        self.writer.write_any_type_definition(&fragment_type_name)?;
+                        if self.has_unified_output {
+                            self.writer.write_import_fragment_type(
+                                &[&fragment_type_name],
+                                &format!("./{}.graphql", used_fragment),
+                            )?;
+                        } else {
+                            self.writer.write_any_type_definition(&fragment_type_name)?;
+                        }
                     }
                     JsModuleFormat::Haste => {
                         self.writer.write_import_fragment_type(
@@ -1301,7 +1323,7 @@ impl<'a> TypeGenerator<'a> {
         Ok(())
     }
 
-    fn write_import_actor_change_point(&mut self) -> Result {
+    fn write_import_actor_change_point(&mut self) -> FmtResult {
         if self.has_actor_change {
             self.writer
                 .write_import_type(&[ACTOR_CHANGE_POINT], REACT_RELAY_MULTI_ACTOR)
@@ -1310,7 +1332,7 @@ impl<'a> TypeGenerator<'a> {
         }
     }
 
-    fn write_relay_resolver_imports(&mut self) -> Result {
+    fn write_relay_resolver_imports(&mut self) -> FmtResult {
         for (from, name) in self.imported_resolvers.iter().sorted() {
             self.writer
                 .write_import_module_default(name.lookup(), from.lookup())?
@@ -1318,7 +1340,7 @@ impl<'a> TypeGenerator<'a> {
         Ok(())
     }
 
-    fn write_split_raw_response_type_imports(&mut self) -> Result {
+    fn write_split_raw_response_type_imports(&mut self) -> FmtResult {
         if self.imported_raw_response_types.is_empty() {
             return Ok(());
         }
@@ -1326,8 +1348,15 @@ impl<'a> TypeGenerator<'a> {
         for &imported_raw_response_type in self.imported_raw_response_types.iter().sorted() {
             match self.js_module_format {
                 JsModuleFormat::CommonJS => {
-                    self.writer
-                        .write_any_type_definition(imported_raw_response_type.lookup())?;
+                    if self.has_unified_output {
+                        self.writer.write_import_fragment_type(
+                            &[imported_raw_response_type.lookup()],
+                            &format!("./{}.graphql", imported_raw_response_type),
+                        )?;
+                    } else {
+                        self.writer
+                            .write_any_type_definition(imported_raw_response_type.lookup())?;
+                    }
                 }
                 JsModuleFormat::Haste => {
                     self.writer.write_import_fragment_type(
@@ -1341,7 +1370,7 @@ impl<'a> TypeGenerator<'a> {
         Ok(())
     }
 
-    fn write_enum_definitions(&mut self) -> Result {
+    fn write_enum_definitions(&mut self) -> FmtResult {
         let mut enum_ids: Vec<_> = self.used_enums.iter().cloned().collect();
 
         enum_ids.sort_by_key(|enum_id| self.schema.enum_(*enum_id).name);
@@ -1370,6 +1399,36 @@ impl<'a> TypeGenerator<'a> {
         Ok(())
     }
 
+    fn generate_provided_variables_type(&mut self, node: &OperationDefinition) -> FmtResult {
+        let fields = node
+            .variable_definitions
+            .iter()
+            .filter_map(|def| {
+                def.directives
+                    .named(ProvidedVariableMetadata::directive_name())?;
+
+                let provider_func = AST::Callable(Box::new(self.transform_input_type(&def.type_)));
+                let provider_module = Prop::KeyValuePair(KeyValuePairProp {
+                    key: "get".intern(),
+                    read_only: true,
+                    optional: false,
+                    value: provider_func,
+                });
+                Some(Prop::KeyValuePair(KeyValuePairProp {
+                    key: def.name.item,
+                    read_only: true,
+                    optional: false,
+                    value: AST::ExactObject(vec![provider_module]),
+                }))
+            })
+            .collect_vec();
+        if !fields.is_empty() {
+            self.writer
+                .write_local_type(PROVIDED_VARIABLE_TYPE, &AST::ExactObject(fields))?;
+        }
+        Ok(())
+    }
+
     fn generate_input_variables_type(&mut self, node: &OperationDefinition) -> AST {
         AST::ExactObject(
             node.variable_definitions
@@ -1386,7 +1445,7 @@ impl<'a> TypeGenerator<'a> {
         )
     }
 
-    fn write_input_object_types(&mut self) -> Result {
+    fn write_input_object_types(&mut self) -> FmtResult {
         for (type_identifier, input_object_type) in self.generated_input_object_types.iter() {
             match input_object_type {
                 GeneratedInputObject::Resolved(input_object_type) => {

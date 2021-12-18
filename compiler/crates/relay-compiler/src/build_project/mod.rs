@@ -9,6 +9,7 @@
 //! watch mode or other state.
 
 mod artifact_content;
+mod artifact_generated_types;
 pub mod artifact_writer;
 mod build_ir;
 mod build_schema;
@@ -26,17 +27,18 @@ use crate::config::{Config, ProjectConfig};
 use crate::errors::BuildProjectError;
 use crate::file_source::SourceControlUpdateStatus;
 use crate::{artifact_map::ArtifactMap, graphql_asts::GraphQLAsts};
+pub use artifact_generated_types::ArtifactGeneratedTypes;
 use build_ir::BuildIRResult;
 pub use build_ir::SourceHashes;
 pub use build_schema::build_schema;
-use common::{sync::*, FeatureFlags, PerfLogEvent, PerfLogger};
+use common::{sync::*, PerfLogEvent, PerfLogger};
 use dashmap::{mapref::entry::Entry, DashSet};
 use fnv::{FnvBuildHasher, FnvHashMap, FnvHashSet};
 pub use generate_artifacts::{
     create_path_for_artifact, generate_artifacts, Artifact, ArtifactContent,
 };
 use graphql_ir::Program;
-use intern::string_key::StringKey;
+use intern::string_key::{StringKey, StringKeySet};
 use log::{debug, info, warn};
 use rayon::{iter::IntoParallelRefIterator, slice::ParallelSlice};
 use relay_codegen::Printer;
@@ -71,7 +73,7 @@ pub fn build_raw_program(
     schema: Arc<SDLSchema>,
     log_event: &impl PerfLogEvent,
     is_incremental_build: bool,
-) -> Result<(Program, FnvHashSet<StringKey>, SourceHashes), BuildProjectError> {
+) -> Result<(Program, StringKeySet, SourceHashes), BuildProjectError> {
     // Build a type aware IR.
     let BuildIRResult {
         ir,
@@ -98,19 +100,14 @@ pub fn build_raw_program(
 
 pub fn validate_program(
     config: &Config,
-    feature_flags: &FeatureFlags,
+    project_config: &ProjectConfig,
     program: &Program,
     log_event: &impl PerfLogEvent,
 ) -> Result<(), BuildProjectError> {
     let timer = log_event.start("validate_time");
     log_event.number("validate_documents_count", program.document_count());
-    let result = validate(
-        program,
-        feature_flags,
-        &config.connection_interface,
-        &config.additional_validations,
-    )
-    .map_err(|errors| BuildProjectError::ValidationErrors { errors });
+    let result = validate(program, project_config, &config.additional_validations)
+        .map_err(|errors| BuildProjectError::ValidationErrors { errors });
 
     log_event.stop(timer);
 
@@ -119,21 +116,17 @@ pub fn validate_program(
 
 /// Apply various chains of transforms to create a set of output programs.
 pub fn transform_program(
-    config: &Config,
     project_config: &ProjectConfig,
     program: Arc<Program>,
-    base_fragment_names: Arc<FnvHashSet<StringKey>>,
+    base_fragment_names: Arc<StringKeySet>,
     perf_logger: Arc<impl PerfLogger + 'static>,
     log_event: &impl PerfLogEvent,
 ) -> Result<Programs, BuildProjectFailure> {
     let timer = log_event.start("apply_transforms_time");
     let result = apply_transforms(
-        project_config.name,
+        project_config,
         program,
         base_fragment_names,
-        &config.connection_interface,
-        Arc::clone(&project_config.feature_flags),
-        &project_config.test_path_regex,
         perf_logger,
         Some(print_stats),
     )
@@ -179,7 +172,7 @@ pub fn build_programs(
     let (validation_results, _) = rayon::join(
         || {
             // Call validation rules that go beyond type checking.
-            validate_program(config, &project_config.feature_flags, &program, log_event)
+            validate_program(config, project_config, &program, log_event)
         },
         || {
             find_resolver_dependencies(
@@ -195,7 +188,6 @@ pub fn build_programs(
     validation_results?;
 
     let programs = transform_program(
-        config,
         project_config,
         Arc::new(program),
         Arc::new(base_fragment_names),

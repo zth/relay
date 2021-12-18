@@ -15,8 +15,7 @@ use crate::errors::{ConfigValidationError, Error, Result};
 use crate::saved_state::SavedStateLoader;
 use crate::status_reporter::{ConsoleStatusReporter, StatusReporter};
 use async_trait::async_trait;
-use common::{FeatureFlags, Rollout, SourceLocationKey};
-use fmt::Debug;
+use common::{FeatureFlags, Rollout};
 use fnv::{FnvBuildHasher, FnvHashSet};
 use graphql_ir::{OperationDefinition, Program};
 use indexmap::IndexMap;
@@ -24,10 +23,10 @@ use intern::string_key::{Intern, StringKey};
 use persist_query::PersistError;
 use rayon::prelude::*;
 use regex::Regex;
-use relay_codegen::JsModuleFormat;
-use relay_transforms::ConnectionInterface;
-pub use relay_typegen::TypegenLanguage;
-use relay_typegen::{FlowTypegenConfig, TypegenConfig};
+use relay_config::{
+    FlowTypegenConfig, JsModuleFormat, SchemaConfig, TypegenConfig, TypegenLanguage,
+};
+pub use relay_config::{PersistConfig, ProjectConfig, SchemaLocation};
 use serde::de::Error as DeError;
 use serde::{Deserialize, Deserializer, Serialize};
 use serde_json::Value;
@@ -83,8 +82,6 @@ pub struct Config {
     /// Do not reuse persist ids from artifacts even if the text hash matches.
     pub repersist_operations: bool,
 
-    pub connection_interface: ConnectionInterface,
-
     pub saved_state_config: Option<ScmAwareClockData>,
     pub saved_state_loader: Option<Box<dyn SavedStateLoader + Send + Sync>>,
     pub saved_state_version: String,
@@ -116,22 +113,26 @@ pub enum FileSourceKind {
     Glob,
 }
 
-/// In the configs we may have a various values: with or without './' prefix at the beginning
-/// This function will use `root_dir` to construct full path, canonicalize it, and then
-/// it will remove the `root_dir` prefix.
-fn normalize_path_from_config(root_dir: PathBuf, path_from_config: PathBuf) -> PathBuf {
-    let mut src = root_dir.clone();
-    src.push(path_from_config);
+fn normalize_path_from_config(
+    current_dir: PathBuf,
+    common_path: PathBuf,
+    path_from_config: PathBuf,
+) -> PathBuf {
+    let mut src = current_dir.join(path_from_config.clone());
+
     src = src
         .canonicalize()
-        .map_err(|err| format!("Unable to canonicalize file {:?}. Error: {:?}", &src, err))
-        .unwrap();
+        .unwrap_or_else(|err| panic!("Unable to canonicalize file {:?}. Error: {:?}", &src, err));
 
-    if !src.exists() {
-        panic!("Path '{:?}' does not exits.", &src);
-    }
-
-    src.iter().skip(root_dir.iter().count()).collect()
+    src.strip_prefix(common_path.clone())
+        .unwrap_or_else(|_| {
+            panic!(
+                "Expect to be able to strip common_path from {:?} {:?}",
+                &src,
+                &common_path.clone(),
+            );
+        })
+        .to_path_buf()
 }
 
 impl From<SingleProjectConfigFile> for Config {
@@ -255,6 +256,7 @@ impl Config {
                     shard_output: config_file_project.shard_output,
                     shard_strip_regex,
                     schema_location,
+                    schema_config: config_file_project.schema_config,
                     typegen_config: config_file_project.typegen_config,
                     persist: config_file_project.persist,
                     variable_names_comment: config_file_project.variable_names_comment,
@@ -297,7 +299,6 @@ impl Config {
             saved_state_config: config_file.saved_state_config,
             saved_state_loader: None,
             saved_state_version: hex::encode(hash.result()),
-            connection_interface: config_file.connection_interface,
             operation_persister: None,
             compile_everything: false,
             repersist_operations: false,
@@ -447,7 +448,6 @@ impl fmt::Debug for Config {
             generate_extra_artifacts,
             saved_state_config,
             saved_state_loader,
-            connection_interface,
             saved_state_version,
             operation_persister,
             post_artifacts_write,
@@ -486,7 +486,6 @@ impl fmt::Debug for Config {
                 "saved_state_loader",
                 &option_fn_to_string(saved_state_loader),
             )
-            .field("connection_interface", connection_interface)
             .field("saved_state_version", saved_state_version)
             .field(
                 "post_artifacts_write",
@@ -496,94 +495,12 @@ impl fmt::Debug for Config {
     }
 }
 
-pub struct ProjectConfig {
-    pub name: ProjectName,
-    pub base: Option<ProjectName>,
-    pub output: Option<PathBuf>,
-    pub extra_artifacts_output: Option<PathBuf>,
-    pub shard_output: bool,
-    pub shard_strip_regex: Option<Regex>,
-    pub schema_extensions: Vec<PathBuf>,
-    pub enabled: bool,
-    pub schema_location: SchemaLocation,
-    pub typegen_config: TypegenConfig,
-    pub persist: Option<PersistConfig>,
-    pub variable_names_comment: bool,
-    pub extra: serde_json::Value,
-    pub feature_flags: Arc<FeatureFlags>,
-    pub test_path_regex: Option<Regex>,
-    pub filename_for_artifact:
-        Option<Box<dyn (Fn(SourceLocationKey, StringKey) -> String) + Send + Sync>>,
-    pub skip_types_for_artifact: Option<Box<dyn (Fn(SourceLocationKey) -> bool) + Send + Sync>>,
-    pub rollout: Rollout,
-    pub js_module_format: JsModuleFormat,
-}
-
-impl Debug for ProjectConfig {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let ProjectConfig {
-            name,
-            base,
-            output,
-            extra_artifacts_output,
-            shard_output,
-            shard_strip_regex,
-            schema_extensions,
-            enabled,
-            schema_location,
-            typegen_config,
-            persist,
-            variable_names_comment,
-            extra,
-            feature_flags,
-            test_path_regex,
-            filename_for_artifact,
-            skip_types_for_artifact,
-            rollout,
-            js_module_format,
-        } = self;
-        f.debug_struct("ProjectConfig")
-            .field("name", name)
-            .field("base", base)
-            .field("output", output)
-            .field("extra_artifacts_output", extra_artifacts_output)
-            .field("shard_output", shard_output)
-            .field("shard_strip_regex", shard_strip_regex)
-            .field("schema_extensions", schema_extensions)
-            .field("enabled", enabled)
-            .field("schema_location", schema_location)
-            .field("typegen_config", typegen_config)
-            .field("persist", persist)
-            .field("variable_names_comment", variable_names_comment)
-            .field("extra", extra)
-            .field("feature_flags", feature_flags)
-            .field("test_path_regex", test_path_regex)
-            .field(
-                "filename_for_artifact",
-                &if filename_for_artifact.is_some() {
-                    "Some<Fn>"
-                } else {
-                    "None"
-                },
-            )
-            .field(
-                "skip_types_for_artifact",
-                &if skip_types_for_artifact.is_some() {
-                    "Some<Fn>"
-                } else {
-                    "None"
-                },
-            )
-            .field("rollout", rollout)
-            .field("js_module_format", js_module_format)
-            .finish()
-    }
-}
-
-#[derive(Clone, Debug)]
-pub enum SchemaLocation {
-    File(PathBuf),
-    Directory(PathBuf),
+fn get_default_excludes() -> Vec<String> {
+    vec![
+        "**/node_modules/**".to_string(),
+        "**/__mocks__/**".to_string(),
+        "**/__generated__/**".to_string(),
+    ]
 }
 
 /// Schema of the compiler configuration JSON file.
@@ -612,14 +529,11 @@ struct MultiProjectConfigFile {
 
     /// Glob patterns that should not be part of the sources even if they are
     /// in the source set directories.
-    #[serde(default)]
+    #[serde(default = "get_default_excludes")]
     excludes: Vec<String>,
 
     /// Configuration of projects to compile.
     projects: FnvIndexMap<ProjectName, ConfigFileProject>,
-
-    #[serde(default)]
-    connection_interface: ConnectionInterface,
 
     #[serde(default)]
     feature_flags: FeatureFlags,
@@ -679,11 +593,7 @@ impl Default for SingleProjectConfigFile {
             schema: Default::default(),
             src: Default::default(),
             artifact_directory: Default::default(),
-            excludes: vec![
-                "**/node_modules/**".to_string(),
-                "**/__mocks__/**".to_string(),
-                "**/__generated__/**".to_string(),
-            ],
+            excludes: get_default_excludes(),
             schema_extensions: vec![],
             no_future_proof_enums: false,
             language: Some(TypegenLanguage::default()),
@@ -694,19 +604,66 @@ impl Default for SingleProjectConfigFile {
     }
 }
 
+impl SingleProjectConfigFile {
+    fn get_common_root(&self, root_dir: PathBuf) -> Option<PathBuf> {
+        let mut paths = vec![];
+        if let Some(artifact_directory_path) = self.artifact_directory.clone() {
+            paths.push(join_and_canonicalize(
+                root_dir.clone(),
+                artifact_directory_path,
+            ));
+        }
+        paths.push(join_and_canonicalize(root_dir.clone(), self.src.clone()));
+        paths.push(join_and_canonicalize(root_dir.clone(), self.schema.clone()));
+        paths.extend(
+            self.schema_extensions
+                .iter()
+                .map(|dir| join_and_canonicalize(root_dir.clone(), dir.clone())),
+        );
+        common_path::common_path_all(paths.iter().map(|path| path.as_path()))
+    }
+}
+
+fn join_and_canonicalize(root: PathBuf, path: PathBuf) -> PathBuf {
+    root.clone()
+        .join(path.clone())
+        .canonicalize()
+        .unwrap_or_else(|err| {
+            panic!(
+                "Expected to create a valid path from {:?} and {:?}. Error {:?}",
+                root, path, err
+            );
+        })
+}
+
 impl From<SingleProjectConfigFile> for MultiProjectConfigFile {
     fn from(oss_config: SingleProjectConfigFile) -> MultiProjectConfigFile {
-        let root_dir = std::env::current_dir().unwrap();
+        let current_dir = std::env::current_dir().unwrap();
+        let common_root_dir = oss_config.get_common_root(current_dir.clone()).expect(
+            "Could not find a common root directory for project sources, schemas, and extensions.",
+        );
+
         let default_project_name = "default".intern();
         let project_config = ConfigFileProject {
-            output: oss_config
-                .artifact_directory
-                .map(|dir| normalize_path_from_config(root_dir.clone(), dir)),
+            output: oss_config.artifact_directory.map(|dir| {
+                normalize_path_from_config(current_dir.clone(), common_root_dir.clone(), dir)
+            }),
             schema: Some(normalize_path_from_config(
-                root_dir.clone(),
+                current_dir.clone(),
+                common_root_dir.clone(),
                 oss_config.schema,
             )),
-            schema_extensions: oss_config.schema_extensions,
+            schema_extensions: oss_config
+                .schema_extensions
+                .iter()
+                .map(|dir| {
+                    normalize_path_from_config(
+                        current_dir.clone(),
+                        common_root_dir.clone(),
+                        dir.clone(),
+                    )
+                })
+                .collect(),
             persist: oss_config.persist_config,
             typegen_config: TypegenConfig {
                 language: oss_config.language.unwrap_or(TypegenLanguage::ReScript),
@@ -725,12 +682,16 @@ impl From<SingleProjectConfigFile> for MultiProjectConfigFile {
         projects.insert(default_project_name, project_config);
 
         let mut sources = FnvIndexMap::default();
-        let src = normalize_path_from_config(root_dir.clone(), oss_config.src);
+        let src = normalize_path_from_config(
+            current_dir.clone(),
+            common_root_dir.clone(),
+            oss_config.src,
+        );
 
         sources.insert(src, SourceSet::SourceSetName(default_project_name));
 
         MultiProjectConfigFile {
-            root: Some(root_dir),
+            root: Some(common_root_dir),
             projects,
             sources,
             excludes: oss_config.excludes,
@@ -847,16 +808,9 @@ struct ConfigFileProject {
 
     #[serde(default)]
     js_module_format: JsModuleFormat,
-}
 
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
-pub struct PersistConfig {
-    /// URL to send a POST request to to persist.
-    pub url: String,
-    /// The document will be in a POST parameter `text`. This map can contain
-    /// additional parameters to send.
-    pub params: FnvIndexMap<String, String>,
+    #[serde(default)]
+    pub schema_config: SchemaConfig,
 }
 
 type PersistId = String;

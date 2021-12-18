@@ -6,14 +6,13 @@
  */
 
 mod requireable_field;
-use common::{Diagnostic, DiagnosticsResult, FeatureFlags, Location, NamedItem, WithLocation};
-use fnv::FnvHashMap;
+use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
 use graphql_ir::{
     associated_data_impl, Directive, Field, FragmentDefinition, InlineFragment, LinkedField,
     OperationDefinition, Program, ScalarField, Selection, Transformed, TransformedValue,
     Transformer, ValidationMessage,
 };
-use intern::string_key::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey, StringKeyMap};
 use lazy_static::lazy_static;
 use requireable_field::{RequireableField, RequiredMetadata};
 use std::{borrow::Cow, mem, sync::Arc};
@@ -37,11 +36,8 @@ pub struct RequiredMetadataDirective {
 }
 associated_data_impl!(RequiredMetadataDirective);
 
-pub fn required_directive(
-    program: &Program,
-    feature_flags: &FeatureFlags,
-) -> DiagnosticsResult<Program> {
-    let mut transform = RequiredDirective::new(program, feature_flags.enable_required_transform);
+pub fn required_directive(program: &Program) -> DiagnosticsResult<Program> {
+    let mut transform = RequiredDirective::new(program);
 
     let next_program = transform
         .transform_program(program)
@@ -71,15 +67,14 @@ struct RequiredDirective<'s> {
     path: Vec<&'s str>,
     within_abstract_inline_fragment: bool,
     parent_inline_fragment_directive: Option<Location>,
-    path_required_map: FnvHashMap<StringKey, MaybeRequiredField>,
-    current_node_required_children: FnvHashMap<StringKey, RequiredField>,
-    required_children_map: FnvHashMap<StringKey, FnvHashMap<StringKey, RequiredField>>,
-    enabled: bool,
+    path_required_map: StringKeyMap<MaybeRequiredField>,
+    current_node_required_children: StringKeyMap<RequiredField>,
+    required_children_map: StringKeyMap<StringKeyMap<RequiredField>>,
     required_directive_visitor: RequiredDirectiveVisitor<'s>,
 }
 
 impl<'program> RequiredDirective<'program> {
-    fn new(program: &'program Program, enabled: bool) -> Self {
+    fn new(program: &'program Program) -> Self {
         Self {
             program,
             errors: Default::default(),
@@ -89,7 +84,6 @@ impl<'program> RequiredDirective<'program> {
             path_required_map: Default::default(),
             current_node_required_children: Default::default(),
             required_children_map: Default::default(),
-            enabled,
             required_directive_visitor: RequiredDirectiveVisitor {
                 program,
                 visited_fragments: Default::default(),
@@ -187,12 +181,6 @@ impl<'program> RequiredDirective<'program> {
         let field_name = field.name_with_location(&self.program.schema);
 
         if let Some(metadata) = maybe_required {
-            if !self.enabled {
-                self.errors.push(Diagnostic::error(
-                    ValidationMessage::RequiredNotSupported,
-                    metadata.directive_location,
-                ));
-            }
             self.assert_not_within_abstract_inline_fragment(&metadata.directive_location);
             self.assert_not_within_inline_directive(&metadata.directive_location);
             self.current_node_required_children.insert(
@@ -471,7 +459,7 @@ fn add_metadata_directive(
 
 fn maybe_add_children_can_bubble_metadata_directive(
     directives: &[Directive],
-    current_node_required_children: &FnvHashMap<StringKey, RequiredField>,
+    current_node_required_children: &StringKeyMap<RequiredField>,
 ) -> TransformedValue<Vec<Directive>> {
     let children_can_bubble = current_node_required_children
         .values()
@@ -525,7 +513,7 @@ impl From<StringKey> for RequiredAction {
 
 struct RequiredDirectiveVisitor<'s> {
     program: &'s Program,
-    visited_fragments: FnvHashMap<StringKey, bool>,
+    visited_fragments: StringKeyMap<bool>,
 }
 
 impl<'s> DirectiveFinder for RequiredDirectiveVisitor<'s> {

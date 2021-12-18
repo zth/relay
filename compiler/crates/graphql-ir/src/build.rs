@@ -17,11 +17,8 @@ use common::{
 };
 use core::cmp::Ordering;
 use errors::{par_try_map, try2, try3, try_map};
-use fnv::{FnvBuildHasher, FnvHashMap, FnvHashSet};
 use graphql_syntax::{DirectiveLocation, Identifier, List, OperationKind, Token, TokenKind};
-use indexmap::IndexMap;
-use intern::string_key::Intern;
-use intern::string_key::StringKey;
+use intern::string_key::{Intern, StringKey, StringKeyIndexMap, StringKeyMap, StringKeySet};
 use lazy_static::lazy_static;
 use schema::{
     ArgumentDefinitions, Enum, FieldID, InputObject, SDLSchema, Scalar, Schema, Type, TypeReference,
@@ -218,8 +215,8 @@ pub fn build_variable_definitions(
 
 // Helper Types
 
-type VariableDefinitions = FnvHashMap<StringKey, VariableDefinition>;
-type UsedVariables = IndexMap<StringKey, VariableUsage, FnvBuildHasher>;
+type VariableDefinitions = StringKeyMap<VariableDefinition>;
+type UsedVariables = StringKeyIndexMap<VariableUsage>;
 
 #[derive(Debug)]
 struct VariableUsage {
@@ -424,7 +421,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         definitions: &[graphql_syntax::VariableDefinition],
     ) -> DiagnosticsResult<Vec<VariableDefinition>> {
         // check for duplicate variables
-        let mut seen_variables: FnvHashMap<StringKey, Span> = FnvHashMap::default();
+        let mut seen_variables = StringKeyMap::default();
         for variable in definitions {
             if let Some(other_variable_span) = seen_variables.get(&variable.name.name) {
                 return Err(vec![
@@ -1104,6 +1101,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         let missing_arg_names = argument_definitions
             .iter()
             .filter(|arg_def| arg_def.type_.is_non_null())
+            .filter(|arg_def| arg_def.default_value.is_none())
             .filter(|required_arg_def| {
                 arguments
                     .iter()
@@ -1432,13 +1430,13 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                 )]);
             }
         };
-        let mut seen_fields: FnvHashMap<StringKey, Span> = FnvHashMap::default();
-        let mut required_fields: FnvHashSet<StringKey> = type_definition
+        let mut seen_fields = StringKeyMap::default();
+        let mut required_fields = type_definition
             .fields
             .iter()
             .filter(|x| x.type_.is_non_null())
             .map(|x| x.name)
-            .collect();
+            .collect::<StringKeySet>();
 
         let fields: DiagnosticsResult<Vec<Argument>> = object
             .items
@@ -1568,13 +1566,13 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                 )]);
             }
         };
-        let mut seen_fields: FnvHashMap<StringKey, Span> = FnvHashMap::default();
-        let mut required_fields: FnvHashSet<StringKey> = type_definition
+        let mut seen_fields = StringKeyMap::default();
+        let mut required_fields = type_definition
             .fields
             .iter()
             .filter(|x| x.type_.is_non_null())
             .map(|x| x.name)
-            .collect();
+            .collect::<StringKeySet>();
 
         let fields: DiagnosticsResult<Vec<ConstantArgument>> = object
             .items

@@ -7,15 +7,19 @@
 
 use common::{ConsoleLogger, FeatureFlag, FeatureFlags, SourceLocationKey};
 use fixture_tests::Fixture;
-use fnv::FnvHashMap;
-use graphql_ir::{build, Program};
+use fnv::{FnvBuildHasher, FnvHashMap};
+use graphql_ir::{build_ir_with_relay_feature_flags, Program};
 use graphql_syntax::parse_executable;
+use indexmap::IndexMap;
 use intern::string_key::Intern;
 use relay_codegen::JsModuleFormat;
+use relay_config::ProjectConfig;
 use relay_test_schema::{get_test_schema, get_test_schema_with_extensions};
-use relay_transforms::{apply_transforms, ConnectionInterface};
+use relay_transforms::apply_transforms;
 use relay_typegen::{self, TypegenConfig, TypegenLanguage};
 use std::sync::Arc;
+
+type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts = fixture.content.split("%extensions%").collect::<Vec<_>>();
@@ -27,36 +31,45 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
 
     let source_location = SourceLocationKey::standalone(fixture.file_name);
 
+
     let mut sources = FnvHashMap::default();
     sources.insert(source_location, source);
     let ast = parse_executable(source, source_location).unwrap_or_else(|e| {
         panic!("Encountered error building AST: {:?}", e);
     });
-    let ir = build(&schema, &ast.definitions).unwrap_or_else(|e| {
-        panic!("Encountered error building IR {:?}", e);
-    });
+    let feature_flags = FeatureFlags {
+        no_inline: FeatureFlag::Enabled,
+        enable_relay_resolver_transform: true,
+        actor_change_support: FeatureFlag::Enabled,
+        enable_provided_variables: FeatureFlag::Enabled,
+        ..Default::default()
+    };
+    let ir = build_ir_with_relay_feature_flags(&schema, &ast.definitions, &feature_flags)
+        .unwrap_or_else(|e| {
+            panic!("Encountered error building IR {:?}", e);
+        });
     let program = Program::from_definitions(Arc::clone(&schema), ir);
+    let project_config = ProjectConfig {
+        name: "test".intern(),
+        feature_flags: Arc::new(feature_flags),
+        ..Default::default()
+    };
     let programs = apply_transforms(
-        "test".intern(),
+        &project_config,
         Arc::new(program),
         Default::default(),
-        &ConnectionInterface::default(),
-        Arc::new(FeatureFlags {
-            enable_required_transform: true,
-            no_inline: FeatureFlag::Enabled,
-            enable_relay_resolver_transform: true,
-            actor_change_support: FeatureFlag::Enabled,
-            ..Default::default()
-        }),
-        &None,
         Arc::new(ConsoleLogger),
         None,
     )
     .unwrap();
 
     let js_module_format = JsModuleFormat::Haste;
+    let has_unified_output = false;
+    let mut custom_scalar_types = FnvIndexMap::default();
+    custom_scalar_types.insert("Boolean".intern(), "CustomBoolean".intern());
     let typegen_config = TypegenConfig {
         language: TypegenLanguage::Flow,
+        custom_scalar_types,
         ..Default::default()
     };
 
@@ -67,11 +80,12 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
             .normalization
             .operation(typegen_operation.name.item)
             .unwrap();
-        relay_typegen::generate_operation_type(
+        relay_typegen::generate_operation_type_exports_section(
             typegen_operation,
             normalization_operation,
             &schema,
             js_module_format,
+            has_unified_output,
             &typegen_config,
         )
     });
@@ -79,7 +93,13 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let mut fragments: Vec<_> = programs.typegen.fragments().collect();
     fragments.sort_by_key(|frag| frag.name.item);
     let fragment_strings = fragments.into_iter().map(|frag| {
-        relay_typegen::generate_fragment_type(frag, &schema, js_module_format, &typegen_config)
+        relay_typegen::generate_fragment_type_exports_section(
+            frag,
+            &schema,
+            js_module_format,
+            has_unified_output,
+            &typegen_config,
+        )
     });
 
     let mut result: Vec<String> = operation_strings.collect();

@@ -16,7 +16,7 @@ use graphql_syntax::parse_executable_with_error_recovery;
 use graphql_text_printer::print_full_operation;
 use intern::string_key::{Intern, StringKey};
 use lsp_types::{request::Request, Url};
-use relay_compiler::config::{Config, ProjectConfig};
+use relay_compiler::config::ProjectConfig;
 use relay_transforms::{apply_transforms, Programs};
 use schema::SDLSchema;
 use schema_documentation::SchemaDocumentation;
@@ -124,17 +124,13 @@ fn get_operation_only_program(
 /// that may generate full operation text
 fn transform_program<TPerfLogger: PerfLogger + 'static>(
     project_config: &ProjectConfig,
-    config: Arc<Config>,
     program: Arc<Program>,
     perf_logger: Arc<TPerfLogger>,
 ) -> Result<Programs, String> {
     apply_transforms(
-        project_config.name,
+        project_config,
         program,
         Default::default(),
-        &config.connection_interface,
-        Arc::clone(&project_config.feature_flags),
-        &None,
         perf_logger,
         None,
     )
@@ -243,7 +239,6 @@ pub(crate) fn get_query_text<
         if let Some(program) = get_operation_only_program(operation, fragments, &program) {
             let programs = transform_program(
                 project_config,
-                Arc::clone(&state.config),
                 Arc::new(program),
                 Arc::clone(&state.perf_logger),
             )

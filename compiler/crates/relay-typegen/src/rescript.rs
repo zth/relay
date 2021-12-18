@@ -426,10 +426,7 @@ fn ast_to_prop_value(
 
             result
         }
-        AST::OtherTypename
-        | AST::Local3DPayload(_, _)
-        | AST::FunctionReturnType(_)
-        | AST::ActorChangePoint(_) => {
+        AST::OtherTypename | AST::Local3DPayload(_, _) | AST::ActorChangePoint(_) => {
             // These are ignored for now, but might be supported in the future.
             None
         }
@@ -2429,6 +2426,11 @@ impl Writer for ReScriptPrinter {
 
     fn get_runtime_fragment_import(&self) -> &'static str {
         ""
+    }
+
+    fn write_local_type(&mut self, _name: &str, _ast: &AST) -> Result {
+        // TODO: Figure out if we need this.
+        Ok(())
     }
 }
 

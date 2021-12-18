@@ -46,24 +46,6 @@ pub enum ValidationMessage {
     #[error("Expected operation to have a name (e.g. 'query <Name>')")]
     ExpectedOperationName(),
 
-    #[error(
-        "{pluralized_string} in graphql tags must start with the module name ('{module_name}') and end with '{operation_type_suffix}'. Got '{operation_name}' instead."
-    )]
-    InvalidOperationName {
-        pluralized_string: String,
-        module_name: String,
-        operation_type_suffix: String,
-        operation_name: String,
-    },
-
-    #[error(
-        "Fragments in graphql tags must start with the module name ('{module_name}'). Got '{fragment_name}' instead."
-    )]
-    InvalidFragmentName {
-        module_name: String,
-        fragment_name: String,
-    },
-
     #[error("The schema does not support '{0}' operations")]
     UnsupportedOperation(OperationKind),
 
@@ -334,9 +316,6 @@ pub enum ValidationMessage {
         next_arg_type: String,
     },
 
-    #[error("Found a circular reference from fragment '{fragment_name}'.")]
-    CircularFragmentReference { fragment_name: StringKey },
-
     #[error("'{name}' should be defined on the server schema.")]
     MissingServerSchemaDefinition { name: StringKey },
 
@@ -438,31 +417,12 @@ pub enum ValidationMessage {
     ConflictingModuleSelections,
 
     #[error(
-        "Invalid use of @{directive_name}, the provided label is not unique. Specify a unique 'label' as a literal string."
-    )]
-    LabelNotUniqueForDeferStream { directive_name: StringKey },
-
-    #[error(
         "Expected the '{arg_name}' value to @{directive_name} to be a string literal if provided."
     )]
     LiteralStringArgumentExpectedForDirective {
         arg_name: StringKey,
         directive_name: StringKey,
     },
-
-    #[error(
-        "Invalid use of @defer on an inline fragment. Relay only supports @defer on fragment spreads."
-    )]
-    InvalidDeferOnInlineFragment,
-
-    #[error("Invalid use of @stream on scalar field '{field_name}'")]
-    InvalidStreamOnScalarField { field_name: StringKey },
-
-    #[error("Invalid use of @stream, the 'initial_count' argument is required.")]
-    StreamInitialCountRequired,
-
-    #[error("Field '{field_name}' is not of list type, therefore cannot use @stream directive.")]
-    StreamFieldIsNotAList { field_name: StringKey },
 
     #[error("Variable `${variable_name}` is never used in operation `{operation_name}`")]
     UnusedVariable {
@@ -625,64 +585,6 @@ pub enum ValidationMessage {
     #[error("The directive `@{name}` can only be used once at this location.")]
     RepeatedNonRepeatableDirective { name: StringKey },
 
-    #[error("Invalid use of @{directive_name} on scalar field '{field_name}'.")]
-    ConnectionMutationDirectiveOnScalarField {
-        directive_name: StringKey,
-        field_name: StringKey,
-    },
-
-    #[error(
-        "Invalid use of @{directive_name} on field '{field_name}'. Expected field type 'ID', got '{current_type}'."
-    )]
-    DeleteRecordDirectiveOnUnsupportedType {
-        directive_name: StringKey,
-        field_name: StringKey,
-        current_type: String,
-    },
-
-    #[error("Invalid use of @{directive_name} on linked field '{field_name}'.")]
-    DeleteRecordDirectiveOnLinkedField {
-        directive_name: StringKey,
-        field_name: StringKey,
-    },
-
-    #[error("Expected the 'connections' argument to be defined on @{directive_name}.")]
-    ConnectionsArgumentRequired { directive_name: StringKey },
-
-    #[error(
-        "Unsupported use of @{directive_name} on field '{field_name}', expected an edge field (a field with 'cursor' and 'node' selection)."
-    )]
-    EdgeDirectiveOnUnsupportedType {
-        directive_name: StringKey,
-        field_name: StringKey,
-    },
-
-    #[error(
-        "Invalid use of @{edge_directive_name} and @{node_directive_name} on field '{field_name}' - these directives cannot be used together."
-    )]
-    ConflictingEdgeAndNodeDirectives {
-        edge_directive_name: StringKey,
-        node_directive_name: StringKey,
-        field_name: StringKey,
-    },
-
-    #[error(
-        "Unsupported use of @{directive_name} on field '${field_name}', 'edgeTypeName' argument must be provided."
-    )]
-    NodeDirectiveMissesRequiredEdgeTypeName {
-        directive_name: StringKey,
-        field_name: StringKey,
-    },
-
-    #[error(
-        "Unsupported use of @{directive_name} on field '{field_name}'. Expected an object, union or interface, but got '{current_type}'."
-    )]
-    NodeDirectiveOnUnsupportedType {
-        directive_name: StringKey,
-        field_name: StringKey,
-        current_type: String,
-    },
-
     #[error(
         "Expected 'flight' field schema definition to specify its component name with @react_flight_component"
     )]
@@ -740,11 +642,6 @@ pub enum ValidationMessage {
     )]
     RequiredFieldInvalidNesting { suggested_action: StringKey },
 
-    #[error(
-        "The @required directive is experimental and not yet supported for use in product code"
-    )]
-    RequiredNotSupported,
-
     #[error("Module-provided variable ('{argument_name}') may not declare a default value")]
     ProvidedVariableIncompatibleWithDefaultValue { argument_name: StringKey },
 
@@ -799,121 +696,8 @@ pub enum ValidationMessage {
     )]
     RequiredRawResponseTypeOnNoInline { fragment_name: StringKey },
 
-    // Updatable queries and fragments
-    #[error("The @updatable directive is yet allowed on fragments.")]
-    UpdatableNotAllowedOnFragments,
-
-    #[error(
-        "The @{disallowed_directive_name} directive is not allowed in updatable {outer_type_plural}."
-    )]
-    UpdatableDisallowOtherDirectives {
-        disallowed_directive_name: StringKey,
-        outer_type_plural: &'static str,
-    },
-
-    #[error(
-        "Only fragments decorated with the @assignable directive can be spread within updatable {outer_type_plural}. You can try adding the @assignable directive to the fragment {fragment_name}."
-    )]
-    UpdatableOnlyAssignableFragmentSpreads {
-        outer_type_plural: &'static str,
-        fragment_name: StringKey,
-    },
-
-    #[error(
-        "Within updatable {outer_type_plural}, if an assignable fragment is spread on a linked field, the fragment's type (`{fragment_type}`) must be equal to or a subtype of the field's type (`{field_type}`)."
-    )]
-    UpdatableSpreadOfAssignableFragmentMustBeEqualToOrSubtypeOfOuterField {
-        outer_type_plural: &'static str,
-        fragment_type: StringKey,
-        field_type: StringKey,
-    },
-
-    // Note: conditions do not have a location, hence this awkward phrasing
-    #[error(
-        "Within updatable {outer_type_plural}, the directives @include and @skip are not allowed. The directive was found in {operation_or_fragment_name}."
-    )]
-    UpdatableNoConditions {
-        outer_type_plural: &'static str,
-        operation_or_fragment_name: StringKey,
-    },
-
-    #[error(
-        "Within updatable {outer_type_plural}, if a linked field contains an inline fragment spread, it must contain only inline fragment spreads."
-    )]
-    UpdatableOnlyInlineFragments { outer_type_plural: &'static str },
-
-    #[error(
-        "Within updatable {outer_type_plural}, inline fragments are only allowed on interfaces or unions, not on concrete types. In updatable queries, each inline fragment must have a type conditions, so no inline fragment would make sense here."
-    )]
-    UpdatableInlineFragmentsOnlyOnInterfacesOrUnions { outer_type_plural: &'static str },
-
-    #[error(
-        "Within updatable {outer_type_plural}, each inline fragment spread must have a type condition. An inline fragment without a type condition was among the selections of {parent_field_type}."
-    )]
-    UpdatableInlineFragmentsRequireTypeConditions {
-        outer_type_plural: &'static str,
-        parent_field_type: StringKey,
-    },
-
-    #[error(
-        "Within updatable {outer_type_plural}, each inline fragment spread must have a type condition narrowing the type to a unique concrete type. `{type_condition}` is not a concrete type."
-    )]
-    UpdatableInlineFragmentsTypeConditionsMustBeConcrete {
-        outer_type_plural: &'static str,
-        type_condition: StringKey,
-    },
-
-    #[error(
-        "Within updatable {outer_type_plural}, a single linked field cannot have multiple inline fragments with the same type condition. However, within {parent_field_alias_or_name}, there were multiple inline fragments narrowing the type to `{type_condition}`."
-    )]
-    UpdatablePreviouslyEncounteredTypeCondition {
-        outer_type_plural: &'static str,
-        type_condition: StringKey,
-        parent_field_alias_or_name: StringKey,
-    },
-
-    #[error(
-        "Within updatable {outer_type_plural}, each inline fragment spread must contain an unaliased typename field. However, within {parent_field_alias_or_name}, there are inline fragments without typename fields."
-    )]
-    UpdatableInlineFragmentsMustHaveTypenameFields {
-        outer_type_plural: &'static str,
-        parent_field_alias_or_name: StringKey,
-    },
-
-    #[error(
-        "Within updatable {outer_type_plural}, an inline fragment cannot occur immediately within another inline fragment. Found within {operation_or_fragment_name}. This is because all inline fragments must have type conditions and narrow the type from an abstract type to a concrete type."
-    )]
-    UpdatableNoNestedInlineFragments {
-        outer_type_plural: &'static str,
-        operation_or_fragment_name: StringKey,
-    },
-
-    // Assignable fragments
-    #[error(
-        "Assignable fragments should contain only a single, unaliased __typename field with no directives."
-    )]
-    AssignableOnlyUnaliasedTypenameFieldWithNoDirectives,
-
-    #[error("The @{disallowed_directive_name} directive is not allowed on assignable fragments.")]
-    AssignableDisallowOtherDirectives {
-        disallowed_directive_name: StringKey,
-    },
-
     #[error("No fields can have an alias that start with two underscores.")]
     NoDoubleUnderscoreAlias,
-
-    #[error("Top-level spreads of assignable fragments are not supported.")]
-    AssignableNoTopLevelFragmentSpreads,
-
-    #[error(
-        "The @{disallowed_directive_name} directive is not allowed on assignable fragment spreads."
-    )]
-    AssignableFragmentSpreadNoOtherDirectives {
-        disallowed_directive_name: StringKey,
-    },
-
-    #[error("Assignable fragments cannot appear within inline fragments")]
-    AssignableFragmentSpreadNotWithinInlineFragment,
 
     #[error("RescriptRelay does not allow using field name `{0}`. Please alias your field to something else.")]
     RescriptRelayDisallowSelectionName(StringKey),

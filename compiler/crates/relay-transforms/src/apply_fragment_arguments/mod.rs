@@ -14,19 +14,17 @@ use crate::{
     util::get_normalization_operation_name,
 };
 use common::{Diagnostic, DiagnosticsResult, FeatureFlag, NamedItem, WithLocation};
-use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{
     Condition, ConditionValue, ConstantValue, Directive, FragmentDefinition, FragmentSpread,
     InlineFragment, OperationDefinition, Program, ProvidedVariableMetadata, Selection, Transformed,
-    TransformedMulti, TransformedValue, Transformer, ValidationMessage, Value, Variable,
-    VariableDefinition,
+    TransformedMulti, TransformedValue, Transformer, Value, Variable, VariableDefinition,
 };
 use graphql_syntax::OperationKind;
-use indexmap::IndexMap;
-use intern::string_key::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey, StringKeyIndexMap, StringKeyMap, StringKeySet};
 use itertools::Itertools;
 use scope::{format_local_variable, Scope};
 use std::sync::Arc;
+use thiserror::Error;
 
 /// A transform that converts a set of documents containing fragments/fragment
 /// spreads *with* arguments to one where all arguments have been inlined. This
@@ -53,7 +51,7 @@ pub fn apply_fragment_arguments(
     program: &Program,
     is_normalization: bool,
     no_inline_feature: &FeatureFlag,
-    base_fragment_names: &FnvHashSet<StringKey>,
+    base_fragment_names: &StringKeySet,
 ) -> DiagnosticsResult<Program> {
     let mut transform = ApplyFragmentArgumentsTransform {
         base_fragment_names,
@@ -99,15 +97,15 @@ enum PendingFragment {
 }
 
 struct ApplyFragmentArgumentsTransform<'flags, 'program, 'base_fragments> {
-    base_fragment_names: &'base_fragments FnvHashSet<StringKey>,
+    base_fragment_names: &'base_fragments StringKeySet,
     errors: Vec<Diagnostic>,
-    fragments: FnvHashMap<StringKey, PendingFragment>,
+    fragments: StringKeyMap<PendingFragment>,
     is_normalization: bool,
     no_inline_feature: &'flags FeatureFlag,
     program: &'program Program,
-    provided_variables: IndexMap<StringKey, VariableDefinition>,
+    provided_variables: StringKeyIndexMap<VariableDefinition>,
     scope: Scope,
-    split_operations: FnvHashMap<StringKey, OperationDefinition>,
+    split_operations: StringKeyMap<OperationDefinition>,
 }
 
 impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
@@ -177,6 +175,9 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
                     spread.fragment.item
                 );
             });
+
+        self.extract_provided_variables(fragment);
+
         if self.is_normalization {
             if let Some(directive) = fragment.directives.named(*NO_INLINE_DIRECTIVE_NAME) {
                 let transformed_arguments = spread
@@ -392,7 +393,8 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
                 });
         for definition in provided_arguments {
             self.provided_variables
-                .insert(fragment.name.item, definition.clone());
+                .entry(definition.name.item)
+                .or_insert_with(|| definition.clone());
         }
     }
 
@@ -431,8 +433,6 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
 
         self.scope
             .push(spread.fragment.location, &transformed_arguments, fragment);
-
-        self.extract_provided_variables(fragment);
 
         let selections = self
             .transform_selections(&fragment.selections)
@@ -514,7 +514,7 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
 }
 
 fn no_inline_fragment_scope(fragment: &FragmentDefinition) -> Scope {
-    let mut bindings = FnvHashMap::with_capacity_and_hasher(
+    let mut bindings = StringKeyMap::with_capacity_and_hasher(
         fragment.variable_definitions.len(),
         Default::default(),
     );
@@ -532,4 +532,10 @@ fn no_inline_fragment_scope(fragment: &FragmentDefinition) -> Scope {
     let mut scope = Scope::root_scope();
     scope.push_bindings(fragment.name.location, bindings);
     scope
+}
+
+#[derive(Debug, Error)]
+enum ValidationMessage {
+    #[error("Found a circular reference from fragment '{fragment_name}'.")]
+    CircularFragmentReference { fragment_name: StringKey },
 }

@@ -7,13 +7,13 @@
 
 use crate::ast::{Ast, AstBuilder, AstKey, ObjectEntry, Primitive, QueryID, RequestParameters};
 use crate::build_ast::{
-    build_fragment, build_operation, build_request, build_request_params,
+    build_fragment, build_operation, build_provided_variables, build_request, build_request_params,
     build_request_params_ast_key,
 };
 use crate::constants::CODEGEN_CONSTANTS;
 use crate::indentation::print_indentation;
-use crate::js_module_format::JsModuleFormat;
 use crate::utils::escape;
+use crate::JsModuleFormat;
 
 use graphql_ir::{FragmentDefinition, OperationDefinition};
 use schema::SDLSchema;
@@ -93,6 +93,16 @@ impl Printer {
         }
     }
 
+    pub fn print_provided_variables(
+        &mut self,
+        schema: &SDLSchema,
+        operation: &OperationDefinition,
+    ) -> Option<String> {
+        let key = build_provided_variables(schema, &mut self.builder, operation)?;
+        let printer = JSONPrinter::new(&self.builder, self.js_module_format);
+        Some(printer.print(key, self.dedupe))
+    }
+
     pub fn print_request(
         &mut self,
         schema: &SDLSchema,
@@ -125,6 +135,18 @@ impl Printer {
 
     pub fn print_fragment(&mut self, schema: &SDLSchema, fragment: &FragmentDefinition) -> String {
         let key = build_fragment(schema, &mut self.builder, fragment);
+        let printer = JSONPrinter::new(&self.builder, self.js_module_format);
+        printer.print(key, self.dedupe)
+    }
+
+    pub fn print_request_params(
+        &mut self,
+        schema: &SDLSchema,
+        request_parameters: RequestParameters<'_>,
+        operation: &OperationDefinition,
+    ) -> String {
+        let key =
+            build_request_params_ast_key(schema, request_parameters, &mut self.builder, operation);
         let printer = JSONPrinter::new(&self.builder, self.js_module_format);
         printer.print(key, self.dedupe)
     }
