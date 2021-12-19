@@ -24,7 +24,7 @@ pub enum TypegenLanguage {
 
 impl Default for TypegenLanguage {
     fn default() -> Self {
-        Self::Flow
+        Self::ReScript
     }
 }
 
