@@ -7,13 +7,13 @@ module Query = %relay(`
 `)
 
 module Mutation = %relay(`
-    mutation TestMutationSetOnlineStatusMutation($onlineStatus: OnlineStatus!) @raw_response_type {
+    mutation TestMutationSetOnlineStatusMutation($onlineStatus: OnlineStatus!, $connections: [ID!]!) @raw_response_type {
       setOnlineStatus(onlineStatus: $onlineStatus) {
-        user {
+        user @appendNode(connections: $connections, edgeTypeName: "UserEdge") {
           id
           onlineStatus
           ...TestFragment_user
-        }
+        } 
       }
     }
 `)

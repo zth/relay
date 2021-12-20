@@ -149,6 +149,30 @@ fn ast_to_prop_value(
     // print the types.
     let (safe_key, original_key) = get_safe_key(key);
 
+    // We do special treatment for any variable definition in
+    // mutations/subscriptions which is passed into `connections` of a
+    // store updater directive (like @appendNode, @deleteEdge, etc).
+    // Anytime we encounter that, we turn that array<string> into
+    // array<RescriptRelay.dataId>, because that's what it actually is
+    // in its underlying form, a data id. So, this little weird thing
+    // handles that.
+    if context == &Context::Variables
+        && found_in_array
+        && current_path.len() == 1 // Path length on 1 means that we're on the top level
+        && state
+            .operation_meta_data
+            .variables_with_connection_data_ids
+            .contains(key)
+    {
+        return Some(PropValue {
+            key: safe_key,
+            original_key,
+            comment: None,
+            nullable: is_nullable,
+            prop_type: Box::new(PropType::DataId),
+        });
+    }
+
     match value {
         AST::Boolean => Some(PropValue {
             key: safe_key,
@@ -157,38 +181,13 @@ fn ast_to_prop_value(
             nullable: is_nullable,
             prop_type: Box::new(PropType::Scalar(ScalarValues::Boolean)),
         }),
-        AST::String => {
-            // We do special treatment for any variable definition in
-            // mutations/subscriptions which is passed into `connections` of a
-            // store updater directive (like @appendNode, @deleteEdge, etc).
-            // Anytime we encounter that, we turn that array<string> into
-            // array<RescriptRelay.dataId>, because that's what it actually is
-            // in its underlying form, a data id. So, this little weird thing
-            // handles that.
-            if context == &Context::Variables
-                && found_in_array
-                && state
-                    .operation_meta_data
-                    .variables_with_connection_data_ids
-                    .contains(key)
-            {
-                Some(PropValue {
-                    key: safe_key,
-                    original_key,
-                    comment: None,
-                    nullable: is_nullable,
-                    prop_type: Box::new(PropType::DataId),
-                })
-            } else {
-                Some(PropValue {
-                    key: safe_key,
-                    original_key,
-                    comment: None,
-                    nullable: is_nullable,
-                    prop_type: Box::new(PropType::Scalar(ScalarValues::String)),
-                })
-            }
-        }
+        AST::String => Some(PropValue {
+            key: safe_key,
+            original_key,
+            comment: None,
+            nullable: is_nullable,
+            prop_type: Box::new(PropType::Scalar(ScalarValues::String)),
+        }),
         AST::Number => Some(PropValue {
             key: safe_key,
             original_key,

@@ -49,6 +49,7 @@ module Types = {
       | #Offline
     ]
 ,
+    connections: array<RescriptRelay.dataId>,
   }
 }
 
@@ -109,9 +110,11 @@ module Utils = {
   external onlineStatus_toString: enum_OnlineStatus => string = "%identity"
   external onlineStatus_input_toString: enum_OnlineStatus_input => string = "%identity"
   let makeVariables = (
-    ~onlineStatus
+    ~onlineStatus,
+    ~connections
   ): variables => {
-    onlineStatus: onlineStatus
+    onlineStatus: onlineStatus,
+    connections: connections
   }
   let makeOptimisticResponse = (
     ~setOnlineStatus=?,
@@ -146,28 +149,31 @@ type operationType = RescriptRelay.mutationNode<relayOperationNode>
 
 
 let node: operationType = %raw(json` (function(){
-var v0 = [
-  {
-    "defaultValue": null,
-    "kind": "LocalArgument",
-    "name": "onlineStatus"
-  }
-],
-v1 = [
+var v0 = {
+  "defaultValue": null,
+  "kind": "LocalArgument",
+  "name": "connections"
+},
+v1 = {
+  "defaultValue": null,
+  "kind": "LocalArgument",
+  "name": "onlineStatus"
+},
+v2 = [
   {
     "kind": "Variable",
     "name": "onlineStatus",
     "variableName": "onlineStatus"
   }
 ],
-v2 = {
+v3 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
   "name": "id",
   "storageKey": null
 },
-v3 = {
+v4 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
@@ -176,14 +182,17 @@ v3 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": [
+      (v0/*: any*/),
+      (v1/*: any*/)
+    ],
     "kind": "Fragment",
     "metadata": null,
     "name": "TestMutationSetOnlineStatusMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v2/*: any*/),
         "concreteType": "SetOnlineStatusPayload",
         "kind": "LinkedField",
         "name": "setOnlineStatus",
@@ -197,8 +206,8 @@ return {
             "name": "user",
             "plural": false,
             "selections": [
-              (v2/*: any*/),
               (v3/*: any*/),
+              (v4/*: any*/),
               {
                 "args": null,
                 "kind": "FragmentSpread",
@@ -216,13 +225,16 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": [
+      (v1/*: any*/),
+      (v0/*: any*/)
+    ],
     "kind": "Operation",
     "name": "TestMutationSetOnlineStatusMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v2/*: any*/),
         "concreteType": "SetOnlineStatusPayload",
         "kind": "LinkedField",
         "name": "setOnlineStatus",
@@ -236,8 +248,8 @@ return {
             "name": "user",
             "plural": false,
             "selections": [
-              (v2/*: any*/),
               (v3/*: any*/),
+              (v4/*: any*/),
               {
                 "alias": null,
                 "args": null,
@@ -266,6 +278,27 @@ return {
               }
             ],
             "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "filters": null,
+            "handle": "appendNode",
+            "key": "",
+            "kind": "LinkedHandle",
+            "name": "user",
+            "handleArgs": [
+              {
+                "kind": "Variable",
+                "name": "connections",
+                "variableName": "connections"
+              },
+              {
+                "kind": "Literal",
+                "name": "edgeTypeName",
+                "value": "UserEdge"
+              }
+            ]
           }
         ],
         "storageKey": null
