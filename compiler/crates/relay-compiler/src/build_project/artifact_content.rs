@@ -666,14 +666,13 @@ fn generate_operation_rescript(
     };
     let mut content = String::new();
 
-    writeln!(
-        &mut content,
-        "{}",
-        super::rescript_relay_utils::rescript_get_source_loc_text(
-            &reader_operation.name.location.source_location()
-        )
-    )
-    .unwrap();
+    match super::rescript_relay_utils::rescript_get_source_loc_text(
+        &reader_operation.name.location.source_location(),
+    ) {
+        None => (),
+        Some(source_loc_str) => writeln!(&mut content, "{}", source_loc_str).unwrap(),
+    };
+
     writeln!(
         &mut content,
         "{}",
@@ -820,14 +819,14 @@ fn generate_fragment_rescript(
     _skip_types: bool,
 ) -> Vec<u8> {
     let mut content = String::new();
-    writeln!(
-        &mut content,
-        "{}",
-        super::rescript_relay_utils::rescript_get_source_loc_text(
-            &reader_fragment.name.location.source_location()
-        )
-    )
-    .unwrap();
+
+    match super::rescript_relay_utils::rescript_get_source_loc_text(
+        &reader_fragment.name.location.source_location(),
+    ) {
+        None => (),
+        Some(source_loc_str) => writeln!(&mut content, "{}", source_loc_str).unwrap(),
+    }
+
     writeln!(
         &mut content,
         "{}",

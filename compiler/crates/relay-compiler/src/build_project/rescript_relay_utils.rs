@@ -84,18 +84,18 @@ pub fn rescript_make_operation_type_and_node_text(concrete_text: &str) -> String
 }
 
 // Write a @sourceLoc annotation pointing to where this thing was found
-pub fn rescript_get_source_loc_text(source_file: &SourceLocationKey) -> String {
+pub fn rescript_get_source_loc_text(source_file: &SourceLocationKey) -> Option<String> {
     match source_file {
-        SourceLocationKey::Standalone { path } | SourceLocationKey::Embedded { path, index: _ } => {
-            format!(
+        SourceLocationKey::Embedded { path, .. } | SourceLocationKey::Standalone { path } => {
+            Some(format!(
                 "/* @sourceLoc {} */",
                 std::path::Path::new(&path.to_string())
                     .file_name()
                     .unwrap()
                     .to_string_lossy()
-            )
+            ))
         }
-        SourceLocationKey::Generated => String::from(""),
+        SourceLocationKey::Generated => None,
     }
 }
 
