@@ -1444,6 +1444,7 @@ dependencies = [
  "common",
  "crossbeam",
  "dashmap",
+ "env_logger",
  "extract-graphql",
  "fnv",
  "graphql-ir",
@@ -1460,11 +1461,13 @@ dependencies = [
  "relay-compiler",
  "relay-test-schema",
  "relay-transforms",
+ "relay-typegen",
  "schema",
  "schema-documentation",
  "schema-print",
  "serde",
  "serde_json",
+ "structopt",
  "tokio",
 ]
 

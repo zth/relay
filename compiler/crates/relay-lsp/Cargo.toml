@@ -6,11 +6,16 @@ authors = ["Facebook"]
 edition = "2021"
 license = "MIT"
 
+[[bin]]
+name = "relay-lsp"
+path = "src/main.rs"
+
 [dependencies]
 common = { path = "../common" }
 crossbeam = "0.8"
 dashmap = { version = "4.0.2", features = ["rayon", "serde"] }
 extract-graphql = { path = "../extract-graphql" }
+env_logger = "0.7"
 fnv = "1.0"
 graphql-ir = { path = "../graphql-ir" }
 graphql-syntax = { path = "../graphql-syntax" }
@@ -25,11 +30,13 @@ rand = { version = "0.8", features = ["small_rng"] }
 rayon = "1.2"
 relay-compiler = { path = "../relay-compiler" }
 relay-transforms = { path = "../relay-transforms" }
+relay-typegen = { path = "../relay-typegen" }
 schema = { path = "../schema" }
 schema-documentation = { path = "../schema-documentation" }
 schema-print = { path = "../schema-print" }
 serde = { version = "1.0.126", features = ["derive", "rc"] }
 serde_json = { version = "1.0.64", features = ["float_roundtrip", "unbounded_depth"] }
+structopt = "0.3.23"
 tokio = { version = "1.10", features = ["full", "test-util", "tracing"] }
 
 [dev-dependencies]

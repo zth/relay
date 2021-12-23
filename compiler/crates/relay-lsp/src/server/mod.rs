@@ -81,7 +81,7 @@ pub fn initialize(connection: &Connection) -> LSPProcessResult<InitializeParams>
 
         completion_provider: Some(CompletionOptions {
             resolve_provider: Some(true),
-            trigger_characters: Some(vec!["(".into(), "\n".into(), ",".into(), "@".into()]),
+            trigger_characters: Some(vec!["(".into(), "$".into(), ",".into(), "@".into()]),
             work_done_progress_options: WorkDoneProgressOptions {
                 work_done_progress: None,
             },
