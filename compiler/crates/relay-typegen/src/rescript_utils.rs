@@ -89,29 +89,33 @@ pub enum ClassifiedTopLevelObjectType<'a> {
 
 // This classifies top level object types, meaning anything that comes in the
 // `export <someTypeName>$<data/variables/response/rawResponse>` form.
-pub fn classify_top_level_object_type_ast(ast: &AST) -> Option<ClassifiedTopLevelObjectType<'_>> {
-    // TODO: With bubbling etc this should probably handle nullability too...?
-    match &ast {
-        &AST::ExactObject(props) => Some(ClassifiedTopLevelObjectType::Object(&props)),
+pub fn classify_top_level_object_type_ast(
+    ast: &AST,
+) -> Option<(bool, ClassifiedTopLevelObjectType<'_>)> {
+    let (nullable, unwrapped_ast) = unwrap_ast(ast);
+
+    match &unwrapped_ast {
+        &AST::ExactObject(props) => Some((nullable, ClassifiedTopLevelObjectType::Object(&props))),
         &AST::Union(members) => {
             if members.len() == 1 {
                 match members.get(0) {
                     Some(AST::ExactObject(props)) => {
-                        Some(ClassifiedTopLevelObjectType::Object(props))
+                        Some((nullable, ClassifiedTopLevelObjectType::Object(props)))
                     }
                     _ => None,
                 }
             } else {
-                Some(ClassifiedTopLevelObjectType::Union(members))
+                Some((nullable, ClassifiedTopLevelObjectType::Union(members)))
             }
         }
         &AST::ReadOnlyArray(inner_ast) => {
             match classify_top_level_object_type_ast(inner_ast.as_ref()) {
-                Some(ClassifiedTopLevelObjectType::Object(props)) => {
-                    Some(ClassifiedTopLevelObjectType::ArrayWithObject(&props))
-                }
-                Some(ClassifiedTopLevelObjectType::Union(ast)) => {
-                    Some(ClassifiedTopLevelObjectType::ArrayWithUnion(&ast))
+                Some((_, ClassifiedTopLevelObjectType::Object(props))) => Some((
+                    nullable,
+                    ClassifiedTopLevelObjectType::ArrayWithObject(&props),
+                )),
+                Some((_, ClassifiedTopLevelObjectType::Union(ast))) => {
+                    Some((nullable, ClassifiedTopLevelObjectType::ArrayWithUnion(&ast)))
                 }
                 _ => None,
             }

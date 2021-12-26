@@ -11,3 +11,19 @@ module Query = %relay(`
     }
   }
 `)
+
+module QueryWithRequired = %relay(`
+  query TestQueryWithRequiredQuery {
+    loggedInUser {
+      avatarUrl @required(action: NONE)
+    }
+  }
+`)
+
+module QueryWithRequired_BubbleToTop = %relay(`
+  query TestQueryWithRequired_BubbleToTop_Query {
+    loggedInUser @required(action: NONE) {
+      avatarUrl @required(action: NONE)
+    }
+  }
+`)

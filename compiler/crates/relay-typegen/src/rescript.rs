@@ -56,16 +56,22 @@ pub struct ReScriptPrinter {
     // If there's a definition for variables (can be found in anything but fragments) in this artifact.
     variables: Option<Object>,
 
-    // This is available for anything but fragments.
-    response: Option<Object>,
+    // This is available for anything but fragments. The bool is whether the
+    // response is nullable or not. Nullability of responses happen when the
+    // @required directive bubbles the nullability all the way up to the
+    // response top level.
+    response: Option<(bool, Object)>,
 
     // The @raw_response_type annotation on operations will populate this. It
     // holds a type that represents the full, raw response Relay expects from
     // the server, and is primarily used for optimistic updates.
     raw_response: Option<Object>,
 
-    // If this is a fragment, its structure will be here.
-    fragment: Option<TopLevelFragmentType>,
+    // If this is a fragment, its structure will be here. The bool is whether
+    // the fragment is nullable or not. Nullability of fragments happen when the
+    // @required directive bubbles the nullability all the way up to the
+    // fragment top level.
+    fragment: Option<(bool, TopLevelFragmentType)>,
 
     // The raw typegen definition fed to us by the Relay compiler. Useful for
     // looking up things not communicated directly by the AST representing the
@@ -1339,19 +1345,36 @@ fn write_fragment_definition(
     indentation: usize,
     fragment: &TopLevelFragmentType,
     context: &Context,
+    nullable: bool,
 ) -> Result {
     match &fragment {
         &TopLevelFragmentType::Object(obj) => {
-            write_object_definition(
-                state,
-                str,
-                indentation,
-                obj,
-                ObjectPrintMode::Standalone,
-                None,
-                &context,
-            )
-            .unwrap();
+            if nullable {
+                write_object_definition(
+                    state,
+                    str,
+                    indentation,
+                    obj,
+                    ObjectPrintMode::Standalone,
+                    Some(String::from("fragment_t")),
+                    &context,
+                )
+                .unwrap();
+
+                write_indentation(str, indentation).unwrap();
+                writeln!(str, "type fragment = option<fragment_t>").unwrap()
+            } else {
+                write_object_definition(
+                    state,
+                    str,
+                    indentation,
+                    obj,
+                    ObjectPrintMode::Standalone,
+                    None,
+                    &context,
+                )
+                .unwrap();
+            }
         }
         &TopLevelFragmentType::ArrayWithObject(obj) => {
             write_object_definition(
@@ -1365,11 +1388,34 @@ fn write_fragment_definition(
             )
             .unwrap();
             write_indentation(str, indentation).unwrap();
-            writeln!(str, "type fragment = array<fragment_t>").unwrap()
+            if nullable {
+                writeln!(str, "type fragment = array<option<fragment_t>>").unwrap()
+            } else {
+                writeln!(str, "type fragment = array<fragment_t>").unwrap()
+            }
         }
         &TopLevelFragmentType::Union(union) => {
-            write_union_definition(str, indentation, &union, None, &ObjectPrintMode::Standalone)
+            if nullable {
+                write_union_definition(
+                    str,
+                    indentation,
+                    &union,
+                    Some(String::from("fragment_t")),
+                    &ObjectPrintMode::Standalone,
+                )
                 .unwrap();
+                write_indentation(str, indentation).unwrap();
+                writeln!(str, "type fragment = option<fragment_t>").unwrap()
+            } else {
+                write_union_definition(
+                    str,
+                    indentation,
+                    &union,
+                    None,
+                    &ObjectPrintMode::Standalone,
+                )
+                .unwrap();
+            }
         }
         &TopLevelFragmentType::ArrayWithUnion(union) => {
             write_union_definition(
@@ -1381,7 +1427,11 @@ fn write_fragment_definition(
             )
             .unwrap();
             write_indentation(str, indentation).unwrap();
-            writeln!(str, "type fragment = array<fragment_t>").unwrap()
+            if nullable {
+                writeln!(str, "type fragment = array<option<fragment_t>>").unwrap()
+            } else {
+                writeln!(str, "type fragment = array<fragment_t>").unwrap()
+            }
         }
     }
 
@@ -1599,6 +1649,13 @@ fn write_get_connection_nodes_function(
     Ok(())
 }
 
+fn warn_about_unimplemented_feature(definition_type: &DefinitionType) {
+    warn!("'{}' produced a type that RescriptRelay does not understand. Please open an issue on the repo https://github.com/zth/rescript-relay and describe what you were doing as this happened.", match &definition_type {
+        DefinitionType::Fragment(fragment_definition) => fragment_definition.name.item,
+        DefinitionType::Operation(operation_definition) => operation_definition.name.item
+    });
+}
+
 impl Writer for ReScriptPrinter {
     // This is what does the actual printing of types. It does that by working
     // its way through the state produced by "write_export_type", which turns
@@ -1719,29 +1776,45 @@ impl Writer for ReScriptPrinter {
             });
 
         // Print the fragment definition
-        if let Some(fragment) = &self.fragment {
+        if let Some((nullable, fragment)) = &self.fragment {
             write_fragment_definition(
                 &self,
                 &mut generated_types,
                 indentation,
                 &fragment,
                 &Context::Fragment,
+                nullable.to_owned(),
             )
             .unwrap()
         }
 
         // Print the response and raw response (if wanted)
-        if let Some(response) = &self.response {
-            write_object_definition(
-                &self,
-                &mut generated_types,
-                indentation,
-                &response,
-                ObjectPrintMode::Standalone,
-                None,
-                &Context::Response,
-            )
-            .unwrap();
+        if let Some((nullable, response)) = &self.response {
+            if *nullable {
+                write_object_definition(
+                    &self,
+                    &mut generated_types,
+                    indentation,
+                    &response,
+                    ObjectPrintMode::Standalone,
+                    Some(String::from("response_t")),
+                    &Context::Response,
+                )
+                .unwrap();
+                write_indentation(&mut generated_types, indentation).unwrap();
+                writeln!(generated_types, "type response = option<response_t>").unwrap()
+            } else {
+                write_object_definition(
+                    &self,
+                    &mut generated_types,
+                    indentation,
+                    &response,
+                    ObjectPrintMode::Standalone,
+                    None,
+                    &Context::Response,
+                )
+                .unwrap();
+            }
 
             // This prints the rawResponse, which the Relay compiler outputs if
             // you annotate a query with @raw_response_type. The rawResponse is
@@ -1769,7 +1842,16 @@ impl Writer for ReScriptPrinter {
                 .unwrap(),
                 None => {
                     write_indentation(&mut generated_types, indentation).unwrap();
-                    writeln!(generated_types, "type rawResponse = response").unwrap()
+                    writeln!(
+                        generated_types,
+                        "type rawResponse = {}",
+                        // We point to the full, non nullable type if response
+                        // was nullable, as it might be nullable only because of
+                        // @required, and we don't care about that when using
+                        // the raw response.
+                        if *nullable { "response_t" } else { "response" }
+                    )
+                    .unwrap()
                 }
             }
         }
@@ -1846,13 +1928,17 @@ impl Writer for ReScriptPrinter {
 
         // Print union converters for the fragment itself, if the fragment is on a union.
         match &self.fragment {
-            Some(
+            Some((
+                _,
                 TopLevelFragmentType::Union(fragment_union)
                 | TopLevelFragmentType::ArrayWithUnion(fragment_union),
-            ) => {
+            )) => {
                 write_union_converters(&mut generated_types, indentation, &fragment_union).unwrap();
             }
-            Some(TopLevelFragmentType::Object(_) | TopLevelFragmentType::ArrayWithObject(_))
+            Some((
+                _,
+                TopLevelFragmentType::Object(_) | TopLevelFragmentType::ArrayWithObject(_),
+            ))
             | None => (),
         }
 
@@ -2082,7 +2168,7 @@ impl Writer for ReScriptPrinter {
                 // connection that's either in a nested object somewhere, or
                 // directly on the fragment.
                 match (&self.fragment, connection_config.at_object_path.len()) {
-                    (Some(TopLevelFragmentType::Object(fragment)), 1) => {
+                    (Some((_, TopLevelFragmentType::Object(fragment))), 1) => {
                         // Only one element means it's on the fragment, since
                         // @connection only appears on fragments, and the prefix
                         // "fragment" will be here in the path.
@@ -2095,7 +2181,7 @@ impl Writer for ReScriptPrinter {
                         )
                         .unwrap()
                     }
-                    (Some(TopLevelFragmentType::Object(_)), _) => {
+                    (Some((_, TopLevelFragmentType::Object(_))), _) => {
                         // More elements means this is an object somewhere else
                         // in the response. So, we'll need to find it.
                         match find_object_with_record_name(
@@ -2197,7 +2283,7 @@ impl Writer for ReScriptPrinter {
         // for those key top level objects and treat them specially.
         if name.ends_with("$data") {
             match classify_top_level_object_type_ast(&value) {
-                Some(ClassifiedTopLevelObjectType::Object(props)) => {
+                Some((nullable, ClassifiedTopLevelObjectType::Object(props))) => {
                     let context = match &self.typegen_definition {
                         DefinitionType::Fragment(_) => Context::Fragment,
                         _ => Context::Response,
@@ -2216,16 +2302,17 @@ impl Writer for ReScriptPrinter {
 
                     match &self.typegen_definition {
                         DefinitionType::Fragment(_) => {
-                            self.fragment = Some(TopLevelFragmentType::Object(main_data_type));
+                            self.fragment =
+                                Some((nullable, TopLevelFragmentType::Object(main_data_type)));
                         }
                         _ => {
-                            self.response = Some(main_data_type);
+                            self.response = Some((nullable, main_data_type));
                         }
                     };
 
                     Ok(())
                 }
-                Some(ClassifiedTopLevelObjectType::ArrayWithObject(props)) => {
+                Some((nullable, ClassifiedTopLevelObjectType::ArrayWithObject(props))) => {
                     let context = match &self.typegen_definition {
                         DefinitionType::Fragment(_) => Context::Fragment,
                         _ => Context::Response,
@@ -2241,10 +2328,13 @@ impl Writer for ReScriptPrinter {
                         found_in_union: false,
                     };
 
-                    self.fragment = Some(TopLevelFragmentType::ArrayWithObject(fragment_type));
+                    self.fragment = Some((
+                        nullable,
+                        TopLevelFragmentType::ArrayWithObject(fragment_type),
+                    ));
                     Ok(())
                 }
-                Some(ClassifiedTopLevelObjectType::Union(members_raw)) => {
+                Some((nullable, ClassifiedTopLevelObjectType::Union(members_raw))) => {
                     let context = Context::Fragment;
 
                     let current_path = vec![root_name_from_context(&context)];
@@ -2264,10 +2354,11 @@ impl Writer for ReScriptPrinter {
                         instruction: ConverterInstructions::ConvertUnion(String::from("fragment")),
                     });
 
-                    self.fragment = Some(TopLevelFragmentType::Union(fragment_union_type));
+                    self.fragment =
+                        Some((nullable, TopLevelFragmentType::Union(fragment_union_type)));
                     Ok(())
                 }
-                Some(ClassifiedTopLevelObjectType::ArrayWithUnion(members_raw)) => {
+                Some((nullable, ClassifiedTopLevelObjectType::ArrayWithUnion(members_raw))) => {
                     let context = Context::Fragment;
 
                     let current_path = vec![root_name_from_context(&context)];
@@ -2287,7 +2378,10 @@ impl Writer for ReScriptPrinter {
                         instruction: ConverterInstructions::ConvertUnion(String::from("fragment")),
                     });
 
-                    self.fragment = Some(TopLevelFragmentType::ArrayWithUnion(fragment_union_type));
+                    self.fragment = Some((
+                        nullable,
+                        TopLevelFragmentType::ArrayWithUnion(fragment_union_type),
+                    ));
                     Ok(())
                 }
                 None => {
@@ -2297,7 +2391,7 @@ impl Writer for ReScriptPrinter {
             }
         } else if name.ends_with("$variables") {
             match classify_top_level_object_type_ast(&value) {
-                Some(ClassifiedTopLevelObjectType::Object(props)) => {
+                Some((_nullable, ClassifiedTopLevelObjectType::Object(props))) => {
                     let context = Context::Variables;
                     let current_path = vec![root_name_from_context(&context)];
 
@@ -2319,7 +2413,7 @@ impl Writer for ReScriptPrinter {
             }
         } else if name.ends_with("$rawResponse") {
             match classify_top_level_object_type_ast(&value) {
-                Some(ClassifiedTopLevelObjectType::Object(props)) => {
+                Some((_nullable, ClassifiedTopLevelObjectType::Object(props))) => {
                     let context = Context::RawResponse;
                     let current_path = vec![root_name_from_context(&context)];
 
@@ -2429,6 +2523,7 @@ impl Writer for ReScriptPrinter {
 
     fn write_local_type(&mut self, _name: &str, _ast: &AST) -> Result {
         // TODO: Figure out if we need this.
+        warn_about_unimplemented_feature(&self.typegen_definition);
         Ok(())
     }
 }

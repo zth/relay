@@ -46,4 +46,45 @@ module PluralFragment = %relay(`
     }
 `)
 
+module FragmentWithRequired = %relay(`
+    fragment TestFragment_required_user on User {
+      isOnline @required(action: NONE)
+      lastName
+      firstName
+    }
+`)
+
+module FragmentWithRequiredPlural = %relay(`
+    fragment TestFragment_requiredPlural_user on User @relay(plural: true) {
+      isOnline @required(action: NONE)
+      lastName
+      firstName
+    }
+`)
+
+module FragmentWithRequiredUnion = %relay(`
+    fragment TestFragment_requiredUnion_member on Member {
+      ... on User {
+        isOnline @required(action: NONE)
+        lastName
+        firstName
+      }
+      ... on Group {
+        name
+      }
+    }
+`)
+
+module FragmentWithRequiredUnionPlural = %relay(`
+    fragment TestFragment_requiredUnionPlural_member on Member @relay(plural: true) {
+      ... on User {
+        isOnline @required(action: NONE)
+        lastName
+        firstName
+      }
+      ... on Group {
+        name
+      }
+    }
+`)
 
