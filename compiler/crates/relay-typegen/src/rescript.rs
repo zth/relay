@@ -269,7 +269,7 @@ fn ast_to_prop_value(
                 at_path: new_at_path.clone(),
                 record_name: record_name.clone(),
                 comment: None,
-                values: get_object_props(state, new_at_path, props, found_in_union, context),
+                values: get_object_props(state, &new_at_path, props, found_in_union, context),
                 found_in_union,
             };
 
@@ -306,7 +306,7 @@ fn ast_to_prop_value(
                         comment: None,
                         found_in_union: false,
                         record_name: path_to_name(&new_at_path),
-                        values: get_object_props(state, new_at_path.clone(), props, false, context),
+                        values: get_object_props(state, &new_at_path, props, false, context),
                     };
 
                     let object_record_name = object.record_name.to_string();
@@ -491,7 +491,7 @@ fn extract_union_members(
                     new_unioned_path.push(member_type.to_string());
 
                     let member_fields =
-                        get_object_props(state, new_unioned_path.clone(), props, true, context);
+                        get_object_props(state, &new_unioned_path, props, true, context);
 
                     let union_member_record_name = path_to_name(&new_unioned_path);
                     let union_member_shape = Object {
@@ -521,7 +521,7 @@ fn extract_union_members(
 
 fn get_object_props(
     state: &mut ReScriptPrinter,
-    current_path: Vec<String>,
+    current_path: &Vec<String>,
     props: &Vec<Prop>,
     found_in_union: bool,
     context: &Context,
@@ -2296,7 +2296,7 @@ impl Writer for ReScriptPrinter {
                         at_path: current_path.clone(),
                         comment: None,
                         record_name: record_name.to_string(),
-                        values: get_object_props(self, current_path, &props, false, &context),
+                        values: get_object_props(self, &current_path, &props, false, &context),
                         found_in_union: false,
                     };
 
@@ -2324,9 +2324,17 @@ impl Writer for ReScriptPrinter {
                         at_path: current_path.clone(),
                         comment: None,
                         record_name: record_name.to_string(),
-                        values: get_object_props(self, current_path, &props, false, &context),
+                        values: get_object_props(self, &current_path, &props, false, &context),
                         found_in_union: false,
                     };
+
+                    if nullable {
+                        self.conversion_instructions.push(InstructionContainer {
+                            context: context.clone(),
+                            at_path: current_path.clone(),
+                            instruction: ConverterInstructions::ConvertNullableArrayContents,
+                        });
+                    }
 
                     self.fragment = Some((
                         nullable,
@@ -2378,6 +2386,14 @@ impl Writer for ReScriptPrinter {
                         instruction: ConverterInstructions::ConvertUnion(String::from("fragment")),
                     });
 
+                    if nullable {
+                        self.conversion_instructions.push(InstructionContainer {
+                            context: context.clone(),
+                            at_path: current_path.clone(),
+                            instruction: ConverterInstructions::ConvertNullableArrayContents,
+                        });
+                    }
+
                     self.fragment = Some((
                         nullable,
                         TopLevelFragmentType::ArrayWithUnion(fragment_union_type),
@@ -2399,7 +2415,7 @@ impl Writer for ReScriptPrinter {
                         at_path: current_path.clone(),
                         comment: None,
                         record_name: path_to_name(&current_path),
-                        values: get_object_props(self, current_path, &props, false, &context),
+                        values: get_object_props(self, &current_path, &props, false, &context),
                         found_in_union: false,
                     };
 
@@ -2421,7 +2437,7 @@ impl Writer for ReScriptPrinter {
                         at_path: current_path.clone(),
                         comment: None,
                         record_name: path_to_name(&current_path),
-                        values: get_object_props(self, current_path, &props, false, &context),
+                        values: get_object_props(self, &current_path, &props, false, &context),
                         found_in_union: false,
                     };
 
@@ -2444,7 +2460,7 @@ impl Writer for ReScriptPrinter {
                     let path = vec![root_name_from_context(&context)];
                     let obj = Object {
                         comment: None,
-                        values: get_object_props(self, path.clone(), &props, false, &context),
+                        values: get_object_props(self, &path, &props, false, &context),
                         at_path: path.clone(),
                         record_name: path_to_name(&path),
                         found_in_union: false,
