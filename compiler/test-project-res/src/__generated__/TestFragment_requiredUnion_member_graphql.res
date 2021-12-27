@@ -45,7 +45,7 @@ let wrap_fragment: [
 module Internal = {
   type fragmentRaw
   let fragmentConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
-    json`{"__root":{"":{"u":"fragment"}}}`
+    json`{"__root":{"":{"u":"fragment","n":""}}}`
   )
   let fragmentConverterMap = {
     "fragment": unwrap_fragment,

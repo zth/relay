@@ -2300,6 +2300,14 @@ impl Writer for ReScriptPrinter {
                         found_in_union: false,
                     };
 
+                    if nullable {
+                        self.conversion_instructions.push(InstructionContainer {
+                            context: context.clone(),
+                            at_path: current_path.clone(),
+                            instruction: ConverterInstructions::ConvertNullableProp,
+                        });
+                    }
+
                     match &self.typegen_definition {
                         DefinitionType::Fragment(_) => {
                             self.fragment =
@@ -2355,6 +2363,14 @@ impl Writer for ReScriptPrinter {
                         record_name: record_name.to_string(),
                         members: union_members,
                     };
+
+                    if nullable {
+                        self.conversion_instructions.push(InstructionContainer {
+                            context: context.clone(),
+                            at_path: current_path.clone(),
+                            instruction: ConverterInstructions::ConvertNullableProp,
+                        });
+                    }
 
                     self.conversion_instructions.push(InstructionContainer {
                         context: context.clone(),
