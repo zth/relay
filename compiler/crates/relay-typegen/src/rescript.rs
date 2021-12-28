@@ -647,7 +647,10 @@ fn get_object_prop_value(
                     .iter()
                     .find(|full_enum| full_enum.name == enum_name.to_string())
                 {
-                    None => panic!("Did not find enum"),
+                    None => {
+                        warn!("Did not find enum");
+                        String::from("invalid_enum")
+                    }
                     Some(full_enum) => format!(
                         "{}",
                         get_enum_definition_body(full_enum, indentation, false)
@@ -1530,11 +1533,13 @@ fn write_get_connection_nodes_function(
             find_edges(&connection_obj)
         {
             match find_object_with_record_name(&edges_obj_type_name, state) {
-                None => panic!("Could not find edges object"),
+                None => {
+                    warn!("Could not find edges object.")
+                }
                 Some(edges_object) => {
                     // Find the node
                     match find_prop_at_key(&edges_object, &String::from("node")) {
-                        None => panic!("Could not find node"),
+                        None => warn!("Could not find node"),
                         Some(prop_value) => {
                             let (node_nullable, node_type_name) =
                                 match &prop_value.prop_type.as_ref() {
@@ -1544,7 +1549,10 @@ fn write_get_connection_nodes_function(
                                     PropType::UnionReference(node_union_reference) => {
                                         (prop_value.nullable, node_union_reference.to_string())
                                     }
-                                    _ => panic!("Unexpected node type"),
+                                    _ => {
+                                        warn!("Unexpected node type");
+                                        (prop_value.nullable, String::from("invalid_node_type"))
+                                    }
                                 };
 
                             // We've got all we need, let's print the function itself
@@ -1649,11 +1657,11 @@ fn write_get_connection_nodes_function(
     Ok(())
 }
 
-fn warn_about_unimplemented_feature(definition_type: &DefinitionType) {
-    warn!("'{}' produced a type that RescriptRelay does not understand. Please open an issue on the repo https://github.com/zth/rescript-relay and describe what you were doing as this happened.", match &definition_type {
+fn warn_about_unimplemented_feature(definition_type: &DefinitionType, context: String) {
+    warn!("'{}' (context: '{}') produced a type that RescriptRelay does not understand. Please open an issue on the repo https://github.com/zth/rescript-relay and describe what you were doing as this happened.", match &definition_type {
         DefinitionType::Fragment(fragment_definition) => fragment_definition.name.item,
         DefinitionType::Operation(operation_definition) => operation_definition.name.item
-    });
+    }, context);
 }
 
 impl Writer for ReScriptPrinter {
@@ -2417,7 +2425,10 @@ impl Writer for ReScriptPrinter {
                     Ok(())
                 }
                 None => {
-                    warn!("Could not extract top level data type");
+                    warn_about_unimplemented_feature(
+                        &self.typegen_definition,
+                        String::from("unknown top level data"),
+                    );
                     Ok(())
                 }
             }
@@ -2439,7 +2450,10 @@ impl Writer for ReScriptPrinter {
                     Ok(())
                 }
                 _ => {
-                    warn!("Found unmatched $variables type: {:?}", value);
+                    warn_about_unimplemented_feature(
+                        &self.typegen_definition,
+                        String::from("variables"),
+                    );
                     Ok(())
                 }
             }
@@ -2461,7 +2475,10 @@ impl Writer for ReScriptPrinter {
                     Ok(())
                 }
                 _ => {
-                    debug!("Found unmatched $variables type: {:?}", value);
+                    warn_about_unimplemented_feature(
+                        &self.typegen_definition,
+                        String::from("rawResponse"),
+                    );
                     Ok(())
                 }
             }
@@ -2555,7 +2572,7 @@ impl Writer for ReScriptPrinter {
 
     fn write_local_type(&mut self, _name: &str, _ast: &AST) -> Result {
         // TODO: Figure out if we need this.
-        warn_about_unimplemented_feature(&self.typegen_definition);
+        warn_about_unimplemented_feature(&self.typegen_definition, String::from("local type"));
         Ok(())
     }
 }
