@@ -36,12 +36,7 @@ type fragment = {
 }
 ```
 
-There are a few other differences here too, but this one is enough for the approach of the stock compiler to not work for ReScript type generation. And, in addition to the above, we need a bunch of separate things as well that's dedicated
-
-
-* Each object needs to be a separate record, not nested
-* Convert back and forth between ReScript values
-* A number of additions that RescriptRelay brings
+There are a few other differences here too, but this one is enough for the approach of the stock compiler to not work for ReScript type generation. And, in addition to the above, we need a bunch of separate things as well that's only relevant to RescriptRelay. Primarily, we need assets that'll help us convert back and forth between ReScript and JS values, in the cases that needs conversion.
 
 ### How we solve that
 Just to get ReScript working:
