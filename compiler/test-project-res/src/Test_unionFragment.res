@@ -14,6 +14,7 @@ module Fragment = %relay(`
       ... on User {
         firstName
         onlineStatus
+        ...TestUnionFragmentUser_user
       }
       ... on Group {
         name
@@ -21,12 +22,20 @@ module Fragment = %relay(`
     }
 `)
 
+module UserFragment = %relay(`
+    fragment TestUnionFragmentUser_user on User {      
+      firstName
+      onlineStatus
+    }
+`)
+
 module PluralFragment = %relay(`
     fragment TestUnionFragment_plural_member on Member @relay(plural: true) {
       __typename
       ... on User {
-      firstName
+        firstName
         onlineStatus
+        ...TestUnionFragmentUser_user
       }
       ... on Group {
         name
