@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -89,7 +89,7 @@ impl Writer for FlowPrinter {
 
     fn write_export_fragment_type(&mut self, old_name: &str, new_name: &str) -> FmtResult {
         match self.flow_typegen_phase {
-            FlowTypegenPhase::Phase4 => {
+            FlowTypegenPhase::Compat => {
                 writeln!(
                     &mut self.result,
                     "declare export opaque type {new_name}: FragmentType;

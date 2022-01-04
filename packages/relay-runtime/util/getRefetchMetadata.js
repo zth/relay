@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,11 +13,8 @@
 
 'use strict';
 
-import type {
-  ConcreteRequest,
-  ReaderFragment,
-  ReaderRefetchMetadata,
-} from 'relay-runtime';
+import type {ReaderFragment, ReaderRefetchMetadata} from './ReaderNode';
+import type {ConcreteRequest} from './RelayConcreteNode';
 
 const invariant = require('invariant');
 

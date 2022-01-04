@@ -16,11 +16,11 @@ indexmap = { version = "1.7.0", features = ["rayon", "serde-1"] }
 intern = { path = "../intern" }
 itertools = "0.10.3"
 lazy_static = "1.0"
-relay-codegen = { path = "../relay-codegen" }
 relay-config = { path = "../relay-config" }
 relay-transforms = { path = "../relay-transforms" }
 schema = { path = "../schema" }
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }
+relay-codegen = { path = "../relay-codegen" }
 relay-test-schema = { path = "../relay-test-schema" }

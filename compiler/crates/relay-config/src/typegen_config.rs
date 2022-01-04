@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -101,7 +101,7 @@ impl Default for FlowTypegenConfig {
     fn default() -> Self {
         Self {
             no_future_proof_enums: false,
-            phase: FlowTypegenPhase::Final,
+            phase: FlowTypegenPhase::Compat,
             rollout: Rollout::default(),
         }
     }
@@ -121,11 +121,12 @@ impl FlowTypegenConfig {
 
 #[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
 pub enum FlowTypegenPhase {
-    /// - remove $fragmentRefs for spreads
-    /// - remove $refType from Frag$data
-    Phase4,
     /// Final state
     Final,
+    /// - remove $fragmentRefs for spreads
+    /// - remove $refType from Frag$data
+    /// - keep exporting old types for operations
+    Compat,
 }
 
 impl FlowTypegenPhase {
@@ -134,8 +135,8 @@ impl FlowTypegenPhase {
     fn previous(self) -> Self {
         use FlowTypegenPhase::*;
         match self {
-            Phase4 => Phase4,
-            Final => Phase4,
+            Final => Compat,
+            Compat => Compat,
         }
     }
 }

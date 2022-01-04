@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,9 +12,9 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
-import type {GraphQLResponse} from 'relay-runtime/network/RelayNetworkTypes';
 
-import type {Observer} from 'relay-runtime';
+import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
+import type {Observer} from '../../network/RelayObservable';
 
 const {
   fetchQuery,
