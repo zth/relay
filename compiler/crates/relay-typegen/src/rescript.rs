@@ -2329,6 +2329,7 @@ impl Writer for ReScriptPrinter {
         // operations, the raw response if requested, the fragment data for
         // fragments, and variables) as <Identifier>$<type>. So, here we look
         // for those key top level objects and treat them specially.
+
         if name.ends_with("$data") {
             match classify_top_level_object_type_ast(&value) {
                 Some((nullable, ClassifiedTopLevelObjectType::Object(props))) => {
@@ -2523,6 +2524,19 @@ impl Writer for ReScriptPrinter {
                 }
             }
         } else {
+            // The Relay compiler outputs a type named after the operation, that
+            // just links to variables/responses/fragment definitions. This
+            // short circuits and returns early if we encounter a type like
+            // that, since we have no use for it on the ReScript side.
+            match &self.typegen_definition {
+                DefinitionType::Operation(op) => {
+                    if &name == &op.name.item.to_string().as_str() {
+                        return Ok(());
+                    }
+                }
+                _ => (),
+            }
+
             // If the thing we're fed is neither of the above, it's either an
             // input object, or an enum. We'll map that out accordingly below.
             match &value {
