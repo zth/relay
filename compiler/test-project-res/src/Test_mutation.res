@@ -29,6 +29,14 @@ module ComplexMutation = %relay(`
     }
 `)
 
+module MutationWithRecursiveInputs = %relay(`
+    mutation TestMutationWithRecursiveInputsMutation($input: InputA!) {
+      recursiveInput(input: $input) {
+        recursionIsCool
+      }
+    }
+`)
+
 module MutationWithOnlyFragment = %relay(`
     mutation TestMutationWithOnlyFragmentSetOnlineStatusMutation($onlineStatus: OnlineStatus!) @raw_response_type {
       setOnlineStatus(onlineStatus: $onlineStatus) {

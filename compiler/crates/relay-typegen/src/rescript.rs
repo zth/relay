@@ -91,7 +91,10 @@ pub struct ReScriptPrinter {
 // matching the identifier name against all found enums and input objects.
 enum ClassifiedIdentifier<'a> {
     Enum(&'a FullEnum),
-    InputObject(&'a Object),
+
+    // The record name of the input object
+    InputObject(String),
+
     RawIdentifier(String),
 }
 
@@ -100,6 +103,7 @@ enum ClassifiedIdentifier<'a> {
 fn classify_identifier<'a>(
     state: &'a mut ReScriptPrinter,
     identifier: &'a StringKey,
+    context: &Context,
 ) -> ClassifiedIdentifier<'a> {
     let identifier_as_string = identifier.to_string();
     let identifier_uncapitalized = uncapitalize_string(&identifier_as_string);
@@ -115,9 +119,25 @@ fn classify_identifier<'a>(
         .iter()
         .find(|input_object| input_object.record_name == identifier_uncapitalized)
     {
-        ClassifiedIdentifier::InputObject(input_object)
+        ClassifiedIdentifier::InputObject(input_object.record_name.to_string())
     } else {
-        ClassifiedIdentifier::RawIdentifier(identifier_as_string)
+        // Input objects are a bit special, since references to them can appear
+        // before they're actually defined, if they're recursive. So, if we're
+        // in the context of printing an input object, and what we find isn't a
+        // custom scalar, we can go ahead an assume it's an input object. Note:
+        // This should probably be switched out in favor of a more robust
+        // implementation at some point, that more explicitly deals with the
+        // fact that input objects might need to be "filled in" after first
+        // appearing as a reference.
+        match context {
+            &Context::RootObject(_) => {
+                match state.operation_meta_data.custom_scalars.get(identifier) {
+                    None => ClassifiedIdentifier::InputObject(identifier_uncapitalized),
+                    Some(_) => ClassifiedIdentifier::RawIdentifier(identifier_as_string),
+                }
+            }
+            _ => ClassifiedIdentifier::RawIdentifier(identifier_as_string),
+        }
     }
 }
 
@@ -358,7 +378,7 @@ fn ast_to_prop_value(
             })
         }
         AST::RawType(identifier) | AST::Identifier(identifier) => {
-            let result = match classify_identifier(state, identifier) {
+            let result = match classify_identifier(state, identifier, &context) {
                 ClassifiedIdentifier::Enum(full_enum) => Some(PropValue {
                     key: safe_key,
                     original_key,
@@ -366,7 +386,7 @@ fn ast_to_prop_value(
                     nullable: is_nullable,
                     prop_type: Box::new(PropType::Enum(full_enum.name.to_string())),
                 }),
-                ClassifiedIdentifier::InputObject(input_object) => {
+                ClassifiedIdentifier::InputObject(input_object_record_name) => {
                     let mut new_at_path = current_path.clone();
                     new_at_path.push(key.to_string());
 
@@ -376,7 +396,7 @@ fn ast_to_prop_value(
                         comment: None,
                         nullable: is_nullable,
                         prop_type: Box::new(PropType::InputObjectReference(
-                            input_object.record_name.to_string(),
+                            input_object_record_name.to_string(),
                         )),
                     })
                 }

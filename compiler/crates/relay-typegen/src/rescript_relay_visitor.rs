@@ -5,9 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use fnv::FnvBuildHasher;
 use graphql_ir::{
     ConstantValue, Directive, Field, LinkedField, ScalarField, Value, Variable, Visitor,
 };
+use indexmap::IndexMap;
 use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
 use schema::SDLSchema;
@@ -23,6 +25,7 @@ pub struct RescriptRelayConnectionConfig {
 pub struct RescriptRelayOperationMetaData {
     pub connection_config: Option<RescriptRelayConnectionConfig>,
     pub variables_with_connection_data_ids: Vec<String>,
+    pub custom_scalars: IndexMap<StringKey, StringKey, FnvBuildHasher>,
 }
 
 pub struct RescriptRelayVisitor<'a> {

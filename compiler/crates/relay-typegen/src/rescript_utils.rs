@@ -2,6 +2,7 @@ use std::ops::Add;
 
 use graphql_ir::{FragmentDefinition, Visitor};
 use log::warn;
+use relay_config::TypegenConfig;
 use relay_transforms::RelayDirective;
 use schema::SDLSchema;
 
@@ -207,10 +208,12 @@ pub fn get_enum_definition_body(
 pub fn get_rescript_relay_meta_data(
     schema: &SDLSchema,
     typegen_definition: &DefinitionType,
+    typegen_config: &TypegenConfig,
 ) -> RescriptRelayOperationMetaData {
     let mut state = RescriptRelayOperationMetaData {
         connection_config: None,
         variables_with_connection_data_ids: vec![],
+        custom_scalars: typegen_config.custom_scalar_types.clone(),
     };
 
     match &typegen_definition {

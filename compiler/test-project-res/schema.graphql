@@ -1,5 +1,14 @@
 scalar Datetime
 
+input InputA {
+  recursiveA: InputA
+  usingB: InputB
+}
+
+input InputB {
+  usingA: InputA
+}
+
 interface Node {
   id: ID!
 }
@@ -98,6 +107,10 @@ input SetOnlineStatusInput {
   onlineStatus: OnlineStatus!
 }
 
+type RecursiveInputPayload {
+  recursionIsCool: Boolean
+}
+
 type Query {
   node(id: ID!): Node
   loggedInUser: User!
@@ -125,6 +138,7 @@ type Mutation {
   removeFriend(friendId: ID!): RemoveFriendPayload
   setOnlineStatus(onlineStatus: OnlineStatus!): SetOnlineStatusPayload
   setOnlineStatusComplex(input: SetOnlineStatusInput!): SetOnlineStatusPayload
+  recursiveInput(input: InputA): RecursiveInputPayload
 }
 
 type Subscription {

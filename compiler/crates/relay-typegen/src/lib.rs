@@ -193,7 +193,11 @@ impl<'a> TypeGenerator<'a> {
             runtime_imports: RuntimeImports::default(),
             writer: match &typegen_config.language {
                 TypegenLanguage::ReScript => Box::new(rescript::ReScriptPrinter::new(
-                    rescript_utils::get_rescript_relay_meta_data(&schema, &typegen_definition),
+                    rescript_utils::get_rescript_relay_meta_data(
+                        &schema,
+                        &typegen_definition,
+                        &typegen_config,
+                    ),
                     typegen_definition,
                 )),
                 TypegenLanguage::Flow => Box::new(FlowPrinter::new(flow_typegen_phase)),
