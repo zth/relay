@@ -27,9 +27,11 @@ module Types = {
 
 module Internal = {
   let variablesConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
-    json`{"inputB":{"usingA":{"r":"inputA","n":""},"time":{"n":"","c":"SomeModule.Datetime"}},"inputA":{"usingB":{"r":"inputB","n":""},"time":{"c":"SomeModule.Datetime"},"recursiveA":{"r":"inputA","n":""}},"__root":{"input":{"r":"inputA"}}}`
+    json`{"inputB":{"usingA":{"r":"inputA","n":""},"time":{"n":"","c":"SomeModule.Datetime"}},"inputA":{"usingB":{"r":"inputB","n":""},"time":{"c":"SomeModule.Datetime"},"recursiveA":{"r":"inputA","n":""}},"__root":{"usingB":{"r":"inputB","n":""},"usingA":{"r":"inputA","n":""},"time":{"n":"","c":"SomeModule.Datetime","c":"SomeModule.Datetime"},"recursiveA":{"r":"inputA","n":""},"input":{"r":"inputA"}}}`
   )
-  let variablesConverterMap = ()
+  let variablesConverterMap = {
+    "SomeModule.Datetime": SomeModule.Datetime.serialize,
+  }
   let convertVariables = v => v->RescriptRelay.convertObj(
     variablesConverter,
     variablesConverterMap,

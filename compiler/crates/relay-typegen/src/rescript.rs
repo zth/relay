@@ -1120,13 +1120,6 @@ fn write_internal_assets(
 
     write_indentation(str, indentation + 1).unwrap();
 
-    // All conversion instructions applicable to this context.
-    let target_conversion_instructions: Vec<&InstructionContainer> = state
-        .conversion_instructions
-        .iter()
-        .filter(|instr| &instr.at_path[0] == root_name.as_str())
-        .collect();
-
     // Map out all root objects (ie input objects) used in this conversion
     // setup. This is because they are recursive, and thus needs to be treated
     // separately. This only needs to happen when printing variables though,
@@ -1146,6 +1139,15 @@ fn write_internal_assets(
                 },
             );
     }
+
+    // All conversion instructions applicable to this context.
+    let target_conversion_instructions: Vec<&InstructionContainer> = state
+        .conversion_instructions
+        .iter()
+        .filter(|instr| {
+            &instr.at_path[0] == root_name.as_str() || root_objects.contains(&instr.at_path[0])
+        })
+        .collect();
 
     writeln!(
         str,
