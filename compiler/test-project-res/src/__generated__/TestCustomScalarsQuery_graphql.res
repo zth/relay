@@ -6,7 +6,7 @@ module Types = {
 
   type rec response_member_User = {
     __typename: [ | #User],
-    createdAt: Datetime.t,
+    createdAt: SomeModule.Datetime.t,
   }
   and response_member = [
     | #User(response_member_User)
@@ -14,10 +14,10 @@ module Types = {
   ]
 
   type rec response_loggedInUser_friends = {
-    createdAt: Datetime.t,
+    createdAt: SomeModule.Datetime.t,
   }
   and response_loggedInUser = {
-    createdAt: Datetime.t,
+    createdAt: SomeModule.Datetime.t,
     friends: array<response_loggedInUser_friends>,
   }
   type response = {
@@ -26,10 +26,10 @@ module Types = {
   }
   type rawResponse = response
   type variables = {
-    beforeDate: option<Datetime.t>,
+    beforeDate: option<SomeModule.Datetime.t>,
   }
   type refetchVariables = {
-    beforeDate: option<Datetime.t>,
+    beforeDate: option<SomeModule.Datetime.t>,
   }
   let makeRefetchVariables = (
     ~beforeDate=?,
@@ -56,10 +56,10 @@ let wrap_response_member: [
 }
 module Internal = {
   let variablesConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
-    json`{"__root":{"beforeDate":{"n":"","c":"Datetime"}}}`
+    json`{"__root":{"beforeDate":{"n":"","c":"SomeModule.Datetime"}}}`
   )
   let variablesConverterMap = {
-    "Datetime": Datetime.serialize,
+    "SomeModule.Datetime": SomeModule.Datetime.serialize,
   }
   let convertVariables = v => v->RescriptRelay.convertObj(
     variablesConverter,
@@ -68,10 +68,10 @@ module Internal = {
   )
   type wrapResponseRaw
   let wrapResponseConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
-    json`{"__root":{"member_User_createdAt":{"c":"Datetime"},"member":{"u":"response_member","n":""},"loggedInUser_friends_createdAt":{"c":"Datetime"},"loggedInUser_createdAt":{"c":"Datetime"}}}`
+    json`{"__root":{"member_User_createdAt":{"c":"SomeModule.Datetime"},"member":{"u":"response_member","n":""},"loggedInUser_friends_createdAt":{"c":"SomeModule.Datetime"},"loggedInUser_createdAt":{"c":"SomeModule.Datetime"}}}`
   )
   let wrapResponseConverterMap = {
-    "Datetime": Datetime.serialize,
+    "SomeModule.Datetime": SomeModule.Datetime.serialize,
     "response_member": wrap_response_member,
   }
   let convertWrapResponse = v => v->RescriptRelay.convertObj(
@@ -81,10 +81,10 @@ module Internal = {
   )
   type responseRaw
   let responseConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
-    json`{"__root":{"member_User_createdAt":{"c":"Datetime"},"member":{"u":"response_member","n":""},"loggedInUser_friends_createdAt":{"c":"Datetime"},"loggedInUser_createdAt":{"c":"Datetime"}}}`
+    json`{"__root":{"member_User_createdAt":{"c":"SomeModule.Datetime"},"member":{"u":"response_member","n":""},"loggedInUser_friends_createdAt":{"c":"SomeModule.Datetime"},"loggedInUser_createdAt":{"c":"SomeModule.Datetime"}}}`
   )
   let responseConverterMap = {
-    "Datetime": Datetime.parse,
+    "SomeModule.Datetime": SomeModule.Datetime.parse,
     "response_member": unwrap_response_member,
   }
   let convertResponse = v => v->RescriptRelay.convertObj(

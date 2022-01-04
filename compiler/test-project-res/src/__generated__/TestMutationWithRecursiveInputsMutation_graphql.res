@@ -5,10 +5,12 @@ module Types = {
   @@ocaml.warning("-30")
 
   type rec inputA = {
+    time: SomeModule.Datetime.t,
     recursiveA: option<inputA>,
     usingB: option<inputB>,
   }
   and inputB = {
+    time: option<SomeModule.Datetime.t>,
     usingA: option<inputA>,
   }
   type rec response_recursiveInput = {
@@ -25,7 +27,7 @@ module Types = {
 
 module Internal = {
   let variablesConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
-    json`{"inputA":{"usingB":{"r":"inputB","n":""},"recursiveA":{"r":"inputA","n":""}},"__root":{"input":{"r":"inputA"}}}`
+    json`{"inputB":{"usingA":{"r":"inputA","n":""},"time":{"n":"","c":"SomeModule.Datetime"}},"inputA":{"usingB":{"r":"inputB","n":""},"time":{"c":"SomeModule.Datetime"},"recursiveA":{"r":"inputA","n":""}},"__root":{"input":{"r":"inputA"}}}`
   )
   let variablesConverterMap = ()
   let convertVariables = v => v->RescriptRelay.convertObj(
@@ -62,17 +64,21 @@ module Utils = {
   @@ocaml.warning("-33")
   open Types
   let make_inputA = (
+    ~time,
     ~recursiveA=?,
     ~usingB=?,
     ()
   ): inputA => {
+    time: time,
     recursiveA: recursiveA,
     usingB: usingB
   }
   let make_inputB = (
+    ~time=?,
     ~usingA=?,
     ()
   ): inputB => {
+    time: time,
     usingA: usingA
   }
   let makeVariables = (

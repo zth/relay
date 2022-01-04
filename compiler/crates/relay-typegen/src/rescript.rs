@@ -5,10 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use fnv::FnvHashSet;
+use fnv::{FnvBuildHasher, FnvHashSet};
 use graphql_ir::reexport::StringKey;
 use graphql_ir::{FragmentDefinition, OperationDefinition};
 use graphql_syntax::OperationKind;
+use indexmap::IndexMap;
 use itertools::Itertools;
 use log::{debug, warn};
 
@@ -98,6 +99,20 @@ enum ClassifiedIdentifier<'a> {
     RawIdentifier(String),
 }
 
+fn value_is_custom_scalar(
+    identifier: &StringKey,
+    custom_scalars: &IndexMap<StringKey, StringKey, FnvBuildHasher>,
+) -> bool {
+    custom_scalars
+        .into_iter()
+        .find(
+            |(_custom_scalar_graphql_name, custom_scalar_mapped_rescript_name)| {
+                custom_scalar_mapped_rescript_name == &identifier
+            },
+        )
+        .is_some()
+}
+
 // This classifies an identifier, meaning it looks up whether its an enum or an
 // input object we know of locally in the current context.
 fn classify_identifier<'a>(
@@ -131,9 +146,10 @@ fn classify_identifier<'a>(
         // appearing as a reference.
         match context {
             &Context::RootObject(_) => {
-                match state.operation_meta_data.custom_scalars.get(identifier) {
-                    None => ClassifiedIdentifier::InputObject(identifier_uncapitalized),
-                    Some(_) => ClassifiedIdentifier::RawIdentifier(identifier_as_string),
+                match value_is_custom_scalar(&identifier, &state.operation_meta_data.custom_scalars)
+                {
+                    false => ClassifiedIdentifier::InputObject(identifier_uncapitalized),
+                    true => ClassifiedIdentifier::RawIdentifier(identifier_as_string),
                 }
             }
             _ => ClassifiedIdentifier::RawIdentifier(identifier_as_string),
@@ -1113,19 +1129,23 @@ fn write_internal_assets(
 
     // Map out all root objects (ie input objects) used in this conversion
     // setup. This is because they are recursive, and thus needs to be treated
-    // separately.
+    // separately. This only needs to happen when printing variables though,
+    // because that's the only context where input objects can appear.
     let mut root_objects = FnvHashSet::default();
 
-    target_conversion_instructions
-        .iter()
-        .for_each(
-            |instruction_container| match &instruction_container.instruction {
-                ConverterInstructions::RootObject(root_object_name) => {
-                    root_objects.insert(root_object_name);
-                }
-                _ => (),
-            },
-        );
+    if &target_context == &Context::Variables {
+        state
+            .conversion_instructions
+            .iter()
+            .for_each(
+                |instruction_container| match &instruction_container.instruction {
+                    ConverterInstructions::RootObject(root_object_name) => {
+                        root_objects.insert(root_object_name);
+                    }
+                    _ => (),
+                },
+            );
+    }
 
     writeln!(
         str,

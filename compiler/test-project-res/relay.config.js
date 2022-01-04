@@ -4,6 +4,6 @@ module.exports = {
   language: "rescript",
   artifactDirectory: "./src/__generated__",
   customScalars: {
-    Datetime: "Datetime",
+    Datetime: "SomeModule.Datetime",
   },
 };

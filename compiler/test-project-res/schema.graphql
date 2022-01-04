@@ -1,11 +1,13 @@
 scalar Datetime
 
 input InputA {
+  time: Datetime!
   recursiveA: InputA
   usingB: InputB
 }
 
 input InputB {
+  time: Datetime
   usingA: InputA
 }
 
