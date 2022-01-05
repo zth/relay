@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use fnv::{FnvBuildHasher, FnvHashSet};
+use fnv::{FnvBuildHasher, FnvHashMap, FnvHashSet};
 use graphql_ir::reexport::StringKey;
 use graphql_ir::{FragmentDefinition, OperationDefinition};
 use graphql_syntax::OperationKind;
@@ -17,7 +17,6 @@ use crate::rescript_ast::*;
 use crate::rescript_relay_visitor::RescriptRelayOperationMetaData;
 use crate::rescript_utils::*;
 use crate::writer::{Prop, Writer, AST};
-use std::collections::HashMap;
 use std::fmt::{Result, Write};
 
 // Fragments in Relay can be on either an abstract type (union/interface) or on
@@ -894,7 +893,8 @@ fn write_instruction_json_object(
     write!(str, "\"{}\":{{", key).unwrap();
 
     // Move all instructions into a hash map by path.
-    let mut by_path = HashMap::new();
+    let mut by_path = FnvHashMap::default();
+
     instructions.iter().for_each(|instruction_container| {
         let path_name = conversion_instruction_path_to_name(&instruction_container.at_path);
         match by_path.get_mut(&path_name) {
@@ -920,6 +920,8 @@ fn write_instruction_json_object(
         .for_each(|(index, (path_name, instructions))| {
             write!(str, "\"{}\":{{", path_name).unwrap();
 
+            let mut has_printed_keys = FnvHashSet::default();
+
             let num_instructions = instructions.len();
 
             instructions
@@ -934,11 +936,17 @@ fn write_instruction_json_object(
                 .for_each(|(index, instruction)| {
                     let (key, value) = instruction_to_key_value_pair(&instruction);
 
+                    if has_printed_keys.contains(&key) {
+                        return;
+                    }
+
                     write!(str, "\"{}\":\"{}\"", key, value).unwrap();
 
                     if num_instructions != index + 1 {
                         write!(str, ",").unwrap();
                     }
+
+                    has_printed_keys.insert(key);
                 });
 
             // Close this instruction
