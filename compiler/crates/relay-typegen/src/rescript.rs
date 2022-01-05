@@ -170,21 +170,6 @@ fn ast_to_prop_value(
     let (nullable, value) = unwrap_ast(ast);
     let is_nullable = nullable || optional;
 
-    // Since array re-uses this function to figure out the array contents, we
-    // don't need to add the conversion instruction for nullability again here
-    // if we're in an array, since that's handled by
-    // ConvertNullableArrayContents.
-    if is_nullable && !found_in_array {
-        let mut nullable_path = current_path.to_vec();
-        nullable_path.push(key.to_string());
-
-        state.conversion_instructions.push(InstructionContainer {
-            context: context.clone(),
-            at_path: nullable_path,
-            instruction: ConverterInstructions::ConvertNullableProp,
-        });
-    }
-
     // Ensure that the key is safe, meaning it's not an illegal identifier in
     // ReScript. If it is, we'll need to map it via the @as decorator when we
     // print the types.
@@ -271,28 +256,16 @@ fn ast_to_prop_value(
                     warn!("Could not extract type from array. This should not happen.");
                     None
                 }
-                Some(prop_value) => {
-                    if prop_value.nullable {
-                        let mut nullable_path = current_path.to_vec();
-                        nullable_path.push(key.to_string());
-                        state.conversion_instructions.push(InstructionContainer {
-                            context: context.clone(),
-                            at_path: nullable_path,
-                            instruction: ConverterInstructions::ConvertNullableArrayContents,
-                        });
-                    }
-
-                    Some(PropValue {
-                        key: safe_key,
-                        original_key,
-                        comment: None,
-                        nullable: is_nullable,
-                        prop_type: Box::new(PropType::Array((
-                            prop_value.nullable,
-                            prop_value.prop_type,
-                        ))),
-                    })
-                }
+                Some(prop_value) => Some(PropValue {
+                    key: safe_key,
+                    original_key,
+                    comment: None,
+                    nullable: is_nullable,
+                    prop_type: Box::new(PropType::Array((
+                        prop_value.nullable,
+                        prop_value.prop_type,
+                    ))),
+                }),
             }
         }
         AST::ExactObject(props) => {
@@ -1159,7 +1132,7 @@ fn write_internal_assets(
 
     writeln!(
         str,
-        "json`{}`",
+        "json`JSON.parse(\\`{}\\`)`",
         get_conversion_instructions(
             state,
             &target_conversion_instructions,
@@ -2359,14 +2332,6 @@ impl Writer for ReScriptPrinter {
                         found_in_union: false,
                     };
 
-                    if nullable {
-                        self.conversion_instructions.push(InstructionContainer {
-                            context: context.clone(),
-                            at_path: current_path.clone(),
-                            instruction: ConverterInstructions::ConvertNullableProp,
-                        });
-                    }
-
                     match &self.typegen_definition {
                         DefinitionType::Fragment(_) => {
                             self.fragment =
@@ -2395,14 +2360,6 @@ impl Writer for ReScriptPrinter {
                         found_in_union: false,
                     };
 
-                    if nullable {
-                        self.conversion_instructions.push(InstructionContainer {
-                            context: context.clone(),
-                            at_path: current_path.clone(),
-                            instruction: ConverterInstructions::ConvertNullableArrayContents,
-                        });
-                    }
-
                     self.fragment = Some((
                         nullable,
                         TopLevelFragmentType::ArrayWithObject(fragment_type),
@@ -2422,14 +2379,6 @@ impl Writer for ReScriptPrinter {
                         record_name: record_name.to_string(),
                         members: union_members,
                     };
-
-                    if nullable {
-                        self.conversion_instructions.push(InstructionContainer {
-                            context: context.clone(),
-                            at_path: current_path.clone(),
-                            instruction: ConverterInstructions::ConvertNullableProp,
-                        });
-                    }
 
                     self.conversion_instructions.push(InstructionContainer {
                         context: context.clone(),
@@ -2460,14 +2409,6 @@ impl Writer for ReScriptPrinter {
                         at_path: current_path.clone(),
                         instruction: ConverterInstructions::ConvertUnion(String::from("fragment")),
                     });
-
-                    if nullable {
-                        self.conversion_instructions.push(InstructionContainer {
-                            context: context.clone(),
-                            at_path: current_path.clone(),
-                            instruction: ConverterInstructions::ConvertNullableArrayContents,
-                        });
-                    }
 
                     self.fragment = Some((
                         nullable,

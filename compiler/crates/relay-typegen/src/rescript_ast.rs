@@ -72,15 +72,12 @@ pub struct FullEnum {
 
 // Because the runtime representation does not fully match of ReScript and what
 // Relay gives us, we need to convert back and forth between what Relay gives us
-// and what ReScript expects. This primarily means converting `null` to
-// `undefined` (`undefined` is how ReScript represents the option type),
-// converting raw unions to polymorphic variants, etc. For that, we have
-// "conversion instructions". We keep track of what conversions are needed
-// anywhere in what Relay gives us, and apply them accordingly.
+// and what ReScript expects. This primarily means converting raw unions to
+// polymorphic variants, etc. For that, we have "conversion instructions". We
+// keep track of what conversions are needed anywhere in what Relay gives us,
+// and apply them accordingly.
 #[derive(Debug, Clone)]
 pub enum ConverterInstructions {
-    ConvertNullableProp,
-    ConvertNullableArrayContents,
     ConvertUnion(String),
     ConvertCustomField(String),
     HasFragments,

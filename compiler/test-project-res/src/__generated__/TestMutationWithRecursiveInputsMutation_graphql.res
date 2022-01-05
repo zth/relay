@@ -27,7 +27,7 @@ module Types = {
 
 module Internal = {
   let variablesConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
-    json`{"inputB":{"usingA":{"r":"inputA","n":""},"time":{"n":"","c":"SomeModule.Datetime"}},"inputA":{"usingB":{"r":"inputB","n":""},"time":{"c":"SomeModule.Datetime"},"recursiveA":{"r":"inputA","n":""}},"__root":{"usingB":{"r":"inputB","n":""},"usingA":{"r":"inputA","n":""},"time":{"n":"","c":"SomeModule.Datetime",},"recursiveA":{"r":"inputA","n":""},"input":{"r":"inputA"}}}`
+    json`JSON.parse(\`{"inputB":{"usingA":{"r":"inputA"},"time":{"c":"SomeModule.Datetime"}},"inputA":{"usingB":{"r":"inputB"},"time":{"c":"SomeModule.Datetime"},"recursiveA":{"r":"inputA"}},"__root":{"usingB":{"r":"inputB"},"usingA":{"r":"inputA"},"time":{"c":"SomeModule.Datetime",},"recursiveA":{"r":"inputA"},"input":{"r":"inputA"}}}\`)`
   )
   let variablesConverterMap = {
     "SomeModule.Datetime": SomeModule.Datetime.serialize,
@@ -39,7 +39,7 @@ module Internal = {
   )
   type wrapResponseRaw
   let wrapResponseConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
-    json`{"__root":{"recursiveInput_recursionIsCool":{"n":""},"recursiveInput":{"n":""}}}`
+    json`JSON.parse(\`{}\`)`
   )
   let wrapResponseConverterMap = ()
   let convertWrapResponse = v => v->RescriptRelay.convertObj(
@@ -49,7 +49,7 @@ module Internal = {
   )
   type responseRaw
   let responseConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
-    json`{"__root":{"recursiveInput_recursionIsCool":{"n":""},"recursiveInput":{"n":""}}}`
+    json`JSON.parse(\`{}\`)`
   )
   let responseConverterMap = ()
   let convertResponse = v => v->RescriptRelay.convertObj(
