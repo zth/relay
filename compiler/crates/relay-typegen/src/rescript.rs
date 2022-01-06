@@ -1132,7 +1132,7 @@ fn write_internal_assets(
 
     writeln!(
         str,
-        "json`JSON.parse(\\`{}\\`)`",
+        "json`{}`",
         get_conversion_instructions(
             state,
             &target_conversion_instructions,
