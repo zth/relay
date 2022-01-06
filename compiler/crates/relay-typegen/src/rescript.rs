@@ -792,27 +792,66 @@ fn write_object_maker(
     Ok(())
 }
 
-fn write_enum_to_string_functions(
-    str: &mut String,
-    indentation: usize,
-    full_enum: &FullEnum,
-) -> Result {
+fn write_enum_util_functions(str: &mut String, indentation: usize, full_enum: &FullEnum) -> Result {
+    let name_uncapitalized = uncapitalize_string(&full_enum.name);
+    // First, we write toString functions, that are essentially type casts. This
+    // is fine because we're sure the underlying type is a string, if it made it
+    // this far.
     write_indentation(str, indentation).unwrap();
     writeln!(
         str,
         "external {}_toString: enum_{} => string = \"%identity\"",
-        uncapitalize_string(&full_enum.name),
-        full_enum.name
+        name_uncapitalized, full_enum.name
     )
     .unwrap();
     write_indentation(str, indentation).unwrap();
     writeln!(
         str,
         "external {}_input_toString: enum_{}_input => string = \"%identity\"",
-        uncapitalize_string(&full_enum.name),
+        name_uncapitalized, full_enum.name
+    )
+    .unwrap();
+
+    // Then, we write a function that can turn the enum coming from the
+    // response into the input version of the enum.
+    write_indentation(str, indentation).unwrap();
+    writeln!(
+        str,
+        "let {}_decode = (enum: enum_{}): option<enum_{}_input> => {{",
+        name_uncapitalized, full_enum.name, full_enum.name
+    )
+    .unwrap();
+    write_indentation(str, indentation + 1).unwrap();
+    writeln!(str, "switch enum {{",).unwrap();
+    write_indentation(str, indentation + 2).unwrap();
+    writeln!(
+        str,
+        "| #...enum_{}_input as valid => Some(valid)",
         full_enum.name
     )
     .unwrap();
+    write_indentation(str, indentation + 2).unwrap();
+    writeln!(str, "| _ => None",).unwrap();
+    write_indentation(str, indentation + 1).unwrap();
+    writeln!(str, "}}",).unwrap();
+    write_indentation(str, indentation).unwrap();
+    writeln!(str, "}}",).unwrap();
+
+    // Finally, we write a function that can parse a string into the enum
+    // itself. This also leverages the fact that we're sure that a string is a
+    // subtype of the enum coming back from the response, even if the type
+    // system does not allow it.
+    write_indentation(str, indentation).unwrap();
+    writeln!(
+        str,
+        "let {}_fromString = (str: string): option<enum_{}_input> => {{",
+        name_uncapitalized, full_enum.name
+    )
+    .unwrap();
+    write_indentation(str, indentation + 1).unwrap();
+    writeln!(str, "{}_decode(Obj.magic(str))", name_uncapitalized,).unwrap();
+    write_indentation(str, indentation).unwrap();
+    writeln!(str, "}}",).unwrap();
 
     Ok(())
 }
@@ -2174,8 +2213,7 @@ impl Writer for ReScriptPrinter {
             .iter()
             .unique_by(|full_enum| &full_enum.name)
             .for_each(|full_enum| {
-                write_enum_to_string_functions(&mut generated_types, indentation, &full_enum)
-                    .unwrap()
+                write_enum_util_functions(&mut generated_types, indentation, &full_enum).unwrap()
             });
 
         // Let's write some connection helpers! These are emitted anytime
