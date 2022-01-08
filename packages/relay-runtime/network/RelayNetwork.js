@@ -24,6 +24,7 @@ import type {
 } from './RelayNetworkTypes';
 import type RelayObservable from './RelayObservable';
 
+const withProvidedVariables = require('../util/withProvidedVariables');
 const {convertFetch} = require('./ConvertToExecuteFunction');
 const invariant = require('invariant');
 
@@ -45,6 +46,7 @@ function create(
     uploadables?: ?UploadableMap,
     logRequestInfo: ?LogRequestInfoFunction,
   ): RelayObservable<GraphQLResponse> {
+    const operationVariables = withProvidedVariables(variables, request);
     if (request.operationKind === 'subscription') {
       invariant(
         subscribe,
@@ -56,7 +58,7 @@ function create(
         !uploadables,
         'RelayNetwork: Cannot provide uploadables while subscribing.',
       );
-      return subscribe(request, variables, cacheConfig);
+      return subscribe(request, operationVariables, cacheConfig);
     }
 
     const pollInterval = cacheConfig.poll;
@@ -65,12 +67,14 @@ function create(
         !uploadables,
         'RelayNetwork: Cannot provide uploadables while polling.',
       );
-      return observeFetch(request, variables, {force: true}).poll(pollInterval);
+      return observeFetch(request, operationVariables, {force: true}).poll(
+        pollInterval,
+      );
     }
 
     return observeFetch(
       request,
-      variables,
+      operationVariables,
       cacheConfig,
       uploadables,
       logRequestInfo,
