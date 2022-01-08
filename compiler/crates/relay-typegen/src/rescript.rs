@@ -626,6 +626,7 @@ fn write_enum_definitions(str: &mut String, indentation: usize, full_enum: &Full
     // Next, we'll output an enum suffixed with "input". This enum is *closed*,
     // meaning it won't force you to handle fall through cases. This version of
     // the enum is used whenever the enum appears in inputs.
+    write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
     write_indentation(str, indentation).unwrap();
     writeln!(
         str,
@@ -725,7 +726,7 @@ fn write_object_maker(
     target_type: String,
 ) -> Result {
     write_indentation(str, indentation).unwrap();
-    write!(str, "let {} = (", name).unwrap();
+    write!(str, "@live let {} = (", name).unwrap();
 
     let num_props = definition.values.len();
 
@@ -792,11 +793,20 @@ fn write_object_maker(
     Ok(())
 }
 
+// Writes an @live annotation that tells reanalyze that this value should be
+// considered alive even if not used, so that dead code analysis can work
+// without it complaining about codegenned functions and types.
+fn write_suppress_dead_code_warning_annotation(str: &mut String, indentation: usize) -> Result {
+    write_indentation(str, indentation).unwrap();
+    writeln!(str, "@live")
+}
+
 fn write_enum_util_functions(str: &mut String, indentation: usize, full_enum: &FullEnum) -> Result {
     let name_uncapitalized = uncapitalize_string(&full_enum.name);
     // First, we write toString functions, that are essentially type casts. This
     // is fine because we're sure the underlying type is a string, if it made it
     // this far.
+    write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
     write_indentation(str, indentation).unwrap();
     writeln!(
         str,
@@ -804,6 +814,8 @@ fn write_enum_util_functions(str: &mut String, indentation: usize, full_enum: &F
         name_uncapitalized, full_enum.name
     )
     .unwrap();
+
+    write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
     write_indentation(str, indentation).unwrap();
     writeln!(
         str,
@@ -814,6 +826,7 @@ fn write_enum_util_functions(str: &mut String, indentation: usize, full_enum: &F
 
     // Then, we write a function that can turn the enum coming from the
     // response into the input version of the enum.
+    write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
     write_indentation(str, indentation).unwrap();
     writeln!(
         str,
@@ -841,6 +854,7 @@ fn write_enum_util_functions(str: &mut String, indentation: usize, full_enum: &F
     // itself. This also leverages the fact that we're sure that a string is a
     // subtype of the enum coming back from the response, even if the type
     // system does not allow it.
+    write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
     write_indentation(str, indentation).unwrap();
     writeln!(
         str,
@@ -1028,6 +1042,8 @@ fn write_converter_map(
     name: &String,
     direction: ConversionDirection,
 ) -> Result {
+    write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
+
     write_indentation(str, indentation).unwrap();
     write!(str, "let {}ConverterMap = ", name).unwrap();
 
@@ -1126,10 +1142,12 @@ fn write_internal_assets(
     let root_name = root_name_from_context(&target_context);
 
     if include_raw {
+        write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
         write_indentation(str, indentation).unwrap();
         writeln!(str, "type {}Raw", name).unwrap();
     }
 
+    write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
     write_indentation(str, indentation).unwrap();
     writeln!(
         str,
@@ -1205,6 +1223,7 @@ fn write_internal_assets(
 
     write_converter_map(str, indentation, &converters, &name, direction).unwrap();
 
+    write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
     write_indentation(str, indentation).unwrap();
     writeln!(
         str,
@@ -1236,6 +1255,7 @@ fn write_internal_assets(
 fn write_union_converters(str: &mut String, indentation: usize, union: &Union) -> Result {
     // Print the unwrap fn first. This is what turns the "raw" value coming from
     // Relay into a ReScript union.
+    write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
     write_indentation(str, indentation).unwrap();
     writeln!(
         str,
@@ -1280,6 +1300,7 @@ fn write_union_converters(str: &mut String, indentation: usize, union: &Union) -
 
     // This prints the wrap function, which turns the ReScript union back into
     // its "raw" format.
+    write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
     write_indentation(str, indentation).unwrap();
     writeln!(str, "let wrap_{}: [", union.record_name).unwrap();
 
@@ -1349,6 +1370,23 @@ fn write_object_definition(
     override_name: Option<String>,
     context: &Context,
 ) -> Result {
+    // We suppress dead code warnings in all contexts but fragments, and regular
+    // responses for queries. This is because we use the dead code analysis to
+    // power our remove-unused-fields CLI. So, suppressing them would break that
+    // CLI.
+    let should_suppress_dead_code_warnings_for_fields = match (&context, &state.typegen_definition)
+    {
+        (_, DefinitionType::Fragment(_))
+        | (
+            Context::Response,
+            DefinitionType::Operation(OperationDefinition {
+                kind: OperationKind::Query,
+                ..
+            }),
+        ) => false,
+        _ => true,
+    };
+
     write_indentation(str, indentation).unwrap();
     let name = match override_name {
         None => object.record_name.to_string(),
@@ -1373,7 +1411,15 @@ fn write_object_definition(
         write_indentation(str, in_object_indentation).unwrap();
         writeln!(
             str,
-            "{}{}: {},",
+            "{}{}{}: {},",
+            // We suppress dead code warnings for a set of keys that we know
+            // don't affect overfetching, and are used internally by
+            // RescriptRelay, but end up in the types anyway because of
+            // *reasons*.
+            match (should_suppress_dead_code_warnings_for_fields, &prop.key[..]) {
+                (true, _) | (false, "id" | "__id" | "__typename") => "@live ",
+                _ => "",
+            },
             // If original_key is set, that means that the key here has been
             // transformed (as it was probably an illegal identifier in
             // ReScript). When that happens, we print the @as decorator to deal
@@ -1618,6 +1664,7 @@ fn write_get_connection_nodes_function(
                                 };
 
                             // We've got all we need, let's print the function itself
+                            write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
                             let mut local_indentation = indentation;
                             write_indentation(str, local_indentation).unwrap();
                             write!(str, "let getConnectionNodes: ").unwrap();
@@ -1799,7 +1846,12 @@ impl Writer for ReScriptPrinter {
                         _ => ObjectPrintMode::PartOfRecursiveChain,
                     },
                     None,
-                    &Context::NotRelevant,
+                    match &object.at_path[0][..] {
+                        "response" => &Context::Response,
+                        "rawResponse" => &Context::RawResponse,
+                        "fragment" => &Context::Fragment,
+                        _ => &Context::NotRelevant,
+                    },
                 )
                 .unwrap()
             });
@@ -1840,7 +1892,12 @@ impl Writer for ReScriptPrinter {
                         _ => ObjectPrintMode::PartOfRecursiveChain,
                     },
                     None,
-                    &Context::NotRelevant,
+                    match &object.at_path[0][..] {
+                        "response" => &Context::Response,
+                        "rawResponse" => &Context::RawResponse,
+                        "fragment" => &Context::Fragment,
+                        _ => &Context::NotRelevant,
+                    },
                 )
                 .unwrap()
             });
@@ -2141,6 +2198,12 @@ impl Writer for ReScriptPrinter {
                         write_indentation(&mut generated_types, indentation).unwrap();
                         writeln!(generated_types, "type wrapRawResponseRaw = wrapResponseRaw")
                             .unwrap();
+
+                        write_suppress_dead_code_warning_annotation(
+                            &mut generated_types,
+                            indentation,
+                        )
+                        .unwrap();
                         write_indentation(&mut generated_types, indentation).unwrap();
                         writeln!(
                             generated_types,
@@ -2153,6 +2216,9 @@ impl Writer for ReScriptPrinter {
 
                 write_indentation(&mut generated_types, indentation).unwrap();
                 writeln!(generated_types, "type rawResponseRaw = responseRaw").unwrap();
+
+                write_suppress_dead_code_warning_annotation(&mut generated_types, indentation)
+                    .unwrap();
                 write_indentation(&mut generated_types, indentation).unwrap();
                 writeln!(generated_types, "let convertRawResponse = convertResponse").unwrap();
             }
@@ -2223,6 +2289,8 @@ impl Writer for ReScriptPrinter {
             None => (),
             Some(connection_config) => {
                 // First, lets print the connection key as string
+                write_suppress_dead_code_warning_annotation(&mut generated_types, indentation)
+                    .unwrap();
                 write_indentation(&mut generated_types, indentation).unwrap();
                 writeln!(generated_types, "@inline").unwrap();
                 write_indentation(&mut generated_types, indentation).unwrap();

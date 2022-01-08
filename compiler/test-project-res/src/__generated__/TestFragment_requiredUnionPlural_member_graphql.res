@@ -5,13 +5,13 @@ module Types = {
   @@ocaml.warning("-30")
 
   type rec fragment_User = {
-    __typename: [ | #User],
+    @live __typename: [ | #User],
     isOnline: bool,
     lastName: string,
     firstName: string,
   }
   and fragment_Group = {
-    __typename: [ | #Group],
+    @live __typename: [ | #Group],
     name: string,
   }
   type fragment_t = [
@@ -23,6 +23,7 @@ module Types = {
   type fragment = array<option<fragment_t>>
 }
 
+@live
 let unwrap_fragment: {. "__typename": string } => [
   | #User(Types.fragment_User)
   | #Group(Types.fragment_Group)
@@ -33,6 +34,7 @@ let unwrap_fragment: {. "__typename": string } => [
   | v => #UnselectedUnionMember(v)
 }
 
+@live
 let wrap_fragment: [
   | #User(Types.fragment_User)
   | #Group(Types.fragment_Group)
@@ -43,13 +45,17 @@ let wrap_fragment: [
   | #UnselectedUnionMember(v) => {"__typename": v}
 }
 module Internal = {
+  @live
   type fragmentRaw
+  @live
   let fragmentConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
     json`{"__root":{"":{"u":"fragment"}}}`
   )
+  @live
   let fragmentConverterMap = {
     "fragment": unwrap_fragment,
   }
+  @live
   let convertFragment = v => v->RescriptRelay.convertObj(
     fragmentConverter,
     fragmentConverterMap,

@@ -5,67 +5,80 @@ module Types = {
   @@ocaml.warning("-30")
 
   type rec inputA = {
-    time: SomeModule.Datetime.t,
-    recursiveA: option<inputA>,
-    usingB: option<inputB>,
+    @live time: SomeModule.Datetime.t,
+    @live recursiveA: option<inputA>,
+    @live usingB: option<inputB>,
   }
   and inputB = {
-    time: option<SomeModule.Datetime.t>,
-    usingA: option<inputA>,
+    @live time: option<SomeModule.Datetime.t>,
+    @live usingA: option<inputA>,
   }
   type rec response_recursiveInput = {
-    recursionIsCool: option<bool>,
+    @live recursionIsCool: option<bool>,
   }
   type response = {
-    recursiveInput: option<response_recursiveInput>,
+    @live recursiveInput: option<response_recursiveInput>,
   }
   type rawResponse = response
   type variables = {
-    input: inputA,
+    @live input: inputA,
   }
 }
 
 module Internal = {
+  @live
   let variablesConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
     json`{"inputB":{"usingA":{"r":"inputA"},"time":{"c":"SomeModule.Datetime"}},"inputA":{"usingB":{"r":"inputB"},"time":{"c":"SomeModule.Datetime"},"recursiveA":{"r":"inputA"}},"__root":{"usingB":{"r":"inputB"},"usingA":{"r":"inputA"},"time":{"c":"SomeModule.Datetime",},"recursiveA":{"r":"inputA"},"input":{"r":"inputA"}}}`
   )
+  @live
   let variablesConverterMap = {
     "SomeModule.Datetime": SomeModule.Datetime.serialize,
   }
+  @live
   let convertVariables = v => v->RescriptRelay.convertObj(
     variablesConverter,
     variablesConverterMap,
     Js.undefined
   )
+  @live
   type wrapResponseRaw
+  @live
   let wrapResponseConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
     json`{}`
   )
+  @live
   let wrapResponseConverterMap = ()
+  @live
   let convertWrapResponse = v => v->RescriptRelay.convertObj(
     wrapResponseConverter,
     wrapResponseConverterMap,
     Js.null
   )
+  @live
   type responseRaw
+  @live
   let responseConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
     json`{}`
   )
+  @live
   let responseConverterMap = ()
+  @live
   let convertResponse = v => v->RescriptRelay.convertObj(
     responseConverter,
     responseConverterMap,
     Js.undefined
   )
   type wrapRawResponseRaw = wrapResponseRaw
+  @live
   let convertWrapRawResponse = convertWrapResponse
   type rawResponseRaw = responseRaw
+  @live
   let convertRawResponse = convertResponse
 }
 module Utils = {
   @@ocaml.warning("-33")
   open Types
-  let make_inputA = (
+  @live let make_inputA = (
     ~time,
     ~recursiveA=?,
     ~usingB=?,
@@ -75,7 +88,7 @@ module Utils = {
     recursiveA: recursiveA,
     usingB: usingB
   }
-  let make_inputB = (
+  @live let make_inputB = (
     ~time=?,
     ~usingA=?,
     ()
@@ -83,7 +96,7 @@ module Utils = {
     time: time,
     usingA: usingA
   }
-  let makeVariables = (
+  @live let makeVariables = (
     ~input
   ): variables => {
     input: input
