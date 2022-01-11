@@ -84,6 +84,13 @@ let node: operationType = %raw(json` {
   "name": "TestFragment_requiredUnion_member",
   "selections": [
     {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "__typename",
+      "storageKey": null
+    },
+    {
       "kind": "InlineFragment",
       "selections": [
         {

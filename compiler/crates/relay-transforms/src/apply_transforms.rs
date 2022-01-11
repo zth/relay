@@ -210,6 +210,10 @@ fn apply_reader_transforms(
         hash_supported_argument(&program, &project_config.feature_flags)
     })?;
 
+    program = log_event.time("rescript_relay_generate_typename", || {
+        rescript_relay_generate_typename(&program)
+    });
+
     log_event.complete();
 
     Ok(Arc::new(program))
@@ -242,6 +246,10 @@ fn apply_operation_transforms(
             &project_config.schema_config.connection_interface,
         )
     })?;
+
+    program = log_event.time("rescript_relay_generate_typename", || {
+        rescript_relay_generate_typename(&program)
+    });
 
     program =
         apply_internal_fb_operation_transforms(project_config, &program, Arc::clone(&perf_logger))?;
