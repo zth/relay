@@ -33,12 +33,13 @@ use graphql_ir::{
 use indexmap::{map::Entry, IndexMap, IndexSet};
 use itertools::Itertools;
 use lazy_static::lazy_static;
-use relay_config::JsModuleFormat;
 pub use relay_config::{FlowTypegenPhase, TypegenConfig, TypegenLanguage};
+use relay_config::{JsModuleFormat, ProjectConfig, SchemaConfig};
 use relay_transforms::{
     ModuleMetadata, RefetchableDerivedFromMetadata, RefetchableMetadata, RelayDirective,
-    RelayResolverSpreadMetadata, RequiredMetadataDirective, CHILDREN_CAN_BUBBLE_METADATA_KEY,
-    CLIENT_EXTENSION_DIRECTIVE_NAME, RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN, UPDATABLE_DIRECTIVE,
+    RelayResolverSpreadMetadata, RequiredMetadataDirective, ASSIGNABLE_DIRECTIVE,
+    CHILDREN_CAN_BUBBLE_METADATA_KEY, CLIENT_EXTENSION_DIRECTIVE_NAME,
+    RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN, UPDATABLE_DIRECTIVE,
 };
 use schema::{EnumID, SDLSchema, ScalarID, Schema, Type, TypeReference};
 use std::hash::Hash;
@@ -50,8 +51,10 @@ static RELAY_RUNTIME: &str = "relay-runtime";
 static LOCAL_3D_PAYLOAD: &str = "Local3DPayload";
 static ACTOR_CHANGE_POINT: &str = "ActorChangePoint";
 pub static PROVIDED_VARIABLE_TYPE: &str = "ProvidedVariableProviderType";
+static VALIDATOR_EXPORT_NAME: &str = "validate";
 
 lazy_static! {
+    static ref KEY_CLIENTID: StringKey = "__id".intern();
     pub(crate) static ref KEY_DATA: StringKey = "$data".intern();
     static ref KEY_FRAGMENT_SPREADS: StringKey = "$fragmentSpreads".intern();
     pub(crate) static ref KEY_FRAGMENT_TYPE: StringKey = "$fragmentType".intern();
@@ -60,7 +63,6 @@ lazy_static! {
     static ref JS_FIELD_NAME: StringKey = "js".intern();
     static ref KEY_RAW_RESPONSE: StringKey = "rawResponse".intern();
     static ref KEY_TYPENAME: StringKey = "__typename".intern();
-    static ref KEY_ID: StringKey = "id".intern();
     static ref KEY_NODE: StringKey = "node".intern();
     static ref KEY_NODES: StringKey = "nodes".intern();
     static ref MODULE_COMPONENT: StringKey = "__module_component".intern();
@@ -78,15 +80,14 @@ lazy_static! {
 pub fn generate_fragment_type_exports_section(
     fragment: &FragmentDefinition,
     schema: &SDLSchema,
-    js_module_format: JsModuleFormat,
-    has_unified_output: bool,
-    typegen_config: &TypegenConfig,
+    project_config: &ProjectConfig,
 ) -> String {
     let mut generator = TypeGenerator::new(
         schema,
-        js_module_format,
-        has_unified_output,
-        typegen_config,
+        &project_config.schema_config,
+        project_config.js_module_format,
+        project_config.output.is_some(),
+        &project_config.typegen_config,
         fragment.name.item,
         rescript::DefinitionType::Fragment(fragment.clone()),
     );
@@ -96,21 +97,48 @@ pub fn generate_fragment_type_exports_section(
     generator.into_string()
 }
 
+pub fn generate_named_validator_export(
+    fragment_definition: &FragmentDefinition,
+    schema: &SDLSchema,
+    project_config: &ProjectConfig,
+) -> String {
+    let mut generator = TypeGenerator::new(
+        schema,
+        &project_config.schema_config,
+        project_config.js_module_format,
+        project_config.output.is_some(),
+        &project_config.typegen_config,
+        fragment_definition.name.item,
+    );
+    generator
+        .write_validator_function(fragment_definition, schema)
+        .unwrap();
+    let validator_function_body = generator.into_string();
+
+    if project_config.typegen_config.eager_es_modules {
+        format!("export {}", validator_function_body)
+    } else {
+        format!(
+            "module.exports.{} = {};",
+            VALIDATOR_EXPORT_NAME, validator_function_body
+        )
+    }
+}
+
 pub fn generate_operation_type_exports_section(
     typegen_operation: &OperationDefinition,
     normalization_operation: &OperationDefinition,
     schema: &SDLSchema,
-    js_module_format: JsModuleFormat,
-    has_unified_output: bool,
-    typegen_config: &TypegenConfig,
+    project_config: &ProjectConfig,
 ) -> String {
     let rollout_key = RefetchableDerivedFromMetadata::find(&typegen_operation.directives)
         .map_or(typegen_operation.name.item, |metadata| metadata.0);
     let mut generator = TypeGenerator::new(
         schema,
-        js_module_format,
-        has_unified_output,
-        typegen_config,
+        &project_config.schema_config,
+        project_config.js_module_format,
+        project_config.output.is_some(),
+        &project_config.typegen_config,
         rollout_key,
         rescript::DefinitionType::Operation(typegen_operation.clone()),
     );
@@ -124,15 +152,14 @@ pub fn generate_split_operation_type_exports_section(
     typegen_operation: &OperationDefinition,
     normalization_operation: &OperationDefinition,
     schema: &SDLSchema,
-    js_module_format: JsModuleFormat,
-    has_unified_output: bool,
-    typegen_config: &TypegenConfig,
+    project_config: &ProjectConfig,
 ) -> String {
     let mut generator = TypeGenerator::new(
         schema,
-        js_module_format,
-        has_unified_output,
-        typegen_config,
+        &project_config.schema_config,
+        project_config.js_module_format,
+        project_config.output.is_some(),
+        &project_config.typegen_config,
         typegen_operation.name.item,
         rescript::DefinitionType::Operation(typegen_operation.clone()),
     );
@@ -155,6 +182,7 @@ struct RuntimeImports {
 
 struct TypeGenerator<'a> {
     schema: &'a SDLSchema,
+    schema_config: &'a SchemaConfig,
     generated_fragments: FnvHashSet<StringKey>,
     generated_input_object_types: IndexMap<StringKey, GeneratedInputObject>,
     imported_raw_response_types: IndexSet<StringKey>,
@@ -174,6 +202,7 @@ struct TypeGenerator<'a> {
 impl<'a> TypeGenerator<'a> {
     fn new(
         schema: &'a SDLSchema,
+        schema_config: &'a SchemaConfig,
         js_module_format: JsModuleFormat,
         has_unified_output: bool,
         typegen_config: &'a TypegenConfig,
@@ -183,6 +212,7 @@ impl<'a> TypeGenerator<'a> {
         let flow_typegen_phase = typegen_config.flow_typegen.phase(rollout_key);
         Self {
             schema,
+            schema_config,
             generated_fragments: Default::default(),
             generated_input_object_types: Default::default(),
             imported_raw_response_types: Default::default(),
@@ -420,22 +450,32 @@ impl<'a> TypeGenerator<'a> {
         Ok(())
     }
 
-    fn write_fragment_type_exports_section(&mut self, node: &FragmentDefinition) -> FmtResult {
-        let mut selections = self.visit_selections(&node.selections);
-        if !node.type_condition.is_abstract_type() {
+    fn write_fragment_type_exports_section(
+        &mut self,
+        fragment_definition: &FragmentDefinition,
+    ) -> FmtResult {
+        // Assignable fragments do not require $data and $ref type exports, and their aliases
+        let is_assignable_fragment = fragment_definition
+            .directives
+            .named(*ASSIGNABLE_DIRECTIVE)
+            .is_some();
+
+        let mut selections = self.visit_selections(&fragment_definition.selections);
+        if !fragment_definition.type_condition.is_abstract_type() {
             let num_concrete_selections = selections
                 .iter()
                 .filter(|sel| sel.get_enclosing_concrete_type().is_some())
                 .count();
             if num_concrete_selections <= 1 {
                 for selection in selections.iter_mut().filter(|sel| sel.is_typename()) {
-                    selection.set_concrete_type(node.type_condition);
+                    selection.set_concrete_type(fragment_definition.type_condition);
                 }
             }
         }
-        self.generated_fragments.insert(node.name.item);
+        self.generated_fragments
+            .insert(fragment_definition.name.item);
 
-        let data_type = node.name.item;
+        let data_type = fragment_definition.name.item;
         let data_type_name = format!("{}$data", data_type);
 
         let ref_type_data_property = Prop::KeyValuePair(KeyValuePairProp {
@@ -444,14 +484,14 @@ impl<'a> TypeGenerator<'a> {
             read_only: true,
             value: AST::Identifier(data_type_name.as_str().intern()),
         });
-        let fragment_name = node.name.item;
+        let fragment_name = fragment_definition.name.item;
         let ref_type_fragment_spreads_property = Prop::KeyValuePair(KeyValuePairProp {
             key: *KEY_FRAGMENT_SPREADS,
             optional: false,
             read_only: true,
             value: AST::FragmentReference(vec![fragment_name]),
         });
-        let is_plural_fragment = is_plural(node);
+        let is_plural_fragment = is_plural(fragment_definition);
         let mut ref_type = AST::InexactObject(vec![
             ref_type_data_property,
             ref_type_fragment_spreads_property,
@@ -460,7 +500,7 @@ impl<'a> TypeGenerator<'a> {
             ref_type = AST::ReadOnlyArray(Box::new(ref_type));
         }
 
-        let unmasked = RelayDirective::is_unmasked_fragment_definition(node);
+        let unmasked = RelayDirective::is_unmasked_fragment_definition(fragment_definition);
 
         let base_type = self.selections_to_babel(
             selections.into_iter(),
@@ -473,7 +513,10 @@ impl<'a> TypeGenerator<'a> {
             base_type
         };
 
-        let type_ = match node.directives.named(*CHILDREN_CAN_BUBBLE_METADATA_KEY) {
+        let type_ = match fragment_definition
+            .directives
+            .named(*CHILDREN_CAN_BUBBLE_METADATA_KEY)
+        {
             Some(_) => AST::Nullable(type_.into()),
             None => type_,
         };
@@ -485,7 +528,7 @@ impl<'a> TypeGenerator<'a> {
         self.write_runtime_imports()?;
         self.write_relay_resolver_imports()?;
 
-        let refetchable_metadata = RefetchableMetadata::find(&node.directives);
+        let refetchable_metadata = RefetchableMetadata::find(&fragment_definition.directives);
         let old_fragment_type_name = format!("{}$ref", fragment_name);
         let new_fragment_type_name = format!("{}$fragmentType", fragment_name);
         self.writer
@@ -512,20 +555,22 @@ impl<'a> TypeGenerator<'a> {
             }
         }
 
-        match self.flow_typegen_phase {
-            FlowTypegenPhase::Compat => {
-                self.writer.write_export_type(&data_type_name, &type_)?;
-                self.writer.write_export_type(
-                    data_type.lookup(),
-                    &AST::Identifier(data_type_name.intern()),
-                )?;
+        if !is_assignable_fragment {
+            match self.flow_typegen_phase {
+                FlowTypegenPhase::Compat => {
+                    self.writer.write_export_type(&data_type_name, &type_)?;
+                    self.writer.write_export_type(
+                        data_type.lookup(),
+                        &AST::Identifier(data_type_name.intern()),
+                    )?;
+                }
+                FlowTypegenPhase::Final => {
+                    self.writer.write_export_type(&data_type_name, &type_)?;
+                }
             }
-            FlowTypegenPhase::Final => {
-                self.writer.write_export_type(&data_type_name, &type_)?;
-            }
+            self.writer
+                .write_export_type(&format!("{}$key", fragment_definition.name.item), &ref_type)?;
         }
-        self.writer
-            .write_export_type(&format!("{}$key", node.name.item), &ref_type)?;
 
         Ok(())
     }
@@ -683,7 +728,10 @@ impl<'a> TypeGenerator<'a> {
         let linked_field_selections = self.visit_selections(&linked_field.selections);
         type_selections.push(TypeSelection::ScalarField(TypeSelectionScalarField {
             field_name_or_alias: key,
-            special_field: ScalarFieldSpecialSchemaField::from_schema_name(schema_name),
+            special_field: ScalarFieldSpecialSchemaField::from_schema_name(
+                schema_name,
+                self.schema_config,
+            ),
             value: AST::Nullable(Box::new(AST::ActorChangePoint(Box::new(
                 self.selections_to_babel(linked_field_selections.into_iter(), false, None),
             )))),
@@ -781,7 +829,10 @@ impl<'a> TypeGenerator<'a> {
             apply_required_directive_nullability(&field.type_, &scalar_field.directives);
         type_selections.push(TypeSelection::ScalarField(TypeSelectionScalarField {
             field_name_or_alias: key,
-            special_field: ScalarFieldSpecialSchemaField::from_schema_name(schema_name),
+            special_field: ScalarFieldSpecialSchemaField::from_schema_name(
+                schema_name,
+                self.schema_config,
+            ),
             value: self.transform_scalar_type(&field_type, None),
             conditional: false,
             concrete_type: None,
@@ -1558,6 +1609,213 @@ impl<'a> TypeGenerator<'a> {
         }
         type_selections
     }
+
+    /// Write the assignable fragment validator function.
+    ///
+    /// Validators accept an item which *may* be valid for assignment and returns either
+    /// a sentinel value or something which is necessarily valid for assignment.
+    ///
+    /// The types of the validator:
+    ///
+    /// - For fragments whose type condition is abstract:
+    /// ({ __id: string, __isFragmentName: ?string, $fragmentSpreads: FragmentRefType }) =>
+    ///   ({ __id: string, __isFragmentName: string, $fragmentSpreads: FragmentRefType })
+    ///   | false
+    ///
+    /// - For fragments whose type condition is concrete:
+    /// ({ __id: string, __typename: string, $fragmentSpreads: FragmentRefType }) =>
+    ///   ({ __id: string, __typename: FragmentType, $fragmentSpreads: FragmentRefType })
+    ///   | false
+    ///
+    /// Validators' runtime behavior checks for the presence of the __isFragmentName marker
+    /// (for abstract fragment types) or a matching concrete type (for concrete fragment
+    /// types), and returns false iff the parameter didn't pass.
+    /// Validators return the parameter (unmodified) if it did pass validation, but with
+    /// a changed flowtype.
+    fn write_validator_function(
+        &mut self,
+        fragment_definition: &FragmentDefinition,
+        schema: &SDLSchema,
+    ) -> FmtResult {
+        if fragment_definition.type_condition.is_abstract_type() {
+            self.write_abstract_validator_function(fragment_definition)
+        } else {
+            self.write_concrete_validator_function(fragment_definition, schema)
+        }
+    }
+
+    /// Write an abstract validator function. Flow example:
+    /// function validate(value/*: {
+    ///   +__id: string,
+    ///   +$fragmentSpreads: Assignable_node$fragmentType,
+    ///   +__isAssignable_node: ?string,
+    ///   ...
+    /// }*/)/*: ({
+    ///   +__id: string,
+    ///   +$fragmentSpreads: Assignable_node$fragmentType,
+    ///   +__isAssignable_node: string,
+    ///   ...
+    /// } | false)*/ {
+    ///   return value.__isAssignable_node != null ? (value/*: any*/) : null
+    /// };
+    fn write_abstract_validator_function(
+        &mut self,
+        fragment_definition: &FragmentDefinition,
+    ) -> FmtResult {
+        let fragment_name = fragment_definition.name.item.lookup();
+        let abstract_fragment_spread_marker = format!("__is{}", fragment_name).intern();
+        let id_prop = Prop::KeyValuePair(KeyValuePairProp {
+            key: *KEY_CLIENTID,
+            value: AST::String,
+            read_only: true,
+            optional: false,
+        });
+        let fragment_spread_prop = Prop::KeyValuePair(KeyValuePairProp {
+            key: *KEY_FRAGMENT_SPREADS,
+            value: AST::Identifier(format!("{}{}", fragment_name, *KEY_FRAGMENT_TYPE).intern()),
+            read_only: true,
+            optional: false,
+        });
+        let parameter_discriminator = Prop::KeyValuePair(KeyValuePairProp {
+            key: abstract_fragment_spread_marker,
+            value: AST::String,
+            read_only: true,
+            optional: true,
+        });
+        let return_value_discriminator = Prop::KeyValuePair(KeyValuePairProp {
+            key: abstract_fragment_spread_marker,
+            value: AST::String,
+            read_only: true,
+            optional: false,
+        });
+
+        let parameter_type = AST::InexactObject(vec![
+            id_prop.clone(),
+            fragment_spread_prop.clone(),
+            parameter_discriminator,
+        ]);
+        let return_type = AST::Union(vec![
+            AST::InexactObject(vec![
+                id_prop,
+                fragment_spread_prop,
+                return_value_discriminator,
+            ]),
+            AST::RawType(intern!("false")),
+        ]);
+
+        let (open_comment, close_comment) = match self.typegen_config.language {
+            TypegenLanguage::Flow => ("/*", "*/"),
+            TypegenLanguage::TypeScript => ("", ""),
+        };
+
+        write!(
+            self.writer,
+            "function {}(value{}: ",
+            VALIDATOR_EXPORT_NAME, &open_comment
+        )?;
+
+        self.writer.write(&parameter_type)?;
+        write!(self.writer, "{}){}: ", &close_comment, &open_comment)?;
+        self.writer.write(&return_type)?;
+        write!(
+            self.writer,
+            "{} {{\n  return value.{} != null ? (value{}: ",
+            &close_comment,
+            abstract_fragment_spread_marker.lookup(),
+            open_comment
+        )?;
+        self.writer.write(&AST::Any)?;
+        write!(self.writer, "{}) : false;\n}}", &close_comment)?;
+
+        Ok(())
+    }
+
+    /// Write a concrete validator function. Flow example:
+    /// function validate(value/*: {
+    ///   +__id: string,
+    ///   +$fragmentSpreads: Assignable_user$fragmentType,
+    ///   +__typename: ?string,
+    ///   ...
+    /// }*/)/*: ({
+    ///   +__id: string,
+    ///   +$fragmentSpreads: Assignable_user$fragmentType,
+    ///   +__typename: 'User',
+    ///   ...
+    /// } | false)*/ {
+    ///   return value.__typename === 'User' ? (value/*: any*/) : null
+    /// };
+    fn write_concrete_validator_function(
+        &mut self,
+        fragment_definition: &FragmentDefinition,
+        schema: &SDLSchema,
+    ) -> FmtResult {
+        let fragment_name = fragment_definition.name.item.lookup();
+        let concrete_typename = schema.get_type_name(fragment_definition.type_condition);
+        let id_prop = Prop::KeyValuePair(KeyValuePairProp {
+            key: *KEY_CLIENTID,
+            value: AST::String,
+            read_only: true,
+            optional: false,
+        });
+        let fragment_spread_prop = Prop::KeyValuePair(KeyValuePairProp {
+            key: *KEY_FRAGMENT_SPREADS,
+            value: AST::Identifier(format!("{}{}", fragment_name, *KEY_FRAGMENT_TYPE).intern()),
+            read_only: true,
+            optional: false,
+        });
+        let parameter_discriminator = Prop::KeyValuePair(KeyValuePairProp {
+            key: *KEY_TYPENAME,
+            value: AST::String,
+            read_only: true,
+            optional: false,
+        });
+        let return_value_discriminator = Prop::KeyValuePair(KeyValuePairProp {
+            key: *KEY_TYPENAME,
+            value: AST::StringLiteral(concrete_typename),
+            read_only: true,
+            optional: false,
+        });
+
+        let parameter_type = AST::InexactObject(vec![
+            id_prop.clone(),
+            fragment_spread_prop.clone(),
+            parameter_discriminator,
+        ]);
+        let return_type = AST::Union(vec![
+            AST::InexactObject(vec![
+                id_prop,
+                fragment_spread_prop,
+                return_value_discriminator,
+            ]),
+            AST::RawType(intern!("false")),
+        ]);
+
+        let (open_comment, close_comment) = match self.typegen_config.language {
+            TypegenLanguage::Flow => ("/*", "*/"),
+            TypegenLanguage::TypeScript => ("", ""),
+        };
+
+        write!(
+            self.writer,
+            "function {}(value{}: ",
+            VALIDATOR_EXPORT_NAME, &open_comment
+        )?;
+        self.writer.write(&parameter_type)?;
+        write!(self.writer, "{}){}: ", &close_comment, &open_comment)?;
+        self.writer.write(&return_type)?;
+        write!(
+            self.writer,
+            "{} {{\n  return value.{} === '{}' ? (value{}: ",
+            &close_comment,
+            KEY_TYPENAME.lookup(),
+            concrete_typename.lookup(),
+            open_comment
+        )?;
+        self.writer.write(&AST::Any)?;
+        write!(self.writer, "{}) : false;\n}}", &close_comment)?;
+
+        Ok(())
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -1707,15 +1965,18 @@ enum ScalarFieldSpecialSchemaField {
     JS,
     TypeName,
     Id,
+    ClientId,
 }
 
 impl ScalarFieldSpecialSchemaField {
-    fn from_schema_name(key: StringKey) -> Option<Self> {
+    fn from_schema_name(key: StringKey, schema_config: &SchemaConfig) -> Option<Self> {
         if key == *JS_FIELD_NAME {
             Some(ScalarFieldSpecialSchemaField::JS)
         } else if key == *KEY_TYPENAME {
             Some(ScalarFieldSpecialSchemaField::TypeName)
-        } else if key == *KEY_ID {
+        } else if key == *KEY_CLIENTID {
+            Some(ScalarFieldSpecialSchemaField::ClientId)
+        } else if key == schema_config.node_interface_id_field {
             Some(ScalarFieldSpecialSchemaField::Id)
         } else {
             None
