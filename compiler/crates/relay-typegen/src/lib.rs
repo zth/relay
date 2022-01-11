@@ -109,6 +109,7 @@ pub fn generate_named_validator_export(
         project_config.output.is_some(),
         &project_config.typegen_config,
         fragment_definition.name.item,
+        rescript::DefinitionType::Fragment(fragment_definition.clone()),
     );
     generator
         .write_validator_function(fragment_definition, schema)
@@ -1705,7 +1706,7 @@ impl<'a> TypeGenerator<'a> {
 
         let (open_comment, close_comment) = match self.typegen_config.language {
             TypegenLanguage::Flow => ("/*", "*/"),
-            TypegenLanguage::TypeScript => ("", ""),
+            TypegenLanguage::TypeScript | TypegenLanguage::ReScript => ("", ""),
         };
 
         write!(
@@ -1792,7 +1793,7 @@ impl<'a> TypeGenerator<'a> {
 
         let (open_comment, close_comment) = match self.typegen_config.language {
             TypegenLanguage::Flow => ("/*", "*/"),
-            TypegenLanguage::TypeScript => ("", ""),
+            TypegenLanguage::TypeScript | TypegenLanguage::ReScript => ("", ""),
         };
 
         write!(

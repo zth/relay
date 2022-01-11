@@ -578,7 +578,7 @@ fn generate_assignable_fragment(
 
     match project_config.typegen_config.language {
         TypegenLanguage::Flow => writeln!(content, "*/\n")?,
-        TypegenLanguage::TypeScript => writeln!(content)?,
+        TypegenLanguage::TypeScript | TypegenLanguage::ReScript => writeln!(content)?,
     }
 
     // Assignable fragments should never be passed to useFragment, and thus, we
@@ -802,9 +802,7 @@ fn generate_operation_rescript(
             typegen_operation,
             normalization_operation,
             schema,
-            project_config.js_module_format,
-            project_config.output.is_some(),
-            &project_config.typegen_config,
+            project_config
         )
     )
     .unwrap();
@@ -936,13 +934,7 @@ fn generate_fragment_rescript(
     writeln!(
         content,
         "{}",
-        generate_fragment_type_exports_section(
-            typegen_fragment,
-            schema,
-            project_config.js_module_format,
-            project_config.output.is_some(),
-            &project_config.typegen_config,
-        )
+        generate_fragment_type_exports_section(typegen_fragment, schema, project_config)
     )
     .unwrap();
 

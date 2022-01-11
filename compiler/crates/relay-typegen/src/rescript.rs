@@ -87,6 +87,12 @@ pub struct ReScriptPrinter {
     operation_meta_data: RescriptRelayOperationMetaData,
 }
 
+impl Write for ReScriptPrinter {
+    fn write_str(&mut self, _s: &str) -> Result {
+        Ok(())
+    }
+}
+
 // This figures out what type identifiers found in the code actually is, by
 // matching the identifier name against all found enums and input objects.
 enum ClassifiedIdentifier<'a> {
