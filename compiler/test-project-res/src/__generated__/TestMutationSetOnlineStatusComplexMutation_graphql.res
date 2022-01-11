@@ -20,7 +20,12 @@ module Types = {
 
 
   type rec setOnlineStatusInput = {
-    @live onlineStatus: enum_OnlineStatus,
+    @live onlineStatus: [
+      | #Online
+      | #Idle
+      | #Offline
+    ]
+,
   }
   type rec response_setOnlineStatusComplex_user = {
     @live id: string,
