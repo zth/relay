@@ -1000,6 +1000,7 @@ fn get_conversion_instructions(
     state: &Box<ReScriptPrinter>,
     conversion_instructions: &Vec<&InstructionContainer>,
     root_object_names: Vec<&String>,
+    root_name: &String,
 ) -> String {
     if conversion_instructions.len() == 0 {
         String::from("{}")
@@ -1029,8 +1030,24 @@ fn get_conversion_instructions(
         });
 
         // Write the root itself
-        write_instruction_json_object(&mut str, &String::from("__root"), conversion_instructions)
-            .unwrap();
+        write_instruction_json_object(
+            &mut str,
+            &String::from("__root"),
+            // The conversion instructions might contain root objects in
+            // addition to the top level, so we need to get rid of everything
+            // that doesn't the top level path prefix we're after.
+            &conversion_instructions
+                .into_iter()
+                .filter_map(|instruction_container| {
+                    if instruction_container.at_path[0] == root_name.as_str() {
+                        Some(instruction_container.to_owned())
+                    } else {
+                        None
+                    }
+                })
+                .collect_vec(),
+        )
+        .unwrap();
 
         // Close full obj
         write!(str, "}}").unwrap();
@@ -1199,7 +1216,8 @@ fn write_internal_assets(
         get_conversion_instructions(
             state,
             &target_conversion_instructions,
-            root_objects.into_iter().collect_vec()
+            root_objects.into_iter().collect_vec(),
+            &root_name
         )
     )
     .unwrap();

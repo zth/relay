@@ -27,6 +27,12 @@ module Types = {
       | #Offline
     ]
 ,
+    recursed: option<recursiveSetOnlineStatusInput>,
+  }
+  @live
+  and recursiveSetOnlineStatusInput = {
+    someValue: RescriptRelay.any,
+    setOnlineStatus: option<setOnlineStatusInput>,
   }
   @live
   type rec response_setOnlineStatusComplex_user = {
@@ -52,7 +58,7 @@ module Types = {
 module Internal = {
   @live
   let variablesConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
-    json`{"setOnlineStatusInput":{},"__root":{"input":{"r":"setOnlineStatusInput"}}}`
+    json`{"recursiveSetOnlineStatusInput":{"setOnlineStatus":{"r":"setOnlineStatusInput"}},"setOnlineStatusInput":{"recursed":{"r":"recursiveSetOnlineStatusInput"}},"__root":{"input":{"r":"setOnlineStatusInput"}}}`
   )
   @live
   let variablesConverterMap = ()
@@ -116,9 +122,20 @@ module Utils = {
     onlineStatus_decode(Obj.magic(str))
   }
   @live let make_setOnlineStatusInput = (
-    ~onlineStatus
+    ~onlineStatus,
+    ~recursed=?,
+    ()
   ): setOnlineStatusInput => {
-    onlineStatus: onlineStatus
+    onlineStatus: onlineStatus,
+    recursed: recursed
+  }
+  @live let make_recursiveSetOnlineStatusInput = (
+    ~someValue,
+    ~setOnlineStatus=?,
+    ()
+  ): recursiveSetOnlineStatusInput => {
+    someValue: someValue,
+    setOnlineStatus: setOnlineStatus
   }
   @live let makeVariables = (
     ~input

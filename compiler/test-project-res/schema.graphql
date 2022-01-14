@@ -1,4 +1,5 @@
 scalar Datetime
+scalar IntString
 
 input InputA {
   time: Datetime!
@@ -105,8 +106,18 @@ type SetOnlineStatusPayload {
   user: User
 }
 
+type TestIntInputPayload {
+  success: Boolean
+}
+
+input RecursiveSetOnlineStatusInput {
+  someValue: IntString!
+  setOnlineStatus: SetOnlineStatusInput
+}
+
 input SetOnlineStatusInput {
   onlineStatus: OnlineStatus!
+  recursed: RecursiveSetOnlineStatusInput
 }
 
 type RecursiveInputPayload {
@@ -138,6 +149,9 @@ type Mutation {
   updateUserAvatar(avatarUrl: String): UpdateUserAvatarPayload
   addFriend(friendId: ID!): AddFriendPayload
   removeFriend(friendId: ID!): RemoveFriendPayload
+  testIntInput1(id: Int!): TestIntInputPayload
+  testIntInput2(ids: [Int!]!): TestIntInputPayload
+  testIntInput3(ids: [String!]!): TestIntInputPayload
   setOnlineStatus(onlineStatus: OnlineStatus!): SetOnlineStatusPayload
   setOnlineStatusComplex(input: SetOnlineStatusInput!): SetOnlineStatusPayload
   recursiveInput(input: InputA): RecursiveInputPayload

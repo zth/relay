@@ -83,3 +83,22 @@ module InlineFragment = %relay(`
       onlineStatus
     }
 `)
+
+module MutationWithMultipleTargets = %relay(`
+    mutation TestMutationWithMultipleTargetsMutation($id: Int!, $ids: [Int!]!, $friendId: ID!) @raw_response_type {
+      testIntInput1(id: $id) {
+        success
+      }
+      testIntInput2(ids: $ids) {
+        success
+      }
+      addFriend(friendId: $friendId) {
+        addedFriend{
+          id
+          friends {
+            id
+          }
+        }
+      }
+    }
+`)
