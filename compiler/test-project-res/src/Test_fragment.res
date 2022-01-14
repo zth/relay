@@ -65,6 +65,7 @@ module FragmentWithRequiredPlural = %relay(`
 module FragmentWithRequiredUnion = %relay(`
     fragment TestFragment_requiredUnion_member on Member {
       ... on User {
+        __typename
         isOnline @required(action: NONE)
         lastName
         firstName

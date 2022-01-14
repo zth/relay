@@ -1376,29 +1376,32 @@ fn write_object_definition(
     override_name: Option<String>,
     context: &Context,
 ) -> Result {
-    // We suppress dead code warnings in all contexts but fragments, and regular
-    // responses for queries. This is because we use the dead code analysis to
-    // power our remove-unused-fields CLI. So, suppressing them would break that
-    // CLI.
-    let should_suppress_dead_code_warnings_for_fields = match (&context, &state.typegen_definition)
-    {
-        (_, DefinitionType::Fragment(_))
-        | (
-            Context::Response,
-            DefinitionType::Operation(OperationDefinition {
-                kind: OperationKind::Query,
-                ..
-            }),
-        ) => false,
-        _ => true,
+    let is_generated_operation = match &state.typegen_definition {
+        DefinitionType::Operation(OperationDefinition {
+            generated: true, ..
+        }) => true,
+        _ => false,
     };
 
-    write_indentation(str, indentation).unwrap();
     let name = match override_name {
         None => object.record_name.to_string(),
         Some(name) => name,
     };
 
+    match (is_generated_operation, &context, &state.typegen_definition) {
+        (false, _, DefinitionType::Fragment(_))
+        | (
+            false,
+            Context::Response,
+            DefinitionType::Operation(OperationDefinition {
+                kind: OperationKind::Query,
+                ..
+            }),
+        ) => (),
+        _ => write_suppress_dead_code_warning_annotation(str, indentation).unwrap(),
+    }
+
+    write_indentation(str, indentation).unwrap();
     write_record_type_start(str, &print_mode, &name).unwrap();
 
     let num_props = object.values.len();
@@ -1413,7 +1416,15 @@ fn write_object_definition(
 
     let in_object_indentation = indentation + 1;
 
+    let mut has_printed_keys = FnvHashSet::default();
+
     object.values.iter().for_each(|prop| {
+        if has_printed_keys.contains(&prop.key) {
+            return;
+        } else {
+            has_printed_keys.insert(&prop.key);
+        }
+
         write_indentation(str, in_object_indentation).unwrap();
         writeln!(
             str,
@@ -1422,8 +1433,8 @@ fn write_object_definition(
             // don't affect overfetching, and are used internally by
             // RescriptRelay, but end up in the types anyway because of
             // *reasons*.
-            match (should_suppress_dead_code_warnings_for_fields, &prop.key[..]) {
-                (true, _) | (false, "id" | "__id" | "__typename") => "@live ",
+            match &prop.key[..] {
+                "id" | "__id" | "__typename" => "@live ",
                 _ => "",
             },
             // If original_key is set, that means that the key here has been
@@ -1779,6 +1790,15 @@ fn warn_about_unimplemented_feature(definition_type: &DefinitionType, context: S
     }, context);
 }
 
+fn context_from_obj_path(at_path: &Vec<String>) -> Context {
+    match &at_path[0][..] {
+        "response" => Context::Response,
+        "rawResponse" => Context::RawResponse,
+        "fragment" => Context::Fragment,
+        _ => Context::NotRelevant,
+    }
+}
+
 impl Writer for ReScriptPrinter {
     // This is what does the actual printing of types. It does that by working
     // its way through the state produced by "write_export_type", which turns
@@ -1888,6 +1908,8 @@ impl Writer for ReScriptPrinter {
             .filter(|object| !object.found_in_union)
             .enumerate()
             .for_each(|(index, object)| {
+                let context = context_from_obj_path(&object.at_path);
+
                 write_object_definition(
                     &self,
                     &mut generated_types,
@@ -1898,12 +1920,7 @@ impl Writer for ReScriptPrinter {
                         _ => ObjectPrintMode::PartOfRecursiveChain,
                     },
                     None,
-                    match &object.at_path[0][..] {
-                        "response" => &Context::Response,
-                        "rawResponse" => &Context::RawResponse,
-                        "fragment" => &Context::Fragment,
-                        _ => &Context::NotRelevant,
-                    },
+                    &context,
                 )
                 .unwrap()
             });
@@ -1974,6 +1991,8 @@ impl Writer for ReScriptPrinter {
                 )
                 .unwrap(),
                 None => {
+                    write_suppress_dead_code_warning_annotation(&mut generated_types, indentation)
+                        .unwrap();
                     write_indentation(&mut generated_types, indentation).unwrap();
                     writeln!(
                         generated_types,

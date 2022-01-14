@@ -134,6 +134,7 @@ impl Transformer for SplitModuleImportTransform<'_, '_> {
                             directives: vec![],
                             selections: next_selections,
                             kind: OperationKind::Query,
+                            generated: false,
                         },
                     )
                 });

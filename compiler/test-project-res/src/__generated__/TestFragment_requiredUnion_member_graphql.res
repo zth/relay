@@ -77,22 +77,25 @@ type relayOperationNode
 type operationType = RescriptRelay.fragmentNode<relayOperationNode>
 
 
-let node: operationType = %raw(json` {
+let node: operationType = %raw(json` (function(){
+var v0 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "__typename",
+  "storageKey": null
+};
+return {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
   "name": "TestFragment_requiredUnion_member",
   "selections": [
-    {
-      "alias": null,
-      "args": null,
-      "kind": "ScalarField",
-      "name": "__typename",
-      "storageKey": null
-    },
+    (v0/*: any*/),
     {
       "kind": "InlineFragment",
       "selections": [
+        (v0/*: any*/),
         {
           "kind": "RequiredField",
           "field": {
@@ -140,5 +143,6 @@ let node: operationType = %raw(json` {
   ],
   "type": "Member",
   "abstractKey": "__isMember"
-} `)
+};
+})() `)
 

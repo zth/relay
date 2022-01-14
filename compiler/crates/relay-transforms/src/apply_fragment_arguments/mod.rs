@@ -366,6 +366,7 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
             directives,
             selections,
             kind: OperationKind::Query,
+            generated: false,
         };
 
         if self.program.operation(normalization_name).is_some() {

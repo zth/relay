@@ -19,27 +19,33 @@ module Types = {
 
 
 
+  @live
   type rec setOnlineStatusInput = {
-    @live onlineStatus: [
+    onlineStatus: [
       | #Online
       | #Idle
       | #Offline
     ]
 ,
   }
+  @live
   type rec response_setOnlineStatusComplex_user = {
     @live id: string,
-    @live onlineStatus: option<enum_OnlineStatus>,
+    onlineStatus: option<enum_OnlineStatus>,
   }
+  @live
   and response_setOnlineStatusComplex = {
-    @live user: option<response_setOnlineStatusComplex_user>,
+    user: option<response_setOnlineStatusComplex_user>,
   }
+  @live
   type response = {
-    @live setOnlineStatusComplex: option<response_setOnlineStatusComplex>,
+    setOnlineStatusComplex: option<response_setOnlineStatusComplex>,
   }
+  @live
   type rawResponse = response
+  @live
   type variables = {
-    @live input: setOnlineStatusInput,
+    input: setOnlineStatusInput,
   }
 }
 

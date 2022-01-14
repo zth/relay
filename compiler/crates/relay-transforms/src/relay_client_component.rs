@@ -237,6 +237,7 @@ impl<'program, 'flag> RelayClientComponentTransform<'program, 'flag> {
                                 directives: Default::default(),
                                 fragment: spread.fragment,
                             }))],
+                            generated: false,
                         },
                     )
                 });

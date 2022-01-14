@@ -54,6 +54,7 @@ pub struct OperationDefinition {
     pub variable_definitions: Vec<VariableDefinition>,
     pub directives: Vec<Directive>,
     pub selections: Vec<Selection>,
+    pub generated: bool,
 }
 
 impl OperationDefinition {

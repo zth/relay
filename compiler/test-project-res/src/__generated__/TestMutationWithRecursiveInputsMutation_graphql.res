@@ -4,24 +4,30 @@
 module Types = {
   @@ocaml.warning("-30")
 
+  @live
   type rec inputA = {
-    @live time: SomeModule.Datetime.t,
-    @live recursiveA: option<inputA>,
-    @live usingB: option<inputB>,
+    time: SomeModule.Datetime.t,
+    recursiveA: option<inputA>,
+    usingB: option<inputB>,
   }
+  @live
   and inputB = {
-    @live time: option<SomeModule.Datetime.t>,
-    @live usingA: option<inputA>,
+    time: option<SomeModule.Datetime.t>,
+    usingA: option<inputA>,
   }
+  @live
   type rec response_recursiveInput = {
-    @live recursionIsCool: option<bool>,
+    recursionIsCool: option<bool>,
   }
+  @live
   type response = {
-    @live recursiveInput: option<response_recursiveInput>,
+    recursiveInput: option<response_recursiveInput>,
   }
+  @live
   type rawResponse = response
+  @live
   type variables = {
-    @live input: inputA,
+    input: inputA,
   }
 }
 

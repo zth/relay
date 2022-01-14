@@ -85,6 +85,7 @@ pub fn transform_refetchable_fragment(
                     variable_definitions: operation_result.variable_definitions,
                     directives,
                     selections: operation_result.selections,
+                    generated: true,
                 }));
             }
         } else {
@@ -217,17 +218,15 @@ impl<'program, 'sc> RefetchableFragment<'program, 'sc> {
             } else {
                 (fragment.name, previous_fragment)
             };
-            return Err(vec![
-                Diagnostic::error(
-                    ValidationMessage::DuplicateRefetchableOperation {
-                        query_name: refetchable_directive.query_name.item,
-                        first_fragment_name: first_fragment.item,
-                        second_fragment_name: second_fragment.item,
-                    },
-                    first_fragment.location,
-                )
-                .annotate("also defined here", second_fragment.location),
-            ]);
+            return Err(vec![Diagnostic::error(
+                ValidationMessage::DuplicateRefetchableOperation {
+                    query_name: refetchable_directive.query_name.item,
+                    first_fragment_name: first_fragment.item,
+                    second_fragment_name: second_fragment.item,
+                },
+                first_fragment.location,
+            )
+            .annotate("also defined here", second_fragment.location)]);
         }
 
         // check for conflict with operations
@@ -235,18 +234,16 @@ impl<'program, 'sc> RefetchableFragment<'program, 'sc> {
             .program
             .operation(refetchable_directive.query_name.item)
         {
-            return Err(vec![
-                Diagnostic::error(
-                    ValidationMessage::RefetchableQueryConflictWithQuery {
-                        query_name: refetchable_directive.query_name.item,
-                    },
-                    refetchable_directive.query_name.location,
-                )
-                .annotate(
-                    "an operation with that name is already defined here",
-                    existing_query.name.location,
-                ),
-            ]);
+            return Err(vec![Diagnostic::error(
+                ValidationMessage::RefetchableQueryConflictWithQuery {
+                    query_name: refetchable_directive.query_name.item,
+                },
+                refetchable_directive.query_name.location,
+            )
+            .annotate(
+                "an operation with that name is already defined here",
+                existing_query.name.location,
+            )]);
         }
 
         Ok(())
