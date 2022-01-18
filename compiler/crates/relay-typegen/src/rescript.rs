@@ -6,10 +6,10 @@
  */
 
 use fnv::{FnvBuildHasher, FnvHashMap, FnvHashSet};
-use graphql_ir::reexport::StringKey;
 use graphql_ir::{FragmentDefinition, OperationDefinition};
 use graphql_syntax::OperationKind;
 use indexmap::IndexMap;
+use intern::string_key::{Intern, StringKey};
 use itertools::Itertools;
 use log::{debug, warn};
 
@@ -128,7 +128,15 @@ fn classify_identifier<'a>(
     let identifier_as_string = identifier.to_string();
     let identifier_uncapitalized = uncapitalize_string(&identifier_as_string);
 
-    if let Some(full_enum) = state
+    // We need to give int and float special treatment here, because the way
+    // we've implemented support for them is by overriding `number` in the
+    // mapper of scalar types, and leveraging `RawIdentifer` to pass them along
+    // to the type generation. This is because the original Relay typegen is
+    // designed with Flow and TS in mind, that doesn't have int/float, but
+    // rather just number.
+    if identifier == &"int".intern() || identifier == &"float".intern() {
+        ClassifiedIdentifier::RawIdentifier(identifier_as_string)
+    } else if let Some(full_enum) = state
         .enums
         .iter()
         .find(|full_enum| full_enum.name == identifier_as_string)

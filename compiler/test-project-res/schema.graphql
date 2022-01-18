@@ -120,6 +120,13 @@ input SetOnlineStatusInput {
   recursed: RecursiveSetOnlineStatusInput
 }
 
+input PesticideListSearchInput {
+  companyName: [String!]
+  pesticideIds: [Int!]
+  skip: Int!
+  take: Int!
+}
+
 type RecursiveInputPayload {
   recursionIsCool: Boolean
 }
@@ -143,6 +150,7 @@ type Query {
     before: String
     last: Int
   ): UserConnection
+  searchPesticie(input: PesticideListSearchInput!): String
 }
 
 type Mutation {
