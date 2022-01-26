@@ -267,7 +267,7 @@ impl FileCategorizer {
                     Err(Cow::Borrowed("Invalid extension for a generated file."))
                 }
             }
-        } else if extension == "graphql" {
+        } else if is_schema_extension(extension) {
             if let Some(project_set) = self.schema_file_mapping.get(path) {
                 Ok(FileGroup::Schema {
                     project_set: project_set.clone(),
@@ -278,7 +278,7 @@ impl FileCategorizer {
                 Ok(FileGroup::Schema { project_set })
             } else {
                 Err(Cow::Borrowed(
-                    "Expected *.graphql file to be either a schema or extension.",
+                    "Expected *.graphql/*.gql file to be either a schema or extension.",
                 ))
             }
         } else {
@@ -359,6 +359,10 @@ fn is_source_code_extension(extension: &OsStr) -> bool {
         || extension == "ts"
         || extension == "tsx"
         || extension == "res"
+}
+
+fn is_schema_extension(extension: &OsStr) -> bool {
+    extension == "graphql" || extension == "gql"
 }
 
 fn is_valid_source_code_extension(typegen_language: &TypegenLanguage, extension: &OsStr) -> bool {
@@ -524,7 +528,14 @@ mod tests {
         assert_eq!(
             categorizer.categorize(&PathBuf::from("src/js/a.graphql")),
             Err(Cow::Borrowed(
-                "Expected *.graphql file to be either a schema or extension."
+                "Expected *.graphql/*.gql file to be either a schema or extension."
+            )),
+        );
+
+        assert_eq!(
+            categorizer.categorize(&PathBuf::from("src/js/a.gql")),
+            Err(Cow::Borrowed(
+                "Expected *.graphql/*.gql file to be either a schema or extension."
             )),
         );
 
