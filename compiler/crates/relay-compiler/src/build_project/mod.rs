@@ -46,7 +46,6 @@ use relay_config::TypegenLanguage;
 use relay_transforms::{
     apply_transforms, find_resolver_dependencies, CustomTransformsConfig, DependencyMap, Programs,
 };
-use relay_transforms::{apply_transforms, find_resolver_dependencies, DependencyMap, Programs};
 use schema::SDLSchema;
 pub use source_control::add_to_mercurial;
 use std::iter::FromIterator;

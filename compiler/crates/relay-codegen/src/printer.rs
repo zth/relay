@@ -384,7 +384,7 @@ impl<'b> JSONPrinter<'b> {
                 JsModuleFormat::CommonJS => self.write_js_dependency(
                     f,
                     format!("rescript_graphql_node_{}", key),
-                    format!("./{}.graphql", key),
+                    format!("rescript_graphql_node_{}", key),
                 ),
                 JsModuleFormat::Haste => self.write_js_dependency(
                     f,
@@ -409,7 +409,7 @@ impl<'b> JSONPrinter<'b> {
                 .insert(format!("import {} from '{}';", name, path));
             write!(f, "{}", name)
         } else {
-            write!(f, "require('{}')", path)
+            write!(f, "{}", path)
         }
     }
 }

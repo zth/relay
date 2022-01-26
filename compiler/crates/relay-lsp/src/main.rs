@@ -124,7 +124,7 @@ async fn main() {
     config.file_source_config = if should_use_watchman() {
         FileSourceKind::Watchman
     } else {
-        FileSourceKind::Glob
+        FileSourceKind::WalkDir
     };
 
     if opt.watch && !matches!(&config.file_source_config, FileSourceKind::Watchman) {

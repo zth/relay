@@ -732,7 +732,7 @@ fn write_source_hash(
 fn generate_operation_rescript(
     _config: &Config,
     project_config: &ProjectConfig,
-    printer: &mut Printer,
+    printer: &mut Printer<'_>,
     schema: &SDLSchema,
     normalization_operation: &OperationDefinition,
     reader_operation: &OperationDefinition,
@@ -839,6 +839,8 @@ fn generate_operation_rescript(
     )
     .unwrap();
 
+    let mut import_statements = Default::default();
+
     // Print node type
     writeln!(
         content,
@@ -849,6 +851,7 @@ fn generate_operation_rescript(
                 normalization_operation,
                 &operation_fragment,
                 request_parameters,
+                &mut import_statements
             )
         )
     )
@@ -901,7 +904,7 @@ fork/see what differences we've applied to support RescriptRelay.
 fn generate_fragment_rescript(
     _config: &Config,
     project_config: &ProjectConfig,
-    printer: &mut Printer,
+    printer: &mut Printer<'_>,
     schema: &SDLSchema,
     reader_fragment: &FragmentDefinition,
     typegen_fragment: &FragmentDefinition,
@@ -960,12 +963,14 @@ fn generate_fragment_rescript(
     )
     .unwrap();
 
+    let mut import_statements = Default::default();
+
     // Print node type
     writeln!(
         content,
         "{}",
         super::rescript_relay_utils::rescript_make_operation_type_and_node_text(
-            &printer.print_fragment(schema, reader_fragment)
+            &printer.print_fragment(schema, reader_fragment, &mut import_statements)
         )
     )
     .unwrap();
