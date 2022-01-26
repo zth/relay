@@ -10,6 +10,7 @@
 
 mod artifact_content;
 mod artifact_generated_types;
+mod artifact_locator;
 pub mod artifact_writer;
 mod build_ir;
 mod build_schema;
@@ -28,21 +29,23 @@ use crate::errors::BuildProjectError;
 use crate::file_source::SourceControlUpdateStatus;
 use crate::{artifact_map::ArtifactMap, graphql_asts::GraphQLAsts};
 pub use artifact_generated_types::ArtifactGeneratedTypes;
+pub use artifact_locator::{create_path_for_artifact, path_for_artifact};
 use build_ir::BuildIRResult;
 pub use build_ir::SourceHashes;
 pub use build_schema::build_schema;
 use common::{sync::*, PerfLogEvent, PerfLogger};
 use dashmap::{mapref::entry::Entry, DashSet};
 use fnv::{FnvBuildHasher, FnvHashMap, FnvHashSet};
-pub use generate_artifacts::{
-    create_path_for_artifact, generate_artifacts, Artifact, ArtifactContent,
-};
+pub use generate_artifacts::{generate_artifacts, Artifact, ArtifactContent};
 use graphql_ir::Program;
 use intern::string_key::{StringKey, StringKeySet};
 use log::{debug, info, warn};
 use rayon::{iter::IntoParallelRefIterator, slice::ParallelSlice};
 use relay_codegen::Printer;
 use relay_config::TypegenLanguage;
+use relay_transforms::{
+    apply_transforms, find_resolver_dependencies, CustomTransformsConfig, DependencyMap, Programs,
+};
 use relay_transforms::{apply_transforms, find_resolver_dependencies, DependencyMap, Programs};
 use schema::SDLSchema;
 pub use source_control::add_to_mercurial;
@@ -122,6 +125,7 @@ pub fn transform_program(
     base_fragment_names: Arc<StringKeySet>,
     perf_logger: Arc<impl PerfLogger + 'static>,
     log_event: &impl PerfLogEvent,
+    custom_transforms_config: Option<&CustomTransformsConfig>,
 ) -> Result<Programs, BuildProjectFailure> {
     let timer = log_event.start("apply_transforms_time");
     let result = apply_transforms(
@@ -130,6 +134,7 @@ pub fn transform_program(
         base_fragment_names,
         perf_logger,
         Some(print_stats),
+        custom_transforms_config,
     )
     .map_err(|errors| BuildProjectFailure::Error(BuildProjectError::ValidationErrors { errors }));
 
@@ -194,6 +199,7 @@ pub fn build_programs(
         Arc::new(base_fragment_names),
         Arc::clone(&perf_logger),
         log_event,
+        config.custom_transforms.as_ref(),
     )?;
 
     Ok((programs, Arc::new(source_hashes)))
@@ -497,7 +503,7 @@ fn write_artifacts<F: Fn() -> bool + Sync + Send>(
     artifacts: &[Artifact],
 ) -> Result<(), BuildProjectFailure> {
     artifacts.par_chunks(8192).try_for_each_init(
-        || Printer::with_dedupe(project_config.js_module_format),
+        || Printer::with_dedupe(project_config),
         |mut printer, artifacts| {
             for artifact in artifacts {
                 if should_stop_updating_artifacts() {

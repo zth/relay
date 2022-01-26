@@ -82,11 +82,15 @@ use [glob](https://docs.rs/glob/latest/glob/) to query the filesystem for files.
 - `eagerEsModules`      This option enables emitting ES modules artifacts.
                                                        [boolean][default: false]
 - `persistConfig`
-  - `url`               String, URL to send a POST request to to persist.
+  - `url`               String, URL to send a POST request to to persist. This
+                        field is required in `persistConfig`
                                                                         [string]
-  - `params`            The document will be in a `POST`
-                        parameter `text`. This map can contain additional
-                        parameters to send.                             [object]
+  - `params`            The document will be in a `POST` parameter `text`.
+                        This map can contain additional parameters to send.
+                                                                        [object]
+  - `concurrency`       The maximum number concurrent requests that will
+                        be made to `url`. Use a value greater than 0.
+                                                                        [number]
 - `codegenCommand`      Command name that for relay compiler.           [string]
 
 - `isDevVariableName`   Name of the global variable for dev mode (`__DEV__`).
@@ -105,5 +109,9 @@ when you need to run the compiler.
 - `--schema`            Relative path to schema file.
 - `--artifactDirectory` Compiler output directory.
 - `--repersist`         Run the persister even if the query has not changed.
-- `--watch`             Run compiler in `watch` mode
-(requires [`watchman`](https://facebook.github.io/watchman/) to be installed).
+- `--watch`             Run compiler in `watch` mode.
+                        Requires
+                        [`watchman`](https://facebook.github.io/watchman/) to be installed.
+- `--output`            Output format of the compiler. Supported options:
+                        `debug` | `verbose` | `quiet` | `quietWithErrors`.
+                        The default value is `verbose`.

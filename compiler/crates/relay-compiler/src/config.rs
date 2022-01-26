@@ -28,6 +28,7 @@ use relay_config::{
     FlowTypegenConfig, JsModuleFormat, SchemaConfig, TypegenConfig, TypegenLanguage,
 };
 pub use relay_config::{PersistConfig, ProjectConfig, SchemaLocation};
+use relay_transforms::CustomTransformsConfig;
 use serde::de::Error as DeError;
 use serde::{Deserialize, Deserializer, Serialize};
 use serde_json::Value;
@@ -104,6 +105,11 @@ pub struct Config {
 
     /// Type of file source to use in the Compiler
     pub file_source_config: FileSourceKind,
+
+    /// A set of custom transform functions, that can be applied before,
+    /// and after each major transformation step (common, operations, etc)
+    /// in the `apply_transforms(...)`.
+    pub custom_transforms: Option<CustomTransformsConfig>,
 }
 
 pub enum FileSourceKind {
@@ -111,7 +117,7 @@ pub enum FileSourceKind {
     /// List with changed files in format "file_path,exists".
     /// This can be used to replace watchman queries
     External(PathBuf),
-    Glob,
+    WalkDir,
 }
 
 fn normalize_path_from_config(
@@ -309,6 +315,7 @@ impl Config {
             additional_validations: None,
             is_dev_variable_name: config_file.is_dev_variable_name,
             file_source_config: FileSourceKind::Watchman,
+            custom_transforms: None,
         };
 
         let mut validation_errors = Vec::new();
@@ -801,7 +808,7 @@ It also cannot be a single project config file due to:
 
 #[derive(Debug, Deserialize, Serialize, Default)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
-struct ConfigFileProject {
+pub struct ConfigFileProject {
     /// If a base project is set, the documents of that project can be
     /// referenced, but won't produce output artifacts.
     /// Extensions from the base project will be added as well and the schema
@@ -845,7 +852,7 @@ struct ConfigFileProject {
     persist: Option<PersistConfig>,
 
     #[serde(flatten)]
-    typegen_config: TypegenConfig,
+    pub typegen_config: TypegenConfig,
 
     /// Optional regex to restrict @relay_test_operation to directories matching
     /// this regex. Defaults to no limitations.
@@ -861,7 +868,7 @@ struct ConfigFileProject {
     extra: serde_json::Value,
 
     #[serde(default)]
-    feature_flags: Option<FeatureFlags>,
+    pub feature_flags: Option<FeatureFlags>,
 
     /// A generic rollout state for larger codegen changes. The default is to
     /// pass, otherwise it should be a number between 0 and 100 as a percentage.
@@ -869,7 +876,7 @@ struct ConfigFileProject {
     pub rollout: Rollout,
 
     #[serde(default)]
-    js_module_format: JsModuleFormat,
+    pub js_module_format: JsModuleFormat,
 
     #[serde(default)]
     pub schema_config: SchemaConfig,

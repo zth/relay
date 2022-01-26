@@ -29,11 +29,12 @@ pub use build_project::{
     },
     build_programs, build_raw_program, build_schema, create_path_for_artifact, generate_artifacts,
     generate_extra_artifacts::GenerateExtraArtifactsFn,
-    transform_program, validate, validate_program, AdditionalValidations, Artifact,
-    ArtifactContent, ArtifactGeneratedTypes, BuildProjectFailure, SourceHashes,
+    path_for_artifact, transform_program, validate, validate_program, AdditionalValidations,
+    Artifact, ArtifactContent, ArtifactGeneratedTypes, BuildProjectFailure, SourceHashes,
 };
 pub use config::{
-    FileSourceKind, OperationPersister, PersistConfig, ProjectConfig, SchemaLocation,
+    ConfigFileProject, FileSourceKind, OperationPersister, PersistConfig, ProjectConfig,
+    SchemaLocation,
 };
 pub use file_source::{
     source_for_location, FileCategorizer, FileGroup, FileSource, FileSourceResult,

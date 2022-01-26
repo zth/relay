@@ -10,6 +10,7 @@ use fixture_tests::Fixture;
 use fnv::{FnvBuildHasher, FnvHashMap};
 use graphql_ir::{build_ir_with_relay_feature_flags, Program};
 use graphql_syntax::parse_executable;
+use graphql_test_helpers::diagnostics_to_sorted_string;
 use indexmap::IndexMap;
 use intern::string_key::Intern;
 use relay_codegen::JsModuleFormat;
@@ -31,12 +32,10 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
 
     let source_location = SourceLocationKey::standalone(fixture.file_name);
 
-
     let mut sources = FnvHashMap::default();
     sources.insert(source_location, source);
-    let ast = parse_executable(source, source_location).unwrap_or_else(|e| {
-        panic!("Encountered error building AST: {:?}", e);
-    });
+    let ast = parse_executable(source, source_location)
+        .map_err(|diagnostics| diagnostics_to_sorted_string(source, &diagnostics))?;
     let feature_flags = FeatureFlags {
         no_inline: FeatureFlag::Enabled,
         enable_relay_resolver_transform: true,
@@ -45,9 +44,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         ..Default::default()
     };
     let ir = build_ir_with_relay_feature_flags(&schema, &ast.definitions, &feature_flags)
-        .unwrap_or_else(|e| {
-            panic!("Encountered error building IR {:?}", e);
-        });
+        .map_err(|diagnostics| diagnostics_to_sorted_string(source, &diagnostics))?;
     let program = Program::from_definitions(Arc::clone(&schema), ir);
 
     let mut custom_scalar_types = FnvIndexMap::default();
@@ -74,9 +71,9 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         Default::default(),
         Arc::new(ConsoleLogger),
         None,
+        None,
     )
-    .unwrap();
-
+    .map_err(|diagnostics| diagnostics_to_sorted_string(source, &diagnostics))?;
 
     let mut operations: Vec<_> = programs.typegen.operations().collect();
     operations.sort_by_key(|op| op.name.item);
