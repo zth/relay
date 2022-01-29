@@ -739,6 +739,7 @@ fn write_object_maker(
     definition: &Object,
     name: String,
     target_type: String,
+    is_refetch_var: bool,
 ) -> Result {
     write_indentation(str, indentation).unwrap();
     write!(str, "@live let {} = (", name).unwrap();
@@ -752,7 +753,7 @@ fn write_object_maker(
         writeln!(str, "").unwrap();
     }
 
-    let mut has_nullable = false;
+    let mut has_nullable = is_refetch_var;
 
     definition
         .values
@@ -762,7 +763,7 @@ fn write_object_maker(
             write_indentation(str, indentation + 1).unwrap();
             write!(str, "~{}", prop_value.key).unwrap();
 
-            if prop_value.nullable {
+            if prop_value.nullable | is_refetch_var {
                 has_nullable = true;
                 write!(str, "=?").unwrap();
             }
@@ -1402,6 +1403,7 @@ fn write_object_definition(
     print_mode: ObjectPrintMode,
     override_name: Option<String>,
     context: &Context,
+    is_refetch_var: bool,
 ) -> Result {
     let is_generated_operation = match &state.typegen_definition {
         DefinitionType::Operation(OperationDefinition {
@@ -1474,12 +1476,16 @@ fn write_object_definition(
                 Some(original_key) => format!("@as(\"{}\") ", original_key),
             },
             prop.key,
-            match prop.nullable {
-                true => format!(
+            match (prop.nullable, is_refetch_var) {
+                (true, true) => format!(
+                    "option<option<{}>>",
+                    get_object_prop_value(state, &prop.prop_type, &context, indentation)
+                ),
+                (true, false) | (false, true) => format!(
                     "option<{}>",
                     get_object_prop_value(state, &prop.prop_type, &context, indentation)
                 ),
-                false => format!(
+                (false, false) => format!(
                     "{}",
                     get_object_prop_value(state, &prop.prop_type, &context, indentation)
                 ),
@@ -1513,6 +1519,7 @@ fn write_fragment_definition(
                     ObjectPrintMode::Standalone,
                     Some(String::from("fragment_t")),
                     &context,
+                    false,
                 )
                 .unwrap();
 
@@ -1527,6 +1534,7 @@ fn write_fragment_definition(
                     ObjectPrintMode::Standalone,
                     None,
                     &context,
+                    false,
                 )
                 .unwrap();
             }
@@ -1540,6 +1548,7 @@ fn write_fragment_definition(
                 ObjectPrintMode::Standalone,
                 Some(String::from("fragment_t")),
                 &context,
+                false,
             )
             .unwrap();
             write_indentation(str, indentation).unwrap();
@@ -1871,6 +1880,7 @@ impl Writer for ReScriptPrinter {
                     },
                     None,
                     &Context::RootObject(input_object.record_name.to_string()),
+                    false,
                 )
                 .unwrap()
             });
@@ -1905,6 +1915,7 @@ impl Writer for ReScriptPrinter {
                         "fragment" => &Context::Fragment,
                         _ => &Context::NotRelevant,
                     },
+                    false,
                 )
                 .unwrap()
             });
@@ -1948,6 +1959,7 @@ impl Writer for ReScriptPrinter {
                     },
                     None,
                     &context,
+                    false,
                 )
                 .unwrap()
             });
@@ -1976,6 +1988,7 @@ impl Writer for ReScriptPrinter {
                     ObjectPrintMode::Standalone,
                     Some(String::from("response_t")),
                     &Context::Response,
+                    false,
                 )
                 .unwrap();
                 write_indentation(&mut generated_types, indentation).unwrap();
@@ -1989,6 +2002,7 @@ impl Writer for ReScriptPrinter {
                     ObjectPrintMode::Standalone,
                     None,
                     &Context::Response,
+                    false,
                 )
                 .unwrap();
             }
@@ -2015,6 +2029,7 @@ impl Writer for ReScriptPrinter {
                     ObjectPrintMode::Standalone,
                     None,
                     &Context::RawResponse,
+                    false,
                 )
                 .unwrap(),
                 None => {
@@ -2045,6 +2060,7 @@ impl Writer for ReScriptPrinter {
                 ObjectPrintMode::Standalone,
                 None,
                 &Context::Variables,
+                false,
             )
             .unwrap();
 
@@ -2068,7 +2084,7 @@ impl Writer for ReScriptPrinter {
                             .values
                             .iter()
                             .map(|prop_value| PropValue {
-                                nullable: true,
+                                nullable: prop_value.nullable.clone(),
                                 comment: prop_value.comment.clone(),
                                 key: prop_value.key.clone(),
                                 original_key: prop_value.original_key.clone(),
@@ -2085,6 +2101,7 @@ impl Writer for ReScriptPrinter {
                         ObjectPrintMode::Standalone,
                         Some(String::from("refetchVariables")),
                         &Context::Variables,
+                        true,
                     )
                     .unwrap();
 
@@ -2094,6 +2111,7 @@ impl Writer for ReScriptPrinter {
                         &variables_as_refetch_variables,
                         String::from("makeRefetchVariables"),
                         String::from("refetchVariables"),
+                        true,
                     )
                     .unwrap()
                 }
@@ -2404,6 +2422,7 @@ impl Writer for ReScriptPrinter {
                 input_object,
                 format!("make_{}", input_object.record_name),
                 input_object.record_name.to_string(),
+                false,
             )
             .unwrap();
         });
@@ -2417,6 +2436,7 @@ impl Writer for ReScriptPrinter {
                     variables_definition,
                     String::from("makeVariables"),
                     String::from("variables"),
+                    false,
                 )
                 .unwrap();
             }
@@ -2432,6 +2452,7 @@ impl Writer for ReScriptPrinter {
                         raw_response,
                         String::from("makeOptimisticResponse"),
                         String::from("rawResponse"),
+                        false,
                     )
                     .unwrap();
 
@@ -2446,6 +2467,7 @@ impl Writer for ReScriptPrinter {
                                 obj,
                                 format!("make_{}", obj.record_name),
                                 obj.record_name.to_string(),
+                                false,
                             )
                             .unwrap();
                         });
