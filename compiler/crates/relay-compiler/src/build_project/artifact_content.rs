@@ -9,7 +9,7 @@ use super::ArtifactGeneratedTypes;
 use crate::config::{Config, ProjectConfig};
 use common::{NamedItem, SourceLocationKey};
 use graphql_ir::{Directive, FragmentDefinition, OperationDefinition};
-use relay_codegen::{build_request_params, Printer, QueryID};
+use relay_codegen::{build_request_params, Printer, QueryID, TopLevelStatement, CODEGEN_CONSTANTS};
 use relay_transforms::{
     is_operation_preloadable, ReactFlightLocalComponentsMetadata, RelayClientComponentMetadata,
     ASSIGNABLE_DIRECTIVE, DATA_DRIVEN_DEPENDENCY_METADATA_KEY,
@@ -271,28 +271,34 @@ fn generate_operation(
         TypegenLanguage::Flow => writeln!(content, "*/\n")?,
         TypegenLanguage::TypeScript | TypegenLanguage::ReScript => writeln!(content)?,
     }
-    let mut import_statements = Default::default();
+    let mut top_level_statements = Default::default();
     if let Some(provided_variables) =
-        printer.print_provided_variables(schema, normalization_operation, &mut import_statements)
+        printer.print_provided_variables(schema, normalization_operation, &mut top_level_statements)
     {
+        let mut provided_variable_text = String::new();
         write_variable_value_with_type(
             &project_config.typegen_config.language,
-            &mut content,
-            "providedVariableProviders",
+            &mut provided_variable_text,
+            CODEGEN_CONSTANTS.provided_variables_definition.lookup(),
             relay_typegen::PROVIDED_VARIABLE_TYPE,
             &provided_variables,
         )
         .unwrap();
+        top_level_statements.insert(
+            CODEGEN_CONSTANTS.provided_variables_definition.to_string(),
+            TopLevelStatement::VariableDefinition(provided_variable_text),
+        );
     }
+
     let request = printer.print_request(
         schema,
         normalization_operation,
         &operation_fragment,
         request_parameters,
-        &mut import_statements,
+        &mut top_level_statements,
     );
 
-    write!(content, "{}", &import_statements)?;
+    write!(content, "{}", &top_level_statements)?;
 
     write_variable_value_with_type(
         &project_config.typegen_config.language,
@@ -394,11 +400,11 @@ fn generate_split_operation(
         TypegenLanguage::TypeScript | TypegenLanguage::ReScript => writeln!(content)?,
     }
 
-    let mut import_statements = Default::default();
+    let mut top_level_statements = Default::default();
     let operation =
-        printer.print_operation(schema, normalization_operation, &mut import_statements);
+        printer.print_operation(schema, normalization_operation, &mut top_level_statements);
 
-    write!(content, "{}", &import_statements)?;
+    write!(content, "{}", &top_level_statements)?;
 
     write_variable_value_with_type(
         &project_config.typegen_config.language,
@@ -522,10 +528,10 @@ fn generate_read_only_fragment(
         TypegenLanguage::Flow => writeln!(content, "*/\n")?,
         TypegenLanguage::TypeScript | TypegenLanguage::ReScript => writeln!(content)?,
     }
-    let mut import_statements = Default::default();
-    let fragment = printer.print_fragment(schema, reader_fragment, &mut import_statements);
+    let mut top_level_statements = Default::default();
+    let fragment = printer.print_fragment(schema, reader_fragment, &mut top_level_statements);
 
-    write!(content, "{}", &import_statements)?;
+    write!(content, "{}", &top_level_statements)?;
 
     write_variable_value_with_type(
         &project_config.typegen_config.language,

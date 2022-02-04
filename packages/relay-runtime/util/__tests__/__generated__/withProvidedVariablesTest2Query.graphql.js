@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1c96400eaec0857bea5efac2a30b20a2>>
+ * @generated SignedSource<<08d338f1b10e447d6a0f0c8a32913160>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -31,14 +31,14 @@ export type withProvidedVariablesTest2Query = {|
   variables: withProvidedVariablesTest2QueryVariables,
   response: withProvidedVariablesTest2Query$data,
 |};
-type ProvidedVariableProviderType = {|
+type ProvidedVariablesType = {|
   +__relay_internal__pv__provideNumberOfFriends: {|
     +get: () => number,
   |},
 |};
 */
 
-var providedVariableProviders/*: ProvidedVariableProviderType*/ = {
+var providedVariablesDefinition/*: ProvidedVariablesType*/ = {
   "__relay_internal__pv__provideNumberOfFriends": require('./../provideNumberOfFriends')
 };
 
@@ -175,9 +175,7 @@ return {
     "name": "withProvidedVariablesTest2Query",
     "operationKind": "query",
     "text": "query withProvidedVariablesTest2Query(\n  $includeFriendsCount: Boolean!\n  $__relay_internal__pv__provideNumberOfFriends: Int!\n) {\n  node(id: 4) {\n    __typename\n    ...withProvidedVariablesTest2Fragment_47ZY3u\n    id\n  }\n}\n\nfragment withProvidedVariablesTest2Fragment_47ZY3u on User {\n  friends(first: $__relay_internal__pv__provideNumberOfFriends) {\n    count @include(if: $includeFriendsCount)\n  }\n}\n",
-    "providedVariables": {
-      "__relay_internal__pv__provideNumberOfFriends": require('./../provideNumberOfFriends')
-    }
+    "providedVariables": providedVariablesDefinition
   }
 };
 })();

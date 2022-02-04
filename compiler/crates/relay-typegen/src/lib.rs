@@ -39,7 +39,8 @@ use relay_transforms::{
     ModuleMetadata, RefetchableDerivedFromMetadata, RefetchableMetadata, RelayDirective,
     RelayResolverSpreadMetadata, RequiredMetadataDirective, TypeConditionInfo,
     ASSIGNABLE_DIRECTIVE, ASSIGNABLE_DIRECTIVE_FOR_TYPEGEN, CHILDREN_CAN_BUBBLE_METADATA_KEY,
-    CLIENT_EXTENSION_DIRECTIVE_NAME, RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN, UPDATABLE_DIRECTIVE,
+    CLIENT_EXTENSION_DIRECTIVE_NAME, NO_INLINE_DIRECTIVE_NAME,
+    RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN, UPDATABLE_DIRECTIVE,
 };
 use schema::{EnumID, SDLSchema, ScalarID, Schema, Type, TypeReference};
 use std::hash::Hash;
@@ -50,7 +51,7 @@ static REACT_RELAY_MULTI_ACTOR: &str = "react-relay/multi-actor";
 static RELAY_RUNTIME: &str = "relay-runtime";
 static LOCAL_3D_PAYLOAD: &str = "Local3DPayload";
 static ACTOR_CHANGE_POINT: &str = "ActorChangePoint";
-pub static PROVIDED_VARIABLE_TYPE: &str = "ProvidedVariableProviderType";
+pub static PROVIDED_VARIABLE_TYPE: &str = "ProvidedVariablesType";
 static VALIDATOR_EXPORT_NAME: &str = "validate";
 
 lazy_static! {
@@ -1160,7 +1161,7 @@ impl<'a> TypeGenerator<'a> {
                                             read_only: true,
                                             optional: false,
                                         });
-    
+
                                         AST::InexactObject(vec![
                                             assignable_fragment_spread_ref,
                                             fragment_spread_or_concrete_type_marker,
@@ -1614,15 +1615,19 @@ impl<'a> TypeGenerator<'a> {
         for selection in selections {
             match selection {
                 Selection::FragmentSpread(spread) => {
-                    let spread_type = spread.fragment.item;
-                    self.imported_raw_response_types.insert(spread_type);
-                    type_selections.push(TypeSelection::RawResponseFragmentSpread(
-                        RawResponseFragmentSpread {
-                            value: spread_type,
-                            conditional: false,
-                            concrete_type: None,
-                        },
-                    ))
+                    // @relay_client_component generate fragment spreads without
+                    // @no_inline if no_inline isn't enabled for the fragment.
+                    if spread.directives.named(*NO_INLINE_DIRECTIVE_NAME).is_some() {
+                        let spread_type = spread.fragment.item;
+                        self.imported_raw_response_types.insert(spread_type);
+                        type_selections.push(TypeSelection::RawResponseFragmentSpread(
+                            RawResponseFragmentSpread {
+                                value: spread_type,
+                                conditional: false,
+                                concrete_type: None,
+                            },
+                        ))
+                    }
                 }
                 Selection::InlineFragment(inline_fragment) => {
                     self.raw_response_visit_inline_fragment(&mut type_selections, inline_fragment)

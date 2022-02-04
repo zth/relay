@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b77469718542ccb9e4eedd1e6c8efc9d>>
+ * @generated SignedSource<<bde95a46854bdfbcbe3f87b931277e4a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -29,7 +29,7 @@ export type withProvidedVariablesTest3Query = {|
   variables: withProvidedVariablesTest3QueryVariables,
   response: withProvidedVariablesTest3Query$data,
 |};
-type ProvidedVariableProviderType = {|
+type ProvidedVariablesType = {|
   +__relay_internal__pv__provideNumberOfFriends: {|
     +get: () => number,
   |},
@@ -39,7 +39,7 @@ type ProvidedVariableProviderType = {|
 |};
 */
 
-var providedVariableProviders/*: ProvidedVariableProviderType*/ = {
+var providedVariablesDefinition/*: ProvidedVariablesType*/ = {
   "__relay_internal__pv__provideNumberOfFriends": require('./../provideNumberOfFriends'),
   "__relay_internal__pv__provideIncludeUserNames": require('./../provideIncludeUserNames')
 };
@@ -175,10 +175,7 @@ return {
     "name": "withProvidedVariablesTest3Query",
     "operationKind": "query",
     "text": "query withProvidedVariablesTest3Query(\n  $__relay_internal__pv__provideNumberOfFriends: Int!\n  $__relay_internal__pv__provideIncludeUserNames: Boolean!\n) {\n  node(id: 4) {\n    __typename\n    ...withProvidedVariablesTest3Fragment\n    id\n  }\n}\n\nfragment withProvidedVariablesTest3Fragment on User {\n  name @include(if: $__relay_internal__pv__provideIncludeUserNames)\n  friends(first: $__relay_internal__pv__provideNumberOfFriends) {\n    count\n  }\n}\n",
-    "providedVariables": {
-      "__relay_internal__pv__provideNumberOfFriends": require('./../provideNumberOfFriends'),
-      "__relay_internal__pv__provideIncludeUserNames": require('./../provideIncludeUserNames')
-    }
+    "providedVariables": providedVariablesDefinition
   }
 };
 })();

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<dc33740a5240633109c811eb07d8f313>>
+ * @generated SignedSource<<6a5534624af997a4ce640c3c491918dd>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -31,14 +31,14 @@ export type usePreloadedQueryProvidedVariablesTest_badQuery = {|
   variables: usePreloadedQueryProvidedVariablesTest_badQueryVariables,
   response: usePreloadedQueryProvidedVariablesTest_badQuery$data,
 |};
-type ProvidedVariableProviderType = {|
+type ProvidedVariablesType = {|
   +__relay_internal__pv__RelayProvider_impure: {|
     +get: () => number,
   |},
 |};
 */
 
-var providedVariableProviders/*: ProvidedVariableProviderType*/ = {
+var providedVariablesDefinition/*: ProvidedVariablesType*/ = {
   "__relay_internal__pv__RelayProvider_impure": require('./../RelayProvider_impure')
 };
 
@@ -162,9 +162,7 @@ return {
     "name": "usePreloadedQueryProvidedVariablesTest_badQuery",
     "operationKind": "query",
     "text": "query usePreloadedQueryProvidedVariablesTest_badQuery(\n  $id: ID!\n  $__relay_internal__pv__RelayProvider_impure: Float!\n) {\n  node(id: $id) {\n    __typename\n    ...usePreloadedQueryProvidedVariablesTest_badFragment\n    id\n  }\n}\n\nfragment usePreloadedQueryProvidedVariablesTest_badFragment on User {\n  profile_picture(scale: $__relay_internal__pv__RelayProvider_impure) {\n    uri\n  }\n}\n",
-    "providedVariables": {
-      "__relay_internal__pv__RelayProvider_impure": require('./../RelayProvider_impure')
-    }
+    "providedVariables": providedVariablesDefinition
   }
 };
 })();

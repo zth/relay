@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<3f4949fa6157623cfc18a6c2f8ad28f4>>
+ * @generated SignedSource<<d91dd5daf9b7b5c3599494db4db46798>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -29,7 +29,7 @@ export type withProvidedVariablesTest5Query = {|
   variables: withProvidedVariablesTest5QueryVariables,
   response: withProvidedVariablesTest5Query$data,
 |};
-type ProvidedVariableProviderType = {|
+type ProvidedVariablesType = {|
   +__relay_internal__pv__provideRandomNumber_invalid1: {|
     +get: () => number,
   |},
@@ -39,7 +39,7 @@ type ProvidedVariableProviderType = {|
 |};
 */
 
-var providedVariableProviders/*: ProvidedVariableProviderType*/ = {
+var providedVariablesDefinition/*: ProvidedVariablesType*/ = {
   "__relay_internal__pv__provideRandomNumber_invalid1": require('./../provideRandomNumber_invalid1'),
   "__relay_internal__pv__provideRandomNumber_invalid2": require('./../provideRandomNumber_invalid2')
 };
@@ -178,10 +178,7 @@ return {
     "name": "withProvidedVariablesTest5Query",
     "operationKind": "query",
     "text": "query withProvidedVariablesTest5Query(\n  $__relay_internal__pv__provideRandomNumber_invalid1: Float!\n  $__relay_internal__pv__provideRandomNumber_invalid2: Float!\n) {\n  node(id: 4) {\n    __typename\n    ...withProvidedVariablesTest5Fragment\n    id\n  }\n}\n\nfragment withProvidedVariablesTest5Fragment on User {\n  profile_picture(scale: $__relay_internal__pv__provideRandomNumber_invalid1) {\n    uri\n  }\n  other_picture: profile_picture(scale: $__relay_internal__pv__provideRandomNumber_invalid2) {\n    uri\n  }\n}\n",
-    "providedVariables": {
-      "__relay_internal__pv__provideRandomNumber_invalid1": require('./../provideRandomNumber_invalid1'),
-      "__relay_internal__pv__provideRandomNumber_invalid2": require('./../provideRandomNumber_invalid2')
-    }
+    "providedVariables": providedVariablesDefinition
   }
 };
 })();
