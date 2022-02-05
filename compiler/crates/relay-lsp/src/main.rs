@@ -10,7 +10,7 @@ use env_logger::Env;
 use log::{error, info, Level};
 use relay_compiler::{
     config::{Config, SingleProjectConfigFile},
-    FileSourceKind, RemotePersister,
+    FileSourceKind,
 };
 use relay_lsp::{start_language_server, LSPExtraDataProvider};
 use relay_typegen::TypegenLanguage;
@@ -120,7 +120,6 @@ async fn main() {
         error!("{}", err);
         std::process::exit(1);
     });
-    config.operation_persister = Some(Box::new(RemotePersister));
     config.file_source_config = if should_use_watchman() {
         FileSourceKind::Watchman
     } else {
