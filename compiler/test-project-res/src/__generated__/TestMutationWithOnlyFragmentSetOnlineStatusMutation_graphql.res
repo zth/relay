@@ -5,37 +5,37 @@ module Types = {
   @@ocaml.warning("-30")
 
   type enum_OnlineStatus = private [>
-      | #Online
       | #Idle
       | #Offline
+      | #Online
     ]
 
   @live
   type enum_OnlineStatus_input = [
-      | #Online
       | #Idle
       | #Offline
+      | #Online
     ]
 
 
 
   @live
-  type rec rawResponse_setOnlineStatus_user_memberOf_User = {
-    @live __typename: [ | #User],
-    __isNode: [ | #User],
-    firstName: string,
-    @live id: string,
-  }
-  @live
-  and rawResponse_setOnlineStatus_user_memberOf_Group = {
+  type rec rawResponse_setOnlineStatus_user_memberOf_Group = {
     @live __typename: [ | #Group],
     __isNode: [ | #Group],
     @live id: string,
     name: string,
   }
+  @live
+  and rawResponse_setOnlineStatus_user_memberOf_User = {
+    @live __typename: [ | #User],
+    __isNode: [ | #User],
+    firstName: string,
+    @live id: string,
+  }
   and rawResponse_setOnlineStatus_user_memberOf = [
-    | #User(rawResponse_setOnlineStatus_user_memberOf_User)
     | #Group(rawResponse_setOnlineStatus_user_memberOf_Group)
+    | #User(rawResponse_setOnlineStatus_user_memberOf_User)
     | #UnselectedUnionMember(string)
   ]
 
@@ -70,9 +70,9 @@ module Types = {
   @live
   type variables = {
     onlineStatus: [
-      | #Online
       | #Idle
       | #Offline
+      | #Online
     ]
 ,
   }
@@ -80,23 +80,23 @@ module Types = {
 
 @live
 let unwrap_rawResponse_setOnlineStatus_user_memberOf: {. "__typename": string } => [
-  | #User(Types.rawResponse_setOnlineStatus_user_memberOf_User)
   | #Group(Types.rawResponse_setOnlineStatus_user_memberOf_Group)
+  | #User(Types.rawResponse_setOnlineStatus_user_memberOf_User)
   | #UnselectedUnionMember(string)
 ] = u => switch u["__typename"] {
-  | "User" => #User(u->Obj.magic)
   | "Group" => #Group(u->Obj.magic)
+  | "User" => #User(u->Obj.magic)
   | v => #UnselectedUnionMember(v)
 }
 
 @live
 let wrap_rawResponse_setOnlineStatus_user_memberOf: [
-  | #User(Types.rawResponse_setOnlineStatus_user_memberOf_User)
   | #Group(Types.rawResponse_setOnlineStatus_user_memberOf_Group)
+  | #User(Types.rawResponse_setOnlineStatus_user_memberOf_User)
   | #UnselectedUnionMember(string)
 ] => {. "__typename": string } = v => switch v {
-  | #User(v) => v->Obj.magic
   | #Group(v) => v->Obj.magic
+  | #User(v) => v->Obj.magic
   | #UnselectedUnionMember(v) => {"__typename": v}
 }
 module Internal = {
@@ -202,17 +202,6 @@ module Utils = {
   ): rawResponse => {
     setOnlineStatus: setOnlineStatus
   }
-  @live let make_rawResponse_setOnlineStatus_user_memberOf_User = (
-    ~__typename,
-    ~__isNode,
-    ~firstName,
-    ~id
-  ): rawResponse_setOnlineStatus_user_memberOf_User => {
-    __typename: __typename,
-    __isNode: __isNode,
-    firstName: firstName,
-    id: id
-  }
   @live let make_rawResponse_setOnlineStatus_user_memberOf_Group = (
     ~__typename,
     ~__isNode,
@@ -223,6 +212,17 @@ module Utils = {
     __isNode: __isNode,
     id: id,
     name: name
+  }
+  @live let make_rawResponse_setOnlineStatus_user_memberOf_User = (
+    ~__typename,
+    ~__isNode,
+    ~firstName,
+    ~id
+  ): rawResponse_setOnlineStatus_user_memberOf_User => {
+    __typename: __typename,
+    __isNode: __isNode,
+    firstName: firstName,
+    id: id
   }
   @live let make_rawResponse_setOnlineStatus_user = (
     ~firstName,

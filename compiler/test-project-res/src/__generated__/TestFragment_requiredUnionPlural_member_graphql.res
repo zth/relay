@@ -4,19 +4,19 @@
 module Types = {
   @@ocaml.warning("-30")
 
-  type rec fragment_User = {
+  type rec fragment_Group = {
+    @live __typename: [ | #Group],
+    name: string,
+  }
+  and fragment_User = {
     @live __typename: [ | #User],
     firstName: string,
     isOnline: bool,
     lastName: string,
   }
-  and fragment_Group = {
-    @live __typename: [ | #Group],
-    name: string,
-  }
   type fragment_t = [
-    | #User(fragment_User)
     | #Group(fragment_Group)
+    | #User(fragment_User)
     | #UnselectedUnionMember(string)
   ]
 
@@ -25,23 +25,23 @@ module Types = {
 
 @live
 let unwrap_fragment: {. "__typename": string } => [
-  | #User(Types.fragment_User)
   | #Group(Types.fragment_Group)
+  | #User(Types.fragment_User)
   | #UnselectedUnionMember(string)
 ] = u => switch u["__typename"] {
-  | "User" => #User(u->Obj.magic)
   | "Group" => #Group(u->Obj.magic)
+  | "User" => #User(u->Obj.magic)
   | v => #UnselectedUnionMember(v)
 }
 
 @live
 let wrap_fragment: [
-  | #User(Types.fragment_User)
   | #Group(Types.fragment_Group)
+  | #User(Types.fragment_User)
   | #UnselectedUnionMember(string)
 ] => {. "__typename": string } = v => switch v {
-  | #User(v) => v->Obj.magic
   | #Group(v) => v->Obj.magic
+  | #User(v) => v->Obj.magic
   | #UnselectedUnionMember(v) => {"__typename": v}
 }
 module Internal = {

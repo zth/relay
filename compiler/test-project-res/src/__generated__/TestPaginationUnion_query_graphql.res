@@ -4,12 +4,7 @@
 module Types = {
   @@ocaml.warning("-30")
 
-  type rec fragment_members_edges_node_User = {
-    @live __typename: [ | #User],
-    @live id: string,
-    fragmentRefs: RescriptRelay.fragmentRefs<[ | #TestPaginationUnion_user]>,
-  }
-  and fragment_members_edges_node_Group_adminsConnection_edges_node = {
+  type rec fragment_members_edges_node_Group_adminsConnection_edges_node = {
     firstName: string,
     @live id: string,
   }
@@ -25,9 +20,14 @@ module Types = {
     @live id: string,
     name: string,
   }
+  and fragment_members_edges_node_User = {
+    @live __typename: [ | #User],
+    @live id: string,
+    fragmentRefs: RescriptRelay.fragmentRefs<[ | #TestPaginationUnion_user]>,
+  }
   and fragment_members_edges_node = [
-    | #User(fragment_members_edges_node_User)
     | #Group(fragment_members_edges_node_Group)
+    | #User(fragment_members_edges_node_User)
     | #UnselectedUnionMember(string)
   ]
 
@@ -44,23 +44,23 @@ module Types = {
 
 @live
 let unwrap_fragment_members_edges_node: {. "__typename": string } => [
-  | #User(Types.fragment_members_edges_node_User)
   | #Group(Types.fragment_members_edges_node_Group)
+  | #User(Types.fragment_members_edges_node_User)
   | #UnselectedUnionMember(string)
 ] = u => switch u["__typename"] {
-  | "User" => #User(u->Obj.magic)
   | "Group" => #Group(u->Obj.magic)
+  | "User" => #User(u->Obj.magic)
   | v => #UnselectedUnionMember(v)
 }
 
 @live
 let wrap_fragment_members_edges_node: [
-  | #User(Types.fragment_members_edges_node_User)
   | #Group(Types.fragment_members_edges_node_Group)
+  | #User(Types.fragment_members_edges_node_User)
   | #UnselectedUnionMember(string)
 ] => {. "__typename": string } = v => switch v {
-  | #User(v) => v->Obj.magic
   | #Group(v) => v->Obj.magic
+  | #User(v) => v->Obj.magic
   | #UnselectedUnionMember(v) => {"__typename": v}
 }
 module Internal = {

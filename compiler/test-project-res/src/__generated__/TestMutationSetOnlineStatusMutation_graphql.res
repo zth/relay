@@ -5,16 +5,16 @@ module Types = {
   @@ocaml.warning("-30")
 
   type enum_OnlineStatus = private [>
-      | #Online
       | #Idle
       | #Offline
+      | #Online
     ]
 
   @live
   type enum_OnlineStatus_input = [
-      | #Online
       | #Idle
       | #Offline
+      | #Online
     ]
 
 
@@ -53,9 +53,9 @@ module Types = {
   type variables = {
     connections: array<RescriptRelay.dataId>,
     onlineStatus: [
-      | #Online
       | #Idle
       | #Offline
+      | #Online
     ]
 ,
   }

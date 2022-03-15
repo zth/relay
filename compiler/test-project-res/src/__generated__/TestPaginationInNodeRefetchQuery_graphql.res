@@ -5,16 +5,16 @@ module Types = {
   @@ocaml.warning("-30")
 
   type enum_OnlineStatus = private [>
-      | #Online
       | #Idle
       | #Offline
+      | #Online
     ]
 
   @live
   type enum_OnlineStatus_input = [
-      | #Online
       | #Idle
       | #Offline
+      | #Online
     ]
 
 
@@ -36,9 +36,9 @@ module Types = {
     cursor: option<string>,
     @live id: string,
     onlineStatuses: option<array<[
-      | #Online
       | #Idle
       | #Offline
+      | #Online
     ]
 >>,
   }
@@ -48,9 +48,9 @@ module Types = {
     cursor: option<string>,
     @live id: option<string>,
     onlineStatuses: option<array<[
-      | #Online
       | #Idle
       | #Offline
+      | #Online
     ]
 >>,
   }
