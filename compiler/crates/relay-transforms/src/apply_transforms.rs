@@ -320,9 +320,6 @@ fn apply_operation_transforms(
         rescript_relay_generate_typename(&program)
     });
 
-    program =
-        apply_internal_fb_operation_transforms(project_config, &program, Arc::clone(&perf_logger))?;
-
     program = log_event.time("generate_live_query_metadata", || {
         generate_live_query_metadata(&program)
     })?;
@@ -339,33 +336,6 @@ fn apply_operation_transforms(
     log_event.complete();
 
     Ok(Arc::new(program))
-}
-
-#[cfg(feature = "fb_only")]
-fn apply_internal_fb_operation_transforms(
-    project_config: &ProjectConfig,
-    program: &Program,
-    perf_logger: Arc<impl PerfLogger>,
-) -> DiagnosticsResult<Program> {
-    let log_event = perf_logger.create_event("apply_internal_fb_operation_transforms");
-    log_event.string("project", project_config.name.to_string());
-
-    let next_program = log_event.time("generate_subscription_name_metadata", || {
-        generate_subscription_name_metadata(program)
-    })?;
-
-    log_event.complete();
-
-    Ok(next_program)
-}
-
-#[cfg(not(feature = "fb_only"))]
-fn apply_internal_fb_operation_transforms(
-    _project_config: &ProjectConfig,
-    program: &Program,
-    _perf_logger: Arc<impl PerfLogger>,
-) -> DiagnosticsResult<Program> {
-    Ok(program.clone())
 }
 
 /// After the operation transforms, this applies further transforms that only

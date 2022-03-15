@@ -398,6 +398,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "docblock-syntax"
+version = "0.0.0"
+dependencies = [
+ "common",
+ "fixture-tests",
+ "graphql-test-helpers",
+ "intern",
+ "thiserror",
+]
+
+[[package]]
 name = "either"
 version = "1.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -427,6 +438,7 @@ dependencies = [
 name = "extract-graphql"
 version = "0.0.0"
 dependencies = [
+ "docblock-syntax",
  "fixture-tests",
  "graphql-syntax",
 ]
