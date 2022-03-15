@@ -11,6 +11,7 @@ use graphql_syntax::OperationKind;
 use indexmap::IndexMap;
 use intern::string_key::{Intern, StringKey};
 use itertools::Itertools;
+use lazy_static::__Deref;
 use log::{debug, warn};
 
 use crate::rescript_ast::*;
@@ -472,7 +473,7 @@ fn get_first_union_member_ast_and_typename(members: &Vec<AST>) -> Option<(String
                 &Prop::KeyValuePair(key_value_pair) => {
                     match (&key_value_pair.key.to_string()[..], &key_value_pair.value) {
                         ("__typename", AST::StringLiteral(typename)) => {
-                            Some((typename.to_string(), props))
+                            Some((typename.to_string(), props.deref()))
                         }
                         _ => None,
                     }
