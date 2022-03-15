@@ -439,6 +439,7 @@ dependencies = [
 name = "extract-graphql"
 version = "0.0.0"
 dependencies = [
+ "common",
  "docblock-syntax",
  "fixture-tests",
  "graphql-syntax",
@@ -665,7 +666,6 @@ dependencies = [
  "graphql-cli",
  "intern",
  "logos",
- "lsp-types",
  "serde",
  "thiserror",
 ]
@@ -1565,6 +1565,7 @@ dependencies = [
  "common",
  "crossbeam",
  "dashmap",
+ "docblock-syntax",
  "env_logger",
  "extract-graphql",
  "fnv",
@@ -1580,6 +1581,7 @@ dependencies = [
  "rand",
  "rayon",
  "relay-compiler",
+ "relay-docblock",
  "relay-test-schema",
  "relay-transforms",
  "relay-typegen",
