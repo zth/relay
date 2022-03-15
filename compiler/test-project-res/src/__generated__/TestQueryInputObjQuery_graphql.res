@@ -24,10 +24,12 @@ module Types = {
   type refetchVariables = {
     input: option<pesticideListSearchInput>,
   }
-  @live @obj external makeRefetchVariables: (
-    ~input: pesticideListSearchInput=?,
-    unit
-  ) => refetchVariables = ""
+  @live let makeRefetchVariables = (
+    ~input=?,
+    ()
+  ): refetchVariables => {
+    input: input
+  }
 }
 
 module Internal = {

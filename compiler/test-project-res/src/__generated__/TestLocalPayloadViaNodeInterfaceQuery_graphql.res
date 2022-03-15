@@ -31,10 +31,12 @@ module Types = {
   type refetchVariables = {
     @live id: option<string>,
   }
-  @live @obj external makeRefetchVariables: (
-    ~id: string=?,
-    unit
-  ) => refetchVariables = ""
+  @live let makeRefetchVariables = (
+    ~id=?,
+    ()
+  ): refetchVariables => {
+    id: id
+  }
 }
 
 module Internal = {

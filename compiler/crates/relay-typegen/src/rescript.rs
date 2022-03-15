@@ -745,7 +745,6 @@ fn write_object_maker(
     definition: &Object,
     name: String,
     target_type: String,
-    is_refetch_var: bool,
 ) -> Result {
     write_indentation(str, indentation).unwrap();
     write!(str, "@live @obj external {}: ", name).unwrap();
@@ -759,7 +758,7 @@ fn write_object_maker(
         writeln!(str, "(").unwrap();
     }
 
-    let mut has_nullable = is_refetch_var;
+    let mut has_nullable = false;
 
     definition
         .values
@@ -775,12 +774,12 @@ fn write_object_maker(
                     &state,
                     &prop_value.prop_type,
                     &Context::Response,
-                    indentation
+                    indentation,
                 )
             )
             .unwrap();
 
-            if prop_value.nullable | is_refetch_var {
+            if prop_value.nullable {
                 has_nullable = true;
                 write!(str, "=?").unwrap();
             }
@@ -808,6 +807,54 @@ fn write_object_maker(
 
     write_indentation(str, indentation).unwrap();
     writeln!(str, ") => {} = \"\"", target_type).unwrap();
+
+    Ok(())
+}
+
+// This fn is dedicated to writing object maker for refetch variables. It was
+// easier to split this one from the generalized one above, since this one is
+// more specialized.
+fn write_object_maker_for_refetch_variables(
+    str: &mut String,
+    indentation: usize,
+    definition: &Object,
+) -> Result {
+    write_indentation(str, indentation).unwrap();
+    write!(str, "@live let {} = (", "makeRefetchVariables").unwrap();
+
+    let num_props = definition.values.len();
+
+    if num_props == 0 {
+        writeln!(str, ") => ()").unwrap();
+        return Ok(());
+    } else {
+        writeln!(str, "").unwrap();
+    }
+
+    definition.values.iter().for_each(|prop_value| {
+        write_indentation(str, indentation + 1).unwrap();
+        writeln!(str, "~{}=?,", prop_value.key).unwrap();
+    });
+
+    write_indentation(str, indentation + 1).unwrap();
+    writeln!(str, "()").unwrap();
+
+    write_indentation(str, indentation).unwrap();
+    writeln!(str, "): {} => {{", "refetchVariables").unwrap();
+
+    // Print the fn body connecting all params
+    definition
+        .values
+        .iter()
+        .enumerate()
+        .for_each(|(index, prop_value)| {
+            write_indentation(str, indentation + 1).unwrap();
+            write!(str, "{}: {}", prop_value.key, prop_value.key).unwrap();
+            writeln!(str, "{}", if index + 1 == num_props { "" } else { "," }).unwrap();
+        });
+
+    write_indentation(str, indentation).unwrap();
+    writeln!(str, "}}").unwrap();
 
     Ok(())
 }
@@ -2108,14 +2155,10 @@ impl Writer for ReScriptPrinter {
                     )
                     .unwrap();
 
-                    write_object_maker(
-                        &self,
+                    write_object_maker_for_refetch_variables(
                         &mut generated_types,
                         indentation,
                         &variables_as_refetch_variables,
-                        String::from("makeRefetchVariables"),
-                        String::from("refetchVariables"),
-                        true,
                     )
                     .unwrap()
                 }
@@ -2427,7 +2470,6 @@ impl Writer for ReScriptPrinter {
                 input_object,
                 format!("make_{}", input_object.record_name),
                 input_object.record_name.to_string(),
-                false,
             )
             .unwrap();
         });
@@ -2442,7 +2484,6 @@ impl Writer for ReScriptPrinter {
                     variables_definition,
                     String::from("makeVariables"),
                     String::from("variables"),
-                    false,
                 )
                 .unwrap();
             }
@@ -2459,7 +2500,6 @@ impl Writer for ReScriptPrinter {
                         raw_response,
                         String::from("makeOptimisticResponse"),
                         String::from("rawResponse"),
-                        false,
                     )
                     .unwrap();
 
@@ -2475,7 +2515,6 @@ impl Writer for ReScriptPrinter {
                                 obj,
                                 format!("make_{}", obj.record_name),
                                 obj.record_name.to_string(),
-                                false,
                             )
                             .unwrap();
                         });

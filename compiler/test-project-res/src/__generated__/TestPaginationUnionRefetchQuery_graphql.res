@@ -49,13 +49,18 @@ module Types = {
     ]
 >>>,
   }
-  @live @obj external makeRefetchVariables: (
-    ~count: int=?,
-    ~cursor: string=?,
-    ~groupId: string=?,
-    ~onlineStatuses: array<enum_OnlineStatus>=?,
-    unit
-  ) => refetchVariables = ""
+  @live let makeRefetchVariables = (
+    ~count=?,
+    ~cursor=?,
+    ~groupId=?,
+    ~onlineStatuses=?,
+    ()
+  ): refetchVariables => {
+    count: count,
+    cursor: cursor,
+    groupId: groupId,
+    onlineStatuses: onlineStatuses
+  }
 }
 
 module Internal = {

@@ -52,12 +52,16 @@ module Types = {
     @live id: option<string>,
     showOnlineStatus: option<option<bool>>,
   }
-  @live @obj external makeRefetchVariables: (
-    ~friendsOnlineStatuses: array<enum_OnlineStatus>=?,
-    ~id: string=?,
-    ~showOnlineStatus: bool=?,
-    unit
-  ) => refetchVariables = ""
+  @live let makeRefetchVariables = (
+    ~friendsOnlineStatuses=?,
+    ~id=?,
+    ~showOnlineStatus=?,
+    ()
+  ): refetchVariables => {
+    friendsOnlineStatuses: friendsOnlineStatuses,
+    id: id,
+    showOnlineStatus: showOnlineStatus
+  }
 }
 
 module Internal = {

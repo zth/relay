@@ -17,10 +17,12 @@ module Types = {
   type refetchVariables = {
     groupId: option<string>,
   }
-  @live @obj external makeRefetchVariables: (
-    ~groupId: string=?,
-    unit
-  ) => refetchVariables = ""
+  @live let makeRefetchVariables = (
+    ~groupId=?,
+    ()
+  ): refetchVariables => {
+    groupId: groupId
+  }
 }
 
 module Internal = {

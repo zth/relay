@@ -14,7 +14,7 @@ module Types = {
   type variables = unit
   @live
   type refetchVariables = unit
-  @live @obj external makeRefetchVariables: unit => unit = ""
+  @live let makeRefetchVariables = () => ()
 }
 
 module Internal = {

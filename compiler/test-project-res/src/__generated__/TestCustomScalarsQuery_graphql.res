@@ -34,10 +34,12 @@ module Types = {
   type refetchVariables = {
     beforeDate: option<option<SomeModule.Datetime.t>>,
   }
-  @live @obj external makeRefetchVariables: (
-    ~beforeDate: SomeModule.Datetime.t=?,
-    unit
-  ) => refetchVariables = ""
+  @live let makeRefetchVariables = (
+    ~beforeDate=?,
+    ()
+  ): refetchVariables => {
+    beforeDate: beforeDate
+  }
 }
 
 @live

@@ -53,10 +53,12 @@ module Types = {
     ]
 >>,
   }
-  @live @obj external makeRefetchVariables: (
-    ~status: enum_OnlineStatus=?,
-    unit
-  ) => refetchVariables = ""
+  @live let makeRefetchVariables = (
+    ~status=?,
+    ()
+  ): refetchVariables => {
+    status: status
+  }
 }
 
 module Internal = {
