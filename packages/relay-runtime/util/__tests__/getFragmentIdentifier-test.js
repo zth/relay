@@ -12,7 +12,7 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
-const {getFragment, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const getFragmentIdentifier = require('../getFragmentIdentifier');
 const RelayFeatureFlags = require('../RelayFeatureFlags');
 const invariant = require('invariant');
@@ -22,11 +22,8 @@ const {createMockEnvironment} = require('relay-test-utils-internal');
 describe('getFragmentIdentifier', () => {
   let environment;
   let gqlSingularQuery;
-  let gqlSingularFragment;
   let gqlPluralQuery;
-  let gqlPluralFragment;
   let gqlQueryWithArgs;
-  let gqlFragmentWithArgs;
   let singularFragment;
   let singularVariables;
   let singularQuery;
@@ -44,38 +41,6 @@ describe('getFragmentIdentifier', () => {
         username
       }
     `;
-    gqlSingularFragment = getFragment(graphql`
-      fragment getFragmentIdentifierTestUserFragment on User {
-        id
-        name
-        profile_picture(scale: $scale) {
-          uri
-        }
-        ...getFragmentIdentifierTestNestedUserFragment
-      }
-    `);
-    gqlFragmentWithArgs = getFragment(graphql`
-      fragment getFragmentIdentifierTestUserFragmentWithArgs on User
-      @argumentDefinitions(scaleLocal: {type: "Float!"}) {
-        id
-        name
-        profile_picture(scale: $scaleLocal) {
-          uri
-        }
-        ...getFragmentIdentifierTestNestedUserFragment
-      }
-    `);
-    gqlPluralFragment = getFragment(graphql`
-      fragment getFragmentIdentifierTestUsersFragment on User
-      @relay(plural: true) {
-        id
-        name
-        profile_picture(scale: $scale) {
-          uri
-        }
-        ...getFragmentIdentifierTestNestedUserFragment
-      }
-    `);
     gqlPluralQuery = graphql`
       query getFragmentIdentifierTestUsersQuery($ids: [ID!]!, $scale: Float!) {
         nodes(ids: $ids) {
@@ -113,9 +78,38 @@ describe('getFragmentIdentifier', () => {
       gqlQueryWithArgs,
       singularVariables,
     );
-    singularFragment = getFragment(gqlSingularFragment);
-    pluralFragment = getFragment(gqlPluralFragment);
-    fragmentWithArgs = getFragment(gqlFragmentWithArgs);
+    singularFragment = graphql`
+      fragment getFragmentIdentifierTestUserFragment on User {
+        id
+        name
+        profile_picture(scale: $scale) {
+          uri
+        }
+        ...getFragmentIdentifierTestNestedUserFragment
+      }
+    `;
+    pluralFragment = graphql`
+      fragment getFragmentIdentifierTestUsersFragment on User
+      @relay(plural: true) {
+        id
+        name
+        profile_picture(scale: $scale) {
+          uri
+        }
+        ...getFragmentIdentifierTestNestedUserFragment
+      }
+    `;
+    fragmentWithArgs = graphql`
+      fragment getFragmentIdentifierTestUserFragmentWithArgs on User
+      @argumentDefinitions(scaleLocal: {type: "Float!"}) {
+        id
+        name
+        profile_picture(scale: $scaleLocal) {
+          uri
+        }
+        ...getFragmentIdentifierTestNestedUserFragment
+      }
+    `;
     environment.commitPayload(singularQuery, {
       node: {
         __typename: 'User',
@@ -204,11 +198,8 @@ describe('getFragmentIdentifier', () => {
 describe('getFragmentIdentifier Optimized', () => {
   let environment;
   let gqlSingularQuery;
-  let gqlSingularFragment;
   let gqlPluralQuery;
-  let gqlPluralFragment;
   let gqlQueryWithArgs;
-  let gqlFragmentWithArgs;
   let singularFragment;
   let singularVariables;
   let singularQuery;
@@ -226,40 +217,6 @@ describe('getFragmentIdentifier Optimized', () => {
         username
       }
     `;
-
-    gqlSingularFragment = getFragment(graphql`
-      fragment getFragmentIdentifierTest1UserFragment on User {
-        id
-        name
-        profile_picture(scale: $scale) {
-          uri
-        }
-        ...getFragmentIdentifierTest1NestedUserFragment
-      }
-    `);
-
-    gqlFragmentWithArgs = getFragment(graphql`
-      fragment getFragmentIdentifierTest1UserFragmentWithArgs on User
-      @argumentDefinitions(scaleLocal: {type: "Float!"}) {
-        id
-        name
-        profile_picture(scale: $scaleLocal) {
-          uri
-        }
-        ...getFragmentIdentifierTest1NestedUserFragment
-      }
-    `);
-    gqlPluralFragment = getFragment(graphql`
-      fragment getFragmentIdentifierTest1UsersFragment on User
-      @relay(plural: true) {
-        id
-        name
-        profile_picture(scale: $scale) {
-          uri
-        }
-        ...getFragmentIdentifierTest1NestedUserFragment
-      }
-    `);
 
     gqlPluralQuery = graphql`
       query getFragmentIdentifierTest1UsersQuery($ids: [ID!]!, $scale: Float!) {
@@ -300,9 +257,38 @@ describe('getFragmentIdentifier Optimized', () => {
       gqlQueryWithArgs,
       singularVariables,
     );
-    singularFragment = getFragment(gqlSingularFragment);
-    pluralFragment = getFragment(gqlPluralFragment);
-    fragmentWithArgs = getFragment(gqlFragmentWithArgs);
+    singularFragment = graphql`
+      fragment getFragmentIdentifierTest1UserFragment on User {
+        id
+        name
+        profile_picture(scale: $scale) {
+          uri
+        }
+        ...getFragmentIdentifierTest1NestedUserFragment
+      }
+    `;
+    pluralFragment = graphql`
+      fragment getFragmentIdentifierTest1UsersFragment on User
+      @relay(plural: true) {
+        id
+        name
+        profile_picture(scale: $scale) {
+          uri
+        }
+        ...getFragmentIdentifierTest1NestedUserFragment
+      }
+    `;
+    fragmentWithArgs = graphql`
+      fragment getFragmentIdentifierTest1UserFragmentWithArgs on User
+      @argumentDefinitions(scaleLocal: {type: "Float!"}) {
+        id
+        name
+        profile_picture(scale: $scaleLocal) {
+          uri
+        }
+        ...getFragmentIdentifierTest1NestedUserFragment
+      }
+    `;
     environment.commitPayload(singularQuery, {
       node: {
         __typename: 'User',
