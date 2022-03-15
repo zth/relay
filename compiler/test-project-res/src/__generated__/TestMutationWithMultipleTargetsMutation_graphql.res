@@ -5,7 +5,20 @@ module Types = {
   @@ocaml.warning("-30")
 
   @live
-  type rec response_testIntInput1 = {
+  type rec response_addFriend_addedFriend_friends = {
+    @live id: string,
+  }
+  @live
+  and response_addFriend_addedFriend = {
+    friends: array<response_addFriend_addedFriend_friends>,
+    @live id: string,
+  }
+  @live
+  and response_addFriend = {
+    addedFriend: option<response_addFriend_addedFriend>,
+  }
+  @live
+  and response_testIntInput1 = {
     success: option<bool>,
   }
   @live
@@ -13,17 +26,17 @@ module Types = {
     success: option<bool>,
   }
   @live
-  and response_addFriend_addedFriend_friends = {
+  and rawResponse_addFriend_addedFriend_friends = {
     @live id: string,
   }
   @live
-  and response_addFriend_addedFriend = {
+  and rawResponse_addFriend_addedFriend = {
+    friends: array<rawResponse_addFriend_addedFriend_friends>,
     @live id: string,
-    friends: array<response_addFriend_addedFriend_friends>,
   }
   @live
-  and response_addFriend = {
-    addedFriend: option<response_addFriend_addedFriend>,
+  and rawResponse_addFriend = {
+    addedFriend: option<rawResponse_addFriend_addedFriend>,
   }
   @live
   and rawResponse_testIntInput1 = {
@@ -34,35 +47,22 @@ module Types = {
     success: option<bool>,
   }
   @live
-  and rawResponse_addFriend_addedFriend_friends = {
-    @live id: string,
-  }
-  @live
-  and rawResponse_addFriend_addedFriend = {
-    @live id: string,
-    friends: array<rawResponse_addFriend_addedFriend_friends>,
-  }
-  @live
-  and rawResponse_addFriend = {
-    addedFriend: option<rawResponse_addFriend_addedFriend>,
-  }
-  @live
   type response = {
+    addFriend: option<response_addFriend>,
     testIntInput1: option<response_testIntInput1>,
     testIntInput2: option<response_testIntInput2>,
-    addFriend: option<response_addFriend>,
   }
   @live
   type rawResponse = {
+    addFriend: option<rawResponse_addFriend>,
     testIntInput1: option<rawResponse_testIntInput1>,
     testIntInput2: option<rawResponse_testIntInput2>,
-    addFriend: option<rawResponse_addFriend>,
   }
   @live
   type variables = {
+    friendId: string,
     @live id: int,
     ids: array<int>,
-    friendId: string,
   }
 }
 
@@ -140,23 +140,41 @@ module Utils = {
   @@ocaml.warning("-33")
   open Types
   @live let makeVariables = (
+    ~friendId,
     ~id,
-    ~ids,
-    ~friendId
+    ~ids
   ): variables => {
+    friendId: friendId,
     id: id,
-    ids: ids,
-    friendId: friendId
+    ids: ids
   }
   @live let makeOptimisticResponse = (
+    ~addFriend=?,
     ~testIntInput1=?,
     ~testIntInput2=?,
-    ~addFriend=?,
     ()
   ): rawResponse => {
+    addFriend: addFriend,
     testIntInput1: testIntInput1,
-    testIntInput2: testIntInput2,
-    addFriend: addFriend
+    testIntInput2: testIntInput2
+  }
+  @live let make_rawResponse_addFriend_addedFriend_friends = (
+    ~id
+  ): rawResponse_addFriend_addedFriend_friends => {
+    id: id
+  }
+  @live let make_rawResponse_addFriend_addedFriend = (
+    ~friends,
+    ~id
+  ): rawResponse_addFriend_addedFriend => {
+    friends: friends,
+    id: id
+  }
+  @live let make_rawResponse_addFriend = (
+    ~addedFriend=?,
+    ()
+  ): rawResponse_addFriend => {
+    addedFriend: addedFriend
   }
   @live let make_rawResponse_testIntInput1 = (
     ~success=?,
@@ -169,24 +187,6 @@ module Utils = {
     ()
   ): rawResponse_testIntInput2 => {
     success: success
-  }
-  @live let make_rawResponse_addFriend_addedFriend_friends = (
-    ~id
-  ): rawResponse_addFriend_addedFriend_friends => {
-    id: id
-  }
-  @live let make_rawResponse_addFriend_addedFriend = (
-    ~id,
-    ~friends
-  ): rawResponse_addFriend_addedFriend => {
-    id: id,
-    friends: friends
-  }
-  @live let make_rawResponse_addFriend = (
-    ~addedFriend=?,
-    ()
-  ): rawResponse_addFriend => {
-    addedFriend: addedFriend
   }
 }
 

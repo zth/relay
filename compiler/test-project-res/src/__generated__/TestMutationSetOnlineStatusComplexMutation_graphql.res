@@ -31,8 +31,8 @@ module Types = {
   }
   @live
   and recursiveSetOnlineStatusInput = {
-    someValue: RescriptRelay.any,
     setOnlineStatus: option<setOnlineStatusInput>,
+    someValue: RescriptRelay.any,
   }
   @live
   type rec response_setOnlineStatusComplex_user = {
@@ -130,12 +130,12 @@ module Utils = {
     recursed: recursed
   }
   @live let make_recursiveSetOnlineStatusInput = (
-    ~someValue,
     ~setOnlineStatus=?,
+    ~someValue,
     ()
   ): recursiveSetOnlineStatusInput => {
-    someValue: someValue,
-    setOnlineStatus: setOnlineStatus
+    setOnlineStatus: setOnlineStatus,
+    someValue: someValue
   }
   @live let makeVariables = (
     ~input

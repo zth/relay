@@ -5,8 +5,8 @@ module Types = {
   @@ocaml.warning("-30")
 
   type rec response_node = {
-    @live id: string,
     @live __typename: string,
+    @live id: string,
     fragmentRefs: RescriptRelay.fragmentRefs<[ | #TestPaginationInNode_query]>,
   }
   type response = {

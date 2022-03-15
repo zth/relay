@@ -21,28 +21,28 @@ module Types = {
 
   type rec response_members_edges_node_User = {
     @live __typename: [ | #User],
-    @live id: string,
     firstName: string,
+    @live id: string,
     onlineStatus: option<enum_OnlineStatus>,
   }
   and response_members_edges_node_Group_members_User = {
     @live __typename: [ | #User],
-    @live id: string,
     firstName: string,
+    @live id: string,
     onlineStatus: option<enum_OnlineStatus>,
   }
   and response_members_edges_node_Group_members_Group = {
     @live __typename: [ | #Group],
+    avatarUrl: option<string>,
     @live id: string,
     name: string,
-    avatarUrl: option<string>,
   }
   and response_members_edges_node_Group = {
     @live __typename: [ | #Group],
-    @live id: string,
-    name: string,
     avatarUrl: option<string>,
+    @live id: string,
     members: option<array<option<response_members_edges_node_Group_members>>>,
+    name: string,
   }
   and response_members_edges_node_Group_members = [
     | #User(response_members_edges_node_Group_members_User)

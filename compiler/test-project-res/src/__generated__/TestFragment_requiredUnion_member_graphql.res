@@ -6,9 +6,9 @@ module Types = {
 
   type rec fragment_User = {
     @live __typename: [ | #User],
+    firstName: string,
     isOnline: bool,
     lastName: string,
-    firstName: string,
   }
   and fragment_Group = {
     @live __typename: [ | #Group],

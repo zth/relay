@@ -20,9 +20,9 @@ module Types = {
 
 
   type fragment = {
-    @live id: string,
-    firstName: string,
     avatarUrl: option<string>,
+    firstName: string,
+    @live id: string,
     onlineStatus: option<enum_OnlineStatus>,
   }
 }

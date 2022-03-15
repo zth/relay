@@ -6,8 +6,8 @@ module Types = {
 
   @live
   type rec inputA = {
-    time: SomeModule.Datetime.t,
     recursiveA: option<inputA>,
+    time: SomeModule.Datetime.t,
     usingB: option<inputB>,
   }
   @live
@@ -85,13 +85,13 @@ module Utils = {
   @@ocaml.warning("-33")
   open Types
   @live let make_inputA = (
-    ~time,
     ~recursiveA=?,
+    ~time,
     ~usingB=?,
     ()
   ): inputA => {
-    time: time,
     recursiveA: recursiveA,
+    time: time,
     usingB: usingB
   }
   @live let make_inputB = (

@@ -10,8 +10,8 @@ module Types = {
     fragmentRefs: RescriptRelay.fragmentRefs<[ | #TestPaginationUnion_user]>,
   }
   and fragment_members_edges_node_Group_adminsConnection_edges_node = {
-    @live id: string,
     firstName: string,
+    @live id: string,
   }
   and fragment_members_edges_node_Group_adminsConnection_edges = {
     node: option<fragment_members_edges_node_Group_adminsConnection_edges_node>,
@@ -21,9 +21,9 @@ module Types = {
   }
   and fragment_members_edges_node_Group = {
     @live __typename: [ | #Group],
+    adminsConnection: fragment_members_edges_node_Group_adminsConnection,
     @live id: string,
     name: string,
-    adminsConnection: fragment_members_edges_node_Group_adminsConnection,
   }
   and fragment_members_edges_node = [
     | #User(fragment_members_edges_node_User)

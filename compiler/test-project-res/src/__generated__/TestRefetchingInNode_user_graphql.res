@@ -24,9 +24,9 @@ module Types = {
   }
   type fragment = {
     firstName: string,
-    onlineStatus: option<enum_OnlineStatus>,
     friendsConnection: fragment_friendsConnection,
     @live id: string,
+    onlineStatus: option<enum_OnlineStatus>,
   }
 }
 

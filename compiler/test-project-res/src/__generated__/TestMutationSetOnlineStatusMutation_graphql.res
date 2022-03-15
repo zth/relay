@@ -31,11 +31,11 @@ module Types = {
   }
   @live
   and rawResponse_setOnlineStatus_user = {
-    @live id: string,
-    onlineStatus: option<enum_OnlineStatus>,
-    firstName: string,
-    lastName: string,
     @live __id: option<RescriptRelay.dataId>,
+    firstName: string,
+    @live id: string,
+    lastName: string,
+    onlineStatus: option<enum_OnlineStatus>,
   }
   @live
   and rawResponse_setOnlineStatus = {
@@ -51,13 +51,13 @@ module Types = {
   }
   @live
   type variables = {
+    connections: array<RescriptRelay.dataId>,
     onlineStatus: [
       | #Online
       | #Idle
       | #Offline
     ]
 ,
-    connections: array<RescriptRelay.dataId>,
   }
 }
 
@@ -150,11 +150,11 @@ module Utils = {
     onlineStatus_decode(Obj.magic(str))
   }
   @live let makeVariables = (
-    ~onlineStatus,
-    ~connections
+    ~connections,
+    ~onlineStatus
   ): variables => {
-    onlineStatus: onlineStatus,
-    connections: connections
+    connections: connections,
+    onlineStatus: onlineStatus
   }
   @live let makeOptimisticResponse = (
     ~setOnlineStatus=?,
@@ -163,18 +163,18 @@ module Utils = {
     setOnlineStatus: setOnlineStatus
   }
   @live let make_rawResponse_setOnlineStatus_user = (
-    ~id,
-    ~onlineStatus=?,
-    ~firstName,
-    ~lastName,
     ~__id=?,
+    ~firstName,
+    ~id,
+    ~lastName,
+    ~onlineStatus=?,
     ()
   ): rawResponse_setOnlineStatus_user => {
-    id: id,
-    onlineStatus: onlineStatus,
+    __id: __id,
     firstName: firstName,
+    id: id,
     lastName: lastName,
-    __id: __id
+    onlineStatus: onlineStatus
   }
   @live let make_rawResponse_setOnlineStatus = (
     ~user=?,

@@ -5,9 +5,9 @@ module Types = {
   @@ocaml.warning("-30")
 
   type fragment_t = {
+    firstName: string,
     isOnline: bool,
     lastName: string,
-    firstName: string,
   }
   type fragment = option<fragment_t>
 }

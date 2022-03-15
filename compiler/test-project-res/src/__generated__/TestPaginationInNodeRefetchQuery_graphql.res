@@ -34,37 +34,37 @@ module Types = {
   type variables = {
     count: option<int>,
     cursor: option<string>,
+    @live id: string,
     onlineStatuses: option<array<[
       | #Online
       | #Idle
       | #Offline
     ]
 >>,
-    @live id: string,
   }
   @live
   type refetchVariables = {
     count: option<int>,
     cursor: option<string>,
+    @live id: option<string>,
     onlineStatuses: option<array<[
       | #Online
       | #Idle
       | #Offline
     ]
 >>,
-    @live id: option<string>,
   }
   @live let makeRefetchVariables = (
     ~count=?,
     ~cursor=?,
-    ~onlineStatuses=?,
     ~id=?,
+    ~onlineStatuses=?,
     ()
   ): refetchVariables => {
     count: count,
     cursor: cursor,
-    onlineStatuses: onlineStatuses,
-    id: id
+    id: id,
+    onlineStatuses: onlineStatuses
   }
 }
 
@@ -140,14 +140,14 @@ module Utils = {
   @live let makeVariables = (
     ~count=?,
     ~cursor=?,
-    ~onlineStatuses=?,
     ~id,
+    ~onlineStatuses=?,
     ()
   ): variables => {
     count: count,
     cursor: cursor,
-    onlineStatuses: onlineStatuses,
-    id: id
+    id: id,
+    onlineStatuses: onlineStatuses
   }
 }
 

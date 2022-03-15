@@ -20,8 +20,8 @@ module Types = {
 
 
   type fragment = {
-    @live id: string,
     firstName: string,
+    @live id: string,
     lastName: string,
     onlineStatus: option<enum_OnlineStatus>,
   }

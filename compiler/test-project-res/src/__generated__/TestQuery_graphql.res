@@ -20,8 +20,8 @@ module Types = {
 
 
   type rec response_users_edges_node = {
-    @live id: string,
     firstName: string,
+    @live id: string,
     onlineStatus: option<enum_OnlineStatus>,
   }
   and response_users_edges = {

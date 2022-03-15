@@ -23,8 +23,8 @@ module Types = {
   type rec rawResponse_setOnlineStatus_user_memberOf_User = {
     @live __typename: [ | #User],
     __isNode: [ | #User],
-    @live id: string,
     firstName: string,
+    @live id: string,
   }
   @live
   and rawResponse_setOnlineStatus_user_memberOf_Group = {
@@ -49,11 +49,11 @@ module Types = {
   }
   @live
   and rawResponse_setOnlineStatus_user = {
-    @live id: string,
     firstName: string,
+    @live id: string,
     lastName: string,
-    onlineStatus: option<enum_OnlineStatus>,
     memberOf: option<array<option<rawResponse_setOnlineStatus_user_memberOf>>>,
+    onlineStatus: option<enum_OnlineStatus>,
   }
   @live
   and rawResponse_setOnlineStatus = {
@@ -205,13 +205,13 @@ module Utils = {
   @live let make_rawResponse_setOnlineStatus_user_memberOf_User = (
     ~__typename,
     ~__isNode,
-    ~id,
-    ~firstName
+    ~firstName,
+    ~id
   ): rawResponse_setOnlineStatus_user_memberOf_User => {
     __typename: __typename,
     __isNode: __isNode,
-    id: id,
-    firstName: firstName
+    firstName: firstName,
+    id: id
   }
   @live let make_rawResponse_setOnlineStatus_user_memberOf_Group = (
     ~__typename,
@@ -225,18 +225,18 @@ module Utils = {
     name: name
   }
   @live let make_rawResponse_setOnlineStatus_user = (
-    ~id,
     ~firstName,
+    ~id,
     ~lastName,
-    ~onlineStatus=?,
     ~memberOf=?,
+    ~onlineStatus=?,
     ()
   ): rawResponse_setOnlineStatus_user => {
-    id: id,
     firstName: firstName,
+    id: id,
     lastName: lastName,
-    onlineStatus: onlineStatus,
-    memberOf: memberOf
+    memberOf: memberOf,
+    onlineStatus: onlineStatus
   }
   @live let make_rawResponse_setOnlineStatus = (
     ~user=?,

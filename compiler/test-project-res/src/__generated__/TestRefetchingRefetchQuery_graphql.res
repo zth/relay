@@ -38,8 +38,8 @@ module Types = {
       | #Offline
     ]
 >>,
-    showOnlineStatus: option<bool>,
     @live id: string,
+    showOnlineStatus: option<bool>,
   }
   @live
   type refetchVariables = {
@@ -49,18 +49,18 @@ module Types = {
       | #Offline
     ]
 >>,
-    showOnlineStatus: option<bool>,
     @live id: option<string>,
+    showOnlineStatus: option<bool>,
   }
   @live let makeRefetchVariables = (
     ~friendsOnlineStatuses=?,
-    ~showOnlineStatus=?,
     ~id=?,
+    ~showOnlineStatus=?,
     ()
   ): refetchVariables => {
     friendsOnlineStatuses: friendsOnlineStatuses,
-    showOnlineStatus: showOnlineStatus,
-    id: id
+    id: id,
+    showOnlineStatus: showOnlineStatus
   }
 }
 
@@ -135,13 +135,13 @@ module Utils = {
   }
   @live let makeVariables = (
     ~friendsOnlineStatuses=?,
-    ~showOnlineStatus=?,
     ~id,
+    ~showOnlineStatus=?,
     ()
   ): variables => {
     friendsOnlineStatuses: friendsOnlineStatuses,
-    showOnlineStatus: showOnlineStatus,
-    id: id
+    id: id,
+    showOnlineStatus: showOnlineStatus
   }
 }
 
