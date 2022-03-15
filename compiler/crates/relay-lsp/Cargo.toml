@@ -14,6 +14,7 @@ path = "src/main.rs"
 common = { path = "../common" }
 crossbeam = "0.8"
 dashmap = { version = "4.0.2", features = ["rayon", "serde"] }
+docblock-syntax = { path = "../docblock-syntax" }
 extract-graphql = { path = "../extract-graphql" }
 env_logger = "0.7"
 fnv = "1.0"
@@ -29,6 +30,7 @@ percent-encoding = "2.1"
 rand = { version = "0.8", features = ["small_rng"] }
 rayon = "1.2"
 relay-compiler = { path = "../relay-compiler" }
+relay-docblock = { path = "../relay-docblock" }
 relay-transforms = { path = "../relay-transforms" }
 relay-typegen = { path = "../relay-typegen" }
 schema = { path = "../schema" }
