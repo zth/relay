@@ -139,55 +139,36 @@ module Internal = {
 module Utils = {
   @@ocaml.warning("-33")
   open Types
-  @live let makeVariables = (
-    ~friendId,
-    ~id,
-    ~ids
-  ): variables => {
-    friendId: friendId,
-    id: id,
-    ids: ids
-  }
-  @live let makeOptimisticResponse = (
-    ~addFriend=?,
-    ~testIntInput1=?,
-    ~testIntInput2=?,
-    ()
-  ): rawResponse => {
-    addFriend: addFriend,
-    testIntInput1: testIntInput1,
-    testIntInput2: testIntInput2
-  }
-  @live let make_rawResponse_addFriend_addedFriend_friends = (
-    ~id
-  ): rawResponse_addFriend_addedFriend_friends => {
-    id: id
-  }
-  @live let make_rawResponse_addFriend_addedFriend = (
-    ~friends,
-    ~id
-  ): rawResponse_addFriend_addedFriend => {
-    friends: friends,
-    id: id
-  }
-  @live let make_rawResponse_addFriend = (
-    ~addedFriend=?,
-    ()
-  ): rawResponse_addFriend => {
-    addedFriend: addedFriend
-  }
-  @live let make_rawResponse_testIntInput1 = (
-    ~success=?,
-    ()
-  ): rawResponse_testIntInput1 => {
-    success: success
-  }
-  @live let make_rawResponse_testIntInput2 = (
-    ~success=?,
-    ()
-  ): rawResponse_testIntInput2 => {
-    success: success
-  }
+  @live @obj external makeVariables: (
+    ~friendId: string,
+    ~id: int,
+    ~ids: array<int>
+  ) => variables = ""
+  @live @obj external makeOptimisticResponse: (
+    ~addFriend: rawResponse_addFriend=?,
+    ~testIntInput1: rawResponse_testIntInput1=?,
+    ~testIntInput2: rawResponse_testIntInput2=?,
+    unit
+  ) => rawResponse = ""
+  @live @obj external make_rawResponse_addFriend_addedFriend_friends: (
+    ~id: string
+  ) => rawResponse_addFriend_addedFriend_friends = ""
+  @live @obj external make_rawResponse_addFriend_addedFriend: (
+    ~friends: array<rawResponse_addFriend_addedFriend_friends>,
+    ~id: string
+  ) => rawResponse_addFriend_addedFriend = ""
+  @live @obj external make_rawResponse_addFriend: (
+    ~addedFriend: rawResponse_addFriend_addedFriend=?,
+    unit
+  ) => rawResponse_addFriend = ""
+  @live @obj external make_rawResponse_testIntInput1: (
+    ~success: bool=?,
+    unit
+  ) => rawResponse_testIntInput1 = ""
+  @live @obj external make_rawResponse_testIntInput2: (
+    ~success: bool=?,
+    unit
+  ) => rawResponse_testIntInput2 = ""
 }
 
 type relayOperationNode

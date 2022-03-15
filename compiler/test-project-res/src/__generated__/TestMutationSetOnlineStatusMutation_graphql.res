@@ -149,39 +149,26 @@ module Utils = {
   let onlineStatus_fromString = (str: string): option<enum_OnlineStatus_input> => {
     onlineStatus_decode(Obj.magic(str))
   }
-  @live let makeVariables = (
-    ~connections,
-    ~onlineStatus
-  ): variables => {
-    connections: connections,
-    onlineStatus: onlineStatus
-  }
-  @live let makeOptimisticResponse = (
-    ~setOnlineStatus=?,
-    ()
-  ): rawResponse => {
-    setOnlineStatus: setOnlineStatus
-  }
-  @live let make_rawResponse_setOnlineStatus_user = (
-    ~__id=?,
-    ~firstName,
-    ~id,
-    ~lastName,
-    ~onlineStatus=?,
-    ()
-  ): rawResponse_setOnlineStatus_user => {
-    __id: __id,
-    firstName: firstName,
-    id: id,
-    lastName: lastName,
-    onlineStatus: onlineStatus
-  }
-  @live let make_rawResponse_setOnlineStatus = (
-    ~user=?,
-    ()
-  ): rawResponse_setOnlineStatus => {
-    user: user
-  }
+  @live @obj external makeVariables: (
+    ~connections: array<RescriptRelay.dataId>,
+    ~onlineStatus: enum_OnlineStatus
+  ) => variables = ""
+  @live @obj external makeOptimisticResponse: (
+    ~setOnlineStatus: rawResponse_setOnlineStatus=?,
+    unit
+  ) => rawResponse = ""
+  @live @obj external make_rawResponse_setOnlineStatus_user: (
+    ~__id: RescriptRelay.dataId=?,
+    ~firstName: string,
+    ~id: string,
+    ~lastName: string,
+    ~onlineStatus: enum_OnlineStatus=?,
+    unit
+  ) => rawResponse_setOnlineStatus_user = ""
+  @live @obj external make_rawResponse_setOnlineStatus: (
+    ~user: rawResponse_setOnlineStatus_user=?,
+    unit
+  ) => rawResponse_setOnlineStatus = ""
 }
 
 type relayOperationNode

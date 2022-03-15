@@ -24,12 +24,10 @@ module Types = {
   type refetchVariables = {
     input: option<pesticideListSearchInput>,
   }
-  @live let makeRefetchVariables = (
-    ~input=?,
-    ()
-  ): refetchVariables => {
-    input: input
-  }
+  @live @obj external makeRefetchVariables: (
+    ~input: pesticideListSearchInput=?,
+    unit
+  ) => refetchVariables = ""
 }
 
 module Internal = {
@@ -86,23 +84,16 @@ type queryRef
 module Utils = {
   @@ocaml.warning("-33")
   open Types
-  @live let make_pesticideListSearchInput = (
-    ~companyName=?,
-    ~pesticideIds=?,
-    ~skip,
-    ~take,
-    ()
-  ): pesticideListSearchInput => {
-    companyName: companyName,
-    pesticideIds: pesticideIds,
-    skip: skip,
-    take: take
-  }
-  @live let makeVariables = (
-    ~input
-  ): variables => {
-    input: input
-  }
+  @live @obj external make_pesticideListSearchInput: (
+    ~companyName: array<string>=?,
+    ~pesticideIds: array<int>=?,
+    ~skip: int,
+    ~take: int,
+    unit
+  ) => pesticideListSearchInput = ""
+  @live @obj external makeVariables: (
+    ~input: pesticideListSearchInput
+  ) => variables = ""
 }
 
 type relayOperationNode

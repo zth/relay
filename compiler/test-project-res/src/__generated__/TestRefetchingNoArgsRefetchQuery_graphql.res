@@ -14,7 +14,7 @@ module Types = {
   type variables = unit
   @live
   type refetchVariables = unit
-  @live let makeRefetchVariables = () => ()
+  @live @obj external makeRefetchVariables: unit => unit = ""
 }
 
 module Internal = {
@@ -71,7 +71,7 @@ type queryRef
 module Utils = {
   @@ocaml.warning("-33")
   open Types
-  @live let makeVariables = () => ()
+  @live @obj external makeVariables: unit => unit = ""
 }
 
 type relayOperationNode

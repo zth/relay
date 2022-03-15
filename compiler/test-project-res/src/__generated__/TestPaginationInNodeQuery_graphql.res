@@ -22,12 +22,10 @@ module Types = {
   type refetchVariables = {
     userId: option<string>,
   }
-  @live let makeRefetchVariables = (
-    ~userId=?,
-    ()
-  ): refetchVariables => {
-    userId: userId
-  }
+  @live @obj external makeRefetchVariables: (
+    ~userId: string=?,
+    unit
+  ) => refetchVariables = ""
 }
 
 module Internal = {
@@ -84,11 +82,9 @@ type queryRef
 module Utils = {
   @@ocaml.warning("-33")
   open Types
-  @live let makeVariables = (
-    ~userId
-  ): variables => {
-    userId: userId
-  }
+  @live @obj external makeVariables: (
+    ~userId: string
+  ) => variables = ""
 }
 
 type relayOperationNode

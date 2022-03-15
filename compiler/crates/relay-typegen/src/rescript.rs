@@ -656,7 +656,7 @@ fn write_enum_definitions(str: &mut String, indentation: usize, full_enum: &Full
     Ok(())
 }
 
-fn get_object_prop_value(
+fn get_object_prop_type_as_string(
     state: &Box<ReScriptPrinter>,
     prop_value: &PropType,
     context: &Context,
@@ -709,7 +709,12 @@ fn get_object_prop_value(
             write!(
                 str,
                 "{}",
-                get_object_prop_value(state, inner_list_type.as_ref(), &context, indentation),
+                get_object_prop_type_as_string(
+                    state,
+                    inner_list_type.as_ref(),
+                    &context,
+                    indentation
+                ),
             )
             .unwrap();
 
@@ -734,6 +739,7 @@ fn get_object_prop_value(
 }
 
 fn write_object_maker(
+    state: &Box<ReScriptPrinter>,
     str: &mut String,
     indentation: usize,
     definition: &Object,
@@ -742,15 +748,15 @@ fn write_object_maker(
     is_refetch_var: bool,
 ) -> Result {
     write_indentation(str, indentation).unwrap();
-    write!(str, "@live let {} = (", name).unwrap();
+    write!(str, "@live @obj external {}: ", name).unwrap();
 
     let num_props = definition.values.len();
 
     if num_props == 0 {
-        writeln!(str, ") => ()").unwrap();
+        writeln!(str, "unit => unit = \"\"").unwrap();
         return Ok(());
     } else {
-        writeln!(str, "").unwrap();
+        writeln!(str, "(").unwrap();
     }
 
     let mut has_nullable = is_refetch_var;
@@ -761,7 +767,18 @@ fn write_object_maker(
         .enumerate()
         .for_each(|(index, prop_value)| {
             write_indentation(str, indentation + 1).unwrap();
-            write!(str, "~{}", prop_value.key).unwrap();
+            write!(
+                str,
+                "~{}: {}",
+                prop_value.key,
+                get_object_prop_type_as_string(
+                    &state,
+                    &prop_value.prop_type,
+                    &Context::Response,
+                    indentation
+                )
+            )
+            .unwrap();
 
             if prop_value.nullable | is_refetch_var {
                 has_nullable = true;
@@ -786,25 +803,11 @@ fn write_object_maker(
     // Print unit if there's any nullable present
     if has_nullable {
         write_indentation(str, indentation + 1).unwrap();
-        writeln!(str, "()").unwrap();
+        writeln!(str, "unit").unwrap();
     }
 
     write_indentation(str, indentation).unwrap();
-    writeln!(str, "): {} => {{", target_type).unwrap();
-
-    // Print the fn body connecting all params
-    definition
-        .values
-        .iter()
-        .enumerate()
-        .for_each(|(index, prop_value)| {
-            write_indentation(str, indentation + 1).unwrap();
-            write!(str, "{}: {}", prop_value.key, prop_value.key).unwrap();
-            writeln!(str, "{}", if index + 1 == num_props { "" } else { "," }).unwrap();
-        });
-
-    write_indentation(str, indentation).unwrap();
-    writeln!(str, "}}").unwrap();
+    writeln!(str, ") => {} = \"\"", target_type).unwrap();
 
     Ok(())
 }
@@ -1479,15 +1482,15 @@ fn write_object_definition(
             match (prop.nullable, is_refetch_var) {
                 (true, true) => format!(
                     "option<option<{}>>",
-                    get_object_prop_value(state, &prop.prop_type, &context, indentation)
+                    get_object_prop_type_as_string(state, &prop.prop_type, &context, indentation)
                 ),
                 (true, false) | (false, true) => format!(
                     "option<{}>",
-                    get_object_prop_value(state, &prop.prop_type, &context, indentation)
+                    get_object_prop_type_as_string(state, &prop.prop_type, &context, indentation)
                 ),
                 (false, false) => format!(
                     "{}",
-                    get_object_prop_value(state, &prop.prop_type, &context, indentation)
+                    get_object_prop_type_as_string(state, &prop.prop_type, &context, indentation)
                 ),
             }
         )
@@ -2106,6 +2109,7 @@ impl Writer for ReScriptPrinter {
                     .unwrap();
 
                     write_object_maker(
+                        &self,
                         &mut generated_types,
                         indentation,
                         &variables_as_refetch_variables,
@@ -2417,6 +2421,7 @@ impl Writer for ReScriptPrinter {
         // similar.
         self.input_objects.iter().for_each(|input_object| {
             write_object_maker(
+                &self,
                 &mut generated_types,
                 indentation,
                 input_object,
@@ -2431,6 +2436,7 @@ impl Writer for ReScriptPrinter {
             None => (),
             Some(variables_definition) => {
                 write_object_maker(
+                    &self,
                     &mut generated_types,
                     indentation,
                     variables_definition,
@@ -2447,6 +2453,7 @@ impl Writer for ReScriptPrinter {
             (DefinitionType::Operation(def), Some(raw_response)) => {
                 if def.kind == OperationKind::Mutation {
                     write_object_maker(
+                        &self,
                         &mut generated_types,
                         indentation,
                         raw_response,
@@ -2462,6 +2469,7 @@ impl Writer for ReScriptPrinter {
                         .filter(|obj| obj.at_path[0].as_str() == "rawResponse")
                         .for_each(|obj| {
                             write_object_maker(
+                                &self,
                                 &mut generated_types,
                                 indentation,
                                 obj,

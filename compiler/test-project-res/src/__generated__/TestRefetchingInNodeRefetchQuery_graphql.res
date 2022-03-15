@@ -52,16 +52,12 @@ module Types = {
     @live id: option<string>,
     showOnlineStatus: option<option<bool>>,
   }
-  @live let makeRefetchVariables = (
-    ~friendsOnlineStatuses=?,
-    ~id=?,
-    ~showOnlineStatus=?,
-    ()
-  ): refetchVariables => {
-    friendsOnlineStatuses: friendsOnlineStatuses,
-    id: id,
-    showOnlineStatus: showOnlineStatus
-  }
+  @live @obj external makeRefetchVariables: (
+    ~friendsOnlineStatuses: array<enum_OnlineStatus>=?,
+    ~id: string=?,
+    ~showOnlineStatus: bool=?,
+    unit
+  ) => refetchVariables = ""
 }
 
 module Internal = {
@@ -133,16 +129,12 @@ module Utils = {
   let onlineStatus_fromString = (str: string): option<enum_OnlineStatus_input> => {
     onlineStatus_decode(Obj.magic(str))
   }
-  @live let makeVariables = (
-    ~friendsOnlineStatuses=?,
-    ~id,
-    ~showOnlineStatus=?,
-    ()
-  ): variables => {
-    friendsOnlineStatuses: friendsOnlineStatuses,
-    id: id,
-    showOnlineStatus: showOnlineStatus
-  }
+  @live @obj external makeVariables: (
+    ~friendsOnlineStatuses: array<enum_OnlineStatus>=?,
+    ~id: string,
+    ~showOnlineStatus: bool=?,
+    unit
+  ) => variables = ""
 }
 
 type relayOperationNode

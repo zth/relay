@@ -43,7 +43,7 @@ module Types = {
   type variables = unit
   @live
   type refetchVariables = unit
-  @live let makeRefetchVariables = () => ()
+  @live @obj external makeRefetchVariables: unit => unit = ""
 }
 
 module Internal = {
@@ -115,7 +115,7 @@ module Utils = {
   let onlineStatus_fromString = (str: string): option<enum_OnlineStatus_input> => {
     onlineStatus_decode(Obj.magic(str))
   }
-  @live let makeVariables = () => ()
+  @live @obj external makeVariables: unit => unit = ""
 }
 
 type relayOperationNode

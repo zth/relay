@@ -34,12 +34,10 @@ module Types = {
   type refetchVariables = {
     beforeDate: option<option<SomeModule.Datetime.t>>,
   }
-  @live let makeRefetchVariables = (
-    ~beforeDate=?,
-    ()
-  ): refetchVariables => {
-    beforeDate: beforeDate
-  }
+  @live @obj external makeRefetchVariables: (
+    ~beforeDate: SomeModule.Datetime.t=?,
+    unit
+  ) => refetchVariables = ""
 }
 
 @live
@@ -121,12 +119,10 @@ type queryRef
 module Utils = {
   @@ocaml.warning("-33")
   open Types
-  @live let makeVariables = (
-    ~beforeDate=?,
-    ()
-  ): variables => {
-    beforeDate: beforeDate
-  }
+  @live @obj external makeVariables: (
+    ~beforeDate: SomeModule.Datetime.t=?,
+    unit
+  ) => variables = ""
 }
 
 type relayOperationNode

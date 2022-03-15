@@ -84,29 +84,20 @@ module Internal = {
 module Utils = {
   @@ocaml.warning("-33")
   open Types
-  @live let make_inputA = (
-    ~recursiveA=?,
-    ~time,
-    ~usingB=?,
-    ()
-  ): inputA => {
-    recursiveA: recursiveA,
-    time: time,
-    usingB: usingB
-  }
-  @live let make_inputB = (
-    ~time=?,
-    ~usingA=?,
-    ()
-  ): inputB => {
-    time: time,
-    usingA: usingA
-  }
-  @live let makeVariables = (
-    ~input
-  ): variables => {
-    input: input
-  }
+  @live @obj external make_inputA: (
+    ~recursiveA: inputA=?,
+    ~time: SomeModule.Datetime.t,
+    ~usingB: inputB=?,
+    unit
+  ) => inputA = ""
+  @live @obj external make_inputB: (
+    ~time: SomeModule.Datetime.t=?,
+    ~usingA: inputA=?,
+    unit
+  ) => inputB = ""
+  @live @obj external makeVariables: (
+    ~input: inputA
+  ) => variables = ""
 }
 
 type relayOperationNode
