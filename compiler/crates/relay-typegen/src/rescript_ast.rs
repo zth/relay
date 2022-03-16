@@ -39,13 +39,7 @@ pub enum PropType {
 
 #[derive(Debug)]
 pub struct PropValue {
-    // This key is safe for ReScript use, meaning it has been transformed
-    // already if it was an illegal name in ReScript. If it was indeed
-    // transformed, the original name is located in `original_name`.
     pub key: String,
-
-    // The original, untransformed name.
-    pub original_key: Option<String>,
     pub comment: Option<String>,
     pub nullable: bool,
     pub prop_type: Box<PropType>,
