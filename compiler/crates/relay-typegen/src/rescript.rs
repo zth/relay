@@ -773,7 +773,7 @@ fn write_object_maker(
                 get_object_prop_type_as_string(
                     &state,
                     &prop_value.prop_type,
-                    &Context::Response,
+                    &Context::Variables,
                     indentation,
                 )
             )

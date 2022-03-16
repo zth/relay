@@ -200,7 +200,7 @@ pub fn get_enum_definition_body(
     }
 
     write_indentation(&mut str, indentation + 1).unwrap();
-    writeln!(str, "]").unwrap();
+    write!(str, "]").unwrap();
 
     str
 }
