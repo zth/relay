@@ -185,6 +185,11 @@ fn ast_to_prop_value(
     let (nullable, value) = unwrap_ast(ast);
     let is_nullable = nullable || optional;
 
+    // Ensure that the key is safe, meaning it's not an illegal identifier in
+    // ReScript. If it is, we'll need to map it via the @as decorator when we
+    // print the types.
+    let (safe_key, original_key) = get_safe_key(key);
+
     // We do special treatment for any variable definition in
     // mutations/subscriptions which is passed into `connections` of a
     // store updater directive (like @appendNode, @deleteEdge, etc).
@@ -201,7 +206,8 @@ fn ast_to_prop_value(
             .contains(key)
     {
         return Some(PropValue {
-            key: key.to_string(),
+            key: safe_key,
+            original_key,
             comment: None,
             nullable: is_nullable,
             prop_type: Box::new(PropType::DataId),
@@ -210,31 +216,36 @@ fn ast_to_prop_value(
 
     match value {
         AST::Boolean => Some(PropValue {
-            key: key.to_string(),
+            key: safe_key,
+            original_key,
             comment: None,
             nullable: is_nullable,
             prop_type: Box::new(PropType::Scalar(ScalarValues::Boolean)),
         }),
         AST::String => Some(PropValue {
-            key: key.to_string(),
+            key: safe_key,
+            original_key,
             comment: None,
             nullable: is_nullable,
             prop_type: Box::new(PropType::Scalar(ScalarValues::String)),
         }),
         AST::Number => Some(PropValue {
-            key: key.to_string(),
+            key: safe_key,
+            original_key,
             comment: None,
             nullable: is_nullable,
             prop_type: Box::new(PropType::Scalar(ScalarValues::Float)),
         }),
         AST::Any => Some(PropValue {
-            key: key.to_string(),
+            key: safe_key,
+            original_key,
             comment: None,
             nullable: is_nullable,
             prop_type: Box::new(PropType::Scalar(ScalarValues::Any)),
         }),
         AST::StringLiteral(literal) => Some(PropValue {
-            key: key.to_string(),
+            key: safe_key,
+            original_key,
             comment: None,
             nullable: is_nullable,
             prop_type: Box::new(PropType::StringLiteral(literal.to_string())),
@@ -261,7 +272,8 @@ fn ast_to_prop_value(
                     None
                 }
                 Some(prop_value) => Some(PropValue {
-                    key: key.to_string(),
+                    key: safe_key,
+                    original_key,
                     comment: None,
                     nullable: is_nullable,
                     prop_type: Box::new(PropType::Array((
@@ -287,7 +299,8 @@ fn ast_to_prop_value(
             state.objects.push(obj);
 
             Some(PropValue {
-                key: key.to_string(),
+                key: safe_key,
+                original_key,
                 comment: None,
                 nullable: is_nullable,
                 prop_type: Box::new(PropType::RecordReference(record_name.clone())),
@@ -330,7 +343,8 @@ fn ast_to_prop_value(
                     state.objects.push(object);
 
                     return Some(PropValue {
-                        key: key.to_string(),
+                        key: safe_key,
+                        original_key,
                         comment: None,
                         nullable: is_nullable,
                         prop_type: Box::new(PropType::RecordReference(object_record_name.clone())),
@@ -359,7 +373,8 @@ fn ast_to_prop_value(
             });
 
             Some(PropValue {
-                key: key.to_string(),
+                key: safe_key,
+                original_key,
                 comment: None,
                 nullable: is_nullable,
                 prop_type: Box::new(PropType::UnionReference(union_record_name.to_string())),
@@ -368,7 +383,8 @@ fn ast_to_prop_value(
         AST::RawType(identifier) | AST::Identifier(identifier) => {
             let result = match classify_identifier(state, identifier, &context) {
                 ClassifiedIdentifier::Enum(full_enum) => Some(PropValue {
-                    key: key.to_string(),
+                    key: safe_key,
+                    original_key,
                     comment: None,
                     nullable: is_nullable,
                     prop_type: Box::new(PropType::Enum(full_enum.name.to_string())),
@@ -378,7 +394,8 @@ fn ast_to_prop_value(
                     new_at_path.push(key.to_string());
 
                     Some(PropValue {
-                        key: key.to_string(),
+                        key: safe_key,
+                        original_key,
                         comment: None,
                         nullable: is_nullable,
                         prop_type: Box::new(PropType::InputObjectReference(
@@ -407,7 +424,8 @@ fn ast_to_prop_value(
                     }
 
                     Some(PropValue {
-                        key: key.to_string(),
+                        key: safe_key,
+                        original_key,
                         comment: None,
                         nullable: is_nullable,
                         prop_type: Box::new(PropType::RawIdentifier(identifier)),
@@ -549,6 +567,7 @@ fn get_object_props(
                         // anything named __id should be a dataId.
                         Some(PropValue {
                             key: String::from("__id"),
+                            original_key: None,
                             comment: None,
                             nullable: key_value_pair.optional,
                             prop_type: Box::new(PropType::DataId),
@@ -570,6 +589,7 @@ fn get_object_props(
 
                         Some(PropValue {
                             key: String::from("fragmentRefs"),
+                            original_key: None,
                             comment: None,
                             nullable: false,
                             prop_type: Box::new(PropType::FragmentSpreads(
@@ -1487,7 +1507,7 @@ fn write_object_definition(
         write_indentation(str, in_object_indentation).unwrap();
         writeln!(
             str,
-            "{}{}: {},",
+            "{}{}{}: {},",
             // We suppress dead code warnings for a set of keys that we know
             // don't affect overfetching, and are used internally by
             // RescriptRelay, but end up in the types anyway because of
@@ -1495,6 +1515,15 @@ fn write_object_definition(
             match &prop.key[..] {
                 "id" | "__id" | "__typename" => "@live ",
                 _ => "",
+            },
+            // If original_key is set, that means that the key here has been
+            // transformed (as it was probably an illegal identifier in
+            // ReScript). When that happens, we print the @as decorator to deal
+            // with the illegal identifier, while not having to rename the
+            // underlying key itself.
+            match &prop.original_key {
+                None => String::from(""),
+                Some(original_key) => format!("@as(\"{}\") ", original_key),
             },
             prop.key,
             match (prop.nullable, is_refetch_var) {
@@ -2108,6 +2137,7 @@ impl Writer for ReScriptPrinter {
                                 nullable: prop_value.nullable.clone(),
                                 comment: prop_value.comment.clone(),
                                 key: prop_value.key.clone(),
+                                original_key: prop_value.original_key.clone(),
                                 prop_type: prop_value.prop_type.clone(),
                             })
                             .collect(),
