@@ -632,7 +632,7 @@ fn write_enum_definitions(str: &mut String, indentation: usize, full_enum: &Full
     write_indentation(str, indentation).unwrap();
     writeln!(
         str,
-        "type enum_{} = private {}",
+        "type enum_{} = private {}\n",
         full_enum.name,
         get_enum_definition_body(&full_enum, indentation, true)
     )
@@ -645,7 +645,7 @@ fn write_enum_definitions(str: &mut String, indentation: usize, full_enum: &Full
     write_indentation(str, indentation).unwrap();
     writeln!(
         str,
-        "type enum_{}_input = {}",
+        "type enum_{}_input = {}\n",
         full_enum.name,
         get_enum_definition_body(&full_enum, indentation, false)
     )
