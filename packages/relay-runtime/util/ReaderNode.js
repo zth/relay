@@ -250,16 +250,8 @@ export type ReaderRelayLiveResolver = {|
 
 export type ReaderClientEdgeToClientObject = {|
   +kind: 'ClientEdgeToClientObject',
+  +concreteType: string,
   +linkedField: ReaderLinkedField,
-  +backingField: ReaderRelayResolver | ReaderClientExtension,
-|};
-
-// "ClientEdge" is a legacy name which will be supported while the compiler
-// migrates to the new names.
-export type ReaderClientEdge = {|
-  +kind: 'ClientEdge',
-  +linkedField: ReaderLinkedField,
-  +operation: ConcreteRequest,
   +backingField: ReaderRelayResolver | ReaderClientExtension,
 |};
 
@@ -272,7 +264,6 @@ export type ReaderClientEdgeToServerObject = {|
 
 export type ReaderSelection =
   | ReaderCondition
-  | ReaderClientEdge
   | ReaderClientEdgeToClientObject
   | ReaderClientEdgeToServerObject
   | ReaderClientExtension

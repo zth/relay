@@ -33,6 +33,7 @@ relay-compiler = { path = "../relay-compiler" }
 relay-docblock = { path = "../relay-docblock" }
 relay-transforms = { path = "../relay-transforms" }
 relay-typegen = { path = "../relay-typegen" }
+resolution-path = { path = "../resolution-path" }
 schema = { path = "../schema" }
 schema-documentation = { path = "../schema-documentation" }
 schema-print = { path = "../schema-print" }
@@ -42,5 +43,4 @@ structopt = "0.3.23"
 tokio = { version = "1.15", features = ["full", "test-util", "tracing"] }
 
 [dev-dependencies]
-assert_matches = "1.5"
 relay-test-schema = { path = "../relay-test-schema" }
