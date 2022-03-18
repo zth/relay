@@ -3,36 +3,58 @@ use lazy_static::lazy_static;
 use regex::Regex;
 use std::{fmt::Write, ops::RangeTo};
 
-pub fn rescript_find_references_graphql_nodes(concrete_text: &str) -> Vec<String> {
+#[derive(Debug, PartialEq, Eq)]
+pub enum ImportType {
+    GraphQLNode(String),
+    ModuleImport(String),
+}
+
+pub fn rescript_find_code_import_references(concrete_text: &str) -> Vec<ImportType> {
     lazy_static! {
-        static ref RE: Regex = Regex::new(r"rescript_graphql_node_([A-Za-z0-9_]*)").unwrap();
-        static ref PREFIX_RANGE: RangeTo<usize> = RangeTo {
+        static ref RE_GRAPHQL_NODE: Regex =
+            Regex::new(r"rescript_graphql_node_([A-Za-z0-9_]*)").unwrap();
+        static ref PREFIX_RANGE_GRAPHQL_NODE: RangeTo<usize> = RangeTo {
             end: String::from("rescript_graphql_node_").len()
+        };
+        static ref RE_MODULE_IMPORT: Regex =
+            Regex::new(r"rescript_module_([A-Za-z0-9_]*)").unwrap();
+        static ref PREFIX_RANGE_MODULE_IMPORT: RangeTo<usize> = RangeTo {
+            end: String::from("rescript_module_").len()
         };
     }
 
-    let res: Vec<String> = RE
-        .find_iter(concrete_text)
-        .filter_map(|graphql_module_name| {
-            let mut full_matched_name: String = graphql_module_name.as_str().parse().ok().unwrap();
-            String::replace_range(&mut full_matched_name, *PREFIX_RANGE, "");
-            Some(full_matched_name)
-        })
-        .collect();
+    let mut results: Vec<ImportType> = vec![];
 
-    res
+    RE_GRAPHQL_NODE
+        .find_iter(concrete_text)
+        .for_each(|graphql_module_name| {
+            let mut full_matched_name: String = graphql_module_name.as_str().parse().ok().unwrap();
+            String::replace_range(&mut full_matched_name, *PREFIX_RANGE_GRAPHQL_NODE, "");
+            results.push(ImportType::GraphQLNode(full_matched_name));
+        });
+
+    RE_MODULE_IMPORT
+        .find_iter(concrete_text)
+        .for_each(|module_import_name| {
+            let mut full_matched_name: String = module_import_name.as_str().parse().ok().unwrap();
+            String::replace_range(&mut full_matched_name, *PREFIX_RANGE_MODULE_IMPORT, "");
+            results.push(ImportType::ModuleImport(full_matched_name))
+        });
+
+    results
 }
 
 pub fn rescript_make_operation_type_and_node_text(concrete_text: &str) -> String {
     lazy_static! {
-        static ref PREFIX: String = String::from("rescript_graphql_node_");
+        static ref PREFIX_GRAPHQL_IMPORT: String = String::from("rescript_graphql_node_");
+        static ref PREFIX_CODE_IMPORT: String = String::from("rescript_module_");
     }
 
     let mut str = String::new();
 
-    let referenced_graphql_nodes = rescript_find_references_graphql_nodes(&concrete_text);
+    let referenced_imports = rescript_find_code_import_references(&concrete_text);
 
-    if referenced_graphql_nodes.len() == 0 {
+    if referenced_imports.len() == 0 {
         writeln!(
             str,
             "let node: operationType = %raw(json` {} `)",
@@ -44,9 +66,19 @@ pub fn rescript_make_operation_type_and_node_text(concrete_text: &str) -> String
         writeln!(
             str,
             "%%private(let makeNode = ({}): operationType => {{",
-            referenced_graphql_nodes
+            referenced_imports
                 .iter()
-                .map(|module_name| format!("{}{}", *PREFIX, module_name))
+                .map(|import_type| format!(
+                    "{}{}",
+                    match &import_type {
+                        &ImportType::GraphQLNode(_) => "rescript_graphql_node_",
+                        &ImportType::ModuleImport(_) => "rescript_module_",
+                    },
+                    match &import_type {
+                        &ImportType::GraphQLNode(module_name) => module_name,
+                        &ImportType::ModuleImport(module_name) => module_name,
+                    }
+                ))
                 .collect::<Vec<String>>()
                 .join(", ")
         )
@@ -56,9 +88,19 @@ pub fn rescript_make_operation_type_and_node_text(concrete_text: &str) -> String
         writeln!(
             str,
             "{}",
-            referenced_graphql_nodes
+            referenced_imports
                 .iter()
-                .map(|module_name| format!("  ignore({}{})", *PREFIX, module_name))
+                .map(|import_type| format!(
+                    "  ignore({}{})",
+                    match &import_type {
+                        &ImportType::GraphQLNode(_) => "rescript_graphql_node_",
+                        &ImportType::ModuleImport(_) => "rescript_module_",
+                    },
+                    match &import_type {
+                        &ImportType::GraphQLNode(module_name) => module_name,
+                        &ImportType::ModuleImport(module_name) => module_name,
+                    }
+                ))
                 .collect::<Vec<String>>()
                 .join("\n")
         )
@@ -71,9 +113,17 @@ pub fn rescript_make_operation_type_and_node_text(concrete_text: &str) -> String
         writeln!(
             str,
             "let node: operationType = makeNode({})",
-            referenced_graphql_nodes
+            referenced_imports
                 .iter()
-                .map(|module_name| format!("{}_graphql.node", module_name))
+                .map(|import_type| format!(
+                    "{}",
+                    match &import_type {
+                        &ImportType::GraphQLNode(module_name) =>
+                            format!("{}_graphql.node", module_name),
+                        &ImportType::ModuleImport(module_name) =>
+                            format!("{}.default", module_name),
+                    },
+                ))
                 .collect::<Vec<String>>()
                 .join(", ")
         )
@@ -109,8 +159,11 @@ mod tests {
     #[test]
     fn find_used_additional_operations() {
         assert_eq!(
-            vec!["ComponentRefetchQuery"],
-            rescript_find_references_graphql_nodes(
+            vec![
+                ImportType::GraphQLNode(String::from("ComponentRefetchQuery")),
+                ImportType::ModuleImport(String::from("TestRelayResolver"))
+            ],
+            rescript_find_code_import_references(
                 r#"{
             "argumentDefinitions": [],
             "kind": "Fragment",
@@ -132,6 +185,18 @@ mod tests {
                 "kind": "ScalarField",
                 "name": "id",
                 "storageKey": null
+              },
+              {
+                "alias": null,
+                "fragment": {
+                  "args": null,
+                  "kind": "FragmentSpread",
+                  "name": "TestRelayResolver"
+                },
+                "kind": "RelayResolver",
+                "name": "greeting",
+                "resolverModule": rescript_module_TestRelayResolver,
+                "path": "greeting"
               }
             ],
             "type": "Node",

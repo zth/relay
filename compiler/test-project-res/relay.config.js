@@ -6,4 +6,7 @@ module.exports = {
   customScalars: {
     Datetime: "SomeModule.Datetime",
   },
+  featureFlags: {
+    enable_relay_resolver_transform: true
+  }
 };

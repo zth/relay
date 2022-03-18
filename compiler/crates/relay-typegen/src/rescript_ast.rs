@@ -31,6 +31,7 @@ pub enum PropType {
     InputObjectReference(String),
     RecordReference(String),
     UnionReference(String),
+    RelayResolver(String),
 
     // Warning, this means we couldn't match this identifier into a "proper"
     // type. Should probably investigate when this happens.

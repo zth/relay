@@ -40,6 +40,14 @@ pub enum DefinitionType {
     Operation(OperationDefinition),
 }
 
+// We need to keep track of this information in order to figure out where to
+// import the Relay Resolver types from.
+#[derive(Debug)]
+pub struct RelayResolverInfo {
+    local_resolver_name: String,
+    resolver_module: String,
+}
+
 #[derive(Debug)]
 pub struct ReScriptPrinter {
     // All encountered enums.
@@ -86,6 +94,10 @@ pub struct ReScriptPrinter {
 
     // This holds meta data for this current operation, which we extract in "rescript_relay_visitor".
     operation_meta_data: RescriptRelayOperationMetaData,
+
+    // Holds a list of seen Relay Resolvers, that we can use in the type gen to
+    // piece together how the resolver types are imported.
+    relay_resolvers: Vec<RelayResolverInfo>,
 }
 
 impl Write for ReScriptPrinter {
@@ -454,6 +466,31 @@ fn ast_to_prop_value(
 
             result
         }
+        AST::ReturnTypeOfFunctionWithName(name) => {
+            if let Some(resolver_module) = state.relay_resolvers.iter().find_map(
+                |RelayResolverInfo {
+                     local_resolver_name,
+                     resolver_module,
+                     ..
+                 }| {
+                    if local_resolver_name.eq(&name.to_string()) {
+                        Some(resolver_module)
+                    } else {
+                        None
+                    }
+                },
+            ) {
+                Some(PropValue {
+                    key: safe_key,
+                    original_key,
+                    comment: None,
+                    nullable: is_nullable,
+                    prop_type: Box::new(PropType::RelayResolver(resolver_module.to_string())),
+                })
+            } else {
+                None
+            }
+        }
         AST::OtherTypename | AST::Local3DPayload(_, _) | AST::ActorChangePoint(_) => {
             // These are ignored for now, but might be supported in the future.
             None
@@ -687,6 +724,7 @@ fn get_object_prop_type_as_string(
         &PropType::InputObjectReference(input_object_name) => input_object_name.to_string(),
         &PropType::RecordReference(record_name) => record_name.to_string(),
         &PropType::UnionReference(union_record_name) => union_record_name.to_string(),
+        &PropType::RelayResolver(resolver_module) => format!("{}.t", resolver_module),
         &PropType::RawIdentifier(raw_identifier) => {
             match classify_rescript_value_string(&raw_identifier) {
                 RescriptCustomTypeValue::Type => raw_identifier.to_string(),
@@ -2840,7 +2878,15 @@ impl Writer for ReScriptPrinter {
         }
     }
 
-    fn write_import_module_default(&mut self, _name: &str, _from: &str) -> Result {
+    // We track Relay Resolvers here.
+    fn write_import_module_default(&mut self, name: &str, from: &str) -> Result {
+        if name.ends_with("Resolver") {
+            self.relay_resolvers.push(RelayResolverInfo {
+                local_resolver_name: name.to_string(),
+                resolver_module: from.to_string(),
+            })
+        }
+
         Ok(())
     }
 
@@ -2900,6 +2946,7 @@ impl ReScriptPrinter {
             typegen_definition,
             conversion_instructions: vec![],
             operation_meta_data,
+            relay_resolvers: vec![],
         }
     }
 }

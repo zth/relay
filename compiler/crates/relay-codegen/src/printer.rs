@@ -424,7 +424,7 @@ impl<'b> JSONPrinter<'b> {
             },
             Primitive::JSModuleDependency(key) => match self.js_module_format {
                 JsModuleFormat::CommonJS => {
-                    self.write_js_dependency(f, key.to_string(), format!("./{}", key))
+                    self.write_js_dependency(f, key.to_string(), format!("rescript_module_{}", key))
                 }
                 JsModuleFormat::Haste => {
                     self.write_js_dependency(f, key.to_string(), key.to_string())

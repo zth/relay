@@ -348,12 +348,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "4268475f132103f907cf195a54f2934d",
+    "cacheID": "710258c627f5e34c207ecabe06d5da8c",
     "id": null,
     "metadata": {},
     "name": "TestMutationSetOnlineStatusMutation",
     "operationKind": "mutation",
-    "text": "mutation TestMutationSetOnlineStatusMutation(\n  $onlineStatus: OnlineStatus!\n) {\n  setOnlineStatus(onlineStatus: $onlineStatus) {\n    user {\n      id\n      onlineStatus\n      ...TestFragment_user\n    }\n  }\n}\n\nfragment TestFragment_sub_user on User {\n  lastName\n}\n\nfragment TestFragment_user on User {\n  firstName\n  onlineStatus\n  ...TestFragment_sub_user\n}\n"
+    "text": "mutation TestMutationSetOnlineStatusMutation(\n  $onlineStatus: OnlineStatus!\n) {\n  setOnlineStatus(onlineStatus: $onlineStatus) {\n    user {\n      id\n      onlineStatus\n      ...TestFragment_user\n    }\n  }\n}\n\nfragment TestFragment_sub_user on User {\n  lastName\n  ...TestRelayResolver\n}\n\nfragment TestFragment_user on User {\n  firstName\n  onlineStatus\n  ...TestFragment_sub_user\n}\n\nfragment TestRelayResolver on User {\n  firstName\n  lastName\n}\n"
   }
 };
 })() `)

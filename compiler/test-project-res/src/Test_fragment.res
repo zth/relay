@@ -19,6 +19,7 @@ module Query = %relay(`
 module SubFragment = %relay(`
     fragment TestFragment_sub_user on User {
       lastName
+      greeting
     }
 `)
 

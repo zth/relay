@@ -1,11 +1,11 @@
-/* @sourceLoc Test_fragment.res */
+/* @sourceLoc TestRelayResolver.res */
 /* @generated */
 %%raw("/* @generated */")
 module Types = {
   @@ocaml.warning("-30")
 
   type fragment = {
-    greeting: option<TestRelayResolver.t>,
+    firstName: string,
     lastName: string,
   }
 }
@@ -30,7 +30,7 @@ module Internal = {
 type t
 type fragmentRef
 external getFragmentRef:
-  RescriptRelay.fragmentRefs<[> | #TestFragment_sub_user]> => fragmentRef = "%identity"
+  RescriptRelay.fragmentRefs<[> | #TestRelayResolver]> => fragmentRef = "%identity"
 
 module Utils = {
   @@ocaml.warning("-33")
@@ -41,37 +41,28 @@ type relayOperationNode
 type operationType = RescriptRelay.fragmentNode<relayOperationNode>
 
 
-%%private(let makeNode = (rescript_module_TestRelayResolver): operationType => {
-  ignore(rescript_module_TestRelayResolver)
-  %raw(json`{
+let node: operationType = %raw(json` {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "TestFragment_sub_user",
+  "name": "TestRelayResolver",
   "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "firstName",
+      "storageKey": null
+    },
     {
       "alias": null,
       "args": null,
       "kind": "ScalarField",
       "name": "lastName",
       "storageKey": null
-    },
-    {
-      "alias": null,
-      "fragment": {
-        "args": null,
-        "kind": "FragmentSpread",
-        "name": "TestRelayResolver"
-      },
-      "kind": "RelayResolver",
-      "name": "greeting",
-      "resolverModule": rescript_module_TestRelayResolver,
-      "path": "greeting"
     }
   ],
   "type": "User",
   "abstractKey": null
-}`)
-})
-let node: operationType = makeNode(TestRelayResolver.default)
+} `)
 
