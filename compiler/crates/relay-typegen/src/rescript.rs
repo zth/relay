@@ -746,6 +746,37 @@ fn write_object_maker(
     name: String,
     target_type: String,
 ) -> Result {
+    // This will use the optimized @obj external version of object makers when
+    // possible. @obj external optimization can be applied when there are no
+    // reserved words as field names in the target object. Reserved words as
+    // field names is accounted for everywhere _except_ for in input objects,
+    // which we have no control for. So, in practice, everything will get the
+    // @obj external optimization, except for input objects with one or more
+    // fields who's name is a reserved word in ReScript.
+    let as_external = definition
+        .values
+        .iter()
+        .find(|value| match &value.original_key {
+            None => false,
+            Some(original_key) => is_legal_key(&original_key),
+        })
+        .is_none();
+
+    if as_external {
+        write_object_maker_as_external(state, str, indentation, definition, name, target_type)
+    } else {
+        write_object_maker_as_function(str, indentation, definition, name, target_type)
+    }
+}
+
+fn write_object_maker_as_external(
+    state: &Box<ReScriptPrinter>,
+    str: &mut String,
+    indentation: usize,
+    definition: &Object,
+    name: String,
+    target_type: String,
+) -> Result {
     write_indentation(str, indentation).unwrap();
     write!(str, "@live @obj external {}: ", name).unwrap();
 
@@ -760,44 +791,28 @@ fn write_object_maker(
 
     let mut has_nullable = false;
 
-    definition
-        .values
-        .iter()
-        .enumerate()
-        .for_each(|(index, prop_value)| {
-            write_indentation(str, indentation + 1).unwrap();
-            write!(
-                str,
-                "~{}: {}",
-                prop_value.key,
-                get_object_prop_type_as_string(
-                    &state,
-                    &prop_value.prop_type,
-                    &Context::Variables,
-                    indentation,
-                )
+    definition.values.iter().for_each(|prop_value| {
+        write_indentation(str, indentation + 1).unwrap();
+        write!(
+            str,
+            "~{}: {}",
+            prop_value.key,
+            get_object_prop_type_as_string(
+                &state,
+                &prop_value.prop_type,
+                &Context::Variables,
+                indentation,
             )
-            .unwrap();
+        )
+        .unwrap();
 
-            if prop_value.nullable {
-                has_nullable = true;
-                write!(str, "=?").unwrap();
-            }
+        if prop_value.nullable {
+            has_nullable = true;
+            write!(str, "=?").unwrap();
+        }
 
-            writeln!(
-                str,
-                "{}",
-                // Always trail comma if there's a nullable, since having
-                // nullables means we'll need to print unit at the end of the
-                // list.
-                if index + 1 == num_props && !has_nullable {
-                    ""
-                } else {
-                    ","
-                }
-            )
-            .unwrap();
-        });
+        writeln!(str, ",").unwrap();
+    });
 
     // Print unit if there's any nullable present
     if has_nullable {
@@ -807,6 +822,65 @@ fn write_object_maker(
 
     write_indentation(str, indentation).unwrap();
     writeln!(str, ") => {} = \"\"", target_type).unwrap();
+    writeln!(str, "\n").unwrap();
+
+    Ok(())
+}
+
+fn write_object_maker_as_function(
+    str: &mut String,
+    indentation: usize,
+    definition: &Object,
+    name: String,
+    target_type: String,
+) -> Result {
+    write_indentation(str, indentation).unwrap();
+    write!(str, "@live let {} = (", name).unwrap();
+
+    let num_props = definition.values.len();
+
+    if num_props == 0 {
+        writeln!(str, ") => ()").unwrap();
+        return Ok(());
+    } else {
+        writeln!(str, "").unwrap();
+    }
+
+    let mut has_nullable = false;
+
+    definition.values.iter().for_each(|prop_value| {
+        write_indentation(str, indentation + 1).unwrap();
+        write!(str, "~{}", prop_value.key).unwrap();
+
+        if prop_value.nullable {
+            has_nullable = true;
+            write!(str, "=?").unwrap();
+        }
+        writeln!(str, ",").unwrap();
+    });
+
+    // Print unit if there's any nullable present
+    if has_nullable {
+        write_indentation(str, indentation + 1).unwrap();
+        writeln!(str, "()").unwrap();
+    }
+
+    write_indentation(str, indentation).unwrap();
+    writeln!(str, "): {} => {{", target_type).unwrap();
+
+    // Print the fn body connecting all params
+    definition
+        .values
+        .iter()
+        .enumerate()
+        .for_each(|(index, prop_value)| {
+            write_indentation(str, indentation + 1).unwrap();
+            write!(str, "{}: {}", prop_value.key, prop_value.key).unwrap();
+            writeln!(str, "{}", if index + 1 == num_props { "" } else { "," }).unwrap();
+        });
+
+    write_indentation(str, indentation).unwrap();
+    writeln!(str, "}}\n").unwrap();
 
     Ok(())
 }
@@ -854,7 +928,7 @@ fn write_object_maker_for_refetch_variables(
         });
 
     write_indentation(str, indentation).unwrap();
-    writeln!(str, "}}").unwrap();
+    writeln!(str, "}}\n").unwrap();
 
     Ok(())
 }

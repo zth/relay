@@ -12,6 +12,7 @@ module Types = {
   }
   @live
   and inputB = {
+    @as("constraint") constraint_: option<bool>,
     time: option<SomeModule.Datetime.t>,
     usingA: option<inputA>,
   }
@@ -90,14 +91,24 @@ module Utils = {
     ~usingB: inputB=?,
     unit
   ) => inputA = ""
-  @live @obj external make_inputB: (
-    ~time: SomeModule.Datetime.t=?,
-    ~usingA: inputA=?,
-    unit
-  ) => inputB = ""
+
+
+  @live let make_inputB = (
+    ~constraint_=?,
+    ~time=?,
+    ~usingA=?,
+    ()
+  ): inputB => {
+    constraint_: constraint_,
+    time: time,
+    usingA: usingA
+  }
+
   @live @obj external makeVariables: (
-    ~input: inputA
+    ~input: inputA,
   ) => variables = ""
+
+
 }
 
 type relayOperationNode

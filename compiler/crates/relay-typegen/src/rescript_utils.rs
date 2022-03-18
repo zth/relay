@@ -273,8 +273,12 @@ const DISALLOWED_IDENTIFIERS: &'static [&'static str] = &[
     "operationType",
 ];
 
+pub fn is_legal_key(key: &String) -> bool {
+    DISALLOWED_IDENTIFIERS.contains(&key.as_str())
+}
+
 pub fn get_safe_key(original_key: &String) -> (String, Option<String>) {
-    if DISALLOWED_IDENTIFIERS.contains(&original_key.as_str()) {
+    if is_legal_key(&original_key) {
         (format!("{}_", original_key), Some(original_key.to_string()))
     } else {
         (original_key.to_string(), None)

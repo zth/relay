@@ -9,7 +9,8 @@ input InputA {
 
 input InputB {
   time: Datetime
-  usingA: InputA
+  usingA: InputA,
+  constraint: Boolean # Reserved word, should de-opt InputB
 }
 
 interface Node {

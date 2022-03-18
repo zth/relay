@@ -30,6 +30,7 @@ module Types = {
   ): refetchVariables => {
     input: input
   }
+
 }
 
 module Internal = {
@@ -93,9 +94,13 @@ module Utils = {
     ~take: int,
     unit
   ) => pesticideListSearchInput = ""
+
+
   @live @obj external makeVariables: (
-    ~input: pesticideListSearchInput
+    ~input: pesticideListSearchInput,
   ) => variables = ""
+
+
 }
 
 type relayOperationNode
