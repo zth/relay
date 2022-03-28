@@ -52,7 +52,9 @@ pub fn path_for_artifact(
     } else {
         match &project_config.typegen_config.language {
             TypegenLanguage::ReScript => format!("{}_graphql.res", definition_name),
-            TypegenLanguage::Flow => format!("{}.graphql.js", definition_name),
+            TypegenLanguage::Flow | TypegenLanguage::JavaScript => {
+                format!("{}.graphql.js", definition_name)
+            }
             TypegenLanguage::TypeScript => format!("{}.graphql.ts", definition_name),
         }
     };

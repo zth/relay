@@ -47,8 +47,8 @@ import type {
   DataID,
   Disposable,
   RenderPolicy,
+  UpdatableFragment,
   UpdatableQuery,
-  UpdatableQueryType,
   Variables,
 } from '../util/RelayRuntimeTypes';
 import type {InvalidationState} from './RelayModernStore';
@@ -466,6 +466,16 @@ export interface ReadOnlyRecordProxy {
 }
 
 /**
+ * A linked field where an updatable fragment is spread has the type
+ * HasUpdatableSpread.
+ * This type is expected by store.readUpdatableFragment_EXPERIMENTAL.
+ */
+export type HasUpdatableSpread<TFragmentType> = {
+  +$updatableFragmentSpreads: TFragmentType,
+  ...
+};
+
+/**
  * An interface for imperatively getting/setting properties of a `RecordSource`. This interface
  * is designed to allow the appearance of direct RecordSource manipulation while
  * allowing different implementations that may e.g. create a changeset of
@@ -477,10 +487,14 @@ export interface RecordSourceProxy {
   get(dataID: DataID): ?RecordProxy;
   getRoot(): RecordProxy;
   invalidateStore(): void;
-  readUpdatableQuery_EXPERIMENTAL<TQuery: UpdatableQueryType>(
-    query: UpdatableQuery<TQuery['variables'], TQuery['response']>,
-    variables: TQuery['variables'],
-  ): TQuery['response'];
+  readUpdatableQuery_EXPERIMENTAL<TVariables: Variables, TData>(
+    query: UpdatableQuery<TVariables, TData>,
+    variables: TVariables,
+  ): TData;
+  readUpdatableFragment_EXPERIMENTAL<TFragmentType: FragmentType, TData>(
+    fragment: UpdatableFragment<TFragmentType, TData>,
+    fragmentReference: HasUpdatableSpread<TFragmentType>,
+  ): TData;
 }
 
 export interface ReadOnlyRecordSourceProxy {

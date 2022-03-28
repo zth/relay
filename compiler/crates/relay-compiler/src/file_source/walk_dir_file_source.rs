@@ -39,7 +39,7 @@ fn get_expected_file_extensions(config: &Config) -> HashSet<&str> {
             TypegenLanguage::ReScript => {
                 file_extensions.insert("res");
             }
-            TypegenLanguage::Flow => {
+            TypegenLanguage::Flow | TypegenLanguage::JavaScript => {
                 file_extensions.insert("js");
                 file_extensions.insert("jsx");
             }

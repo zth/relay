@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<06e2ba18415c8f8979f481ebacc20a02>>
+ * @generated SignedSource<<e41886c3abe3d2ccd18f08212a954a32>>
  */
 
 mod compile_relay_artifacts;
@@ -150,6 +150,13 @@ fn auto_filled_argument_on_match() {
     let input = include_str!("compile_relay_artifacts/fixtures/auto-filled-argument-on-match.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/auto-filled-argument-on-match.expected");
     test_fixture(transform_fixture, "auto-filled-argument-on-match.graphql", "compile_relay_artifacts/fixtures/auto-filled-argument-on-match.expected", input, expected);
+}
+
+#[test]
+fn circular_inline_fragment_invalid() {
+    let input = include_str!("compile_relay_artifacts/fixtures/circular-inline-fragment.invalid.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/circular-inline-fragment.invalid.expected");
+    test_fixture(transform_fixture, "circular-inline-fragment.invalid.graphql", "compile_relay_artifacts/fixtures/circular-inline-fragment.invalid.expected", input, expected);
 }
 
 #[test]
@@ -1431,6 +1438,48 @@ fn unused_variables_removed_from_print_not_codegen() {
     let input = include_str!("compile_relay_artifacts/fixtures/unused-variables-removed-from-print-not-codegen.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/unused-variables-removed-from-print-not-codegen.expected");
     test_fixture(transform_fixture, "unused-variables-removed-from-print-not-codegen.graphql", "compile_relay_artifacts/fixtures/unused-variables-removed-from-print-not-codegen.expected", input, expected);
+}
+
+#[test]
+fn updatable_fragment_spread() {
+    let input = include_str!("compile_relay_artifacts/fixtures/updatable-fragment-spread.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/updatable-fragment-spread.expected");
+    test_fixture(transform_fixture, "updatable-fragment-spread.graphql", "compile_relay_artifacts/fixtures/updatable-fragment-spread.expected", input, expected);
+}
+
+#[test]
+fn updatable_fragment_spread_with_defer_invalid() {
+    let input = include_str!("compile_relay_artifacts/fixtures/updatable-fragment-spread-with-defer.invalid.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/updatable-fragment-spread-with-defer.invalid.expected");
+    test_fixture(transform_fixture, "updatable-fragment-spread-with-defer.invalid.graphql", "compile_relay_artifacts/fixtures/updatable-fragment-spread-with-defer.invalid.expected", input, expected);
+}
+
+#[test]
+fn updatable_fragment_spread_with_include_invalid() {
+    let input = include_str!("compile_relay_artifacts/fixtures/updatable-fragment-spread-with-include.invalid.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/updatable-fragment-spread-with-include.invalid.expected");
+    test_fixture(transform_fixture, "updatable-fragment-spread-with-include.invalid.graphql", "compile_relay_artifacts/fixtures/updatable-fragment-spread-with-include.invalid.expected", input, expected);
+}
+
+#[test]
+fn updatable_fragment_spread_with_typename_sibling() {
+    let input = include_str!("compile_relay_artifacts/fixtures/updatable-fragment-spread-with-typename-sibling.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/updatable-fragment-spread-with-typename-sibling.expected");
+    test_fixture(transform_fixture, "updatable-fragment-spread-with-typename-sibling.graphql", "compile_relay_artifacts/fixtures/updatable-fragment-spread-with-typename-sibling.expected", input, expected);
+}
+
+#[test]
+fn updatable_fragment_spread_with_unused_variables() {
+    let input = include_str!("compile_relay_artifacts/fixtures/updatable-fragment-spread-with-unused-variables.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/updatable-fragment-spread-with-unused-variables.expected");
+    test_fixture(transform_fixture, "updatable-fragment-spread-with-unused-variables.graphql", "compile_relay_artifacts/fixtures/updatable-fragment-spread-with-unused-variables.expected", input, expected);
+}
+
+#[test]
+fn updatable_fragment_spread_with_variables() {
+    let input = include_str!("compile_relay_artifacts/fixtures/updatable-fragment-spread-with-variables.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/updatable-fragment-spread-with-variables.expected");
+    test_fixture(transform_fixture, "updatable-fragment-spread-with-variables.graphql", "compile_relay_artifacts/fixtures/updatable-fragment-spread-with-variables.expected", input, expected);
 }
 
 #[test]

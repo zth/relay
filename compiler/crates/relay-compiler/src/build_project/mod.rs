@@ -287,7 +287,9 @@ fn is_relay_file_path(language: &TypegenLanguage, path: &PathBuf) -> bool {
     match (path.to_str(), &language) {
         (None, _) => false,
         (Some(path), TypegenLanguage::ReScript) => path.ends_with("_graphql.res"),
-        (Some(path), TypegenLanguage::Flow) => path.ends_with(".graphql.js"),
+        (Some(path), TypegenLanguage::Flow | TypegenLanguage::JavaScript) => {
+            path.ends_with(".graphql.js")
+        }
         (Some(path), TypegenLanguage::TypeScript) => path.ends_with(".graphql.ts"),
     }
 }

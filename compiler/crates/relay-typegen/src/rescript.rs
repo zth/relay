@@ -2898,7 +2898,7 @@ impl Writer for ReScriptPrinter {
         Ok(())
     }
 
-    fn write_export_fragment_type(&mut self, _old_name: &str, _new_name: &str) -> Result {
+    fn write_export_fragment_type(&mut self, _name: &str) -> Result {
         Ok(())
     }
 

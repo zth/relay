@@ -59,7 +59,9 @@ impl Writer for TypeScriptPrinter {
             AST::ReturnTypeOfFunctionWithName(function_name) => {
                 self.write_return_type_of_function_with_name(*function_name)
             }
-            AST::ActorChangePoint(_) => panic!("Not supported yet"),
+            AST::ActorChangePoint(_) => {
+                panic!("ActorChangePoint is not supported yet in Typescript")
+            }
             AST::ReturnTypeOfMethodCall(object, method_name) => {
                 self.write_return_type_of_method_call(object, *method_name)
             }
@@ -106,7 +108,7 @@ impl Writer for TypeScriptPrinter {
         Ok(())
     }
 
-    fn write_export_fragment_type(&mut self, _old_name: &str, _new_name: &str) -> FmtResult {
+    fn write_export_fragment_type(&mut self, _name: &str) -> FmtResult {
         Ok(())
     }
 

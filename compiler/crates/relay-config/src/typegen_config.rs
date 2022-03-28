@@ -10,15 +10,19 @@ use fnv::FnvBuildHasher;
 use indexmap::IndexMap;
 use intern::string_key::StringKey;
 use serde::{Deserialize, Serialize};
-
+use strum::IntoEnumIterator;
+use strum_macros::EnumIter;
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 
-#[derive(Debug, Copy, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(
+    EnumIter, strum_macros::ToString, Debug, Copy, Clone, Serialize, Deserialize, PartialEq,
+)]
 #[serde(deny_unknown_fields, rename_all = "lowercase")]
 pub enum TypegenLanguage {
-    Flow,
+    JavaScript,
     TypeScript,
     ReScript,
+    Flow,
 }
 
 impl Default for TypegenLanguage {
@@ -27,11 +31,20 @@ impl Default for TypegenLanguage {
     }
 }
 
+impl TypegenLanguage {
+    pub fn get_variants_as_string() -> Vec<String> {
+        let mut res = vec![];
+        for lang in Self::iter() {
+            res.push(lang.to_string().to_lowercase());
+        }
+        res
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, Default)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct TypegenConfig {
     /// The desired output language, "flow" or "typescript".
-    #[serde(default)]
     pub language: TypegenLanguage,
 
     /// # For Flow type generation
@@ -79,7 +92,7 @@ pub struct TypegenConfig {
     pub sort_typegen_items: SortTypegenItemsConfig,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, Copy)]
+#[derive(Default, Debug, Serialize, Deserialize, Clone, Copy)]
 #[serde(deny_unknown_fields, tag = "phase")]
 pub struct FlowTypegenConfig {
     /// This option controls whether or not a catch-all entry is added to enum type definitions
@@ -88,54 +101,6 @@ pub struct FlowTypegenConfig {
     /// from breaking.
     #[serde(default)]
     pub no_future_proof_enums: bool,
-
-    pub phase: FlowTypegenPhase,
-    #[serde(default)]
-    pub rollout: Rollout,
-}
-
-impl Default for FlowTypegenConfig {
-    fn default() -> Self {
-        Self {
-            no_future_proof_enums: false,
-            phase: FlowTypegenPhase::Final,
-            rollout: Rollout::default(),
-        }
-    }
-}
-
-impl FlowTypegenConfig {
-    /// Returns the FlowTypegenPhase based on the config. If a `Rollout` check
-    /// is not passing, the previous phase is returned.
-    pub fn phase(self, rollout_key: StringKey) -> FlowTypegenPhase {
-        if self.rollout.check(rollout_key.lookup()) {
-            self.phase
-        } else {
-            self.phase.previous()
-        }
-    }
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
-pub enum FlowTypegenPhase {
-    /// Final state
-    Final,
-    /// - remove $fragmentRefs for spreads
-    /// - remove $refType from Frag$data
-    /// - keep exporting old types for operations
-    Compat,
-}
-
-impl FlowTypegenPhase {
-    /// Returns the previous phase that should be used when the rollout
-    /// percentage check for the current phase fails.
-    fn previous(self) -> Self {
-        use FlowTypegenPhase::*;
-        match self {
-            Final => Compat,
-            Compat => Compat,
-        }
-    }
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Copy, Default)]
