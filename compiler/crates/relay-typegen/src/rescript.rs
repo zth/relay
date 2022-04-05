@@ -334,7 +334,11 @@ fn ast_to_prop_value(
             // what type you're after, we collapse that one member union into an
             // option, and do the conversion automatically for the developer,
             // behind the scenes.
-            if key.as_str() == "node" && members.len() == 2 {
+
+            // The new path having a length of two means we must be at ["response", "node"]
+            let is_potentially_at_top_level_node = new_at_path.len() == 2;
+
+            if key.as_str() == "node" && members.len() == 2 && is_potentially_at_top_level_node {
                 if let Some((typename, props)) = get_first_union_member_ast_and_typename(&members) {
                     let object = Object {
                         at_path: new_at_path.clone(),
