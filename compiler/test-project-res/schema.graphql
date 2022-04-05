@@ -30,6 +30,10 @@ enum OnlineStatus {
   Offline
 }
 
+interface HasName {
+  name: String!
+}
+
 type User implements Node {
   id: ID!
   firstName: String!
@@ -50,7 +54,7 @@ type User implements Node {
   memberOf: [Member]
 }
 
-type Group implements Node {
+type Group implements Node & HasName {
   id: ID!
   name: String!
   avatarUrl: String
