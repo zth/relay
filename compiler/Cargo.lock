@@ -1584,6 +1584,7 @@ dependencies = [
  "docblock-syntax",
  "env_logger",
  "extract-graphql",
+ "fixture-tests",
  "fnv",
  "graphql-ir",
  "graphql-syntax",

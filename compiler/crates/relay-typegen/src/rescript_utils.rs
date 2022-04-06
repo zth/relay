@@ -111,13 +111,14 @@ pub fn classify_top_level_object_type_ast(
         }
         &AST::ReadOnlyArray(inner_ast) => {
             match classify_top_level_object_type_ast(inner_ast.as_ref()) {
-                Some((_, ClassifiedTopLevelObjectType::Object(props))) => Some((
-                    nullable,
+                Some((array_item_nullable, ClassifiedTopLevelObjectType::Object(props))) => Some((
+                    array_item_nullable,
                     ClassifiedTopLevelObjectType::ArrayWithObject(&props),
                 )),
-                Some((_, ClassifiedTopLevelObjectType::Union(ast))) => {
-                    Some((nullable, ClassifiedTopLevelObjectType::ArrayWithUnion(&ast)))
-                }
+                Some((array_item_nullable, ClassifiedTopLevelObjectType::Union(ast))) => Some((
+                    array_item_nullable,
+                    ClassifiedTopLevelObjectType::ArrayWithUnion(&ast),
+                )),
                 _ => None,
             }
         }
