@@ -171,6 +171,7 @@ impl Config {
                 LoaderSource::PackageJson("relay".to_string()),
                 LoaderSource::Json("relay.config.json".to_string()),
                 LoaderSource::Js("relay.config.js".to_string()),
+                LoaderSource::Js("relay.config.cjs".to_string()),
             ],
         )
     }
@@ -688,7 +689,7 @@ impl Default for SingleProjectConfigFile {
             excludes: get_default_excludes(),
             schema_extensions: vec![],
             no_future_proof_enums: false,
-            language: None,
+            language: Some(TypegenLanguage::ReScript),
             custom_scalars: Default::default(),
             schema_config: Default::default(),
             eager_es_modules: false,
