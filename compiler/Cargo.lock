@@ -1591,6 +1591,7 @@ dependencies = [
  "graphql-text-printer",
  "graphql-watchman",
  "intern",
+ "itertools",
  "log",
  "lsp-server",
  "lsp-types",
