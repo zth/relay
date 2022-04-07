@@ -729,7 +729,7 @@ fn get_object_prop_type_as_string(
     match &prop_value {
         &PropType::DataId => String::from("RescriptRelay.dataId"),
         &PropType::Enum(enum_name) => match &context {
-            Context::Variables | Context::RootObject(_) => {
+            Context::Variables | Context::RawResponse | Context::RootObject(_) => {
                 match state
                     .enums
                     .iter()

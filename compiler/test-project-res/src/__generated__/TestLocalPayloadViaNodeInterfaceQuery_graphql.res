@@ -4,10 +4,26 @@
 module Types = {
   @@ocaml.warning("-30")
 
+  type enum_OnlineStatus = private [>
+      | #Idle
+      | #Offline
+      | #Online
+    ]
+
+  @live
+  type enum_OnlineStatus_input = [
+      | #Idle
+      | #Offline
+      | #Online
+    ]
+
+
+
   type rec response_node = {
     @live __typename: [ | #User],
     avatarUrl: option<string>,
     firstName: string,
+    onlineStatus: option<enum_OnlineStatus>,
   }
   @live
   and rawResponse_node = {
@@ -15,6 +31,11 @@ module Types = {
     avatarUrl: option<string>,
     firstName: string,
     @live id: string,
+    onlineStatus: option<[
+      | #Idle
+      | #Offline
+      | #Online
+    ]>,
   }
   type response = {
     node: option<response_node>,
@@ -116,6 +137,21 @@ type queryRef
 module Utils = {
   @@ocaml.warning("-33")
   open Types
+  @live
+  external onlineStatus_toString: enum_OnlineStatus => string = "%identity"
+  @live
+  external onlineStatus_input_toString: enum_OnlineStatus_input => string = "%identity"
+  @live
+  let onlineStatus_decode = (enum: enum_OnlineStatus): option<enum_OnlineStatus_input> => {
+    switch enum {
+      | #...enum_OnlineStatus_input as valid => Some(valid)
+      | _ => None
+    }
+  }
+  @live
+  let onlineStatus_fromString = (str: string): option<enum_OnlineStatus_input> => {
+    onlineStatus_decode(Obj.magic(str))
+  }
   @live @obj external makeVariables: (
     ~id: string,
   ) => variables = ""
@@ -164,6 +200,13 @@ v3 = {
       "args": null,
       "kind": "ScalarField",
       "name": "avatarUrl",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "onlineStatus",
       "storageKey": null
     }
   ],
@@ -223,12 +266,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "d851554a00ee2457821847cd2dd1eede",
+    "cacheID": "57a3671d69a0878acc900be78a50b6ed",
     "id": null,
     "metadata": {},
     "name": "TestLocalPayloadViaNodeInterfaceQuery",
     "operationKind": "query",
-    "text": "query TestLocalPayloadViaNodeInterfaceQuery(\n  $id: ID!\n) {\n  node(id: $id) {\n    __typename\n    ... on User {\n      firstName\n      avatarUrl\n    }\n    id\n  }\n}\n"
+    "text": "query TestLocalPayloadViaNodeInterfaceQuery(\n  $id: ID!\n) {\n  node(id: $id) {\n    __typename\n    ... on User {\n      firstName\n      avatarUrl\n      onlineStatus\n    }\n    id\n  }\n}\n"
   }
 };
 })() `)
