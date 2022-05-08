@@ -11,10 +11,13 @@ use graphql_ir::{
     OperationDefinition, Program, ScalarField, Selection, Transformed, Transformer,
 };
 use intern::string_key::Intern;
-use schema::{FieldID, Schema};
+use schema::Schema;
 use std::sync::Arc;
 
-use super::{errors::ValidationMessage, ASSIGNABLE_DIRECTIVE, UPDATABLE_DIRECTIVE};
+use super::{
+    ensure_discriminated_union_is_created, errors::ValidationMessage, ASSIGNABLE_DIRECTIVE,
+    UPDATABLE_DIRECTIVE,
+};
 
 pub fn transform_assignable_fragment_spreads_in_regular_queries(
     program: &Program,
@@ -68,13 +71,21 @@ impl<'s> AssignableFragmentSpread<'s> {
                     }
                 }
                 PathSegment::LinkedField {
-                    encountered_assignable_fragment_spread,
+                    valid_generated_flow_type,
                 } => {
                     in_linked_field = true;
-                    *encountered_assignable_fragment_spread = true;
+                    if in_inline_fragment {
+                        *valid_generated_flow_type = ValidGeneratedFlowType::OnlyDiscriminatedUnion;
+                    }
                     break;
                 }
                 PathSegment::InlineFragment => {
+                    if in_inline_fragment {
+                        self.errors.push(Diagnostic::error(
+                            ValidationMessage::AssignableFragmentSpreadContainingInlineFragmentSingleNesting,
+                            fragment_spread.fragment.location
+                        ));
+                    }
                     in_inline_fragment = true;
                 }
             }
@@ -88,12 +99,7 @@ impl<'s> AssignableFragmentSpread<'s> {
                 fragment_spread.fragment.location,
             ));
         }
-        if in_inline_fragment {
-            self.errors.push(Diagnostic::error(
-                ValidationMessage::AssignableFragmentSpreadNotWithinInlineFragment,
-                fragment_spread.fragment.location,
-            ));
-        }
+
         if !in_linked_field {
             self.errors.push(Diagnostic::error(
                 ValidationMessage::AssignableNoTopLevelFragmentSpreads,
@@ -107,9 +113,15 @@ impl<'s> AssignableFragmentSpread<'s> {
 enum PathSegment {
     Condition(&'static str),
     LinkedField {
-        encountered_assignable_fragment_spread: bool,
+        valid_generated_flow_type: ValidGeneratedFlowType,
     },
     InlineFragment,
+}
+
+#[derive(Debug)]
+enum ValidGeneratedFlowType {
+    OnlyDiscriminatedUnion,
+    Any,
 }
 
 impl<'s> Transformer for AssignableFragmentSpread<'s> {
@@ -143,22 +155,33 @@ impl<'s> Transformer for AssignableFragmentSpread<'s> {
         }
     }
 
+    /// When we encountered a spread of an assignable fragment, we want to return
+    /// some additional selections. However, we must return a Transformed<Selection>,
+    /// i.e. at most a single selection from this function. So, instead, we return
+    /// an inline fragment with no directives and no type condition to house our
+    /// additional peer selections and the original fragment spread.
+    ///
+    /// Thus we return:
+    /// - The original fragment spread.
+    /// - A fragment spread marker:
+    ///   - If the fragment spread's type is abstract, we want to return an additional
+    ///     `... on FragmentType { __isFragmentName: __typename }`.
+    ///   - If the fragment spread's type is concrete, we either want to return an additional
+    ///     `__typename`.
+    /// - An unconditional `__id` selection
+    ///
+    /// So, e.g. we might transform the fragment spread into:
+    /// ```graphql
+    /// ... {
+    ///   ...Original_assignable_node
+    ///   ... on Node { __isNode: __typename }
+    ///   __id
+    /// }
+    /// ```
     fn transform_fragment_spread(
         &mut self,
         fragment_spread: &FragmentSpread,
     ) -> Transformed<Selection> {
-        // When we encounter a spread of an assignable fragment whose type is abstract, we
-        // want to return an additional fragment spread:
-        // ... on FragmentType { __isFragmentName: __typename }
-        // However, because we are returning Transformed<Selection> (i.e. a single selection),
-        // and we must also continue to return the current fragment spread, we instead return
-        // ... on FragmentType { ...ExistingFragmentSpread, __isFragmentName }
-        //
-        // When we encounter a spread of an assignable fragment whose type is concrete, we
-        // want to return an additional `__typename` selection.
-        // However, due to a bug in our typegen, this `__typename` selection cannot be contained
-        // in an inline fragment with a type condition, so we generate
-        // ... { ...ExistingFragmentSpread, __typename }
         let fragment_definition = self
             .program
             .fragment(fragment_spread.fragment.item)
@@ -172,8 +195,6 @@ impl<'s> Transformer for AssignableFragmentSpread<'s> {
             return Transformed::Keep;
         }
 
-        self.validate_nesting_and_mark_enclosing_linked_field(fragment_spread);
-
         // Assignable fragments cannot have directives, but we error only on the first one
         if let Some(directive) = fragment_spread.directives.first() {
             self.errors.push(Diagnostic::error(
@@ -184,72 +205,80 @@ impl<'s> Transformer for AssignableFragmentSpread<'s> {
             ));
         }
 
-        let new_inline_fragment = Selection::InlineFragment(Arc::new(InlineFragment {
-            type_condition: fragment_definition
-                .type_condition
-                .is_abstract_type()
-                .then(|| fragment_definition.type_condition),
+        self.validate_nesting_and_mark_enclosing_linked_field(fragment_spread);
+
+        let clientid_selection = Selection::ScalarField(Arc::new(ScalarField {
+            alias: None,
+            definition: WithLocation::generated(self.program.schema.clientid_field()),
+            arguments: vec![],
             directives: vec![],
-            selections: vec![
-                Selection::FragmentSpread(Arc::new(fragment_spread.clone())),
-                Selection::ScalarField(Arc::new(ScalarField {
-                    alias: fragment_definition
-                        .type_condition
-                        .is_abstract_type()
-                        .then(|| {
-                            WithLocation::generated(
-                                format!("__is{}", fragment_spread.fragment.item.lookup()).intern(),
-                            )
-                        }),
+        }));
+
+        let fragment_spread_marker = if fragment_definition.type_condition.is_abstract_type() {
+            Selection::InlineFragment(Arc::new(InlineFragment {
+                type_condition: Some(fragment_definition.type_condition),
+                directives: vec![],
+                selections: vec![Selection::ScalarField(Arc::new(ScalarField {
+                    alias: Some(WithLocation::generated(
+                        format!("__is{}", fragment_spread.fragment.item.lookup()).intern(),
+                    )),
                     definition: WithLocation::generated(self.program.schema.typename_field()),
                     arguments: vec![],
                     directives: vec![],
-                })),
+                }))],
+                spread_location: Location::generated(),
+            }))
+        } else {
+            Selection::ScalarField(Arc::new(ScalarField {
+                alias: None,
+                definition: WithLocation::generated(self.program.schema.typename_field()),
+                arguments: vec![],
+                directives: vec![],
+            }))
+        };
+
+        Transformed::Replace(Selection::InlineFragment(Arc::new(InlineFragment {
+            type_condition: None,
+            directives: vec![],
+            selections: vec![
+                Selection::FragmentSpread(Arc::new(fragment_spread.clone())),
+                fragment_spread_marker,
+                clientid_selection,
             ],
             spread_location: Location::generated(),
-        }));
-        Transformed::Replace(new_inline_fragment)
+        })))
     }
 
     fn transform_linked_field(&mut self, linked_field: &LinkedField) -> Transformed<Selection> {
         self.path.push(PathSegment::LinkedField {
-            encountered_assignable_fragment_spread: false,
+            valid_generated_flow_type: ValidGeneratedFlowType::Any,
         });
         let response = self.default_transform_linked_field(linked_field);
-        let encountered_assignable_fragment_spread = if let PathSegment::LinkedField {
-            encountered_assignable_fragment_spread,
-        } =
-            self.path.pop().expect("path should be empty")
+
+        // If we encountered an assignable fragment in an inline fragment, the linked field
+        // must result in a discriminated union being created
+        let valid_generated_flow_type = if let PathSegment::LinkedField {
+            valid_generated_flow_type,
+        } = self.path.pop().expect("path should not be empty")
         {
-            encountered_assignable_fragment_spread
+            valid_generated_flow_type
         } else {
             panic!("Unexpected non-linked field");
         };
-
-        match response {
-            Transformed::Delete => panic!("Unexpected Transformed::Delete"),
-            Transformed::Keep => {
-                if encountered_assignable_fragment_spread {
-                    get_transformed_linked_field(linked_field, self.program.schema.clientid_field())
-                } else {
-                    Transformed::Keep
-                }
-            }
-            Transformed::Replace(selection) => {
-                if encountered_assignable_fragment_spread {
-                    let linked_field = match selection {
-                        Selection::LinkedField(l) => l,
-                        _ => panic!("Unexpected non-linked field"),
-                    };
-                    get_transformed_linked_field(
-                        &linked_field,
-                        self.program.schema.clientid_field(),
-                    )
-                } else {
-                    Transformed::Replace(selection)
-                }
+        if matches!(
+            valid_generated_flow_type,
+            ValidGeneratedFlowType::OnlyDiscriminatedUnion
+        ) {
+            if let Err(e) = ensure_discriminated_union_is_created(
+                &self.program.schema,
+                linked_field,
+                "an assignable fragment was spread in this linked field",
+            ) {
+                self.errors.extend(e.into_iter());
             }
         }
+
+        response
     }
 
     fn transform_condition(&mut self, condition: &Condition) -> Transformed<Selection> {
@@ -266,24 +295,4 @@ impl<'s> Transformer for AssignableFragmentSpread<'s> {
         self.path.pop().expect("path should not be empty");
         response
     }
-}
-
-fn get_transformed_linked_field(
-    linked_field: &LinkedField,
-    additional_field: FieldID,
-) -> Transformed<Selection> {
-    let mut selections = linked_field.selections.clone();
-    selections.push(Selection::ScalarField(Arc::new(ScalarField {
-        alias: None,
-        definition: WithLocation::generated(additional_field),
-        arguments: vec![],
-        directives: vec![],
-    })));
-    Transformed::Replace(Selection::LinkedField(Arc::new(LinkedField {
-        selections,
-        directives: linked_field.directives.clone(),
-        alias: linked_field.alias,
-        definition: linked_field.definition,
-        arguments: linked_field.arguments.clone(),
-    })))
 }

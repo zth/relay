@@ -1,7 +1,10 @@
 ==================================== INPUT ====================================
-query TestQuery {
+query TestQuery($skip: Boolean!) {
   node(id: "4") {
-    ...Assignable_user
+    ... on User {
+      __typename
+      ...Assignable_user
+    }
   }
 }
 
@@ -9,12 +12,17 @@ fragment Assignable_user on User @assignable {
   __typename
 }
 ==================================== OUTPUT ===================================
-query TestQuery {
+query TestQuery(
+  $skip: Boolean!
+) {
   node(id: "4") {
-    ... {
-      ...Assignable_user
+    ... on User {
       __typename
-      __id
+      ... {
+        ...Assignable_user
+        __typename
+        __id
+      }
     }
   }
 }
