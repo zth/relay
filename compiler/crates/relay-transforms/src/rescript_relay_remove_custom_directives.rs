@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::sync::Arc;
+
 use lazy_static::lazy_static;
 
 use graphql_ir::{
@@ -22,6 +24,8 @@ pub fn rescript_relay_remove_custom_directives(program: &Program) -> Program {
 
 lazy_static! {
     static ref FRAGMENT_DIRECTIVE_IGNORE_UNUSED: StringKey = "rescriptRelayIgnoreUnused".intern();
+    static ref FIELD_DIRECTIVE_ALLOW_UNSAFE_ENUM: StringKey =
+        "rescriptRelayAllowUnsafeEnum".intern();
 }
 
 #[allow(dead_code)]
@@ -76,8 +80,21 @@ impl<'s> Transformer for RescriptRelayRemoveCustomDirectivesTransform<'s> {
         Transformed::Keep
     }
 
-    fn transform_scalar_field(&mut self, _field: &ScalarField) -> Transformed<Selection> {
-        Transformed::Keep
+    fn transform_scalar_field(&mut self, field: &ScalarField) -> Transformed<Selection> {
+        Transformed::Replace(Selection::ScalarField(Arc::new(ScalarField {
+            directives: field
+                .directives
+                .iter()
+                .filter_map(|directive| {
+                    if directive.name.item == *FIELD_DIRECTIVE_ALLOW_UNSAFE_ENUM {
+                        None
+                    } else {
+                        Some(directive.to_owned())
+                    }
+                })
+                .collect::<Vec<Directive>>(),
+            ..field.clone()
+        })))
     }
 
     fn transform_fragment_spread(&mut self, _spread: &FragmentSpread) -> Transformed<Selection> {

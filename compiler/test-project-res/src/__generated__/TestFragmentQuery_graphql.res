@@ -20,7 +20,7 @@ module Types = {
 
 
   type rec response_loggedInUser = {
-    fragmentRefs: RescriptRelay.fragmentRefs<[ | #TestFragment_ignoreUnused | #TestFragment_inline | #TestFragment_user]>,
+    fragmentRefs: RescriptRelay.fragmentRefs<[ | #TestFragment_allowUnsafeEnum | #TestFragment_ignoreUnused | #TestFragment_inline | #TestFragment_user]>,
   }
   and response_users_edges_node = {
     @live id: string,
@@ -176,6 +176,11 @@ return {
             "args": null,
             "kind": "FragmentSpread",
             "name": "TestFragment_ignoreUnused"
+          },
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "TestFragment_allowUnsafeEnum"
           }
         ],
         "storageKey": null
@@ -259,6 +264,7 @@ return {
               }
             ]
           },
+          (v1/*: any*/),
           (v2/*: any*/)
         ],
         "storageKey": null
@@ -302,12 +308,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "0978efca00fe05d234a9c51a84d36ce7",
+    "cacheID": "635b45ab1a1db6575279f7418a418166",
     "id": null,
     "metadata": {},
     "name": "TestFragmentQuery",
     "operationKind": "query",
-    "text": "query TestFragmentQuery {\n  loggedInUser {\n    ...TestFragment_user\n    ...TestFragment_inline\n    ...TestFragment_ignoreUnused\n    id\n  }\n  users {\n    edges {\n      node {\n        id\n        onlineStatus\n        ...TestFragment_plural_user\n      }\n    }\n  }\n}\n\nfragment TestFragment_ignoreUnused on User {\n  firstName\n  lastName\n  onlineStatus\n}\n\nfragment TestFragment_inline on User {\n  firstName\n  onlineStatus\n}\n\nfragment TestFragment_plural_user on User {\n  id\n  firstName\n  onlineStatus\n}\n\nfragment TestFragment_sub_user on User {\n  lastName\n  ...TestRelayResolver\n}\n\nfragment TestFragment_user on User {\n  firstName\n  onlineStatus\n  ...TestFragment_sub_user\n}\n\nfragment TestRelayResolver on User {\n  firstName\n  lastName\n}\n"
+    "text": "query TestFragmentQuery {\n  loggedInUser {\n    ...TestFragment_user\n    ...TestFragment_inline\n    ...TestFragment_ignoreUnused\n    ...TestFragment_allowUnsafeEnum\n    id\n  }\n  users {\n    edges {\n      node {\n        id\n        onlineStatus\n        ...TestFragment_plural_user\n      }\n    }\n  }\n}\n\nfragment TestFragment_allowUnsafeEnum on User {\n  firstName\n  lastName\n  onlineStatus\n}\n\nfragment TestFragment_ignoreUnused on User {\n  firstName\n  lastName\n  onlineStatus\n}\n\nfragment TestFragment_inline on User {\n  firstName\n  onlineStatus\n}\n\nfragment TestFragment_plural_user on User {\n  id\n  firstName\n  onlineStatus\n}\n\nfragment TestFragment_sub_user on User {\n  lastName\n  ...TestRelayResolver\n}\n\nfragment TestFragment_user on User {\n  firstName\n  onlineStatus\n  ...TestFragment_sub_user\n}\n\nfragment TestRelayResolver on User {\n  firstName\n  lastName\n}\n"
   }
 };
 })() `)

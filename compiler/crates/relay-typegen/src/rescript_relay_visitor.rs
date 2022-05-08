@@ -27,12 +27,24 @@ pub enum RescriptRelayFragmentDirective {
     IgnoreUnused,
 }
 
+#[derive(Debug, PartialEq, Eq)]
+pub enum RescriptRelayFieldDirective {
+    AllowUnsafeEnum,
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub struct FieldDirectiveContainer {
+    pub at_object_path: Vec<String>,
+    pub directive: RescriptRelayFieldDirective,
+}
+
 #[derive(Debug)]
 pub struct RescriptRelayOperationMetaData {
     pub connection_config: Option<RescriptRelayConnectionConfig>,
     pub variables_with_connection_data_ids: Vec<String>,
     pub custom_scalars: IndexMap<StringKey, StringKey, FnvBuildHasher>,
     pub fragment_directives: Vec<RescriptRelayFragmentDirective>,
+    pub field_directives: Vec<FieldDirectiveContainer>,
 }
 
 pub struct RescriptRelayVisitor<'a> {
@@ -62,6 +74,8 @@ lazy_static! {
     static ref PREPEND_EDGE: StringKey = "prependEdge".intern();
     static ref PREPEND_NODE: StringKey = "prependNode".intern();
     static ref FRAGMENT_DIRECTIVE_IGNORE_UNUSED: StringKey = "rescriptRelayIgnoreUnused".intern();
+    static ref FIELD_DIRECTIVE_ALLOW_UNSAFE_ENUM: StringKey =
+        "rescriptRelayAllowUnsafeEnum".intern();
 }
 
 fn find_connections_arguments(directive: Option<&Directive>) -> Vec<String> {
@@ -123,6 +137,18 @@ impl<'a> Visitor for RescriptRelayVisitor<'a> {
                     .variables_with_connection_data_ids
                     .push(variable_name.to_string())
             });
+
+        field.directives.iter().for_each(|directive| {
+            if directive.name.item == *FIELD_DIRECTIVE_ALLOW_UNSAFE_ENUM {
+                let mut at_object_path = self.current_path.clone();
+                at_object_path.push(field.alias_or_name(self.schema).to_string());
+
+                self.state.field_directives.push(FieldDirectiveContainer {
+                    directive: RescriptRelayFieldDirective::AllowUnsafeEnum,
+                    at_object_path,
+                })
+            }
+        });
 
         self.default_visit_scalar_field(field)
     }

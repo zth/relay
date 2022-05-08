@@ -264,3 +264,10 @@ directive @alias(as: String) on FRAGMENT_SPREAD | INLINE_FRAGMENT
 Tells the RescriptRelay CLI that it's fine to ignore unused fields in this fragment.
 """
 directive @rescriptRelayIgnoreUnused on FRAGMENT_DEFINITION
+
+"""
+(RescriptRelay only)
+
+Turns off safety features if this is an enum.
+"""
+directive @rescriptRelayAllowUnsafeEnum on FIELD

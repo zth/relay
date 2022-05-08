@@ -4,6 +4,7 @@ module Query = %relay(`
         ...TestFragment_user
         ...TestFragment_inline
         ...TestFragment_ignoreUnused
+        ...TestFragment_allowUnsafeEnum
       }
       users {
         edges {
@@ -96,5 +97,13 @@ module IgnoreUnusedFragment = %relay(`
       firstName
       lastName
       onlineStatus
+    }
+`)
+
+module AllowUnsafeEnumFragment = %relay(`
+    fragment TestFragment_allowUnsafeEnum on User  {
+      firstName
+      lastName
+      onlineStatus @rescriptRelayAllowUnsafeEnum
     }
 `)

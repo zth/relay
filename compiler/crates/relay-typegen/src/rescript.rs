@@ -727,28 +727,41 @@ fn get_object_prop_type_as_string(
     prop_value: &PropType,
     context: &Context,
     indentation: usize,
+    field_path_name: &Vec<String>,
 ) -> String {
     match &prop_value {
         &PropType::DataId => String::from("RescriptRelay.dataId"),
-        &PropType::Enum(enum_name) => match &context {
-            Context::Variables | Context::RawResponse | Context::RootObject(_) => {
-                match state
-                    .enums
-                    .iter()
-                    .find(|full_enum| full_enum.name == enum_name.to_string())
-                {
-                    None => {
-                        warn!("Did not find enum");
-                        String::from("invalid_enum")
+        &PropType::Enum(enum_name) => {
+            let has_allow_unsafe_enum_directive = state
+                .operation_meta_data
+                .field_directives
+                .iter()
+                .find(|field_directive| {
+                    field_directive.at_object_path.join("__") == field_path_name.join("__")
+                })
+                .is_some();
+
+            match (has_allow_unsafe_enum_directive, &context) {
+                (true, _)
+                | (false, Context::Variables | Context::RawResponse | Context::RootObject(_)) => {
+                    match state
+                        .enums
+                        .iter()
+                        .find(|full_enum| full_enum.name == enum_name.to_string())
+                    {
+                        None => {
+                            warn!("Did not find enum");
+                            String::from("invalid_enum")
+                        }
+                        Some(full_enum) => format!(
+                            "{}",
+                            get_enum_definition_body(full_enum, indentation, false)
+                        ),
                     }
-                    Some(full_enum) => format!(
-                        "{}",
-                        get_enum_definition_body(full_enum, indentation, false)
-                    ),
                 }
+                _ => format!("enum_{}", enum_name),
             }
-            _ => format!("enum_{}", enum_name),
-        },
+        }
         &PropType::StringLiteral(literal) => format!("[ | #{}]", literal),
         &PropType::InputObjectReference(input_object_name) => input_object_name.to_string(),
         &PropType::RecordReference(record_name) => record_name.to_string(),
@@ -780,7 +793,8 @@ fn get_object_prop_type_as_string(
                     state,
                     inner_list_type.as_ref(),
                     &context,
-                    indentation
+                    indentation,
+                    field_path_name
                 ),
             )
             .unwrap();
@@ -859,6 +873,9 @@ fn write_object_maker_as_external(
     let mut has_nullable = false;
 
     definition.values.iter().for_each(|prop_value| {
+        let mut field_path_name = definition.at_path.clone();
+        field_path_name.push(prop_value.key.to_owned());
+
         write_indentation(str, indentation + 1).unwrap();
         write!(
             str,
@@ -869,6 +886,7 @@ fn write_object_maker_as_external(
                 &prop_value.prop_type,
                 &Context::Variables,
                 indentation,
+                &field_path_name
             )
         )
         .unwrap();
@@ -1645,6 +1663,9 @@ fn write_object_definition(
             has_printed_keys.insert(&prop.key);
         }
 
+        let mut field_path_name = object.at_path.clone();
+        field_path_name.push(prop.key.to_owned());
+
         write_indentation(str, in_object_indentation).unwrap();
         writeln!(
             str,
@@ -1680,15 +1701,33 @@ fn write_object_definition(
             match (prop.nullable, is_refetch_var) {
                 (true, true) => format!(
                     "option<option<{}>>",
-                    get_object_prop_type_as_string(state, &prop.prop_type, &context, indentation)
+                    get_object_prop_type_as_string(
+                        state,
+                        &prop.prop_type,
+                        &context,
+                        indentation,
+                        &field_path_name
+                    )
                 ),
                 (true, false) | (false, true) => format!(
                     "option<{}>",
-                    get_object_prop_type_as_string(state, &prop.prop_type, &context, indentation)
+                    get_object_prop_type_as_string(
+                        state,
+                        &prop.prop_type,
+                        &context,
+                        indentation,
+                        &field_path_name
+                    )
                 ),
                 (false, false) => format!(
                     "{}",
-                    get_object_prop_type_as_string(state, &prop.prop_type, &context, indentation)
+                    get_object_prop_type_as_string(
+                        state,
+                        &prop.prop_type,
+                        &context,
+                        indentation,
+                        &field_path_name
+                    )
                 ),
             }
         )

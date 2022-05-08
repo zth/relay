@@ -216,6 +216,7 @@ pub fn get_rescript_relay_meta_data(
         variables_with_connection_data_ids: vec![],
         custom_scalars: typegen_config.custom_scalar_types.clone(),
         fragment_directives: vec![],
+        field_directives: vec![],
     };
 
     match &typegen_definition {
