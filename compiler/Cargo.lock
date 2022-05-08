@@ -199,9 +199,9 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "3.1.5"
+version = "3.1.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ced1892c55c910c1219e98d6fc8d71f6bddba7905866ce740066d8bfea859312"
+checksum = "71c47df61d9e16dc010b55dba1952a57d8c215dbb533fd13cdd13369aac73b1c"
 dependencies = [
  "atty",
  "bitflags",
@@ -219,9 +219,9 @@ dependencies = [
 
 [[package]]
 name = "clap_derive"
-version = "3.1.4"
+version = "3.1.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "da95d038ede1a964ce99f49cbe27a7fb538d1da595e4b4f70b8c8f338d17bf16"
+checksum = "a3aab4734e083b809aaf5794e14e756d1c798d2c69c7f7de7a09a2f5214993c1"
 dependencies = [
  "heck 0.4.0",
  "proc-macro-error",
@@ -464,7 +464,7 @@ dependencies = [
 name = "fixture-tests"
 version = "0.0.0"
 dependencies = [
- "clap 3.1.5",
+ "clap 3.1.8",
  "colored",
  "diff",
  "lazy_static",
@@ -1489,7 +1489,7 @@ checksum = "f497285884f3fcff424ffc933e56d7cbca511def0c9831a7f9b5f6153e3cc89b"
 name = "relay"
 version = "0.0.0"
 dependencies = [
- "clap 3.1.5",
+ "clap 3.1.8",
  "common",
  "intern",
  "log",
@@ -1826,7 +1826,7 @@ dependencies = [
 name = "schema-validate-lib"
 version = "0.0.0"
 dependencies = [
- "clap 3.1.5",
+ "clap 3.1.8",
  "common",
  "fixture-tests",
  "fnv",
