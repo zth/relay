@@ -5,8 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::util::{is_relay_custom_inline_fragment_directive, PointerAddress};
-use common::{Location, WithLocation};
+use crate::util::is_relay_custom_inline_fragment_directive;
+use common::{Location, PointerAddress, WithLocation};
 use fnv::FnvHashMap;
 use graphql_ir::{
     FragmentDefinition, FragmentSpread, InlineFragment, LinkedField, OperationDefinition, Program,

@@ -5,10 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
+use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
 use graphql_ir::{
-    Condition, FragmentSpread, InlineFragment, LinkedField, OperationDefinition, Program,
-    ScalarField, Selection, Transformed, Transformer,
+    Condition, FragmentDefinition, FragmentSpread, InlineFragment, LinkedField,
+    OperationDefinition, Program, ScalarField, Selection, Transformed, Transformer,
 };
 use intern::string_key::Intern;
 use schema::{FieldID, Schema};
@@ -128,16 +128,37 @@ impl<'s> Transformer for AssignableFragmentSpread<'s> {
         }
     }
 
+    fn transform_fragment(
+        &mut self,
+        fragment_definition: &FragmentDefinition,
+    ) -> Transformed<FragmentDefinition> {
+        if fragment_definition
+            .directives
+            .named(*UPDATABLE_DIRECTIVE)
+            .is_some()
+        {
+            Transformed::Keep
+        } else {
+            self.default_transform_fragment(fragment_definition)
+        }
+    }
+
     fn transform_fragment_spread(
         &mut self,
         fragment_spread: &FragmentSpread,
     ) -> Transformed<Selection> {
-        // When we encounter a spread of an assignable fragment, we
-        // return the current fragment spread and a peer inline fragment of the form
+        // When we encounter a spread of an assignable fragment whose type is abstract, we
+        // want to return an additional fragment spread:
         // ... on FragmentType { __isFragmentName: __typename }
-        // However, because we are returning Transformed<Selection>, i.e. a single selection, we
-        // instead return
+        // However, because we are returning Transformed<Selection> (i.e. a single selection),
+        // and we must also continue to return the current fragment spread, we instead return
         // ... on FragmentType { ...ExistingFragmentSpread, __isFragmentName }
+        //
+        // When we encounter a spread of an assignable fragment whose type is concrete, we
+        // want to return an additional `__typename` selection.
+        // However, due to a bug in our typegen, this `__typename` selection cannot be contained
+        // in an inline fragment with a type condition, so we generate
+        // ... { ...ExistingFragmentSpread, __typename }
         let fragment_definition = self
             .program
             .fragment(fragment_spread.fragment.item)
@@ -163,32 +184,30 @@ impl<'s> Transformer for AssignableFragmentSpread<'s> {
             ));
         }
 
-        if fragment_definition.type_condition.is_abstract_type() {
-            let new_inline_fragment = Selection::InlineFragment(Arc::new(InlineFragment {
-                type_condition: Some(fragment_definition.type_condition),
-                directives: vec![],
-                selections: vec![
-                    Selection::FragmentSpread(Arc::new(fragment_spread.clone())),
-                    // This is the "abstract fragment spread marker"
-                    Selection::ScalarField(Arc::new(ScalarField {
-                        alias: Some(WithLocation {
-                            location: Location::generated(),
-                            item: format!("__is{}", fragment_spread.fragment.item.lookup())
-                                .intern(),
+        let new_inline_fragment = Selection::InlineFragment(Arc::new(InlineFragment {
+            type_condition: fragment_definition
+                .type_condition
+                .is_abstract_type()
+                .then(|| fragment_definition.type_condition),
+            directives: vec![],
+            selections: vec![
+                Selection::FragmentSpread(Arc::new(fragment_spread.clone())),
+                Selection::ScalarField(Arc::new(ScalarField {
+                    alias: fragment_definition
+                        .type_condition
+                        .is_abstract_type()
+                        .then(|| {
+                            WithLocation::generated(
+                                format!("__is{}", fragment_spread.fragment.item.lookup()).intern(),
+                            )
                         }),
-                        definition: WithLocation {
-                            location: Location::generated(),
-                            item: self.program.schema.typename_field(),
-                        },
-                        arguments: vec![],
-                        directives: vec![],
-                    })),
-                ],
-            }));
-            Transformed::Replace(new_inline_fragment)
-        } else {
-            Transformed::Keep
-        }
+                    definition: WithLocation::generated(self.program.schema.typename_field()),
+                    arguments: vec![],
+                    directives: vec![],
+                })),
+            ],
+        }));
+        Transformed::Replace(new_inline_fragment)
     }
 
     fn transform_linked_field(&mut self, linked_field: &LinkedField) -> Transformed<Selection> {
@@ -255,10 +274,7 @@ fn get_transformed_linked_field(
     let mut selections = linked_field.selections.clone();
     selections.push(Selection::ScalarField(Arc::new(ScalarField {
         alias: None,
-        definition: WithLocation {
-            location: Location::generated(),
-            item: additional_field,
-        },
+        definition: WithLocation::generated(additional_field),
         arguments: vec![],
         directives: vec![],
     })));

@@ -38,9 +38,9 @@ resolution-path = { path = "../resolution-path" }
 schema = { path = "../schema" }
 schema-documentation = { path = "../schema-documentation" }
 schema-print = { path = "../schema-print" }
-serde = { version = "1.0.126", features = ["derive", "rc"] }
-serde_json = { version = "1.0.64", features = ["float_roundtrip", "unbounded_depth"] }
 structopt = "0.3.23"
+serde = { version = "1.0.136", features = ["derive", "rc"] }
+serde_json = { version = "1.0.79", features = ["float_roundtrip", "unbounded_depth"] }
 tokio = { version = "1.15", features = ["full", "test-util", "tracing"] }
 
 [dev-dependencies]
