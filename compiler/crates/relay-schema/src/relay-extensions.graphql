@@ -257,3 +257,10 @@ Exposes a fragment's data as a new field which can be null checked to ensure it
 matches the parent selection.
 """
 directive @alias(as: String) on FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+"""
+(RescriptRelay only)
+
+Tells the RescriptRelay CLI that it's fine to ignore unused fields in this fragment.
+"""
+directive @rescriptRelayIgnoreUnused on FRAGMENT_DEFINITION

@@ -270,6 +270,9 @@ fn apply_reader_transforms(
     program = log_event.time("rescript_relay_generate_typename", || {
         rescript_relay_generate_typename(&program)
     });
+    program = log_event.time("rescript_relay_remove_custom_directives", || {
+        rescript_relay_remove_custom_directives(&program)
+    });
     program = apply_after_custom_transforms(
         &program,
         custom_transforms,

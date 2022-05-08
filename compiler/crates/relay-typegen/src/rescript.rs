@@ -16,7 +16,9 @@ use log::{debug, warn};
 use schema::{SDLSchema, Schema};
 
 use crate::rescript_ast::*;
-use crate::rescript_relay_visitor::RescriptRelayOperationMetaData;
+use crate::rescript_relay_visitor::{
+    RescriptRelayFragmentDirective, RescriptRelayOperationMetaData,
+};
 use crate::rescript_utils::*;
 use crate::writer::{Prop, Writer, AST};
 use std::fmt::{Result, Write};
@@ -1651,9 +1653,19 @@ fn write_object_definition(
             // don't affect overfetching, and are used internally by
             // RescriptRelay, but end up in the types anyway because of
             // *reasons*.
-            match &prop.key[..] {
-                "id" | "__id" | "__typename" => "@live ",
-                _ => "",
+            {
+                let should_ignore_all_unused = state
+                    .operation_meta_data
+                    .fragment_directives
+                    .iter()
+                    .find(|directive| {
+                        directive.to_owned() == &RescriptRelayFragmentDirective::IgnoreUnused
+                    })
+                    .is_some();
+                match (should_ignore_all_unused, &prop.key[..]) {
+                    (true, _) | (false, "id" | "__id" | "__typename") => "@live ",
+                    _ => "",
+                }
             },
             // If original_key is set, that means that the key here has been
             // transformed (as it was probably an illegal identifier in

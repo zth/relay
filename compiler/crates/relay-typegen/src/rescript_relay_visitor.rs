@@ -7,7 +7,8 @@
 
 use fnv::FnvBuildHasher;
 use graphql_ir::{
-    ConstantValue, Directive, Field, LinkedField, ScalarField, Value, Variable, Visitor,
+    ConstantValue, Directive, Field, FragmentDefinition, LinkedField, ScalarField, Value, Variable,
+    Visitor,
 };
 use indexmap::IndexMap;
 use intern::string_key::{Intern, StringKey};
@@ -21,11 +22,17 @@ pub struct RescriptRelayConnectionConfig {
     pub field_name: String,
 }
 
+#[derive(Debug, PartialEq, Eq)]
+pub enum RescriptRelayFragmentDirective {
+    IgnoreUnused,
+}
+
 #[derive(Debug)]
 pub struct RescriptRelayOperationMetaData {
     pub connection_config: Option<RescriptRelayConnectionConfig>,
     pub variables_with_connection_data_ids: Vec<String>,
     pub custom_scalars: IndexMap<StringKey, StringKey, FnvBuildHasher>,
+    pub fragment_directives: Vec<RescriptRelayFragmentDirective>,
 }
 
 pub struct RescriptRelayVisitor<'a> {
@@ -54,6 +61,7 @@ lazy_static! {
     static ref DELETE_EDGE: StringKey = "deleteEdge".intern();
     static ref PREPEND_EDGE: StringKey = "prependEdge".intern();
     static ref PREPEND_NODE: StringKey = "prependNode".intern();
+    static ref FRAGMENT_DIRECTIVE_IGNORE_UNUSED: StringKey = "rescriptRelayIgnoreUnused".intern();
 }
 
 fn find_connections_arguments(directive: Option<&Directive>) -> Vec<String> {
@@ -83,6 +91,24 @@ impl<'a> Visitor for RescriptRelayVisitor<'a> {
     const NAME: &'static str = "RescriptRelayVisitor";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
+
+    fn visit_fragment(&mut self, fragment: &FragmentDefinition) {
+        let rescript_relay_directives: Vec<RescriptRelayFragmentDirective> = fragment
+            .directives
+            .iter()
+            .filter_map(|directive| {
+                if directive.name.item == *FRAGMENT_DIRECTIVE_IGNORE_UNUSED {
+                    Some(RescriptRelayFragmentDirective::IgnoreUnused)
+                } else {
+                    None
+                }
+            })
+            .collect();
+
+        self.state.fragment_directives = rescript_relay_directives;
+
+        self.default_visit_fragment(fragment)
+    }
 
     fn visit_scalar_field(&mut self, field: &ScalarField) {
         let delete_edge_directive = field

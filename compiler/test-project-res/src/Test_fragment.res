@@ -3,6 +3,7 @@ module Query = %relay(`
       loggedInUser {
         ...TestFragment_user
         ...TestFragment_inline
+        ...TestFragment_ignoreUnused
       }
       users {
         edges {
@@ -90,3 +91,10 @@ module FragmentWithRequiredUnionPlural = %relay(`
     }
 `)
 
+module IgnoreUnusedFragment = %relay(`
+    fragment TestFragment_ignoreUnused on User @rescriptRelayIgnoreUnused {
+      firstName
+      lastName
+      onlineStatus
+    }
+`)

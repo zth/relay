@@ -50,6 +50,7 @@ mod relay_resolvers;
 mod remove_base_fragments;
 mod required_directive;
 mod rescript_relay_generate_typename;
+mod rescript_relay_remove_custom_directives;
 mod root_variables;
 mod skip_client_directives;
 mod skip_client_extensions;
@@ -159,6 +160,7 @@ pub use required_directive::{
     CHILDREN_CAN_BUBBLE_METADATA_KEY, REQUIRED_DIRECTIVE_NAME,
 };
 pub use rescript_relay_generate_typename::rescript_relay_generate_typename;
+pub use rescript_relay_remove_custom_directives::rescript_relay_remove_custom_directives;
 pub use skip_client_directives::skip_client_directives;
 pub use skip_client_extensions::skip_client_extensions;
 pub use skip_null_arguments_transform::skip_null_arguments_transform;
