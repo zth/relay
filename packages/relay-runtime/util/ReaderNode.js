@@ -220,32 +220,40 @@ export type ReaderRequiredField = {|
   +path: string,
 |};
 
+type ResolverRootKey = {
+  +$data?: any, // flowlint-line unclear-type:off
+  +$fragmentSpreads: any, // flowlint-line unclear-type:off
+  +$fragmentRefs: any, // flowlint-line unclear-type:off
+  ...
+};
+
+type ResolverModuleWithArgs = (
+  rootKey: ResolverRootKey,
+  args: any, // flowlint-line unclear-type:off
+) => mixed;
+
+type ResolverModuleWithoutArg = (rootKey: ResolverRootKey) => mixed;
+
+type ResolverModule = ResolverModuleWithArgs | ResolverModuleWithoutArg;
+
 export type ReaderRelayResolver = {|
   +kind: 'RelayResolver',
   +alias: ?string,
   +name: string,
+  +args: ?$ReadOnlyArray<ReaderArgument>,
   +fragment: ReaderFragmentSpread,
   +path: string,
-  +resolverModule: (rootKey: {
-    +$data?: any, // flowlint-line unclear-type:off
-    +$fragmentSpreads: any, // flowlint-line unclear-type:off
-    +$fragmentRefs: any, // flowlint-line unclear-type:off
-    ...
-  }) => mixed,
+  +resolverModule: ResolverModule,
 |};
 
 export type ReaderRelayLiveResolver = {|
   +kind: 'RelayLiveResolver',
   +alias: ?string,
   +name: string,
+  +args: ?$ReadOnlyArray<ReaderArgument>,
   +fragment: ReaderFragmentSpread,
   +path: string,
-  +resolverModule: (rootKey: {
-    +$data?: any, // flowlint-line unclear-type:off
-    +$fragmentSpreads: any, // flowlint-line unclear-type:off
-    +$fragmentRefs: any, // flowlint-line unclear-type:off
-    ...
-  }) => mixed,
+  +resolverModule: ResolverModule,
 |};
 
 export type ReaderClientEdgeToClientObject = {|

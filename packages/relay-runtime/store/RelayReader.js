@@ -34,6 +34,7 @@ import type {
   ClientEdgeTraversalInfo,
   DataIDSet,
   MissingClientEdgeRequestInfo,
+  MissingLiveResolverField,
   MissingRequiredFields,
   Record,
   RecordSource,
@@ -106,6 +107,7 @@ class RelayReader {
   _clientEdgeTraversalPath: Array<ClientEdgeTraversalInfo | null>;
   _isMissingData: boolean;
   _missingClientEdges: Array<MissingClientEdgeRequestInfo>;
+  _missingLiveResolverFields: Array<MissingLiveResolverField>;
   _isWithinUnmatchedTypeRefinement: boolean;
   _missingRequiredFields: ?MissingRequiredFields;
   _owner: RequestDescriptor;
@@ -128,6 +130,7 @@ class RelayReader {
         ? [...selector.clientEdgeTraversalPath]
         : [];
     this._missingClientEdges = [];
+    this._missingLiveResolverFields = [];
     this._isMissingData = false;
     this._isWithinUnmatchedTypeRefinement = false;
     this._missingRequiredFields = null;
@@ -183,13 +186,10 @@ class RelayReader {
     // implement the interface. If we aren't sure whether the record implements
     // the interface, that itself constitutes "expected" data being missing.
     if (isDataExpectedToBePresent && abstractKey != null && record != null) {
-      const recordType = RelayModernRecord.getType(record);
-      const typeID = generateTypeID(recordType);
-      const typeRecord = this._recordSource.get(typeID);
-      const implementsInterface =
-        typeRecord != null
-          ? RelayModernRecord.getValue(typeRecord, abstractKey)
-          : null;
+      const implementsInterface = this._implementsInterface(
+        record,
+        abstractKey,
+      );
       if (implementsInterface === false) {
         // Type known to not implement the interface
         isDataExpectedToBePresent = false;
@@ -208,6 +208,7 @@ class RelayReader {
         RelayFeatureFlags.ENABLE_CLIENT_EDGES && this._missingClientEdges.length
           ? this._missingClientEdges
           : null,
+      missingLiveResolverFields: this._missingLiveResolverFields,
       seenRecords: this._seenRecords,
       selector: this._selector,
       missingRequiredFields: this._missingRequiredFields,
@@ -375,13 +376,10 @@ class RelayReader {
             const parentIsWithinUnmatchedTypeRefinement =
               this._isWithinUnmatchedTypeRefinement;
 
-            const typeName = RelayModernRecord.getType(record);
-            const typeID = generateTypeID(typeName);
-            const typeRecord = this._recordSource.get(typeID);
-            const implementsInterface =
-              typeRecord != null
-                ? RelayModernRecord.getValue(typeRecord, abstractKey)
-                : null;
+            const implementsInterface = this._implementsInterface(
+              record,
+              abstractKey,
+            );
             this._isWithinUnmatchedTypeRefinement =
               parentIsWithinUnmatchedTypeRefinement ||
               implementsInterface === false;
@@ -527,7 +525,7 @@ class RelayReader {
     data: SelectorData,
   ): mixed {
     const {resolverModule, fragment} = field;
-    const storageKey = getStorageKey(field, this._variables);
+    const storageKey = getStorageKey(fragment, this._variables);
     const resolverID = ClientID.generateClientID(
       RelayModernRecord.getDataID(record),
       storageKey,
@@ -560,15 +558,27 @@ class RelayReader {
         __id: RelayModernRecord.getDataID(record),
         __fragmentOwner: this._owner,
         __fragments: {
-          [fragment.name]: {}, // Arguments to this fragment; not yet supported.
+          [fragment.name]: fragment.args
+            ? getArgumentValues(fragment.args, this._variables)
+            : {},
         },
       };
       return withResolverContext(resolverContext, () => {
         let resolverResult = null;
         let resolverError = null;
         try {
-          // $FlowFixMe[prop-missing] - resolver module's type signature is a lie
-          resolverResult = resolverModule(key);
+          const args = field.args
+            ? getArgumentValues(field.args, this._variables)
+            : undefined;
+
+          resolverResult = resolverModule(
+            // $FlowFixMe[prop-missing] - Resolver's generated type signature is a lie
+            key,
+            // The Relay Compiler enforces that only resolvers that
+            // define arguments will have args in the Reader AST.
+            // $FlowFixMe[extra-arg]
+            args,
+          );
         } catch (e) {
           // `field.path` is typed as nullable while we rollout compiler changes.
           const path = field.path ?? '[UNKNOWN]';
@@ -587,7 +597,7 @@ class RelayReader {
       });
     };
 
-    const [result, seenRecord, resolverError, cachedSnapshot] =
+    const [result, seenRecord, resolverError, cachedSnapshot, suspenseID] =
       this._resolverCache.readFromCacheOrEvaluate(
         record,
         field,
@@ -605,6 +615,14 @@ class RelayReader {
           this._missingClientEdges.push(missing);
         }
       }
+      if (cachedSnapshot.missingLiveResolverFields != null) {
+        this._isMissingData =
+          cachedSnapshot.missingLiveResolverFields.length > 0;
+
+        for (const missingResolverField of cachedSnapshot.missingLiveResolverFields) {
+          this._missingLiveResolverFields.push(missingResolverField);
+        }
+      }
       for (const error of cachedSnapshot.relayResolverErrors) {
         this._resolverErrors.push(error);
       }
@@ -615,6 +633,14 @@ class RelayReader {
     }
     if (seenRecord != null) {
       this._seenRecords.add(seenRecord);
+    }
+
+    if (suspenseID != null) {
+      this._isMissingData = true;
+      this._missingLiveResolverFields.push({
+        path: `${this._fragmentName}.${field.path}`,
+        liveStateID: suspenseID,
+      });
     }
 
     const applicationName = field.alias ?? field.name;
@@ -981,6 +1007,17 @@ class RelayReader {
       action: 'LOG',
       fields: [...this._missingRequiredFields.fields, ...additional.fields],
     };
+  }
+
+  _implementsInterface(record: Record, abstractKey: string): ?boolean {
+    const typeName = RelayModernRecord.getType(record);
+    const typeRecord = this._recordSource.get(generateTypeID(typeName));
+    const implementsInterface =
+      typeRecord != null
+        ? RelayModernRecord.getValue(typeRecord, abstractKey)
+        : null;
+    // $FlowFixMe Casting record value
+    return implementsInterface;
   }
 }
 

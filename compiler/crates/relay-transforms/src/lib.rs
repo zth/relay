@@ -24,6 +24,7 @@ mod defer_stream;
 mod directive_finder;
 mod errors;
 mod flatten;
+mod fragment_alias_directive;
 mod generate_data_driven_dependency_metadata;
 mod generate_id_field;
 mod generate_live_query_metadata;
@@ -107,8 +108,10 @@ pub use defer_stream::{
 };
 pub use directive_finder::DirectiveFinder;
 pub use flatten::flatten;
+pub use fragment_alias_directive::{fragment_alias_directive, FragmentAliasMetadata};
 pub use generate_data_driven_dependency_metadata::{
     generate_data_driven_dependency_metadata, DATA_DRIVEN_DEPENDENCY_METADATA_KEY,
+    INDIRECT_DATA_DRIVEN_DEPENDENCY_METADATA_KEY,
 };
 pub use generate_id_field::generate_id_field;
 pub use generate_live_query_metadata::generate_live_query_metadata;
@@ -148,7 +151,8 @@ pub use relay_directive::RelayDirective;
 pub use relay_node_identifier::RelayLocationAgnosticBehavior;
 pub use relay_resolvers::{
     find_resolver_dependencies, relay_resolvers, RelayResolverSpreadMetadata, ResolverFieldFinder,
-    RELAY_RESOLVER_DIRECTIVE_NAME, RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME,
+    RELAY_RESOLVER_DIRECTIVE_NAME, RELAY_RESOLVER_FRAGMENT_ARGUMENT_NAME,
+    RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME,
 };
 pub use remove_base_fragments::remove_base_fragments;
 pub use required_directive::{

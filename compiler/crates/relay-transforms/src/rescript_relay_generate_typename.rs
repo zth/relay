@@ -164,8 +164,8 @@ impl<'s> Transformer for RescriptRelayGenerateTypenameTransform<'s> {
             TransformedValue::Replace(selections) => {
                 Transformed::Replace(Selection::InlineFragment(Arc::new(InlineFragment {
                     type_condition: fragment.type_condition,
-                    directives: fragment.directives.clone(),
                     selections,
+                    ..fragment.clone()
                 })))
             }
         };
