@@ -25,7 +25,9 @@ pub fn get_watchman_expr(config: &Config) -> Expr {
                 Expr::All(vec![
                     // Ending in *.js(x) or *.ts(x) depending on the project language.
                     Expr::Suffix(match &project.typegen_config.language {
-                        TypegenLanguage::ReScript => vec![PathBuf::from("res")],
+                        TypegenLanguage::ReScript => {
+                            vec![PathBuf::from("res"), PathBuf::from("re"), PathBuf::from("ml")]
+                        }
                         TypegenLanguage::Flow | TypegenLanguage::JavaScript => {
                             vec![PathBuf::from("js"), PathBuf::from("jsx")]
                         }
