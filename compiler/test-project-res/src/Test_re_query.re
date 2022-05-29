@@ -1,5 +1,5 @@
 module Query = [%relay {|
-  query TestQuery($status: OnlineStatus) {
+  query TestReQuery($status: OnlineStatus) {
     users(status: $status) {
       edges {
         node {
@@ -13,7 +13,7 @@ module Query = [%relay {|
   |}];
 
 module QueryWithRequired = [%relay {|
-  query TestQueryWithRequiredQuery {
+  query TestReQueryWithRequiredQuery {
     loggedInUser {
       avatarUrl @required(action: NONE)
     }
@@ -21,7 +21,7 @@ module QueryWithRequired = [%relay {|
 |}];
 
 module QueryWithRequired_BubbleToTop = [%relay {|
-  query TestQueryWithRequired_BubbleToTop_Query {
+  query TestReQueryWithRequired_BubbleToTop_Query {
     loggedInUser @required(action: NONE) {
       avatarUrl @required(action: NONE)
     }
