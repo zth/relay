@@ -6,18 +6,18 @@
  */
 
 use common::rescript_utils::get_module_name_from_file_path;
-use fnv::{FnvBuildHasher, FnvHashMap, FnvHashSet};
+use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{FragmentDefinition, OperationDefinition};
 use graphql_syntax::OperationKind;
-use indexmap::IndexMap;
 use intern::string_key::{Intern, StringKey};
 use itertools::Itertools;
 use lazy_static::__Deref;
 use log::{debug, warn};
+use relay_config::CustomScalarType;
 
 use crate::rescript_ast::*;
 use crate::rescript_relay_visitor::{
-    RescriptRelayFragmentDirective, RescriptRelayOperationMetaData,
+    CustomScalarsMap, RescriptRelayFragmentDirective, RescriptRelayOperationMetaData,
 };
 use crate::rescript_utils::*;
 use crate::writer::{Prop, Writer, AST};
@@ -121,15 +121,15 @@ enum ClassifiedIdentifier<'a> {
     RawIdentifier(String),
 }
 
-fn value_is_custom_scalar(
-    identifier: &StringKey,
-    custom_scalars: &IndexMap<StringKey, StringKey, FnvBuildHasher>,
-) -> bool {
+fn value_is_custom_scalar(identifier: &StringKey, custom_scalars: &CustomScalarsMap) -> bool {
     custom_scalars
         .into_iter()
         .find(
             |(_custom_scalar_graphql_name, custom_scalar_mapped_rescript_name)| {
-                custom_scalar_mapped_rescript_name == &identifier
+                match custom_scalar_mapped_rescript_name {
+                    CustomScalarType::Name(name) => &name == &identifier,
+                    CustomScalarType::Path(_) => false,
+                }
             },
         )
         .is_some()
