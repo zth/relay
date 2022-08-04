@@ -167,7 +167,7 @@ pub(crate) fn write_operation_type_exports_section(
 }
 
 fn write_raw_response_and_get_raw_response_prop(
-    raw_response_type_and_match_fields: Option<(SortedASTList, MatchFields)>,
+    raw_response_type_and_match_fields: Option<(AST, MatchFields)>,
     writer: &mut Box<dyn Writer>,
     typegen_operation: &OperationDefinition,
 ) -> Result<Option<KeyValuePairProp>, std::fmt::Error> {
@@ -656,7 +656,7 @@ fn write_abstract_validator_function(
 
     let (open_comment, close_comment) = match language {
         TypegenLanguage::Flow | TypegenLanguage::JavaScript => ("/*", "*/"),
-        TypegenLanguage::TypeScript => ("", ""),
+        TypegenLanguage::TypeScript | TypegenLanguage::ReScript => ("", ""),
     };
 
     write!(
@@ -745,7 +745,7 @@ fn write_concrete_validator_function(
 
     let (open_comment, close_comment) = match typegen_options.typegen_config.language {
         TypegenLanguage::Flow | TypegenLanguage::JavaScript => ("/*", "*/"),
-        TypegenLanguage::TypeScript => ("", ""),
+        TypegenLanguage::TypeScript | TypegenLanguage::ReScript => ("", ""),
     };
 
     write!(
