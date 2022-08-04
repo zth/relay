@@ -11,6 +11,8 @@
 
 'use strict';
 
+import type {MutableRecordSource} from 'relay-runtime/store/RelayStoreTypes';
+
 const React = require('react');
 const {
   RelayEnvironmentProvider,
@@ -289,7 +291,7 @@ test('Can suspend', () => {
     },
   );
 
-  function Environment({children}) {
+  function Environment({children}: {|children: React.Node|}) {
     return (
       <RelayEnvironmentProvider environment={environment}>
         <React.Suspense fallback="Loading...">{children}</React.Suspense>
@@ -351,7 +353,7 @@ test('Can suspend with resolver that uses live resolver', () => {
     store,
   });
 
-  function Environment({children}) {
+  function Environment({children}: {|children: React.Node|}) {
     return (
       <RelayEnvironmentProvider environment={environment}>
         <React.Suspense fallback="Loading...">{children}</React.Suspense>
@@ -403,7 +405,7 @@ test('Can suspend with resolver that uses live resolver', () => {
 describe('Live Resolver with Suspense and Missing Data', () => {
   let renderer;
 
-  function InnerTestComponent({scale}) {
+  function InnerTestComponent({scale}: {|scale: number|}) {
     const data = useLazyLoadQuery(
       graphql`
         query LiveResolversTest7Query($id: ID!, $scale: Float!) {
@@ -425,7 +427,13 @@ describe('Live Resolver with Suspense and Missing Data', () => {
     )}`;
   }
 
-  function TestComponent({environment, ...rest}) {
+  function TestComponent({
+    environment,
+    ...rest
+  }: {|
+    environment: RelayModernEnvironment,
+    scale: number,
+  |}) {
     return (
       <RelayEnvironmentProvider environment={environment}>
         <React.Suspense fallback="Loading...">
@@ -435,7 +443,7 @@ describe('Live Resolver with Suspense and Missing Data', () => {
     );
   }
 
-  function createEnvironment(source) {
+  function createEnvironment(source: MutableRecordSource) {
     return new RelayModernEnvironment({
       network: RelayNetwork.create(jest.fn()),
       store: new LiveResolverStore(source),
@@ -621,7 +629,7 @@ describe('Live Resolver with Suspense and Missing Data', () => {
 });
 
 test('Live Resolver with Missing Data and @required', () => {
-  function InnerTestComponent({id}) {
+  function InnerTestComponent({id}: {|id: string|}) {
     const data = useLazyLoadQuery(
       graphql`
         query LiveResolversTest8Query($id: ID!) {
@@ -641,7 +649,13 @@ test('Live Resolver with Missing Data and @required', () => {
     }`;
   }
 
-  function TestComponent({environment, ...rest}) {
+  function TestComponent({
+    environment,
+    ...rest
+  }: {|
+    environment: RelayModernEnvironment,
+    id: string,
+  |}) {
     return (
       <RelayEnvironmentProvider environment={environment}>
         <React.Suspense fallback="Loading...">
@@ -651,7 +665,7 @@ test('Live Resolver with Missing Data and @required', () => {
     );
   }
   const requiredFieldLogger = jest.fn();
-  function createEnvironment(source) {
+  function createEnvironment(source: MutableRecordSource) {
     return new RelayModernEnvironment({
       network: RelayNetwork.create(jest.fn()),
       store: new LiveResolverStore(source),
@@ -710,7 +724,7 @@ test('Live Resolver with Missing Data and @required', () => {
 test('apply optimistic updates to live resolver field', () => {
   let renderer;
 
-  function InnerTestComponent({scale}) {
+  function InnerTestComponent({scale}: {|scale: number|}) {
     const data = useLazyLoadQuery(
       graphql`
         query LiveResolversTest9Query($id: ID!, $scale: Float!) {
@@ -729,7 +743,13 @@ test('apply optimistic updates to live resolver field', () => {
     return data.node?.profile_picture_uri;
   }
 
-  function TestComponent({environment, ...rest}) {
+  function TestComponent({
+    environment,
+    ...rest
+  }: {|
+    environment: RelayModernEnvironment,
+    scale: number,
+  |}) {
     return (
       <RelayEnvironmentProvider environment={environment}>
         <React.Suspense fallback="Loading...">
@@ -739,7 +759,7 @@ test('apply optimistic updates to live resolver field', () => {
     );
   }
 
-  function createEnvironment(source) {
+  function createEnvironment(source: MutableRecordSource) {
     return new RelayModernEnvironment({
       network: RelayNetwork.create(jest.fn()),
       store: new LiveResolverStore(source),
@@ -816,4 +836,44 @@ test('apply optimistic updates to live resolver field', () => {
     GLOBAL_STORE.dispatch({type: 'INCREMENT'});
   });
   expect(renderer.toJSON()).toEqual('Hello, Alice! Picture Url: scale 1.5');
+});
+
+// Regression test for a case where we were resetting the parent snapshot's
+// `isMissingData` to false when reading a live resolver field.
+test('Missing data is not clobbered by non-null empty missingLiveResolverFields on snapshot', () => {
+  const source = RelayRecordSource.create({
+    'client:root': {
+      __id: 'client:root',
+      __typename: '__Root',
+      me: {__ref: '1'},
+    },
+    '1': {
+      __id: '1',
+      __typename: 'User',
+      id: '1',
+    },
+  });
+  const FooQuery = graphql`
+    query LiveResolversTest10Query {
+      me {
+        # Should be tracked as missing data
+        name
+      }
+      counter
+    }
+  `;
+
+  const operation = createOperationDescriptor(FooQuery, {});
+  const store = new LiveResolverStore(source, {
+    gcReleaseBufferSize: 0,
+  });
+
+  const environment = new RelayModernEnvironment({
+    network: RelayNetwork.create(jest.fn()),
+    store,
+  });
+
+  const snapshot = environment.lookup(operation.fragment);
+  expect(snapshot.missingLiveResolverFields).toEqual([]);
+  expect(snapshot.isMissingData).toBe(true);
 });

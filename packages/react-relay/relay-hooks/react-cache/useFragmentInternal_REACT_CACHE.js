@@ -282,7 +282,7 @@ function useFragmentInternal_REACT_CACHE(
 
   if (isPlural) {
     invariant(
-      Array.isArray(fragmentRef),
+      fragmentRef == null || Array.isArray(fragmentRef),
       'Relay: Expected fragment pointer%s for fragment `%s` to be ' +
         'an array, instead got `%s`. Remove `@relay(plural: true)` ' +
         'from fragment `%s` to allow the prop to be an object.',
@@ -332,7 +332,7 @@ function useFragmentInternal_REACT_CACHE(
   // On second look this separate rawState may not be needed at all, it can just be
   // put into getFragmentState. Exception: can we properly handle the case where the
   // fragmentRef goes from non-null to null?
-  const stateFromRawState = state => {
+  const stateFromRawState = (state: FragmentState) => {
     if (fragmentRef == null) {
       return {kind: 'bailout', plural: false};
     } else if (state.kind === 'plural' && state.snapshots.length === 0) {
@@ -366,36 +366,48 @@ function useFragmentInternal_REACT_CACHE(
 
   // Handle the queries for any missing client edges; this may suspend.
   // FIXME handle client edges in parallel.
-  const missingClientEdges = getMissingClientEdges(state);
-  let effects;
-  if (missingClientEdges?.length) {
-    effects = [];
-    for (const edge of missingClientEdges) {
-      effects.push(
-        handleMissingClientEdge(
-          environment,
-          fragmentNode,
-          fragmentRef,
-          edge,
-          queryOptions,
-        ),
-      );
-    }
-  }
-
-  useEffect(() => {
-    if (effects?.length) {
-      const cleanups = [];
-      for (const effect of effects) {
-        cleanups.push(effect());
-      }
-      return () => {
-        for (const cleanup of cleanups) {
-          cleanup();
+  if (fragmentNode.metadata?.hasClientEdges === true) {
+    // The fragment is validated to be static (in useFragment) and hasClientEdges is
+    // a static (constant) property of the fragment. In practice, this effect will
+    // always or never run for a given invocation of this hook.
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const effects = useMemo(() => {
+      const missingClientEdges = getMissingClientEdges(state);
+      // eslint-disable-next-line no-shadow
+      let effects;
+      if (missingClientEdges?.length) {
+        effects = [];
+        for (const edge of missingClientEdges) {
+          effects.push(
+            handleMissingClientEdge(
+              environment,
+              fragmentNode,
+              fragmentRef,
+              edge,
+              queryOptions,
+            ),
+          );
         }
-      };
-    }
-  });
+      }
+      return effects;
+    }, [state, environment, fragmentNode, fragmentRef, queryOptions]);
+
+    // See above note
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useEffect(() => {
+      if (effects?.length) {
+        const cleanups = [];
+        for (const effect of effects) {
+          cleanups.push(effect());
+        }
+        return () => {
+          for (const cleanup of cleanups) {
+            cleanup();
+          }
+        };
+      }
+    }, [effects]);
+  }
 
   if (isMissingData(state)) {
     // Suspend if an active operation bears on this fragment, either the

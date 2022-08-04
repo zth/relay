@@ -178,7 +178,7 @@ class ClientEdgeQueryResultsCache {
     }
   }
 
-  _retain(id) {
+  _retain(id: string) {
     const retainCount = (this._retainCounts.get(id) ?? 0) + 1;
     this._retainCounts.set(id, retainCount);
     return {
@@ -369,6 +369,7 @@ class FragmentResourceImpl {
     let clientEdgeRequests: ?Array<RequestDescriptor> = null;
     if (
       RelayFeatureFlags.ENABLE_CLIENT_EDGES &&
+      fragmentNode.metadata?.hasClientEdges === true &&
       hasMissingClientEdges(snapshot)
     ) {
       clientEdgeRequests = [];
