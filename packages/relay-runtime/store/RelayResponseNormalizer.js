@@ -171,6 +171,7 @@ class RelayResponseNormalizer {
       'RelayResponseNormalizer(): Expected root record `%s` to exist.',
       dataID,
     );
+    this._assignClientAbstractTypes(node);
     this._traverseSelections(node, record, data);
     return {
       errors: null,
@@ -180,6 +181,27 @@ class RelayResponseNormalizer {
       source: this._recordSource,
       isFinal: false,
     };
+  }
+
+  // For abstract types defined in the client schema extension, we won't be
+  // getting `__is<AbstractType>` hints from the server. To handle this, the
+  // compiler attaches additional metadata on the normalization artifact,
+  // which we need to record into the store.
+  _assignClientAbstractTypes(node: NormalizationNode) {
+    const {clientAbstractTypes} = node;
+    if (clientAbstractTypes != null) {
+      for (const abstractType of Object.keys(clientAbstractTypes)) {
+        for (const concreteType of clientAbstractTypes[abstractType]) {
+          const typeID = generateTypeID(concreteType);
+          let typeRecord = this._recordSource.get(typeID);
+          if (typeRecord == null) {
+            typeRecord = RelayModernRecord.create(typeID, TYPE_SCHEMA_TYPE);
+            this._recordSource.set(typeID, typeRecord);
+          }
+          RelayModernRecord.setValue(typeRecord, abstractType, true);
+        }
+      }
+    }
   }
 
   _getVariableValue(name: string): mixed {
@@ -415,21 +437,23 @@ class RelayResponseNormalizer {
     moduleImport: NormalizationModuleImport,
     record: Record,
     data: PayloadData,
-  ) {
+  ): void {
     invariant(
       typeof data === 'object' && data,
       'RelayResponseNormalizer: Expected data for @module to be an object.',
     );
     const typeName: string = RelayModernRecord.getType(record);
     const componentKey = getModuleComponentKey(moduleImport.documentName);
-    const componentReference = data[componentKey];
+    const componentReference =
+      moduleImport.componentModuleProvider || data[componentKey];
     RelayModernRecord.setValue(
       record,
       componentKey,
       componentReference ?? null,
     );
     const operationKey = getModuleOperationKey(moduleImport.documentName);
-    const operationReference = data[operationKey];
+    const operationReference =
+      moduleImport.operationModuleProvider || data[operationKey];
     RelayModernRecord.setValue(
       record,
       operationKey,
@@ -455,7 +479,7 @@ class RelayResponseNormalizer {
     selection: NormalizationLinkedField | NormalizationScalarField,
     record: Record,
     data: PayloadData,
-  ) {
+  ): void {
     invariant(
       typeof data === 'object' && data,
       'writeField(): Expected data for field `%s` to be an object.',
@@ -547,7 +571,7 @@ class RelayResponseNormalizer {
     selection: NormalizationActorChange,
     record: Record,
     data: PayloadData,
-  ) {
+  ): void {
     const field = selection.linkedField;
     invariant(
       typeof data === 'object' && data,
@@ -640,7 +664,7 @@ class RelayResponseNormalizer {
     selection: NormalizationFlightField,
     record: Record,
     data: PayloadData,
-  ) {
+  ): void {
     const responseKey = selection.alias || selection.name;
     const storageKey = getStorageKey(selection, this._variables);
     const fieldValue = data[responseKey];

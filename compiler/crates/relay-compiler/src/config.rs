@@ -36,6 +36,7 @@ use relay_config::CustomScalarType;
 use relay_config::FlowTypegenConfig;
 use relay_config::JsModuleFormat;
 pub use relay_config::LocalPersistConfig;
+use relay_config::ModuleImportConfig;
 pub use relay_config::PersistConfig;
 pub use relay_config::ProjectConfig;
 pub use relay_config::RemotePersistConfig;
@@ -353,6 +354,7 @@ Example file:
                     skip_types_for_artifact: None,
                     rollout: config_file_project.rollout,
                     js_module_format: config_file_project.js_module_format,
+                    module_import_config: config_file_project.module_import_config,
                 };
                 Ok((project_name, project_config))
             })
@@ -380,7 +382,7 @@ Example file:
             generate_virtual_id_file_name: None,
             saved_state_config: config_file.saved_state_config,
             saved_state_loader: None,
-            saved_state_version: hex::encode(hash.result()),
+            saved_state_version: hex::encode(hash.finalize()),
             create_operation_persister: None,
             compile_everything: false,
             repersist_operations: false,
@@ -696,6 +698,10 @@ pub struct SingleProjectConfigFile {
     /// Extra configuration for the schema itself.
     pub schema_config: SchemaConfig,
 
+    /// Configuration for @module
+    #[serde(default)]
+    pub module_import_config: ModuleImportConfig,
+
     /// Added in 13.1.1 to customize Final/Compat mode in the single project config file
     /// Removed in 14.0.0
     #[serde(default)]
@@ -727,6 +733,7 @@ impl Default for SingleProjectConfigFile {
             js_module_format: JsModuleFormat::CommonJS,
             typegen_phase: None,
             feature_flags: None,
+            module_import_config: Default::default(),
         }
     }
 }
@@ -992,6 +999,9 @@ pub struct ConfigFileProject {
 
     #[serde(default)]
     pub schema_config: SchemaConfig,
+
+    #[serde(default)]
+    pub module_import_config: ModuleImportConfig,
 }
 
 pub type PersistId = String;
