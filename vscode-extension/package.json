@@ -1,7 +1,7 @@
 {
   "name": "relay",
   "displayName": "Relay GraphQL",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Relay-powered IDE experience",
   "repository": {
     "type": "git",
@@ -137,10 +137,8 @@
     "arrowParens": "avoid",
     "bracketSameLine": true,
     "bracketSpacing": false,
-    "requirePragma": true,
     "singleQuote": true,
-    "trailingComma": "all",
-    "parser": "flow"
+    "trailingComma": "all"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
