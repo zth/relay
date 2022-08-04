@@ -54,6 +54,7 @@ function useLazyLoadQuery_REACT_CACHE<TVariables: Variables, TData>(
     {
       fetchPolicy: options?.fetchPolicy,
       renderPolicy: options?.UNSTABLE_renderPolicy,
+      fetchKey: options?.fetchKey,
     },
   );
 
@@ -65,7 +66,7 @@ function useLazyLoadQuery_REACT_CACHE<TVariables: Variables, TData>(
   return useFragmentInternal(fragmentNode, fragmentRef, 'useLazyLoadQuery()', {
     fetchPolicy: options?.fetchPolicy,
     networkCacheConfig: options?.networkCacheConfig,
-  }).data;
+  });
 }
 
 module.exports = useLazyLoadQuery_REACT_CACHE;

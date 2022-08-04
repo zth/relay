@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d6571c902126dac2d10aa9d7c45aee37>>
+ * @generated SignedSource<<5793c57be28c6502b3e7cf11df6e40e1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -34,7 +34,9 @@ var node/*: ConcreteRequest*/ = {
   "fragment": {
     "argumentDefinitions": [],
     "kind": "Fragment",
-    "metadata": null,
+    "metadata": {
+      "hasClientEdges": true
+    },
     "name": "ResolverTest3Query",
     "selections": [
       {
@@ -54,11 +56,11 @@ var node/*: ConcreteRequest*/ = {
               "fragment": {
                 "args": null,
                 "kind": "FragmentSpread",
-                "name": "DummyUserClientEdgeResolver"
+                "name": "UserClientEdgeResolver"
               },
               "kind": "RelayResolver",
               "name": "client_edge",
-              "resolverModule": require('./../DummyUserClientEdgeResolver.js'),
+              "resolverModule": require('./../../../../../relay-test-utils-internal/resolvers/UserClientEdgeResolver.js'),
               "path": "me.client_edge"
             },
             "linkedField": {
@@ -105,6 +107,13 @@ var node/*: ConcreteRequest*/ = {
             "alias": null,
             "args": null,
             "kind": "ScalarField",
+            "name": "name",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
             "name": "id",
             "storageKey": null
           }
@@ -114,12 +123,12 @@ var node/*: ConcreteRequest*/ = {
     ]
   },
   "params": {
-    "cacheID": "ba4db4963df6cd0d38b6661ca4ae6065",
+    "cacheID": "38e50d351a7b6bded015fe883e7be216",
     "id": null,
     "metadata": {},
     "name": "ResolverTest3Query",
     "operationKind": "query",
-    "text": "query ResolverTest3Query {\n  me {\n    ...DummyUserClientEdgeResolver\n    id\n  }\n}\n\nfragment DummyUserClientEdgeResolver on User {\n  id\n}\n"
+    "text": "query ResolverTest3Query {\n  me {\n    ...UserClientEdgeResolver\n    id\n  }\n}\n\nfragment UserClientEdgeResolver on User {\n  name\n}\n"
   }
 };
 

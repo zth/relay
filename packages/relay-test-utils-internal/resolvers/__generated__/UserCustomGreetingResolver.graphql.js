@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c67e5c39a4168bb82d06c32457c73e93>>
+ * @generated SignedSource<<2b440b6268d107da0b254ae89016aa07>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,14 +17,14 @@
 /*::
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
-declare export opaque type DummyUserGreetingResolver$fragmentType: FragmentType;
-export type DummyUserGreetingResolver$data = {|
+declare export opaque type UserCustomGreetingResolver$fragmentType: FragmentType;
+export type UserCustomGreetingResolver$data = {|
   +name: ?string,
-  +$fragmentType: DummyUserGreetingResolver$fragmentType,
+  +$fragmentType: UserCustomGreetingResolver$fragmentType,
 |};
-export type DummyUserGreetingResolver$key = {
-  +$data?: DummyUserGreetingResolver$data,
-  +$fragmentSpreads: DummyUserGreetingResolver$fragmentType,
+export type UserCustomGreetingResolver$key = {
+  +$data?: UserCustomGreetingResolver$data,
+  +$fragmentSpreads: UserCustomGreetingResolver$fragmentType,
   ...
 };
 */
@@ -33,7 +33,7 @@ var node/*: ReaderFragment*/ = {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "DummyUserGreetingResolver",
+  "name": "UserCustomGreetingResolver",
   "selections": [
     {
       "alias": null,
@@ -48,10 +48,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "47f92b5ef5ff5c70f9a79584b7f6ff8b";
+  (node/*: any*/).hash = "82650ba6ce92ec56ab1a3f0321788529";
 }
 
 module.exports = ((node/*: any*/)/*: Fragment<
-  DummyUserGreetingResolver$fragmentType,
-  DummyUserGreetingResolver$data,
+  UserCustomGreetingResolver$fragmentType,
+  UserCustomGreetingResolver$data,
 >*/);

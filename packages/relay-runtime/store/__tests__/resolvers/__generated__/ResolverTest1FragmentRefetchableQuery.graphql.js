@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<3e7e9980be52ec085a6d05a392cb7f42>>
+ * @generated SignedSource<<aed68ad3cef8dee76a2abeca3776f648>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -122,12 +122,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "da661d4222c2b4e8af551760de98318f",
+    "cacheID": "0b557eb9529a9c3ed7d525932fc431f9",
     "id": null,
     "metadata": {},
     "name": "ResolverTest1FragmentRefetchableQuery",
     "operationKind": "query",
-    "text": "query ResolverTest1FragmentRefetchableQuery(\n  $id: ID!\n) {\n  node(id: $id) {\n    __typename\n    ...ResolverTest2Fragment\n    id\n  }\n}\n\nfragment DummyUserGreetingResolver on User {\n  name\n}\n\nfragment ResolverTest2Fragment on User {\n  ...DummyUserGreetingResolver\n  id\n}\n"
+    "text": "query ResolverTest1FragmentRefetchableQuery(\n  $id: ID!\n) {\n  node(id: $id) {\n    __typename\n    ...ResolverTest2Fragment\n    id\n  }\n}\n\nfragment ResolverTest2Fragment on User {\n  ...UserGreetingResolver\n  id\n}\n\nfragment UserGreetingResolver on User {\n  name\n}\n"
   }
 };
 })();

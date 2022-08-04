@@ -13,30 +13,27 @@
 
 'use strict';
 
-import type {DummyUserGreetingResolver$key} from './__generated__/DummyUserGreetingResolver.graphql';
+import type {UserNamePassthroughResolver$key} from './__generated__/UserNamePassthroughResolver.graphql';
 
 const {graphql} = require('relay-runtime');
 const {readFragment} = require('relay-runtime/store/ResolverFragments');
 
 /**
  * @RelayResolver
- * @fieldName greeting
- * @rootFragment DummyUserGreetingResolver
+ * @fieldName name_passthrough
+ * @rootFragment UserNamePassthroughResolver
  * @onType User
- *
- * Greet the user.
  */
-function userGreeting(rootKey: DummyUserGreetingResolver$key): string {
+function userGreeting(rootKey: UserNamePassthroughResolver$key): ?string {
   const user = readFragment(
     graphql`
-      fragment DummyUserGreetingResolver on User {
+      fragment UserNamePassthroughResolver on User {
         name
       }
     `,
     rootKey,
   );
-  const name = user.name ?? 'Stranger';
-  return `Hello, ${name}!`;
+  return user.name;
 }
 
 module.exports = userGreeting;

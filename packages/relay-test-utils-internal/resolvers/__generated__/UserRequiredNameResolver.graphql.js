@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<199c1665898e27666debbab53512cbc2>>
+ * @generated SignedSource<<7a2a073c55b43e8de3f24e2c10e1454f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,14 +17,14 @@
 /*::
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
-declare export opaque type DummyUserClientEdgeResolver$fragmentType: FragmentType;
-export type DummyUserClientEdgeResolver$data = {|
-  +id: string,
-  +$fragmentType: DummyUserClientEdgeResolver$fragmentType,
+declare export opaque type UserRequiredNameResolver$fragmentType: FragmentType;
+export type UserRequiredNameResolver$data = ?{|
+  +name: string,
+  +$fragmentType: UserRequiredNameResolver$fragmentType,
 |};
-export type DummyUserClientEdgeResolver$key = {
-  +$data?: DummyUserClientEdgeResolver$data,
-  +$fragmentSpreads: DummyUserClientEdgeResolver$fragmentType,
+export type UserRequiredNameResolver$key = {
+  +$data?: UserRequiredNameResolver$data,
+  +$fragmentSpreads: UserRequiredNameResolver$fragmentType,
   ...
 };
 */
@@ -33,7 +33,7 @@ var node/*: ReaderFragment*/ = {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "DummyUserClientEdgeResolver",
+  "name": "UserRequiredNameResolver",
   "selections": [
     {
       "kind": "RequiredField",
@@ -41,11 +41,11 @@ var node/*: ReaderFragment*/ = {
         "alias": null,
         "args": null,
         "kind": "ScalarField",
-        "name": "id",
+        "name": "name",
         "storageKey": null
       },
-      "action": "THROW",
-      "path": "id"
+      "action": "LOG",
+      "path": "name"
     }
   ],
   "type": "User",
@@ -53,10 +53,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "d8712284424e7d688dcbf01e306652a1";
+  (node/*: any*/).hash = "f90844655f3df193e26dae49878ed7a7";
 }
 
 module.exports = ((node/*: any*/)/*: Fragment<
-  DummyUserClientEdgeResolver$fragmentType,
-  DummyUserClientEdgeResolver$data,
+  UserRequiredNameResolver$fragmentType,
+  UserRequiredNameResolver$data,
 >*/);

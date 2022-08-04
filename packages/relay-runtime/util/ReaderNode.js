@@ -42,6 +42,7 @@ export type ReaderFragment = {|
   +abstractKey?: ?string,
   +metadata?: ?{|
     +connection?: $ReadOnlyArray<ConnectionMetadata>,
+    +hasClientEdges?: boolean,
     +mask?: boolean,
     +plural?: boolean,
     +refetch?: ReaderRefetchMetadata,
@@ -55,6 +56,7 @@ export type ReaderRefetchableFragment = {|
   ...ReaderFragment,
   +metadata: {|
     +connection?: [ConnectionMetadata],
+    +hasClientEdges?: boolean,
     +refetch: ReaderRefetchMetadata,
   |},
 |};
@@ -64,6 +66,7 @@ export type ReaderPaginationFragment = {|
   ...ReaderFragment,
   +metadata: {|
     +connection: [ConnectionMetadata],
+    +hasClientEdges?: boolean,
     +refetch: {|
       ...ReaderRefetchMetadata,
       connection: ReaderPaginationMetadata,
@@ -234,21 +237,7 @@ export type ReaderRequiredField = {|
   +path: string,
 |};
 
-type ResolverRootKey = {
-  +$data?: any, // flowlint-line unclear-type:off
-  +$fragmentSpreads: any, // flowlint-line unclear-type:off
-  +$fragmentRefs: any, // flowlint-line unclear-type:off
-  ...
-};
-
-type ResolverModuleWithArgs = (
-  rootKey: ResolverRootKey,
-  args: any, // flowlint-line unclear-type:off
-) => mixed;
-
-type ResolverModuleWithoutArg = (rootKey: ResolverRootKey) => mixed;
-
-type ResolverFunction = ResolverModuleWithArgs | ResolverModuleWithoutArg;
+type ResolverFunction = (...args: Array<any>) => mixed; // flowlint-line unclear-type:off
 // With ES6 imports, a resolver function might be exported under the `default` key.
 type ResolverModule = ResolverFunction | {|default: ResolverFunction|};
 
@@ -267,7 +256,7 @@ export type ReaderRelayLiveResolver = {|
   +alias: ?string,
   +name: string,
   +args: ?$ReadOnlyArray<ReaderArgument>,
-  +fragment: ReaderFragmentSpread,
+  +fragment: ?ReaderFragmentSpread,
   +path: string,
   +resolverModule: ResolverModule,
 |};
