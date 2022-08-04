@@ -15,6 +15,7 @@ use graphql_ir::{
     ScalarField, Selection,
 };
 use indexmap::{map::Entry, IndexMap, IndexSet};
+use relay_config::{CustomScalarType, CustomScalarTypeImport};
 use relay_transforms::{
     FragmentAliasMetadata, ModuleMetadata, RelayResolverSpreadMetadata, RequiredMetadataDirective,
     TypeConditionInfo, ASSIGNABLE_DIRECTIVE_FOR_TYPEGEN, CHILDREN_CAN_BUBBLE_METADATA_KEY,
@@ -34,6 +35,7 @@ use crate::{
         ActorChangeStatus, EncounteredEnums, EncounteredFragments, GeneratedInputObject,
         ImportedRawResponseTypes, ImportedResolvers, InputObjectTypes, MatchFields, RuntimeImports,
     },
+    write::CustomScalarsImports,
     writer::{
         ExactObject, GetterSetterPairProp, InexactObject, KeyValuePairProp, Prop, SortedASTList,
         SortedStringKeyList, SpreadProp, StringLiteral, AST,
@@ -50,6 +52,7 @@ pub(crate) fn visit_selections(
     encountered_fragments: &mut EncounteredFragments,
     imported_resolvers: &mut ImportedResolvers,
     actor_change_status: &mut ActorChangeStatus,
+    custom_scalars: &mut CustomScalarsImports,
 ) -> Vec<TypeSelection> {
     let mut type_selections = Vec::new();
     for selection in selections {
@@ -69,6 +72,7 @@ pub(crate) fn visit_selections(
                 encountered_fragments,
                 imported_resolvers,
                 actor_change_status,
+                custom_scalars,
             ),
             Selection::LinkedField(linked_field) => gen_visit_linked_field(
                 typgen_context.schema,
@@ -82,6 +86,7 @@ pub(crate) fn visit_selections(
                         encountered_fragments,
                         imported_resolvers,
                         actor_change_status,
+                        custom_scalars,
                     )
                 },
             ),
@@ -90,6 +95,7 @@ pub(crate) fn visit_selections(
                 &mut type_selections,
                 scalar_field,
                 encountered_enums,
+                custom_scalars,
             ),
             Selection::Condition(condition) => visit_condition(
                 typgen_context,
@@ -99,6 +105,7 @@ pub(crate) fn visit_selections(
                 encountered_fragments,
                 imported_resolvers,
                 actor_change_status,
+                custom_scalars,
             ),
         }
     }
@@ -206,6 +213,7 @@ fn visit_relay_resolver_fragment(
     }));
 }
 
+#[allow(clippy::too_many_arguments)]
 fn visit_inline_fragment(
     typgen_context: &'_ TypegenContext<'_>,
     type_selections: &mut Vec<TypeSelection>,
@@ -214,6 +222,7 @@ fn visit_inline_fragment(
     encountered_fragments: &mut EncounteredFragments,
     imported_resolvers: &mut ImportedResolvers,
     actor_change_status: &mut ActorChangeStatus,
+    custom_scalars: &mut CustomScalarsImports,
 ) {
     if let Some(module_metadata) = ModuleMetadata::find(&inline_fragment.directives) {
         let name = module_metadata.fragment_name;
@@ -250,6 +259,7 @@ fn visit_inline_fragment(
             encountered_fragments,
             imported_resolvers,
             actor_change_status,
+            custom_scalars,
         );
     } else {
         let mut inline_selections = visit_selections(
@@ -259,6 +269,7 @@ fn visit_inline_fragment(
             encountered_fragments,
             imported_resolvers,
             actor_change_status,
+            custom_scalars,
         );
 
         let mut selections = if let Some(fragment_alias_metadata) =
@@ -270,10 +281,10 @@ fn visit_inline_fragment(
                 // We currently make inline fragment aliases always nullable
                 // because we want to be able to use them to be able to null
                 // them out in the case of missing data.  If we choose to
-                // change that decsion, ane make them non-nullable in the
+                // change that decision, ane make them non-nullable in the
                 // case where the type condition will always match, we must
                 // be sure to update this logic to account for the
-                // possiblity that a `@required` has bubbled up to this
+                // possibility that a `@required` has bubbled up to this
                 // field.
 
                 // Additionally, if/when @required is supported _on_ aliased
@@ -289,7 +300,7 @@ fn visit_inline_fragment(
             // there will be no way for the user to refine the type to
             // ensure it did match. However, inline fragments with @alias are
             // not subject to this limitation since RelayReader will make the field null
-            // if the type does not match, allowing the user to perfrom a
+            // if the type does not match, allowing the user to perform a
             // field (alias) null check to ensure the type matched.
             if let Some(type_condition) = inline_fragment.type_condition {
                 for selection in &mut inline_selections {
@@ -307,6 +318,7 @@ fn visit_inline_fragment(
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 fn visit_actor_change(
     typgen_context: &'_ TypegenContext<'_>,
     type_selections: &mut Vec<TypeSelection>,
@@ -315,6 +327,7 @@ fn visit_actor_change(
     encountered_fragments: &mut EncounteredFragments,
     imported_resolvers: &mut ImportedResolvers,
     actor_change_status: &mut ActorChangeStatus,
+    custom_scalars: &mut CustomScalarsImports,
 ) {
     let linked_field = match &inline_fragment.selections[0] {
         Selection::LinkedField(linked_field) => linked_field,
@@ -339,6 +352,7 @@ fn visit_actor_change(
         encountered_fragments,
         imported_resolvers,
         actor_change_status,
+        custom_scalars,
     );
     type_selections.push(TypeSelection::ScalarField(TypeSelectionScalarField {
         field_name_or_alias: key,
@@ -354,6 +368,7 @@ fn visit_actor_change(
                 None,
                 encountered_enums,
                 encountered_fragments,
+                custom_scalars,
             ),
         )))),
         conditional: false,
@@ -371,6 +386,7 @@ fn raw_response_visit_inline_fragment(
     encountered_fragments: &mut EncounteredFragments,
     imported_raw_response_types: &mut ImportedRawResponseTypes,
     runtime_imports: &mut RuntimeImports,
+    custom_scalars: &mut CustomScalarsImports,
 ) {
     let mut selections = raw_response_visit_selections(
         typgen_context,
@@ -380,6 +396,7 @@ fn raw_response_visit_inline_fragment(
         encountered_fragments,
         imported_raw_response_types,
         runtime_imports,
+        custom_scalars,
     );
     if inline_fragment
         .directives
@@ -400,6 +417,7 @@ fn raw_response_visit_inline_fragment(
                 None,
                 encountered_enums,
                 runtime_imports,
+                custom_scalars,
             );
             match_fields.0.insert(fragment_name, match_field);
         }
@@ -455,6 +473,7 @@ fn visit_scalar_field(
     type_selections: &mut Vec<TypeSelection>,
     scalar_field: &ScalarField,
     encountered_enums: &mut EncounteredEnums,
+    custom_scalars: &mut CustomScalarsImports,
 ) {
     let field = typgen_context.schema.field(scalar_field.definition.item);
     let schema_name = field.name.item;
@@ -470,12 +489,19 @@ fn visit_scalar_field(
             schema_name,
             &typgen_context.project_config.schema_config,
         ),
-        value: transform_scalar_type(typgen_context, &field_type, None, encountered_enums),
+        value: transform_scalar_type(
+            typgen_context,
+            &field_type,
+            None,
+            encountered_enums,
+            custom_scalars,
+        ),
         conditional: false,
         concrete_type: None,
     }));
 }
 
+#[allow(clippy::too_many_arguments)]
 fn visit_condition(
     typgen_context: &'_ TypegenContext<'_>,
     type_selections: &mut Vec<TypeSelection>,
@@ -484,6 +510,7 @@ fn visit_condition(
     encountered_fragments: &mut EncounteredFragments,
     imported_resolvers: &mut ImportedResolvers,
     actor_change_status: &mut ActorChangeStatus,
+    custom_scalars: &mut CustomScalarsImports,
 ) {
     let mut selections = visit_selections(
         typgen_context,
@@ -492,6 +519,7 @@ fn visit_condition(
         encountered_fragments,
         imported_resolvers,
         actor_change_status,
+        custom_scalars,
     );
     for selection in selections.iter_mut() {
         selection.set_conditional(true);
@@ -509,6 +537,7 @@ pub(crate) fn get_data_type(
     emit_plural_type: bool,
     encountered_enums: &mut EncounteredEnums,
     encountered_fragments: &mut EncounteredFragments,
+    custom_scalars: &mut CustomScalarsImports,
 ) -> AST {
     let mut data_type = selections_to_babel(
         typgen_context,
@@ -517,6 +546,7 @@ pub(crate) fn get_data_type(
         fragment_type_name,
         encountered_enums,
         encountered_fragments,
+        custom_scalars,
     );
     if emit_optional_type {
         data_type = AST::Nullable(Box::new(data_type))
@@ -534,6 +564,7 @@ fn selections_to_babel(
     fragment_type_name: Option<StringKey>,
     encountered_enums: &mut EncounteredEnums,
     encountered_fragments: &mut EncounteredFragments,
+    custom_scalars: &mut CustomScalarsImports,
 ) -> AST {
     let mut base_fields: TypeSelectionMap = Default::default();
     let mut by_concrete_type: IndexMap<Type, Vec<TypeSelection>> = Default::default();
@@ -591,6 +622,7 @@ fn selections_to_babel(
                             Some(concrete_type),
                             encountered_enums,
                             encountered_fragments,
+                            custom_scalars,
                         )
                     })
                     .collect(),
@@ -642,6 +674,7 @@ fn selections_to_babel(
                                 Some(type_condition),
                                 encountered_enums,
                                 encountered_fragments,
+                                custom_scalars,
                             );
                         }
                     }
@@ -656,6 +689,7 @@ fn selections_to_babel(
                             Some(concrete_type),
                             encountered_enums,
                             encountered_fragments,
+                            custom_scalars,
                         );
                     }
                 }
@@ -667,6 +701,7 @@ fn selections_to_babel(
                     None,
                     encountered_enums,
                     encountered_fragments,
+                    custom_scalars,
                 )
             })
             .collect();
@@ -701,6 +736,7 @@ pub(crate) fn raw_response_selections_to_babel(
     concrete_type: Option<Type>,
     encountered_enums: &mut EncounteredEnums,
     runtime_imports: &mut RuntimeImports,
+    custom_scalars: &mut CustomScalarsImports,
 ) -> AST {
     let mut base_fields = Vec::new();
     let mut by_concrete_type: IndexMap<Type, Vec<TypeSelection>> = Default::default();
@@ -745,6 +781,7 @@ pub(crate) fn raw_response_selections_to_babel(
                             Some(concrete_type),
                             encountered_enums,
                             runtime_imports,
+                            custom_scalars,
                         )
                     })
                     .collect(),
@@ -756,6 +793,7 @@ pub(crate) fn raw_response_selections_to_babel(
                 Some(concrete_type),
                 encountered_enums,
                 runtime_imports,
+                custom_scalars,
             );
         }
     }
@@ -772,6 +810,7 @@ pub(crate) fn raw_response_selections_to_babel(
                         concrete_type,
                         encountered_enums,
                         runtime_imports,
+                        custom_scalars,
                     )
                 })
                 .collect(),
@@ -783,6 +822,7 @@ pub(crate) fn raw_response_selections_to_babel(
             concrete_type,
             encountered_enums,
             runtime_imports,
+            custom_scalars,
         );
     }
 
@@ -796,6 +836,7 @@ fn append_local_3d_payload(
     concrete_type: Option<Type>,
     encountered_enums: &mut EncounteredEnums,
     runtime_imports: &mut RuntimeImports,
+    custom_scalars: &mut CustomScalarsImports,
 ) {
     if let Some(module_import) = type_selections.iter().find_map(|sel| {
         if let TypeSelection::ModuleDirective(m) = sel {
@@ -819,6 +860,7 @@ fn append_local_3d_payload(
                             concrete_type,
                             encountered_enums,
                             runtime_imports,
+                            custom_scalars,
                         )
                     })
                     .collect(),
@@ -834,6 +876,7 @@ fn make_prop(
     concrete_type: Option<Type>,
     encountered_enums: &mut EncounteredEnums,
     encountered_fragments: &mut EncounteredFragments,
+    custom_scalars: &mut CustomScalarsImports,
 ) -> Prop {
     let optional = type_selection.is_conditional();
     if typgen_context.generating_updatable_types && optional {
@@ -861,12 +904,14 @@ fn make_prop(
                     None,
                     encountered_enums,
                     encountered_fragments,
+                    custom_scalars,
                 );
                 let getter_return_value = transform_scalar_type(
                     typgen_context,
                     &linked_field.node_type,
                     Some(getter_object_props),
                     encountered_enums,
+                    custom_scalars,
                 );
 
                 let setter_parameter = if just_fragments.is_empty() {
@@ -937,12 +982,14 @@ fn make_prop(
                     None,
                     encountered_enums,
                     encountered_fragments,
+                    custom_scalars,
                 );
                 let value = transform_scalar_type(
                     typgen_context,
                     &linked_field.node_type,
                     Some(object_props),
                     encountered_enums,
+                    custom_scalars,
                 );
 
                 Prop::KeyValuePair(KeyValuePairProp {
@@ -997,6 +1044,7 @@ fn raw_response_make_prop(
     concrete_type: Option<Type>,
     encountered_enums: &mut EncounteredEnums,
     runtime_imports: &mut RuntimeImports,
+    custom_scalars: &mut CustomScalarsImports,
 ) -> Prop {
     let optional = type_selection.is_conditional();
     match type_selection {
@@ -1019,6 +1067,7 @@ fn raw_response_make_prop(
                 inner_concrete_type,
                 encountered_enums,
                 runtime_imports,
+                custom_scalars,
             );
             Prop::KeyValuePair(KeyValuePairProp {
                 key: linked_field.field_name_or_alias,
@@ -1027,6 +1076,7 @@ fn raw_response_make_prop(
                     &node_type,
                     Some(object_props),
                     encountered_enums,
+                    custom_scalars,
                 ),
                 read_only: true,
                 optional,
@@ -1073,6 +1123,7 @@ fn transform_scalar_type(
     type_reference: &TypeReference,
     object_props: Option<AST>,
     encountered_enums: &mut EncounteredEnums,
+    custom_scalars: &mut CustomScalarsImports,
 ) -> AST {
     match type_reference {
         TypeReference::NonNull(non_null_ref) => transform_non_nullable_scalar_type(
@@ -1080,12 +1131,14 @@ fn transform_scalar_type(
             &(*non_null_ref),
             object_props,
             encountered_enums,
+            custom_scalars,
         ),
         _ => AST::Nullable(Box::new(transform_non_nullable_scalar_type(
             typgen_context,
             type_reference,
             object_props,
             encountered_enums,
+            custom_scalars,
         ))),
     }
 }
@@ -1095,6 +1148,7 @@ fn transform_non_nullable_scalar_type(
     type_reference: &TypeReference,
     object_props: Option<AST>,
     encountered_enums: &mut EncounteredEnums,
+    custom_scalars: &mut CustomScalarsImports,
 ) -> AST {
     match type_reference {
         TypeReference::List(of_type) => AST::ReadOnlyArray(Box::new(transform_scalar_type(
@@ -1102,10 +1156,13 @@ fn transform_non_nullable_scalar_type(
             of_type,
             object_props,
             encountered_enums,
+            custom_scalars,
         ))),
         TypeReference::Named(named_type) => match named_type {
             Type::Object(_) | Type::Union(_) | Type::Interface(_) => object_props.unwrap(),
-            Type::Scalar(scalar_id) => transform_graphql_scalar_type(typgen_context, *scalar_id),
+            Type::Scalar(scalar_id) => {
+                transform_graphql_scalar_type(typgen_context, *scalar_id, custom_scalars)
+            }
             Type::Enum(enum_id) => {
                 transform_graphql_enum_type(typgen_context.schema, *enum_id, encountered_enums)
             }
@@ -1115,15 +1172,26 @@ fn transform_non_nullable_scalar_type(
     }
 }
 
-fn transform_graphql_scalar_type(typgen_context: &'_ TypegenContext<'_>, scalar: ScalarID) -> AST {
+fn transform_graphql_scalar_type(
+    typgen_context: &'_ TypegenContext<'_>,
+    scalar: ScalarID,
+    custom_scalars: &mut CustomScalarsImports,
+) -> AST {
     let scalar_name = typgen_context.schema.scalar(scalar).name;
-    if let Some(&custom_scalar) = typgen_context
+    if let Some(custom_scalar) = typgen_context
         .project_config
         .typegen_config
         .custom_scalar_types
         .get(&scalar_name.item)
     {
-        AST::RawType(custom_scalar)
+        match custom_scalar {
+            CustomScalarType::Name(custom_scalar) => AST::RawType(*custom_scalar),
+            CustomScalarType::Path(CustomScalarTypeImport { name, path }) => {
+                custom_scalars.insert((*name, path.clone()));
+
+                AST::RawType(*name)
+            }
+        }
     } else if scalar_name.item == *TYPE_ID || scalar_name.item == *TYPE_STRING {
         AST::String
     } else if scalar_name.item == *TYPE_FLOAT {
@@ -1158,6 +1226,7 @@ fn transform_graphql_enum_type(
     AST::Identifier(schema.enum_(enum_id).name.item)
 }
 
+#[allow(clippy::too_many_arguments)]
 pub(crate) fn raw_response_visit_selections(
     typgen_context: &'_ TypegenContext<'_>,
     selections: &[Selection],
@@ -1166,6 +1235,7 @@ pub(crate) fn raw_response_visit_selections(
     encountered_fragments: &mut EncounteredFragments,
     imported_raw_response_types: &mut ImportedRawResponseTypes,
     runtime_imports: &mut RuntimeImports,
+    custom_scalars: &mut CustomScalarsImports,
 ) -> Vec<TypeSelection> {
     let mut type_selections = Vec::new();
     for selection in selections {
@@ -1194,6 +1264,7 @@ pub(crate) fn raw_response_visit_selections(
                 encountered_fragments,
                 imported_raw_response_types,
                 runtime_imports,
+                custom_scalars,
             ),
             Selection::LinkedField(linked_field) => gen_visit_linked_field(
                 typgen_context.schema,
@@ -1208,6 +1279,7 @@ pub(crate) fn raw_response_visit_selections(
                         encountered_fragments,
                         imported_raw_response_types,
                         runtime_imports,
+                        custom_scalars,
                     )
                 },
             ),
@@ -1216,6 +1288,7 @@ pub(crate) fn raw_response_visit_selections(
                 &mut type_selections,
                 scalar_field,
                 encountered_enums,
+                custom_scalars,
             ),
             Selection::Condition(condition) => {
                 type_selections.extend(raw_response_visit_selections(
@@ -1226,6 +1299,7 @@ pub(crate) fn raw_response_visit_selections(
                     encountered_fragments,
                     imported_raw_response_types,
                     runtime_imports,
+                    custom_scalars,
                 ));
             }
         }
@@ -1238,6 +1312,7 @@ fn transform_non_nullable_input_type(
     type_ref: &TypeReference,
     input_object_types: &mut InputObjectTypes,
     encountered_enums: &mut EncounteredEnums,
+    custom_scalars: &mut CustomScalarsImports,
 ) -> AST {
     match type_ref {
         TypeReference::List(of_type) => AST::ReadOnlyArray(Box::new(transform_input_type(
@@ -1245,9 +1320,12 @@ fn transform_non_nullable_input_type(
             of_type,
             input_object_types,
             encountered_enums,
+            custom_scalars,
         ))),
         TypeReference::Named(named_type) => match named_type {
-            Type::Scalar(scalar) => transform_graphql_scalar_type(typgen_context, *scalar),
+            Type::Scalar(scalar) => {
+                transform_graphql_scalar_type(typgen_context, *scalar, custom_scalars)
+            }
             Type::Enum(enum_id) => {
                 transform_graphql_enum_type(typgen_context.schema, *enum_id, encountered_enums)
             }
@@ -1276,6 +1354,7 @@ fn transform_non_nullable_input_type(
                                         &field.type_,
                                         input_object_types,
                                         encountered_enums,
+                                        custom_scalars,
                                     ),
                                 })
                             })
@@ -1301,6 +1380,7 @@ pub(crate) fn transform_input_type(
     type_ref: &TypeReference,
     input_object_types: &mut InputObjectTypes,
     encountered_enums: &mut EncounteredEnums,
+    custom_scalars: &mut CustomScalarsImports,
 ) -> AST {
     match type_ref {
         TypeReference::NonNull(of_type) => transform_non_nullable_input_type(
@@ -1308,44 +1388,43 @@ pub(crate) fn transform_input_type(
             of_type,
             input_object_types,
             encountered_enums,
+            custom_scalars,
         ),
         _ => AST::Nullable(Box::new(transform_non_nullable_input_type(
             typgen_context,
             type_ref,
             input_object_types,
             encountered_enums,
+            custom_scalars,
         ))),
     }
 }
 
-pub(crate) fn get_input_variables_type(
-    typgen_context: &'_ TypegenContext<'_>,
+pub(crate) fn get_input_variables_type<'a>(
+    typgen_context: &'a TypegenContext<'_>,
     node: &OperationDefinition,
-    encountered_enums: &mut EncounteredEnums,
-) -> (ExactObject, impl Iterator<Item = (StringKey, ExactObject)>) {
-    let mut input_object_types = IndexMap::new();
-    (
-        ExactObject::new(
-            node.variable_definitions
-                .iter()
-                .map(|var_def| {
-                    Prop::KeyValuePair(KeyValuePairProp {
-                        key: var_def.name.item,
-                        read_only: false,
-                        optional: !var_def.type_.is_non_null(),
-                        value: transform_input_type(
-                            typgen_context,
-                            &var_def.type_,
-                            &mut input_object_types,
-                            encountered_enums,
-                        ),
-                    })
+    input_object_types: &'a mut InputObjectTypes,
+    encountered_enums: &'a mut EncounteredEnums,
+    custom_scalars: &'a mut CustomScalarsImports,
+) -> ExactObject {
+    ExactObject::new(
+        node.variable_definitions
+            .iter()
+            .map(|var_def| {
+                Prop::KeyValuePair(KeyValuePairProp {
+                    key: var_def.name.item,
+                    read_only: false,
+                    optional: !var_def.type_.is_non_null(),
+                    value: transform_input_type(
+                        typgen_context,
+                        &var_def.type_,
+                        input_object_types,
+                        encountered_enums,
+                        custom_scalars,
+                    ),
                 })
-                .collect(),
-        ),
-        input_object_types
-            .into_iter()
-            .map(|(key, val)| (key, val.unwrap_resolved_type())),
+            })
+            .collect(),
     )
 }
 
