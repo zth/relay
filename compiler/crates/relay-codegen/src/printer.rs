@@ -77,6 +77,8 @@ pub fn print_request_params(
         &mut builder,
         operation,
         top_level_statements,
+        operation.name,
+        project_config,
     );
     let printer = JSONPrinter::new(&builder, project_config, top_level_statements);
     printer.print(request_parameters_ast_key, false)
@@ -111,7 +113,13 @@ impl<'p> Printer<'p> {
         operation: &OperationDefinition,
         top_level_statements: &mut TopLevelStatements,
     ) -> Option<String> {
-        let key = build_provided_variables(schema, &mut self.builder, operation)?;
+        let key = build_provided_variables(
+            schema,
+            &mut self.builder,
+            operation,
+            operation.name,
+            self.project_config,
+        )?;
         let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
         Some(printer.print(key, self.dedupe))
     }
@@ -121,8 +129,13 @@ impl<'p> Printer<'p> {
         schema: &SDLSchema,
         fragment: &FragmentDefinition,
     ) -> String {
-        let mut fragment_builder =
-            CodegenBuilder::new(schema, CodegenVariant::Reader, &mut self.builder);
+        let mut fragment_builder = CodegenBuilder::new(
+            schema,
+            CodegenVariant::Reader,
+            &mut self.builder,
+            self.project_config,
+            fragment.name,
+        );
         let fragment = Primitive::Key(fragment_builder.build_fragment(fragment, true));
         let key = self.builder.intern(Ast::Object(object! {
             fragment: fragment,
@@ -152,6 +165,8 @@ impl<'p> Printer<'p> {
             &mut self.builder,
             operation,
             top_level_statements,
+            operation.name,
+            self.project_config,
         );
         let key = build_request(
             schema,
@@ -159,6 +174,8 @@ impl<'p> Printer<'p> {
             operation,
             fragment,
             request_parameters,
+            fragment.name,
+            self.project_config,
         );
         let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
         printer.print(key, self.dedupe)
@@ -170,7 +187,13 @@ impl<'p> Printer<'p> {
         operation: &OperationDefinition,
         top_level_statements: &mut TopLevelStatements,
     ) -> String {
-        let key = build_operation(schema, &mut self.builder, operation);
+        let key = build_operation(
+            schema,
+            &mut self.builder,
+            operation,
+            operation.name,
+            self.project_config,
+        );
         let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
         printer.print(key, self.dedupe)
     }
@@ -181,7 +204,13 @@ impl<'p> Printer<'p> {
         fragment: &FragmentDefinition,
         top_level_statements: &mut TopLevelStatements,
     ) -> String {
-        let key = build_fragment(schema, &mut self.builder, fragment);
+        let key = build_fragment(
+            schema,
+            &mut self.builder,
+            fragment,
+            fragment.name,
+            self.project_config,
+        );
         let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
         printer.print(key, self.dedupe)
     }
@@ -199,6 +228,8 @@ impl<'p> Printer<'p> {
             &mut self.builder,
             operation,
             top_level_statements,
+            operation.name,
+            self.project_config,
         );
         let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
         printer.print(key, self.dedupe)
@@ -423,9 +454,16 @@ impl<'b> JSONPrinter<'b> {
                 ),
             },
             Primitive::JSModuleDependency(key) => match self.js_module_format {
-                JsModuleFormat::CommonJS => {
-                    self.write_js_dependency(f, key.to_string(), format!("rescript_module_{}", key))
-                }
+                JsModuleFormat::CommonJS => self.write_js_dependency(
+                    f,
+                    key.to_string(),
+                    format!(
+                        "rescript_module_{}",
+                        common::rescript_utils::get_module_name_from_file_path(
+                            &key.to_string().as_str()
+                        )
+                    ),
+                ),
                 JsModuleFormat::Haste => {
                     self.write_js_dependency(f, key.to_string(), key.to_string())
                 }

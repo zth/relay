@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::rescript_utils::get_module_name_from_file_path;
 use fnv::{FnvBuildHasher, FnvHashMap, FnvHashSet};
 use graphql_ir::{FragmentDefinition, OperationDefinition};
 use graphql_syntax::OperationKind;
@@ -100,7 +101,6 @@ pub struct ReScriptPrinter {
     // Holds a list of seen Relay Resolvers, that we can use in the type gen to
     // piece together how the resolver types are imported.
     relay_resolvers: Vec<RelayResolverInfo>,
-
     // schema: &'a SDLSchema,
 }
 
@@ -352,43 +352,33 @@ fn ast_to_prop_value(
                     // sense for concrete types anyway).
                     // TODO(upgrade-fork): Disabling schema check here to get around lifetime issue for schema. Try reintroducing after upgrade is complete.
                     /*if let Some(typ) = state.schema.get_type(typename.clone().intern()) {
-                        if !typ.is_abstract_type() {*/
-                            let object = Object {
-                                at_path: new_at_path.clone(),
-                                comment: None,
-                                found_in_union: false,
-                                record_name: path_to_name(&new_at_path),
-                                values: get_object_props(
-                                    state,
-                                    &new_at_path,
-                                    props,
-                                    false,
-                                    context,
-                                ),
-                            };
+                    if !typ.is_abstract_type() {*/
+                    let object = Object {
+                        at_path: new_at_path.clone(),
+                        comment: None,
+                        found_in_union: false,
+                        record_name: path_to_name(&new_at_path),
+                        values: get_object_props(state, &new_at_path, props, false, context),
+                    };
 
-                            let object_record_name = object.record_name.to_string();
+                    let object_record_name = object.record_name.to_string();
 
-                            state.conversion_instructions.push(InstructionContainer {
-                                context: context.clone(),
-                                at_path: new_at_path.clone(),
-                                instruction: ConverterInstructions::ConvertTopLevelNodeField(
-                                    typename,
-                                ),
-                            });
+                    state.conversion_instructions.push(InstructionContainer {
+                        context: context.clone(),
+                        at_path: new_at_path.clone(),
+                        instruction: ConverterInstructions::ConvertTopLevelNodeField(typename),
+                    });
 
-                            state.objects.push(object);
+                    state.objects.push(object);
 
-                            return Some(PropValue {
-                                key: safe_key,
-                                original_key,
-                                comment: None,
-                                nullable: is_nullable,
-                                prop_type: Box::new(PropType::RecordReference(
-                                    object_record_name.clone(),
-                                )),
-                            });
-                        /*}
+                    return Some(PropValue {
+                        key: safe_key,
+                        original_key,
+                        comment: None,
+                        nullable: is_nullable,
+                        prop_type: Box::new(PropType::RecordReference(object_record_name.clone())),
+                    });
+                    /*}
                     }*/
                 }
             }
@@ -2961,7 +2951,7 @@ impl Writer for ReScriptPrinter {
         if name.ends_with("Resolver") {
             self.relay_resolvers.push(RelayResolverInfo {
                 local_resolver_name: name.to_string(),
-                resolver_module: from.to_string(),
+                resolver_module: get_module_name_from_file_path(&from),
             })
         }
 
@@ -3010,7 +3000,7 @@ impl Writer for ReScriptPrinter {
 impl ReScriptPrinter {
     pub fn new(
         operation_meta_data: RescriptRelayOperationMetaData,
-        typegen_definition: DefinitionType
+        typegen_definition: DefinitionType,
     ) -> Self {
         Self {
             enums: vec![],
@@ -3025,7 +3015,6 @@ impl ReScriptPrinter {
             conversion_instructions: vec![],
             operation_meta_data,
             relay_resolvers: vec![],
-            
         }
     }
 }

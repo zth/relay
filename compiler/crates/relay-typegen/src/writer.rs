@@ -19,7 +19,7 @@ use crate::{
     rescript::{self, DefinitionType},
     rescript_utils,
     typescript::TypeScriptPrinter,
-    TypegenOptions, FUTURE_ENUM_VALUE, KEY_FRAGMENT_SPREADS, KEY_FRAGMENT_TYPE, KEY_TYPENAME,
+    TypegenContext, FUTURE_ENUM_VALUE, KEY_FRAGMENT_SPREADS, KEY_FRAGMENT_TYPE, KEY_TYPENAME,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
@@ -408,7 +408,7 @@ mod tests {
 
 pub(crate) fn new_writer_from_config(
     config: &TypegenConfig,
-    typegen_opts: &TypegenOptions<'_>,
+    typegen_opts: &TypegenContext<'_>,
     typegen_definition: DefinitionType,
 ) -> Box<dyn Writer> {
     match config.language {
