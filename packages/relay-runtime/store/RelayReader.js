@@ -70,6 +70,9 @@ const {
 } = require('../util/RelayConcreteNode');
 const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const ClientID = require('./ClientID');
+const {
+  isSuspenseSentinel,
+} = require('./experimental-live-resolvers/LiveResolverSuspenseSentinel');
 const RelayConcreteVariables = require('./RelayConcreteVariables');
 const RelayModernRecord = require('./RelayModernRecord');
 const {getReactFlightClientResponse} = require('./RelayStoreReactFlightUtils');
@@ -495,6 +498,12 @@ class RelayReader {
           throw new Error('Relay Resolver fields are not yet supported.');
         }
         return this._readResolverField(selection.field, record, data);
+      case CLIENT_EDGE_TO_CLIENT_OBJECT:
+      case CLIENT_EDGE_TO_SERVER_OBJECT:
+        if (!RelayFeatureFlags.ENABLE_RELAY_RESOLVERS) {
+          throw new Error('Relay Resolver fields are not yet supported.');
+        }
+        return this._readClientEdge(selection.field, record, data);
       default:
         (selection.field.kind: empty);
         invariant(
@@ -661,7 +670,7 @@ class RelayReader {
     this._traverseSelections([backingField], record, backingFieldData);
     let destinationDataID = backingFieldData[applicationName];
 
-    if (destinationDataID == null) {
+    if (destinationDataID == null || isSuspenseSentinel(destinationDataID)) {
       data[applicationName] = destinationDataID;
       return;
     }
@@ -790,7 +799,6 @@ class RelayReader {
     data: SelectorData,
   ): ?mixed {
     const applicationName = field.alias ?? field.name;
-    getStorageKey(field, this._variables);
     const storageKey = getStorageKey(field, this._variables);
     const linkedID = RelayModernRecord.getLinkedRecordID(record, storageKey);
     if (linkedID == null) {
@@ -1114,22 +1122,18 @@ class RelayReader {
 
     const parentVariables = this._variables;
 
-    // We only want to update `this._variables` if we have compiler artifacts that support it.
-    // Until we've rolled out the compiler portion of this change, we need to check at runtime.
-    if (fragmentSpreadOrFragment.argumentDefinitions != null) {
-      // If the inline fragment spread has arguments, we need to temporarily
-      // switch this._variables to include the fragment spread's arguments
-      // for the duration of its traversal.
-      const argumentVariables = fragmentSpreadOrFragment.args
-        ? getArgumentValues(fragmentSpreadOrFragment.args, this._variables)
-        : {};
+    // If the inline fragment spread has arguments, we need to temporarily
+    // switch this._variables to include the fragment spread's arguments
+    // for the duration of its traversal.
+    const argumentVariables = fragmentSpreadOrFragment.args
+      ? getArgumentValues(fragmentSpreadOrFragment.args, this._variables)
+      : {};
 
-      this._variables = RelayConcreteVariables.getFragmentVariables(
-        fragmentSpreadOrFragment,
-        this._owner.variables,
-        argumentVariables,
-      );
-    }
+    this._variables = RelayConcreteVariables.getFragmentVariables(
+      fragmentSpreadOrFragment,
+      this._owner.variables,
+      argumentVariables,
+    );
 
     this._traverseSelections(
       fragmentSpreadOrFragment.selections,

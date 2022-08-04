@@ -6,21 +6,24 @@
  */
 
 use intern::string_key::StringKey;
-use relay_config::{TypegenConfig, TypegenLanguage};
-use std::{
-    cmp::Ordering,
-    fmt::{Result as FmtResult, Write},
-    ops::Deref,
-};
+use relay_config::TypegenConfig;
+use relay_config::TypegenLanguage;
+use std::cmp::Ordering;
+use std::fmt::Result as FmtResult;
+use std::fmt::Write;
+use std::ops::Deref;
 
-use crate::{
-    flow::FlowPrinter,
-    javascript::JavaScriptPrinter,
-    rescript::{self, DefinitionType},
-    rescript_utils,
-    typescript::TypeScriptPrinter,
-    TypegenContext, FUTURE_ENUM_VALUE, KEY_FRAGMENT_SPREADS, KEY_FRAGMENT_TYPE, KEY_TYPENAME,
-};
+use crate::flow::FlowPrinter;
+use crate::javascript::JavaScriptPrinter;
+use crate::rescript;
+use crate::rescript::DefinitionType;
+use crate::rescript_utils;
+use crate::typescript::TypeScriptPrinter;
+use crate::TypegenContext;
+use crate::FUTURE_ENUM_VALUE;
+use crate::KEY_FRAGMENT_SPREADS;
+use crate::KEY_FRAGMENT_TYPE;
+use crate::KEY_TYPENAME;
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum AST {

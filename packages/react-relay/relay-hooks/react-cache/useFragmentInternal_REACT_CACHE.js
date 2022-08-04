@@ -21,7 +21,10 @@ import type {
   SelectorData,
   Snapshot,
 } from 'relay-runtime';
-import type {MissingClientEdgeRequestInfo} from 'relay-runtime/store/RelayStoreTypes';
+import type {
+  MissingClientEdgeRequestInfo,
+  MissingLiveResolverField,
+} from 'relay-runtime/store/RelayStoreTypes';
 
 const {getQueryResourceForEnvironment} = require('../QueryResource');
 const useRelayEnvironment = require('../useRelayEnvironment');
@@ -52,6 +55,9 @@ type FragmentState = $ReadOnly<
 
 type StateUpdaterFunction<T> = ((T) => T) => void;
 
+class NotMounted {}
+const NOT_MOUNTED = new NotMounted();
+
 function isMissingData(state: FragmentState): boolean {
   if (state.kind === 'bailout') {
     return false;
@@ -80,6 +86,27 @@ function getMissingClientEdges(
       }
     }
     return edges;
+  }
+}
+
+function getSuspendingLiveResolver(
+  state: FragmentState,
+): $ReadOnlyArray<MissingLiveResolverField> | null {
+  if (state.kind === 'bailout') {
+    return null;
+  } else if (state.kind === 'singular') {
+    return state.snapshot.missingLiveResolverFields ?? null;
+  } else {
+    let missingFields = null;
+    for (const snapshot of state.snapshots) {
+      if (snapshot.missingLiveResolverFields) {
+        missingFields = missingFields ?? [];
+        for (const edge of snapshot.missingLiveResolverFields) {
+          missingFields.push(edge);
+        }
+      }
+    }
+    return missingFields;
   }
 }
 
@@ -282,15 +309,13 @@ function getFragmentState(
   if (fragmentSelector == null) {
     return {kind: 'bailout'};
   } else if (fragmentSelector.kind === 'PluralReaderSelector') {
-    if (fragmentSelector.selectors.length === 0) {
-      return {kind: 'bailout'};
-    } else {
-      return {
-        kind: 'plural',
-        snapshots: fragmentSelector.selectors.map(s => environment.lookup(s)),
-        epoch: environment.getStore().getEpoch(),
-      };
-    }
+    // Note that if fragmentRef is an empty array, fragmentSelector will be null so we'll hit the above case.
+    // Null is returned by getSelector if fragmentRef has no non-null items.
+    return {
+      kind: 'plural',
+      snapshots: fragmentSelector.selectors.map(s => environment.lookup(s)),
+      epoch: environment.getStore().getEpoch(),
+    };
   } else {
     return {
       kind: 'singular',
@@ -393,6 +418,18 @@ function useFragmentInternal_REACT_CACHE(
     subscribedState = newState;
   }
 
+  // The purpose of this is to detect whether we have ever committed, because we
+  // don't suspend on store updates, only when the component either is first trying
+  // to mount or when the our selector changes. The selector change in particular is
+  // how we suspend for pagination and refetech. Also, fragment selector can be null,
+  // so we use NOT_MOUNTED as a special value to distinguish from all fragment selectors.
+  const committedFragmentSelectorRef = useRef<NotMounted | ?ReaderSelector>(
+    NOT_MOUNTED,
+  );
+  useEffect(() => {
+    committedFragmentSelectorRef.current = fragmentSelector;
+  }, [fragmentSelector]);
+
   // Handle the queries for any missing client edges; this may suspend.
   // FIXME handle client edges in parallel.
   if (fragmentNode.metadata?.hasClientEdges === true) {
@@ -440,20 +477,34 @@ function useFragmentInternal_REACT_CACHE(
   }
 
   if (isMissingData(state)) {
+    // Suspend if a Live Resolver within this fragment is in a suspended state:
+    const suspendingLiveResolvers = getSuspendingLiveResolver(state);
+    if (suspendingLiveResolvers != null && suspendingLiveResolvers.length > 0) {
+      throw Promise.all(
+        suspendingLiveResolvers.map(({liveStateID}) => {
+          // $FlowFixMe[prop-missing] This is expected to be a LiveResolverStore
+          return environment.getStore().getLiveResolverPromise(liveStateID);
+        }),
+      );
+    }
     // Suspend if an active operation bears on this fragment, either the
-    // fragment's owner or some other mutation etc. that could affect it:
-    invariant(fragmentSelector != null, 'refinement, see invariants above');
-    const fragmentOwner =
-      fragmentSelector.kind === 'PluralReaderSelector'
-        ? fragmentSelector.selectors[0].owner
-        : fragmentSelector.owner;
-    const pendingOperationsResult = getPendingOperationsForFragment(
-      environment,
-      fragmentNode,
-      fragmentOwner,
-    );
-    if (pendingOperationsResult) {
-      throw pendingOperationsResult.promise;
+    // fragment's owner or some other mutation etc. that could affect it.
+    // We only suspend when the component is first trying to mount or changing
+    // selectors, not if data becomes missing later:
+    if (committedFragmentSelectorRef.current !== fragmentSelector) {
+      invariant(fragmentSelector != null, 'refinement, see invariants above');
+      const fragmentOwner =
+        fragmentSelector.kind === 'PluralReaderSelector'
+          ? fragmentSelector.selectors[0].owner
+          : fragmentSelector.owner;
+      const pendingOperationsResult = getPendingOperationsForFragment(
+        environment,
+        fragmentNode,
+        fragmentOwner,
+      );
+      if (pendingOperationsResult) {
+        throw pendingOperationsResult.promise;
+      }
     }
     // Report required fields only if we're not suspending, since that means
     // they're missing even though we are out of options for possibly fetching them:
@@ -488,10 +539,13 @@ function useFragmentInternal_REACT_CACHE(
     //
     // Note that isPlural is a constant property of the fragment and does not change
     // for a particular useFragment invocation site
+    const fragmentRefIsNullish = fragmentRef == null; // for less sensitive memoization
     // eslint-disable-next-line react-hooks/rules-of-hooks
     data = useMemo(() => {
       if (state.kind === 'bailout') {
-        return [];
+        // Bailout state can happen if the fragmentRef is a plural array that is empty or has no
+        // non-null entries. In that case, the compatible behavior is to return [] instead of null.
+        return fragmentRefIsNullish ? null : [];
       } else {
         invariant(
           state.kind === 'plural',
@@ -499,7 +553,7 @@ function useFragmentInternal_REACT_CACHE(
         );
         return state.snapshots.map(s => s.data);
       }
-    }, [state]);
+    }, [state, fragmentRefIsNullish]);
   } else if (state.kind === 'bailout') {
     // This case doesn't allocate a new object so it doesn't have to be memoized
     data = null;

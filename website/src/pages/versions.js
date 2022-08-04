@@ -9,8 +9,11 @@
 
 /* eslint-disable lint/no-value-import */
 import Link from '@docusaurus/Link';
+import {
+  useLatestVersion,
+  useVersions,
+} from '@docusaurus/plugin-content-docs/client';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
-import {useLatestVersion, useVersions} from '@theme/hooks/useDocs';
 import Layout from '@theme/Layout';
 import React from 'react';
 /* eslint-enable lint/no-value-import */
@@ -47,7 +50,7 @@ function Version() {
                     <Link to={latestVersion.path}>Documentation</Link>
                   </td>
                   <td>
-                    <a href={`${repoUrl}/releases/tag/v${latestVersion.name}`}>
+                    <a href={`${repoUrl}/releases/tag/${latestVersion.name}`}>
                       Release Notes
                     </a>
                   </td>
