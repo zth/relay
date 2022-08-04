@@ -512,6 +512,11 @@ class RelayReader {
     data: SelectorData,
   ): mixed {
     const {resolverModule, fragment} = field;
+    // Support for languages that work (best) with ES6 modules, such as TypeScript.
+    const resolverFunction =
+      typeof resolverModule === 'function'
+        ? resolverModule
+        : resolverModule.default;
     const storageKey = getStorageKey(fragment, this._variables);
     const resolverID = ClientID.generateClientID(
       RelayModernRecord.getDataID(record),
@@ -564,7 +569,7 @@ class RelayReader {
           const args = field.args
             ? getArgumentValues(field.args, this._variables)
             : undefined;
-          resolverResult = resolverModule(
+          resolverResult = resolverFunction(
             // $FlowFixMe[prop-missing] - Resolver's generated type signature is a lie
             key,
             // The Relay Compiler enforces that only resolvers that
@@ -687,10 +692,10 @@ class RelayReader {
       // local within their type. ResolverCache will derive a namespaced ID for us.
       if (field.linkedField.plural) {
         destinationDataID = destinationDataID.map(id =>
-          this._resolverCache.createClientRecord(id, field.concreteType),
+          this._resolverCache.ensureClientRecord(id, field.concreteType),
         );
       } else {
-        destinationDataID = this._resolverCache.createClientRecord(
+        destinationDataID = this._resolverCache.ensureClientRecord(
           destinationDataID,
           field.concreteType,
         );
