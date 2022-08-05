@@ -36,8 +36,8 @@ use intern::string_key::StringKeyIndexMap;
 use intern::string_key::StringKeyMap;
 use intern::string_key::StringKeySet;
 use lazy_static::lazy_static;
+use schema::suggestion_list;
 use schema::suggestion_list::GraphQLSuggestions;
-use schema::suggestion_list::{self};
 use schema::ArgumentDefinitions;
 use schema::Enum;
 use schema::FieldID;
@@ -339,7 +339,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                     })
                 } else {
                     Err(vec![Diagnostic::error(
-                        ValidationMessage::ExpectedOperationName(),
+                        ValidationMessage::ExpectedOperationName,
                         operation.location,
                     )])
                 }
@@ -785,7 +785,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                 .iter()
                 .map(|x| self.location.with_span(x.span));
             let mut error = Diagnostic::error(
-                ValidationMessage::ExpectedOneArgumentsDirective(),
+                ValidationMessage::ExpectedOneArgumentsDirective,
                 locations.next().unwrap(),
             );
             for location in locations {
@@ -1054,7 +1054,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         let alias = self.build_alias(&field.alias);
         if let Some(arguments) = &field.arguments {
             return Err(vec![Diagnostic::error(
-                ValidationMessage::InvalidArgumentsOnTypenameField(),
+                ValidationMessage::InvalidArgumentsOnTypenameField,
                 self.location.with_span(arguments.span),
             )]);
         }
@@ -1079,7 +1079,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         let alias = self.build_alias(&field.alias);
         if let Some(arguments) = &field.arguments {
             return Err(vec![Diagnostic::error(
-                ValidationMessage::InvalidArgumentsOnTypenameField(),
+                ValidationMessage::InvalidArgumentsOnTypenameField,
                 self.location.with_span(arguments.span),
             )]);
         }
@@ -1104,7 +1104,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         let alias = self.build_alias(&field.alias);
         if let Some(arguments) = &field.arguments {
             return Err(Diagnostic::error(
-                ValidationMessage::InvalidArgumentsOnFetchTokenField(),
+                ValidationMessage::InvalidArgumentsOnFetchTokenField,
                 self.location.with_span(arguments.span),
             )
             .into());
@@ -1264,7 +1264,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         if directive.name.value == *ARGUMENT_DEFINITION {
             if location != DirectiveLocation::FragmentDefinition {
                 return Err(vec![Diagnostic::error(
-                    ValidationMessage::ExpectedArgumentDefinitionsDirectiveOnFragmentDefinition(),
+                    ValidationMessage::ExpectedArgumentDefinitionsDirectiveOnFragmentDefinition,
                     self.location.with_span(directive.name.span),
                 )]);
             }
@@ -1913,6 +1913,7 @@ fn wrap_selection_with_condition(selection: &Selection, condition: &Directive) -
         },
         passing_value: condition.name.item.lookup() == "include",
         selections: vec![selection.clone()],
+        location: condition.name.location,
     }))
 }
 
