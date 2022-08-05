@@ -5,7 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{DiagnosticDisplay, WithDiagnosticData};
+use common::DiagnosticDisplay;
+use common::WithDiagnosticData;
 use intern::string_key::StringKey;
 use thiserror::Error;
 
@@ -118,14 +119,6 @@ pub enum ValidationMessage {
     RequiredExplicitNoInlineDirective { fragment_name: StringKey },
 
     #[error(
-        "After transforms, the operation `{name}` that would be sent to the server is empty. \
-        Relay is not setup to handle such queries. This is likely due to only querying for \
-        client extension fields or `@skip`/`@include` directives with constant values that \
-        remove all selections."
-    )]
-    EmptyOperationResult { name: StringKey },
-
-    #[error(
         "The `@relay_test_operation` directive is only allowed within test \
         files because it creates larger generated files we don't want to \
         include in production. File does not match test regex: {test_path_regex}"
@@ -163,6 +156,19 @@ pub enum ValidationMessage {
         "Missing required argument `as`. The `as` argument of the @alias directive is required on inline fragments without a type condition."
     )]
     FragmentAliasDirectiveMissingAs,
+
+    #[error(
+        "Unexpected dynamic argument. {field_name}'s '{argument_name}' argument must be a constant value because it is read by the Relay compiler."
+    )]
+    InvalidStaticArgument {
+        field_name: StringKey,
+        argument_name: StringKey,
+    },
+
+    #[error(
+        "Unexpected directive on Client Edge field. The `@{directive_name}` directive is not currently supported on fields backed by Client Edges."
+    )]
+    ClientEdgeUnsupportedDirective { directive_name: StringKey },
 }
 
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]

@@ -7,9 +7,11 @@
 
 use common::Span;
 use graphql_ir::reexport::StringKey;
-use relay_docblock::{DocblockIr, On};
+use relay_docblock::DocblockIr;
+use relay_docblock::On;
 
-use crate::{LSPRuntimeError, LSPRuntimeResult};
+use crate::LSPRuntimeError;
+use crate::LSPRuntimeResult;
 
 pub enum DocblockResolutionInfo {
     OnType(StringKey),
@@ -21,7 +23,7 @@ pub enum DocblockResolutionInfo {
 }
 
 pub fn create_docblock_resolution_info(
-    docblock_ir: DocblockIr,
+    docblock_ir: &DocblockIr,
     position_span: Span,
 ) -> LSPRuntimeResult<DocblockResolutionInfo> {
     match docblock_ir {
@@ -38,11 +40,10 @@ pub fn create_docblock_resolution_info(
                     }
                 }
             };
-
-            if resolver_ir.root_fragment.location.contains(position_span) {
-                return Ok(DocblockResolutionInfo::RootFragment(
-                    resolver_ir.root_fragment.item,
-                ));
+            if let Some(root_fragment) = resolver_ir.root_fragment {
+                if root_fragment.location.contains(position_span) {
+                    return Ok(DocblockResolutionInfo::RootFragment(root_fragment.item));
+                }
             }
 
             if resolver_ir.field.name.span.contains(position_span) {
@@ -51,7 +52,7 @@ pub fn create_docblock_resolution_info(
                 ));
             }
 
-            if let Some(edge_to) = resolver_ir.edge_to {
+            if let Some(edge_to) = &resolver_ir.edge_to {
                 if edge_to.location.contains(position_span) {
                     return Ok(DocblockResolutionInfo::EdgeTo(
                         edge_to.item.inner().name.value,

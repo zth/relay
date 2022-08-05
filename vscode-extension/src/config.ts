@@ -5,11 +5,15 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { ConfigurationScope, workspace } from 'vscode';
+import {ConfigurationScope, workspace} from 'vscode';
 
 export type Config = {
+  rootDirectory: string | null;
   pathToRelay: string | null;
-  outputLevel: string;
+  pathToConfig: string | null;
+  lspOutputLevel: string;
+  compilerOutpuLevel: string;
+  autoStartCompiler: boolean;
 };
 
 export function getConfig(scope?: ConfigurationScope): Config {
@@ -17,6 +21,10 @@ export function getConfig(scope?: ConfigurationScope): Config {
 
   return {
     pathToRelay: configuration.get('pathToRelay') ?? null,
-    outputLevel: configuration.get('outputLevel') ?? 'quiet-with-errros',
+    pathToConfig: configuration.get('pathToConfig') ?? null,
+    lspOutputLevel: configuration.get('lspOutputLevel') ?? 'quiet-with-errros',
+    compilerOutpuLevel: configuration.get('compilerOutputLevel') ?? 'info',
+    rootDirectory: configuration.get('rootDirectory') ?? null,
+    autoStartCompiler: configuration.get('autoStartCompiler') ?? false,
   };
 }

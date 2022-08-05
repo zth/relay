@@ -130,6 +130,7 @@ module.exports = {
               internal: [
                 'guided-tour/updating-data/imperatively-modifying-store-data',
                 'guided-tour/updating-data/imperatively-modifying-linked-fields',
+                'guided-tour/updating-data/typesafe-updaters-faq',
               ],
               external: [
                 'guided-tour/updating-data/imperatively-modifying-store-data-unsafe',
@@ -164,6 +165,7 @@ module.exports = {
             'api-reference/hooks/use-query-loader',
             'api-reference/hooks/load-query',
             'api-reference/hooks/use-lazy-load-query',
+            'api-reference/hooks/use-client-query',
             'api-reference/hooks/use-fragment',
             'api-reference/hooks/use-refetchable-fragment',
             'api-reference/hooks/use-pagination-fragment',
@@ -210,12 +212,14 @@ module.exports = {
             'debugging/fb/debugging-suspense',
             'debugging/fb/debugging-phps',
             'debugging/fb/vscode-extension',
+            'debugging/why-null',
             'debugging/fb/debugging-faq',
           ],
           external: [
             'debugging/relay-devtools',
             'debugging/inconsistent-typename-error',
             'debugging/declarative-mutation-directives',
+            'debugging/why-null',
           ],
         }),
       ],
@@ -228,6 +232,7 @@ module.exports = {
         'principles-and-architecture/videos',
       ],
     },
+    'editor-support',
     'community/learning-resources',
     'glossary/glossary',
   ],

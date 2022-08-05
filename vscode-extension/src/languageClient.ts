@@ -5,42 +5,40 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { workspace } from 'vscode';
 import {
   LanguageClientOptions,
   RevealOutputChannelOn,
 } from 'vscode-languageclient';
-import { ServerOptions, LanguageClient } from 'vscode-languageclient/node';
-import { getConfig } from './config';
-import { RelayExtensionContext } from './context';
-import { createErrorHandler } from './errorHandler';
-import { LSPStatusBarFeature } from './lspStatusBarFeature';
-import { findRelayBinary } from './utils';
+import {ServerOptions, LanguageClient} from 'vscode-languageclient/node';
+import {window} from 'vscode';
+import * as path from 'path';
+import {RelayExtensionContext} from './context';
+import {createErrorHandler} from './errorHandler';
+import {LSPStatusBarFeature} from './lspStatusBarFeature';
+import {getConfig} from './config';
 
-export async function createAndStartClient(context: RelayExtensionContext) {
+export function createAndStartLanguageClient(context: RelayExtensionContext) {
   const config = getConfig();
 
-  // TODO: Support multi folder workspaces by not using rootPath.
-  // Maybe initialize a client once for each workspace?
-  const relayBinary =
-    config.pathToRelay ||
-    (await findRelayBinary(workspace.rootPath ?? process.cwd()));
+  context.primaryOutputChannel.appendLine(
+    `Using relay binary: ${context.relayBinaryExecutionOptions.binaryPath}`,
+  );
 
-  context.outputChannel.appendLine('Starting the Relay GraphQL extension...');
+  const args = ['lsp', `--output=${config.lspOutputLevel}`];
 
-  if (!relayBinary) {
-    context.outputChannel.appendLine(
-      "Could not find relay binary in path. Maybe you're not inside of a project with relay installed.",
-    );
-
-    return;
+  if (config.pathToConfig) {
+    args.push(config.pathToConfig);
   }
 
-  context.outputChannel.appendLine(`Using relay binary: ${relayBinary}`);
-
   const serverOptions: ServerOptions = {
-    command: relayBinary,
-    args: ['lsp', `--output=${config.outputLevel}`],
+    options: {
+      cwd: context.relayBinaryExecutionOptions.rootPath,
+    },
+    command: path.resolve(
+      context.relayBinaryExecutionOptions.rootPath,
+      context.relayBinaryExecutionOptions.binaryPath,
+    ),
+    args,
   };
 
   // Options to control the language client
@@ -49,20 +47,22 @@ export async function createAndStartClient(context: RelayExtensionContext) {
       isTrusted: true,
     },
     documentSelector: [
-      { scheme: 'file', language: 'javascript' },
-      { scheme: 'file', language: 'typescript' },
-      { scheme: 'file', language: 'typescriptreact' },
-      { scheme: 'file', language: 'javascriptreact' },
+      {scheme: 'file', language: 'javascript'},
+      {scheme: 'file', language: 'typescript'},
+      {scheme: 'file', language: 'typescriptreact'},
+      {scheme: 'file', language: 'javascriptreact'},
     ],
 
-    outputChannel: context.outputChannel,
+    outputChannel: context.lspOutputChannel,
 
     // Since we use stderr for debug logs, the "Something went wrong" popup
     // in VSCode shows up a lot. This tells vscode not to show it in any case.
     revealOutputChannelOn: RevealOutputChannelOn.Never,
 
-    initializationFailedHandler: (error) => {
-      context?.outputChannel.appendLine(`initializationFailedHandler ${error}`);
+    initializationFailedHandler: error => {
+      context?.primaryOutputChannel.appendLine(
+        `initializationFailedHandler ${error}`,
+      );
 
       return true;
     },
@@ -80,7 +80,42 @@ export async function createAndStartClient(context: RelayExtensionContext) {
 
   client.registerFeature(new LSPStatusBarFeature(context));
 
+  context.primaryOutputChannel.appendLine(
+    `Starting the Relay Langauge Server with these options: ${JSON.stringify(
+      serverOptions,
+    )}`,
+  );
+
   // Start the client. This will also launch the server
   client.start();
   context.client = client;
+}
+
+type DidNotError = boolean;
+
+export async function killLanguageClient(
+  context: RelayExtensionContext,
+): Promise<DidNotError> {
+  if (!context.client) {
+    return true;
+  }
+
+  return context.client
+    .stop()
+    .then(() => {
+      context.primaryOutputChannel.appendLine(
+        'Successfully stopped existing relay lsp client',
+      );
+
+      context.client = null;
+
+      return true;
+    })
+    .catch(() => {
+      window.showErrorMessage(
+        'An error occurred while trying to stop the Relay LSP Client. Try restarting VSCode.',
+      );
+
+      return false;
+    });
 }

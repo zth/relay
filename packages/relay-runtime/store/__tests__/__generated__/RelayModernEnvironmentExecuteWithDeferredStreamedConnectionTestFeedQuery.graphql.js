@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<40004e444e7395d21e56ce56867d7ef7>>
+ * @generated SignedSource<<09192e1c55993958d56d89f85d2bcb5c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,14 +16,14 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedFragment$fragmentType = any;
+import type { RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedFragment$fragmentType } from "./RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedFragment.graphql";
 export type RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedQuery$variables = {|
   after?: ?string,
   enableStream: boolean,
 |};
 export type RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedQuery$data = {|
   +viewer: ?{|
-    +__typename: string,
+    +__typename: "Viewer",
     +$fragmentSpreads: RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedFragment$fragmentType,
   |},
 |};

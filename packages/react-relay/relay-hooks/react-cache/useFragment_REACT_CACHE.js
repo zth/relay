@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {Fragment, FragmentType, GraphQLTaggedNode} from 'relay-runtime';
@@ -56,8 +54,14 @@ function useFragment(fragment: GraphQLTaggedNode, key: mixed): mixed {
   useTrackLoadQueryInRender();
 
   const fragmentNode = getFragment(fragment);
-  useStaticFragmentNodeWarning(fragmentNode, 'first argument of useFragment()');
-  const {data} = useFragmentInternal(fragmentNode, key, 'useFragment()');
+  if (__DEV__) {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useStaticFragmentNodeWarning(
+      fragmentNode,
+      'first argument of useFragment()',
+    );
+  }
+  const data = useFragmentInternal(fragmentNode, key, 'useFragment()');
   if (__DEV__) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useDebugValue({fragment: fragmentNode.name, data});

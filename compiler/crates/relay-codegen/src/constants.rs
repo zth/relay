@@ -5,7 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use intern::string_key::{Intern, StringKey};
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 
 pub struct CodegenConstants {
@@ -19,12 +20,14 @@ pub struct CodegenConstants {
     pub argument_definitions: StringKey,
     pub backward: StringKey,
     pub cache_id: StringKey,
+    pub client_abstract_types: StringKey,
     pub client_component: StringKey,
     pub client_edge_backing_field_key: StringKey,
     pub client_edge_to_client_object: StringKey,
     pub client_edge_to_server_object: StringKey,
     pub client_edge_selections_key: StringKey,
     pub client_extension: StringKey,
+    pub component_module_provider: StringKey,
     pub concrete_type: StringKey,
     pub condition_value: StringKey,
     pub condition: StringKey,
@@ -53,6 +56,7 @@ pub struct CodegenConstants {
     pub fragment: StringKey,
     pub handle_args: StringKey,
     pub handle: StringKey,
+    pub has_client_edges: StringKey,
     pub id: StringKey,
     pub identifier_field: StringKey,
     pub if_: StringKey,
@@ -75,6 +79,7 @@ pub struct CodegenConstants {
     pub mutation: StringKey,
     pub name: StringKey,
     pub object_value: StringKey,
+    pub operation_module_provider: StringKey,
     pub operation_kind: StringKey,
     pub operation_value: StringKey,
     pub operation: StringKey,
@@ -121,12 +126,14 @@ lazy_static! {
         argument_definitions: "argumentDefinitions".intern(),
         backward: "backward".intern(),
         cache_id: "cacheID".intern(),
+        client_abstract_types: "clientAbstractTypes".intern(),
         client_component: "ClientComponent".intern(),
         client_edge_to_server_object: "ClientEdgeToServerObject".intern(),
         client_edge_to_client_object: "ClientEdgeToClientObject".intern(),
         client_edge_backing_field_key: "backingField".intern(),
         client_edge_selections_key: "linkedField".intern(),
         client_extension: "ClientExtension".intern(),
+        component_module_provider: "componentModuleProvider".intern(),
         concrete_type: "concreteType".intern(),
         condition_value: "Condition".intern(),
         condition: "condition".intern(),
@@ -155,6 +162,7 @@ lazy_static! {
         fragment: "fragment".intern(),
         handle_args: "handleArgs".intern(),
         handle: "handle".intern(),
+        has_client_edges: "hasClientEdges".intern(),
         id: "id".intern(),
         identifier_field: "identifierField".intern(),
         if_: "if".intern(),
@@ -177,6 +185,7 @@ lazy_static! {
         mutation: "mutation".intern(),
         name: "name".intern(),
         object_value: "ObjectValue".intern(),
+        operation_module_provider: "operationModuleProvider".intern(),
         operation_kind: "operationKind".intern(),
         operation_value: "Operation".intern(),
         operation: "operation".intern(),

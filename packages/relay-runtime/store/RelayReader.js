@@ -8,9 +8,8 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
+
 import type {
   ReaderActorChange,
   ReaderAliasedFragmentSpread,
@@ -71,6 +70,10 @@ const {
 } = require('../util/RelayConcreteNode');
 const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const ClientID = require('./ClientID');
+const {
+  isSuspenseSentinel,
+} = require('./experimental-live-resolvers/LiveResolverSuspenseSentinel');
+const RelayConcreteVariables = require('./RelayConcreteVariables');
 const RelayModernRecord = require('./RelayModernRecord');
 const {getReactFlightClientResponse} = require('./RelayStoreReactFlightUtils');
 const {
@@ -87,7 +90,10 @@ const {
   getStorageKey,
 } = require('./RelayStoreUtils');
 const {NoopResolverCache} = require('./ResolverCache');
-const {withResolverContext} = require('./ResolverFragments');
+const {
+  RESOLVER_FRAGMENT_MISSING_DATA_SENTINEL,
+  withResolverContext,
+} = require('./ResolverFragments');
 const {generateTypeID} = require('./TypeID');
 const invariant = require('invariant');
 
@@ -492,6 +498,12 @@ class RelayReader {
           throw new Error('Relay Resolver fields are not yet supported.');
         }
         return this._readResolverField(selection.field, record, data);
+      case CLIENT_EDGE_TO_CLIENT_OBJECT:
+      case CLIENT_EDGE_TO_SERVER_OBJECT:
+        if (!RelayFeatureFlags.ENABLE_RELAY_RESOLVERS) {
+          throw new Error('Relay Resolver fields are not yet supported.');
+        }
+        return this._readClientEdge(selection.field, record, data);
       default:
         (selection.field.kind: empty);
         invariant(
@@ -507,8 +519,8 @@ class RelayReader {
     record: Record,
     data: SelectorData,
   ): mixed {
-    const {resolverModule, fragment} = field;
-    const storageKey = getStorageKey(fragment, this._variables);
+    const {fragment} = field;
+    const storageKey = getStorageKey(fragment ?? field, this._variables);
     const resolverID = ClientID.generateClientID(
       RelayModernRecord.getDataID(record),
       storageKey,
@@ -519,12 +531,17 @@ class RelayReader {
     // inputs have changed since a previous evaluation:
     let snapshot: ?Snapshot;
 
-    const getDataForResolverFragment = singularReaderSelector => {
+    const getDataForResolverFragment = (
+      singularReaderSelector: SingularReaderSelector,
+    ) => {
       if (snapshot != null) {
         // It was already read when checking for input staleness; no need to read it again.
         // Note that the variables like fragmentSeenRecordIDs in the outer closure will have
         // already been set and will still be used in this case.
-        return snapshot.data;
+        return {
+          data: snapshot.data,
+          isMissingData: snapshot.isMissingData,
+        };
       }
 
       snapshot = read(
@@ -532,52 +549,53 @@ class RelayReader {
         singularReaderSelector,
         this._resolverCache,
       );
-      return snapshot.data;
+
+      return {
+        data: snapshot.data,
+        isMissingData: snapshot.isMissingData,
+      };
     };
     const resolverContext = {getDataForResolverFragment};
 
     const evaluate = (): EvaluationResult<mixed> => {
-      const key = {
-        __id: RelayModernRecord.getDataID(record),
-        __fragmentOwner: this._owner,
-        __fragments: {
-          [fragment.name]: fragment.args
-            ? getArgumentValues(fragment.args, this._variables)
-            : {},
-        },
-      };
-      return withResolverContext(resolverContext, () => {
-        let resolverResult = null;
-        let resolverError = null;
-        try {
-          const args = field.args
-            ? getArgumentValues(field.args, this._variables)
-            : undefined;
-
-          resolverResult = resolverModule(
-            // $FlowFixMe[prop-missing] - Resolver's generated type signature is a lie
+      if (fragment != null) {
+        const key = {
+          __id: RelayModernRecord.getDataID(record),
+          __fragmentOwner: this._owner,
+          __fragments: {
+            [fragment.name]: fragment.args
+              ? getArgumentValues(fragment.args, this._variables)
+              : {},
+          },
+        };
+        return withResolverContext(resolverContext, () => {
+          const [resolverResult, resolverError] = getResolverValue(
+            field,
+            this._variables,
             key,
-            // The Relay Compiler enforces that only resolvers that
-            // define arguments will have args in the Reader AST.
-            // $FlowFixMe[extra-arg]
-            args,
+            this._fragmentName,
           );
-        } catch (e) {
-          // `field.path` is typed as nullable while we rollout compiler changes.
-          const path = field.path ?? '[UNKNOWN]';
-          resolverError = {
-            field: {path, owner: this._fragmentName},
-            error: e,
+          return {
+            resolverResult,
+            snapshot: snapshot,
+            resolverID,
+            error: resolverError,
           };
-        }
-
+        });
+      } else {
+        const [resolverResult, resolverError] = getResolverValue(
+          field,
+          this._variables,
+          null,
+          this._fragmentName,
+        );
         return {
           resolverResult,
-          snapshot: snapshot,
+          snapshot: undefined,
           resolverID,
           error: resolverError,
         };
-      });
+      }
     };
 
     const [result, seenRecord, resolverError, cachedSnapshot, suspenseID] =
@@ -600,6 +618,7 @@ class RelayReader {
       }
       if (cachedSnapshot.missingLiveResolverFields != null) {
         this._isMissingData =
+          this._isMissingData ||
           cachedSnapshot.missingLiveResolverFields.length > 0;
 
         for (const missingResolverField of cachedSnapshot.missingLiveResolverFields) {
@@ -651,25 +670,43 @@ class RelayReader {
     this._traverseSelections([backingField], record, backingFieldData);
     let destinationDataID = backingFieldData[applicationName];
 
-    if (destinationDataID == null) {
+    if (destinationDataID == null || isSuspenseSentinel(destinationDataID)) {
       data[applicationName] = destinationDataID;
       return;
     }
 
-    invariant(
-      typeof destinationDataID === 'string',
-      'Plural client edges not are yet implemented',
-    ); // FIXME support plural
+    if (field.linkedField.plural) {
+      invariant(
+        Array.isArray(destinationDataID),
+        'Expected plural Client Edge Relay Resolver to return an array of IDs.',
+      );
+    } else {
+      invariant(
+        typeof destinationDataID === 'string',
+        'Expected a Client Edge Relay Resolver to return an ID of type `string`.',
+      );
+    }
 
     if (field.kind === CLIENT_EDGE_TO_CLIENT_OBJECT) {
       // Client objects might use ids that are not gobally unique and instead are just
       // local within their type. ResolverCache will derive a namespaced ID for us.
-      destinationDataID = this._resolverCache.createClientRecord(
-        destinationDataID,
-        field.concreteType,
-      );
+      if (field.linkedField.plural) {
+        // $FlowFixMe[prop-missing]
+        destinationDataID = destinationDataID.map(id =>
+          this._resolverCache.ensureClientRecord(id, field.concreteType),
+        );
+      } else {
+        destinationDataID = this._resolverCache.ensureClientRecord(
+          destinationDataID,
+          field.concreteType,
+        );
+      }
       this._clientEdgeTraversalPath.push(null);
     } else {
+      invariant(
+        !field.linkedField.plural,
+        'Unexpected Client Edge to plural server type. This should be prevented by the compiler.',
+      );
       // Not wrapping the push/pop in a try/finally because if we throw, the
       // Reader object is not usable after that anyway.
       this._clientEdgeTraversalPath.push({
@@ -678,22 +715,31 @@ class RelayReader {
       });
     }
 
-    const prevData = data[applicationName];
-    invariant(
-      prevData == null || typeof prevData === 'object',
-      'RelayReader(): Expected data for field `%s` on record `%s` ' +
-        'to be an object, got `%s`.',
-      applicationName,
-      RelayModernRecord.getDataID(record),
-      prevData,
-    );
-    const value = this._traverse(
-      field.linkedField,
-      destinationDataID,
-      // $FlowFixMe[incompatible-variance]
-      prevData,
-    );
-    data[applicationName] = value;
+    if (field.linkedField.plural) {
+      data[applicationName] = this._readLinkedIds(
+        field.linkedField,
+        // $FlowFixMe[incompatible-call]
+        destinationDataID,
+        record,
+        data,
+      );
+    } else {
+      const prevData = data[applicationName];
+      invariant(
+        prevData == null || typeof prevData === 'object',
+        'RelayReader(): Expected data for field `%s` on record `%s` ' +
+          'to be an object, got `%s`.',
+        applicationName,
+        RelayModernRecord.getDataID(record),
+        prevData,
+      );
+      data[applicationName] = this._traverse(
+        field.linkedField,
+        destinationDataID,
+        // $FlowFixMe[incompatible-variance]
+        prevData,
+      );
+    }
 
     this._clientEdgeTraversalPath.pop();
   }
@@ -819,9 +865,18 @@ class RelayReader {
     record: Record,
     data: SelectorData,
   ): ?mixed {
-    const applicationName = field.alias ?? field.name;
     const storageKey = getStorageKey(field, this._variables);
     const linkedIDs = RelayModernRecord.getLinkedRecordIDs(record, storageKey);
+    return this._readLinkedIds(field, linkedIDs, record, data);
+  }
+
+  _readLinkedIds(
+    field: ReaderLinkedField,
+    linkedIDs: ?Array<?DataID>,
+    record: Record,
+    data: SelectorData,
+  ): ?mixed {
+    const applicationName = field.alias ?? field.name;
 
     if (linkedIDs == null) {
       data[applicationName] = linkedIDs;
@@ -1064,11 +1119,31 @@ class RelayReader {
     const inlineData = {};
     const parentFragmentName = this._fragmentName;
     this._fragmentName = fragmentSpreadOrFragment.name;
+
+    const parentVariables = this._variables;
+
+    // If the inline fragment spread has arguments, we need to temporarily
+    // switch this._variables to include the fragment spread's arguments
+    // for the duration of its traversal.
+    const argumentVariables = fragmentSpreadOrFragment.args
+      ? getArgumentValues(fragmentSpreadOrFragment.args, this._variables)
+      : {};
+
+    this._variables = RelayConcreteVariables.getFragmentVariables(
+      fragmentSpreadOrFragment,
+      this._owner.variables,
+      argumentVariables,
+    );
+
     this._traverseSelections(
       fragmentSpreadOrFragment.selections,
       record,
       inlineData,
     );
+
+    // Put the parent variables back
+    this._variables = parentVariables;
+
     this._fragmentName = parentFragmentName;
     // $FlowFixMe[cannot-write] - writing into read-only field
     fragmentPointers[fragmentSpreadOrFragment.name] = inlineData;
@@ -1104,6 +1179,47 @@ class RelayReader {
     // $FlowFixMe Casting record value
     return implementsInterface;
   }
+}
+
+function getResolverValue(
+  field: ReaderRelayResolver | ReaderRelayLiveResolver,
+  variables: Variables,
+  fragmentKey: mixed,
+  ownerName: string,
+) {
+  // Support for languages that work (best) with ES6 modules, such as TypeScript.
+  const resolverFunction =
+    typeof field.resolverModule === 'function'
+      ? field.resolverModule
+      : field.resolverModule.default;
+
+  let resolverResult = null;
+  let resolverError = null;
+  try {
+    const resolverFunctionArgs = [];
+    if (field.fragment != null) {
+      resolverFunctionArgs.push(fragmentKey);
+    }
+    const args = field.args
+      ? getArgumentValues(field.args, variables)
+      : undefined;
+
+    resolverFunctionArgs.push(args);
+
+    resolverResult = resolverFunction.apply(null, resolverFunctionArgs);
+  } catch (e) {
+    if (e === RESOLVER_FRAGMENT_MISSING_DATA_SENTINEL) {
+      resolverResult = undefined;
+    } else {
+      // `field.path` is typed as nullable while we rollout compiler changes.
+      const path = field.path ?? '[UNKNOWN]';
+      resolverError = {
+        field: {path, owner: ownerName},
+        error: e,
+      };
+    }
+  }
+  return [resolverResult, resolverError];
 }
 
 module.exports = {read};

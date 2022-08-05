@@ -171,12 +171,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "9e5f089f29b97efdca73b4dc80d046e7",
+    "cacheID": "2f742f893e3c56f477f80a31dbb19622",
     "id": null,
     "metadata": {},
     "name": "TestNodeInterfaceOnInterfaceQuery",
     "operationKind": "query",
-    "text": "query TestNodeInterfaceOnInterfaceQuery {\n  node(id: \"123\") {\n    __typename\n    ... on HasName {\n      __typename\n      __isHasName: __typename\n      name\n    }\n    id\n  }\n}\n"
+    "text": "query TestNodeInterfaceOnInterfaceQuery {\n  node(id: \"123\") {\n    __typename\n    ... on HasName {\n      __isHasName: __typename\n      __typename\n      name\n    }\n    id\n  }\n}\n"
   }
 };
 })() `)

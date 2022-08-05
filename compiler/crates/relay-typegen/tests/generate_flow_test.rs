@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<bfff8cb063bc8f770eea1861c3673792>>
+ * @generated SignedSource<<ec658dab8b7873bf97b463b523704afc>>
  */
 
 mod generate_flow;
@@ -80,6 +80,13 @@ fn conditional() {
     let input = include_str!("generate_flow/fixtures/conditional.graphql");
     let expected = include_str!("generate_flow/fixtures/conditional.expected");
     test_fixture(transform_fixture, "conditional.graphql", "generate_flow/fixtures/conditional.expected", input, expected);
+}
+
+#[test]
+fn custom_scalar_type_import() {
+    let input = include_str!("generate_flow/fixtures/custom-scalar-type-import.graphql");
+    let expected = include_str!("generate_flow/fixtures/custom-scalar-type-import.expected");
+    test_fixture(transform_fixture, "custom-scalar-type-import.graphql", "generate_flow/fixtures/custom-scalar-type-import.expected", input, expected);
 }
 
 #[test]
@@ -188,6 +195,13 @@ fn query_only_provided_variables() {
 }
 
 #[test]
+fn query_provided_variables_custom_scalar() {
+    let input = include_str!("generate_flow/fixtures/query-provided-variables-custom-scalar.graphql");
+    let expected = include_str!("generate_flow/fixtures/query-provided-variables-custom-scalar.expected");
+    test_fixture(transform_fixture, "query-provided-variables-custom-scalar.graphql", "generate_flow/fixtures/query-provided-variables-custom-scalar.expected", input, expected);
+}
+
+#[test]
 fn query_with_handles() {
     let input = include_str!("generate_flow/fixtures/query-with-handles.graphql");
     let expected = include_str!("generate_flow/fixtures/query-with-handles.expected");
@@ -293,6 +307,27 @@ fn relay_live_resolver() {
 }
 
 #[test]
+fn relay_live_resolver_no_fragment() {
+    let input = include_str!("generate_flow/fixtures/relay-live-resolver-no-fragment.graphql");
+    let expected = include_str!("generate_flow/fixtures/relay-live-resolver-no-fragment.expected");
+    test_fixture(transform_fixture, "relay-live-resolver-no-fragment.graphql", "generate_flow/fixtures/relay-live-resolver-no-fragment.expected", input, expected);
+}
+
+#[test]
+fn relay_live_resolver_with_field_args() {
+    let input = include_str!("generate_flow/fixtures/relay-live-resolver-with-field-args.graphql");
+    let expected = include_str!("generate_flow/fixtures/relay-live-resolver-with-field-args.expected");
+    test_fixture(transform_fixture, "relay-live-resolver-with-field-args.graphql", "generate_flow/fixtures/relay-live-resolver-with-field-args.expected", input, expected);
+}
+
+#[test]
+fn relay_live_resolver_with_field_args_no_fragment() {
+    let input = include_str!("generate_flow/fixtures/relay-live-resolver-with-field-args-no-fragment.graphql");
+    let expected = include_str!("generate_flow/fixtures/relay-live-resolver-with-field-args-no-fragment.expected");
+    test_fixture(transform_fixture, "relay-live-resolver-with-field-args-no-fragment.graphql", "generate_flow/fixtures/relay-live-resolver-with-field-args-no-fragment.expected", input, expected);
+}
+
+#[test]
 fn relay_resolver() {
     let input = include_str!("generate_flow/fixtures/relay-resolver.graphql");
     let expected = include_str!("generate_flow/fixtures/relay-resolver.expected");
@@ -318,6 +353,13 @@ fn relay_resolver_in_fragment() {
     let input = include_str!("generate_flow/fixtures/relay-resolver-in-fragment.graphql");
     let expected = include_str!("generate_flow/fixtures/relay-resolver-in-fragment.expected");
     test_fixture(transform_fixture, "relay-resolver-in-fragment.graphql", "generate_flow/fixtures/relay-resolver-in-fragment.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_live_client_edge() {
+    let input = include_str!("generate_flow/fixtures/relay-resolver-live-client-edge.graphql");
+    let expected = include_str!("generate_flow/fixtures/relay-resolver-live-client-edge.expected");
+    test_fixture(transform_fixture, "relay-resolver-live-client-edge.graphql", "generate_flow/fixtures/relay-resolver-live-client-edge.expected", input, expected);
 }
 
 #[test]
@@ -517,6 +559,13 @@ fn simple() {
 }
 
 #[test]
+fn typename_in_union_with_other_fields() {
+    let input = include_str!("generate_flow/fixtures/typename-in-union-with-other-fields.graphql");
+    let expected = include_str!("generate_flow/fixtures/typename-in-union-with-other-fields.expected");
+    test_fixture(transform_fixture, "typename-in-union-with-other-fields.graphql", "generate_flow/fixtures/typename-in-union-with-other-fields.expected", input, expected);
+}
+
+#[test]
 fn typename_inside_with_overlapping_fields() {
     let input = include_str!("generate_flow/fixtures/typename-inside-with-overlapping-fields.graphql");
     let expected = include_str!("generate_flow/fixtures/typename-inside-with-overlapping-fields.expected");
@@ -528,6 +577,13 @@ fn typename_on_union() {
     let input = include_str!("generate_flow/fixtures/typename-on-union.graphql");
     let expected = include_str!("generate_flow/fixtures/typename-on-union.expected");
     test_fixture(transform_fixture, "typename-on-union.graphql", "generate_flow/fixtures/typename-on-union.expected", input, expected);
+}
+
+#[test]
+fn typename_on_union_with_non_matching_aliases() {
+    let input = include_str!("generate_flow/fixtures/typename-on-union-with-non-matching-aliases.graphql");
+    let expected = include_str!("generate_flow/fixtures/typename-on-union-with-non-matching-aliases.expected");
+    test_fixture(transform_fixture, "typename-on-union-with-non-matching-aliases.graphql", "generate_flow/fixtures/typename-on-union-with-non-matching-aliases.expected", input, expected);
 }
 
 #[test]
