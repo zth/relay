@@ -14,7 +14,7 @@ mod javascript;
 mod rescript;
 mod rescript_ast;
 mod rescript_relay_visitor;
-mod rescript_utils;
+pub mod rescript_utils;
 mod typescript;
 mod writer;
 

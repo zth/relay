@@ -94,7 +94,15 @@ module Utils = {
   @inline
   let connectionKey = "TestPaginationUnion_query_members"
 
+  %%private(
+    @live @module("relay-runtime") @scope("ConnectionHandler")
+    external internal_makeConnectionId: (RescriptRelay.dataId, @as("TestPaginationUnion_query_members") _, 'arguments) => RescriptRelay.dataId = "getConnectionId"
+  )
 
+  let makeConnectionId = (connectionParentDataId: RescriptRelay.dataId, ~groupId: option<string>, ~onlineStatuses: array<[#Online | #Idle | #Offline]>) => {
+    let args = {"groupId": groupId, "onlineStatuses": onlineStatuses}
+    internal_makeConnectionId(connectionParentDataId, args)
+  }
   @live
   let getConnectionNodes: option<fragment_members> => array<fragment_members_edges_node> = connection => 
     switch connection {

@@ -6,7 +6,7 @@
  */
 
 use fnv::{FnvBuildHasher, FnvHashMap, FnvHashSet};
-use graphql_ir::{FragmentDefinition, OperationDefinition};
+use graphql_ir::{Argument, FragmentDefinition, OperationDefinition};
 use graphql_syntax::OperationKind;
 use indexmap::IndexMap;
 use intern::string_key::{Intern, StringKey};
@@ -17,7 +17,7 @@ use schema::{SDLSchema, Schema};
 
 use crate::rescript_ast::*;
 use crate::rescript_relay_visitor::{
-    RescriptRelayFragmentDirective, RescriptRelayOperationMetaData,
+    RescriptRelayConnectionConfig, RescriptRelayFragmentDirective, RescriptRelayOperationMetaData,
 };
 use crate::rescript_utils::*;
 use crate::writer::{Prop, Writer, AST};
@@ -2059,6 +2059,110 @@ fn write_get_connection_nodes_function(
     Ok(())
 }
 
+fn write_connection_key_maker_arguments(
+    str: &mut String,
+    indentation: usize,
+    connection_key_arguments: &Vec<Argument>,
+    schema: &SDLSchema,
+) -> Result {
+    let mut all_variables = vec![];
+
+    // Collect all variables in the pattern
+    connection_key_arguments
+        .iter()
+        .for_each(|arg| find_all_connection_variables(&arg.value.item, &mut all_variables));
+
+    let custom_scalar_variables = find_all_custom_scalar_variables(&all_variables, &schema);
+
+    let mut local_indentation = indentation;
+
+    write_indentation(str, local_indentation).unwrap();
+    writeln!(
+        str,
+        "let makeConnectionId = (connectionParentDataId: RescriptRelay.dataId, {}) => {{",
+        all_variables
+            .iter()
+            .map(|variable| {
+                format!(
+                    "~{}: {}",
+                    variable.name.item,
+                    print_type_reference(&variable.type_, &schema)
+                )
+            })
+            .join(", ")
+    )
+    .unwrap();
+
+    local_indentation += 1;
+
+    custom_scalar_variables
+        .iter()
+        .for_each(|(variable_name, custom_scalar_module)| {
+            write_indentation(str, local_indentation).unwrap();
+            writeln!(
+                str,
+                "let {} = {}.serialize({})",
+                variable_name, custom_scalar_module, variable_name
+            )
+            .unwrap();
+        });
+
+    write_indentation(str, local_indentation).unwrap();
+    if connection_key_arguments.len() > 0 {
+        writeln!(
+            str,
+            "let args = {{{}}}",
+            connection_key_arguments
+                .iter()
+                .map(|arg| { format!("\"{}\": {}", arg.name.item, print_value(&arg.value.item)) })
+                .join(", ")
+        )
+        .unwrap();
+    } else {
+        writeln!(str, "let args = ()").unwrap()
+    }
+
+    write_indentation(str, local_indentation).unwrap();
+    writeln!(
+        str,
+        "internal_makeConnectionId(connectionParentDataId, args)"
+    )
+    .unwrap();
+
+    local_indentation -= 1;
+    write_indentation(str, local_indentation).unwrap();
+    writeln!(str, "}}").unwrap();
+
+    Ok(())
+}
+
+fn write_connection_key_maker(
+    str: &mut String,
+    indentation: usize,
+    connection_config: &RescriptRelayConnectionConfig,
+    schema: &SDLSchema,
+) -> Result {
+    let local_indentation = indentation;
+
+    write_indentation(str, local_indentation).unwrap();
+    write!(
+        str,
+        "%%private(\n    @live @module(\"relay-runtime\") @scope(\"ConnectionHandler\")\n    external internal_makeConnectionId: (RescriptRelay.dataId, @as(\"{}\") _, 'arguments) => RescriptRelay.dataId = \"getConnectionId\"\n  )\n\n",
+        connection_config.key
+    )
+    .unwrap();
+
+    write_connection_key_maker_arguments(
+        str,
+        local_indentation,
+        &connection_config.connection_key_arguments,
+        &schema,
+    )
+    .unwrap();
+
+    Ok(())
+}
+
 fn warn_about_unimplemented_feature(definition_type: &DefinitionType, context: String) {
     warn!("'{}' (context: '{}') produced a type that RescriptRelay does not understand. Please open an issue on the repo https://github.com/zth/rescript-relay and describe what you were doing as this happened.", match &definition_type {
         DefinitionType::Fragment(fragment_definition) => fragment_definition.name.item,
@@ -2603,8 +2707,16 @@ impl Writer for ReScriptPrinter<'_> {
                 write_indentation(&mut generated_types, indentation).unwrap();
                 writeln!(
                     generated_types,
-                    "let connectionKey = \"{}\"\n\n",
+                    "let connectionKey = \"{}\"\n",
                     connection_config.key
+                )
+                .unwrap();
+
+                write_connection_key_maker(
+                    &mut generated_types,
+                    indentation,
+                    &connection_config,
+                    &self.schema,
                 )
                 .unwrap();
 

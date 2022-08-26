@@ -1,10 +1,11 @@
 use std::ops::Add;
 
-use graphql_ir::{FragmentDefinition, Visitor};
+use graphql_ir::{ConstantValue, FragmentDefinition, Value, Variable, Visitor};
+use itertools::Itertools;
 use log::warn;
 use relay_config::TypegenConfig;
 use relay_transforms::RelayDirective;
-use schema::SDLSchema;
+use schema::{SDLSchema, Schema, Type, TypeReference};
 
 use crate::{
     rescript::DefinitionType,
@@ -304,6 +305,135 @@ pub fn instruction_to_key_value_pair(instruction: &ConverterInstructions) -> (St
         }
         &ConverterInstructions::HasFragments => (String::from("f"), String::from("")),
     }
+}
+
+// Printer helpers
+fn print_constant_value(value: &ConstantValue) -> String {
+    match value {
+        ConstantValue::Int(i) => i.to_string(),
+        ConstantValue::Float(f) => f.to_string(),
+        ConstantValue::String(s) => format!("\"{}\"", s.to_string()),
+        ConstantValue::Boolean(b) => b.to_string(),
+        ConstantValue::Null() => String::from("null"),
+        ConstantValue::Enum(s) => format!("#{}", s.to_string()),
+        ConstantValue::List(values) => values.iter().map(print_constant_value).join(", "),
+        ConstantValue::Object(arguments) => format!(
+            "{{{}}}",
+            arguments
+                .iter()
+                .map(|arg| {
+                    format!(
+                        "\"{}\": {}",
+                        arg.name.item,
+                        print_constant_value(&arg.value.item)
+                    )
+                })
+                .join(", ")
+        ),
+    }
+}
+
+pub fn print_type_reference(typ: &TypeReference, schema: &SDLSchema) -> String {
+    match typ {
+        TypeReference::Named(named_type) => match named_type {
+            Type::Enum(id) => format!(
+                "[{}]",
+                schema
+                    .enum_(*id)
+                    .values
+                    .iter()
+                    .map(|v| { format!("#{}", v.value) })
+                    .join(" | ")
+            ),
+
+            Type::InputObject(id) => {
+                let obj = schema.input_object(*id);
+                format!("RelaySchemaAssets_graphql.input_{}", obj.name.item)
+            }
+            Type::Scalar(id) => format!(
+                "{}",
+                match schema.scalar(*id).name.item.to_string().as_str() {
+                    "Boolean" => String::from("bool"),
+                    "Int" => String::from("int"),
+                    "Float" => String::from("float"),
+                    "String" | "ID" => String::from("string"),
+                    custom_scalar =>
+                        match classify_rescript_value_string(&custom_scalar.to_string()) {
+                            RescriptCustomTypeValue::Module => format!("{}.t", custom_scalar),
+                            RescriptCustomTypeValue::Type => custom_scalar.to_string(),
+                        },
+                }
+            ),
+            _ => String::from("RescriptRelay.any"),
+        },
+        TypeReference::NonNull(typ) => format!("option<{}>", print_type_reference(&typ, &schema)),
+        TypeReference::List(typ) => format!("array<{}>", print_type_reference(&typ, &schema)),
+    }
+}
+
+pub fn print_value(value: &Value) -> String {
+    match value {
+        Value::Constant(constant_value) => print_constant_value(&constant_value),
+        Value::Variable(variable) => variable.name.item.to_string(),
+        Value::List(values) => format!("[{}]", values.iter().map(print_value).join(", ")),
+        Value::Object(arguments) => format!(
+            "{{{}}}",
+            arguments
+                .iter()
+                .map(|arg| {
+                    format!(
+                        "\"{}\": {}",
+                        arg.name.item.to_string(),
+                        print_value(&arg.value.item)
+                    )
+                })
+                .join(", ")
+        ),
+    }
+}
+
+pub fn find_all_connection_variables(value: &Value, found_variables: &mut Vec<Variable>) -> () {
+    match value {
+        Value::Variable(variable) => {
+            found_variables.push(variable.to_owned());
+        }
+        Value::Object(arguments) => arguments
+            .iter()
+            .for_each(|arg| find_all_connection_variables(&arg.value.item, found_variables)),
+        Value::Constant(_) => (),
+        Value::List(values) => values
+            .iter()
+            .for_each(|value| find_all_connection_variables(&value, found_variables)),
+    }
+}
+
+fn dig_type_ref(typ: &TypeReference) -> &Type {
+    match typ {
+        TypeReference::Named(named_typ) => named_typ,
+        TypeReference::List(typ) => dig_type_ref(typ),
+        TypeReference::NonNull(typ) => dig_type_ref(typ),
+    }
+}
+
+pub fn find_all_custom_scalar_variables(
+    variables: &Vec<Variable>,
+    schema: &SDLSchema,
+) -> Vec<(String, String)> {
+    variables
+        .iter()
+        .filter_map(|variable| match dig_type_ref(&variable.type_) {
+            Type::Scalar(id) => match schema.scalar(*id).name.item.to_string().as_str() {
+                "Boolean" | "Int" | "Float" | "String" | "ID" => None,
+                custom_scalar => match classify_rescript_value_string(&custom_scalar.to_string()) {
+                    RescriptCustomTypeValue::Module => {
+                        Some((variable.name.item.to_string(), custom_scalar.to_string()))
+                    }
+                    RescriptCustomTypeValue::Type => None,
+                },
+            },
+            _ => None,
+        })
+        .collect::<Vec<(String, String)>>()
 }
 
 #[cfg(test)]

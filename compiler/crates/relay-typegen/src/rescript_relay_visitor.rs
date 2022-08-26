@@ -7,8 +7,8 @@
 
 use fnv::FnvBuildHasher;
 use graphql_ir::{
-    ConstantValue, Directive, Field, FragmentDefinition, LinkedField, ScalarField, Value, Variable,
-    Visitor,
+    Argument, ConstantValue, Directive, Field, FragmentDefinition, LinkedField, ScalarField, Value,
+    Variable, Visitor,
 };
 use indexmap::IndexMap;
 use intern::string_key::{Intern, StringKey};
@@ -20,6 +20,7 @@ pub struct RescriptRelayConnectionConfig {
     pub key: String,
     pub at_object_path: Vec<String>,
     pub field_name: String,
+    pub connection_key_arguments: Vec<Argument>,
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -168,10 +169,50 @@ impl<'a> Visitor for RescriptRelayVisitor<'a> {
                     _ => None,
                 }
             }) {
+                let filters = connection_directive.arguments.iter().find_map(|arg| {
+                    if arg.name.item.to_string() == "filters" {
+                        match &arg.value.item {
+                            Value::Constant(ConstantValue::List(items)) => Some(
+                                items
+                                    .iter()
+                                    .filter_map(|value| match value {
+                                        ConstantValue::String(item) => Some(item.to_string()),
+                                        _ => None,
+                                    })
+                                    .collect::<Vec<String>>(),
+                            ),
+                            _ => None,
+                        }
+                    } else {
+                        None
+                    }
+                });
+
+                let relevant_arguments = field
+                    .arguments
+                    .iter()
+                    .filter(|arg| {
+                        if &arg.name.item == &"first".intern()
+                            || &arg.name.item == &"last".intern()
+                            || &arg.name.item == &"before".intern()
+                            || &arg.name.item == &"after".intern()
+                        {
+                            false
+                        } else {
+                            match &filters {
+                                None => true,
+                                Some(filters) => filters.contains(&arg.name.item.to_string()),
+                            }
+                        }
+                    })
+                    .map(|arg| arg.to_owned())
+                    .collect::<Vec<Argument>>();
+
                 self.state.connection_config = Some(RescriptRelayConnectionConfig {
                     key,
                     at_object_path: self.current_path.clone(),
                     field_name: field.alias_or_name(self.schema).to_string(),
+                    connection_key_arguments: relevant_arguments,
                 })
             }
         }
