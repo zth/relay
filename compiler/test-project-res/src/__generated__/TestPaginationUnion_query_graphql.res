@@ -100,6 +100,7 @@ module Utils = {
   )
 
   let makeConnectionId = (connectionParentDataId: RescriptRelay.dataId, ~groupId: option<string>, ~onlineStatuses: array<[#Online | #Idle | #Offline]>) => {
+    let groupId = Some(groupId)
     let args = {"groupId": groupId, "onlineStatuses": onlineStatuses}
     internal_makeConnectionId(connectionParentDataId, args)
   }

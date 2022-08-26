@@ -307,28 +307,48 @@ pub fn instruction_to_key_value_pair(instruction: &ConverterInstructions) -> (St
     }
 }
 
+fn print_opt(str: &String, print_as_optional: bool) -> String {
+    if print_as_optional {
+        format!("Some({})", str)
+    } else {
+        format!("{}", str)
+    }
+}
+
 // Printer helpers
-fn print_constant_value(value: &ConstantValue) -> String {
+fn print_constant_value(value: &ConstantValue, print_as_optional: bool) -> String {
     match value {
-        ConstantValue::Int(i) => i.to_string(),
-        ConstantValue::Float(f) => f.to_string(),
-        ConstantValue::String(s) => format!("\"{}\"", s.to_string()),
-        ConstantValue::Boolean(b) => b.to_string(),
-        ConstantValue::Null() => String::from("null"),
-        ConstantValue::Enum(s) => format!("#{}", s.to_string()),
-        ConstantValue::List(values) => values.iter().map(print_constant_value).join(", "),
-        ConstantValue::Object(arguments) => format!(
-            "{{{}}}",
-            arguments
-                .iter()
-                .map(|arg| {
-                    format!(
-                        "\"{}\": {}",
-                        arg.name.item,
-                        print_constant_value(&arg.value.item)
-                    )
-                })
-                .join(", ")
+        ConstantValue::Int(i) => print_opt(&i.to_string(), print_as_optional),
+        ConstantValue::Float(f) => print_opt(&f.to_string(), print_as_optional),
+        ConstantValue::String(s) => print_opt(&format!("\"{}\"", s.to_string()), print_as_optional),
+        ConstantValue::Boolean(b) => print_opt(&b.to_string(), print_as_optional),
+        ConstantValue::Null() => print_opt(&String::from("null"), print_as_optional),
+        ConstantValue::Enum(s) => print_opt(&format!("#{}", s.to_string()), print_as_optional),
+        ConstantValue::List(values) => print_opt(
+            &format!(
+                "[{}]",
+                values
+                    .iter()
+                    .map(|v| print_constant_value(v, print_as_optional))
+                    .join(", ")
+            ),
+            print_as_optional,
+        ),
+        ConstantValue::Object(arguments) => print_opt(
+            &format!(
+                "{{{}}}",
+                arguments
+                    .iter()
+                    .map(|arg| {
+                        format!(
+                            "\"{}\": {}",
+                            arg.name.item,
+                            print_constant_value(&arg.value.item, print_as_optional)
+                        )
+                    })
+                    .join(", "),
+            ),
+            print_as_optional,
         ),
     }
 }
@@ -371,11 +391,17 @@ pub fn print_type_reference(typ: &TypeReference, schema: &SDLSchema) -> String {
     }
 }
 
-pub fn print_value(value: &Value) -> String {
+pub fn print_value(value: &Value, print_as_optional: bool) -> String {
     match value {
-        Value::Constant(constant_value) => print_constant_value(&constant_value),
+        Value::Constant(constant_value) => print_constant_value(&constant_value, print_as_optional),
         Value::Variable(variable) => variable.name.item.to_string(),
-        Value::List(values) => format!("[{}]", values.iter().map(print_value).join(", ")),
+        Value::List(values) => format!(
+            "[{}]",
+            values
+                .iter()
+                .map(|v| print_value(v, print_as_optional))
+                .join(", ")
+        ),
         Value::Object(arguments) => format!(
             "{{{}}}",
             arguments
@@ -384,7 +410,7 @@ pub fn print_value(value: &Value) -> String {
                     format!(
                         "\"{}\": {}",
                         arg.name.item.to_string(),
-                        print_value(&arg.value.item)
+                        print_value(&arg.value.item, print_as_optional)
                     )
                 })
                 .join(", ")
@@ -407,33 +433,12 @@ pub fn find_all_connection_variables(value: &Value, found_variables: &mut Vec<Va
     }
 }
 
-fn dig_type_ref(typ: &TypeReference) -> &Type {
+pub fn dig_type_ref(typ: &TypeReference) -> &Type {
     match typ {
         TypeReference::Named(named_typ) => named_typ,
         TypeReference::List(typ) => dig_type_ref(typ),
         TypeReference::NonNull(typ) => dig_type_ref(typ),
     }
-}
-
-pub fn find_all_custom_scalar_variables(
-    variables: &Vec<Variable>,
-    schema: &SDLSchema,
-) -> Vec<(String, String)> {
-    variables
-        .iter()
-        .filter_map(|variable| match dig_type_ref(&variable.type_) {
-            Type::Scalar(id) => match schema.scalar(*id).name.item.to_string().as_str() {
-                "Boolean" | "Int" | "Float" | "String" | "ID" => None,
-                custom_scalar => match classify_rescript_value_string(&custom_scalar.to_string()) {
-                    RescriptCustomTypeValue::Module => {
-                        Some((variable.name.item.to_string(), custom_scalar.to_string()))
-                    }
-                    RescriptCustomTypeValue::Type => None,
-                },
-            },
-            _ => None,
-        })
-        .collect::<Vec<(String, String)>>()
 }
 
 #[cfg(test)]

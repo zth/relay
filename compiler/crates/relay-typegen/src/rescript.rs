@@ -13,7 +13,7 @@ use intern::string_key::{Intern, StringKey};
 use itertools::Itertools;
 use lazy_static::__Deref;
 use log::{debug, warn};
-use schema::{SDLSchema, Schema};
+use schema::{SDLSchema, Schema, Type, TypeReference};
 
 use crate::rescript_ast::*;
 use crate::rescript_relay_visitor::{
@@ -1986,8 +1986,6 @@ fn write_connection_key_maker_arguments(
         .iter()
         .for_each(|arg| find_all_connection_variables(&arg.value.item, &mut all_variables));
 
-    let custom_scalar_variables = find_all_custom_scalar_variables(&all_variables, &schema);
-
     let mut local_indentation = indentation;
 
     write_indentation(str, local_indentation).unwrap();
@@ -2009,17 +2007,63 @@ fn write_connection_key_maker_arguments(
 
     local_indentation += 1;
 
-    custom_scalar_variables
-        .iter()
-        .for_each(|(variable_name, custom_scalar_module)| {
+    /*
+     * We need to handle 2 things here for each variable:
+     *
+     * 1. If the variable is a custom scalar, we need to serialize it so it matches the raw value the store will expect.
+     * 2. If the variable isn't optional, we need to wrap it with `Some()`. This is for simplicity with regards to any
+     *    constant values also part of the connection id pattern. In order to not have to keep track of what is and isn't
+     *    optional to make types match, we ensure everything is always optional as the args object is produced.
+     */
+
+    all_variables.iter().for_each(|variable| {
+        let is_optional = match variable.type_ {
+            TypeReference::NonNull(_) => false,
+            TypeReference::List(_) | TypeReference::Named(_) => true,
+        };
+
+        let is_custom_scalar = match dig_type_ref(&variable.type_) {
+            Type::Scalar(id) => match schema.scalar(*id).name.item.to_string().as_str() {
+                "Boolean" | "Int" | "Float" | "String" | "ID" => None,
+                custom_scalar => match classify_rescript_value_string(&custom_scalar.to_string()) {
+                    RescriptCustomTypeValue::Module => {
+                        Some((variable.name.item.to_string(), custom_scalar.to_string()))
+                    }
+                    RescriptCustomTypeValue::Type => None,
+                },
+            },
+            _ => None,
+        };
+
+        if let Some((variable_name, custom_scalar_module_name)) = is_custom_scalar {
             write_indentation(str, local_indentation).unwrap();
-            writeln!(
-                str,
-                "let {} = {}.serialize({})",
-                variable_name, custom_scalar_module, variable_name
-            )
-            .unwrap();
-        });
+            if is_optional {
+                writeln!(
+                    str,
+                    "let {} = switch {} {{ | None => None | Some(v) => Some({}.seralize(v)) }}",
+                    variable_name, variable_name, custom_scalar_module_name
+                )
+                .unwrap();
+            } else {
+                writeln!(
+                    str,
+                    "let {} = Some({}.seralize(v))",
+                    variable_name, custom_scalar_module_name
+                )
+                .unwrap();
+            }
+        } else {
+            if !is_optional {
+                write_indentation(str, local_indentation).unwrap();
+                writeln!(
+                    str,
+                    "let {} = Some({})",
+                    variable.name.item, variable.name.item
+                )
+                .unwrap();
+            }
+        }
+    });
 
     write_indentation(str, local_indentation).unwrap();
     if connection_key_arguments.len() > 0 {
@@ -2028,7 +2072,13 @@ fn write_connection_key_maker_arguments(
             "let args = {{{}}}",
             connection_key_arguments
                 .iter()
-                .map(|arg| { format!("\"{}\": {}", arg.name.item, print_value(&arg.value.item)) })
+                .map(|arg| {
+                    format!(
+                        "\"{}\": {}",
+                        arg.name.item,
+                        print_value(&arg.value.item, true)
+                    )
+                })
                 .join(", ")
         )
         .unwrap();

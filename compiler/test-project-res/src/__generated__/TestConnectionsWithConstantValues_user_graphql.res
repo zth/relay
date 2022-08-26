@@ -53,8 +53,9 @@ module Utils = {
   )
 
   let makeConnectionId = (connectionParentDataId: RescriptRelay.dataId, ~onlineStatus: option<[#Online | #Idle | #Offline]>, ~beforeDate: Datetime.t, ~bool: bool) => {
-    let beforeDate = Datetime.serialize(beforeDate)
-    let args = {"statuses": [#Idle, onlineStatus], "beforeDate": beforeDate, "objTest": {"str": "123", "bool": false, "float": 12.2, "int": 64, "recursive": {"str": "234", "bool": bool}}}
+    let onlineStatus = Some(onlineStatus)
+    let beforeDate = switch beforeDate { | None => None | Some(v) => Some(Datetime.seralize(v)) }
+    let args = {"statuses": [Some(#Idle), onlineStatus], "beforeDate": beforeDate, "objTest": {"str": Some("123"), "bool": Some(false), "float": Some(12.2), "int": Some(64), "recursive": {"str": Some("234"), "bool": bool}}}
     internal_makeConnectionId(connectionParentDataId, args)
   }
   @live
