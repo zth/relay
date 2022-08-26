@@ -93,16 +93,13 @@ module Utils = {
   ) => inputA = ""
 
 
-  @live let make_inputB = (
-    ~constraint_=?,
-    ~time=?,
-    ~usingA=?,
-    ()
-  ): inputB => {
-    constraint_: constraint_,
-    time: time,
-    usingA: usingA
-  }
+  @live @obj external make_inputB: (
+    ~_constraint: bool=?,
+    ~time: SomeModule.Datetime.t=?,
+    ~usingA: inputA=?,
+    unit
+  ) => inputB = ""
+
 
   @live @obj external makeVariables: (
     ~input: inputA,
