@@ -692,39 +692,6 @@ fn get_object_props(
         .collect()
 }
 
-fn write_enum_definitions(str: &mut String, indentation: usize, full_enum: &FullEnum) -> Result {
-    // We start by printing a private version of this enum. Using this enum will
-    // enforce, at the type level, that you handle the fall-through case. This
-    // version of the enum is the version that the enum is represented as
-    // whenever it's *coming from the server*, because anytime an enum comes
-    // from the server, it might've changed, and you should handle that.
-    write_indentation(str, indentation).unwrap();
-    writeln!(
-        str,
-        "type enum_{} = private {}\n",
-        full_enum.name,
-        get_enum_definition_body(&full_enum, indentation, true)
-    )
-    .unwrap();
-
-    // Next, we'll output an enum suffixed with "input". This enum is *closed*,
-    // meaning it won't force you to handle fall through cases. This version of
-    // the enum is used whenever the enum appears in inputs.
-    write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
-    write_indentation(str, indentation).unwrap();
-    writeln!(
-        str,
-        "type enum_{}_input = {}\n",
-        full_enum.name,
-        get_enum_definition_body(&full_enum, indentation, false)
-    )
-    .unwrap();
-
-    writeln!(str, "\n").unwrap();
-
-    Ok(())
-}
-
 fn get_object_prop_type_as_string(
     state: &Box<ReScriptPrinter<'_>>,
     prop_value: &PropType,
@@ -961,7 +928,7 @@ fn write_enum_util_functions(str: &mut String, indentation: usize, full_enum: &F
     write_indentation(str, indentation).unwrap();
     writeln!(
         str,
-        "external {}_input_toString: enum_{}_input => string = \"%identity\"",
+        "external {}_input_toString: RelaySchemaAssets_graphql.enum_{}_input => string = \"%identity\"",
         name_uncapitalized, full_enum.name
     )
     .unwrap();
@@ -972,7 +939,7 @@ fn write_enum_util_functions(str: &mut String, indentation: usize, full_enum: &F
     write_indentation(str, indentation).unwrap();
     writeln!(
         str,
-        "let {}_decode = (enum: enum_{}): option<enum_{}_input> => {{",
+        "let {}_decode = (enum: RelaySchemaAssets_graphql.enum_{}): option<RelaySchemaAssets_graphql.enum_{}_input> => {{",
         name_uncapitalized, full_enum.name, full_enum.name
     )
     .unwrap();
@@ -981,7 +948,7 @@ fn write_enum_util_functions(str: &mut String, indentation: usize, full_enum: &F
     write_indentation(str, indentation + 2).unwrap();
     writeln!(
         str,
-        "| #...enum_{}_input as valid => Some(valid)",
+        "| #...RelaySchemaAssets_graphql.enum_{}_input as valid => Some(valid)",
         full_enum.name
     )
     .unwrap();
@@ -1000,7 +967,7 @@ fn write_enum_util_functions(str: &mut String, indentation: usize, full_enum: &F
     write_indentation(str, indentation).unwrap();
     writeln!(
         str,
-        "let {}_fromString = (str: string): option<enum_{}_input> => {{",
+        "let {}_fromString = (str: string): option<RelaySchemaAssets_graphql.enum_{}_input> => {{",
         name_uncapitalized, full_enum.name
     )
     .unwrap();
@@ -2205,14 +2172,6 @@ impl Writer for ReScriptPrinter<'_> {
         write_indentation(&mut generated_types, indentation).unwrap();
 
         writeln!(generated_types, "@@ocaml.warning(\"-30\")\n").unwrap();
-
-        // Print enums
-        self.enums
-            .iter()
-            .unique_by(|full_enum| &full_enum.name)
-            .for_each(|full_enum| {
-                write_enum_definitions(&mut generated_types, indentation, &full_enum).unwrap()
-            });
 
         // Print input objects. These are just type aliases for the main type that's located in the schema assets file.
         self.input_objects

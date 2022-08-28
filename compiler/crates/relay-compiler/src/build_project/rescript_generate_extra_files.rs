@@ -25,13 +25,13 @@ pub(crate) fn rescript_generate_extra_artifacts(
             writeln!(content, "/** {} */", desc).unwrap();
         }
 
-        writeln!(content, "type enum_{} = private [>", e.name.item).unwrap();
+        writeln!(content, "@live\ntype enum_{} = private [>", e.name.item).unwrap();
         e.values.iter().for_each(|v| {
             writeln!(content, "  | #{}", v.value).unwrap();
         });
         writeln!(content, "]\n").unwrap();
 
-        writeln!(content, "type enum_{}_input = [", e.name.item).unwrap();
+        writeln!(content, "@live\ntype enum_{}_input = [", e.name.item).unwrap();
         e.values.iter().for_each(|v| {
             writeln!(content, "  | #{}", v.value).unwrap();
         });
@@ -49,9 +49,9 @@ pub(crate) fn rescript_generate_extra_artifacts(
             content,
             "{} input_{} = {{",
             if has_written_initial_input_obj {
-                "and"
+                "\n@live\nand"
             } else {
-                "type rec"
+                "@live\ntype rec"
             },
             input_obj.name.item
         )
@@ -82,7 +82,12 @@ pub(crate) fn rescript_generate_extra_artifacts(
 
     // Write object makers
     schema.input_objects().for_each(|input_obj| {
-        writeln!(content, "@obj external make_{}: (", input_obj.name.item).unwrap();
+        writeln!(
+            content,
+            "@live @obj\nexternal make_{}: (",
+            input_obj.name.item
+        )
+        .unwrap();
 
         let mut has_optional = false;
 
