@@ -6,7 +6,7 @@
  */
 
 use fnv::{FnvBuildHasher, FnvHashMap, FnvHashSet};
-use graphql_ir::{Argument, FragmentDefinition, OperationDefinition};
+use graphql_ir::{FragmentDefinition, OperationDefinition};
 use graphql_syntax::OperationKind;
 use indexmap::IndexMap;
 use intern::string_key::{Intern, StringKey};
@@ -1979,32 +1979,78 @@ fn write_get_connection_nodes_function(
 fn write_connection_key_maker_arguments(
     str: &mut String,
     indentation: usize,
-    connection_key_arguments: &Vec<Argument>,
+    connection_config: &RescriptRelayConnectionConfig,
     schema: &SDLSchema,
 ) -> Result {
     let mut all_variables = vec![];
 
     // Collect all variables in the pattern
-    connection_key_arguments
+    connection_config
+        .connection_key_arguments
         .iter()
-        .for_each(|arg| find_all_connection_variables(&arg.value.item, &mut all_variables));
+        .for_each(|arg| {
+            find_all_connection_variables(&arg.value.item, &mut all_variables, &connection_config)
+        });
 
     let mut local_indentation = indentation;
 
     write_indentation(str, local_indentation).unwrap();
     writeln!(
         str,
-        "let makeConnectionId = (connectionParentDataId: RescriptRelay.dataId, {}) => {{",
+        "let makeConnectionId = (connectionParentDataId: RescriptRelay.dataId, {}{}) => {{",
         all_variables
             .iter()
-            .map(|variable| {
+            .map(|(variable, default_value)| {
                 format!(
-                    "~{}: {}",
+                    "~{}: {}{}",
                     variable.name.item,
-                    print_type_reference(&variable.type_, &schema, true)
+                    print_type_reference(&variable.type_, &schema, false),
+                    match (&default_value, &variable.type_) {
+                        (Some(default_value), _) => format!(
+                            "={}",
+                            match dig_type_ref(&variable.type_) {
+                                // Input objects are records (nominal) in
+                                // ReScript, and thus the type system, but
+                                // GraphQL allows them to be specified as
+                                // structural objects that does not have to
+                                // define all fields. This creates a problem at
+                                // the type system level, where the default
+                                // value can't be type checked. But, we don't
+                                // _need_ to type check it, because it's only
+                                // relevant if the user does not supply its own
+                                // value for the input type. So, we can safely
+                                // cast the default constant value with
+                                // Obj.magic here.
+                                Type::InputObject(_) => format!(
+                                    "Obj.magic({})",
+                                    print_constant_value(&default_value.item, false)
+                                ),
+                                _ => print_constant_value(&default_value.item, false),
+                            }
+                        ),
+                        (None, TypeReference::List(_) | TypeReference::Named(_)) =>
+                            String::from("=?"),
+                        (None, TypeReference::NonNull(_)) => String::from(""),
+                    }
                 )
             })
-            .join(", ")
+            .join(", "),
+        // Insert trailing unit if there's optional arguments.
+        if all_variables
+            .iter()
+            .find(|(v, default_value)| {
+                match (&v.type_, default_value) {
+                    (TypeReference::List(_) | TypeReference::Named(_), Some(_))
+                    | (TypeReference::NonNull(_), _) => false,
+                    _ => true,
+                }
+            })
+            .is_some()
+        {
+            format!(", ()")
+        } else {
+            String::from("")
+        }
     )
     .unwrap();
 
@@ -2019,7 +2065,7 @@ fn write_connection_key_maker_arguments(
      *    optional to make types match, we ensure everything is always optional as the args object is produced.
      */
 
-    all_variables.iter().for_each(|variable| {
+    all_variables.iter().for_each(|(variable, _default_value)| {
         let is_optional = match variable.type_ {
             TypeReference::NonNull(_) => false,
             TypeReference::List(_) | TypeReference::Named(_) => true,
@@ -2043,15 +2089,15 @@ fn write_connection_key_maker_arguments(
             if is_optional {
                 writeln!(
                     str,
-                    "let {} = switch {} {{ | None => None | Some(v) => Some({}.seralize(v)) }}",
+                    "let {} = switch {} {{ | None => None | Some(v) => Some({}.serialize(v)) }}",
                     variable_name, variable_name, custom_scalar_module_name
                 )
                 .unwrap();
             } else {
                 writeln!(
                     str,
-                    "let {} = Some({}.seralize(v))",
-                    variable_name, custom_scalar_module_name
+                    "let {} = Some({}.serialize({}))",
+                    variable_name, custom_scalar_module_name, variable_name
                 )
                 .unwrap();
             }
@@ -2069,11 +2115,12 @@ fn write_connection_key_maker_arguments(
     });
 
     write_indentation(str, local_indentation).unwrap();
-    if connection_key_arguments.len() > 0 {
+    if connection_config.connection_key_arguments.len() > 0 {
         writeln!(
             str,
             "let args = {{{}}}",
-            connection_key_arguments
+            connection_config
+                .connection_key_arguments
                 .iter()
                 .map(|arg| {
                     format!(
@@ -2119,13 +2166,8 @@ fn write_connection_key_maker(
     )
     .unwrap();
 
-    write_connection_key_maker_arguments(
-        str,
-        local_indentation,
-        &connection_config.connection_key_arguments,
-        &schema,
-    )
-    .unwrap();
+    write_connection_key_maker_arguments(str, local_indentation, &connection_config, &schema)
+        .unwrap();
 
     Ok(())
 }

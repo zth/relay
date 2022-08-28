@@ -1,7 +1,7 @@
 module Fragment = %relay(`
   fragment TestConnections_user on User
     @argumentDefinitions(
-      onlineStatuses: { type: "[OnlineStatus!]" }
+      onlineStatuses: { type: "[OnlineStatus!]", defaultValue: [Idle] }
       count: { type: "Int", defaultValue: 2 }
       cursor: { type: "String", defaultValue: "" }
       beforeDate: { type: "Datetime!" }
@@ -28,7 +28,7 @@ module Fragment = %relay(`
       count: { type: "Int", defaultValue: 2 }
       cursor: { type: "String", defaultValue: "" }
       beforeDate: { type: "Datetime!" }
-      objTest: { type: "SomeInput!" }
+      objTest: { type: "SomeInput", defaultValue: {str: "123"} }
     ) {
     friendsConnection(
       statuses: $onlineStatuses

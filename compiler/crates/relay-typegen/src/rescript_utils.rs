@@ -1,5 +1,6 @@
 use std::ops::Add;
 
+use common::WithLocation;
 use graphql_ir::{ConstantValue, FragmentDefinition, Value, Variable, Visitor};
 use itertools::Itertools;
 use log::warn;
@@ -10,7 +11,9 @@ use schema::{SDLSchema, Schema, Type, TypeReference};
 use crate::{
     rescript::DefinitionType,
     rescript_ast::{Context, ConverterInstructions, FullEnum},
-    rescript_relay_visitor::{RescriptRelayOperationMetaData, RescriptRelayVisitor},
+    rescript_relay_visitor::{
+        RescriptRelayConnectionConfig, RescriptRelayOperationMetaData, RescriptRelayVisitor,
+    },
     writer::{Prop, AST},
 };
 
@@ -324,7 +327,7 @@ fn print_opt(str: &String, optional: bool) -> String {
 }
 
 // Printer helpers
-fn print_constant_value(value: &ConstantValue, print_as_optional: bool) -> String {
+pub fn print_constant_value(value: &ConstantValue, print_as_optional: bool) -> String {
     match value {
         ConstantValue::Int(i) => print_wrapped_in_some(&i.to_string(), print_as_optional),
         ConstantValue::Float(f) => print_wrapped_in_some(&f.to_string(), print_as_optional),
@@ -435,18 +438,64 @@ pub fn print_value(value: &Value, print_as_optional: bool) -> String {
     }
 }
 
-pub fn find_all_connection_variables(value: &Value, found_variables: &mut Vec<Variable>) -> () {
+pub fn find_all_connection_variables(
+    value: &Value,
+    found_variables: &mut Vec<(Variable, Option<WithLocation<ConstantValue>>)>,
+    connection_config: &RescriptRelayConnectionConfig,
+) -> () {
     match value {
         Value::Variable(variable) => {
-            found_variables.push(variable.to_owned());
+            // For some reason, variables found here might not actually have the
+            // type information we expect them to. This is probably because what
+            // we're getting here is what the _field_ defines, whereas we're
+            // interested in what the _fragment_ defines. For example, if we
+            // have a nullable argument on the _field_, but the variable passed
+            // into that field via the connection fragment is non-nullable, then
+            // a connection can only ever be constructed with a non-nullable
+            // value for that variable. Hence, when building a connection ID, we
+            // always need the user to pass _something_ there.
+            //
+            // Because of this, we prefer the variable from
+            // "argumentDefinitions"
+            // (connection_config.fragment_variable_definitions).
+            found_variables.push(
+                match connection_config
+                    .fragment_variable_definitions
+                    .iter()
+                    .find(|v| v.name.item == variable.name.item)
+                {
+                    None => (variable.to_owned(), None),
+                    Some(v) =>
+                    // Construct a synthetic variable here from the definition
+                    {
+                        (
+                            Variable {
+                                name: v.name,
+                                type_: match (&v.type_, v.default_value.as_ref()) {
+                                    // Another special case is when the variable is
+                                    // optional, but there's a default value. In
+                                    // that case, we should treat the variable as
+                                    // non-optional, since it would always have a
+                                    // value when the connection key is created.
+                                    (TypeReference::List(_) | TypeReference::Named(_), Some(_)) => {
+                                        TypeReference::NonNull(Box::new(v.type_.to_owned()))
+                                    }
+                                    _ => v.type_.to_owned(),
+                                },
+                            },
+                            v.default_value.to_owned(),
+                        )
+                    }
+                },
+            );
         }
-        Value::Object(arguments) => arguments
-            .iter()
-            .for_each(|arg| find_all_connection_variables(&arg.value.item, found_variables)),
+        Value::Object(arguments) => arguments.iter().for_each(|arg| {
+            find_all_connection_variables(&arg.value.item, found_variables, &connection_config)
+        }),
         Value::Constant(_) => (),
-        Value::List(values) => values
-            .iter()
-            .for_each(|value| find_all_connection_variables(&value, found_variables)),
+        Value::List(values) => values.iter().for_each(|value| {
+            find_all_connection_variables(&value, found_variables, &connection_config)
+        }),
     }
 }
 

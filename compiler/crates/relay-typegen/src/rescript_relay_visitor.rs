@@ -8,7 +8,7 @@
 use fnv::FnvBuildHasher;
 use graphql_ir::{
     Argument, ConstantValue, Directive, Field, FragmentDefinition, LinkedField, ScalarField, Value,
-    Variable, Visitor,
+    Variable, VariableDefinition, Visitor,
 };
 use indexmap::IndexMap;
 use intern::string_key::{Intern, StringKey};
@@ -21,6 +21,7 @@ pub struct RescriptRelayConnectionConfig {
     pub at_object_path: Vec<String>,
     pub field_name: String,
     pub connection_key_arguments: Vec<Argument>,
+    pub fragment_variable_definitions: Vec<VariableDefinition>,
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -52,6 +53,7 @@ pub struct RescriptRelayVisitor<'a> {
     schema: &'a SDLSchema,
     current_path: Vec<String>,
     state: &'a mut RescriptRelayOperationMetaData,
+    variable_definitions: Vec<VariableDefinition>,
 }
 
 impl<'a> RescriptRelayVisitor<'a> {
@@ -64,6 +66,7 @@ impl<'a> RescriptRelayVisitor<'a> {
             schema,
             current_path: vec![initial_path],
             state,
+            variable_definitions: vec![],
         }
     }
 }
@@ -121,6 +124,14 @@ impl<'a> Visitor for RescriptRelayVisitor<'a> {
             .collect();
 
         self.state.fragment_directives = rescript_relay_directives;
+
+        if fragment.variable_definitions.len() > 0 {
+            self.variable_definitions = fragment
+                .variable_definitions
+                .iter()
+                .map(|v| v.to_owned())
+                .collect();
+        }
 
         self.default_visit_fragment(fragment)
     }
@@ -213,6 +224,7 @@ impl<'a> Visitor for RescriptRelayVisitor<'a> {
                     at_object_path: self.current_path.clone(),
                     field_name: field.alias_or_name(self.schema).to_string(),
                     connection_key_arguments: relevant_arguments,
+                    fragment_variable_definitions: self.variable_definitions.to_owned(),
                 })
             }
         }
