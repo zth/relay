@@ -4,13 +4,7 @@
 module Types = {
   @@ocaml.warning("-30")
 
-  @live
-  type rec pesticideListSearchInput = {
-    companyName: option<array<string>>,
-    pesticideIds: option<array<int>>,
-    skip: int,
-    take: int,
-  }
+  @live type pesticideListSearchInput = RelaySchemaAssets_graphql.input_PesticideListSearchInput
   type response = {
     searchPesticie: option<string>,
   }

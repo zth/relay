@@ -10,7 +10,7 @@ input InputA {
 input InputB {
   time: Datetime
   usingA: InputA,
-  constraint: Boolean # Reserved word, should de-opt InputB
+  constraint: Boolean # Reserved word
 }
 
 input SomeInput {

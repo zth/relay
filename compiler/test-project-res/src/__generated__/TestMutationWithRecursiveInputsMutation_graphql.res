@@ -4,18 +4,8 @@
 module Types = {
   @@ocaml.warning("-30")
 
-  @live
-  type rec inputA = {
-    recursiveA: option<inputA>,
-    time: SomeModule.Datetime.t,
-    usingB: option<inputB>,
-  }
-  @live
-  and inputB = {
-    @as("constraint") constraint_: option<bool>,
-    time: option<SomeModule.Datetime.t>,
-    usingA: option<inputA>,
-  }
+  @live type inputA = RelaySchemaAssets_graphql.input_InputA
+  @live type inputB = RelaySchemaAssets_graphql.input_InputB
   @live
   type rec response_recursiveInput = {
     recursionIsCool: option<bool>,

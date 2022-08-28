@@ -311,6 +311,7 @@ fn ast_to_prop_value(
                 comment: None,
                 values: get_object_props(state, &new_at_path, props, found_in_union, context),
                 found_in_union,
+                original_type_name: None,
             };
 
             state.objects.push(obj);
@@ -357,6 +358,7 @@ fn ast_to_prop_value(
                                 at_path: new_at_path.clone(),
                                 comment: None,
                                 found_in_union: false,
+                                original_type_name: None,
                                 record_name: path_to_name(&new_at_path),
                                 values: get_object_props(
                                     state,
@@ -589,6 +591,7 @@ fn extract_union_members(
                         record_name: union_member_record_name.to_string(),
                         values: member_fields,
                         found_in_union: true,
+                        original_type_name: None,
                     };
 
                     state.objects.push(union_member_shape);
@@ -1998,7 +2001,7 @@ fn write_connection_key_maker_arguments(
                 format!(
                     "~{}: {}",
                     variable.name.item,
-                    print_type_reference(&variable.type_, &schema)
+                    print_type_reference(&variable.type_, &schema, true)
                 )
             })
             .join(", ")
@@ -2169,28 +2172,21 @@ impl Writer for ReScriptPrinter<'_> {
                 write_enum_definitions(&mut generated_types, indentation, &full_enum).unwrap()
             });
 
-        // Print input objects. These are standalone (but recursive since they
-        // can refer to themselves), and needs to be printed first as the rest
-        // of the types might use them.
+        // Print input objects. These are just type aliases for the main type that's located in the schema assets file.
         self.input_objects
             .iter()
             .unique_by(|input_object| &input_object.record_name)
-            .enumerate()
-            .for_each(|(index, input_object)| {
-                write_object_definition(
-                    &self,
-                    &mut generated_types,
-                    indentation,
-                    &input_object,
-                    match index {
-                        0 => ObjectPrintMode::StartOfRecursiveChain,
-                        _ => ObjectPrintMode::PartOfRecursiveChain,
-                    },
-                    None,
-                    &Context::RootObject(input_object.record_name.to_string()),
-                    false,
-                )
-                .unwrap()
+            .for_each(|input_object| match &input_object.original_type_name {
+                None => (),
+                Some(input_obj_name) => {
+                    write_indentation(&mut generated_types, indentation).unwrap();
+                    writeln!(
+                        generated_types,
+                        "@live type {} = RelaySchemaAssets_graphql.input_{}",
+                        input_object.record_name, input_obj_name
+                    )
+                    .unwrap();
+                }
             });
 
         // Print object types that originate from unions. This is because these
@@ -2388,6 +2384,7 @@ impl Writer for ReScriptPrinter<'_> {
                         at_path: vec![String::from("variables")],
                         found_in_union: false,
                         record_name: String::from("refetchVariables"),
+                        original_type_name: None,
                         values: variables
                             .values
                             .iter()
@@ -2823,6 +2820,7 @@ impl Writer for ReScriptPrinter<'_> {
                         record_name: record_name.to_string(),
                         values: get_object_props(self, &current_path, &props, false, &context),
                         found_in_union: false,
+                        original_type_name: None,
                     };
 
                     match &self.typegen_definition {
@@ -2851,6 +2849,7 @@ impl Writer for ReScriptPrinter<'_> {
                         record_name: record_name.to_string(),
                         values: get_object_props(self, &current_path, &props, false, &context),
                         found_in_union: false,
+                        original_type_name: None,
                     };
 
                     self.fragment = Some((
@@ -2929,6 +2928,7 @@ impl Writer for ReScriptPrinter<'_> {
                         record_name: path_to_name(&current_path),
                         values: get_object_props(self, &current_path, &props, false, &context),
                         found_in_union: false,
+                        original_type_name: None,
                     };
 
                     self.variables = Some(obj);
@@ -2954,6 +2954,7 @@ impl Writer for ReScriptPrinter<'_> {
                         record_name: path_to_name(&current_path),
                         values: get_object_props(self, &current_path, &props, false, &context),
                         found_in_union: false,
+                        original_type_name: None,
                     };
 
                     self.raw_response = Some(obj);
@@ -2991,6 +2992,7 @@ impl Writer for ReScriptPrinter<'_> {
                     let path = vec![root_name_from_context(&context)];
                     let obj = Object {
                         comment: None,
+                        original_type_name: Some(name.to_string()),
                         values: get_object_props(self, &path, &props, false, &context),
                         at_path: path.clone(),
                         record_name: path_to_name(&path),

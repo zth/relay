@@ -59,6 +59,10 @@ pub struct Object {
     pub at_path: Vec<String>,
     pub record_name: String,
 
+    // Currently only used with input objects, as we need the original type name
+    // there.
+    pub original_type_name: Option<String>,
+
     // We use this flag to allow for printing objects found in unions before
     // other objects. This is because of the hierarchy/recursiveness of types,
     // which leads to us needing to print objects in a specific order.

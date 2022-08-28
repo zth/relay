@@ -99,7 +99,7 @@ module Utils = {
     external internal_makeConnectionId: (RescriptRelay.dataId, @as("TestPaginationUnion_query_members") _, 'arguments) => RescriptRelay.dataId = "getConnectionId"
   )
 
-  let makeConnectionId = (connectionParentDataId: RescriptRelay.dataId, ~groupId: option<string>, ~onlineStatuses: array<[#Online | #Idle | #Offline]>) => {
+  let makeConnectionId = (connectionParentDataId: RescriptRelay.dataId, ~groupId: string, ~onlineStatuses: option<array<option<[#Online | #Idle | #Offline]>>>) => {
     let groupId = Some(groupId)
     let args = {"groupId": groupId, "onlineStatuses": onlineStatuses}
     internal_makeConnectionId(connectionParentDataId, args)

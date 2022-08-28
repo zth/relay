@@ -307,9 +307,17 @@ pub fn instruction_to_key_value_pair(instruction: &ConverterInstructions) -> (St
     }
 }
 
-fn print_opt(str: &String, print_as_optional: bool) -> String {
+fn print_wrapped_in_some(str: &String, print_as_optional: bool) -> String {
     if print_as_optional {
         format!("Some({})", str)
+    } else {
+        format!("{}", str)
+    }
+}
+
+fn print_opt(str: &String, optional: bool) -> String {
+    if optional {
+        format!("option<{}>", str)
     } else {
         format!("{}", str)
     }
@@ -318,13 +326,17 @@ fn print_opt(str: &String, print_as_optional: bool) -> String {
 // Printer helpers
 fn print_constant_value(value: &ConstantValue, print_as_optional: bool) -> String {
     match value {
-        ConstantValue::Int(i) => print_opt(&i.to_string(), print_as_optional),
-        ConstantValue::Float(f) => print_opt(&f.to_string(), print_as_optional),
-        ConstantValue::String(s) => print_opt(&format!("\"{}\"", s.to_string()), print_as_optional),
-        ConstantValue::Boolean(b) => print_opt(&b.to_string(), print_as_optional),
-        ConstantValue::Null() => print_opt(&String::from("null"), print_as_optional),
-        ConstantValue::Enum(s) => print_opt(&format!("#{}", s.to_string()), print_as_optional),
-        ConstantValue::List(values) => print_opt(
+        ConstantValue::Int(i) => print_wrapped_in_some(&i.to_string(), print_as_optional),
+        ConstantValue::Float(f) => print_wrapped_in_some(&f.to_string(), print_as_optional),
+        ConstantValue::String(s) => {
+            print_wrapped_in_some(&format!("\"{}\"", s.to_string()), print_as_optional)
+        }
+        ConstantValue::Boolean(b) => print_wrapped_in_some(&b.to_string(), print_as_optional),
+        ConstantValue::Null() => print_wrapped_in_some(&String::from("null"), print_as_optional),
+        ConstantValue::Enum(s) => {
+            print_wrapped_in_some(&format!("#{}", s.to_string()), print_as_optional)
+        }
+        ConstantValue::List(values) => print_wrapped_in_some(
             &format!(
                 "[{}]",
                 values
@@ -334,7 +346,7 @@ fn print_constant_value(value: &ConstantValue, print_as_optional: bool) -> Strin
             ),
             print_as_optional,
         ),
-        ConstantValue::Object(arguments) => print_opt(
+        ConstantValue::Object(arguments) => print_wrapped_in_some(
             &format!(
                 "{{{}}}",
                 arguments
@@ -353,41 +365,46 @@ fn print_constant_value(value: &ConstantValue, print_as_optional: bool) -> Strin
     }
 }
 
-pub fn print_type_reference(typ: &TypeReference, schema: &SDLSchema) -> String {
+pub fn print_type_reference(typ: &TypeReference, schema: &SDLSchema, nullable: bool) -> String {
     match typ {
-        TypeReference::Named(named_type) => match named_type {
-            Type::Enum(id) => format!(
-                "[{}]",
-                schema
-                    .enum_(*id)
-                    .values
-                    .iter()
-                    .map(|v| { format!("#{}", v.value) })
-                    .join(" | ")
-            ),
-
-            Type::InputObject(id) => {
-                let obj = schema.input_object(*id);
-                format!("RelaySchemaAssets_graphql.input_{}", obj.name.item)
-            }
-            Type::Scalar(id) => format!(
-                "{}",
-                match schema.scalar(*id).name.item.to_string().as_str() {
-                    "Boolean" => String::from("bool"),
-                    "Int" => String::from("int"),
-                    "Float" => String::from("float"),
-                    "String" | "ID" => String::from("string"),
-                    custom_scalar =>
-                        match classify_rescript_value_string(&custom_scalar.to_string()) {
-                            RescriptCustomTypeValue::Module => format!("{}.t", custom_scalar),
-                            RescriptCustomTypeValue::Type => custom_scalar.to_string(),
-                        },
+        TypeReference::Named(named_type) => print_opt(
+            &match named_type {
+                Type::Enum(id) => format!(
+                    "[{}]",
+                    schema
+                        .enum_(*id)
+                        .values
+                        .iter()
+                        .map(|v| { format!("#{}", v.value) })
+                        .join(" | ")
+                ),
+                Type::InputObject(id) => {
+                    let obj = schema.input_object(*id);
+                    format!("RelaySchemaAssets_graphql.input_{}", obj.name.item)
                 }
-            ),
-            _ => String::from("RescriptRelay.any"),
-        },
-        TypeReference::NonNull(typ) => format!("option<{}>", print_type_reference(&typ, &schema)),
-        TypeReference::List(typ) => format!("array<{}>", print_type_reference(&typ, &schema)),
+                Type::Scalar(id) => format!(
+                    "{}",
+                    match schema.scalar(*id).name.item.to_string().as_str() {
+                        "Boolean" => String::from("bool"),
+                        "Int" => String::from("int"),
+                        "Float" => String::from("float"),
+                        "String" | "ID" => String::from("string"),
+                        custom_scalar =>
+                            match classify_rescript_value_string(&custom_scalar.to_string()) {
+                                RescriptCustomTypeValue::Module => format!("{}.t", custom_scalar),
+                                RescriptCustomTypeValue::Type => custom_scalar.to_string(),
+                            },
+                    }
+                ),
+                _ => String::from("RescriptRelay.any"),
+            },
+            nullable,
+        ),
+        TypeReference::NonNull(typ) => format!("{}", print_type_reference(&typ, &schema, false)),
+        TypeReference::List(typ) => print_opt(
+            &format!("array<{}>", print_type_reference(&typ, &schema, true)),
+            nullable,
+        ),
     }
 }
 

@@ -52,7 +52,7 @@ module Utils = {
     external internal_makeConnectionId: (RescriptRelay.dataId, @as("TestConnections_user_friendsConnection") _, 'arguments) => RescriptRelay.dataId = "getConnectionId"
   )
 
-  let makeConnectionId = (connectionParentDataId: RescriptRelay.dataId, ~onlineStatuses: array<option<[#Online | #Idle | #Offline]>>, ~beforeDate: Datetime.t) => {
+  let makeConnectionId = (connectionParentDataId: RescriptRelay.dataId, ~onlineStatuses: option<array<[#Online | #Idle | #Offline]>>, ~beforeDate: option<Datetime.t>) => {
     let beforeDate = switch beforeDate { | None => None | Some(v) => Some(Datetime.seralize(v)) }
     let args = {"statuses": onlineStatuses, "beforeDate": beforeDate}
     internal_makeConnectionId(connectionParentDataId, args)

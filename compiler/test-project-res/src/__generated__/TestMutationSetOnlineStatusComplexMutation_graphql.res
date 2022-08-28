@@ -19,20 +19,8 @@ module Types = {
 
 
 
-  @live
-  type rec setOnlineStatusInput = {
-    onlineStatus: [
-      | #Idle
-      | #Offline
-      | #Online
-    ],
-    recursed: option<recursiveSetOnlineStatusInput>,
-  }
-  @live
-  and recursiveSetOnlineStatusInput = {
-    setOnlineStatus: option<setOnlineStatusInput>,
-    someValue: RescriptRelay.any,
-  }
+  @live type setOnlineStatusInput = RelaySchemaAssets_graphql.input_SetOnlineStatusInput
+  @live type recursiveSetOnlineStatusInput = RelaySchemaAssets_graphql.input_RecursiveSetOnlineStatusInput
   @live
   type rec response_setOnlineStatusComplex_user = {
     @live id: string,

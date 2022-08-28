@@ -49,7 +49,7 @@ pub(crate) fn rescript_generate_extra_artifacts(
                     None => String::from(""),
                 }),
                 key,
-                print_type_reference(&field.type_, &schema)
+                print_type_reference(&field.type_, &schema, true)
             )
             .unwrap();
         });
@@ -65,8 +65,8 @@ pub(crate) fn rescript_generate_extra_artifacts(
     schema.input_objects().for_each(|input_obj| {
         writeln!(content, "@obj external make_{}: (", input_obj.name.item).unwrap();
 
-        input_obj.fields.iter().for_each(|field| {
-            let (key, maybe_original_key) = get_safe_key(&field.name.to_string());
+        input_obj.fields.iter().for_each(|arg| {
+            let (key, maybe_original_key) = get_safe_key(&arg.name.to_string());
 
             writeln!(
                 content,
@@ -75,7 +75,7 @@ pub(crate) fn rescript_generate_extra_artifacts(
                     Some(original_key) => format!("_{}", original_key),
                     None => key,
                 }),
-                print_type_reference(&field.type_, &schema)
+                print_type_reference(&arg.type_, &schema, true)
             )
             .unwrap();
         });
