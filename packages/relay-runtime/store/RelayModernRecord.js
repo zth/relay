@@ -8,8 +8,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {ActorIdentifier} from '../multi-actor-environment/ActorIdentifier';
@@ -166,10 +164,13 @@ function getValue(record: Record, storageKey: string): mixed {
  * field has a different type.
  */
 function getLinkedRecordID(record: Record, storageKey: string): ?DataID {
-  const link = record[storageKey];
-  if (link == null) {
-    return link;
+  const maybeLink = record[storageKey];
+  if (maybeLink == null) {
+    return maybeLink;
   }
+  // We reassign here so that the JSON.stringify call in invariant does not invalidate the
+  // non-maybe refinement from above.
+  const link = maybeLink;
   invariant(
     typeof link === 'object' && link && typeof link[REF_KEY] === 'string',
     'RelayModernRecord.getLinkedRecordID(): Expected `%s.%s` to be a linked ID, ' +
@@ -182,6 +183,7 @@ function getLinkedRecordID(record: Record, storageKey: string): ?DataID {
           'getLinkedRecords() instead of getLinkedRecord()?'
       : '',
   );
+  // $FlowFixMe[incompatible-return]
   return link[REF_KEY];
 }
 

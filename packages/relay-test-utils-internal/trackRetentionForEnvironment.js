@@ -8,8 +8,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 /* global jest */
@@ -23,10 +21,10 @@ import type {OperationDescriptor} from '../relay-runtime/store/RelayStoreTypes';
  * `release` function for backwards-compatibility with existing tests, but you
  * should use `isOperationRetained` for new tests as it is much less error-prone.
  */
-function trackRetentionForEnvironment(environment: IEnvironment): {|
+function trackRetentionForEnvironment(environment: IEnvironment): {
   release_DEPRECATED: JestMockFn<[mixed], void>,
   isOperationRetained: OperationDescriptor => boolean,
-|} {
+} {
   const retainCountsByOperation = new Map();
 
   const release = jest.fn(id => {
@@ -38,8 +36,8 @@ function trackRetentionForEnvironment(environment: IEnvironment): {|
     }
   });
 
-  // $FlowFixMe[method-unbinding] safe to do for mocking
-  environment.retain.mockImplementation(operation => {
+  // $FlowFixMe[cannot-write] safe to do for mocking
+  environment.retain = jest.fn(operation => {
     const id = operation.request.identifier;
     const existing = retainCountsByOperation.get(id) ?? 0;
     retainCountsByOperation.set(id, existing + 1);

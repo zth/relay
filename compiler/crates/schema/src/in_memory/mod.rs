@@ -5,13 +5,21 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::definitions::{Argument, Directive, *};
+use crate::definitions::Argument;
+use crate::definitions::Directive;
+use crate::definitions::*;
 use crate::errors::SchemaError;
 use crate::graphql_schema::Schema;
-use common::{Diagnostic, DiagnosticsResult, Location, SourceLocationKey, WithLocation};
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::Location;
+use common::SourceLocationKey;
+use common::WithLocation;
 use graphql_syntax::*;
-use intern::string_key::{Intern, StringKey};
-use std::collections::{BTreeMap, HashMap};
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
+use std::collections::BTreeMap;
+use std::collections::HashMap;
 
 fn todo_add_location<T>(error: SchemaError) -> DiagnosticsResult<T> {
     Err(vec![Diagnostic::error(error, Location::generated())])
@@ -336,6 +344,10 @@ impl InMemorySchema {
 
     pub fn get_objects(&self) -> impl Iterator<Item = &Object> {
         self.objects.iter()
+    }
+
+    pub fn get_unions(&self) -> impl Iterator<Item = &Union> {
+        self.unions.iter()
     }
 
     pub fn has_directive(&self, directive_name: StringKey) -> bool {
@@ -1348,7 +1360,7 @@ impl InMemorySchema {
                 .iter()
                 .map(|field_def| {
                     let arguments = self.build_arguments(&field_def.arguments)?;
-                    let type_ = self.build_type_reference(&field_def.type_)?;
+                    let type_ = self.build_type_reference(&field_def.type_, field_location_key)?;
                     let directives = self.build_directive_values(&field_def.directives);
                     let description = field_def.description.as_ref().map(|desc| desc.value);
                     Ok(self.build_field(Field {
@@ -1390,7 +1402,7 @@ impl InMemorySchema {
                 }
                 let arguments = self.build_arguments(&field_def.arguments)?;
                 let directives = self.build_directive_values(&field_def.directives);
-                let type_ = self.build_type_reference(&field_def.type_)?;
+                let type_ = self.build_type_reference(&field_def.type_, source_location_key)?;
                 let description = field_def.description.as_ref().map(|desc| desc.value);
                 field_ids.push(self.build_field(Field {
                     name: WithLocation::new(field_location, field_name),
@@ -1465,22 +1477,23 @@ impl InMemorySchema {
     fn build_type_reference(
         &mut self,
         ast_type: &TypeAnnotation,
+        source_location: SourceLocationKey,
     ) -> DiagnosticsResult<TypeReference> {
         Ok(match ast_type {
             TypeAnnotation::Named(named_type) => TypeReference::Named(
                 *self.type_map.get(&named_type.name.value).ok_or_else(|| {
                     vec![Diagnostic::error(
                         SchemaError::UndefinedType(named_type.name.value),
-                        Location::generated(),
+                        Location::new(source_location, named_type.name.span),
                     )]
                 })?,
             ),
-            TypeAnnotation::NonNull(of_type) => {
-                TypeReference::NonNull(Box::new(self.build_type_reference(&of_type.type_)?))
-            }
-            TypeAnnotation::List(of_type) => {
-                TypeReference::List(Box::new(self.build_type_reference(&of_type.type_)?))
-            }
+            TypeAnnotation::NonNull(of_type) => TypeReference::NonNull(Box::new(
+                self.build_type_reference(&of_type.type_, source_location)?,
+            )),
+            TypeAnnotation::List(of_type) => TypeReference::List(Box::new(
+                self.build_type_reference(&of_type.type_, source_location)?,
+            )),
         })
     }
 

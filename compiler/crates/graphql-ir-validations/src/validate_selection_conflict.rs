@@ -6,23 +6,41 @@
  */
 
 use self::ignoring_type_and_location::arguments_equals;
-use common::{Diagnostic, DiagnosticsResult, Location, PointerAddress};
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::Location;
+use common::PointerAddress;
 use dashmap::DashMap;
-use errors::{par_try_map, validate_map};
-use graphql_ir::{
-    node_identifier::LocationAgnosticBehavior, Argument, Field as IRField, FragmentDefinition,
-    LinkedField, OperationDefinition, Program, ScalarField, Selection,
-};
+use dashmap::DashSet;
+use errors::par_try_map;
+use errors::validate_map;
+use graphql_ir::node_identifier::LocationAgnosticBehavior;
+use graphql_ir::Argument;
+use graphql_ir::Field as IRField;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::LinkedField;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::ScalarField;
+use graphql_ir::Selection;
 use intern::string_key::StringKey;
-use schema::{SDLSchema, Schema, Type, TypeReference};
+use schema::SDLSchema;
+use schema::Schema;
+use schema::Type;
+use schema::TypeReference;
+use std::collections::HashMap;
+use std::collections::HashSet;
+use std::collections::VecDeque;
 use std::marker::PhantomData;
 use std::sync::Arc;
 use thiserror::Error;
 
+/// Note:set `further_optimization` will enable: (1) cache the paired-fields; and (2) avoid duplicate fragment validations in multi-core machines.
 pub fn validate_selection_conflict<B: LocationAgnosticBehavior + Sync>(
     program: &Program,
+    further_optimization: bool,
 ) -> DiagnosticsResult<()> {
-    ValidateSelectionConflict::<B>::new(program).validate_program(program)
+    ValidateSelectionConflict::<B>::new(program, further_optimization).validate_program(program)
 }
 
 #[derive(Clone, PartialEq, Debug)]
@@ -31,30 +49,85 @@ enum Field<'s> {
     ScalarField(&'s ScalarField),
 }
 
-type Fields<'s> = Vec<Field<'s>>;
+type Fields<'s> = HashMap<StringKey, Vec<Field<'s>>, intern::BuildIdHasher<u32>>;
 
 struct ValidateSelectionConflict<'s, TBehavior: LocationAgnosticBehavior> {
     program: &'s Program,
-    fragment_cache: DashMap<StringKey, Arc<Fields<'s>>>,
+    fragment_cache: DashMap<StringKey, Arc<Fields<'s>>, intern::BuildIdHasher<u32>>,
     fields_cache: DashMap<PointerAddress, Arc<Fields<'s>>>,
+    further_optimization: bool,
+    verified_fields_pair: DashSet<(PointerAddress, PointerAddress)>,
     _behavior: PhantomData<TBehavior>,
 }
 
 impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
-    fn new(program: &'s Program) -> Self {
+    fn new(program: &'s Program, further_optimization: bool) -> Self {
         Self {
             program,
             fragment_cache: Default::default(),
             fields_cache: Default::default(),
+            further_optimization,
+            verified_fields_pair: Default::default(),
             _behavior: PhantomData::<B>,
         }
     }
 
     fn validate_program(&self, program: &'s Program) -> DiagnosticsResult<()> {
+        if self.further_optimization {
+            self.prewarm_fragments(program);
+        }
+
         par_try_map(&program.operations, |operation| {
             self.validate_operation(operation)
         })?;
         Ok(())
+    }
+
+    fn prewarm_fragments(&self, program: &'s Program) {
+        // Validate the fragments in topology order.
+        let mut unclaimed_fragment_queue: VecDeque<StringKey> = VecDeque::new();
+
+        // Construct the dependency graph, which is represented by two maps:
+        // DAG1: fragment K -> Used by: {Fragment v_1, v_2, v_3, ...}
+        // DAG2: fragment K -> Spreading: {Fragment v_1, v_2, v_3, ...}
+        let mut dag_used_by: HashMap<StringKey, HashSet<StringKey>> = HashMap::new();
+        let mut dag_spreading: HashMap<StringKey, HashSet<StringKey>> = HashMap::new();
+        for fragment in program.fragments() {
+            let fragment_ = fragment.name.item;
+            let spreads = fragment
+                .selections
+                .iter()
+                .flat_map(|s| s.spreaded_fragments())
+                .collect::<Vec<_>>();
+
+            for spread in &spreads {
+                let spread_ = spread.fragment.item;
+                // got "fragment_" spreads "...spread_"
+                dag_used_by.entry(spread_).or_default().insert(fragment_);
+                dag_spreading.entry(fragment_).or_default().insert(spread_);
+            }
+            if spreads.is_empty() {
+                unclaimed_fragment_queue.push_back(fragment_);
+            }
+        }
+
+        let dummy_hashset = HashSet::new();
+        while let Some(visiting) = unclaimed_fragment_queue.pop_front() {
+            let _ = self.validate_and_collect_fragment(
+                program
+                    .fragment(visiting)
+                    .expect("fragment must have been registered"),
+            );
+
+            for used_by in dag_used_by.get(&visiting).unwrap_or(&dummy_hashset) {
+                // fragment "used_by" now can assume "...now" cached.
+                let entries = dag_spreading.entry(*used_by).or_default();
+                entries.remove(&visiting);
+                if entries.is_empty() {
+                    unclaimed_fragment_queue.push_back(*used_by);
+                }
+            }
+        }
     }
 
     fn validate_operation(&self, operation: &'s OperationDefinition) -> DiagnosticsResult<()> {
@@ -63,7 +136,7 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
     }
 
     fn validate_selections(&self, selections: &'s [Selection]) -> DiagnosticsResult<Fields<'s>> {
-        let mut fields = Vec::new();
+        let mut fields = Default::default();
         validate_map(selections, |selection| {
             self.validate_selection(&mut fields, selection)
         })?;
@@ -79,24 +152,24 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
             Selection::LinkedField(field) => {
                 self.validate_linked_field_selections(field)?;
                 let field = Field::LinkedField(field.as_ref());
-                self.validate_and_insert_field_selection(fields, field, false)
+                self.validate_and_insert_field_selection(fields, &field, false)
             }
             Selection::ScalarField(field) => {
                 let field = Field::ScalarField(field.as_ref());
-                self.validate_and_insert_field_selection(fields, field, false)
+                self.validate_and_insert_field_selection(fields, &field, false)
             }
             Selection::Condition(condition) => {
                 let new_fields = self.validate_selections(&condition.selections)?;
-                self.validate_and_merge_fields(fields, new_fields, false)
+                self.validate_and_merge_fields(fields, &new_fields, false)
             }
             Selection::InlineFragment(fragment) => {
                 let new_fields = self.validate_selections(&fragment.selections)?;
-                self.validate_and_merge_fields(fields, new_fields, false)
+                self.validate_and_merge_fields(fields, &new_fields, false)
             }
             Selection::FragmentSpread(spread) => {
                 let fragment = self.program.fragment(spread.fragment.item).unwrap();
                 let new_fields = self.validate_and_collect_fragment(fragment)?;
-                self.validate_and_merge_fields(fields, new_fields.to_vec(), false)
+                self.validate_and_merge_fields(fields, &new_fields, false)
             }
         }
     }
@@ -130,10 +203,10 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
     fn validate_and_merge_fields(
         &self,
         left: &mut Fields<'s>,
-        right: Fields<'s>,
+        right: &Fields<'s>,
         parent_fields_mutually_exclusive: bool,
     ) -> DiagnosticsResult<()> {
-        validate_map(right, |field| {
+        validate_map(right.values().flatten(), |field| {
             self.validate_and_insert_field_selection(left, field, parent_fields_mutually_exclusive)
         })
     }
@@ -141,22 +214,30 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
     fn validate_and_insert_field_selection(
         &self,
         fields: &mut Fields<'s>,
-        field: Field<'s>,
+        field: &Field<'s>,
         parent_fields_mutually_exclusive: bool,
     ) -> DiagnosticsResult<()> {
         let key = field.get_response_key(&self.program.schema);
-        let mut errors = vec![];
+        if !fields.contains_key(&key) {
+            fields.entry(key).or_default().push(field.clone());
+            return Ok(());
+        }
 
-        for existing_field in fields
-            .iter_mut()
-            .filter(|field| key == field.get_response_key(&self.program.schema))
-        {
-            if &field == existing_field {
+        let mut errors = vec![];
+        let addr1 = field.pointer_address();
+
+        for existing_field in fields.get(&key).unwrap() {
+            if field == existing_field {
                 return if errors.is_empty() {
                     Ok(())
                 } else {
                     Err(errors)
                 };
+            }
+
+            let addr2 = existing_field.pointer_address();
+            if self.further_optimization && self.verified_fields_pair.contains(&(addr1, addr2)) {
+                continue;
             }
 
             let l_definition = existing_field.get_field_definition(&self.program.schema);
@@ -191,7 +272,7 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
 
                         if let Err(errs) = self.validate_and_merge_fields(
                             Arc::make_mut(&mut l_fields),
-                            r_fields.to_vec(),
+                            &r_fields,
                             fields_mutually_exclusive,
                         ) {
                             errors.extend(errs);
@@ -273,9 +354,14 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
                     );
                 }
             }
+
+            // save the verified pair into cache
+            if self.further_optimization && errors.is_empty() {
+                self.verified_fields_pair.insert((addr1, addr2));
+            }
         }
         if errors.is_empty() {
-            fields.push(field);
+            fields.entry(key).or_default().push(field.clone());
             Ok(())
         } else {
             Err(errors)
@@ -403,11 +489,20 @@ impl<'s> Field<'s> {
             Field::ScalarField(f) => f.definition.location,
         }
     }
+
+    fn pointer_address(&self) -> PointerAddress {
+        match self {
+            Field::LinkedField(f) => PointerAddress::new(&f.definition),
+            Field::ScalarField(f) => PointerAddress::new(&f.definition),
+        }
+    }
 }
 
 mod ignoring_type_and_location {
-    use graphql_ir::node_identifier::{LocationAgnosticBehavior, LocationAgnosticPartialEq};
-    use graphql_ir::{Argument, Value};
+    use graphql_ir::node_identifier::LocationAgnosticBehavior;
+    use graphql_ir::node_identifier::LocationAgnosticPartialEq;
+    use graphql_ir::Argument;
+    use graphql_ir::Value;
 
     /// Verify that two sets of arguments are equivalent - same argument names
     /// and values. Notably, this ignores the types of arguments and values,

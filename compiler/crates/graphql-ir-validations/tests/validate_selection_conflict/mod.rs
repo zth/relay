@@ -5,11 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{SourceLocationKey, TextSource};
+use common::SourceLocationKey;
+use common::TextSource;
 use fixture_tests::Fixture;
 use graphql_cli::DiagnosticPrinter;
+use graphql_ir::build;
 use graphql_ir::node_identifier::LocationAgnosticBehavior;
-use graphql_ir::{build, Program};
+use graphql_ir::Program;
 use graphql_ir_validations::validate_selection_conflict;
 use graphql_syntax::parse_executable;
 use graphql_test_helpers::diagnostics_to_sorted_string;
@@ -51,7 +53,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     };
 
     let program = Program::from_definitions(Arc::clone(&TEST_SCHEMA), ir);
-    validate_selection_conflict::<LocationAgnosticBehaviorForTestOnly>(&program)
+    validate_selection_conflict::<LocationAgnosticBehaviorForTestOnly>(&program, true)
         .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
 
     Ok("OK".to_owned())

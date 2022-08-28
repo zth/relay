@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1cbd7ade6bcce4248e77df01646af967>>
+ * @generated SignedSource<<d4312b2cecd04cdd617d26f937c83f10>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,13 +16,13 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type readUpdatableQueryEXPERIMENTALTest_node$fragmentType = any;
-type readUpdatableQueryEXPERIMENTALTest_user$fragmentType = any;
+import type { readUpdatableQueryEXPERIMENTALTest_node$fragmentType } from "./readUpdatableQueryEXPERIMENTALTest_node.graphql";
+import type { readUpdatableQueryEXPERIMENTALTest_user$fragmentType } from "./readUpdatableQueryEXPERIMENTALTest_user.graphql";
 export type readUpdatableQueryEXPERIMENTALTestRegularQuery$variables = {||};
 export type readUpdatableQueryEXPERIMENTALTestRegularQuery$data = {|
   +me: ?{|
     +__id: string,
-    +__isreadUpdatableQueryEXPERIMENTALTest_node?: string,
+    +__isreadUpdatableQueryEXPERIMENTALTest_node?: "User",
     +author: ?{|
       +client_best_friend: ?{|
         +name: ?string,

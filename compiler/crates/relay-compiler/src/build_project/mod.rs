@@ -9,7 +9,6 @@
 //! watch mode or other state.
 
 mod artifact_generated_types;
-mod artifact_locator;
 pub mod artifact_writer;
 mod build_ir;
 pub mod build_schema;
@@ -23,36 +22,54 @@ mod source_control;
 mod validate;
 
 use self::log_program_stats::print_stats;
-pub use self::project_asts::{get_project_asts, ProjectAstData, ProjectAsts};
+pub use self::project_asts::get_project_asts;
+pub use self::project_asts::ProjectAstData;
+pub use self::project_asts::ProjectAsts;
 use super::artifact_content;
-use crate::compiler_state::{ArtifactMapKind, CompilerState, ProjectName};
-use crate::config::{Config, ProjectConfig};
+use crate::artifact_map::ArtifactMap;
+use crate::compiler_state::ArtifactMapKind;
+use crate::compiler_state::CompilerState;
+use crate::compiler_state::ProjectName;
+use crate::config::Config;
+use crate::config::ProjectConfig;
 use crate::errors::BuildProjectError;
 use crate::file_source::SourceControlUpdateStatus;
-use crate::{artifact_map::ArtifactMap, graphql_asts::GraphQLAsts};
+use crate::graphql_asts::GraphQLAsts;
 pub use artifact_generated_types::ArtifactGeneratedTypes;
-pub use artifact_locator::{create_path_for_artifact, path_for_artifact};
 use build_ir::BuildIRResult;
 pub use build_ir::SourceHashes;
 pub use build_schema::build_schema;
-use common::{sync::*, PerfLogEvent, PerfLogger};
-use dashmap::{mapref::entry::Entry, DashSet};
-use fnv::{FnvBuildHasher, FnvHashMap, FnvHashSet};
-pub use generate_artifacts::{generate_artifacts, Artifact, ArtifactContent};
+use common::sync::*;
+use common::PerfLogEvent;
+use common::PerfLogger;
+use dashmap::mapref::entry::Entry;
+use dashmap::DashSet;
+use fnv::FnvBuildHasher;
+use fnv::FnvHashMap;
+use fnv::FnvHashSet;
+pub use generate_artifacts::generate_artifacts;
+pub use generate_artifacts::Artifact;
+pub use generate_artifacts::ArtifactContent;
 use graphql_ir::Program;
-use intern::string_key::{StringKey, StringKeySet};
-use log::{debug, info, warn};
-use rayon::{iter::IntoParallelRefIterator, slice::ParallelSlice};
+use intern::string_key::StringKey;
+use intern::string_key::StringKeySet;
+use log::debug;
+use log::info;
+use log::warn;
+use rayon::iter::IntoParallelRefIterator;
+use rayon::slice::ParallelSlice;
 use relay_codegen::Printer;
 use relay_config::TypegenLanguage;
-use relay_transforms::{
-    apply_transforms, find_resolver_dependencies, CustomTransformsConfig, DependencyMap, Programs,
-};
+use relay_transforms::apply_transforms;
+use relay_transforms::CustomTransformsConfig;
+use relay_transforms::Programs;
+use relay_typegen::FragmentLocations;
 use schema::SDLSchema;
 pub use source_control::add_to_mercurial;
-use std::iter::FromIterator;
-use std::{path::PathBuf, sync::Arc};
-pub use validate::{validate, AdditionalValidations};
+use std::path::PathBuf;
+use std::sync::Arc;
+pub use validate::validate;
+pub use validate::AdditionalValidations;
 
 type BuildProjectOutput = (ProjectName, Arc<SDLSchema>, Programs, Vec<Artifact>);
 type BuildProgramsOutput = (Programs, Arc<SourceHashes>);
@@ -73,7 +90,6 @@ impl From<BuildProjectError> for BuildProjectFailure {
 /// their locations to provide information to go_to_definition, hover, etc.
 pub fn build_raw_program(
     project_config: &ProjectConfig,
-    implicit_dependencies: &DependencyMap,
     project_asts: ProjectAsts,
     schema: Arc<SDLSchema>,
     log_event: &impl PerfLogEvent,
@@ -81,17 +97,12 @@ pub fn build_raw_program(
 ) -> Result<(Program, SourceHashes), BuildProjectError> {
     // Build a type aware IR.
     let BuildIRResult { ir, source_hashes } = log_event.time("build_ir_time", || {
-        build_ir::build_ir(
-            project_config,
-            implicit_dependencies,
-            project_asts,
-            &schema,
-            is_incremental_build,
+        build_ir::build_ir(project_config, project_asts, &schema, is_incremental_build).map_err(
+            |errors| BuildProjectError::ValidationErrors {
+                errors,
+                project_name: project_config.name,
+            },
         )
-        .map_err(|errors| BuildProjectError::ValidationErrors {
-            errors,
-            project_name: project_config.name,
-        })
     })?;
 
     // Turn the IR into a base Program.
@@ -174,7 +185,6 @@ pub fn build_programs(
 
     let (program, source_hashes) = build_raw_program(
         project_config,
-        &compiler_state.implicit_dependencies.read().unwrap(),
         project_asts,
         schema,
         log_event,
@@ -186,23 +196,8 @@ pub fn build_programs(
         return Err(BuildProjectFailure::Cancelled);
     }
 
-    let (validation_results, _) = rayon::join(
-        || {
-            // Call validation rules that go beyond type checking.
-            validate_program(config, project_config, &program, log_event)
-        },
-        || {
-            find_resolver_dependencies(
-                &mut compiler_state
-                    .pending_implicit_dependencies
-                    .write()
-                    .unwrap(),
-                &program,
-            );
-        },
-    );
-
-    validation_results?;
+    // Call validation rules that go beyond type checking.
+    validate_program(config, project_config, &program, log_event)?;
 
     let programs = transform_program(
         project_config,
@@ -244,7 +239,7 @@ pub fn build_project(
     let ProjectAstData {
         project_asts,
         base_fragment_names,
-    } = get_project_asts(graphql_asts_map, project_config)?;
+    } = get_project_asts(&schema, graphql_asts_map, project_config)?;
 
     if compiler_state.should_cancel_current_build() {
         debug!("Build is cancelled: updates in source code/or new file changes are pending.");
@@ -318,6 +313,7 @@ pub async fn commit_project(
     log_event.string("project", project_config.name.to_string());
     let commit_time = log_event.start("commit_project_time");
 
+    let fragment_locations = FragmentLocations::new(programs.typegen.fragments());
     if source_control_update_status.is_started() {
         debug!("commit_project cancelled before persisting due to source control updates");
         return Err(BuildProjectFailure::Cancelled);
@@ -389,6 +385,7 @@ pub async fn commit_project(
                 schema,
                 should_stop_updating_artifacts,
                 &artifacts,
+                &fragment_locations,
             )?;
             for artifact in &artifacts {
                 if !existing_artifacts.remove(&artifact.path) {
@@ -425,6 +422,7 @@ pub async fn commit_project(
                 schema,
                 should_stop_updating_artifacts,
                 &artifacts,
+                &fragment_locations,
             )?;
             artifacts.into_par_iter().for_each(|artifact| {
                 current_paths_map.insert(artifact);
@@ -524,6 +522,7 @@ fn write_artifacts<F: Fn() -> bool + Sync + Send>(
     schema: &SDLSchema,
     should_stop_updating_artifacts: F,
     artifacts: &[Artifact],
+    fragment_locations: &FragmentLocations,
 ) -> Result<(), BuildProjectFailure> {
     artifacts.par_chunks(8192).try_for_each_init(
         || Printer::with_dedupe(project_config),
@@ -539,6 +538,7 @@ fn write_artifacts<F: Fn() -> bool + Sync + Send>(
                     &mut printer,
                     schema,
                     artifact.source_file,
+                    fragment_locations,
                 );
                 if config.artifact_writer.should_write(&path, &content)? {
                     config.artifact_writer.write(path, content)?;

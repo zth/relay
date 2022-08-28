@@ -5,16 +5,31 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Named, NamedItem, WithLocation};
-use graphql_ir::{
-    Argument, Condition, ConditionValue, ConstantValue, Directive, ExecutableDefinition,
-    FragmentDefinition, FragmentSpread, InlineFragment, LinkedField, OperationDefinition,
-    ScalarField, Selection, Value, VariableDefinition,
-};
+use common::Named;
+use common::NamedItem;
+use common::WithLocation;
+use graphql_ir::Argument;
+use graphql_ir::Condition;
+use graphql_ir::ConditionValue;
+use graphql_ir::ConstantValue;
+use graphql_ir::Directive;
+use graphql_ir::ExecutableDefinition;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentSpread;
+use graphql_ir::InlineFragment;
+use graphql_ir::LinkedField;
+use graphql_ir::OperationDefinition;
+use graphql_ir::ScalarField;
+use graphql_ir::Selection;
+use graphql_ir::Value;
+use graphql_ir::VariableDefinition;
 use graphql_syntax::OperationKind;
-use intern::string_key::{Intern, StringKey};
-use schema::{SDLSchema, Schema};
-use std::fmt::{Result as FmtResult, Write};
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
+use schema::SDLSchema;
+use schema::Schema;
+use std::fmt::Result as FmtResult;
+use std::fmt::Write;
 
 pub fn print_ir(schema: &SDLSchema, definitions: &[ExecutableDefinition]) -> Vec<String> {
     definitions
@@ -52,6 +67,12 @@ pub fn print_fragment(
 pub fn print_selections(schema: &SDLSchema, selections: &[Selection]) -> String {
     let mut result = String::new();
     write_selections(schema, selections, &mut result).unwrap();
+    result
+}
+
+pub fn print_selection(schema: &SDLSchema, selection: &Selection) -> String {
+    let mut result = String::new();
+    write_selection(schema, selection, &mut result).unwrap();
     result
 }
 
@@ -115,6 +136,15 @@ pub fn write_selections(
     printer.print_selections(selections)
 }
 
+pub fn write_selection(
+    schema: &SDLSchema,
+    selection: &Selection,
+    mut result: &mut impl Write,
+) -> FmtResult {
+    let mut printer = Printer::new(schema, &mut result, PrinterOptions::default());
+    printer.print_selection(selection, None)
+}
+
 pub fn write_arguments(
     schema: &SDLSchema,
     arguments: &[Argument],
@@ -143,7 +173,7 @@ pub fn write_value(schema: &SDLSchema, value: &Value, mut result: &mut impl Writ
 pub struct PrinterOptions {
     pub compact: bool,
     pub sort_keys: bool,
-    pub print_enums_as_str: bool,
+    pub json_format: bool,
     /// Print `data` from Directive nodes
     pub debug_directive_data: bool,
 }
@@ -555,7 +585,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
             ConstantValue::Boolean(val) => write!(self.writer, "{}", val),
             ConstantValue::Null() => write!(self.writer, "null"),
             ConstantValue::Enum(val) => {
-                if self.options.print_enums_as_str {
+                if self.options.json_format {
                     write!(self.writer, "\"{}\"", val)
                 } else {
                     write!(self.writer, "{}", val)
@@ -583,7 +613,11 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
                             write!(self.writer, " ")?;
                         }
                     }
-                    write!(self.writer, "{}:", arg.name.item)?;
+                    if self.options.json_format {
+                        write!(self.writer, "\"{}\":", arg.name.item)?;
+                    } else {
+                        write!(self.writer, "{}:", arg.name.item)?;
+                    }
                     if !self.options.compact {
                         write!(self.writer, " ")?;
                     }

@@ -229,12 +229,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "87291a7bff5797553e54bec0b0bb20c6",
+    "cacheID": "3cab4391a3d0eb0d884df2196ce7c92f",
     "id": null,
     "metadata": {},
     "name": "TestNodeInterfaceOnUnionQuery",
     "operationKind": "query",
-    "text": "query TestNodeInterfaceOnUnionQuery {\n  node(id: \"123\") {\n    __typename\n    ... on Member {\n      __typename\n      __isMember: __typename\n      ... on Group {\n        name\n      }\n      ... on User {\n        firstName\n      }\n    }\n    id\n  }\n}\n"
+    "text": "query TestNodeInterfaceOnUnionQuery {\n  node(id: \"123\") {\n    __typename\n    ... on Member {\n      __isMember: __typename\n      __typename\n      ... on Group {\n        name\n      }\n      ... on User {\n        firstName\n      }\n    }\n    id\n  }\n}\n"
   }
 };
 })() `)

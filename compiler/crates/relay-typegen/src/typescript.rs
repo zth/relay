@@ -5,12 +5,21 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::writer::{Prop, SortedASTList, SortedStringKeyList, StringLiteral, Writer, AST};
-use crate::TypegenConfig;
-use crate::{KEY_DATA, KEY_FRAGMENT_SPREADS, KEY_FRAGMENT_TYPE};
-use intern::string_key::{Intern, StringKey};
+use crate::writer::Prop;
+use crate::writer::SortedASTList;
+use crate::writer::SortedStringKeyList;
+use crate::writer::StringLiteral;
+use crate::writer::Writer;
+use crate::writer::AST;
+use crate::KEY_DATA;
+use crate::KEY_FRAGMENT_SPREADS;
+use crate::KEY_FRAGMENT_TYPE;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
 use itertools::Itertools;
-use std::fmt::{Result as FmtResult, Write};
+use relay_config::TypegenConfig;
+use std::fmt::Result as FmtResult;
+use std::fmt::Write;
 
 pub struct TypeScriptPrinter {
     result: String,
@@ -63,6 +72,10 @@ impl Writer for TypeScriptPrinter {
             }
             AST::ReturnTypeOfMethodCall(object, method_name) => {
                 self.write_return_type_of_method_call(object, *method_name)
+            }
+            AST::AssertFunctionType(_) => {
+                // TODO: Implement type generation for typescript
+                Ok(())
             }
         }
     }
@@ -289,17 +302,20 @@ impl TypeScriptPrinter {
 
 #[cfg(test)]
 mod tests {
-    use crate::writer::{ExactObject, InexactObject, KeyValuePairProp, SortedASTList};
+    use crate::writer::ExactObject;
+    use crate::writer::InexactObject;
+    use crate::writer::KeyValuePairProp;
+    use crate::writer::SortedASTList;
 
     use super::*;
     use intern::string_key::Intern;
 
     fn print_type(ast: &AST) -> String {
-        print_type_with_config(ast, &Default::default())
+        print_type_with_config(ast)
     }
 
-    fn print_type_with_config(ast: &AST, config: &TypegenConfig) -> String {
-        let mut printer = Box::new(TypeScriptPrinter::new(config));
+    fn print_type_with_config(ast: &AST) -> String {
+        let mut printer = Box::new(TypeScriptPrinter::new(&Default::default()));
         printer.write(ast).unwrap();
         printer.into_string()
     }
@@ -497,7 +513,7 @@ mod tests {
 
     #[test]
     fn import_type() {
-        let mut printer = Box::new(TypeScriptPrinter::new(&TypegenConfig::default()));
+        let mut printer = Box::new(TypeScriptPrinter::new(&Default::default()));
         printer.write_import_type(&["A", "B"], "module").unwrap();
         assert_eq!(printer.into_string(), "import { A, B } from \"module\";\n");
 
@@ -511,7 +527,7 @@ mod tests {
 
     #[test]
     fn import_module() {
-        let mut printer = Box::new(TypeScriptPrinter::new(&TypegenConfig::default()));
+        let mut printer = Box::new(TypeScriptPrinter::new(&Default::default()));
         printer.write_import_module_default("A", "module").unwrap();
         assert_eq!(printer.into_string(), "import A from \"module\";\n");
     }

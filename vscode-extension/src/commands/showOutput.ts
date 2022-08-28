@@ -5,8 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { RelayExtensionContext } from '../context';
+import {RelayExtensionContext} from '../context';
 
 export function handleShowOutputCommand(context: RelayExtensionContext): void {
-  context.outputChannel.show();
+  context.primaryOutputChannel.show();
 }

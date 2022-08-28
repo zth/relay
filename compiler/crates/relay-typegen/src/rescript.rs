@@ -5,19 +5,20 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use fnv::{FnvBuildHasher, FnvHashMap, FnvHashSet};
+use common::rescript_utils::get_module_name_from_file_path;
+use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{FragmentDefinition, OperationDefinition};
 use graphql_syntax::OperationKind;
-use indexmap::IndexMap;
 use intern::string_key::{Intern, StringKey};
 use itertools::Itertools;
 use lazy_static::__Deref;
 use log::{debug, warn};
-use schema::{SDLSchema, Schema, Type, TypeReference};
+use relay_config::CustomScalarType;
 
 use crate::rescript_ast::*;
 use crate::rescript_relay_visitor::{
-    RescriptRelayConnectionConfig, RescriptRelayFragmentDirective, RescriptRelayOperationMetaData,
+    CustomScalarsMap, RescriptRelayConnectionConfig, RescriptRelayFragmentDirective,
+    RescriptRelayOperationMetaData,
 };
 use crate::rescript_utils::*;
 use crate::writer::{Prop, Writer, AST};
@@ -52,7 +53,7 @@ pub struct RelayResolverInfo {
 }
 
 #[derive(Debug)]
-pub struct ReScriptPrinter<'a> {
+pub struct ReScriptPrinter {
     // All encountered enums.
     enums: Vec<FullEnum>,
 
@@ -101,11 +102,10 @@ pub struct ReScriptPrinter<'a> {
     // Holds a list of seen Relay Resolvers, that we can use in the type gen to
     // piece together how the resolver types are imported.
     relay_resolvers: Vec<RelayResolverInfo>,
-
-    schema: &'a SDLSchema,
+    // schema: &'a SDLSchema,
 }
 
-impl Write for ReScriptPrinter<'_> {
+impl Write for ReScriptPrinter {
     fn write_str(&mut self, _s: &str) -> Result {
         Ok(())
     }
@@ -122,15 +122,15 @@ enum ClassifiedIdentifier<'a> {
     RawIdentifier(String),
 }
 
-fn value_is_custom_scalar(
-    identifier: &StringKey,
-    custom_scalars: &IndexMap<StringKey, StringKey, FnvBuildHasher>,
-) -> bool {
+fn value_is_custom_scalar(identifier: &StringKey, custom_scalars: &CustomScalarsMap) -> bool {
     custom_scalars
         .into_iter()
         .find(
             |(_custom_scalar_graphql_name, custom_scalar_mapped_rescript_name)| {
-                custom_scalar_mapped_rescript_name == &identifier
+                match custom_scalar_mapped_rescript_name {
+                    CustomScalarType::Name(name) => &name == &identifier,
+                    CustomScalarType::Path(_) => false,
+                }
             },
         )
         .is_some()
@@ -139,7 +139,7 @@ fn value_is_custom_scalar(
 // This classifies an identifier, meaning it looks up whether its an enum or an
 // input object we know of locally in the current context.
 fn classify_identifier<'a>(
-    state: &'a mut ReScriptPrinter<'_>,
+    state: &'a mut ReScriptPrinter,
     identifier: &'a StringKey,
     context: &Context,
 ) -> ClassifiedIdentifier<'a> {
@@ -190,7 +190,7 @@ fn classify_identifier<'a>(
 
 // Turns an AST element into a prop value.
 fn ast_to_prop_value(
-    state: &mut ReScriptPrinter<'_>,
+    state: &mut ReScriptPrinter,
     current_path: Vec<String>,
     ast: &AST,
     key: &String,
@@ -352,46 +352,37 @@ fn ast_to_prop_value(
                     // node field, since abstract types can return one of many
                     // typenames (and the top level node optimization only makes
                     // sense for concrete types anyway).
-                    if let Some(typ) = state.schema.get_type(typename.clone().intern()) {
-                        if !typ.is_abstract_type() {
-                            let object = Object {
-                                at_path: new_at_path.clone(),
-                                comment: None,
-                                found_in_union: false,
-                                original_type_name: None,
-                                record_name: path_to_name(&new_at_path),
-                                values: get_object_props(
-                                    state,
-                                    &new_at_path,
-                                    props,
-                                    false,
-                                    context,
-                                ),
-                            };
+                    // TODO(upgrade-fork): Disabling schema check here to get around lifetime issue for schema. Try reintroducing after upgrade is complete.
+                    /*if let Some(typ) = state.schema.get_type(typename.clone().intern()) {
+                    if !typ.is_abstract_type() {*/
+                    let object = Object {
+                        at_path: new_at_path.clone(),
+                        comment: None,
+                        found_in_union: false,
+                        record_name: path_to_name(&new_at_path),
+                        original_type_name: None,
+                        values: get_object_props(state, &new_at_path, props, false, context),
+                    };
 
-                            let object_record_name = object.record_name.to_string();
+                    let object_record_name = object.record_name.to_string();
 
-                            state.conversion_instructions.push(InstructionContainer {
-                                context: context.clone(),
-                                at_path: new_at_path.clone(),
-                                instruction: ConverterInstructions::ConvertTopLevelNodeField(
-                                    typename,
-                                ),
-                            });
+                    state.conversion_instructions.push(InstructionContainer {
+                        context: context.clone(),
+                        at_path: new_at_path.clone(),
+                        instruction: ConverterInstructions::ConvertTopLevelNodeField(typename),
+                    });
 
-                            state.objects.push(object);
+                    state.objects.push(object);
 
-                            return Some(PropValue {
-                                key: safe_key,
-                                original_key,
-                                comment: None,
-                                nullable: is_nullable,
-                                prop_type: Box::new(PropType::RecordReference(
-                                    object_record_name.clone(),
-                                )),
-                            });
-                        }
-                    }
+                    return Some(PropValue {
+                        key: safe_key,
+                        original_key,
+                        comment: None,
+                        nullable: is_nullable,
+                        prop_type: Box::new(PropType::RecordReference(object_record_name.clone())),
+                    });
+                    /*}
+                    }*/
                 }
             }
 
@@ -553,7 +544,7 @@ fn get_first_union_member_ast_and_typename(members: &Vec<AST>) -> Option<(String
 }
 
 fn extract_union_members(
-    state: &mut ReScriptPrinter<'_>,
+    state: &mut ReScriptPrinter,
     current_path: &Vec<String>,
     members: &Vec<AST>,
     context: &Context,
@@ -612,7 +603,7 @@ fn extract_union_members(
 }
 
 fn get_object_props(
-    state: &mut ReScriptPrinter<'_>,
+    state: &mut ReScriptPrinter,
     current_path: &Vec<String>,
     props: &Vec<Prop>,
     found_in_union: bool,
@@ -693,7 +684,7 @@ fn get_object_props(
 }
 
 fn get_object_prop_type_as_string(
-    state: &Box<ReScriptPrinter<'_>>,
+    state: &Box<ReScriptPrinter>,
     prop_value: &PropType,
     context: &Context,
     indentation: usize,
@@ -790,7 +781,7 @@ fn get_object_prop_type_as_string(
 }
 
 fn write_object_maker(
-    state: &Box<ReScriptPrinter<'_>>,
+    state: &Box<ReScriptPrinter>,
     str: &mut String,
     indentation: usize,
     definition: &Object,
@@ -1100,7 +1091,7 @@ fn write_instruction_json_object(
 
 // This produces the conversion instructions JSON object.
 fn get_conversion_instructions(
-    state: &Box<ReScriptPrinter<'_>>,
+    state: &Box<ReScriptPrinter>,
     conversion_instructions: &Vec<&InstructionContainer>,
     root_object_names: Vec<&String>,
     root_name: &String,
@@ -1258,7 +1249,7 @@ fn write_converter_map(
 fn write_internal_assets(
     str: &mut String,
     indentation: usize,
-    state: &Box<ReScriptPrinter<'_>>,
+    state: &Box<ReScriptPrinter>,
     target_context: Context,
     name: String,
     include_raw: bool,
@@ -1489,7 +1480,7 @@ fn write_record_type_start(
 }
 
 fn write_object_definition(
-    state: &Box<ReScriptPrinter<'_>>,
+    state: &Box<ReScriptPrinter>,
     str: &mut String,
     indentation: usize,
     object: &Object,
@@ -1625,7 +1616,7 @@ fn write_object_definition(
 }
 
 fn write_fragment_definition(
-    state: &Box<ReScriptPrinter<'_>>,
+    state: &Box<ReScriptPrinter>,
     str: &mut String,
     indentation: usize,
     fragment: &TopLevelFragmentType,
@@ -1728,7 +1719,7 @@ fn write_fragment_definition(
 
 fn find_object_with_record_name<'a>(
     record_name: &'a String,
-    state: &'a Box<ReScriptPrinter<'_>>,
+    state: &'a Box<ReScriptPrinter>,
 ) -> Option<&'a Object> {
     state
         .objects
@@ -1750,7 +1741,7 @@ fn find_prop_at_key<'a>(
 }
 
 fn find_prop_obj_at_key<'a>(
-    state: &'a Box<ReScriptPrinter<'_>>,
+    state: &'a Box<ReScriptPrinter>,
     object_with_connection: &'a Object,
     key_name: &'a String,
 ) -> Option<(bool, &'a Object)> {
@@ -1805,7 +1796,7 @@ fn find_edges<'a>(object_with_edges: &'a Object) -> Option<(bool, bool, String)>
 fn write_get_connection_nodes_function(
     str: &mut String,
     indentation: usize,
-    state: &Box<ReScriptPrinter<'_>>,
+    state: &Box<ReScriptPrinter>,
     connection_field_name: &String,
     object_with_connection: &Object,
 ) -> Result {
@@ -2155,7 +2146,7 @@ fn context_from_obj_path(at_path: &Vec<String>) -> Context {
     }
 }
 
-impl Writer for ReScriptPrinter<'_> {
+impl Writer for ReScriptPrinter {
     // This is what does the actual printing of types. It does that by working
     // its way through the state produced by "write_export_type", which turns
     // the AST the Relay compiler feeds us into a state we can use to generate
@@ -3040,7 +3031,7 @@ impl Writer for ReScriptPrinter<'_> {
         if name.ends_with("Resolver") {
             self.relay_resolvers.push(RelayResolverInfo {
                 local_resolver_name: name.to_string(),
-                resolver_module: from.to_string(),
+                resolver_module: get_module_name_from_file_path(&from),
             })
         }
 
@@ -3086,11 +3077,10 @@ impl Writer for ReScriptPrinter<'_> {
     }
 }
 
-impl<'a> ReScriptPrinter<'a> {
+impl ReScriptPrinter {
     pub fn new(
         operation_meta_data: RescriptRelayOperationMetaData,
         typegen_definition: DefinitionType,
-        schema: &'a SDLSchema,
     ) -> Self {
         Self {
             enums: vec![],
@@ -3105,7 +3095,6 @@ impl<'a> ReScriptPrinter<'a> {
             conversion_instructions: vec![],
             operation_meta_data,
             relay_resolvers: vec![],
-            schema,
         }
     }
 }

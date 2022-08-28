@@ -9,8 +9,6 @@
  * @emails oncall+relay
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 import type {
   RelayModernEnvironmentTypeRefinementTest1Query$data,
@@ -52,6 +50,7 @@ const {
 const {getSingularSelector} = require('../RelayModernSelector');
 const RelayModernStore = require('../RelayModernStore');
 const RelayRecordSource = require('../RelayRecordSource');
+const {ROOT_ID} = require('../RelayStoreUtils');
 const {generateTypeID} = require('../TypeID');
 const nullthrows = require('nullthrows');
 const {
@@ -92,11 +91,13 @@ describe('missing data detection', () => {
         RelayModernEnvironmentTypeRefinementTestParentQuery$data,
       >;
   let AbstractQuery;
+  let AbstractClientQuery;
   let ConcreteQuery;
   let ConcreteUserFragment;
   let ConcreteInlineRefinementFragment;
   let AbstractActorFragment;
   let AbstractInlineRefinementFragment;
+  let AbstractClientInterfaceFragment;
   let environment;
   let operation;
   let concreteOperation;
@@ -134,6 +135,15 @@ describe('missing data detection', () => {
       }
     `;
 
+    // version of the query with only abstract refinements
+    AbstractClientQuery = graphql`
+      query RelayModernEnvironmentTypeRefinementTestClientAbstractQuery {
+        client_interface {
+          ...RelayModernEnvironmentTypeRefinementTestClientInterface
+        }
+      }
+    `;
+
     // identical fragments except for User (concrete) / Actor (interface)
     ConcreteUserFragment = graphql`
       fragment RelayModernEnvironmentTypeRefinementTestConcreteUserFragment on User {
@@ -148,6 +158,12 @@ describe('missing data detection', () => {
         id
         name
         missing: lastName
+      }
+    `;
+
+    AbstractClientInterfaceFragment = graphql`
+      fragment RelayModernEnvironmentTypeRefinementTestClientInterface on ClientInterface {
+        description
       }
     `;
 
@@ -188,7 +204,7 @@ describe('missing data detection', () => {
   // Commit the given payload, immediately running GC to prune any data
   // that wouldn't be retained by the query
   // eslint-disable-next-line no-shadow
-  function commitPayload(operation: OperationDescriptor, payload) {
+  function commitPayload(operation: OperationDescriptor, payload: $FlowFixMe) {
     environment.retain(operation);
     environment.commitPayload(operation, payload);
     (environment.getStore(): $FlowFixMe).scheduleGC();
@@ -1839,6 +1855,35 @@ describe('missing data detection', () => {
       });
       expect(innerFragmentSnapshot.isMissingData).toBe(false);
       expect(environment.check(operation).status).toBe('available');
+    });
+  });
+
+  describe('Abstract types defined in client schema extension', () => {
+    it('knows when concrete types match abstract types by metadata attached to normalizaiton AST', () => {
+      operation = createOperationDescriptor(AbstractClientQuery, {});
+      environment.commitUpdate(store => {
+        const rootRecord = nullthrows(store.get(ROOT_ID));
+        const clientObj = store.create(
+          '4',
+          'OtherClientTypeImplementingClientInterface',
+        );
+        clientObj.setValue('4', 'id');
+        clientObj.setValue('My Description', 'description');
+        rootRecord.setLinkedRecord(clientObj, 'client_interface');
+      });
+      environment.commitPayload(operation, {});
+      const parentSnapshot: $FlowFixMe = environment.lookup(operation.fragment);
+      const fragmentSelector = nullthrows(
+        getSingularSelector(
+          AbstractClientInterfaceFragment,
+          parentSnapshot.data.client_interface,
+        ),
+      );
+      const fragmentSnapshot = environment.lookup(fragmentSelector);
+      expect(fragmentSnapshot.data).toEqual({
+        description: 'My Description',
+      });
+      expect(fragmentSnapshot.isMissingData).toBe(false);
     });
   });
 });

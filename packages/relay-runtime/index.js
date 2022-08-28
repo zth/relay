@@ -8,8 +8,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 const ConnectionHandler = require('./handlers/connection/ConnectionHandler');
@@ -119,8 +117,8 @@ export type {
   FragmentMap,
   // DEPRECATED: use FragmentType instead of FragmentReference
   FragmentType as FragmentReference,
-  FragmentType,
   FragmentSpecResolver,
+  FragmentType,
   HandleFieldPayload,
   HasUpdatableSpread,
   IEnvironment,
@@ -130,6 +128,7 @@ export type {
   MissingFieldHandler,
   MissingRequiredFields,
   ModuleImportPointer,
+  MutableRecordSource,
   MutationParameters,
   NormalizationSelector,
   OperationAvailability,
@@ -174,6 +173,7 @@ export type {
   NormalizationLinkedHandle,
   NormalizationLocalArgumentDefinition,
   NormalizationModuleImport,
+  NormalizationRootNode,
   NormalizationScalarField,
   NormalizationSelection,
   NormalizationSplitOperation,
@@ -201,6 +201,7 @@ export type {
 } from './util/ReaderNode';
 export type {
   ConcreteRequest,
+  ClientRequest,
   ConcreteUpdatableQuery,
   GeneratedNode,
   RequestParameters,
@@ -218,6 +219,7 @@ export type {
   Operation,
   OperationType,
   Query,
+  ClientQuery,
   RefetchableFragment,
   RenderPolicy,
   UpdatableFragment,

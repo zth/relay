@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {Sink} from '../../../relay-runtime/network/RelayObservable';
@@ -129,7 +127,7 @@ describe.each([
     let dataSource: ?Sink<GraphQLResponse>;
     let environment;
     let fetch;
-    const Component = function (props) {
+    const Component = function (props: any) {
       const queryData = usePreloadedQuery(queryPV, props.prefetched);
       data = useFragment(fragmentPV, queryData.node);
       return [

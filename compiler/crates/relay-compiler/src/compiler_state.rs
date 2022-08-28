@@ -7,34 +7,49 @@
 
 use crate::artifact_map::ArtifactMap;
 use crate::config::Config;
-use crate::errors::{Error, Result};
-use crate::file_source::{
-    categorize_files, extract_javascript_features_from_file, read_file_to_string, Clock, File,
-    FileGroup, FileSourceResult, LocatedDocblockSource, LocatedGraphQLSource,
-    LocatedJavascriptSourceFeatures, SourceControlUpdateStatus,
-};
+use crate::errors::Error;
+use crate::errors::Result;
+use crate::file_source::categorize_files;
+use crate::file_source::extract_javascript_features_from_file;
+use crate::file_source::read_file_to_string;
+use crate::file_source::Clock;
+use crate::file_source::File;
+use crate::file_source::FileGroup;
+use crate::file_source::FileSourceResult;
+use crate::file_source::LocatedDocblockSource;
+use crate::file_source::LocatedGraphQLSource;
+use crate::file_source::LocatedJavascriptSourceFeatures;
+use crate::file_source::SourceControlUpdateStatus;
 use bincode::Options;
-use common::{PerfLogEvent, PerfLogger, SourceLocationKey};
+use common::PerfLogEvent;
+use common::PerfLogger;
+use common::SourceLocationKey;
 use dashmap::DashSet;
-use fnv::{FnvBuildHasher, FnvHashMap, FnvHashSet};
+use fnv::FnvBuildHasher;
+use fnv::FnvHashMap;
+use fnv::FnvHashSet;
 use intern::string_key::StringKey;
 use rayon::prelude::*;
 use relay_config::SchemaConfig;
-use relay_transforms::DependencyMap;
 use schema::SDLSchema;
-use schema_diff::{definitions::SchemaChange, detect_changes};
-use serde::{Deserialize, Serialize};
-use std::{
-    env, fmt,
-    fs::File as FsFile,
-    hash::Hash,
-    io::{BufReader, BufWriter},
-    mem,
-    path::PathBuf,
-    sync::{Arc, RwLock},
-};
-use std::{slice, vec};
-use zstd::stream::{read::Decoder as ZstdDecoder, write::Encoder as ZstdEncoder};
+use schema_diff::definitions::SchemaChange;
+use schema_diff::detect_changes;
+use serde::Deserialize;
+use serde::Serialize;
+use std::collections::hash_map::Entry;
+use std::env;
+use std::fmt;
+use std::fs::File as FsFile;
+use std::hash::Hash;
+use std::io::BufReader;
+use std::io::BufWriter;
+use std::path::PathBuf;
+use std::slice;
+use std::sync::Arc;
+use std::sync::RwLock;
+use std::vec;
+use zstd::stream::read::Decoder as ZstdDecoder;
+use zstd::stream::write::Encoder as ZstdEncoder;
 
 /// Name of a compiler project.
 pub type ProjectName = StringKey;
@@ -148,29 +163,18 @@ impl<V: Source + Clone> IncrementalSources<V> {
     /// Docblock, .etc). We need to keep the empty source only when there is a
     /// corresponding source in `processed`, and compiler needs to do the work to remove it.
     fn merge_pending_sources(&mut self, additional_pending_sources: &IncrementalSourceSet<V>) {
-        if self.processed.is_empty() {
-            self.pending.extend(
-                additional_pending_sources
-                    .iter()
-                    .filter(|&(_, value)| !value.is_empty())
-                    .map(|(k, v)| (k.clone(), v.clone())),
-            );
-        } else {
-            self.pending.extend(
-                additional_pending_sources
-                    .iter()
-                    .filter(|&(key, value)| {
-                        if value.is_empty() {
-                            match self.processed.get(key) {
-                                Some(v) => !v.is_empty(),
-                                None => false,
-                            }
-                        } else {
-                            true
-                        }
-                    })
-                    .map(|(k, v)| (k.clone(), v.clone())),
-            );
+        for (key, value) in additional_pending_sources.iter() {
+            match self.pending.entry(key.to_path_buf()) {
+                Entry::Occupied(mut entry) => {
+                    entry.insert(value.clone());
+                }
+                Entry::Vacant(vacant) => {
+                    if !value.is_empty() || self.processed.get(key).map_or(false, |v| !v.is_empty())
+                    {
+                        vacant.insert(value.clone());
+                    }
+                }
+            }
         }
     }
 
@@ -271,15 +275,11 @@ pub struct CompilerState {
     pub extensions: FnvHashMap<ProjectName, SchemaSources>,
     pub docblocks: FnvHashMap<ProjectName, DocblockSources>,
     pub artifacts: FnvHashMap<ProjectName, Arc<ArtifactMapKind>>,
-    // TODO: How can I can I make this just an ImplicitDependencyMap? Currently I can't move the hashmap out of the Arc wrapper around the dirty version.
-    pub implicit_dependencies: Arc<RwLock<DependencyMap>>,
     #[serde(with = "clock_json_string")]
     pub clock: Option<Clock>,
     pub saved_state_version: String,
     #[serde(skip)]
     pub dirty_artifact_paths: FnvHashMap<ProjectName, DashSet<PathBuf, FnvBuildHasher>>,
-    #[serde(skip)]
-    pub pending_implicit_dependencies: Arc<RwLock<DependencyMap>>,
     #[serde(skip)]
     pub pending_file_source_changes: Arc<RwLock<Vec<FileSourceResult>>>,
     #[serde(skip)]
@@ -555,23 +555,7 @@ impl CompilerState {
         for sources in self.docblocks.values_mut() {
             sources.commit_pending_sources();
         }
-        self.implicit_dependencies = mem::take(&mut self.pending_implicit_dependencies);
         self.dirty_artifact_paths.clear();
-    }
-
-    pub fn complete_project_compilation(&mut self, project_name: &ProjectName) {
-        if let Some(sources) = self.graphql_sources.get_mut(project_name) {
-            sources.commit_pending_sources();
-        }
-        if let Some(sources) = self.schemas.get_mut(project_name) {
-            sources.commit_pending_sources();
-        }
-        if let Some(sources) = self.extensions.get_mut(project_name) {
-            sources.commit_pending_sources();
-        }
-        if let Some(sources) = self.docblocks.get_mut(project_name) {
-            sources.commit_pending_sources();
-        }
     }
 
     /// Calculate dirty definitions from dirty artifacts
@@ -763,16 +747,19 @@ fn extract_sources(
 /// support those enums.
 mod clock_json_string {
     use crate::file_source::Clock;
-    use serde::{
-        de::{Error, Visitor},
-        Deserializer, Serializer,
-    };
+    use serde::de::Error as DeserializationError;
+    use serde::de::Visitor;
+    use serde::ser::Error as SerializationError;
+    use serde::Deserializer;
+    use serde::Serializer;
 
     pub fn serialize<S>(clock: &Option<Clock>, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
     {
-        let json_string = serde_json::to_string(clock).unwrap();
+        let json_string = serde_json::to_string(clock).map_err(|err| {
+            SerializationError::custom(format!("Unable to serialize clock value. Error {}", err))
+        })?;
         serializer.serialize_str(&json_string)
     }
 
@@ -791,8 +778,83 @@ mod clock_json_string {
             formatter.write_str("a JSON encoded watchman::Clock value")
         }
 
-        fn visit_str<E: Error>(self, v: &str) -> Result<Option<Clock>, E> {
-            Ok(serde_json::from_str(v).unwrap())
+        fn visit_str<E: DeserializationError>(self, v: &str) -> Result<Option<Clock>, E> {
+            serde_json::from_str(v).map_err(|err| {
+                DeserializationError::custom(format!(
+                    "Unable deserialize clock value. Error {}",
+                    err
+                ))
+            })
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    // Note this useful idiom: importing names from outer (for mod tests) scope.
+    use super::*;
+
+    impl Source for Vec<u32> {
+        fn is_empty(&self) -> bool {
+            self.is_empty()
+        }
+    }
+
+    #[test]
+    fn empty_pending_incremental_source_overwrites_existing_pending_source() {
+        let mut incremental_source: IncrementalSources<Vec<u32>> = IncrementalSources::default();
+
+        let a = PathBuf::new();
+
+        let mut initial = FnvHashMap::default();
+        initial.insert(a.clone(), vec![1, 2, 3]);
+
+        // Starting with a pending source of a => [1, 2, 3]
+        incremental_source.merge_pending_sources(&initial);
+
+        assert_eq!(incremental_source.pending.get(&a), Some(&vec![1, 2, 3]));
+
+        let mut update: FnvHashMap<PathBuf, Vec<u32>> = FnvHashMap::default();
+        update.insert(a.clone(), Vec::new());
+
+        // Merge in a pending source of a => []
+        incremental_source.merge_pending_sources(&update);
+
+        // Pending for a should now be empty
+        assert_eq!(incremental_source.pending.get(&a), Some(&vec![]));
+    }
+
+    #[test]
+    fn empty_pending_incremental_is_ignored_if_no_processed_source_exists() {
+        let mut incremental_source: IncrementalSources<Vec<u32>> = IncrementalSources::default();
+
+        let a = PathBuf::new();
+
+        let mut update: FnvHashMap<PathBuf, Vec<u32>> = FnvHashMap::default();
+        update.insert(a.clone(), Vec::new());
+
+        // Merge in a pending source of a => []
+        incremental_source.merge_pending_sources(&update);
+
+        // Pending for a should not be populated
+        assert_eq!(incremental_source.pending.get(&a), None);
+    }
+
+    #[test]
+    fn empty_pending_incremental_is_ignored_if_no_processed_source_is_empty() {
+        let mut incremental_source: IncrementalSources<Vec<u32>> = IncrementalSources::default();
+
+        let a = PathBuf::new();
+
+        incremental_source.processed.insert(a.clone(), Vec::new());
+
+        let mut update: FnvHashMap<PathBuf, Vec<u32>> = FnvHashMap::default();
+        update.insert(a.clone(), Vec::new());
+
+        // Merge in a pending source of a => []
+        incremental_source.merge_pending_sources(&update);
+
+        // Pending for a should not be populated
+        assert_eq!(incremental_source.pending.get(&a), None);
     }
 }

@@ -6,13 +6,24 @@
  */
 
 use intern::string_key::StringKey;
-use std::{
-    cmp::Ordering,
-    fmt::{Result as FmtResult, Write},
-    ops::Deref,
-};
+use relay_config::TypegenConfig;
+use relay_config::TypegenLanguage;
+use std::cmp::Ordering;
+use std::fmt::Result as FmtResult;
+use std::fmt::Write;
+use std::ops::Deref;
 
-use crate::{FUTURE_ENUM_VALUE, KEY_FRAGMENT_SPREADS, KEY_FRAGMENT_TYPE, KEY_TYPENAME};
+use crate::flow::FlowPrinter;
+use crate::javascript::JavaScriptPrinter;
+use crate::rescript;
+use crate::rescript::DefinitionType;
+use crate::rescript_utils;
+use crate::typescript::TypeScriptPrinter;
+use crate::TypegenContext;
+use crate::FUTURE_ENUM_VALUE;
+use crate::KEY_FRAGMENT_SPREADS;
+use crate::KEY_FRAGMENT_TYPE;
+use crate::KEY_TYPENAME;
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum AST {
@@ -39,6 +50,14 @@ pub enum AST {
     ReturnTypeOfFunctionWithName(StringKey),
     ReturnTypeOfMethodCall(Box<AST>, StringKey),
     ActorChangePoint(Box<AST>),
+    AssertFunctionType(FunctionTypeAssertion),
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub struct FunctionTypeAssertion {
+    pub function_name: StringKey,
+    pub arguments: Vec<KeyValuePairProp>,
+    pub return_type: Box<AST>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
@@ -92,6 +111,12 @@ impl ExactObject {
             }
             _ => None,
         })
+    }
+}
+
+impl From<ExactObject> for AST {
+    fn from(other: ExactObject) -> AST {
+        AST::ExactObject(other)
     }
 }
 
@@ -214,7 +239,13 @@ pub enum Prop {
     GetterSetterPair(GetterSetterPairProp),
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+impl From<KeyValuePairProp> for Prop {
+    fn from(other: KeyValuePairProp) -> Self {
+        Prop::KeyValuePair(other)
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct KeyValuePairProp {
     pub key: StringKey,
     pub value: AST,
@@ -282,7 +313,7 @@ pub struct GetterSetterPairProp {
 /// StringKey, by default, will sort alphabetically.
 ///
 /// This exception is to preserve the "natural" order of enums, which
-/// are Union's containining StringLiteral's, i.e. we want
+/// are Union's containing StringLiteral's, i.e. we want
 /// "%future added value" to follow the variants.
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
 pub struct StringLiteral(pub StringKey);
@@ -383,5 +414,25 @@ mod tests {
                 StringLiteral(*FUTURE_ENUM_VALUE),
             ]
         )
+    }
+}
+
+pub(crate) fn new_writer_from_config(
+    config: &TypegenConfig,
+    typegen_opts: &TypegenContext<'_>,
+    typegen_definition: DefinitionType,
+) -> Box<dyn Writer> {
+    match config.language {
+        TypegenLanguage::ReScript => Box::new(rescript::ReScriptPrinter::new(
+            rescript_utils::get_rescript_relay_meta_data(
+                &typegen_opts.schema,
+                &typegen_definition,
+                &config,
+            ),
+            typegen_definition,
+        )),
+        TypegenLanguage::JavaScript => Box::new(JavaScriptPrinter::default()),
+        TypegenLanguage::Flow => Box::new(FlowPrinter::new()),
+        TypegenLanguage::TypeScript => Box::new(TypeScriptPrinter::new(config)),
     }
 }

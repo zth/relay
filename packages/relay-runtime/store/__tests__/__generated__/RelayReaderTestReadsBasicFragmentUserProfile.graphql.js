@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<0dd81da0c676054856c17226d1df6acb>>
+ * @generated SignedSource<<c296b3e43daefeb58eb71ea20267d5ca>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,7 @@
 
 /*::
 import type { Fragment, ReaderFragment } from 'relay-runtime';
-type RelayReaderTestReadsBasicFragmentUserProfilePicture$fragmentType = any;
+import type { RelayReaderTestReadsBasicFragmentUserProfilePicture$fragmentType } from "./RelayReaderTestReadsBasicFragmentUserProfilePicture.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayReaderTestReadsBasicFragmentUserProfile$fragmentType: FragmentType;
 export type RelayReaderTestReadsBasicFragmentUserProfile$data = {|
@@ -72,7 +72,9 @@ var node/*: ReaderFragment*/ = {
           ],
           "storageKey": "profilePicture(size:32)"
         }
-      ]
+      ],
+      "args": null,
+      "argumentDefinitions": []
     }
   ],
   "type": "User",

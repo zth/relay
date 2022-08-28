@@ -6,25 +6,38 @@
  */
 
 use super::super::ArtifactGeneratedTypes;
-use super::content_section::{
-    CommentAnnotationsSection, ContentSection, ContentSections, DocblockSection, GenericSection,
-};
-use crate::config::{Config, ProjectConfig};
+use super::content_section::CommentAnnotationsSection;
+use super::content_section::ContentSection;
+use super::content_section::ContentSections;
+use super::content_section::DocblockSection;
+use super::content_section::GenericSection;
+use crate::config::Config;
+use crate::config::ProjectConfig;
 use common::NamedItem;
-use graphql_ir::{FragmentDefinition, OperationDefinition};
-use relay_codegen::{build_request_params, Printer, QueryID, TopLevelStatement, CODEGEN_CONSTANTS};
-use relay_transforms::{
-    is_operation_preloadable, ReactFlightLocalComponentsMetadata, RelayClientComponentMetadata,
-    RelayDataDrivenDependencyMetadata, ASSIGNABLE_DIRECTIVE,
-};
-use relay_typegen::{
-    generate_fragment_type_exports_section, generate_named_validator_export,
-    generate_operation_type_exports_section, generate_split_operation_type_exports_section,
-    TypegenConfig, TypegenLanguage,
-};
+use graphql_ir::FragmentDefinition;
+use graphql_ir::OperationDefinition;
+use relay_codegen::build_request_params;
+use relay_codegen::Printer;
+use relay_codegen::QueryID;
+use relay_codegen::TopLevelStatement;
+use relay_codegen::CODEGEN_CONSTANTS;
+use relay_transforms::is_operation_preloadable;
+use relay_transforms::ReactFlightLocalComponentsMetadata;
+use relay_transforms::RelayClientComponentMetadata;
+use relay_transforms::RelayDataDrivenDependencyMetadata;
+use relay_transforms::ASSIGNABLE_DIRECTIVE;
+use relay_typegen::generate_fragment_type_exports_section;
+use relay_typegen::generate_named_validator_export;
+use relay_typegen::generate_operation_type_exports_section;
+use relay_typegen::generate_split_operation_type_exports_section;
+use relay_typegen::FragmentLocations;
+use relay_typegen::TypegenConfig;
+use relay_typegen::TypegenLanguage;
 use schema::SDLSchema;
 use signedsource::SIGNING_TOKEN;
-use std::fmt::{Error as FmtError, Result as FmtResult, Write};
+use std::fmt::Error as FmtError;
+use std::fmt::Result as FmtResult;
+use std::fmt::Write;
 use std::sync::Arc;
 
 #[allow(clippy::too_many_arguments)]
@@ -37,6 +50,7 @@ pub fn generate_updatable_query(
     typegen_operation: &OperationDefinition,
     source_hash: String,
     skip_types: bool,
+    fragment_locations: &FragmentLocations,
 ) -> Result<Vec<u8>, FmtError> {
     let operation_fragment = FragmentDefinition {
         name: reader_operation.name,
@@ -71,14 +85,8 @@ pub fn generate_updatable_query(
 
     // -- Begin Types Section --
     let mut section = GenericSection::default();
-    let generated_types = ArtifactGeneratedTypes {
-        imported_types: "UpdatableQuery, ConcreteUpdatableQuery",
-        ast_type: "ConcreteUpdatableQuery",
-        exported_type: Some(format!(
-            "UpdatableQuery<\n  {name}$variables,\n  {name}$data,\n>",
-            name = reader_operation.name.item
-        )),
-    };
+    let generated_types =
+        ArtifactGeneratedTypes::from_updatable_query(typegen_operation, skip_types);
 
     if project_config.typegen_config.language == TypegenLanguage::Flow {
         writeln!(section, "/*::")?;
@@ -100,6 +108,7 @@ pub fn generate_updatable_query(
                 reader_operation,
                 schema,
                 project_config,
+                fragment_locations,
             )
         )?;
     }
@@ -159,15 +168,16 @@ pub fn generate_operation(
     reader_operation: &OperationDefinition,
     typegen_operation: &OperationDefinition,
     source_hash: String,
-    text: &str,
+    text: &Option<String>,
     id_and_text_hash: &Option<QueryID>,
     skip_types: bool,
+    fragment_locations: &FragmentLocations,
 ) -> Result<Vec<u8>, FmtError> {
     let mut request_parameters = build_request_params(normalization_operation);
     if id_and_text_hash.is_some() {
         request_parameters.id = id_and_text_hash;
     } else {
-        request_parameters.text = Some(text.into());
+        request_parameters.text = text.clone();
     };
     let operation_fragment = FragmentDefinition {
         name: reader_operation.name,
@@ -236,7 +246,11 @@ pub fn generate_operation(
 
     // -- Begin Types Section --
     let mut section = GenericSection::default();
-    let generated_types = ArtifactGeneratedTypes::from_operation(typegen_operation, skip_types);
+    let generated_types = ArtifactGeneratedTypes::from_operation(
+        typegen_operation,
+        skip_types,
+        request_parameters.is_client_request(),
+    );
 
     if project_config.typegen_config.language == TypegenLanguage::Flow {
         writeln!(section, "/*::")?;
@@ -258,6 +272,7 @@ pub fn generate_operation(
                 normalization_operation,
                 schema,
                 project_config,
+                fragment_locations,
             )
         )?;
     }
@@ -373,6 +388,7 @@ pub fn generate_operation(
     content_sections.into_signed_bytes()
 }
 
+#[allow(clippy::too_many_arguments)]
 pub fn generate_split_operation(
     config: &Config,
     project_config: &ProjectConfig,
@@ -381,6 +397,7 @@ pub fn generate_split_operation(
     normalization_operation: &OperationDefinition,
     typegen_operation: &Option<Arc<OperationDefinition>>,
     source_hash: &str,
+    fragment_locations: &FragmentLocations,
 ) -> Result<Vec<u8>, FmtError> {
     let mut content_sections = ContentSections::default();
 
@@ -426,6 +443,7 @@ pub fn generate_split_operation(
                 normalization_operation,
                 schema,
                 project_config,
+                fragment_locations,
             )
         )?;
     }
@@ -488,13 +506,21 @@ pub fn generate_fragment(
     typegen_fragment: &FragmentDefinition,
     source_hash: &str,
     skip_types: bool,
+    fragment_locations: &FragmentLocations,
 ) -> Result<Vec<u8>, FmtError> {
     let is_assignable_fragment = typegen_fragment
         .directives
         .named(*ASSIGNABLE_DIRECTIVE)
         .is_some();
     if is_assignable_fragment {
-        generate_assignable_fragment(config, project_config, schema, typegen_fragment, skip_types)
+        generate_assignable_fragment(
+            config,
+            project_config,
+            schema,
+            typegen_fragment,
+            skip_types,
+            fragment_locations,
+        )
     } else {
         generate_read_only_fragment(
             config,
@@ -505,6 +531,7 @@ pub fn generate_fragment(
             typegen_fragment,
             source_hash,
             skip_types,
+            fragment_locations,
         )
     }
 }
@@ -519,6 +546,7 @@ fn generate_read_only_fragment(
     typegen_fragment: &FragmentDefinition,
     source_hash: &str,
     skip_types: bool,
+    fragment_locations: &FragmentLocations,
 ) -> Result<Vec<u8>, FmtError> {
     let mut content_sections = ContentSections::default();
 
@@ -581,7 +609,12 @@ fn generate_read_only_fragment(
         write!(
             section,
             "{}",
-            generate_fragment_type_exports_section(typegen_fragment, schema, project_config)
+            generate_fragment_type_exports_section(
+                typegen_fragment,
+                schema,
+                project_config,
+                fragment_locations
+            )
         )?;
     }
 
@@ -644,6 +677,7 @@ fn generate_assignable_fragment(
     schema: &SDLSchema,
     typegen_fragment: &FragmentDefinition,
     skip_types: bool,
+    fragment_locations: &FragmentLocations,
 ) -> Result<Vec<u8>, FmtError> {
     let mut content_sections = ContentSections::default();
 
@@ -677,7 +711,12 @@ fn generate_assignable_fragment(
         write!(
             section,
             "{}",
-            generate_fragment_type_exports_section(typegen_fragment, schema, project_config)
+            generate_fragment_type_exports_section(
+                typegen_fragment,
+                schema,
+                project_config,
+                fragment_locations
+            )
         )?;
     }
 
@@ -693,8 +732,12 @@ fn generate_assignable_fragment(
     // don't need to emit a reader fragment.
     // Instead, we only need a named validator export, i.e.
     // module.exports.validator = ...
-    let named_validator_export =
-        generate_named_validator_export(typegen_fragment, schema, project_config);
+    let named_validator_export = generate_named_validator_export(
+        typegen_fragment,
+        schema,
+        project_config,
+        fragment_locations,
+    );
     writeln!(section, "{}", named_validator_export).unwrap();
     content_sections.push(ContentSection::Generic(section));
     // -- End Export Section --
@@ -865,15 +908,16 @@ pub fn generate_operation_rescript(
     reader_operation: &OperationDefinition,
     typegen_operation: &OperationDefinition,
     _source_hash: String,
-    text: &str,
+    text: &Option<String>,
     id_and_text_hash: &Option<QueryID>,
     _skip_types: bool,
+    fragment_locations: &FragmentLocations,
 ) -> Result<Vec<u8>, FmtError> {
     let mut request_parameters = build_request_params(normalization_operation);
     if id_and_text_hash.is_some() {
         request_parameters.id = id_and_text_hash;
     } else {
-        request_parameters.text = Some(text.into());
+        request_parameters.text = text.clone();
     };
     let operation_fragment = FragmentDefinition {
         name: reader_operation.name,
@@ -883,6 +927,7 @@ pub fn generate_operation_rescript(
         directives: reader_operation.directives.clone(),
         type_condition: reader_operation.type_,
     };
+
     let mut content_sections = ContentSections::default();
 
     match super::rescript_relay_utils::rescript_get_source_loc_text(
@@ -941,7 +986,8 @@ pub fn generate_operation_rescript(
             typegen_operation,
             normalization_operation,
             schema,
-            project_config
+            project_config,
+            fragment_locations,
         )
     )
     .unwrap();
@@ -1037,6 +1083,7 @@ pub fn generate_read_only_fragment_rescript(
     typegen_fragment: &FragmentDefinition,
     _source_hash: &str,
     _skip_types: bool,
+    fragment_locations: &FragmentLocations,
 ) -> Result<Vec<u8>, FmtError> {
     let mut content_sections = ContentSections::default();
 
@@ -1083,7 +1130,12 @@ pub fn generate_read_only_fragment_rescript(
     writeln!(
         section,
         "{}",
-        generate_fragment_type_exports_section(typegen_fragment, schema, project_config)
+        generate_fragment_type_exports_section(
+            typegen_fragment,
+            schema,
+            project_config,
+            fragment_locations
+        )
     )?;
 
     // Print the operation type
@@ -1121,6 +1173,7 @@ pub fn generate_fragment_rescript(
     typegen_fragment: &FragmentDefinition,
     source_hash: &str,
     skip_types: bool,
+    fragment_locations: &FragmentLocations,
 ) -> Result<Vec<u8>, FmtError> {
     let is_assignable_fragment = typegen_fragment
         .directives
@@ -1140,6 +1193,7 @@ pub fn generate_fragment_rescript(
             typegen_fragment,
             source_hash,
             skip_types,
+            fragment_locations,
         )
     }
 }

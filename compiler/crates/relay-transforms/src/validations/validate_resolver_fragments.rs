@@ -6,18 +6,24 @@
  */
 
 use crate::relay_resolvers::get_argument_value;
-use crate::{
-    ValidationMessage, RELAY_RESOLVER_DIRECTIVE_NAME, RELAY_RESOLVER_FRAGMENT_ARGUMENT_NAME,
-};
-use common::{Diagnostic, DiagnosticsResult, NamedItem};
-use graphql_ir::{
-    FragmentDefinition, FragmentSpread, OperationDefinition, Program, Validator, Variable,
-};
+use crate::ValidationMessage;
+use crate::RELAY_RESOLVER_DIRECTIVE_NAME;
+use crate::RELAY_RESOLVER_FRAGMENT_ARGUMENT_NAME;
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::NamedItem;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentSpread;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::Validator;
+use graphql_ir::Variable;
 use intern::string_key::StringKeySet;
-use schema::{SDLSchema, Schema};
+use schema::SDLSchema;
+use schema::Schema;
 
 pub fn validate_resolver_fragments(program: &Program) -> DiagnosticsResult<()> {
-    ValidateResolverFragments::new(&program.schema)?.validate_program(program)
+    ValidateResolverFragments::new(&program.schema).validate_program(program)
 }
 
 struct ValidateResolverFragments {
@@ -26,8 +32,7 @@ struct ValidateResolverFragments {
 }
 
 impl ValidateResolverFragments {
-    fn new(schema: &SDLSchema) -> DiagnosticsResult<Self> {
-        let mut errors = vec![];
+    fn new(schema: &SDLSchema) -> Self {
         let validator = Self {
             current_fragment: None,
             resolver_fragments: schema
@@ -47,20 +52,13 @@ impl ValidateResolverFragments {
                                 *RELAY_RESOLVER_FRAGMENT_ARGUMENT_NAME,
                                 field.name.location,
                             )
-                            .map_err(|err| {
-                                errors.extend(err);
-                            })
                             .ok()
                         })
                 })
                 .collect::<StringKeySet>(),
         };
 
-        if errors.is_empty() {
-            Ok(validator)
-        } else {
-            Err(errors)
-        }
+        validator
     }
 }
 

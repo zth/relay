@@ -6,14 +6,19 @@
  */
 
 use super::*;
-use crate::apply_custom_transforms::{
-    apply_after_custom_transforms, apply_before_custom_transforms, CustomTransformsConfig,
-};
-use crate::assignable_fragment_spread::{
-    annotate_updatable_fragment_spreads, replace_updatable_fragment_spreads,
-};
+use crate::apply_custom_transforms::apply_after_custom_transforms;
+use crate::apply_custom_transforms::apply_before_custom_transforms;
+use crate::apply_custom_transforms::CustomTransformsConfig;
+use crate::assignable_fragment_spread::annotate_updatable_fragment_spreads;
+use crate::assignable_fragment_spread::replace_updatable_fragment_spreads;
+use crate::client_extensions_abstract_types::client_extensions_abstract_types;
+use crate::disallow_non_node_id_fields;
 use crate::match_::hash_supported_argument;
-use common::{sync::try_join, DiagnosticsResult, PerfLogEvent, PerfLogger};
+use crate::skip_updatable_queries::skip_updatable_queries;
+use common::sync::try_join;
+use common::DiagnosticsResult;
+use common::PerfLogEvent;
+use common::PerfLogger;
 use graphql_ir::Program;
 use intern::string_key::StringKeySet;
 use relay_config::ProjectConfig;
@@ -153,7 +158,11 @@ fn apply_common_transforms(
         transform_defer_stream(&program)
     })?;
     program = log_event.time("transform_match", || {
-        transform_match(&program, &project_config.feature_flags)
+        transform_match(
+            &program,
+            &project_config.feature_flags,
+            project_config.module_import_config,
+        )
     })?;
     program = log_event.time("transform_subscriptions", || {
         transform_subscriptions(&program)
@@ -229,11 +238,6 @@ fn apply_reader_transforms(
     program = log_event.time("client_edges", || {
         client_edges(&program, &project_config.schema_config)
     })?;
-    if project_config.feature_flags.enable_relay_resolver_transform {
-        log_event.time("validate_resolver_fragments", || {
-            validate_resolver_fragments(&program)
-        })?;
-    }
 
     program = log_event.time("relay_resolvers", || {
         relay_resolvers(
@@ -253,7 +257,9 @@ fn apply_reader_transforms(
     )?;
 
     program = log_event.time("inline_data_fragment", || inline_data_fragment(&program))?;
-    program = log_event.time("skip_unreachable_node", || skip_unreachable_node(&program))?;
+    program = log_event.time("skip_unreachable_node", || {
+        skip_unreachable_node_strict(&program)
+    })?;
     program = log_event.time("remove_base_fragments", || {
         remove_base_fragments(&program, &base_fragment_names)
     });
@@ -309,6 +315,10 @@ fn apply_operation_transforms(
         None,
     )?;
 
+    program = log_event.time("skip_updatable_queries", || {
+        skip_updatable_queries(&program)
+    });
+
     program = log_event.time("client_edges", || {
         client_edges(&program, &project_config.schema_config)
     })?;
@@ -317,10 +327,6 @@ fn apply_operation_transforms(
             &program,
             project_config.feature_flags.enable_relay_resolver_transform,
         )
-    })?;
-
-    program = log_event.time("preserve_client_edge_backing_ids", || {
-        preserve_client_edge_backing_ids(&program)
     })?;
 
     program = log_event.time("split_module_import", || {
@@ -343,6 +349,12 @@ fn apply_operation_transforms(
     program = log_event.time("generate_live_query_metadata", || {
         generate_live_query_metadata(&program)
     })?;
+
+    if project_config.schema_config.non_node_id_fields.is_some() {
+        log_event.time("disallow_non_node_id_fields", || {
+            disallow_non_node_id_fields(&program, &project_config.schema_config)
+        })?;
+    }
 
     program = apply_after_custom_transforms(
         &program,
@@ -399,6 +411,22 @@ fn apply_normalization_transforms(
         print_stats("apply_fragment_arguments", &program);
     }
 
+    program = log_event.time("client_extensions_abstract_types", || {
+        client_extensions_abstract_types(&program)
+    });
+
+    if let Some(print_stats) = maybe_print_stats {
+        print_stats("client_extensions_abstract_types", &program);
+    }
+
+    program = log_event.time("remove_client_edge_selections", || {
+        remove_client_edge_selections(&program)
+    })?;
+
+    if let Some(print_stats) = maybe_print_stats {
+        print_stats("remove_client_edge_selections", &program);
+    }
+
     program = log_event.time("replace_updatable_fragment_spreads", || {
         replace_updatable_fragment_spreads(&program)
     });
@@ -410,7 +438,9 @@ fn apply_normalization_transforms(
         print_stats("hash_supported_argument", &program);
     }
 
-    program = log_event.time("skip_unreachable_node", || skip_unreachable_node(&program))?;
+    program = log_event.time("skip_unreachable_node", || {
+        skip_unreachable_node_strict(&program)
+    })?;
     if let Some(print_stats) = maybe_print_stats {
         print_stats("skip_unreachable_node", &program);
     }
@@ -501,6 +531,11 @@ fn apply_operation_text_transforms(
             &base_fragment_names,
         )
     })?;
+
+    program = log_event.time("remove_client_edge_selections", || {
+        remove_client_edge_selections(&program)
+    })?;
+
     log_event.time("validate_global_variables", || {
         validate_global_variables(&program)
     })?;
@@ -510,11 +545,9 @@ fn apply_operation_text_transforms(
     });
 
     program = log_event.time("skip_split_operation", || skip_split_operation(&program));
-    program = log_event.time("skip_client_extensions", || {
-        skip_client_extensions(&program)
+    program = log_event.time("skip_unreachable_node_strict", || {
+        skip_unreachable_node_strict(&program)
     })?;
-    program = log_event.time("skip_unreachable_node", || skip_unreachable_node(&program))?;
-    program = log_event.time("generate_typename", || generate_typename(&program, false));
     program = log_event.time("rescript_relay_generate_typename", || {
         rescript_relay_generate_typename(&program)
     });
@@ -523,9 +556,17 @@ fn apply_operation_text_transforms(
     });
     log_event.time("validate_selection_conflict", || {
         graphql_ir_validations::validate_selection_conflict::<RelayLocationAgnosticBehavior>(
-            &program,
+            &program, false,
         )
     })?;
+    program = log_event.time("skip_client_extensions", || {
+        skip_client_extensions(&program)
+    });
+    program = log_event.time("skip_unreachable_node_loose", || {
+        skip_unreachable_node_loose(&program)
+    });
+
+    program = log_event.time("generate_typename", || generate_typename(&program, false));
     log_event.time("flatten", || flatten(&mut program, false, true))?;
     program = log_event.time("validate_operation_variables", || {
         validate_operation_variables(&program)
@@ -583,7 +624,11 @@ fn apply_typegen_transforms(
 
     program = log_event.time("mask", || mask(&program));
     program = log_event.time("transform_match", || {
-        transform_match(&program, &project_config.feature_flags)
+        transform_match(
+            &program,
+            &project_config.feature_flags,
+            project_config.module_import_config,
+        )
     })?;
     program = log_event.time("transform_subscriptions", || {
         transform_subscriptions(&program)
@@ -610,9 +655,6 @@ fn apply_typegen_transforms(
             &program,
             project_config.feature_flags.enable_relay_resolver_transform,
         )
-    })?;
-    program = log_event.time("preserve_client_edge_selections", || {
-        preserve_client_edge_selections(&program)
     })?;
     log_event.time("flatten", || flatten(&mut program, false, false))?;
     program = log_event.time("transform_refetchable_fragment", || {

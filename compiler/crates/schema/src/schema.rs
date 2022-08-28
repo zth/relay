@@ -5,10 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::definitions::{Directive, *};
+use crate::definitions::Directive;
+use crate::definitions::*;
+use crate::flatbuffer::SchemaWrapper;
+use crate::graphql_schema::Schema;
 use crate::in_memory::InMemorySchema;
-use crate::{flatbuffer::SchemaWrapper, graphql_schema::Schema};
-use common::{DiagnosticsResult, SourceLocationKey};
+use common::DiagnosticsResult;
+use common::SourceLocationKey;
 use graphql_syntax::*;
 use intern::string_key::StringKey;
 
@@ -360,6 +363,13 @@ impl SDLSchema {
         match self {
             SDLSchema::FlatBuffer(_schema) => todo!(),
             SDLSchema::InMemory(schema) => schema.get_objects(),
+        }
+    }
+
+    pub fn get_unions(&self) -> impl Iterator<Item = &Union> {
+        match self {
+            SDLSchema::FlatBuffer(_schema) => todo!(),
+            SDLSchema::InMemory(schema) => schema.get_unions(),
         }
     }
 
