@@ -1,12 +1,38 @@
 /* @generated */
-type input_InputA = {
+@@ocaml.warning("-30")
+
+type enum_OnlineStatus = private [>
+  | #Online
+  | #Idle
+  | #Offline
+]
+
+type enum_OnlineStatus_input = [
+  | #Online
+  | #Idle
+  | #Offline
+]
+
+type enum_RequiredFieldAction = private [>
+  | #NONE
+  | #LOG
+  | #THROW
+]
+
+type enum_RequiredFieldAction_input = [
+  | #NONE
+  | #LOG
+  | #THROW
+]
+
+type rec input_InputA = {
   time: Datetime.t,
-  recursiveA: option<RelaySchemaAssets_graphql.input_InputA>,
-  usingB: option<RelaySchemaAssets_graphql.input_InputB>,
+  recursiveA: option<input_InputA>,
+  usingB: option<input_InputB>,
 }
 and input_InputB = {
   time: option<Datetime.t>,
-  usingA: option<RelaySchemaAssets_graphql.input_InputA>,
+  usingA: option<input_InputA>,
   @as("constraint") constraint_: option<bool>,
 }
 and input_SomeInput = {
@@ -14,15 +40,15 @@ and input_SomeInput = {
   bool: option<bool>,
   float: option<float>,
   int: option<int>,
-  recursive: option<RelaySchemaAssets_graphql.input_SomeInput>,
+  recursive: option<input_SomeInput>,
 }
 and input_RecursiveSetOnlineStatusInput = {
   someValue: IntString.t,
-  setOnlineStatus: option<RelaySchemaAssets_graphql.input_SetOnlineStatusInput>,
+  setOnlineStatus: option<input_SetOnlineStatusInput>,
 }
 and input_SetOnlineStatusInput = {
   onlineStatus: [#Online | #Idle | #Offline],
-  recursed: option<RelaySchemaAssets_graphql.input_RecursiveSetOnlineStatusInput>,
+  recursed: option<input_RecursiveSetOnlineStatusInput>,
 }
 and input_PesticideListSearchInput = {
   companyName: option<array<string>>,
@@ -32,32 +58,44 @@ and input_PesticideListSearchInput = {
 }
 @obj external make_InputA: (
   ~time: Datetime.t,
-  ~recursiveA: option<RelaySchemaAssets_graphql.input_InputA>,
-  ~usingB: option<RelaySchemaAssets_graphql.input_InputB>,
+  ~recursiveA: input_InputA=?,
+  ~usingB: input_InputB=?,
+  unit,
 ) => input_InputA = ""
+
 @obj external make_InputB: (
-  ~time: option<Datetime.t>,
-  ~usingA: option<RelaySchemaAssets_graphql.input_InputA>,
-  ~_constraint: option<bool>,
+  ~time: Datetime.t=?,
+  ~usingA: input_InputA=?,
+  ~_constraint: bool=?,
+  unit,
 ) => input_InputB = ""
+
 @obj external make_SomeInput: (
-  ~str: option<string>,
-  ~bool: option<bool>,
-  ~float: option<float>,
-  ~int: option<int>,
-  ~recursive: option<RelaySchemaAssets_graphql.input_SomeInput>,
+  ~str: string=?,
+  ~bool: bool=?,
+  ~float: float=?,
+  ~int: int=?,
+  ~recursive: input_SomeInput=?,
+  unit,
 ) => input_SomeInput = ""
+
 @obj external make_RecursiveSetOnlineStatusInput: (
   ~someValue: IntString.t,
-  ~setOnlineStatus: option<RelaySchemaAssets_graphql.input_SetOnlineStatusInput>,
+  ~setOnlineStatus: input_SetOnlineStatusInput=?,
+  unit,
 ) => input_RecursiveSetOnlineStatusInput = ""
+
 @obj external make_SetOnlineStatusInput: (
   ~onlineStatus: [#Online | #Idle | #Offline],
-  ~recursed: option<RelaySchemaAssets_graphql.input_RecursiveSetOnlineStatusInput>,
+  ~recursed: input_RecursiveSetOnlineStatusInput=?,
+  unit,
 ) => input_SetOnlineStatusInput = ""
+
 @obj external make_PesticideListSearchInput: (
-  ~companyName: option<array<string>>,
-  ~pesticideIds: option<array<int>>,
+  ~companyName: array<string>=?,
+  ~pesticideIds: array<int>=?,
   ~skip: int,
   ~take: int,
+  unit,
 ) => input_PesticideListSearchInput = ""
+

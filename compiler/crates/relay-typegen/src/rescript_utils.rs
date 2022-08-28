@@ -368,7 +368,12 @@ pub fn print_constant_value(value: &ConstantValue, print_as_optional: bool) -> S
     }
 }
 
-pub fn print_type_reference(typ: &TypeReference, schema: &SDLSchema, nullable: bool) -> String {
+pub fn print_type_reference(
+    typ: &TypeReference,
+    schema: &SDLSchema,
+    nullable: bool,
+    prefix_with_schema_module: bool,
+) -> String {
     match typ {
         TypeReference::Named(named_type) => print_opt(
             &match named_type {
@@ -383,7 +388,15 @@ pub fn print_type_reference(typ: &TypeReference, schema: &SDLSchema, nullable: b
                 ),
                 Type::InputObject(id) => {
                     let obj = schema.input_object(*id);
-                    format!("RelaySchemaAssets_graphql.input_{}", obj.name.item)
+                    format!(
+                        "{}input_{}",
+                        if prefix_with_schema_module {
+                            "RelaySchemaAssets_graphql."
+                        } else {
+                            ""
+                        },
+                        obj.name.item
+                    )
                 }
                 Type::Scalar(id) => format!(
                     "{}",
@@ -403,9 +416,15 @@ pub fn print_type_reference(typ: &TypeReference, schema: &SDLSchema, nullable: b
             },
             nullable,
         ),
-        TypeReference::NonNull(typ) => format!("{}", print_type_reference(&typ, &schema, false)),
+        TypeReference::NonNull(typ) => format!(
+            "{}",
+            print_type_reference(&typ, &schema, false, prefix_with_schema_module)
+        ),
         TypeReference::List(typ) => print_opt(
-            &format!("array<{}>", print_type_reference(&typ, &schema, true)),
+            &format!(
+                "array<{}>",
+                print_type_reference(&typ, &schema, true, prefix_with_schema_module)
+            ),
             nullable,
         ),
     }

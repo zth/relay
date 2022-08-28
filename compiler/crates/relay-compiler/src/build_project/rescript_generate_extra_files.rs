@@ -5,7 +5,7 @@ use graphql_ir::reexport::Intern;
 use relay_config::ProjectConfig;
 use relay_transforms::Programs;
 use relay_typegen::rescript_utils::{get_safe_key, print_type_reference};
-use schema::{SDLSchema, Schema};
+use schema::{SDLSchema, Schema, TypeReference};
 
 use crate::{path_for_artifact, Artifact};
 
@@ -17,7 +17,26 @@ pub(crate) fn rescript_generate_extra_artifacts(
 ) -> Vec<Artifact> {
     let dummy_source_file = SourceLocationKey::Generated;
 
-    let mut content = String::from("/* @generated */\n");
+    let mut content = String::from("/* @generated */\n@@ocaml.warning(\"-30\")\n\n");
+
+    // Write all enums
+    schema.enums().for_each(|e| {
+        if let Some(desc) = e.description {
+            writeln!(content, "/** {} */", desc).unwrap();
+        }
+
+        writeln!(content, "type enum_{} = private [>", e.name.item).unwrap();
+        e.values.iter().for_each(|v| {
+            writeln!(content, "  | #{}", v.value).unwrap();
+        });
+        writeln!(content, "]\n").unwrap();
+
+        writeln!(content, "type enum_{}_input = [", e.name.item).unwrap();
+        e.values.iter().for_each(|v| {
+            writeln!(content, "  | #{}", v.value).unwrap();
+        });
+        writeln!(content, "]\n").unwrap();
+    });
 
     // Write the input object types
     let mut has_written_initial_input_obj = false;
@@ -32,7 +51,7 @@ pub(crate) fn rescript_generate_extra_artifacts(
             if has_written_initial_input_obj {
                 "and"
             } else {
-                "type"
+                "type rec"
             },
             input_obj.name.item
         )
@@ -49,7 +68,7 @@ pub(crate) fn rescript_generate_extra_artifacts(
                     None => String::from(""),
                 }),
                 key,
-                print_type_reference(&field.type_, &schema, true)
+                print_type_reference(&field.type_, &schema, true, false)
             )
             .unwrap();
         });
@@ -65,22 +84,38 @@ pub(crate) fn rescript_generate_extra_artifacts(
     schema.input_objects().for_each(|input_obj| {
         writeln!(content, "@obj external make_{}: (", input_obj.name.item).unwrap();
 
+        let mut has_optional = false;
+
         input_obj.fields.iter().for_each(|arg| {
             let (key, maybe_original_key) = get_safe_key(&arg.name.to_string());
 
+            let is_optional = match &arg.type_ {
+                TypeReference::NonNull(_) => false,
+                _ => true,
+            };
+
             writeln!(
                 content,
-                "  ~{}: {},",
+                "  ~{}: {}{},",
                 (match maybe_original_key {
                     Some(original_key) => format!("_{}", original_key),
                     None => key,
                 }),
-                print_type_reference(&arg.type_, &schema, true)
+                print_type_reference(&arg.type_, &schema, false, false),
+                if is_optional { "=?" } else { "" }
             )
             .unwrap();
+
+            if !has_optional && is_optional {
+                has_optional = true
+            }
         });
 
-        writeln!(content, ") => input_{} = \"\"", input_obj.name.item).unwrap();
+        if has_optional {
+            writeln!(content, "  unit,").unwrap()
+        }
+
+        writeln!(content, ") => input_{} = \"\"\n", input_obj.name.item).unwrap();
     });
 
     vec![Artifact {

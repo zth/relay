@@ -2004,7 +2004,7 @@ fn write_connection_key_maker_arguments(
                 format!(
                     "~{}: {}{}",
                     variable.name.item,
-                    print_type_reference(&variable.type_, &schema, false),
+                    print_type_reference(&variable.type_, &schema, false, true),
                     match (&default_value, &variable.type_) {
                         (Some(default_value), _) => format!(
                             "={}",
