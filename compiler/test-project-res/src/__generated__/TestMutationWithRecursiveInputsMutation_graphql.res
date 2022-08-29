@@ -4,18 +4,8 @@
 module Types = {
   @@ocaml.warning("-30")
 
-  @live
-  type rec inputA = {
-    recursiveA: option<inputA>,
-    time: SomeModule.Datetime.t,
-    usingB: option<inputB>,
-  }
-  @live
-  and inputB = {
-    @as("constraint") constraint_: option<bool>,
-    time: option<SomeModule.Datetime.t>,
-    usingA: option<inputA>,
-  }
+  @live type inputA = RelaySchemaAssets_graphql.input_InputA
+  @live type inputB = RelaySchemaAssets_graphql.input_InputB
   @live
   type rec response_recursiveInput = {
     recursionIsCool: option<bool>,
@@ -93,16 +83,13 @@ module Utils = {
   ) => inputA = ""
 
 
-  @live let make_inputB = (
-    ~constraint_=?,
-    ~time=?,
-    ~usingA=?,
-    ()
-  ): inputB => {
-    constraint_: constraint_,
-    time: time,
-    usingA: usingA
-  }
+  @live @obj external make_inputB: (
+    ~_constraint: bool=?,
+    ~time: SomeModule.Datetime.t=?,
+    ~usingA: inputA=?,
+    unit
+  ) => inputB = ""
+
 
   @live @obj external makeVariables: (
     ~input: inputA,

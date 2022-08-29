@@ -310,6 +310,7 @@ fn ast_to_prop_value(
                 comment: None,
                 values: get_object_props(state, &new_at_path, props, found_in_union, context),
                 found_in_union,
+                original_type_name: None,
             };
 
             state.objects.push(obj);
@@ -358,6 +359,7 @@ fn ast_to_prop_value(
                         comment: None,
                         found_in_union: false,
                         record_name: path_to_name(&new_at_path),
+                        original_type_name: None,
                         values: get_object_props(state, &new_at_path, props, false, context),
                     };
 
@@ -579,6 +581,7 @@ fn extract_union_members(
                         record_name: union_member_record_name.to_string(),
                         values: member_fields,
                         found_in_union: true,
+                        original_type_name: None,
                     };
 
                     state.objects.push(union_member_shape);
@@ -679,7 +682,7 @@ fn get_object_props(
         .collect()
 }
 
-fn write_enum_definitions(str: &mut String, indentation: usize, full_enum: &FullEnum) -> Result {
+fn write_enum_type_aliases(str: &mut String, indentation: usize, full_enum: &FullEnum) -> Result {
     // We start by printing a private version of this enum. Using this enum will
     // enforce, at the type level, that you handle the fall-through case. This
     // version of the enum is the version that the enum is represented as
@@ -688,22 +691,21 @@ fn write_enum_definitions(str: &mut String, indentation: usize, full_enum: &Full
     write_indentation(str, indentation).unwrap();
     writeln!(
         str,
-        "type enum_{} = private {}\n",
+        "type enum_{} = {}\n",
         full_enum.name,
-        get_enum_definition_body(&full_enum, indentation, true)
+        format!("RelaySchemaAssets_graphql.enum_{}", full_enum.name)
     )
     .unwrap();
 
     // Next, we'll output an enum suffixed with "input". This enum is *closed*,
     // meaning it won't force you to handle fall through cases. This version of
     // the enum is used whenever the enum appears in inputs.
-    write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
     write_indentation(str, indentation).unwrap();
     writeln!(
         str,
         "type enum_{}_input = {}\n",
         full_enum.name,
-        get_enum_definition_body(&full_enum, indentation, false)
+        format!("RelaySchemaAssets_graphql.enum_{}_input", full_enum.name)
     )
     .unwrap();
 
@@ -817,37 +819,6 @@ fn write_object_maker(
     name: String,
     target_type: String,
 ) -> Result {
-    // This will use the optimized @obj external version of object makers when
-    // possible. @obj external optimization can be applied when there are no
-    // reserved words as field names in the target object. Reserved words as
-    // field names is accounted for everywhere _except_ for in input objects,
-    // which we have no control for. So, in practice, everything will get the
-    // @obj external optimization, except for input objects with one or more
-    // fields who's name is a reserved word in ReScript.
-    let as_external = definition
-        .values
-        .iter()
-        .find(|value| match &value.original_key {
-            None => false,
-            Some(original_key) => is_legal_key(&original_key),
-        })
-        .is_none();
-
-    if as_external {
-        write_object_maker_as_external(state, str, indentation, definition, name, target_type)
-    } else {
-        write_object_maker_as_function(str, indentation, definition, name, target_type)
-    }
-}
-
-fn write_object_maker_as_external(
-    state: &Box<ReScriptPrinter>,
-    str: &mut String,
-    indentation: usize,
-    definition: &Object,
-    name: String,
-    target_type: String,
-) -> Result {
     write_indentation(str, indentation).unwrap();
     write!(str, "@live @obj external {}: ", name).unwrap();
 
@@ -870,7 +841,10 @@ fn write_object_maker_as_external(
         write!(
             str,
             "~{}: {}",
-            prop_value.key,
+            match &prop_value.original_key {
+                Some(original_key) => format!("_{}", original_key),
+                None => format!("{}", prop_value.key),
+            },
             get_object_prop_type_as_string(
                 &state,
                 &prop_value.prop_type,
@@ -898,64 +872,6 @@ fn write_object_maker_as_external(
     write_indentation(str, indentation).unwrap();
     writeln!(str, ") => {} = \"\"", target_type).unwrap();
     writeln!(str, "\n").unwrap();
-
-    Ok(())
-}
-
-fn write_object_maker_as_function(
-    str: &mut String,
-    indentation: usize,
-    definition: &Object,
-    name: String,
-    target_type: String,
-) -> Result {
-    write_indentation(str, indentation).unwrap();
-    write!(str, "@live let {} = (", name).unwrap();
-
-    let num_props = definition.values.len();
-
-    if num_props == 0 {
-        writeln!(str, ") => ()").unwrap();
-        return Ok(());
-    } else {
-        writeln!(str, "").unwrap();
-    }
-
-    let mut has_nullable = false;
-
-    definition.values.iter().for_each(|prop_value| {
-        write_indentation(str, indentation + 1).unwrap();
-        write!(str, "~{}", prop_value.key).unwrap();
-
-        if prop_value.nullable {
-            has_nullable = true;
-            write!(str, "=?").unwrap();
-        }
-        writeln!(str, ",").unwrap();
-    });
-
-    // Print unit if there's any nullable present
-    if has_nullable {
-        write_indentation(str, indentation + 1).unwrap();
-        writeln!(str, "()").unwrap();
-    }
-
-    write_indentation(str, indentation).unwrap();
-    writeln!(str, "): {} => {{", target_type).unwrap();
-
-    // Print the fn body connecting all params
-    definition
-        .values
-        .iter()
-        .enumerate()
-        .for_each(|(index, prop_value)| {
-            write_indentation(str, indentation + 1).unwrap();
-            write!(str, "{}: {}", prop_value.key, prop_value.key).unwrap();
-            writeln!(str, "{}", if index + 1 == num_props { "" } else { "," }).unwrap();
-        });
-
-    write_indentation(str, indentation).unwrap();
-    writeln!(str, "}}\n").unwrap();
 
     Ok(())
 }
@@ -1025,7 +941,7 @@ fn write_enum_util_functions(str: &mut String, indentation: usize, full_enum: &F
     write_indentation(str, indentation).unwrap();
     writeln!(
         str,
-        "external {}_toString: enum_{} => string = \"%identity\"",
+        "external {}_toString: RelaySchemaAssets_graphql.enum_{} => string = \"%identity\"",
         name_uncapitalized, full_enum.name
     )
     .unwrap();
@@ -1034,7 +950,7 @@ fn write_enum_util_functions(str: &mut String, indentation: usize, full_enum: &F
     write_indentation(str, indentation).unwrap();
     writeln!(
         str,
-        "external {}_input_toString: enum_{}_input => string = \"%identity\"",
+        "external {}_input_toString: RelaySchemaAssets_graphql.enum_{}_input => string = \"%identity\"",
         name_uncapitalized, full_enum.name
     )
     .unwrap();
@@ -1045,7 +961,7 @@ fn write_enum_util_functions(str: &mut String, indentation: usize, full_enum: &F
     write_indentation(str, indentation).unwrap();
     writeln!(
         str,
-        "let {}_decode = (enum: enum_{}): option<enum_{}_input> => {{",
+        "let {}_decode = (enum: RelaySchemaAssets_graphql.enum_{}): option<RelaySchemaAssets_graphql.enum_{}_input> => {{",
         name_uncapitalized, full_enum.name, full_enum.name
     )
     .unwrap();
@@ -1054,7 +970,7 @@ fn write_enum_util_functions(str: &mut String, indentation: usize, full_enum: &F
     write_indentation(str, indentation + 2).unwrap();
     writeln!(
         str,
-        "| #...enum_{}_input as valid => Some(valid)",
+        "| #...RelaySchemaAssets_graphql.enum_{}_input as valid => Some(valid)",
         full_enum.name
     )
     .unwrap();
@@ -1073,7 +989,7 @@ fn write_enum_util_functions(str: &mut String, indentation: usize, full_enum: &F
     write_indentation(str, indentation).unwrap();
     writeln!(
         str,
-        "let {}_fromString = (str: string): option<enum_{}_input> => {{",
+        "let {}_fromString = (str: string): option<RelaySchemaAssets_graphql.enum_{}_input> => {{",
         name_uncapitalized, full_enum.name
     )
     .unwrap();
@@ -2088,31 +2004,24 @@ impl Writer for ReScriptPrinter {
             .iter()
             .unique_by(|full_enum| &full_enum.name)
             .for_each(|full_enum| {
-                write_enum_definitions(&mut generated_types, indentation, &full_enum).unwrap()
+                write_enum_type_aliases(&mut generated_types, indentation, &full_enum).unwrap()
             });
 
-        // Print input objects. These are standalone (but recursive since they
-        // can refer to themselves), and needs to be printed first as the rest
-        // of the types might use them.
+        // Print input objects. These are just type aliases for the main type that's located in the schema assets file.
         self.input_objects
             .iter()
             .unique_by(|input_object| &input_object.record_name)
-            .enumerate()
-            .for_each(|(index, input_object)| {
-                write_object_definition(
-                    &self,
-                    &mut generated_types,
-                    indentation,
-                    &input_object,
-                    match index {
-                        0 => ObjectPrintMode::StartOfRecursiveChain,
-                        _ => ObjectPrintMode::PartOfRecursiveChain,
-                    },
-                    None,
-                    &Context::RootObject(input_object.record_name.to_string()),
-                    false,
-                )
-                .unwrap()
+            .for_each(|input_object| match &input_object.original_type_name {
+                None => (),
+                Some(input_obj_name) => {
+                    write_indentation(&mut generated_types, indentation).unwrap();
+                    writeln!(
+                        generated_types,
+                        "@live type {} = RelaySchemaAssets_graphql.input_{}",
+                        input_object.record_name, input_obj_name
+                    )
+                    .unwrap();
+                }
             });
 
         // Print object types that originate from unions. This is because these
@@ -2310,6 +2219,7 @@ impl Writer for ReScriptPrinter {
                         at_path: vec![String::from("variables")],
                         found_in_union: false,
                         record_name: String::from("refetchVariables"),
+                        original_type_name: None,
                         values: variables
                             .values
                             .iter()
@@ -2593,8 +2503,15 @@ impl Writer for ReScriptPrinter {
                 write_indentation(&mut generated_types, indentation).unwrap();
                 writeln!(
                     generated_types,
-                    "let connectionKey = \"{}\"\n\n",
+                    "let connectionKey = \"{}\"\n",
                     connection_config.key
+                )
+                .unwrap();
+
+                write!(
+                    generated_types,
+                    "{}",
+                    &connection_config.connection_id_maker_fn
                 )
                 .unwrap();
 
@@ -2737,6 +2654,7 @@ impl Writer for ReScriptPrinter {
                         record_name: record_name.to_string(),
                         values: get_object_props(self, &current_path, &props, false, &context),
                         found_in_union: false,
+                        original_type_name: None,
                     };
 
                     match &self.typegen_definition {
@@ -2765,6 +2683,7 @@ impl Writer for ReScriptPrinter {
                         record_name: record_name.to_string(),
                         values: get_object_props(self, &current_path, &props, false, &context),
                         found_in_union: false,
+                        original_type_name: None,
                     };
 
                     self.fragment = Some((
@@ -2843,6 +2762,7 @@ impl Writer for ReScriptPrinter {
                         record_name: path_to_name(&current_path),
                         values: get_object_props(self, &current_path, &props, false, &context),
                         found_in_union: false,
+                        original_type_name: None,
                     };
 
                     self.variables = Some(obj);
@@ -2868,6 +2788,7 @@ impl Writer for ReScriptPrinter {
                         record_name: path_to_name(&current_path),
                         values: get_object_props(self, &current_path, &props, false, &context),
                         found_in_union: false,
+                        original_type_name: None,
                     };
 
                     self.raw_response = Some(obj);
@@ -2905,6 +2826,7 @@ impl Writer for ReScriptPrinter {
                     let path = vec![root_name_from_context(&context)];
                     let obj = Object {
                         comment: None,
+                        original_type_name: Some(name.to_string()),
                         values: get_object_props(self, &path, &props, false, &context),
                         at_path: path.clone(),
                         record_name: path_to_name(&path),

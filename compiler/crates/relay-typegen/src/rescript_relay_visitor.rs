@@ -7,14 +7,16 @@
 
 use fnv::FnvBuildHasher;
 use graphql_ir::{
-    ConstantValue, Directive, Field, FragmentDefinition, LinkedField, ScalarField, Value, Variable,
-    Visitor,
+    Argument, ConstantValue, Directive, Field, FragmentDefinition, LinkedField, ScalarField, Value,
+    Variable, VariableDefinition, Visitor,
 };
 use indexmap::IndexMap;
 use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
 use relay_config::CustomScalarType;
 use schema::SDLSchema;
+
+use crate::rescript_utils::get_connection_key_maker;
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 pub type CustomScalarsMap = FnvIndexMap<StringKey, CustomScalarType>;
 
@@ -23,6 +25,9 @@ pub struct RescriptRelayConnectionConfig {
     pub key: String,
     pub at_object_path: Vec<String>,
     pub field_name: String,
+    pub connection_key_arguments: Vec<Argument>,
+    pub fragment_variable_definitions: Vec<VariableDefinition>,
+    pub connection_id_maker_fn: String,
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -54,6 +59,7 @@ pub struct RescriptRelayVisitor<'a> {
     schema: &'a SDLSchema,
     current_path: Vec<String>,
     state: &'a mut RescriptRelayOperationMetaData,
+    variable_definitions: Vec<VariableDefinition>,
 }
 
 impl<'a> RescriptRelayVisitor<'a> {
@@ -66,6 +72,7 @@ impl<'a> RescriptRelayVisitor<'a> {
             schema,
             current_path: vec![initial_path],
             state,
+            variable_definitions: vec![],
         }
     }
 }
@@ -124,6 +131,14 @@ impl<'a> Visitor for RescriptRelayVisitor<'a> {
 
         self.state.fragment_directives = rescript_relay_directives;
 
+        if fragment.variable_definitions.len() > 0 {
+            self.variable_definitions = fragment
+                .variable_definitions
+                .iter()
+                .map(|v| v.to_owned())
+                .collect();
+        }
+
         self.default_visit_fragment(fragment)
     }
 
@@ -171,10 +186,58 @@ impl<'a> Visitor for RescriptRelayVisitor<'a> {
                     _ => None,
                 }
             }) {
+                let filters = connection_directive.arguments.iter().find_map(|arg| {
+                    if arg.name.item.to_string() == "filters" {
+                        match &arg.value.item {
+                            Value::Constant(ConstantValue::List(items)) => Some(
+                                items
+                                    .iter()
+                                    .filter_map(|value| match value {
+                                        ConstantValue::String(item) => Some(item.to_string()),
+                                        _ => None,
+                                    })
+                                    .collect::<Vec<String>>(),
+                            ),
+                            _ => None,
+                        }
+                    } else {
+                        None
+                    }
+                });
+
+                let relevant_arguments = field
+                    .arguments
+                    .iter()
+                    .filter(|arg| {
+                        if &arg.name.item == &"first".intern()
+                            || &arg.name.item == &"last".intern()
+                            || &arg.name.item == &"before".intern()
+                            || &arg.name.item == &"after".intern()
+                        {
+                            false
+                        } else {
+                            match &filters {
+                                None => true,
+                                Some(filters) => filters.contains(&arg.name.item.to_string()),
+                            }
+                        }
+                    })
+                    .map(|arg| arg.to_owned())
+                    .collect::<Vec<Argument>>();
+
                 self.state.connection_config = Some(RescriptRelayConnectionConfig {
+                    connection_id_maker_fn: get_connection_key_maker(
+                        1,
+                        &relevant_arguments,
+                        &self.variable_definitions,
+                        &key,
+                        &self.schema,
+                    ),
                     key,
                     at_object_path: self.current_path.clone(),
                     field_name: field.alias_or_name(self.schema).to_string(),
+                    connection_key_arguments: relevant_arguments,
+                    fragment_variable_definitions: self.variable_definitions.to_owned(),
                 })
             }
         }

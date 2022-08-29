@@ -1,10 +1,14 @@
 use std::ops::Add;
 
-use graphql_ir::{FragmentDefinition, Visitor};
+use common::WithLocation;
+use graphql_ir::{
+    Argument, ConstantValue, FragmentDefinition, Value, Variable, VariableDefinition, Visitor,
+};
+use itertools::Itertools;
 use log::warn;
 use relay_config::TypegenConfig;
 use relay_transforms::RelayDirective;
-use schema::SDLSchema;
+use schema::{SDLSchema, Schema, Type, TypeReference};
 
 use crate::{
     rescript::DefinitionType,
@@ -304,6 +308,409 @@ pub fn instruction_to_key_value_pair(instruction: &ConverterInstructions) -> (St
         }
         &ConverterInstructions::HasFragments => (String::from("f"), String::from("")),
     }
+}
+
+fn print_wrapped_in_some(str: &String, print_as_optional: bool) -> String {
+    if print_as_optional {
+        format!("Some({})", str)
+    } else {
+        format!("{}", str)
+    }
+}
+
+fn print_opt(str: &String, optional: bool) -> String {
+    if optional {
+        format!("option<{}>", str)
+    } else {
+        format!("{}", str)
+    }
+}
+
+// Printer helpers
+pub fn print_constant_value(value: &ConstantValue, print_as_optional: bool) -> String {
+    match value {
+        ConstantValue::Int(i) => print_wrapped_in_some(&i.to_string(), print_as_optional),
+        ConstantValue::Float(f) => print_wrapped_in_some(&f.to_string(), print_as_optional),
+        ConstantValue::String(s) => {
+            print_wrapped_in_some(&format!("\"{}\"", s.to_string()), print_as_optional)
+        }
+        ConstantValue::Boolean(b) => print_wrapped_in_some(&b.to_string(), print_as_optional),
+        ConstantValue::Null() => print_wrapped_in_some(&String::from("null"), print_as_optional),
+        ConstantValue::Enum(s) => {
+            print_wrapped_in_some(&format!("#{}", s.to_string()), print_as_optional)
+        }
+        ConstantValue::List(values) => print_wrapped_in_some(
+            &format!(
+                "[{}]",
+                values
+                    .iter()
+                    .map(|v| print_constant_value(v, print_as_optional))
+                    .join(", ")
+            ),
+            print_as_optional,
+        ),
+        ConstantValue::Object(arguments) => print_wrapped_in_some(
+            &format!(
+                "{{{}}}",
+                arguments
+                    .iter()
+                    .map(|arg| {
+                        format!(
+                            "\"{}\": {}",
+                            arg.name.item,
+                            print_constant_value(&arg.value.item, print_as_optional)
+                        )
+                    })
+                    .join(", "),
+            ),
+            print_as_optional,
+        ),
+    }
+}
+
+pub fn print_type_reference(
+    typ: &TypeReference,
+    schema: &SDLSchema,
+    nullable: bool,
+    prefix_with_schema_module: bool,
+) -> String {
+    match typ {
+        TypeReference::Named(named_type) => print_opt(
+            &match named_type {
+                Type::Enum(id) => format!(
+                    "[{}]",
+                    schema
+                        .enum_(*id)
+                        .values
+                        .iter()
+                        .map(|v| { format!("#{}", v.value) })
+                        .join(" | ")
+                ),
+                Type::InputObject(id) => {
+                    let obj = schema.input_object(*id);
+                    format!(
+                        "{}input_{}",
+                        if prefix_with_schema_module {
+                            "RelaySchemaAssets_graphql."
+                        } else {
+                            ""
+                        },
+                        obj.name.item
+                    )
+                }
+                Type::Scalar(id) => format!(
+                    "{}",
+                    match schema.scalar(*id).name.item.to_string().as_str() {
+                        "Boolean" => String::from("bool"),
+                        "Int" => String::from("int"),
+                        "Float" => String::from("float"),
+                        "String" | "ID" => String::from("string"),
+                        custom_scalar =>
+                            match classify_rescript_value_string(&custom_scalar.to_string()) {
+                                RescriptCustomTypeValue::Module => format!("{}.t", custom_scalar),
+                                RescriptCustomTypeValue::Type => custom_scalar.to_string(),
+                            },
+                    }
+                ),
+                _ => String::from("RescriptRelay.any"),
+            },
+            nullable,
+        ),
+        TypeReference::NonNull(typ) => format!(
+            "{}",
+            print_type_reference(&typ, &schema, false, prefix_with_schema_module)
+        ),
+        TypeReference::List(typ) => print_opt(
+            &format!(
+                "array<{}>",
+                print_type_reference(&typ, &schema, true, prefix_with_schema_module)
+            ),
+            nullable,
+        ),
+    }
+}
+
+pub fn print_value(value: &Value, print_as_optional: bool) -> String {
+    match value {
+        Value::Constant(constant_value) => print_constant_value(&constant_value, print_as_optional),
+        Value::Variable(variable) => variable.name.item.to_string(),
+        Value::List(values) => format!(
+            "[{}]",
+            values
+                .iter()
+                .map(|v| print_value(v, print_as_optional))
+                .join(", ")
+        ),
+        Value::Object(arguments) => format!(
+            "{{{}}}",
+            arguments
+                .iter()
+                .map(|arg| {
+                    format!(
+                        "\"{}\": {}",
+                        arg.name.item.to_string(),
+                        print_value(&arg.value.item, print_as_optional)
+                    )
+                })
+                .join(", ")
+        ),
+    }
+}
+
+pub fn find_all_connection_variables(
+    value: &Value,
+    found_variables: &mut Vec<(Variable, Option<WithLocation<ConstantValue>>)>,
+    fragment_variable_definitions: &Vec<VariableDefinition>,
+) -> () {
+    match value {
+        Value::Variable(variable) => {
+            // For some reason, variables found here might not actually have the
+            // type information we expect them to. This is probably because what
+            // we're getting here is what the _field_ defines, whereas we're
+            // interested in what the _fragment_ defines. For example, if we
+            // have a nullable argument on the _field_, but the variable passed
+            // into that field via the connection fragment is non-nullable, then
+            // a connection can only ever be constructed with a non-nullable
+            // value for that variable. Hence, when building a connection ID, we
+            // always need the user to pass _something_ there.
+            //
+            // Because of this, we prefer the variable from
+            // "argumentDefinitions"
+            // (connection_config.fragment_variable_definitions).
+            found_variables.push(
+                match fragment_variable_definitions
+                    .iter()
+                    .find(|v| v.name.item == variable.name.item)
+                {
+                    None => (variable.to_owned(), None),
+                    Some(v) =>
+                    // Construct a synthetic variable here from the definition
+                    {
+                        (
+                            Variable {
+                                name: v.name,
+                                type_: match (&v.type_, v.default_value.as_ref()) {
+                                    // Another special case is when the variable is
+                                    // optional, but there's a default value. In
+                                    // that case, we should treat the variable as
+                                    // non-optional, since it would always have a
+                                    // value when the connection key is created.
+                                    (TypeReference::List(_) | TypeReference::Named(_), Some(_)) => {
+                                        TypeReference::NonNull(Box::new(v.type_.to_owned()))
+                                    }
+                                    _ => v.type_.to_owned(),
+                                },
+                            },
+                            v.default_value.to_owned(),
+                        )
+                    }
+                },
+            );
+        }
+        Value::Object(arguments) => arguments.iter().for_each(|arg| {
+            find_all_connection_variables(
+                &arg.value.item,
+                found_variables,
+                &fragment_variable_definitions,
+            )
+        }),
+        Value::Constant(_) => (),
+        Value::List(values) => values.iter().for_each(|value| {
+            find_all_connection_variables(&value, found_variables, &fragment_variable_definitions)
+        }),
+    }
+}
+
+pub fn dig_type_ref(typ: &TypeReference) -> &Type {
+    match typ {
+        TypeReference::Named(named_typ) => named_typ,
+        TypeReference::List(typ) => dig_type_ref(typ),
+        TypeReference::NonNull(typ) => dig_type_ref(typ),
+    }
+}
+
+pub fn get_connection_key_maker(
+    indentation: usize,
+    connection_key_arguments: &Vec<Argument>,
+    fragment_variable_definitions: &Vec<VariableDefinition>,
+    key: &String,
+    schema: &SDLSchema,
+) -> String {
+    let mut str = String::from("");
+    let mut all_variables = vec![];
+
+    // Collect all variables in the pattern
+    connection_key_arguments.iter().for_each(|arg| {
+        find_all_connection_variables(
+            &arg.value.item,
+            &mut all_variables,
+            &fragment_variable_definitions,
+        )
+    });
+
+    let mut local_indentation = indentation;
+
+    write_indentation(&mut str, local_indentation).unwrap();
+    write!(
+        str,
+        "%%private(\n    @live @module(\"relay-runtime\") @scope(\"ConnectionHandler\")\n    external internal_makeConnectionId: (RescriptRelay.dataId, @as(\"{}\") _, 'arguments) => RescriptRelay.dataId = \"getConnectionId\"\n  )\n\n",
+        key
+    )
+    .unwrap();
+
+    write_indentation(&mut str, local_indentation).unwrap();
+    writeln!(
+        str,
+        "let makeConnectionId = (connectionParentDataId: RescriptRelay.dataId, {}{}) => {{",
+        all_variables
+            .iter()
+            .map(|(variable, default_value)| {
+                format!(
+                    "~{}: {}{}",
+                    variable.name.item,
+                    print_type_reference(&variable.type_, &schema, true, true),
+                    match (&default_value, &variable.type_) {
+                        (Some(default_value), _) => format!(
+                            "={}",
+                            match dig_type_ref(&variable.type_) {
+                                // Input objects are records (nominal) in
+                                // ReScript, and thus the type system, but
+                                // GraphQL allows them to be specified as
+                                // structural objects that does not have to
+                                // define all fields. This creates a problem at
+                                // the type system level, where the default
+                                // value can't be type checked. But, we don't
+                                // _need_ to type check it, because it's only
+                                // relevant if the user does not supply its own
+                                // value for the input type. So, we can safely
+                                // cast the default constant value with
+                                // Obj.magic here.
+                                Type::InputObject(_) => format!(
+                                    "Obj.magic({})",
+                                    print_constant_value(&default_value.item, false)
+                                ),
+                                _ => print_constant_value(&default_value.item, false),
+                            }
+                        ),
+                        (None, TypeReference::List(_) | TypeReference::Named(_)) =>
+                            String::from("=?"),
+                        (None, TypeReference::NonNull(_)) => String::from(""),
+                    }
+                )
+            })
+            .join(", "),
+        // Insert trailing unit if there's optional arguments.
+        if all_variables
+            .iter()
+            .find(|(v, default_value)| {
+                match (&v.type_, default_value) {
+                    (TypeReference::List(_) | TypeReference::Named(_), Some(_))
+                    | (TypeReference::NonNull(_), _) => false,
+                    _ => true,
+                }
+            })
+            .is_some()
+        {
+            format!(", ()")
+        } else {
+            String::from("")
+        }
+    )
+    .unwrap();
+
+    local_indentation += 1;
+
+    /*
+     * We need to handle 2 things here for each variable:
+     *
+     * 1. If the variable is a custom scalar, we need to serialize it so it matches the raw value the store will expect.
+     * 2. If the variable isn't optional, we need to wrap it with `Some()`. This is for simplicity with regards to any
+     *    constant values also part of the connection id pattern. In order to not have to keep track of what is and isn't
+     *    optional to make types match, we ensure everything is always optional as the args object is produced.
+     */
+
+    all_variables.iter().for_each(|(variable, _default_value)| {
+        let is_optional = match variable.type_ {
+            TypeReference::NonNull(_) => false,
+            TypeReference::List(_) | TypeReference::Named(_) => true,
+        };
+
+        let is_custom_scalar = match dig_type_ref(&variable.type_) {
+            Type::Scalar(id) => match schema.scalar(*id).name.item.to_string().as_str() {
+                "Boolean" | "Int" | "Float" | "String" | "ID" => None,
+                custom_scalar => match classify_rescript_value_string(&custom_scalar.to_string()) {
+                    RescriptCustomTypeValue::Module => {
+                        Some((variable.name.item.to_string(), custom_scalar.to_string()))
+                    }
+                    RescriptCustomTypeValue::Type => None,
+                },
+            },
+            _ => None,
+        };
+
+        if let Some((variable_name, custom_scalar_module_name)) = is_custom_scalar {
+            write_indentation(&mut str, local_indentation).unwrap();
+            if is_optional {
+                writeln!(
+                    str,
+                    "let {} = switch {} {{ | None => None | Some(v) => Some({}.serialize(v)) }}",
+                    variable_name, variable_name, custom_scalar_module_name
+                )
+                .unwrap();
+            } else {
+                writeln!(
+                    str,
+                    "let {} = Some({}.serialize({}))",
+                    variable_name, custom_scalar_module_name, variable_name
+                )
+                .unwrap();
+            }
+        } else {
+            if !is_optional {
+                write_indentation(&mut str, local_indentation).unwrap();
+                writeln!(
+                    str,
+                    "let {} = Some({})",
+                    variable.name.item, variable.name.item
+                )
+                .unwrap();
+            }
+        }
+    });
+
+    write_indentation(&mut str, local_indentation).unwrap();
+    if connection_key_arguments.len() > 0 {
+        writeln!(
+            str,
+            "let args = {{{}}}",
+            connection_key_arguments
+                .iter()
+                .map(|arg| {
+                    format!(
+                        "\"{}\": {}",
+                        arg.name.item,
+                        print_value(&arg.value.item, true)
+                    )
+                })
+                .join(", ")
+        )
+        .unwrap();
+    } else {
+        writeln!(str, "let args = ()").unwrap()
+    }
+
+    write_indentation(&mut str, local_indentation).unwrap();
+    writeln!(
+        str,
+        "internal_makeConnectionId(connectionParentDataId, args)"
+    )
+    .unwrap();
+
+    local_indentation -= 1;
+    write_indentation(&mut str, local_indentation).unwrap();
+    writeln!(str, "}}").unwrap();
+
+    str
 }
 
 #[cfg(test)]

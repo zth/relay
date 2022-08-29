@@ -17,6 +17,7 @@ pub mod generate_extra_artifacts;
 mod log_program_stats;
 mod persist_operations;
 mod project_asts;
+pub mod rescript_generate_extra_files;
 mod source_control;
 mod validate;
 
