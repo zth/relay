@@ -17,8 +17,7 @@ use relay_config::CustomScalarType;
 
 use crate::rescript_ast::*;
 use crate::rescript_relay_visitor::{
-    CustomScalarsMap, RescriptRelayConnectionConfig, RescriptRelayFragmentDirective,
-    RescriptRelayOperationMetaData,
+    CustomScalarsMap, RescriptRelayFragmentDirective, RescriptRelayOperationMetaData,
 };
 use crate::rescript_utils::*;
 use crate::writer::{Prop, Writer, AST};
@@ -1934,202 +1933,6 @@ fn write_get_connection_nodes_function(
     Ok(())
 }
 
-fn write_connection_key_maker_arguments(
-    str: &mut String,
-    indentation: usize,
-    connection_config: &RescriptRelayConnectionConfig,
-    schema: &SDLSchema,
-) -> Result {
-    let mut all_variables = vec![];
-
-    // Collect all variables in the pattern
-    connection_config
-        .connection_key_arguments
-        .iter()
-        .for_each(|arg| {
-            find_all_connection_variables(&arg.value.item, &mut all_variables, &connection_config)
-        });
-
-    let mut local_indentation = indentation;
-
-    write_indentation(str, local_indentation).unwrap();
-    writeln!(
-        str,
-        "let makeConnectionId = (connectionParentDataId: RescriptRelay.dataId, {}{}) => {{",
-        all_variables
-            .iter()
-            .map(|(variable, default_value)| {
-                format!(
-                    "~{}: {}{}",
-                    variable.name.item,
-                    print_type_reference(&variable.type_, &schema, false, true),
-                    match (&default_value, &variable.type_) {
-                        (Some(default_value), _) => format!(
-                            "={}",
-                            match dig_type_ref(&variable.type_) {
-                                // Input objects are records (nominal) in
-                                // ReScript, and thus the type system, but
-                                // GraphQL allows them to be specified as
-                                // structural objects that does not have to
-                                // define all fields. This creates a problem at
-                                // the type system level, where the default
-                                // value can't be type checked. But, we don't
-                                // _need_ to type check it, because it's only
-                                // relevant if the user does not supply its own
-                                // value for the input type. So, we can safely
-                                // cast the default constant value with
-                                // Obj.magic here.
-                                Type::InputObject(_) => format!(
-                                    "Obj.magic({})",
-                                    print_constant_value(&default_value.item, false)
-                                ),
-                                _ => print_constant_value(&default_value.item, false),
-                            }
-                        ),
-                        (None, TypeReference::List(_) | TypeReference::Named(_)) =>
-                            String::from("=?"),
-                        (None, TypeReference::NonNull(_)) => String::from(""),
-                    }
-                )
-            })
-            .join(", "),
-        // Insert trailing unit if there's optional arguments.
-        if all_variables
-            .iter()
-            .find(|(v, default_value)| {
-                match (&v.type_, default_value) {
-                    (TypeReference::List(_) | TypeReference::Named(_), Some(_))
-                    | (TypeReference::NonNull(_), _) => false,
-                    _ => true,
-                }
-            })
-            .is_some()
-        {
-            format!(", ()")
-        } else {
-            String::from("")
-        }
-    )
-    .unwrap();
-
-    local_indentation += 1;
-
-    /*
-     * We need to handle 2 things here for each variable:
-     *
-     * 1. If the variable is a custom scalar, we need to serialize it so it matches the raw value the store will expect.
-     * 2. If the variable isn't optional, we need to wrap it with `Some()`. This is for simplicity with regards to any
-     *    constant values also part of the connection id pattern. In order to not have to keep track of what is and isn't
-     *    optional to make types match, we ensure everything is always optional as the args object is produced.
-     */
-
-    all_variables.iter().for_each(|(variable, _default_value)| {
-        let is_optional = match variable.type_ {
-            TypeReference::NonNull(_) => false,
-            TypeReference::List(_) | TypeReference::Named(_) => true,
-        };
-
-        let is_custom_scalar = match dig_type_ref(&variable.type_) {
-            Type::Scalar(id) => match schema.scalar(*id).name.item.to_string().as_str() {
-                "Boolean" | "Int" | "Float" | "String" | "ID" => None,
-                custom_scalar => match classify_rescript_value_string(&custom_scalar.to_string()) {
-                    RescriptCustomTypeValue::Module => {
-                        Some((variable.name.item.to_string(), custom_scalar.to_string()))
-                    }
-                    RescriptCustomTypeValue::Type => None,
-                },
-            },
-            _ => None,
-        };
-
-        if let Some((variable_name, custom_scalar_module_name)) = is_custom_scalar {
-            write_indentation(str, local_indentation).unwrap();
-            if is_optional {
-                writeln!(
-                    str,
-                    "let {} = switch {} {{ | None => None | Some(v) => Some({}.serialize(v)) }}",
-                    variable_name, variable_name, custom_scalar_module_name
-                )
-                .unwrap();
-            } else {
-                writeln!(
-                    str,
-                    "let {} = Some({}.serialize({}))",
-                    variable_name, custom_scalar_module_name, variable_name
-                )
-                .unwrap();
-            }
-        } else {
-            if !is_optional {
-                write_indentation(str, local_indentation).unwrap();
-                writeln!(
-                    str,
-                    "let {} = Some({})",
-                    variable.name.item, variable.name.item
-                )
-                .unwrap();
-            }
-        }
-    });
-
-    write_indentation(str, local_indentation).unwrap();
-    if connection_config.connection_key_arguments.len() > 0 {
-        writeln!(
-            str,
-            "let args = {{{}}}",
-            connection_config
-                .connection_key_arguments
-                .iter()
-                .map(|arg| {
-                    format!(
-                        "\"{}\": {}",
-                        arg.name.item,
-                        print_value(&arg.value.item, true)
-                    )
-                })
-                .join(", ")
-        )
-        .unwrap();
-    } else {
-        writeln!(str, "let args = ()").unwrap()
-    }
-
-    write_indentation(str, local_indentation).unwrap();
-    writeln!(
-        str,
-        "internal_makeConnectionId(connectionParentDataId, args)"
-    )
-    .unwrap();
-
-    local_indentation -= 1;
-    write_indentation(str, local_indentation).unwrap();
-    writeln!(str, "}}").unwrap();
-
-    Ok(())
-}
-
-fn write_connection_key_maker(
-    str: &mut String,
-    indentation: usize,
-    connection_config: &RescriptRelayConnectionConfig,
-    schema: &SDLSchema,
-) -> Result {
-    let local_indentation = indentation;
-
-    write_indentation(str, local_indentation).unwrap();
-    write!(
-        str,
-        "%%private(\n    @live @module(\"relay-runtime\") @scope(\"ConnectionHandler\")\n    external internal_makeConnectionId: (RescriptRelay.dataId, @as(\"{}\") _, 'arguments) => RescriptRelay.dataId = \"getConnectionId\"\n  )\n\n",
-        connection_config.key
-    )
-    .unwrap();
-
-    write_connection_key_maker_arguments(str, local_indentation, &connection_config, &schema)
-        .unwrap();
-
-    Ok(())
-}
-
 fn warn_about_unimplemented_feature(definition_type: &DefinitionType, context: String) {
     warn!("'{}' (context: '{}') produced a type that RescriptRelay does not understand. Please open an issue on the repo https://github.com/zth/rescript-relay and describe what you were doing as this happened.", match &definition_type {
         DefinitionType::Fragment(fragment_definition) => fragment_definition.name.item,
@@ -2665,11 +2468,10 @@ impl Writer for ReScriptPrinter {
                 )
                 .unwrap();
 
-                write_connection_key_maker(
-                    &mut generated_types,
-                    indentation,
-                    &connection_config,
-                    &self.schema,
+                write!(
+                    generated_types,
+                    "{}",
+                    &connection_config.connection_id_maker_fn
                 )
                 .unwrap();
 

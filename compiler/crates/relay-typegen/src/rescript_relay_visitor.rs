@@ -15,6 +15,8 @@ use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
 use relay_config::CustomScalarType;
 use schema::SDLSchema;
+
+use crate::rescript_utils::get_connection_key_maker;
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 pub type CustomScalarsMap = FnvIndexMap<StringKey, CustomScalarType>;
 
@@ -25,6 +27,7 @@ pub struct RescriptRelayConnectionConfig {
     pub field_name: String,
     pub connection_key_arguments: Vec<Argument>,
     pub fragment_variable_definitions: Vec<VariableDefinition>,
+    pub connection_id_maker_fn: String,
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -223,6 +226,13 @@ impl<'a> Visitor for RescriptRelayVisitor<'a> {
                     .collect::<Vec<Argument>>();
 
                 self.state.connection_config = Some(RescriptRelayConnectionConfig {
+                    connection_id_maker_fn: get_connection_key_maker(
+                        1,
+                        &relevant_arguments,
+                        &self.variable_definitions,
+                        &key,
+                        &self.schema,
+                    ),
                     key,
                     at_object_path: self.current_path.clone(),
                     field_name: field.alias_or_name(self.schema).to_string(),

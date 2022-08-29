@@ -7,7 +7,7 @@ use relay_transforms::Programs;
 use relay_typegen::rescript_utils::{get_safe_key, print_type_reference};
 use schema::{SDLSchema, Schema, TypeReference};
 
-use crate::{path_for_artifact, Artifact};
+use crate::Artifact;
 
 pub(crate) fn rescript_generate_extra_artifacts(
     project_config: &ProjectConfig,
@@ -125,11 +125,7 @@ pub(crate) fn rescript_generate_extra_artifacts(
 
     vec![Artifact {
         source_definition_names: vec![],
-        path: path_for_artifact(
-            project_config,
-            dummy_source_file,
-            "RelaySchemaAssets".intern(),
-        ),
+        path: project_config.path_for_artifact(dummy_source_file, "RelaySchemaAssets".intern()),
         source_file: dummy_source_file,
         content: crate::ArtifactContent::Generic {
             content: content.as_bytes().to_vec(),

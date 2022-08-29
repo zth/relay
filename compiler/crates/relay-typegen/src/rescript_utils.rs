@@ -1,7 +1,9 @@
 use std::ops::Add;
 
 use common::WithLocation;
-use graphql_ir::{ConstantValue, FragmentDefinition, Value, Variable, Visitor};
+use graphql_ir::{
+    Argument, ConstantValue, FragmentDefinition, Value, Variable, VariableDefinition, Visitor,
+};
 use itertools::Itertools;
 use log::warn;
 use relay_config::TypegenConfig;
@@ -11,9 +13,7 @@ use schema::{SDLSchema, Schema, Type, TypeReference};
 use crate::{
     rescript::DefinitionType,
     rescript_ast::{Context, ConverterInstructions, FullEnum},
-    rescript_relay_visitor::{
-        RescriptRelayConnectionConfig, RescriptRelayOperationMetaData, RescriptRelayVisitor,
-    },
+    rescript_relay_visitor::{RescriptRelayOperationMetaData, RescriptRelayVisitor},
     writer::{Prop, AST},
 };
 
@@ -460,7 +460,7 @@ pub fn print_value(value: &Value, print_as_optional: bool) -> String {
 pub fn find_all_connection_variables(
     value: &Value,
     found_variables: &mut Vec<(Variable, Option<WithLocation<ConstantValue>>)>,
-    connection_config: &RescriptRelayConnectionConfig,
+    fragment_variable_definitions: &Vec<VariableDefinition>,
 ) -> () {
     match value {
         Value::Variable(variable) => {
@@ -478,8 +478,7 @@ pub fn find_all_connection_variables(
             // "argumentDefinitions"
             // (connection_config.fragment_variable_definitions).
             found_variables.push(
-                match connection_config
-                    .fragment_variable_definitions
+                match fragment_variable_definitions
                     .iter()
                     .find(|v| v.name.item == variable.name.item)
                 {
@@ -509,11 +508,15 @@ pub fn find_all_connection_variables(
             );
         }
         Value::Object(arguments) => arguments.iter().for_each(|arg| {
-            find_all_connection_variables(&arg.value.item, found_variables, &connection_config)
+            find_all_connection_variables(
+                &arg.value.item,
+                found_variables,
+                &fragment_variable_definitions,
+            )
         }),
         Value::Constant(_) => (),
         Value::List(values) => values.iter().for_each(|value| {
-            find_all_connection_variables(&value, found_variables, &connection_config)
+            find_all_connection_variables(&value, found_variables, &fragment_variable_definitions)
         }),
     }
 }
@@ -524,6 +527,190 @@ pub fn dig_type_ref(typ: &TypeReference) -> &Type {
         TypeReference::List(typ) => dig_type_ref(typ),
         TypeReference::NonNull(typ) => dig_type_ref(typ),
     }
+}
+
+pub fn get_connection_key_maker(
+    indentation: usize,
+    connection_key_arguments: &Vec<Argument>,
+    fragment_variable_definitions: &Vec<VariableDefinition>,
+    key: &String,
+    schema: &SDLSchema,
+) -> String {
+    let mut str = String::from("");
+    let mut all_variables = vec![];
+
+    // Collect all variables in the pattern
+    connection_key_arguments.iter().for_each(|arg| {
+        find_all_connection_variables(
+            &arg.value.item,
+            &mut all_variables,
+            &fragment_variable_definitions,
+        )
+    });
+
+    let mut local_indentation = indentation;
+
+    write_indentation(&mut str, local_indentation).unwrap();
+    write!(
+        str,
+        "%%private(\n    @live @module(\"relay-runtime\") @scope(\"ConnectionHandler\")\n    external internal_makeConnectionId: (RescriptRelay.dataId, @as(\"{}\") _, 'arguments) => RescriptRelay.dataId = \"getConnectionId\"\n  )\n\n",
+        key
+    )
+    .unwrap();
+
+    write_indentation(&mut str, local_indentation).unwrap();
+    writeln!(
+        str,
+        "let makeConnectionId = (connectionParentDataId: RescriptRelay.dataId, {}{}) => {{",
+        all_variables
+            .iter()
+            .map(|(variable, default_value)| {
+                format!(
+                    "~{}: {}{}",
+                    variable.name.item,
+                    print_type_reference(&variable.type_, &schema, false, true),
+                    match (&default_value, &variable.type_) {
+                        (Some(default_value), _) => format!(
+                            "={}",
+                            match dig_type_ref(&variable.type_) {
+                                // Input objects are records (nominal) in
+                                // ReScript, and thus the type system, but
+                                // GraphQL allows them to be specified as
+                                // structural objects that does not have to
+                                // define all fields. This creates a problem at
+                                // the type system level, where the default
+                                // value can't be type checked. But, we don't
+                                // _need_ to type check it, because it's only
+                                // relevant if the user does not supply its own
+                                // value for the input type. So, we can safely
+                                // cast the default constant value with
+                                // Obj.magic here.
+                                Type::InputObject(_) => format!(
+                                    "Obj.magic({})",
+                                    print_constant_value(&default_value.item, false)
+                                ),
+                                _ => print_constant_value(&default_value.item, false),
+                            }
+                        ),
+                        (None, TypeReference::List(_) | TypeReference::Named(_)) =>
+                            String::from("=?"),
+                        (None, TypeReference::NonNull(_)) => String::from(""),
+                    }
+                )
+            })
+            .join(", "),
+        // Insert trailing unit if there's optional arguments.
+        if all_variables
+            .iter()
+            .find(|(v, default_value)| {
+                match (&v.type_, default_value) {
+                    (TypeReference::List(_) | TypeReference::Named(_), Some(_))
+                    | (TypeReference::NonNull(_), _) => false,
+                    _ => true,
+                }
+            })
+            .is_some()
+        {
+            format!(", ()")
+        } else {
+            String::from("")
+        }
+    )
+    .unwrap();
+
+    local_indentation += 1;
+
+    /*
+     * We need to handle 2 things here for each variable:
+     *
+     * 1. If the variable is a custom scalar, we need to serialize it so it matches the raw value the store will expect.
+     * 2. If the variable isn't optional, we need to wrap it with `Some()`. This is for simplicity with regards to any
+     *    constant values also part of the connection id pattern. In order to not have to keep track of what is and isn't
+     *    optional to make types match, we ensure everything is always optional as the args object is produced.
+     */
+
+    all_variables.iter().for_each(|(variable, _default_value)| {
+        let is_optional = match variable.type_ {
+            TypeReference::NonNull(_) => false,
+            TypeReference::List(_) | TypeReference::Named(_) => true,
+        };
+
+        let is_custom_scalar = match dig_type_ref(&variable.type_) {
+            Type::Scalar(id) => match schema.scalar(*id).name.item.to_string().as_str() {
+                "Boolean" | "Int" | "Float" | "String" | "ID" => None,
+                custom_scalar => match classify_rescript_value_string(&custom_scalar.to_string()) {
+                    RescriptCustomTypeValue::Module => {
+                        Some((variable.name.item.to_string(), custom_scalar.to_string()))
+                    }
+                    RescriptCustomTypeValue::Type => None,
+                },
+            },
+            _ => None,
+        };
+
+        if let Some((variable_name, custom_scalar_module_name)) = is_custom_scalar {
+            write_indentation(&mut str, local_indentation).unwrap();
+            if is_optional {
+                writeln!(
+                    str,
+                    "let {} = switch {} {{ | None => None | Some(v) => Some({}.serialize(v)) }}",
+                    variable_name, variable_name, custom_scalar_module_name
+                )
+                .unwrap();
+            } else {
+                writeln!(
+                    str,
+                    "let {} = Some({}.serialize({}))",
+                    variable_name, custom_scalar_module_name, variable_name
+                )
+                .unwrap();
+            }
+        } else {
+            if !is_optional {
+                write_indentation(&mut str, local_indentation).unwrap();
+                writeln!(
+                    str,
+                    "let {} = Some({})",
+                    variable.name.item, variable.name.item
+                )
+                .unwrap();
+            }
+        }
+    });
+
+    write_indentation(&mut str, local_indentation).unwrap();
+    if connection_key_arguments.len() > 0 {
+        writeln!(
+            str,
+            "let args = {{{}}}",
+            connection_key_arguments
+                .iter()
+                .map(|arg| {
+                    format!(
+                        "\"{}\": {}",
+                        arg.name.item,
+                        print_value(&arg.value.item, true)
+                    )
+                })
+                .join(", ")
+        )
+        .unwrap();
+    } else {
+        writeln!(str, "let args = ()").unwrap()
+    }
+
+    write_indentation(&mut str, local_indentation).unwrap();
+    writeln!(
+        str,
+        "internal_makeConnectionId(connectionParentDataId, args)"
+    )
+    .unwrap();
+
+    local_indentation -= 1;
+    write_indentation(&mut str, local_indentation).unwrap();
+    writeln!(str, "}}").unwrap();
+
+    str
 }
 
 #[cfg(test)]
