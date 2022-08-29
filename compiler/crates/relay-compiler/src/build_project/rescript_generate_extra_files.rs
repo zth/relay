@@ -31,6 +31,9 @@ pub(crate) fn rescript_generate_extra_artifacts(
         });
         writeln!(content, "]\n").unwrap();
 
+        if let Some(desc) = e.description {
+            writeln!(content, "/** {} */", desc).unwrap();
+        }
         writeln!(content, "@live\ntype enum_{}_input = [", e.name.item).unwrap();
         e.values.iter().for_each(|v| {
             writeln!(content, "  | #{}", v.value).unwrap();
