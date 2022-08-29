@@ -313,6 +313,19 @@ pub fn instruction_to_key_value_pair(instruction: &ConverterInstructions) -> (St
     }
 }
 
+pub fn get_custom_scalar_name(
+    custom_scalar_types: &CustomScalarsMap,
+    custom_scalar: &str,
+) -> String {
+    match custom_scalar_types.get(&custom_scalar.to_string().intern()) {
+        None => custom_scalar.to_string(),
+        Some(
+            CustomScalarType::Name(name)
+            | CustomScalarType::Path(CustomScalarTypeImport { name, .. }),
+        ) => name.to_string(),
+    }
+}
+
 fn print_wrapped_in_some(str: &String, print_as_optional: bool) -> String {
     if print_as_optional {
         format!("Some({})", str)
@@ -410,15 +423,9 @@ pub fn print_type_reference(
                         "Float" => String::from("float"),
                         "String" | "ID" => String::from("string"),
                         custom_scalar => {
-                            let custom_scalar_name = match custom_scalar_types
-                                .get(&custom_scalar.to_string().intern())
-                            {
-                                None => custom_scalar.to_string(),
-                                Some(
-                                    CustomScalarType::Name(name)
-                                    | CustomScalarType::Path(CustomScalarTypeImport { name, .. }),
-                                ) => name.to_string(),
-                            };
+                            let custom_scalar_name =
+                                get_custom_scalar_name(&custom_scalar_types, &custom_scalar);
+
                             match classify_rescript_value_string(&custom_scalar_name) {
                                 RescriptCustomTypeValue::Module => {
                                     format!("{}.t", custom_scalar_name)
@@ -673,12 +680,16 @@ pub fn get_connection_key_maker(
         let is_custom_scalar = match dig_type_ref(&variable.type_) {
             Type::Scalar(id) => match schema.scalar(*id).name.item.to_string().as_str() {
                 "Boolean" | "Int" | "Float" | "String" | "ID" => None,
-                custom_scalar => match classify_rescript_value_string(&custom_scalar.to_string()) {
-                    RescriptCustomTypeValue::Module => {
-                        Some((variable.name.item.to_string(), custom_scalar.to_string()))
+                custom_scalar => {
+                    let custom_scalar_name =
+                        get_custom_scalar_name(&custom_scalar_types, &custom_scalar.to_string());
+                    match classify_rescript_value_string(&custom_scalar_name) {
+                        RescriptCustomTypeValue::Module => {
+                            Some((variable.name.item.to_string(), custom_scalar_name))
+                        }
+                        RescriptCustomTypeValue::Type => None,
                     }
-                    RescriptCustomTypeValue::Type => None,
-                },
+                }
             },
             _ => None,
         };

@@ -54,7 +54,7 @@ module Utils = {
 
   let makeConnectionId = (connectionParentDataId: RescriptRelay.dataId, ~onlineStatuses: array<[#Online | #Idle | #Offline]>=[#Idle], ~beforeDate: SomeModule.Datetime.t) => {
     let onlineStatuses = Some(onlineStatuses)
-    let beforeDate = Some(Datetime.serialize(beforeDate))
+    let beforeDate = Some(SomeModule.Datetime.serialize(beforeDate))
     let args = {"statuses": onlineStatuses, "beforeDate": beforeDate}
     internal_makeConnectionId(connectionParentDataId, args)
   }
