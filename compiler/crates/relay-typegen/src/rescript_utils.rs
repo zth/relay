@@ -646,8 +646,8 @@ pub fn get_connection_key_maker(
             .iter()
             .find(|(v, default_value)| {
                 match (&v.type_, default_value) {
-                    (TypeReference::List(_) | TypeReference::Named(_), Some(_))
-                    | (TypeReference::NonNull(_), _) => false,
+                    (_, Some(_)) => true,
+                    (TypeReference::NonNull(_), _) => false,
                     _ => true,
                 }
             })
