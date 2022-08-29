@@ -682,6 +682,38 @@ fn get_object_props(
         .collect()
 }
 
+fn write_enum_type_aliases(str: &mut String, indentation: usize, full_enum: &FullEnum) -> Result {
+    // We start by printing a private version of this enum. Using this enum will
+    // enforce, at the type level, that you handle the fall-through case. This
+    // version of the enum is the version that the enum is represented as
+    // whenever it's *coming from the server*, because anytime an enum comes
+    // from the server, it might've changed, and you should handle that.
+    write_indentation(str, indentation).unwrap();
+    writeln!(
+        str,
+        "type enum_{} = {}\n",
+        full_enum.name,
+        format!("RelaySchemaAssets_graphql.enum_{}", full_enum.name)
+    )
+    .unwrap();
+
+    // Next, we'll output an enum suffixed with "input". This enum is *closed*,
+    // meaning it won't force you to handle fall through cases. This version of
+    // the enum is used whenever the enum appears in inputs.
+    write_indentation(str, indentation).unwrap();
+    writeln!(
+        str,
+        "type enum_{}_input = {}\n",
+        full_enum.name,
+        format!("RelaySchemaAssets_graphql.enum_{}_input", full_enum.name)
+    )
+    .unwrap();
+
+    writeln!(str, "\n").unwrap();
+
+    Ok(())
+}
+
 fn get_object_prop_type_as_string(
     state: &Box<ReScriptPrinter>,
     prop_value: &PropType,
@@ -909,7 +941,7 @@ fn write_enum_util_functions(str: &mut String, indentation: usize, full_enum: &F
     write_indentation(str, indentation).unwrap();
     writeln!(
         str,
-        "external {}_toString: enum_{} => string = \"%identity\"",
+        "external {}_toString: RelaySchemaAssets_graphql.enum_{} => string = \"%identity\"",
         name_uncapitalized, full_enum.name
     )
     .unwrap();
@@ -1966,6 +1998,14 @@ impl Writer for ReScriptPrinter {
         write_indentation(&mut generated_types, indentation).unwrap();
 
         writeln!(generated_types, "@@ocaml.warning(\"-30\")\n").unwrap();
+
+        // Print enums
+        self.enums
+            .iter()
+            .unique_by(|full_enum| &full_enum.name)
+            .for_each(|full_enum| {
+                write_enum_type_aliases(&mut generated_types, indentation, &full_enum).unwrap()
+            });
 
         // Print input objects. These are just type aliases for the main type that's located in the schema assets file.
         self.input_objects

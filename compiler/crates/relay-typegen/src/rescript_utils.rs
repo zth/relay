@@ -568,7 +568,7 @@ pub fn get_connection_key_maker(
                 format!(
                     "~{}: {}{}",
                     variable.name.item,
-                    print_type_reference(&variable.type_, &schema, false, true),
+                    print_type_reference(&variable.type_, &schema, true, true),
                     match (&default_value, &variable.type_) {
                         (Some(default_value), _) => format!(
                             "={}",

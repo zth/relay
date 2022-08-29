@@ -4,6 +4,12 @@
 module Types = {
   @@ocaml.warning("-30")
 
+  type enum_OnlineStatus = RelaySchemaAssets_graphql.enum_OnlineStatus
+
+  type enum_OnlineStatus_input = RelaySchemaAssets_graphql.enum_OnlineStatus_input
+
+
+
   @live
   type rec response_setOnlineStatus_user = {
     fragmentRefs: RescriptRelay.fragmentRefs<[ | #TestMutationInline_user]>,
@@ -119,7 +125,7 @@ module Utils = {
   @@ocaml.warning("-33")
   open Types
   @live
-  external onlineStatus_toString: enum_OnlineStatus => string = "%identity"
+  external onlineStatus_toString: RelaySchemaAssets_graphql.enum_OnlineStatus => string = "%identity"
   @live
   external onlineStatus_input_toString: RelaySchemaAssets_graphql.enum_OnlineStatus_input => string = "%identity"
   @live
