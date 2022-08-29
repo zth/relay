@@ -589,7 +589,7 @@ pub fn get_connection_key_maker(
     write_indentation(&mut str, local_indentation).unwrap();
     write!(
         str,
-        "%%private(\n    @live @module(\"relay-runtime\") @scope(\"ConnectionHandler\")\n    external internal_makeConnectionId: (RescriptRelay.dataId, @as(\"{}\") _, 'arguments) => RescriptRelay.dataId = \"getConnectionId\"\n  )\n\n",
+        "%%private(\n    @live @module(\"relay-runtime\") @scope(\"ConnectionHandler\")\n    external internal_makeConnectionId: (RescriptRelay.dataId, @as(\"{}\") _, 'arguments) => RescriptRelay.dataId = \"getConnectionID\"\n  )\n\n",
         key
     )
     .unwrap();
