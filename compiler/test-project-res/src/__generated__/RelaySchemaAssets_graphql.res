@@ -31,14 +31,14 @@ type enum_RequiredFieldAction_input = [
 
 @live
 type rec input_InputA = {
-  time: Datetime.t,
+  time: SomeModule.Datetime.t,
   recursiveA: option<input_InputA>,
   usingB: option<input_InputB>,
 }
 
 @live
 and input_InputB = {
-  time: option<Datetime.t>,
+  time: option<SomeModule.Datetime.t>,
   usingA: option<input_InputA>,
   @as("constraint") constraint_: option<bool>,
 }
@@ -73,7 +73,7 @@ and input_PesticideListSearchInput = {
 }
 @live @obj
 external make_InputA: (
-  ~time: Datetime.t,
+  ~time: SomeModule.Datetime.t,
   ~recursiveA: input_InputA=?,
   ~usingB: input_InputB=?,
   unit,
@@ -81,7 +81,7 @@ external make_InputA: (
 
 @live @obj
 external make_InputB: (
-  ~time: Datetime.t=?,
+  ~time: SomeModule.Datetime.t=?,
   ~usingA: input_InputA=?,
   ~_constraint: bool=?,
   unit,

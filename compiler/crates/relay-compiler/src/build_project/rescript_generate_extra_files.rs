@@ -71,7 +71,13 @@ pub(crate) fn rescript_generate_extra_artifacts(
                     None => String::from(""),
                 }),
                 key,
-                print_type_reference(&field.type_, &schema, true, false)
+                print_type_reference(
+                    &field.type_,
+                    &schema,
+                    &project_config.typegen_config.custom_scalar_types,
+                    true,
+                    false
+                )
             )
             .unwrap();
         });
@@ -109,7 +115,13 @@ pub(crate) fn rescript_generate_extra_artifacts(
                     Some(original_key) => format!("_{}", original_key),
                     None => key,
                 }),
-                print_type_reference(&arg.type_, &schema, false, false),
+                print_type_reference(
+                    &arg.type_,
+                    &schema,
+                    &project_config.typegen_config.custom_scalar_types,
+                    false,
+                    false
+                ),
                 if is_optional { "=?" } else { "" }
             )
             .unwrap();

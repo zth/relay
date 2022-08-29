@@ -2,18 +2,21 @@ use std::ops::Add;
 
 use common::WithLocation;
 use graphql_ir::{
-    Argument, ConstantValue, FragmentDefinition, Value, Variable, VariableDefinition, Visitor,
+    reexport::Intern, Argument, ConstantValue, FragmentDefinition, Value, Variable,
+    VariableDefinition, Visitor,
 };
 use itertools::Itertools;
 use log::warn;
-use relay_config::TypegenConfig;
+use relay_config::{CustomScalarType, CustomScalarTypeImport, TypegenConfig};
 use relay_transforms::RelayDirective;
 use schema::{SDLSchema, Schema, Type, TypeReference};
 
 use crate::{
     rescript::DefinitionType,
     rescript_ast::{Context, ConverterInstructions, FullEnum},
-    rescript_relay_visitor::{RescriptRelayOperationMetaData, RescriptRelayVisitor},
+    rescript_relay_visitor::{
+        CustomScalarsMap, RescriptRelayOperationMetaData, RescriptRelayVisitor,
+    },
     writer::{Prop, AST},
 };
 
@@ -371,6 +374,7 @@ pub fn print_constant_value(value: &ConstantValue, print_as_optional: bool) -> S
 pub fn print_type_reference(
     typ: &TypeReference,
     schema: &SDLSchema,
+    custom_scalar_types: &CustomScalarsMap,
     nullable: bool,
     prefix_with_schema_module: bool,
 ) -> String {
@@ -405,11 +409,23 @@ pub fn print_type_reference(
                         "Int" => String::from("int"),
                         "Float" => String::from("float"),
                         "String" | "ID" => String::from("string"),
-                        custom_scalar =>
-                            match classify_rescript_value_string(&custom_scalar.to_string()) {
-                                RescriptCustomTypeValue::Module => format!("{}.t", custom_scalar),
+                        custom_scalar => {
+                            let custom_scalar_name = match custom_scalar_types
+                                .get(&custom_scalar.to_string().intern())
+                            {
+                                None => custom_scalar.to_string(),
+                                Some(
+                                    CustomScalarType::Name(name)
+                                    | CustomScalarType::Path(CustomScalarTypeImport { name, .. }),
+                                ) => name.to_string(),
+                            };
+                            match classify_rescript_value_string(&custom_scalar_name) {
+                                RescriptCustomTypeValue::Module => {
+                                    format!("{}.t", custom_scalar_name)
+                                }
                                 RescriptCustomTypeValue::Type => custom_scalar.to_string(),
-                            },
+                            }
+                        }
                     }
                 ),
                 _ => String::from("RescriptRelay.any"),
@@ -418,12 +434,24 @@ pub fn print_type_reference(
         ),
         TypeReference::NonNull(typ) => format!(
             "{}",
-            print_type_reference(&typ, &schema, false, prefix_with_schema_module)
+            print_type_reference(
+                &typ,
+                &schema,
+                &custom_scalar_types,
+                false,
+                prefix_with_schema_module
+            )
         ),
         TypeReference::List(typ) => print_opt(
             &format!(
                 "array<{}>",
-                print_type_reference(&typ, &schema, true, prefix_with_schema_module)
+                print_type_reference(
+                    &typ,
+                    &schema,
+                    &custom_scalar_types,
+                    true,
+                    prefix_with_schema_module
+                )
             ),
             nullable,
         ),
@@ -535,6 +563,7 @@ pub fn get_connection_key_maker(
     fragment_variable_definitions: &Vec<VariableDefinition>,
     key: &String,
     schema: &SDLSchema,
+    custom_scalar_types: &CustomScalarsMap,
 ) -> String {
     let mut str = String::from("");
     let mut all_variables = vec![];
@@ -568,7 +597,13 @@ pub fn get_connection_key_maker(
                 format!(
                     "~{}: {}{}",
                     variable.name.item,
-                    print_type_reference(&variable.type_, &schema, true, true),
+                    print_type_reference(
+                        &variable.type_,
+                        &schema,
+                        &custom_scalar_types,
+                        true,
+                        true
+                    ),
                     match (&default_value, &variable.type_) {
                         (Some(default_value), _) => format!(
                             "={}",

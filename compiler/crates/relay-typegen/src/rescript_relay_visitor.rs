@@ -232,6 +232,7 @@ impl<'a> Visitor for RescriptRelayVisitor<'a> {
                         &self.variable_definitions,
                         &key,
                         &self.schema,
+                        &self.state.custom_scalars,
                     ),
                     key,
                     at_object_path: self.current_path.clone(),
