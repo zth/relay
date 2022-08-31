@@ -1014,20 +1014,11 @@ pub fn generate_operation_rescript(
 
     let mut top_level_statements: TopLevelStatements = Default::default();
 
-    // Provided variables
+    // Provided variables. This just adds some metadata to make Relay output
+    // what we want. Printing of the actual types and values involved in
+    // provided variables is handled inside of the ReScript typegen printer.
     let provided_variables = find_provided_variables(&normalization_operation);
-    if let Some(provided_variables) = &provided_variables {
-        writeln!(
-            section,
-            "let providedVariablesDefinition: providedVariablesType = {{"
-        )?;
-
-        provided_variables.iter().for_each(|(key, module_name)| {
-            writeln!(section, "  {}: {}.get,", key, module_name).unwrap();
-        });
-
-        writeln!(section, "}}")?;
-
+    if provided_variables.is_some() {
         // This needs to be inserted even though we're not actually printing
         // `top_level_statements`. The compiler checks for the present of the
         // `symbol` added below, and changes the provided variables output to

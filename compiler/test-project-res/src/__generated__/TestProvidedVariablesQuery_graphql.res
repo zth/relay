@@ -5,6 +5,8 @@ module Types = {
   @@ocaml.warning("-30")
 
   @live type someInput = RelaySchemaAssets_graphql.input_SomeInput
+  @live type inputB = RelaySchemaAssets_graphql.input_InputB
+  @live type inputA = RelaySchemaAssets_graphql.input_InputA
   type rec response_loggedInUser = {
     fragmentRefs: RescriptRelay.fragmentRefs<[ | #TestProvidedVariables_user]>,
   }
@@ -23,10 +25,12 @@ module Types = {
 module Internal = {
   @live
   let variablesConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
-    json`{"someInput":{"recursive":{"r":"someInput"}},"__root":{}}`
+    json`{"someInput":{"recursive":{"r":"someInput"}},"SomeInput":{},"inputA":{"usingB":{"r":"inputB"},"time":{"c":"SomeModule.Datetime"},"recursiveA":{"r":"inputA"}},"inputB":{"usingA":{"r":"inputA"},"time":{"c":"SomeModule.Datetime"}},"InputB":{},"__root":{"__relay_internal__pv__TestProvidedVariablesSomeInput":{"r":"SomeInput"},"__relay_internal__pv__TestProvidedVariablesInputB":{"r":"InputB"},"__relay_internal__pv__TestProvidedVariablesDatetimes":{"c":"SomeModule.Datetime"},"__relay_internal__pv__TestProvidedVariablesDatetime":{"c":"SomeModule.Datetime"}}}`
   )
   @live
-  let variablesConverterMap = ()
+  let variablesConverterMap = {
+    "SomeModule.Datetime": SomeModule.Datetime.serialize,
+  }
   @live
   let convertVariables = v => v->RescriptRelay.convertObj(
     variablesConverter,
@@ -84,19 +88,51 @@ module Utils = {
   ) => someInput = ""
 
 
+  @live @obj external make_inputB: (
+    ~_constraint: bool=?,
+    ~time: SomeModule.Datetime.t=?,
+    ~usingA: inputA=?,
+    unit
+  ) => inputB = ""
+
+
+  @live @obj external make_inputA: (
+    ~recursiveA: inputA=?,
+    ~time: SomeModule.Datetime.t,
+    ~usingB: inputB=?,
+    unit
+  ) => inputA = ""
+
+
   @live @obj external makeVariables: unit => unit = ""
 }
 type providedVariablesType = {
-  __relay_internal__pv__TestProvidedVariables: unit => RelaySchemaAssets_graphql.input_SomeInput,
+  __relay_internal__pv__TestProvidedVariablesBool: unit => bool,
+  __relay_internal__pv__TestProvidedVariablesDatetime: unit => option<SomeModule.Datetime.t>,
+  __relay_internal__pv__TestProvidedVariablesDatetimes: unit => option<array<SomeModule.Datetime.t>>,
+  __relay_internal__pv__TestProvidedVariablesFloat: unit => float,
+  __relay_internal__pv__TestProvidedVariablesID: unit => option<string>,
+  __relay_internal__pv__TestProvidedVariablesInputB: unit => RelaySchemaAssets_graphql.input_InputB,
+  __relay_internal__pv__TestProvidedVariablesInt: unit => option<int>,
+  __relay_internal__pv__TestProvidedVariablesSomeInput: unit => RelaySchemaAssets_graphql.input_SomeInput,
+  __relay_internal__pv__TestProvidedVariablesStr: unit => string,
 }
+let providedVariablesDefinition: providedVariablesType = Internal.convertVariables({
+  __relay_internal__pv__TestProvidedVariablesSomeInput: TestProvidedVariables.SomeInput.get(),
+  __relay_internal__pv__TestProvidedVariablesInputB: TestProvidedVariables.InputB.get(),
+  __relay_internal__pv__TestProvidedVariablesBool: TestProvidedVariables.Bool.get(),
+  __relay_internal__pv__TestProvidedVariablesStr: TestProvidedVariables.Str.get(),
+  __relay_internal__pv__TestProvidedVariablesFloat: TestProvidedVariables.Float.get(),
+  __relay_internal__pv__TestProvidedVariablesInt: TestProvidedVariables.Int.get(),
+  __relay_internal__pv__TestProvidedVariablesID: TestProvidedVariables.ID.get(),
+  __relay_internal__pv__TestProvidedVariablesDatetime: TestProvidedVariables.Datetime.get(),
+  __relay_internal__pv__TestProvidedVariablesDatetimes: TestProvidedVariables.Datetimes.get(),
+})
 
 type relayOperationNode
 type operationType = RescriptRelay.queryNode<relayOperationNode>
 
 
-let providedVariablesDefinition: providedVariablesType = {
-  __relay_internal__pv__TestProvidedVariables: TestProvidedVariables.get,
-}
 %%private(let makeNode = (providedVariablesDefinition): operationType => {
   ignore(providedVariablesDefinition)
   %raw(json`{
@@ -132,7 +168,47 @@ let providedVariablesDefinition: providedVariablesType = {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "__relay_internal__pv__TestProvidedVariables"
+        "name": "__relay_internal__pv__TestProvidedVariablesSomeInput"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "__relay_internal__pv__TestProvidedVariablesInputB"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "__relay_internal__pv__TestProvidedVariablesBool"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "__relay_internal__pv__TestProvidedVariablesStr"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "__relay_internal__pv__TestProvidedVariablesFloat"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "__relay_internal__pv__TestProvidedVariablesInt"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "__relay_internal__pv__TestProvidedVariablesID"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "__relay_internal__pv__TestProvidedVariablesDatetime"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "__relay_internal__pv__TestProvidedVariablesDatetimes"
       }
     ],
     "kind": "Operation",
@@ -158,8 +234,48 @@ let providedVariablesDefinition: providedVariablesType = {
             "args": [
               {
                 "kind": "Variable",
-                "name": "show",
-                "variableName": "__relay_internal__pv__TestProvidedVariables"
+                "name": "bool",
+                "variableName": "__relay_internal__pv__TestProvidedVariablesBool"
+              },
+              {
+                "kind": "Variable",
+                "name": "dateTime",
+                "variableName": "__relay_internal__pv__TestProvidedVariablesDatetime"
+              },
+              {
+                "kind": "Variable",
+                "name": "dateTimes",
+                "variableName": "__relay_internal__pv__TestProvidedVariablesDatetimes"
+              },
+              {
+                "kind": "Variable",
+                "name": "float",
+                "variableName": "__relay_internal__pv__TestProvidedVariablesFloat"
+              },
+              {
+                "kind": "Variable",
+                "name": "id",
+                "variableName": "__relay_internal__pv__TestProvidedVariablesID"
+              },
+              {
+                "kind": "Variable",
+                "name": "inputB",
+                "variableName": "__relay_internal__pv__TestProvidedVariablesInputB"
+              },
+              {
+                "kind": "Variable",
+                "name": "int",
+                "variableName": "__relay_internal__pv__TestProvidedVariablesInt"
+              },
+              {
+                "kind": "Variable",
+                "name": "someInput",
+                "variableName": "__relay_internal__pv__TestProvidedVariablesSomeInput"
+              },
+              {
+                "kind": "Variable",
+                "name": "str",
+                "variableName": "__relay_internal__pv__TestProvidedVariablesStr"
               }
             ],
             "kind": "ScalarField",
@@ -179,12 +295,12 @@ let providedVariablesDefinition: providedVariablesType = {
     ]
   },
   "params": {
-    "cacheID": "5791749d56c302a4cd2982fa91f2550d",
+    "cacheID": "e126b7abfa263019306c87047185b1ff",
     "id": null,
     "metadata": {},
     "name": "TestProvidedVariablesQuery",
     "operationKind": "query",
-    "text": "query TestProvidedVariablesQuery(\n  $__relay_internal__pv__TestProvidedVariables: SomeInput!\n) {\n  loggedInUser {\n    ...TestProvidedVariables_user\n    id\n  }\n}\n\nfragment TestProvidedVariables_user on User {\n  firstName\n  onlineStatus(show: $__relay_internal__pv__TestProvidedVariables)\n}\n",
+    "text": "query TestProvidedVariablesQuery(\n  $__relay_internal__pv__TestProvidedVariablesSomeInput: SomeInput!\n  $__relay_internal__pv__TestProvidedVariablesInputB: InputB!\n  $__relay_internal__pv__TestProvidedVariablesBool: Boolean!\n  $__relay_internal__pv__TestProvidedVariablesStr: String!\n  $__relay_internal__pv__TestProvidedVariablesFloat: Float!\n  $__relay_internal__pv__TestProvidedVariablesInt: Int\n  $__relay_internal__pv__TestProvidedVariablesID: ID\n  $__relay_internal__pv__TestProvidedVariablesDatetime: Datetime\n  $__relay_internal__pv__TestProvidedVariablesDatetimes: [Datetime!]\n) {\n  loggedInUser {\n    ...TestProvidedVariables_user\n    id\n  }\n}\n\nfragment TestProvidedVariables_user on User {\n  firstName\n  onlineStatus(someInput: $__relay_internal__pv__TestProvidedVariablesSomeInput, inputB: $__relay_internal__pv__TestProvidedVariablesInputB, bool: $__relay_internal__pv__TestProvidedVariablesBool, str: $__relay_internal__pv__TestProvidedVariablesStr, float: $__relay_internal__pv__TestProvidedVariablesFloat, int: $__relay_internal__pv__TestProvidedVariablesInt, id: $__relay_internal__pv__TestProvidedVariablesID, dateTime: $__relay_internal__pv__TestProvidedVariablesDatetime, dateTimes: $__relay_internal__pv__TestProvidedVariablesDatetimes)\n}\n",
     "providedVariables": providedVariablesDefinition
   }
 }`)

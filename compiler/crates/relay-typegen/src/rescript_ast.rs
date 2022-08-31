@@ -122,8 +122,15 @@ pub enum NullableType {
     Null,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
+pub enum AstToStringNeedsConversion {
+    InputObject(String),
+    CustomScalar(String),
+}
+
+#[derive(Debug, Clone)]
 pub struct ProvidedVariable {
     pub key: String,
     pub return_type: String,
+    pub needs_conversion: Option<AstToStringNeedsConversion>,
 }

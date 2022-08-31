@@ -66,7 +66,39 @@ let node: operationType = %raw(json` {
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
-      "name": "__relay_internal__pv__TestProvidedVariables"
+      "name": "__relay_internal__pv__TestProvidedVariablesBool"
+    },
+    {
+      "kind": "RootArgument",
+      "name": "__relay_internal__pv__TestProvidedVariablesDatetime"
+    },
+    {
+      "kind": "RootArgument",
+      "name": "__relay_internal__pv__TestProvidedVariablesDatetimes"
+    },
+    {
+      "kind": "RootArgument",
+      "name": "__relay_internal__pv__TestProvidedVariablesFloat"
+    },
+    {
+      "kind": "RootArgument",
+      "name": "__relay_internal__pv__TestProvidedVariablesID"
+    },
+    {
+      "kind": "RootArgument",
+      "name": "__relay_internal__pv__TestProvidedVariablesInputB"
+    },
+    {
+      "kind": "RootArgument",
+      "name": "__relay_internal__pv__TestProvidedVariablesInt"
+    },
+    {
+      "kind": "RootArgument",
+      "name": "__relay_internal__pv__TestProvidedVariablesSomeInput"
+    },
+    {
+      "kind": "RootArgument",
+      "name": "__relay_internal__pv__TestProvidedVariablesStr"
     }
   ],
   "kind": "Fragment",
@@ -85,8 +117,48 @@ let node: operationType = %raw(json` {
       "args": [
         {
           "kind": "Variable",
-          "name": "show",
-          "variableName": "__relay_internal__pv__TestProvidedVariables"
+          "name": "bool",
+          "variableName": "__relay_internal__pv__TestProvidedVariablesBool"
+        },
+        {
+          "kind": "Variable",
+          "name": "dateTime",
+          "variableName": "__relay_internal__pv__TestProvidedVariablesDatetime"
+        },
+        {
+          "kind": "Variable",
+          "name": "dateTimes",
+          "variableName": "__relay_internal__pv__TestProvidedVariablesDatetimes"
+        },
+        {
+          "kind": "Variable",
+          "name": "float",
+          "variableName": "__relay_internal__pv__TestProvidedVariablesFloat"
+        },
+        {
+          "kind": "Variable",
+          "name": "id",
+          "variableName": "__relay_internal__pv__TestProvidedVariablesID"
+        },
+        {
+          "kind": "Variable",
+          "name": "inputB",
+          "variableName": "__relay_internal__pv__TestProvidedVariablesInputB"
+        },
+        {
+          "kind": "Variable",
+          "name": "int",
+          "variableName": "__relay_internal__pv__TestProvidedVariablesInt"
+        },
+        {
+          "kind": "Variable",
+          "name": "someInput",
+          "variableName": "__relay_internal__pv__TestProvidedVariablesSomeInput"
+        },
+        {
+          "kind": "Variable",
+          "name": "str",
+          "variableName": "__relay_internal__pv__TestProvidedVariablesStr"
         }
       ],
       "kind": "ScalarField",

@@ -38,7 +38,8 @@ pub enum TopLevelFragmentType {
 #[derive(Debug)]
 pub enum DefinitionType {
     Fragment(FragmentDefinition),
-    Operation(OperationDefinition),
+    // (typegen definition, normalization operation)
+    Operation((OperationDefinition, OperationDefinition)),
 }
 
 // We need to keep track of this information in order to figure out where to
@@ -1444,9 +1445,12 @@ fn write_object_definition(
     is_refetch_var: bool,
 ) -> Result {
     let is_generated_operation = match &state.typegen_definition {
-        DefinitionType::Operation(OperationDefinition {
-            generated: true, ..
-        }) => true,
+        DefinitionType::Operation((
+            OperationDefinition {
+                generated: true, ..
+            },
+            _,
+        )) => true,
         _ => false,
     };
 
@@ -1460,10 +1464,13 @@ fn write_object_definition(
         | (
             false,
             Context::Response,
-            DefinitionType::Operation(OperationDefinition {
-                kind: OperationKind::Query,
-                ..
-            }),
+            DefinitionType::Operation((
+                OperationDefinition {
+                    kind: OperationKind::Query,
+                    ..
+                },
+                _,
+            )),
         ) => (),
         _ => write_suppress_dead_code_warning_annotation(str, indentation).unwrap(),
     }
@@ -1891,7 +1898,7 @@ fn write_get_connection_nodes_function(
 fn warn_about_unimplemented_feature(definition_type: &DefinitionType, context: String) {
     warn!("'{}' (context: '{}') produced a type that RescriptRelay does not understand. Please open an issue on the repo https://github.com/zth/rescript-relay and describe what you were doing as this happened.", match &definition_type {
         DefinitionType::Fragment(fragment_definition) => fragment_definition.name.item,
-        DefinitionType::Operation(operation_definition) => operation_definition.name.item
+        DefinitionType::Operation((operation_definition, _)) => operation_definition.name.item
     }, context);
 }
 
@@ -2129,10 +2136,13 @@ impl Writer for ReScriptPrinter {
             // And, if we're in a query, print the refetch variables assets as
             // well.
             match &self.typegen_definition {
-                &DefinitionType::Operation(OperationDefinition {
-                    kind: OperationKind::Query,
-                    ..
-                }) => {
+                &DefinitionType::Operation((
+                    OperationDefinition {
+                        kind: OperationKind::Query,
+                        ..
+                    },
+                    _,
+                )) => {
                     // Refetch variables are the regular variables, but with all
                     // top level fields forced to be optional. Note: This is not
                     // 100% and we'll need to revisit this at a later point in
@@ -2258,7 +2268,7 @@ impl Writer for ReScriptPrinter {
         // optimistic responses, or similar. In short, any time a value goes
         // back into Relay from ReScript.
         match (&self.response, &self.typegen_definition) {
-            (Some(_), DefinitionType::Operation(op)) => {
+            (Some(_), DefinitionType::Operation((op, _))) => {
                 match &op.kind {
                     OperationKind::Query | OperationKind::Mutation => {
                         write_internal_assets(
@@ -2292,7 +2302,7 @@ impl Writer for ReScriptPrinter {
         };
 
         match (&self.response, &self.raw_response, &self.typegen_definition) {
-            (Some(_), Some(_), DefinitionType::Operation(op)) => {
+            (Some(_), Some(_), DefinitionType::Operation((op, _))) => {
                 match &op.kind {
                     OperationKind::Query | OperationKind::Mutation => {
                         write_internal_assets(
@@ -2322,7 +2332,7 @@ impl Writer for ReScriptPrinter {
                 )
                 .unwrap();
             }
-            (Some(_), None, DefinitionType::Operation(op)) => {
+            (Some(_), None, DefinitionType::Operation((op, _))) => {
                 match &op.kind {
                     OperationKind::Query | OperationKind::Mutation => {
                         write_indentation(&mut generated_types, indentation).unwrap();
@@ -2381,7 +2391,8 @@ impl Writer for ReScriptPrinter {
                 )
                 .unwrap();
             }
-            DefinitionType::Operation(operation_definition) => match operation_definition.kind {
+            DefinitionType::Operation((operation_definition, _)) => match operation_definition.kind
+            {
                 OperationKind::Query => {
                     write_indentation(&mut generated_types, indentation).unwrap();
                     writeln!(generated_types, "").unwrap();
@@ -2511,7 +2522,7 @@ impl Writer for ReScriptPrinter {
 
         // Print a maker for optimistic responses
         match (&self.typegen_definition, &self.raw_response) {
-            (DefinitionType::Operation(def), Some(raw_response)) => {
+            (DefinitionType::Operation((def, _)), Some(raw_response)) => {
                 if def.kind == OperationKind::Mutation {
                     write_object_maker(
                         &self,
@@ -2547,21 +2558,60 @@ impl Writer for ReScriptPrinter {
         write_indentation(&mut generated_types, indentation).unwrap();
         writeln!(generated_types, "}}").unwrap();
 
-        if let Some(provided_variables) = self.provided_variables {
-            write_indentation(&mut generated_types, indentation).unwrap();
-            writeln!(generated_types, "type providedVariablesType = {{").unwrap();
-            indentation += 1;
-
-            provided_variables
-                .iter()
-                .for_each(|ProvidedVariable { key, return_type }| {
+        /*
+         * PROVIDED VARIABLES.
+         * ---
+         * Print types, values, assets, etc. Everything we need.
+         */
+        match (&self.provided_variables, &self.typegen_definition) {
+            (Some(provided_variables), DefinitionType::Operation((_, normalization_operation))) => {
+                if let Some(provided_variables_from_operation) =
+                    find_provided_variables(&normalization_operation)
+                {
+                    // Write the type
                     write_indentation(&mut generated_types, indentation).unwrap();
-                    writeln!(generated_types, "{}: unit => {},", key, return_type).unwrap();
-                });
+                    writeln!(generated_types, "type providedVariablesType = {{").unwrap();
+                    indentation += 1;
 
-            indentation -= 1;
-            write_indentation(&mut generated_types, indentation).unwrap();
-            writeln!(generated_types, "}}").unwrap();
+                    provided_variables.iter().for_each(
+                        |ProvidedVariable {
+                             key, return_type, ..
+                         }| {
+                            write_indentation(&mut generated_types, indentation).unwrap();
+                            writeln!(generated_types, "{}: unit => {},", key, return_type).unwrap();
+                        },
+                    );
+
+                    indentation -= 1;
+                    write_indentation(&mut generated_types, indentation).unwrap();
+                    writeln!(generated_types, "}}").unwrap();
+
+                    // Write the assets. Notice we're wrapping the entire record
+                    // definition with `convertVariables`. That's because we're
+                    // piggy backing on the regular variable conversion infra
+                    // for converting input objects and custom scalars as needed
+                    // for provided variables.
+                    write_indentation(&mut generated_types, indentation).unwrap();
+                    writeln!(
+                        generated_types,
+                        "let providedVariablesDefinition: providedVariablesType = Internal.convertVariables({{"
+                    )
+                    .unwrap();
+                    indentation += 1;
+
+                    provided_variables_from_operation
+                        .iter()
+                        .for_each(|(key, module_name)| {
+                            write_indentation(&mut generated_types, indentation).unwrap();
+                            writeln!(generated_types, "{}: {}.get(),", key, module_name).unwrap();
+                        });
+
+                    indentation -= 1;
+                    write_indentation(&mut generated_types, indentation).unwrap();
+                    writeln!(generated_types, "}})").unwrap();
+                }
+            }
+            _ => (),
         }
 
         generated_types
@@ -2748,7 +2798,7 @@ impl Writer for ReScriptPrinter {
             // short circuits and returns early if we encounter a type like
             // that, since we have no use for it on the ReScript side.
             match &self.typegen_definition {
-                DefinitionType::Operation(op) => {
+                DefinitionType::Operation((op, _)) => {
                     if &name == &op.name.item.to_string().as_str() {
                         return Ok(());
                     }
@@ -2871,14 +2921,56 @@ impl Writer for ReScriptPrinter {
                                 }) {
                                     None => (),
                                     Some(return_type_ast) => {
+                                        let mut needs_conversion = None;
                                         provided_variables.push(ProvidedVariable {
                                             key: key_value_pair.key.to_string(),
                                             return_type: ast_to_string(
                                                 &return_type_ast.as_ref(),
                                                 self,
                                                 &Context::NotRelevant,
+                                                &mut needs_conversion,
                                             ),
-                                        })
+                                            needs_conversion: needs_conversion.clone(),
+                                        });
+
+                                        // Make sure we note any provided
+                                        // variable that needs runtime
+                                        // conversion for input objects or
+                                        // custom scalars. We piggy back on the
+                                        // existing infra for converting
+                                        // variables.
+                                        match &needs_conversion {
+                                            None => (),
+                                            Some(AstToStringNeedsConversion::InputObject(
+                                                input_object_name,
+                                            )) => {
+                                                self.conversion_instructions.push(
+                                                    InstructionContainer {
+                                                        context: Context::Variables,
+                                                        at_path: vec![String::from("variables"),key_value_pair
+                                                            .key
+                                                            .to_string()],
+                                                        instruction:
+                                                            ConverterInstructions::RootObject(
+                                                                input_object_name.clone(),
+                                                            ),
+                                                    },
+                                                );
+                                            }
+                                            Some(AstToStringNeedsConversion::CustomScalar(
+                                                scalar_name,
+                                            )) => {
+                                                self.conversion_instructions
+                                                    .push(InstructionContainer {
+                                                    context: Context::Variables,
+                                                    at_path: vec![String::from("variables"), key_value_pair.key.to_string()],
+                                                    instruction:
+                                                        ConverterInstructions::ConvertCustomField(
+                                                            scalar_name.clone(),
+                                                        ),
+                                                });
+                                            }
+                                        }
                                     }
                                 }
                             }

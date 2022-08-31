@@ -14,7 +14,7 @@ use schema::{SDLSchema, Schema, Type, TypeReference};
 
 use crate::{
     rescript::{DefinitionType, ReScriptPrinter},
-    rescript_ast::{Context, ConverterInstructions, FullEnum},
+    rescript_ast::{AstToStringNeedsConversion, Context, ConverterInstructions, FullEnum},
     rescript_relay_visitor::{
         CustomScalarsMap, RescriptRelayOperationMetaData, RescriptRelayVisitor,
     },
@@ -233,7 +233,7 @@ pub fn get_rescript_relay_meta_data(
                 RescriptRelayVisitor::new(schema, &mut state, String::from("fragment"));
             visitor.visit_fragment(definition)
         }
-        DefinitionType::Operation(definition) => {
+        DefinitionType::Operation((definition, _)) => {
             let mut visitor =
                 RescriptRelayVisitor::new(schema, &mut state, String::from("response"));
             visitor.visit_operation(definition)
@@ -862,7 +862,12 @@ pub fn classify_identifier<'a>(
     }
 }
 
-pub fn ast_to_string<'a>(ast: &AST, state: &'a mut ReScriptPrinter, context: &Context) -> String {
+pub fn ast_to_string<'a>(
+    ast: &AST,
+    state: &'a mut ReScriptPrinter,
+    context: &Context,
+    needs_conversion: &mut Option<AstToStringNeedsConversion>,
+) -> String {
     match &ast {
         AST::Boolean => String::from("bool"),
         AST::String => String::from("string"),
@@ -871,19 +876,34 @@ pub fn ast_to_string<'a>(ast: &AST, state: &'a mut ReScriptPrinter, context: &Co
         }
         AST::ReadOnlyArray(inner_type) => format!(
             "array<{}>",
-            ast_to_string(inner_type.as_ref(), state, &context)
+            ast_to_string(inner_type.as_ref(), state, &context, needs_conversion)
         ),
-        AST::NonNullable(ast) => ast_to_string(ast, state, &context),
-        AST::Nullable(ast) => format!("option<{}>", ast_to_string(ast, state, &context)),
+        AST::NonNullable(ast) => ast_to_string(ast, state, &context, needs_conversion),
+        AST::Nullable(ast) => format!(
+            "option<{}>",
+            ast_to_string(ast, state, &context, needs_conversion)
+        ),
         AST::RawType(identifier) | AST::Identifier(identifier) => {
             match classify_identifier(state, identifier, &context) {
                 ClassifiedIdentifier::Enum(full_enum) => {
                     format!("RelaySchemaAssets_graphql.enum_{}_input", full_enum.name)
                 }
                 ClassifiedIdentifier::InputObject((_, full_identifier_name)) => {
+                    *needs_conversion = Some(AstToStringNeedsConversion::InputObject(
+                        full_identifier_name.clone(),
+                    ));
                     format!("RelaySchemaAssets_graphql.input_{}", full_identifier_name)
                 }
-                ClassifiedIdentifier::RawIdentifier(identifier) => identifier,
+                ClassifiedIdentifier::RawIdentifier(identifier) => {
+                    match classify_rescript_value_string(&identifier) {
+                        RescriptCustomTypeValue::Module => {
+                            *needs_conversion =
+                                Some(AstToStringNeedsConversion::CustomScalar(identifier.clone()));
+                            format!("{}.t", identifier)
+                        }
+                        RescriptCustomTypeValue::Type => identifier.to_string(),
+                    }
+                }
             }
         }
         _ => String::from("RescriptRelay.any"),
