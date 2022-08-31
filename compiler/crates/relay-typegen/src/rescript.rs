@@ -2617,8 +2617,35 @@ impl Writer for ReScriptPrinter {
                             write_indentation(&mut generated_types, indentation).unwrap();
                             writeln!(
                                 generated_types,
-                                "{}: {{providedVariable: {}.get, get: () => Internal.convertVariables({{\"{}\": {}.get()}})[\"{}\"]}},",
-                                key, module_name, key, module_name, key
+                                "{}: {{",
+                                key
+                            )
+                            .unwrap();
+                            indentation += 1;
+
+                            write_indentation(&mut generated_types, indentation).unwrap();
+                            writeln!(
+                                generated_types,
+                                "providedVariable: {}.get,",
+                                module_name
+                            )
+                            .unwrap();
+
+                            write_indentation(&mut generated_types, indentation).unwrap();
+                            writeln!(
+                                generated_types,
+                                "get: () => Internal.convertVariables({{\"{}\": {}.get()}})[\"{}\"],",
+                                key, module_name, key
+                            )
+                            .unwrap();
+
+                            indentation -= 1;
+
+                            write_indentation(&mut generated_types, indentation).unwrap();
+                            writeln!(
+                                generated_types,
+                                "}},",
+                                
                             )
                             .unwrap();
                         });
