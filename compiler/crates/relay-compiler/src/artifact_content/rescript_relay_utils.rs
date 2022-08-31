@@ -7,6 +7,7 @@ use std::{fmt::Write, ops::RangeTo};
 pub enum ImportType {
     GraphQLNode(String),
     ModuleImport(String),
+    ProvidedVariables,
 }
 
 pub fn rescript_find_code_import_references(concrete_text: &str) -> Vec<ImportType> {
@@ -44,7 +45,10 @@ pub fn rescript_find_code_import_references(concrete_text: &str) -> Vec<ImportTy
     results
 }
 
-pub fn rescript_make_operation_type_and_node_text(concrete_text: &str) -> String {
+pub fn rescript_make_operation_type_and_node_text(
+    concrete_text: &str,
+    has_provided_variables: bool,
+) -> String {
     lazy_static! {
         static ref PREFIX_GRAPHQL_IMPORT: String = String::from("rescript_graphql_node_");
         static ref PREFIX_CODE_IMPORT: String = String::from("rescript_module_");
@@ -52,7 +56,11 @@ pub fn rescript_make_operation_type_and_node_text(concrete_text: &str) -> String
 
     let mut str = String::new();
 
-    let referenced_imports = rescript_find_code_import_references(&concrete_text);
+    let mut referenced_imports = rescript_find_code_import_references(&concrete_text);
+
+    if has_provided_variables {
+        referenced_imports.push(ImportType::ProvidedVariables)
+    }
 
     if referenced_imports.len() == 0 {
         writeln!(
@@ -73,10 +81,12 @@ pub fn rescript_make_operation_type_and_node_text(concrete_text: &str) -> String
                     match &import_type {
                         &ImportType::GraphQLNode(_) => "rescript_graphql_node_",
                         &ImportType::ModuleImport(_) => "rescript_module_",
+                        &ImportType::ProvidedVariables => "providedVariablesDefinition",
                     },
                     match &import_type {
                         &ImportType::GraphQLNode(module_name) => module_name,
                         &ImportType::ModuleImport(module_name) => module_name,
+                        &ImportType::ProvidedVariables => "",
                     }
                 ))
                 .collect::<Vec<String>>()
@@ -95,10 +105,12 @@ pub fn rescript_make_operation_type_and_node_text(concrete_text: &str) -> String
                     match &import_type {
                         &ImportType::GraphQLNode(_) => "rescript_graphql_node_",
                         &ImportType::ModuleImport(_) => "rescript_module_",
+                        &ImportType::ProvidedVariables => "providedVariablesDefinition",
                     },
                     match &import_type {
                         &ImportType::GraphQLNode(module_name) => module_name,
                         &ImportType::ModuleImport(module_name) => module_name,
+                        &ImportType::ProvidedVariables => "",
                     }
                 ))
                 .collect::<Vec<String>>()
@@ -122,6 +134,8 @@ pub fn rescript_make_operation_type_and_node_text(concrete_text: &str) -> String
                             format!("{}_graphql.node", module_name),
                         &ImportType::ModuleImport(module_name) =>
                             format!("{}.default", module_name),
+                        &ImportType::ProvidedVariables =>
+                            String::from("providedVariablesDefinition"),
                     },
                 ))
                 .collect::<Vec<String>>()

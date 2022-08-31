@@ -50,7 +50,7 @@ type User implements Node {
   lastName: String!
   avatarUrl: String
   isOnline: Boolean
-  onlineStatus: OnlineStatus
+  onlineStatus(show: SomeInput): OnlineStatus
   nicknames: [String!]!
   createdAt: Datetime!
   friends(beforeDate: Datetime): [User!]!

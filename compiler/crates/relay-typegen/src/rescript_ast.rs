@@ -121,3 +121,9 @@ pub enum NullableType {
     Undefined,
     Null,
 }
+
+#[derive(Debug)]
+pub struct ProvidedVariable {
+    pub key: String,
+    pub return_type: String,
+}

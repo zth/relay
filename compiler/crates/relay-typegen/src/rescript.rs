@@ -9,18 +9,16 @@ use common::rescript_utils::get_module_name_from_file_path;
 use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{FragmentDefinition, OperationDefinition};
 use graphql_syntax::OperationKind;
-use intern::string_key::{Intern, StringKey};
 use itertools::Itertools;
 use lazy_static::__Deref;
 use log::{debug, warn};
-use relay_config::CustomScalarType;
 
 use crate::rescript_ast::*;
 use crate::rescript_relay_visitor::{
-    CustomScalarsMap, RescriptRelayFragmentDirective, RescriptRelayOperationMetaData,
+    RescriptRelayFragmentDirective, RescriptRelayOperationMetaData,
 };
 use crate::rescript_utils::*;
-use crate::writer::{Prop, Writer, AST};
+use crate::writer::{KeyValuePairProp, Prop, Writer, AST};
 use std::fmt::{Result, Write};
 
 // Fragments in Relay can be on either an abstract type (union/interface) or on
@@ -28,7 +26,7 @@ use std::fmt::{Result, Write};
 // enum allows us to keep track of what the current fragment we're looking at
 // is, and output types accordingly.
 #[derive(Debug)]
-enum TopLevelFragmentType {
+pub enum TopLevelFragmentType {
     Object(Object),
     Union(Union),
     ArrayWithObject(Object),
@@ -54,136 +52,61 @@ pub struct RelayResolverInfo {
 #[derive(Debug)]
 pub struct ReScriptPrinter {
     // All encountered enums.
-    enums: Vec<FullEnum>,
+    pub enums: Vec<FullEnum>,
 
     // All encountered regular objects.
-    objects: Vec<Object>,
+    pub objects: Vec<Object>,
 
     // All encountered input objects. These are recursive by default.
-    input_objects: Vec<Object>,
+    pub input_objects: Vec<Object>,
 
     // All encountered unions.
-    unions: Vec<Union>,
+    pub unions: Vec<Union>,
 
     // If there's a definition for variables (can be found in anything but fragments) in this artifact.
-    variables: Option<Object>,
+    pub variables: Option<Object>,
 
     // This is available for anything but fragments. The bool is whether the
     // response is nullable or not. Nullability of responses happen when the
     // @required directive bubbles the nullability all the way up to the
     // response top level.
-    response: Option<(bool, Object)>,
+    pub response: Option<(bool, Object)>,
 
     // The @raw_response_type annotation on operations will populate this. It
     // holds a type that represents the full, raw response Relay expects from
     // the server, and is primarily used for optimistic updates.
-    raw_response: Option<Object>,
+    pub raw_response: Option<Object>,
 
     // If this is a fragment, its structure will be here. The bool is whether
     // the fragment is nullable or not. Nullability of fragments happen when the
     // @required directive bubbles the nullability all the way up to the
     // fragment top level.
-    fragment: Option<(bool, TopLevelFragmentType)>,
+    pub fragment: Option<(bool, TopLevelFragmentType)>,
 
     // The raw typegen definition fed to us by the Relay compiler. Useful for
     // looking up things not communicated directly by the AST representing the
     // types the compiler also feeds us.
-    typegen_definition: DefinitionType,
+    pub typegen_definition: DefinitionType,
 
     // This holds all conversion instructions we've found when traversing the
     // full types and artifact. Read more in the file for conversion
     // instructions.
-    conversion_instructions: Vec<InstructionContainer>,
+    pub conversion_instructions: Vec<InstructionContainer>,
 
     // This holds meta data for this current operation, which we extract in "rescript_relay_visitor".
-    operation_meta_data: RescriptRelayOperationMetaData,
+    pub operation_meta_data: RescriptRelayOperationMetaData,
 
     // Holds a list of seen Relay Resolvers, that we can use in the type gen to
     // piece together how the resolver types are imported.
-    relay_resolvers: Vec<RelayResolverInfo>,
-    // schema: &'a SDLSchema,
+    pub relay_resolvers: Vec<RelayResolverInfo>,
+
+    // Whether we have provided variables.
+    pub provided_variables: Option<Vec<ProvidedVariable>>,
 }
 
 impl Write for ReScriptPrinter {
     fn write_str(&mut self, _s: &str) -> Result {
         Ok(())
-    }
-}
-
-// This figures out what type identifiers found in the code actually is, by
-// matching the identifier name against all found enums and input objects.
-enum ClassifiedIdentifier<'a> {
-    Enum(&'a FullEnum),
-
-    // The record name of the input object
-    InputObject(String),
-
-    RawIdentifier(String),
-}
-
-fn value_is_custom_scalar(identifier: &StringKey, custom_scalars: &CustomScalarsMap) -> bool {
-    custom_scalars
-        .into_iter()
-        .find(
-            |(_custom_scalar_graphql_name, custom_scalar_mapped_rescript_name)| {
-                match custom_scalar_mapped_rescript_name {
-                    CustomScalarType::Name(name) => &name == &identifier,
-                    CustomScalarType::Path(_) => false,
-                }
-            },
-        )
-        .is_some()
-}
-
-// This classifies an identifier, meaning it looks up whether its an enum or an
-// input object we know of locally in the current context.
-fn classify_identifier<'a>(
-    state: &'a mut ReScriptPrinter,
-    identifier: &'a StringKey,
-    context: &Context,
-) -> ClassifiedIdentifier<'a> {
-    let identifier_as_string = identifier.to_string();
-    let identifier_uncapitalized = uncapitalize_string(&identifier_as_string);
-
-    // We need to give int and float special treatment here, because the way
-    // we've implemented support for them is by overriding `number` in the
-    // mapper of scalar types, and leveraging `RawIdentifer` to pass them along
-    // to the type generation. This is because the original Relay typegen is
-    // designed with Flow and TS in mind, that doesn't have int/float, but
-    // rather just number.
-    if identifier == &"int".intern() || identifier == &"float".intern() {
-        ClassifiedIdentifier::RawIdentifier(identifier_as_string)
-    } else if let Some(full_enum) = state
-        .enums
-        .iter()
-        .find(|full_enum| full_enum.name == identifier_as_string)
-    {
-        ClassifiedIdentifier::Enum(full_enum)
-    } else if let Some(input_object) = state
-        .input_objects
-        .iter()
-        .find(|input_object| input_object.record_name == identifier_uncapitalized)
-    {
-        ClassifiedIdentifier::InputObject(input_object.record_name.to_string())
-    } else {
-        // Input objects are a bit special, since references to them can appear
-        // before they're actually defined, if they're recursive. So, if we're
-        // in the context of printing an input object, and what we find isn't a
-        // custom scalar, we can go ahead an assume it's an input object. Note:
-        // This should probably be switched out in favor of a more robust
-        // implementation at some point, that more explicitly deals with the
-        // fact that input objects might need to be "filled in" after first
-        // appearing as a reference.
-        match context {
-            &Context::RootObject(_) => {
-                match value_is_custom_scalar(&identifier, &state.operation_meta_data.custom_scalars)
-                {
-                    false => ClassifiedIdentifier::InputObject(identifier_uncapitalized),
-                    true => ClassifiedIdentifier::RawIdentifier(identifier_as_string),
-                }
-            }
-            _ => ClassifiedIdentifier::RawIdentifier(identifier_as_string),
-        }
     }
 }
 
@@ -422,7 +345,7 @@ fn ast_to_prop_value(
                     nullable: is_nullable,
                     prop_type: Box::new(PropType::Enum(full_enum.name.to_string())),
                 }),
-                ClassifiedIdentifier::InputObject(input_object_record_name) => {
+                ClassifiedIdentifier::InputObject((input_object_record_name, _)) => {
                     let mut new_at_path = current_path.clone();
                     new_at_path.push(key.to_string());
 
@@ -2624,6 +2547,23 @@ impl Writer for ReScriptPrinter {
         write_indentation(&mut generated_types, indentation).unwrap();
         writeln!(generated_types, "}}").unwrap();
 
+        if let Some(provided_variables) = self.provided_variables {
+            write_indentation(&mut generated_types, indentation).unwrap();
+            writeln!(generated_types, "type providedVariablesType = {{").unwrap();
+            indentation += 1;
+
+            provided_variables
+                .iter()
+                .for_each(|ProvidedVariable { key, return_type }| {
+                    write_indentation(&mut generated_types, indentation).unwrap();
+                    writeln!(generated_types, "{}: unit => {},", key, return_type).unwrap();
+                });
+
+            indentation -= 1;
+            write_indentation(&mut generated_types, indentation).unwrap();
+            writeln!(generated_types, "}}").unwrap();
+        }
+
         generated_types
     }
 
@@ -2912,9 +2852,50 @@ impl Writer for ReScriptPrinter {
         ""
     }
 
-    fn write_local_type(&mut self, _name: &str, _ast: &AST) -> Result {
-        // TODO: Figure out if we need this.
-        warn_about_unimplemented_feature(&self.typegen_definition, String::from("local type"));
+    fn write_local_type(&mut self, name: &str, ast: &AST) -> Result {
+        // Handle provided variables
+        if name == "ProvidedVariablesType" {
+            match &ast {
+                AST::ExactObject(props) => {
+                    let mut provided_variables = vec![];
+
+                    props.iter().for_each(|prop| match prop {
+                        Prop::KeyValuePair(key_value_pair) => match &key_value_pair.value {
+                            AST::ExactObject(obj_props) => {
+                                match &obj_props.iter().find_map(|p| match &p {
+                                    Prop::KeyValuePair(KeyValuePairProp {
+                                        value: AST::Callable(return_type_ast),
+                                        ..
+                                    }) => Some(return_type_ast.clone()),
+                                    _ => None,
+                                }) {
+                                    None => (),
+                                    Some(return_type_ast) => {
+                                        provided_variables.push(ProvidedVariable {
+                                            key: key_value_pair.key.to_string(),
+                                            return_type: ast_to_string(
+                                                &return_type_ast.as_ref(),
+                                                self,
+                                                &Context::NotRelevant,
+                                            ),
+                                        })
+                                    }
+                                }
+                            }
+                            _ => (),
+                        },
+                        _ => (),
+                    });
+
+                    if provided_variables.len() > 0 {
+                        self.provided_variables = Some(provided_variables);
+                    }
+                }
+                _ => (),
+            }
+        } else {
+            warn_about_unimplemented_feature(&self.typegen_definition, String::from("local type"));
+        }
         Ok(())
     }
 }
@@ -2937,6 +2918,7 @@ impl ReScriptPrinter {
             conversion_instructions: vec![],
             operation_meta_data,
             relay_resolvers: vec![],
+            provided_variables: None,
         }
     }
 }
