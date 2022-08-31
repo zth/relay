@@ -106,28 +106,29 @@ module Utils = {
 
   @live @obj external makeVariables: unit => unit = ""
 }
+type providedVariable<'t> = { providedVariable: unit => 't, get: unit => 't }
 type providedVariablesType = {
-  __relay_internal__pv__TestProvidedVariablesBool: unit => bool,
-  __relay_internal__pv__TestProvidedVariablesDatetime: unit => option<SomeModule.Datetime.t>,
-  __relay_internal__pv__TestProvidedVariablesDatetimes: unit => option<array<SomeModule.Datetime.t>>,
-  __relay_internal__pv__TestProvidedVariablesFloat: unit => float,
-  __relay_internal__pv__TestProvidedVariablesID: unit => option<string>,
-  __relay_internal__pv__TestProvidedVariablesInputB: unit => RelaySchemaAssets_graphql.input_InputB,
-  __relay_internal__pv__TestProvidedVariablesInt: unit => option<int>,
-  __relay_internal__pv__TestProvidedVariablesSomeInput: unit => RelaySchemaAssets_graphql.input_SomeInput,
-  __relay_internal__pv__TestProvidedVariablesStr: unit => string,
+  __relay_internal__pv__TestProvidedVariablesBool: providedVariable<bool>,
+  __relay_internal__pv__TestProvidedVariablesDatetime: providedVariable<option<SomeModule.Datetime.t>>,
+  __relay_internal__pv__TestProvidedVariablesDatetimes: providedVariable<option<array<SomeModule.Datetime.t>>>,
+  __relay_internal__pv__TestProvidedVariablesFloat: providedVariable<float>,
+  __relay_internal__pv__TestProvidedVariablesID: providedVariable<option<string>>,
+  __relay_internal__pv__TestProvidedVariablesInputB: providedVariable<RelaySchemaAssets_graphql.input_InputB>,
+  __relay_internal__pv__TestProvidedVariablesInt: providedVariable<option<int>>,
+  __relay_internal__pv__TestProvidedVariablesSomeInput: providedVariable<RelaySchemaAssets_graphql.input_SomeInput>,
+  __relay_internal__pv__TestProvidedVariablesStr: providedVariable<string>,
 }
-let providedVariablesDefinition: providedVariablesType = Internal.convertVariables({
-  __relay_internal__pv__TestProvidedVariablesSomeInput: TestProvidedVariables.SomeInput.get(),
-  __relay_internal__pv__TestProvidedVariablesInputB: TestProvidedVariables.InputB.get(),
-  __relay_internal__pv__TestProvidedVariablesBool: TestProvidedVariables.Bool.get(),
-  __relay_internal__pv__TestProvidedVariablesStr: TestProvidedVariables.Str.get(),
-  __relay_internal__pv__TestProvidedVariablesFloat: TestProvidedVariables.Float.get(),
-  __relay_internal__pv__TestProvidedVariablesInt: TestProvidedVariables.Int.get(),
-  __relay_internal__pv__TestProvidedVariablesID: TestProvidedVariables.ID.get(),
-  __relay_internal__pv__TestProvidedVariablesDatetime: TestProvidedVariables.Datetime.get(),
-  __relay_internal__pv__TestProvidedVariablesDatetimes: TestProvidedVariables.Datetimes.get(),
-})
+let providedVariablesDefinition: providedVariablesType = {
+  __relay_internal__pv__TestProvidedVariablesSomeInput: {providedVariable: TestProvidedVariables.SomeInput.get, get: () => Internal.convertVariables({"__relay_internal__pv__TestProvidedVariablesSomeInput": TestProvidedVariables.SomeInput.get()})["__relay_internal__pv__TestProvidedVariablesSomeInput"]},
+  __relay_internal__pv__TestProvidedVariablesInputB: {providedVariable: TestProvidedVariables.InputB.get, get: () => Internal.convertVariables({"__relay_internal__pv__TestProvidedVariablesInputB": TestProvidedVariables.InputB.get()})["__relay_internal__pv__TestProvidedVariablesInputB"]},
+  __relay_internal__pv__TestProvidedVariablesBool: {providedVariable: TestProvidedVariables.Bool.get, get: () => Internal.convertVariables({"__relay_internal__pv__TestProvidedVariablesBool": TestProvidedVariables.Bool.get()})["__relay_internal__pv__TestProvidedVariablesBool"]},
+  __relay_internal__pv__TestProvidedVariablesStr: {providedVariable: TestProvidedVariables.Str.get, get: () => Internal.convertVariables({"__relay_internal__pv__TestProvidedVariablesStr": TestProvidedVariables.Str.get()})["__relay_internal__pv__TestProvidedVariablesStr"]},
+  __relay_internal__pv__TestProvidedVariablesFloat: {providedVariable: TestProvidedVariables.Float.get, get: () => Internal.convertVariables({"__relay_internal__pv__TestProvidedVariablesFloat": TestProvidedVariables.Float.get()})["__relay_internal__pv__TestProvidedVariablesFloat"]},
+  __relay_internal__pv__TestProvidedVariablesInt: {providedVariable: TestProvidedVariables.Int.get, get: () => Internal.convertVariables({"__relay_internal__pv__TestProvidedVariablesInt": TestProvidedVariables.Int.get()})["__relay_internal__pv__TestProvidedVariablesInt"]},
+  __relay_internal__pv__TestProvidedVariablesID: {providedVariable: TestProvidedVariables.ID.get, get: () => Internal.convertVariables({"__relay_internal__pv__TestProvidedVariablesID": TestProvidedVariables.ID.get()})["__relay_internal__pv__TestProvidedVariablesID"]},
+  __relay_internal__pv__TestProvidedVariablesDatetime: {providedVariable: TestProvidedVariables.Datetime.get, get: () => Internal.convertVariables({"__relay_internal__pv__TestProvidedVariablesDatetime": TestProvidedVariables.Datetime.get()})["__relay_internal__pv__TestProvidedVariablesDatetime"]},
+  __relay_internal__pv__TestProvidedVariablesDatetimes: {providedVariable: TestProvidedVariables.Datetimes.get, get: () => Internal.convertVariables({"__relay_internal__pv__TestProvidedVariablesDatetimes": TestProvidedVariables.Datetimes.get()})["__relay_internal__pv__TestProvidedVariablesDatetimes"]},
+}
 
 type relayOperationNode
 type operationType = RescriptRelay.queryNode<relayOperationNode>

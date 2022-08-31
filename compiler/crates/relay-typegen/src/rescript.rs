@@ -2570,6 +2570,13 @@ impl Writer for ReScriptPrinter {
                 {
                     // Write the type
                     write_indentation(&mut generated_types, indentation).unwrap();
+                    writeln!(
+                        generated_types,
+                        "type providedVariable<'t> = {{ providedVariable: unit => 't, get: unit => 't }}"
+                    )
+                    .unwrap();
+
+                    write_indentation(&mut generated_types, indentation).unwrap();
                     writeln!(generated_types, "type providedVariablesType = {{").unwrap();
                     indentation += 1;
 
@@ -2578,7 +2585,12 @@ impl Writer for ReScriptPrinter {
                              key, return_type, ..
                          }| {
                             write_indentation(&mut generated_types, indentation).unwrap();
-                            writeln!(generated_types, "{}: unit => {},", key, return_type).unwrap();
+                            writeln!(
+                                generated_types,
+                                "{}: providedVariable<{}>,",
+                                key, return_type
+                            )
+                            .unwrap();
                         },
                     );
 
@@ -2594,7 +2606,7 @@ impl Writer for ReScriptPrinter {
                     write_indentation(&mut generated_types, indentation).unwrap();
                     writeln!(
                         generated_types,
-                        "let providedVariablesDefinition: providedVariablesType = Internal.convertVariables({{"
+                        "let providedVariablesDefinition: providedVariablesType = {{"
                     )
                     .unwrap();
                     indentation += 1;
@@ -2603,12 +2615,17 @@ impl Writer for ReScriptPrinter {
                         .iter()
                         .for_each(|(key, module_name)| {
                             write_indentation(&mut generated_types, indentation).unwrap();
-                            writeln!(generated_types, "{}: {}.get(),", key, module_name).unwrap();
+                            writeln!(
+                                generated_types,
+                                "{}: {{providedVariable: {}.get, get: () => Internal.convertVariables({{\"{}\": {}.get()}})[\"{}\"]}},",
+                                key, module_name, key, module_name, key
+                            )
+                            .unwrap();
                         });
 
                     indentation -= 1;
                     write_indentation(&mut generated_types, indentation).unwrap();
-                    writeln!(generated_types, "}})").unwrap();
+                    writeln!(generated_types, "}}").unwrap();
                 }
             }
             _ => (),
