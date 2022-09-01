@@ -34,6 +34,7 @@ type rec input_InputA = {
   time: SomeModule.Datetime.t,
   recursiveA: option<input_InputA>,
   usingB: option<input_InputB>,
+  timestamp: option<Timestamp.t>,
 }
 
 @live
@@ -76,6 +77,7 @@ external make_InputA: (
   ~time: SomeModule.Datetime.t,
   ~recursiveA: input_InputA=?,
   ~usingB: input_InputB=?,
+  ~timestamp: Timestamp.t=?,
   unit,
 ) => input_InputA = ""
 

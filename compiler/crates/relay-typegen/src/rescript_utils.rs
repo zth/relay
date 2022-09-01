@@ -433,7 +433,7 @@ pub fn print_type_reference(
                                 RescriptCustomTypeValue::Module => {
                                     format!("{}.t", custom_scalar_name)
                                 }
-                                RescriptCustomTypeValue::Type => custom_scalar.to_string(),
+                                RescriptCustomTypeValue::Type => custom_scalar_name.to_string(),
                             }
                         }
                     }

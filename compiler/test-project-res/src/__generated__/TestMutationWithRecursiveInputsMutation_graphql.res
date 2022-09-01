@@ -78,6 +78,7 @@ module Utils = {
   @live @obj external make_inputA: (
     ~recursiveA: inputA=?,
     ~time: SomeModule.Datetime.t,
+    ~timestamp: Timestamp.t=?,
     ~usingB: inputB=?,
     unit
   ) => inputA = ""

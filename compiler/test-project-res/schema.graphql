@@ -1,10 +1,12 @@
 scalar Datetime
 scalar IntString
+scalar Timestamp
 
 input InputA {
   time: Datetime!
   recursiveA: InputA
   usingB: InputB
+  timestamp: Timestamp
 }
 
 """ A fine input. """
