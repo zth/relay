@@ -2632,12 +2632,23 @@ impl Writer for ReScriptPrinter {
                             .unwrap();
 
                             write_indentation(&mut generated_types, indentation).unwrap();
-                            writeln!(
+
+                            if provided_variable_needs_conversion(&key, &self.provided_variables) {
+                                writeln!(
+                                    generated_types,
+                                    "get: () => Internal.convertVariables({{\"{}\": {}.get()}})[\"{}\"],",
+                                    key, module_name, key
+                                )
+                                .unwrap();
+                            } else {
+                                writeln!(
                                 generated_types,
-                                "get: () => Internal.convertVariables({{\"{}\": {}.get()}})[\"{}\"],",
-                                key, module_name, key
+                                "get: {}.get,",
+                                module_name
                             )
                             .unwrap();
+                            }
+                            
 
                             indentation -= 1;
 

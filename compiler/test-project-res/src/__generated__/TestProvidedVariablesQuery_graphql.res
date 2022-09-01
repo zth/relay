@@ -129,23 +129,23 @@ let providedVariablesDefinition: providedVariablesType = {
   },
   __relay_internal__pv__TestProvidedVariablesBool: {
     providedVariable: TestProvidedVariables.Bool.get,
-    get: () => Internal.convertVariables({"__relay_internal__pv__TestProvidedVariablesBool": TestProvidedVariables.Bool.get()})["__relay_internal__pv__TestProvidedVariablesBool"],
+    get: TestProvidedVariables.Bool.get,
   },
   __relay_internal__pv__TestProvidedVariablesStr: {
     providedVariable: TestProvidedVariables.Str.get,
-    get: () => Internal.convertVariables({"__relay_internal__pv__TestProvidedVariablesStr": TestProvidedVariables.Str.get()})["__relay_internal__pv__TestProvidedVariablesStr"],
+    get: TestProvidedVariables.Str.get,
   },
   __relay_internal__pv__TestProvidedVariablesFloat: {
     providedVariable: TestProvidedVariables.Float.get,
-    get: () => Internal.convertVariables({"__relay_internal__pv__TestProvidedVariablesFloat": TestProvidedVariables.Float.get()})["__relay_internal__pv__TestProvidedVariablesFloat"],
+    get: TestProvidedVariables.Float.get,
   },
   __relay_internal__pv__TestProvidedVariablesInt: {
     providedVariable: TestProvidedVariables.Int.get,
-    get: () => Internal.convertVariables({"__relay_internal__pv__TestProvidedVariablesInt": TestProvidedVariables.Int.get()})["__relay_internal__pv__TestProvidedVariablesInt"],
+    get: TestProvidedVariables.Int.get,
   },
   __relay_internal__pv__TestProvidedVariablesID: {
     providedVariable: TestProvidedVariables.ID.get,
-    get: () => Internal.convertVariables({"__relay_internal__pv__TestProvidedVariablesID": TestProvidedVariables.ID.get()})["__relay_internal__pv__TestProvidedVariablesID"],
+    get: TestProvidedVariables.ID.get,
   },
   __relay_internal__pv__TestProvidedVariablesDatetime: {
     providedVariable: TestProvidedVariables.Datetime.get,

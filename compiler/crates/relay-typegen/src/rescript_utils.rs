@@ -14,7 +14,9 @@ use schema::{SDLSchema, Schema, Type, TypeReference};
 
 use crate::{
     rescript::{DefinitionType, ReScriptPrinter},
-    rescript_ast::{AstToStringNeedsConversion, Context, ConverterInstructions, FullEnum},
+    rescript_ast::{
+        AstToStringNeedsConversion, Context, ConverterInstructions, FullEnum, ProvidedVariable,
+    },
     rescript_relay_visitor::{
         CustomScalarsMap, RescriptRelayOperationMetaData, RescriptRelayVisitor,
     },
@@ -907,6 +909,19 @@ pub fn ast_to_string<'a>(
             }
         }
         _ => String::from("RescriptRelay.any"),
+    }
+}
+
+pub fn provided_variable_needs_conversion(
+    key: &String,
+    provided_variables: &Option<Vec<ProvidedVariable>>,
+) -> bool {
+    match &provided_variables {
+        None => false,
+        Some(provided_variables) => provided_variables
+            .iter()
+            .find(|v| &v.key == key && v.needs_conversion.is_some())
+            .is_some(),
     }
 }
 
