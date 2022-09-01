@@ -2634,9 +2634,20 @@ impl Writer for ReScriptPrinter {
                             write_indentation(&mut generated_types, indentation).unwrap();
 
                             if provided_variable_needs_conversion(&key, &self.provided_variables) {
+                                // This fantastically weird piece of generated
+                                // code works around a weird bug (?) in ReScript
+                                // where underscores (which the internal Relay
+                                // provided variable keys are full of) will
+                                // discard parts of the string, meaning what's
+                                // put in for example a {..} object isn't
+                                // necessarily what comes out. And this messes
+                                // up our conversion because the conversion
+                                // instructions expect specific keys. Using a
+                                // Js.Dict in between like this doesn't mangle
+                                // the keys, which means this works out.
                                 writeln!(
                                     generated_types,
-                                    "get: () => Internal.convertVariables({{\"{}\": {}.get()}})[\"{}\"],",
+                                    "get: () => Internal.convertVariables(Js.Dict.fromArray([(\"{}\", {}.get())]))->Js.Dict.unsafeGet(\"{}\"),",
                                     key, module_name, key
                                 )
                                 .unwrap();
