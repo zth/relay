@@ -3007,7 +3007,7 @@ impl Writer for ReScriptPrinter {
                                                             .to_string()],
                                                         instruction:
                                                             ConverterInstructions::RootObject(
-                                                                input_object_name.clone(),
+                                                                uncapitalize_string(&input_object_name),
                                                             ),
                                                     },
                                                 );
