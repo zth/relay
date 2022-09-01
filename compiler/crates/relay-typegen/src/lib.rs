@@ -190,7 +190,10 @@ pub fn generate_operation_type_exports_section(
     let mut writer = new_writer_from_config(
         &project_config.typegen_config,
         &typegen_context,
-        rescript::DefinitionType::Operation(typegen_operation.clone()),
+        rescript::DefinitionType::Operation((
+            typegen_operation.clone(),
+            normalization_operation.clone(),
+        )),
     );
     write_operation_type_exports_section(
         &typegen_context,
@@ -222,7 +225,10 @@ pub fn generate_split_operation_type_exports_section(
     let mut writer = new_writer_from_config(
         &project_config.typegen_config,
         &typegen_context,
-        rescript::DefinitionType::Operation(typegen_operation.clone()),
+        rescript::DefinitionType::Operation((
+            typegen_operation.clone(),
+            normalization_operation.clone(),
+        )),
     );
 
     write_split_operation_type_exports_section(

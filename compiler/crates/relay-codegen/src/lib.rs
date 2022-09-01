@@ -33,4 +33,4 @@ pub use printer::print_request_params;
 pub use printer::JSONPrinter;
 pub use printer::Printer;
 pub use relay_config::JsModuleFormat;
-pub use top_level_statements::TopLevelStatement;
+pub use top_level_statements::{TopLevelStatement, TopLevelStatements};

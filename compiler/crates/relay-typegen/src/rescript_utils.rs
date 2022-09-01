@@ -2,8 +2,9 @@ use std::ops::Add;
 
 use common::WithLocation;
 use graphql_ir::{
-    reexport::Intern, Argument, ConstantValue, FragmentDefinition, Value, Variable,
-    VariableDefinition, Visitor,
+    reexport::{Intern, StringKey},
+    Argument, ConstantValue, FragmentDefinition, OperationDefinition, ProvidedVariableMetadata,
+    Value, Variable, VariableDefinition, Visitor,
 };
 use itertools::Itertools;
 use log::warn;
@@ -12,12 +13,14 @@ use relay_transforms::RelayDirective;
 use schema::{SDLSchema, Schema, Type, TypeReference};
 
 use crate::{
-    rescript::DefinitionType,
-    rescript_ast::{Context, ConverterInstructions, FullEnum},
+    rescript::{DefinitionType, ReScriptPrinter},
+    rescript_ast::{
+        AstToStringNeedsConversion, Context, ConverterInstructions, FullEnum, ProvidedVariable,
+    },
     rescript_relay_visitor::{
         CustomScalarsMap, RescriptRelayOperationMetaData, RescriptRelayVisitor,
     },
-    writer::{Prop, AST},
+    writer::{Prop, StringLiteral, AST},
 };
 
 use std::fmt::{Result, Write};
@@ -232,7 +235,7 @@ pub fn get_rescript_relay_meta_data(
                 RescriptRelayVisitor::new(schema, &mut state, String::from("fragment"));
             visitor.visit_fragment(definition)
         }
-        DefinitionType::Operation(definition) => {
+        DefinitionType::Operation((definition, _)) => {
             let mut visitor =
                 RescriptRelayVisitor::new(schema, &mut state, String::from("response"));
             visitor.visit_operation(definition)
@@ -757,6 +760,169 @@ pub fn get_connection_key_maker(
     writeln!(str, "}}").unwrap();
 
     str
+}
+
+pub fn find_provided_variables(
+    normalization_operation: &OperationDefinition,
+) -> Option<Vec<(String, String)>> {
+    let provided_variables = normalization_operation
+        .variable_definitions
+        .iter()
+        .filter_map(|def| {
+            let provider_module = ProvidedVariableMetadata::find(&def.directives)?.module_name;
+            Some((def.name.item.to_string(), provider_module.to_string()))
+        })
+        .collect::<Vec<_>>();
+
+    if provided_variables.is_empty() {
+        None
+    } else {
+        Some(provided_variables)
+    }
+}
+
+// This figures out what type identifiers found in the code actually is, by
+// matching the identifier name against all found enums and input objects.
+pub enum ClassifiedIdentifier<'a> {
+    Enum(&'a FullEnum),
+
+    // The record name of the input object
+    InputObject((String, String)),
+
+    RawIdentifier(String),
+}
+
+fn value_is_custom_scalar(identifier: &StringKey, custom_scalars: &CustomScalarsMap) -> bool {
+    custom_scalars
+        .into_iter()
+        .find(
+            |(_custom_scalar_graphql_name, custom_scalar_mapped_rescript_name)| {
+                match custom_scalar_mapped_rescript_name {
+                    CustomScalarType::Name(name) => &name == &identifier,
+                    CustomScalarType::Path(_) => false,
+                }
+            },
+        )
+        .is_some()
+}
+
+// This classifies an identifier, meaning it looks up whether its an enum or an
+// input object we know of locally in the current context.
+pub fn classify_identifier<'a>(
+    state: &'a mut ReScriptPrinter,
+    identifier: &'a StringKey,
+    context: &Context,
+) -> ClassifiedIdentifier<'a> {
+    let identifier_as_string = identifier.to_string();
+    let identifier_uncapitalized = uncapitalize_string(&identifier_as_string);
+
+    // We need to give int and float special treatment here, because the way
+    // we've implemented support for them is by overriding `number` in the
+    // mapper of scalar types, and leveraging `RawIdentifer` to pass them along
+    // to the type generation. This is because the original Relay typegen is
+    // designed with Flow and TS in mind, that doesn't have int/float, but
+    // rather just number.
+    if identifier == &"int".intern() || identifier == &"float".intern() {
+        ClassifiedIdentifier::RawIdentifier(identifier_as_string)
+    } else if let Some(full_enum) = state
+        .enums
+        .iter()
+        .find(|full_enum| full_enum.name == identifier_as_string)
+    {
+        ClassifiedIdentifier::Enum(full_enum)
+    } else if let Some(input_object) = state
+        .input_objects
+        .iter()
+        .find(|input_object| input_object.record_name == identifier_uncapitalized)
+    {
+        ClassifiedIdentifier::InputObject((
+            input_object.record_name.to_string(),
+            identifier_as_string.to_string(),
+        ))
+    } else {
+        // Input objects are a bit special, since references to them can appear
+        // before they're actually defined, if they're recursive. So, if we're
+        // in the context of printing an input object, and what we find isn't a
+        // custom scalar, we can go ahead an assume it's an input object. Note:
+        // This should probably be switched out in favor of a more robust
+        // implementation at some point, that more explicitly deals with the
+        // fact that input objects might need to be "filled in" after first
+        // appearing as a reference.
+        match context {
+            &Context::RootObject(_) => {
+                match value_is_custom_scalar(&identifier, &state.operation_meta_data.custom_scalars)
+                {
+                    false => ClassifiedIdentifier::InputObject((
+                        identifier_uncapitalized,
+                        identifier_as_string,
+                    )),
+                    true => ClassifiedIdentifier::RawIdentifier(identifier_as_string),
+                }
+            }
+            _ => ClassifiedIdentifier::RawIdentifier(identifier_as_string),
+        }
+    }
+}
+
+pub fn ast_to_string<'a>(
+    ast: &AST,
+    state: &'a mut ReScriptPrinter,
+    context: &Context,
+    needs_conversion: &mut Option<AstToStringNeedsConversion>,
+) -> String {
+    match &ast {
+        AST::Boolean => String::from("bool"),
+        AST::String => String::from("string"),
+        AST::StringLiteral(StringLiteral(string_literal)) => {
+            format!("[| #{}]", string_literal)
+        }
+        AST::ReadOnlyArray(inner_type) => format!(
+            "array<{}>",
+            ast_to_string(inner_type.as_ref(), state, &context, needs_conversion)
+        ),
+        AST::NonNullable(ast) => ast_to_string(ast, state, &context, needs_conversion),
+        AST::Nullable(ast) => format!(
+            "option<{}>",
+            ast_to_string(ast, state, &context, needs_conversion)
+        ),
+        AST::RawType(identifier) | AST::Identifier(identifier) => {
+            match classify_identifier(state, identifier, &context) {
+                ClassifiedIdentifier::Enum(full_enum) => {
+                    format!("RelaySchemaAssets_graphql.enum_{}_input", full_enum.name)
+                }
+                ClassifiedIdentifier::InputObject((_, full_identifier_name)) => {
+                    *needs_conversion = Some(AstToStringNeedsConversion::InputObject(
+                        full_identifier_name.clone(),
+                    ));
+                    format!("RelaySchemaAssets_graphql.input_{}", full_identifier_name)
+                }
+                ClassifiedIdentifier::RawIdentifier(identifier) => {
+                    match classify_rescript_value_string(&identifier) {
+                        RescriptCustomTypeValue::Module => {
+                            *needs_conversion =
+                                Some(AstToStringNeedsConversion::CustomScalar(identifier.clone()));
+                            format!("{}.t", identifier)
+                        }
+                        RescriptCustomTypeValue::Type => identifier.to_string(),
+                    }
+                }
+            }
+        }
+        _ => String::from("RescriptRelay.any"),
+    }
+}
+
+pub fn provided_variable_needs_conversion(
+    key: &String,
+    provided_variables: &Option<Vec<ProvidedVariable>>,
+) -> bool {
+    match &provided_variables {
+        None => false,
+        Some(provided_variables) => provided_variables
+            .iter()
+            .find(|v| &v.key == key && v.needs_conversion.is_some())
+            .is_some(),
+    }
 }
 
 #[cfg(test)]

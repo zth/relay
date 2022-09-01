@@ -20,6 +20,7 @@ use relay_codegen::build_request_params;
 use relay_codegen::Printer;
 use relay_codegen::QueryID;
 use relay_codegen::TopLevelStatement;
+use relay_codegen::TopLevelStatements;
 use relay_codegen::CODEGEN_CONSTANTS;
 use relay_transforms::is_operation_preloadable;
 use relay_transforms::ReactFlightLocalComponentsMetadata;
@@ -30,6 +31,7 @@ use relay_typegen::generate_fragment_type_exports_section;
 use relay_typegen::generate_named_validator_export;
 use relay_typegen::generate_operation_type_exports_section;
 use relay_typegen::generate_split_operation_type_exports_section;
+use relay_typegen::rescript_utils::find_provided_variables;
 use relay_typegen::FragmentLocations;
 use relay_typegen::TypegenConfig;
 use relay_typegen::TypegenLanguage;
@@ -1010,7 +1012,23 @@ pub fn generate_operation_rescript(
     )
     .unwrap();
 
-    let mut import_statements = Default::default();
+    let mut top_level_statements: TopLevelStatements = Default::default();
+
+    // Provided variables. This just adds some metadata to make Relay output
+    // what we want. Printing of the actual types and values involved in
+    // provided variables is handled inside of the ReScript typegen printer.
+    let provided_variables = find_provided_variables(&normalization_operation);
+    if provided_variables.is_some() {
+        // This needs to be inserted even though we're not actually printing
+        // `top_level_statements`. The compiler checks for the presence of the
+        // `symbol` added below, and changes the provided variables output to
+        // what we want. Sketchy I know, but that's why it's here even though it
+        // doesn't seem to do anything.
+        top_level_statements.insert(
+            CODEGEN_CONSTANTS.provided_variables_definition.to_string(),
+            TopLevelStatement::VariableDefinition(String::from("")),
+        );
+    }
 
     // Print node type
     writeln!(
@@ -1022,8 +1040,9 @@ pub fn generate_operation_rescript(
                 normalization_operation,
                 &operation_fragment,
                 request_parameters,
-                &mut import_statements
-            )
+                &mut top_level_statements
+            ),
+            provided_variables.is_some()
         )
     )
     .unwrap();
@@ -1153,7 +1172,8 @@ pub fn generate_read_only_fragment_rescript(
         section,
         "{}",
         super::rescript_relay_utils::rescript_make_operation_type_and_node_text(
-            &printer.print_fragment(schema, reader_fragment, &mut import_statements)
+            &printer.print_fragment(schema, reader_fragment, &mut import_statements),
+            false
         )
     )
     .unwrap();
