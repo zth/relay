@@ -2598,11 +2598,7 @@ impl Writer for ReScriptPrinter {
                     write_indentation(&mut generated_types, indentation).unwrap();
                     writeln!(generated_types, "}}").unwrap();
 
-                    // Write the assets. Notice we're wrapping the entire record
-                    // definition with `convertVariables`. That's because we're
-                    // piggy backing on the regular variable conversion infra
-                    // for converting input objects and custom scalars as needed
-                    // for provided variables.
+                    // Write the assets.
                     write_indentation(&mut generated_types, indentation).unwrap();
                     writeln!(
                         generated_types,
@@ -2969,15 +2965,18 @@ impl Writer for ReScriptPrinter {
     }
 
     fn write_local_type(&mut self, name: &str, ast: &AST) -> Result {
-        // Handle provided variables
+        // Handle provided variables. This below pulls put what we need from the
+        // AST Relay gives us for provided variables. It's a bit convoluted, but
+        // essentially extracts the provided variable key name, and its return
+        // type. We need those for printing the type + values for provided
+        // variables.
         if name == "ProvidedVariablesType" {
             match &ast {
                 AST::ExactObject(props) => {
                     let mut provided_variables = vec![];
 
                     props.iter().for_each(|prop| match prop {
-                        Prop::KeyValuePair(key_value_pair) => match &key_value_pair.value {
-                            AST::ExactObject(obj_props) => {
+                        Prop::KeyValuePair(KeyValuePairProp { value: AST::ExactObject(obj_props), key: key_value_pair_key, .. }) => 
                                 match &obj_props.iter().find_map(|p| match &p {
                                     Prop::KeyValuePair(KeyValuePairProp {
                                         value: AST::Callable(return_type_ast),
@@ -2989,7 +2988,7 @@ impl Writer for ReScriptPrinter {
                                     Some(return_type_ast) => {
                                         let mut needs_conversion = None;
                                         provided_variables.push(ProvidedVariable {
-                                            key: key_value_pair.key.to_string(),
+                                            key: key_value_pair_key.to_string(),
                                             return_type: ast_to_string(
                                                 &return_type_ast.as_ref(),
                                                 self,
@@ -3013,8 +3012,7 @@ impl Writer for ReScriptPrinter {
                                                 self.conversion_instructions.push(
                                                     InstructionContainer {
                                                         context: Context::Variables,
-                                                        at_path: vec![String::from("variables"),key_value_pair
-                                                            .key
+                                                        at_path: vec![String::from("variables"),key_value_pair_key
                                                             .to_string()],
                                                         instruction:
                                                             ConverterInstructions::RootObject(
@@ -3029,7 +3027,7 @@ impl Writer for ReScriptPrinter {
                                                 self.conversion_instructions
                                                     .push(InstructionContainer {
                                                     context: Context::Variables,
-                                                    at_path: vec![String::from("variables"), key_value_pair.key.to_string()],
+                                                    at_path: vec![String::from("variables"), key_value_pair_key.to_string()],
                                                     instruction:
                                                         ConverterInstructions::ConvertCustomField(
                                                             scalar_name.clone(),
@@ -3037,10 +3035,8 @@ impl Writer for ReScriptPrinter {
                                                 });
                                             }
                                         }
-                                    }
-                                }
-                            }
-                            _ => (),
+                                 
+                            },
                         },
                         _ => (),
                     });

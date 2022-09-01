@@ -1020,7 +1020,7 @@ pub fn generate_operation_rescript(
     let provided_variables = find_provided_variables(&normalization_operation);
     if provided_variables.is_some() {
         // This needs to be inserted even though we're not actually printing
-        // `top_level_statements`. The compiler checks for the present of the
+        // `top_level_statements`. The compiler checks for the presence of the
         // `symbol` added below, and changes the provided variables output to
         // what we want. Sketchy I know, but that's why it's here even though it
         // doesn't seem to do anything.
