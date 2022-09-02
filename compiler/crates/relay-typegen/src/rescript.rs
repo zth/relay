@@ -1802,13 +1802,13 @@ fn write_get_connection_nodes_function(
                                 write!(str, "option<").unwrap()
                             }
 
-                            write!(str, "{}", connection_obj.record_name.to_string()).unwrap();
+                            write!(str, "Types.{}", connection_obj.record_name.to_string()).unwrap();
 
                             if connection_nullable {
                                 write!(str, ">").unwrap();
                             }
 
-                            write!(str, " => array<{}> = ", node_type_name).unwrap();
+                            write!(str, " => array<Types.{}> = ", node_type_name).unwrap();
 
                             writeln!(str, "connection => ").unwrap();
 

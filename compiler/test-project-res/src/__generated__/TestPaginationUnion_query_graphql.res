@@ -102,7 +102,7 @@ let makeConnectionId = (connectionParentDataId: RescriptRelay.dataId, ~groupId: 
   internal_makeConnectionId(connectionParentDataId, args)
 }
 @live
-let getConnectionNodes: option<fragment_members> => array<fragment_members_edges_node> = connection => 
+let getConnectionNodes: option<Types.fragment_members> => array<Types.fragment_members_edges_node> = connection => 
   switch connection {
     | None => []
     | Some(connection) => 
