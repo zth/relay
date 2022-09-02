@@ -426,14 +426,22 @@ pub fn print_type_reference(
                         "Float" => String::from("float"),
                         "String" | "ID" => String::from("string"),
                         custom_scalar => {
-                            let custom_scalar_name =
-                                get_custom_scalar_name(&custom_scalar_types, &custom_scalar);
+                            let is_custom_scalar = custom_scalar_types
+                                .get(&custom_scalar.to_string().intern())
+                                .is_some();
 
-                            match classify_rescript_value_string(&custom_scalar_name) {
-                                RescriptCustomTypeValue::Module => {
-                                    format!("{}.t", custom_scalar_name)
+                            if is_custom_scalar {
+                                let custom_scalar_name =
+                                    get_custom_scalar_name(&custom_scalar_types, &custom_scalar);
+
+                                match classify_rescript_value_string(&custom_scalar_name) {
+                                    RescriptCustomTypeValue::Module => {
+                                        format!("{}.t", custom_scalar_name)
+                                    }
+                                    RescriptCustomTypeValue::Type => custom_scalar_name.to_string(),
                                 }
-                                RescriptCustomTypeValue::Type => custom_scalar_name.to_string(),
+                            } else {
+                                String::from("RescriptRelay.any")
                             }
                         }
                     }

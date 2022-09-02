@@ -35,6 +35,7 @@ type rec input_InputA = {
   recursiveA: option<input_InputA>,
   usingB: option<input_InputB>,
   timestamp: option<Timestamp.t>,
+  unmapped: option<RescriptRelay.any>,
 }
 
 @live
@@ -55,7 +56,7 @@ and input_SomeInput = {
 
 @live
 and input_RecursiveSetOnlineStatusInput = {
-  someValue: IntString.t,
+  someValue: RescriptRelay.any,
   setOnlineStatus: option<input_SetOnlineStatusInput>,
 }
 
@@ -78,6 +79,7 @@ external make_InputA: (
   ~recursiveA: input_InputA=?,
   ~usingB: input_InputB=?,
   ~timestamp: Timestamp.t=?,
+  ~unmapped: RescriptRelay.any=?,
   unit,
 ) => input_InputA = ""
 
@@ -101,7 +103,7 @@ external make_SomeInput: (
 
 @live @obj
 external make_RecursiveSetOnlineStatusInput: (
-  ~someValue: IntString.t,
+  ~someValue: RescriptRelay.any,
   ~setOnlineStatus: input_SetOnlineStatusInput=?,
   unit,
 ) => input_RecursiveSetOnlineStatusInput = ""

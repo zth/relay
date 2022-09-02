@@ -79,6 +79,7 @@ module Utils = {
     ~recursiveA: inputA=?,
     ~time: SomeModule.Datetime.t,
     ~timestamp: Timestamp.t=?,
+    ~unmapped: RescriptRelay.any=?,
     ~usingB: inputB=?,
     unit
   ) => inputA = ""
