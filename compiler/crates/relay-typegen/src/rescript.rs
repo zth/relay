@@ -2405,24 +2405,6 @@ impl Writer for ReScriptPrinter {
             },
         }
 
-        // Print utils module. This holds any utils needed (that the developer
-        // might also want to access, so not internal here).
-        write_indentation(&mut generated_types, indentation).unwrap();
-        writeln!(generated_types, "module Utils = {{").unwrap();
-
-        indentation += 1;
-        write_indentation(&mut generated_types, indentation).unwrap();
-        writeln!(generated_types, "@@ocaml.warning(\"-33\")").unwrap();
-        write_indentation(&mut generated_types, indentation).unwrap();
-        writeln!(generated_types, "open Types").unwrap();
-
-        self.enums
-            .iter()
-            .unique_by(|full_enum| &full_enum.name)
-            .for_each(|full_enum| {
-                write_enum_util_functions(&mut generated_types, indentation, &full_enum).unwrap()
-            });
-
         // Let's write some connection helpers! These are emitted anytime
         // there's an @connection directive present in a fragment. They're all
         // about simplifying using connections.
@@ -2486,8 +2468,27 @@ impl Writer for ReScriptPrinter {
                     }
                     _ => (),
                 }
+                writeln!(generated_types, "").unwrap();
             }
         }
+
+        // Print utils module. This holds any utils needed (that the developer
+        // might also want to access, so not internal here).
+        write_indentation(&mut generated_types, indentation).unwrap();
+        writeln!(generated_types, "module Utils = {{").unwrap();
+
+        indentation += 1;
+        write_indentation(&mut generated_types, indentation).unwrap();
+        writeln!(generated_types, "@@ocaml.warning(\"-33\")").unwrap();
+        write_indentation(&mut generated_types, indentation).unwrap();
+        writeln!(generated_types, "open Types").unwrap();
+
+        self.enums
+            .iter()
+            .unique_by(|full_enum| &full_enum.name)
+            .for_each(|full_enum| {
+                write_enum_util_functions(&mut generated_types, indentation, &full_enum).unwrap()
+            });
 
         // This prints a bunch of object maker helpers for input objects, and
         // variables. In a future, these should probably not be emitted by

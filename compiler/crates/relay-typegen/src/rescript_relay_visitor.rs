@@ -227,7 +227,7 @@ impl<'a> Visitor for RescriptRelayVisitor<'a> {
 
                 self.state.connection_config = Some(RescriptRelayConnectionConfig {
                     connection_id_maker_fn: get_connection_key_maker(
-                        1,
+                        0,
                         &relevant_arguments,
                         &self.variable_definitions,
                         &key,
