@@ -102,3 +102,30 @@ module Fragment = %relay(`
     }
   }
 `)
+
+module Fragment = %relay(`
+  fragment TestConnectionsUnion_user on Query
+    @argumentDefinitions(
+      onlineStatuses: { type: "[OnlineStatus!]", defaultValue: [Idle] }
+      count: { type: "Int", defaultValue: 2 }
+      cursor: { type: "String", defaultValue: "" }
+      beforeDate: { type: "Datetime!" }
+    ) {
+      member(id: "123") {
+        ... on User {
+          friendsConnection(
+          statuses: $onlineStatuses
+          first: $count
+          after: $cursor
+          beforeDate: $beforeDate
+        ) @connection(key: "TestConnections_user_friendsConnection") {
+          edges {
+            node {
+              id
+            }
+          }
+        }
+      }
+    }
+  }
+`)

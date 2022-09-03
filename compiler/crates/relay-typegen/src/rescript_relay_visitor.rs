@@ -14,7 +14,7 @@ use indexmap::IndexMap;
 use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
 use relay_config::CustomScalarType;
-use schema::SDLSchema;
+use schema::{SDLSchema, Schema, Type};
 
 use crate::rescript_utils::get_connection_key_maker;
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
@@ -271,5 +271,20 @@ impl<'a> Visitor for RescriptRelayVisitor<'a> {
             .push(field.alias_or_name(self.schema).to_string());
 
         self.default_visit_linked_field(field)
+    }
+
+    fn visit_inline_fragment(&mut self, fragment: &graphql_ir::InlineFragment) {
+        match &fragment.type_condition {
+            Some(Type::Object(id)) => self
+                .current_path
+                .push(self.schema.object(*id).name.item.to_string()),
+
+            Some(Type::Interface(id)) => self
+                .current_path
+                .push(self.schema.interface(*id).name.item.to_string()),
+            _ => (),
+        }
+
+        self.default_visit_inline_fragment(fragment)
     }
 }
