@@ -7,8 +7,8 @@
 
 use fnv::FnvBuildHasher;
 use graphql_ir::{
-    Argument, ConstantValue, Directive, Field, FragmentDefinition, LinkedField, ScalarField, Value,
-    Variable, VariableDefinition, Visitor,
+    Argument, ConstantValue, Directive, Field, FragmentDefinition, OperationDefinition, Selection,
+    Value, Variable, VariableDefinition,
 };
 use indexmap::IndexMap;
 use intern::string_key::{Intern, StringKey};
@@ -55,28 +55,6 @@ pub struct RescriptRelayOperationMetaData {
     pub field_directives: Vec<FieldDirectiveContainer>,
 }
 
-pub struct RescriptRelayVisitor<'a> {
-    schema: &'a SDLSchema,
-    current_path: Vec<String>,
-    state: &'a mut RescriptRelayOperationMetaData,
-    variable_definitions: Vec<VariableDefinition>,
-}
-
-impl<'a> RescriptRelayVisitor<'a> {
-    pub fn new(
-        schema: &'a SDLSchema,
-        state: &'a mut RescriptRelayOperationMetaData,
-        initial_path: String,
-    ) -> Self {
-        Self {
-            schema,
-            current_path: vec![initial_path],
-            state,
-            variable_definitions: vec![],
-        }
-    }
-}
-
 lazy_static! {
     static ref APPEND_EDGE: StringKey = "appendEdge".intern();
     static ref APPEND_NODE: StringKey = "appendNode".intern();
@@ -111,180 +89,246 @@ fn find_connections_arguments(directive: Option<&Directive>) -> Vec<String> {
     variable_names
 }
 
-impl<'a> Visitor for RescriptRelayVisitor<'a> {
-    const NAME: &'static str = "RescriptRelayVisitor";
-    const VISIT_ARGUMENTS: bool = false;
-    const VISIT_DIRECTIVES: bool = false;
+fn make_path(current_path: &Vec<String>, new_element: String) -> Vec<String> {
+    [current_path.clone(), vec![new_element]].concat()
+}
 
-    fn visit_fragment(&mut self, fragment: &FragmentDefinition) {
-        let rescript_relay_directives: Vec<RescriptRelayFragmentDirective> = fragment
-            .directives
-            .iter()
-            .filter_map(|directive| {
-                if directive.name.item == *FRAGMENT_DIRECTIVE_IGNORE_UNUSED {
-                    Some(RescriptRelayFragmentDirective::IgnoreUnused)
-                } else {
-                    None
-                }
-            })
-            .collect();
-
-        self.state.fragment_directives = rescript_relay_directives;
-
-        if fragment.variable_definitions.len() > 0 {
-            self.variable_definitions = fragment
-                .variable_definitions
+fn visit_selections<'a>(
+    selections: &Vec<Selection>,
+    schema: &'a SDLSchema,
+    operation_meta_data: &mut RescriptRelayOperationMetaData,
+    variable_definitions: &Vec<VariableDefinition>,
+    custom_scalars: &CustomScalarsMap,
+    current_path: Vec<String>,
+) -> () {
+    selections.iter().for_each(|f| match &f {
+        Selection::ScalarField(field) => {
+            let delete_edge_directive = field
+                .directives
                 .iter()
-                .map(|v| v.to_owned())
-                .collect();
-        }
+                .find(|directive| directive.name.item == *DELETE_EDGE);
 
-        self.default_visit_fragment(fragment)
-    }
-
-    fn visit_scalar_field(&mut self, field: &ScalarField) {
-        let delete_edge_directive = field
-            .directives
-            .iter()
-            .find(|directive| directive.name.item == *DELETE_EDGE);
-
-        find_connections_arguments(delete_edge_directive)
-            .iter()
-            .for_each(|variable_name| {
-                self.state
-                    .variables_with_connection_data_ids
-                    .push(variable_name.to_string())
-            });
-
-        field.directives.iter().for_each(|directive| {
-            if directive.name.item == *FIELD_DIRECTIVE_ALLOW_UNSAFE_ENUM {
-                let mut at_object_path = self.current_path.clone();
-                at_object_path.push(field.alias_or_name(self.schema).to_string());
-
-                self.state.field_directives.push(FieldDirectiveContainer {
-                    directive: RescriptRelayFieldDirective::AllowUnsafeEnum,
-                    at_object_path,
-                })
-            }
-        });
-
-        self.default_visit_scalar_field(field)
-    }
-
-    fn visit_linked_field(&mut self, field: &LinkedField) {
-        // Find connection info
-        if let Some(connection_directive) = field
-            .directives
-            .iter()
-            .find(|directive| directive.name.item.to_string() == "connection")
-        {
-            if let Some(key) = connection_directive.arguments.iter().find_map(|arg| {
-                match (&arg.name.item.to_string()[..], &arg.value.item) {
-                    ("key", Value::Constant(ConstantValue::String(key_value))) => {
-                        Some(key_value.to_string())
-                    }
-                    _ => None,
-                }
-            }) {
-                let filters = connection_directive.arguments.iter().find_map(|arg| {
-                    if arg.name.item.to_string() == "filters" {
-                        match &arg.value.item {
-                            Value::Constant(ConstantValue::List(items)) => Some(
-                                items
-                                    .iter()
-                                    .filter_map(|value| match value {
-                                        ConstantValue::String(item) => Some(item.to_string()),
-                                        _ => None,
-                                    })
-                                    .collect::<Vec<String>>(),
-                            ),
-                            _ => None,
-                        }
-                    } else {
-                        None
-                    }
+            find_connections_arguments(delete_edge_directive)
+                .iter()
+                .for_each(|variable_name| {
+                    operation_meta_data
+                        .variables_with_connection_data_ids
+                        .push(variable_name.to_string())
                 });
 
-                let relevant_arguments = field
-                    .arguments
-                    .iter()
-                    .filter(|arg| {
-                        if &arg.name.item == &"first".intern()
-                            || &arg.name.item == &"last".intern()
-                            || &arg.name.item == &"before".intern()
-                            || &arg.name.item == &"after".intern()
-                        {
-                            false
-                        } else {
-                            match &filters {
-                                None => true,
-                                Some(filters) => filters.contains(&arg.name.item.to_string()),
-                            }
-                        }
-                    })
-                    .map(|arg| arg.to_owned())
-                    .collect::<Vec<Argument>>();
+            field.directives.iter().for_each(|directive| {
+                if directive.name.item == *FIELD_DIRECTIVE_ALLOW_UNSAFE_ENUM {
+                    let mut at_object_path = current_path.clone();
+                    at_object_path.push(field.alias_or_name(schema).to_string());
 
-                self.state.connection_config = Some(RescriptRelayConnectionConfig {
-                    connection_id_maker_fn: get_connection_key_maker(
-                        0,
-                        &relevant_arguments,
-                        &self.variable_definitions,
-                        &key,
-                        &self.schema,
-                        &self.state.custom_scalars,
-                    ),
-                    key,
-                    at_object_path: self.current_path.clone(),
-                    field_name: field.alias_or_name(self.schema).to_string(),
-                    connection_key_arguments: relevant_arguments,
-                    fragment_variable_definitions: self.variable_definitions.to_owned(),
-                })
+                    operation_meta_data
+                        .field_directives
+                        .push(FieldDirectiveContainer {
+                            directive: RescriptRelayFieldDirective::AllowUnsafeEnum,
+                            at_object_path,
+                        })
+                }
+            });
+        }
+        Selection::LinkedField(field) => {
+            // Find connection info
+            if let Some(connection_directive) = field
+                .directives
+                .iter()
+                .find(|directive| directive.name.item.to_string() == "connection")
+            {
+                if let Some(key) = connection_directive.arguments.iter().find_map(|arg| {
+                    match (&arg.name.item.to_string()[..], &arg.value.item) {
+                        ("key", Value::Constant(ConstantValue::String(key_value))) => {
+                            Some(key_value.to_string())
+                        }
+                        _ => None,
+                    }
+                }) {
+                    let filters = connection_directive.arguments.iter().find_map(|arg| {
+                        if arg.name.item.to_string() == "filters" {
+                            match &arg.value.item {
+                                Value::Constant(ConstantValue::List(items)) => Some(
+                                    items
+                                        .iter()
+                                        .filter_map(|value| match value {
+                                            ConstantValue::String(item) => Some(item.to_string()),
+                                            _ => None,
+                                        })
+                                        .collect::<Vec<String>>(),
+                                ),
+                                _ => None,
+                            }
+                        } else {
+                            None
+                        }
+                    });
+
+                    let relevant_arguments = field
+                        .arguments
+                        .iter()
+                        .filter(|arg| {
+                            if &arg.name.item == &"first".intern()
+                                || &arg.name.item == &"last".intern()
+                                || &arg.name.item == &"before".intern()
+                                || &arg.name.item == &"after".intern()
+                            {
+                                false
+                            } else {
+                                match &filters {
+                                    None => true,
+                                    Some(filters) => filters.contains(&arg.name.item.to_string()),
+                                }
+                            }
+                        })
+                        .map(|arg| arg.to_owned())
+                        .collect::<Vec<Argument>>();
+
+                    operation_meta_data.connection_config = Some(RescriptRelayConnectionConfig {
+                        connection_id_maker_fn: get_connection_key_maker(
+                            0,
+                            &relevant_arguments,
+                            &variable_definitions,
+                            &key,
+                            &schema,
+                            &custom_scalars,
+                        ),
+                        key,
+                        at_object_path: current_path.clone(),
+                        field_name: field.alias_or_name(schema).to_string(),
+                        connection_key_arguments: relevant_arguments,
+                        fragment_variable_definitions: variable_definitions.to_owned(),
+                    })
+                }
+            }
+
+            // Look for $connections
+            let edge_directive = field.directives.iter().find(|directive| {
+                directive.name.item == *APPEND_EDGE || directive.name.item == *PREPEND_EDGE
+            });
+            let node_directive = field.directives.iter().find(|directive| {
+                directive.name.item == *APPEND_NODE || directive.name.item == *PREPEND_NODE
+            });
+
+            find_connections_arguments(edge_directive)
+                .iter()
+                .for_each(|variable_name| {
+                    operation_meta_data
+                        .variables_with_connection_data_ids
+                        .push(variable_name.to_string())
+                });
+
+            find_connections_arguments(node_directive)
+                .iter()
+                .for_each(|variable_name| {
+                    operation_meta_data
+                        .variables_with_connection_data_ids
+                        .push(variable_name.to_string())
+                });
+
+            visit_selections(
+                &field.selections,
+                &schema,
+                operation_meta_data,
+                &variable_definitions,
+                &custom_scalars,
+                make_path(&current_path, field.alias_or_name(schema).to_string()),
+            );
+        }
+        Selection::InlineFragment(inline_fragment) => {
+            let type_name = match &inline_fragment.type_condition {
+                Some(Type::Object(id)) => Some(schema.object(*id).name),
+                Some(Type::Interface(id)) => Some(schema.interface(*id).name),
+                Some(Type::Union(id)) => Some(schema.union(*id).name),
+                _ => None,
+            };
+
+            match type_name {
+                None => (),
+                Some(type_name) => visit_selections(
+                    &inline_fragment.selections,
+                    &schema,
+                    operation_meta_data,
+                    &variable_definitions,
+                    &custom_scalars,
+                    make_path(&current_path, type_name.item.to_string()),
+                ),
             }
         }
+        _ => (),
+    });
+}
 
-        // Look for $connections
-        let edge_directive = field.directives.iter().find(|directive| {
-            directive.name.item == *APPEND_EDGE || directive.name.item == *PREPEND_EDGE
-        });
-        let node_directive = field.directives.iter().find(|directive| {
-            directive.name.item == *APPEND_NODE || directive.name.item == *PREPEND_NODE
-        });
+pub fn find_assets_in_fragment<'a>(
+    fragment: &FragmentDefinition,
+    schema: &'a SDLSchema,
+    custom_scalars: CustomScalarsMap,
+) -> RescriptRelayOperationMetaData {
+    let rescript_relay_directives: Vec<RescriptRelayFragmentDirective> = fragment
+        .directives
+        .iter()
+        .filter_map(|directive| {
+            if directive.name.item == *FRAGMENT_DIRECTIVE_IGNORE_UNUSED {
+                Some(RescriptRelayFragmentDirective::IgnoreUnused)
+            } else {
+                None
+            }
+        })
+        .collect();
 
-        find_connections_arguments(edge_directive)
+    let mut operation_meta_data = RescriptRelayOperationMetaData {
+        connection_config: None,
+        custom_scalars: custom_scalars.clone(),
+        field_directives: vec![],
+        fragment_directives: rescript_relay_directives,
+        variables_with_connection_data_ids: vec![],
+    };
+
+    let variable_definitions = if fragment.variable_definitions.len() > 0 {
+        fragment
+            .variable_definitions
             .iter()
-            .for_each(|variable_name| {
-                self.state
-                    .variables_with_connection_data_ids
-                    .push(variable_name.to_string())
-            });
+            .map(|v| v.to_owned())
+            .collect()
+    } else {
+        vec![]
+    };
 
-        find_connections_arguments(node_directive)
-            .iter()
-            .for_each(|variable_name| {
-                self.state
-                    .variables_with_connection_data_ids
-                    .push(variable_name.to_string())
-            });
+    visit_selections(
+        &fragment.selections,
+        &schema,
+        &mut operation_meta_data,
+        &variable_definitions,
+        &custom_scalars,
+        vec![String::from("fragment")],
+    );
 
-        self.current_path
-            .push(field.alias_or_name(self.schema).to_string());
+    operation_meta_data
+}
 
-        self.default_visit_linked_field(field)
-    }
+pub fn find_assets_in_operation<'a>(
+    operation: &OperationDefinition,
+    schema: &'a SDLSchema,
+    custom_scalars: CustomScalarsMap,
+) -> RescriptRelayOperationMetaData {
+    let mut operation_meta_data = RescriptRelayOperationMetaData {
+        connection_config: None,
+        custom_scalars: custom_scalars.clone(),
+        field_directives: vec![],
+        fragment_directives: vec![],
+        variables_with_connection_data_ids: vec![],
+    };
 
-    fn visit_inline_fragment(&mut self, fragment: &graphql_ir::InlineFragment) {
-        match &fragment.type_condition {
-            Some(Type::Object(id)) => self
-                .current_path
-                .push(self.schema.object(*id).name.item.to_string()),
+    let variable_definitions = vec![];
 
-            Some(Type::Interface(id)) => self
-                .current_path
-                .push(self.schema.interface(*id).name.item.to_string()),
-            _ => (),
-        }
+    visit_selections(
+        &operation.selections,
+        &schema,
+        &mut operation_meta_data,
+        &variable_definitions,
+        &custom_scalars,
+        vec![String::from("response")],
+    );
 
-        self.default_visit_inline_fragment(fragment)
-    }
+    operation_meta_data
 }

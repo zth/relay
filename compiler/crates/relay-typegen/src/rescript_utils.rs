@@ -4,7 +4,7 @@ use common::WithLocation;
 use graphql_ir::{
     reexport::{Intern, StringKey},
     Argument, ConstantValue, FragmentDefinition, OperationDefinition, ProvidedVariableMetadata,
-    Value, Variable, VariableDefinition, Visitor,
+    Value, Variable, VariableDefinition,
 };
 use itertools::Itertools;
 use log::warn;
@@ -18,7 +18,8 @@ use crate::{
         AstToStringNeedsConversion, Context, ConverterInstructions, FullEnum, ProvidedVariable,
     },
     rescript_relay_visitor::{
-        CustomScalarsMap, RescriptRelayOperationMetaData, RescriptRelayVisitor,
+        find_assets_in_fragment, find_assets_in_operation, CustomScalarsMap,
+        RescriptRelayOperationMetaData,
     },
     writer::{Prop, StringLiteral, AST},
 };
@@ -221,28 +222,18 @@ pub fn get_rescript_relay_meta_data(
     typegen_definition: &DefinitionType,
     typegen_config: &TypegenConfig,
 ) -> RescriptRelayOperationMetaData {
-    let mut state = RescriptRelayOperationMetaData {
-        connection_config: None,
-        variables_with_connection_data_ids: vec![],
-        custom_scalars: typegen_config.custom_scalar_types.clone(),
-        fragment_directives: vec![],
-        field_directives: vec![],
-    };
-
     match &typegen_definition {
-        DefinitionType::Fragment(definition) => {
-            let mut visitor =
-                RescriptRelayVisitor::new(schema, &mut state, String::from("fragment"));
-            visitor.visit_fragment(definition)
-        }
-        DefinitionType::Operation((definition, _)) => {
-            let mut visitor =
-                RescriptRelayVisitor::new(schema, &mut state, String::from("response"));
-            visitor.visit_operation(definition)
-        }
+        DefinitionType::Fragment(definition) => find_assets_in_fragment(
+            &definition,
+            &schema,
+            typegen_config.custom_scalar_types.clone(),
+        ),
+        DefinitionType::Operation((definition, _)) => find_assets_in_operation(
+            &definition,
+            &schema,
+            typegen_config.custom_scalar_types.clone(),
+        ),
     }
-
-    state
 }
 
 const DISALLOWED_IDENTIFIERS: &'static [&'static str] = &[
