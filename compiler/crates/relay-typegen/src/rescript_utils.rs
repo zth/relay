@@ -345,7 +345,7 @@ pub fn print_constant_value(value: &ConstantValue, print_as_optional: bool) -> S
             print_wrapped_in_some(&format!("\"{}\"", s.to_string()), print_as_optional)
         }
         ConstantValue::Boolean(b) => print_wrapped_in_some(&b.to_string(), print_as_optional),
-        ConstantValue::Null() => print_wrapped_in_some(&String::from("null"), print_as_optional),
+        ConstantValue::Null() => print_wrapped_in_some(&String::from("Js.null"), print_as_optional),
         ConstantValue::Enum(s) => {
             print_wrapped_in_some(&format!("#{}", s.to_string()), print_as_optional)
         }

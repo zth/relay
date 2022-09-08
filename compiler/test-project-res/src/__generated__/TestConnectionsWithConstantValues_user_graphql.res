@@ -52,7 +52,7 @@ let connectionKey = "TestConnectionsWithonstantValues_user_friendsConnection"
 let makeConnectionId = (connectionParentDataId: RescriptRelay.dataId, ~onlineStatus: [#Online | #Idle | #Offline], ~beforeDate: SomeModule.Datetime.t, ~bool: option<bool>=?, ()) => {
   let onlineStatus = Some(onlineStatus)
   let beforeDate = Some(SomeModule.Datetime.serialize(beforeDate))
-  let args = {"statuses": [Some(#Idle), onlineStatus], "beforeDate": beforeDate, "objTest": {"str": Some("123"), "bool": Some(false), "float": Some(12.2), "int": Some(64), "recursive": {"str": Some("234"), "bool": bool}}}
+  let args = {"statuses": [Some(#Idle), onlineStatus], "beforeDate": beforeDate, "objTest": {"str": Some("123"), "bool": Some(false), "float": Some(12.2), "int": Some(64), "recursive": {"str": Some("234"), "bool": bool, "int": Some(Js.null)}}}
   internal_makeConnectionId(connectionParentDataId, args)
 }
 @live
@@ -150,6 +150,11 @@ let node: operationType = %raw(json` {
                   "kind": "Variable",
                   "name": "bool",
                   "variableName": "bool"
+                },
+                {
+                  "kind": "Literal",
+                  "name": "int",
+                  "value": null
                 },
                 {
                   "kind": "Literal",
