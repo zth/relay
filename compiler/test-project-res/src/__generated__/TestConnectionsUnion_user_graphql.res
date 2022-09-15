@@ -77,10 +77,10 @@ let connectionKey = "TestConnections_user_friendsConnection"
   external internal_makeConnectionId: (RescriptRelay.dataId, @as("TestConnections_user_friendsConnection") _, 'arguments) => RescriptRelay.dataId = "getConnectionID"
 )
 
-let makeConnectionId = (connectionParentDataId: RescriptRelay.dataId, ~onlineStatuses: array<[#Online | #Idle | #Offline]>=[#Idle], ~beforeDate: SomeModule.Datetime.t, ()) => {
+let makeConnectionId = (connectionParentDataId: RescriptRelay.dataId, ~onlineStatuses: array<[#Online | #Idle | #Offline]>=[#Idle], ~beforeDate: SomeModule.Datetime.t, ~someInput: option<RelaySchemaAssets_graphql.input_SomeInput>=?, ()) => {
   let onlineStatuses = Some(onlineStatuses)
   let beforeDate = Some(SomeModule.Datetime.serialize(beforeDate))
-  let args = {"statuses": onlineStatuses, "beforeDate": beforeDate}
+  let args = {"statuses": onlineStatuses, "beforeDate": beforeDate, "objTests": [RescriptRelay_Internal.Arg(Some({"int": Some(123)})), RescriptRelay_Internal.Arg(Some({"str": Some("Hello")})), RescriptRelay_Internal.Arg(someInput)]}
   internal_makeConnectionId(connectionParentDataId, args)
 }
 @live
@@ -135,6 +135,11 @@ return {
       ],
       "kind": "LocalArgument",
       "name": "onlineStatuses"
+    },
+    {
+      "defaultValue": null,
+      "kind": "LocalArgument",
+      "name": "someInput"
     }
   ],
   "kind": "Fragment",
@@ -178,6 +183,31 @@ return {
                   "kind": "Variable",
                   "name": "beforeDate",
                   "variableName": "beforeDate"
+                },
+                {
+                  "items": [
+                    {
+                      "kind": "Literal",
+                      "name": "objTests.0",
+                      "value": {
+                        "int": 123
+                      }
+                    },
+                    {
+                      "kind": "Literal",
+                      "name": "objTests.1",
+                      "value": {
+                        "str": "Hello"
+                      }
+                    },
+                    {
+                      "kind": "Variable",
+                      "name": "objTests.2",
+                      "variableName": "someInput"
+                    }
+                  ],
+                  "kind": "ListValue",
+                  "name": "objTests"
                 },
                 {
                   "kind": "Variable",

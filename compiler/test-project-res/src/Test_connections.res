@@ -111,6 +111,7 @@ module Fragment = %relay(`
       count: { type: "Int", defaultValue: 2 }
       cursor: { type: "String", defaultValue: "" }
       beforeDate: { type: "Datetime!" }
+      someInput: { type: "SomeInput" }
     ) {
       member(id: "123") {
         ... on User {
@@ -119,6 +120,7 @@ module Fragment = %relay(`
           first: $count
           after: $cursor
           beforeDate: $beforeDate
+          objTests: [{int: 123}, {str: "Hello"}, $someInput]
         ) @connection(key: "TestConnections_user_friendsConnection") {
           edges {
             node {

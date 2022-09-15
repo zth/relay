@@ -337,7 +337,11 @@ fn print_opt(str: &String, optional: bool) -> String {
 }
 
 // Printer helpers
-pub fn print_constant_value(value: &ConstantValue, print_as_optional: bool) -> String {
+pub fn print_constant_value(
+    value: &ConstantValue,
+    print_as_optional: bool,
+    wrap_in_arg: bool,
+) -> String {
     match value {
         ConstantValue::Int(i) => print_wrapped_in_some(&i.to_string(), print_as_optional),
         ConstantValue::Float(f) => print_wrapped_in_some(&f.to_string(), print_as_optional),
@@ -354,7 +358,14 @@ pub fn print_constant_value(value: &ConstantValue, print_as_optional: bool) -> S
                 "[{}]",
                 values
                     .iter()
-                    .map(|v| print_constant_value(v, print_as_optional))
+                    .map(|v| if wrap_in_arg {
+                        format!(
+                            "RescriptRelay_Internal.Arg({})",
+                            print_constant_value(v, print_as_optional, wrap_in_arg)
+                        )
+                    } else {
+                        print_constant_value(v, print_as_optional, wrap_in_arg)
+                    })
                     .join(", ")
             ),
             print_as_optional,
@@ -368,7 +379,7 @@ pub fn print_constant_value(value: &ConstantValue, print_as_optional: bool) -> S
                         format!(
                             "\"{}\": {}",
                             arg.name.item,
-                            print_constant_value(&arg.value.item, print_as_optional)
+                            print_constant_value(&arg.value.item, print_as_optional, wrap_in_arg)
                         )
                     })
                     .join(", "),
@@ -467,15 +478,24 @@ pub fn print_type_reference(
     }
 }
 
-pub fn print_value(value: &Value, print_as_optional: bool) -> String {
+pub fn print_value(value: &Value, print_as_optional: bool, wrap_in_arg: bool) -> String {
     match value {
-        Value::Constant(constant_value) => print_constant_value(&constant_value, print_as_optional),
+        Value::Constant(constant_value) => {
+            print_constant_value(&constant_value, print_as_optional, wrap_in_arg)
+        }
         Value::Variable(variable) => variable.name.item.to_string(),
         Value::List(values) => format!(
             "[{}]",
             values
                 .iter()
-                .map(|v| print_value(v, print_as_optional))
+                .map(|v| if wrap_in_arg {
+                    format!(
+                        "RescriptRelay_Internal.Arg({})",
+                        print_value(v, print_as_optional, wrap_in_arg)
+                    )
+                } else {
+                    print_value(v, print_as_optional, wrap_in_arg)
+                })
                 .join(", ")
         ),
         Value::Object(arguments) => format!(
@@ -486,7 +506,7 @@ pub fn print_value(value: &Value, print_as_optional: bool) -> String {
                     format!(
                         "\"{}\": {}",
                         arg.name.item.to_string(),
-                        print_value(&arg.value.item, print_as_optional)
+                        print_value(&arg.value.item, print_as_optional, wrap_in_arg)
                     )
                 })
                 .join(", ")
@@ -631,9 +651,9 @@ pub fn get_connection_key_maker(
                                 // Obj.magic here.
                                 Type::InputObject(_) => format!(
                                     "Obj.magic({})",
-                                    print_constant_value(&default_value.item, false)
+                                    print_constant_value(&default_value.item, false, false)
                                 ),
-                                _ => print_constant_value(&default_value.item, false),
+                                _ => print_constant_value(&default_value.item, false, false),
                             }
                         ),
                         (None, TypeReference::List(_) | TypeReference::Named(_)) =>
@@ -737,7 +757,7 @@ pub fn get_connection_key_maker(
                     format!(
                         "\"{}\": {}",
                         arg.name.item,
-                        print_value(&arg.value.item, true)
+                        print_value(&arg.value.item, true, true)
                     )
                 })
                 .join(", ")
