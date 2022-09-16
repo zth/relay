@@ -52,7 +52,7 @@ let connectionKey = "TestConnectionsWithonstantValues_user_friendsConnection"
 let makeConnectionId = (connectionParentDataId: RescriptRelay.dataId, ~onlineStatus: [#Online | #Idle | #Offline], ~beforeDate: SomeModule.Datetime.t, ~bool: option<bool>=?, ()) => {
   let onlineStatus = Some(onlineStatus)
   let beforeDate = Some(SomeModule.Datetime.serialize(beforeDate))
-  let args = {"statuses": [RescriptRelay_Internal.Arg(Some(#Idle)), RescriptRelay_Internal.Arg(onlineStatus)], "beforeDate": beforeDate, "objTest": {"str": Some("123"), "bool": Some(false), "float": Some(12.2), "int": Some(64), "recursive": {"str": Some("234"), "bool": bool, "int": Some(Js.null)}}}
+  let args = {"statuses": [RescriptRelay_Internal.Arg(Some(#Idle)), RescriptRelay_Internal.Arg(onlineStatus)], "beforeDate": beforeDate, "objTest": {"str": Some("123"), "bool": Some(false), "float": Some(12.2), "int": Some(64), "recursive": {"str": Some("234"), "bool": bool, "int": Some(Js.null), "recursive": {"bool": bool}}}}
   internal_makeConnectionId(connectionParentDataId, args)
 }
 @live
@@ -76,7 +76,13 @@ type relayOperationNode
 type operationType = RescriptRelay.fragmentNode<relayOperationNode>
 
 
-let node: operationType = %raw(json` {
+let node: operationType = %raw(json` (function(){
+var v0 = {
+  "kind": "Variable",
+  "name": "bool",
+  "variableName": "bool"
+};
+return {
   "argumentDefinitions": [
     {
       "defaultValue": null,
@@ -146,15 +152,18 @@ let node: operationType = %raw(json` {
             },
             {
               "fields": [
-                {
-                  "kind": "Variable",
-                  "name": "bool",
-                  "variableName": "bool"
-                },
+                (v0/*: any*/),
                 {
                   "kind": "Literal",
                   "name": "int",
                   "value": null
+                },
+                {
+                  "fields": [
+                    (v0/*: any*/)
+                  ],
+                  "kind": "ObjectValue",
+                  "name": "recursive"
                 },
                 {
                   "kind": "Literal",
@@ -270,5 +279,6 @@ let node: operationType = %raw(json` {
   ],
   "type": "User",
   "abstractKey": null
-} `)
+};
+})() `)
 

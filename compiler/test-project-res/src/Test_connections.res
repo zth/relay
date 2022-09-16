@@ -91,7 +91,10 @@ module Fragment = %relay(`
         recursive: {
           str: "234"
           bool: $bool,
-          int: null
+          int: null,
+          recursive: {
+            bool: $bool
+          }
         }
       }
     ) @connection(key: "TestConnectionsWithonstantValues_user_friendsConnection") {

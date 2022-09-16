@@ -534,35 +534,43 @@ pub fn find_all_connection_variables(
             // Because of this, we prefer the variable from
             // "argumentDefinitions"
             // (connection_config.fragment_variable_definitions).
-            found_variables.push(
-                match fragment_variable_definitions
-                    .iter()
-                    .find(|v| v.name.item == variable.name.item)
-                {
-                    None => (variable.to_owned(), None),
-                    Some(v) =>
-                    // Construct a synthetic variable here from the definition
+            let already_has_variable = found_variables
+                .iter()
+                .find(|(v, _)| v.name.item == variable.name.item)
+                .is_some();
+
+            if !already_has_variable {
+                found_variables.push(
+                    match fragment_variable_definitions
+                        .iter()
+                        .find(|v| v.name.item == variable.name.item)
                     {
-                        (
-                            Variable {
-                                name: v.name,
-                                type_: match (&v.type_, v.default_value.as_ref()) {
-                                    // Another special case is when the variable is
-                                    // optional, but there's a default value. In
-                                    // that case, we should treat the variable as
-                                    // non-optional, since it would always have a
-                                    // value when the connection key is created.
-                                    (TypeReference::List(_) | TypeReference::Named(_), Some(_)) => {
-                                        TypeReference::NonNull(Box::new(v.type_.to_owned()))
-                                    }
-                                    _ => v.type_.to_owned(),
+                        None => (variable.to_owned(), None),
+                        Some(v) =>
+                        // Construct a synthetic variable here from the definition
+                        {
+                            (
+                                Variable {
+                                    name: v.name,
+                                    type_: match (&v.type_, v.default_value.as_ref()) {
+                                        // Another special case is when the variable is
+                                        // optional, but there's a default value. In
+                                        // that case, we should treat the variable as
+                                        // non-optional, since it would always have a
+                                        // value when the connection key is created.
+                                        (
+                                            TypeReference::List(_) | TypeReference::Named(_),
+                                            Some(_),
+                                        ) => TypeReference::NonNull(Box::new(v.type_.to_owned())),
+                                        _ => v.type_.to_owned(),
+                                    },
                                 },
-                            },
-                            v.default_value.to_owned(),
-                        )
-                    }
-                },
-            );
+                                v.default_value.to_owned(),
+                            )
+                        }
+                    },
+                );
+            }
         }
         Value::Object(arguments) => arguments.iter().for_each(|arg| {
             find_all_connection_variables(
