@@ -76,7 +76,11 @@ module Fragment = %relay(`
       count: { type: "Int", defaultValue: 2 }
       cursor: { type: "String", defaultValue: "" }
       beforeDate: { type: "Datetime!" }
+      datetime: { type: "Datetime", defaultValue: null }
+      datetime2: { type: "Datetime" }
+      datetime3: { type: "Datetime!" }
       bool: { type: "Boolean" }
+      flt: { type: "Float", defaultValue: null }
     ) {
     friendsConnection(
       statuses: [Idle, $onlineStatus]
@@ -88,12 +92,16 @@ module Fragment = %relay(`
         bool: false
         float: 12.2
         int: 64
+        datetime: $datetime
         recursive: {
           str: "234"
           bool: $bool,
+          float: $flt,
           int: null,
+          datetime: $datetime2
           recursive: {
-            bool: $bool
+            bool: $bool,
+            datetime: $datetime3
           }
         }
       }

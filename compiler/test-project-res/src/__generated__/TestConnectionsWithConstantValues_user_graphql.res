@@ -49,10 +49,15 @@ let connectionKey = "TestConnectionsWithonstantValues_user_friendsConnection"
   external internal_makeConnectionId: (RescriptRelay.dataId, @as("TestConnectionsWithonstantValues_user_friendsConnection") _, 'arguments) => RescriptRelay.dataId = "getConnectionID"
 )
 
-let makeConnectionId = (connectionParentDataId: RescriptRelay.dataId, ~onlineStatus: [#Online | #Idle | #Offline], ~beforeDate: SomeModule.Datetime.t, ~bool: option<bool>=?, ()) => {
+let makeConnectionId = (connectionParentDataId: RescriptRelay.dataId, ~onlineStatus: [#Online | #Idle | #Offline], ~beforeDate: SomeModule.Datetime.t, ~datetime: Js.null<SomeModule.Datetime.t>=Js.null, ~bool: option<bool>=?, ~flt: Js.null<float>=Js.null, ~datetime2: option<SomeModule.Datetime.t>=?, ~datetime3: SomeModule.Datetime.t, ()) => {
   let onlineStatus = Some(onlineStatus)
   let beforeDate = Some(SomeModule.Datetime.serialize(beforeDate))
-  let args = {"statuses": [RescriptRelay_Internal.Arg(Some(#Idle)), RescriptRelay_Internal.Arg(onlineStatus)], "beforeDate": beforeDate, "objTest": {"str": Some("123"), "bool": Some(false), "float": Some(12.2), "int": Some(64), "recursive": {"str": Some("234"), "bool": bool, "int": Some(Js.null), "recursive": {"bool": bool}}}}
+  let datetime = datetime->Js.Null.toOption
+  let datetime = switch datetime { | None => None | Some(v) => Some(SomeModule.Datetime.serialize(v)) }
+  let flt = flt->Js.Null.toOption
+  let datetime2 = switch datetime2 { | None => None | Some(v) => Some(SomeModule.Datetime.serialize(v)) }
+  let datetime3 = Some(SomeModule.Datetime.serialize(datetime3))
+  let args = {"statuses": [RescriptRelay_Internal.Arg(Some(#Idle)), RescriptRelay_Internal.Arg(onlineStatus)], "beforeDate": beforeDate, "objTest": {"str": Some("123"), "bool": Some(false), "float": Some(12.2), "int": Some(64), "datetime": datetime, "recursive": {"str": Some("234"), "bool": bool, "float": flt, "int": Some(Js.null), "datetime": datetime2, "recursive": {"bool": bool, "datetime": datetime3}}}}
   internal_makeConnectionId(connectionParentDataId, args)
 }
 @live
@@ -107,6 +112,26 @@ return {
     {
       "defaultValue": null,
       "kind": "LocalArgument",
+      "name": "datetime"
+    },
+    {
+      "defaultValue": null,
+      "kind": "LocalArgument",
+      "name": "datetime2"
+    },
+    {
+      "defaultValue": null,
+      "kind": "LocalArgument",
+      "name": "datetime3"
+    },
+    {
+      "defaultValue": null,
+      "kind": "LocalArgument",
+      "name": "flt"
+    },
+    {
+      "defaultValue": null,
+      "kind": "LocalArgument",
       "name": "onlineStatus"
     }
   ],
@@ -141,6 +166,11 @@ return {
               "value": false
             },
             {
+              "kind": "Variable",
+              "name": "datetime",
+              "variableName": "datetime"
+            },
+            {
               "kind": "Literal",
               "name": "float",
               "value": 12.2
@@ -154,13 +184,28 @@ return {
               "fields": [
                 (v0/*: any*/),
                 {
+                  "kind": "Variable",
+                  "name": "datetime",
+                  "variableName": "datetime2"
+                },
+                {
+                  "kind": "Variable",
+                  "name": "float",
+                  "variableName": "flt"
+                },
+                {
                   "kind": "Literal",
                   "name": "int",
                   "value": null
                 },
                 {
                   "fields": [
-                    (v0/*: any*/)
+                    (v0/*: any*/),
+                    {
+                      "kind": "Variable",
+                      "name": "datetime",
+                      "variableName": "datetime3"
+                    }
                   ],
                   "kind": "ObjectValue",
                   "name": "recursive"

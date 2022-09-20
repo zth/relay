@@ -631,16 +631,40 @@ pub fn get_connection_key_maker(
         all_variables
             .iter()
             .map(|(variable, default_value)| {
+                // Setting a default value as null means we'll want to treat
+                // this entire variable definition as Js.null, so that the null
+                // default value works type wise.
+                let has_default_value_null = match &default_value {
+                    Some(WithLocation {
+                        item: ConstantValue::Null(),
+                        ..
+                    }) => true,
+                    _ => false,
+                };
+
                 format!(
                     "~{}: {}{}",
                     variable.name.item,
-                    print_type_reference(
-                        &variable.type_,
-                        &schema,
-                        &custom_scalar_types,
-                        true,
-                        true
-                    ),
+                    if has_default_value_null {
+                        format!(
+                            "Js.null<{}>",
+                            print_type_reference(
+                                &variable.type_,
+                                &schema,
+                                &custom_scalar_types,
+                                true,
+                                true,
+                            )
+                        )
+                    } else {
+                        print_type_reference(
+                            &variable.type_,
+                            &schema,
+                            &custom_scalar_types,
+                            true,
+                            true,
+                        )
+                    },
                     match (&default_value, &variable.type_) {
                         (Some(default_value), _) => format!(
                             "={}",
@@ -671,7 +695,7 @@ pub fn get_connection_key_maker(
                 )
             })
             .join(", "),
-        // Insert trailing unit if there's optional arguments.
+        // Insert trailing unit if there are optional arguments.
         if all_variables
             .iter()
             .find(|(v, default_value)| {
@@ -699,12 +723,22 @@ pub fn get_connection_key_maker(
      * 2. If the variable isn't optional, we need to wrap it with `Some()`. This is for simplicity with regards to any
      *    constant values also part of the connection id pattern. In order to not have to keep track of what is and isn't
      *    optional to make types match, we ensure everything is always optional as the args object is produced.
+     *
+     * We also need to special case Js.null<t> here.
      */
 
-    all_variables.iter().for_each(|(variable, _default_value)| {
+    all_variables.iter().for_each(|(variable, default_value)| {
         let is_optional = match variable.type_ {
             TypeReference::NonNull(_) => false,
             TypeReference::List(_) | TypeReference::Named(_) => true,
+        };
+
+        let has_default_value_null = match &default_value {
+            Some(WithLocation {
+                item: ConstantValue::Null(),
+                ..
+            }) => true,
+            _ => false,
         };
 
         let is_custom_scalar = match dig_type_ref(&variable.type_) {
@@ -724,9 +758,19 @@ pub fn get_connection_key_maker(
             _ => None,
         };
 
+        if has_default_value_null {
+            write_indentation(&mut str, local_indentation).unwrap();
+            writeln!(
+                str,
+                "let {} = {}->Js.Null.toOption",
+                variable.name.item, variable.name.item,
+            )
+            .unwrap();
+        }
+
         if let Some((variable_name, custom_scalar_module_name)) = is_custom_scalar {
             write_indentation(&mut str, local_indentation).unwrap();
-            if is_optional {
+            if is_optional || has_default_value_null {
                 writeln!(
                     str,
                     "let {} = switch {} {{ | None => None | Some(v) => Some({}.serialize(v)) }}",
@@ -742,7 +786,7 @@ pub fn get_connection_key_maker(
                 .unwrap();
             }
         } else {
-            if !is_optional {
+            if !is_optional && !has_default_value_null {
                 write_indentation(&mut str, local_indentation).unwrap();
                 writeln!(
                     str,

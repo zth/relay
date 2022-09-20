@@ -51,6 +51,7 @@ and input_SomeInput = {
   bool: option<bool>,
   float: option<float>,
   int: option<int>,
+  datetime: option<SomeModule.Datetime.t>,
   recursive: option<input_SomeInput>,
 }
 
@@ -97,6 +98,7 @@ external make_SomeInput: (
   ~bool: bool=?,
   ~float: float=?,
   ~int: int=?,
+  ~datetime: SomeModule.Datetime.t=?,
   ~recursive: input_SomeInput=?,
   unit,
 ) => input_SomeInput = ""
