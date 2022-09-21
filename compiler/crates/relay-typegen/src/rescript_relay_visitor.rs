@@ -255,6 +255,16 @@ fn visit_selections<'a>(
                 ),
             }
         }
+        Selection::Condition(condition) => {
+            visit_selections(
+                &condition.selections,
+                &schema,
+                operation_meta_data,
+                &variable_definitions,
+                &custom_scalars,
+                current_path.clone(),
+            );
+        }
         _ => (),
     });
 }
