@@ -1762,6 +1762,7 @@ fn write_get_connection_nodes_function(
                                 };
 
                             // We've got all we need, let's print the function itself
+                            writeln!(str, "").unwrap();
                             write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
                             let mut local_indentation = indentation;
                             write_indentation(str, local_indentation).unwrap();
@@ -2372,7 +2373,6 @@ impl Writer for ReScriptPrinter {
         match &self.operation_meta_data.connection_config {
             None => (),
             Some(connection_config) => {
-                // First, lets print the connection key as string
                 write_suppress_dead_code_warning_annotation(&mut generated_types, indentation)
                     .unwrap();
                 write_indentation(&mut generated_types, indentation).unwrap();
@@ -2391,8 +2391,26 @@ impl Writer for ReScriptPrinter {
                     &connection_config.connection_id_maker_fn
                 )
                 .unwrap();
+            }
+        }
 
-                // Now, print the getConnectionNodes helper. This can target a
+        // Print utils module. This holds any utils needed (that the developer
+        // might also want to access, so not internal here).
+        write_indentation(&mut generated_types, indentation).unwrap();
+        writeln!(generated_types, "module Utils = {{").unwrap();
+
+        indentation += 1;
+        write_indentation(&mut generated_types, indentation).unwrap();
+        writeln!(generated_types, "@@ocaml.warning(\"-33\")").unwrap();
+        write_indentation(&mut generated_types, indentation).unwrap();
+        writeln!(generated_types, "open Types").unwrap();
+
+        // Write getConnectionNodes if we can.
+        match &self.operation_meta_data.connection_config {
+            None => (),
+            Some(connection_config) => {
+                
+                // Print the getConnectionNodes helper. This can target a
                 // connection that's either in a nested object somewhere, or
                 // directly on the fragment.
                 match (&self.fragment, connection_config.at_object_path.len()) {
@@ -2409,7 +2427,7 @@ impl Writer for ReScriptPrinter {
                         )
                         .unwrap()
                     }
-                    (Some((_, TopLevelFragmentType::Object(_))), _) => {
+                    (Some((_, TopLevelFragmentType::Object(_) | TopLevelFragmentType::Union(_))), _) => {
                         // More elements means this is an object somewhere else
                         // in the response. So, we'll need to find it.
                         match find_object_with_record_name(
@@ -2432,17 +2450,6 @@ impl Writer for ReScriptPrinter {
                 writeln!(generated_types, "").unwrap();
             }
         }
-
-        // Print utils module. This holds any utils needed (that the developer
-        // might also want to access, so not internal here).
-        write_indentation(&mut generated_types, indentation).unwrap();
-        writeln!(generated_types, "module Utils = {{").unwrap();
-
-        indentation += 1;
-        write_indentation(&mut generated_types, indentation).unwrap();
-        writeln!(generated_types, "@@ocaml.warning(\"-33\")").unwrap();
-        write_indentation(&mut generated_types, indentation).unwrap();
-        writeln!(generated_types, "open Types").unwrap();
 
         self.enums
             .iter()

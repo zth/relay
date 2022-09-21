@@ -60,21 +60,22 @@ let makeConnectionId = (connectionParentDataId: RescriptRelay.dataId, ~onlineSta
   let args = {"statuses": [RescriptRelay_Internal.Arg(Some(#Idle)), RescriptRelay_Internal.Arg(onlineStatus)], "beforeDate": beforeDate, "objTest": {"str": Some("123"), "bool": Some(false), "float": Some(12.2), "int": Some(64), "datetime": datetime, "recursive": {"str": Some("234"), "bool": bool, "float": flt, "int": Some(Js.null), "datetime": datetime2, "recursive": {"bool": bool, "datetime": datetime3}}}}
   internal_makeConnectionId(connectionParentDataId, args)
 }
-@live
-let getConnectionNodes: Types.fragment_friendsConnection => array<Types.fragment_friendsConnection_edges_node> = connection => 
-  switch connection.edges {
-    | None => []
-    | Some(edges) => edges
-      ->Belt.Array.keepMap(edge => switch edge {
-        | None => None
-        | Some(edge) => edge.node
-      })
-  }
-
-
 module Utils = {
   @@ocaml.warning("-33")
   open Types
+
+  @live
+  let getConnectionNodes: Types.fragment_friendsConnection => array<Types.fragment_friendsConnection_edges_node> = connection => 
+    switch connection.edges {
+      | None => []
+      | Some(edges) => edges
+        ->Belt.Array.keepMap(edge => switch edge {
+          | None => None
+          | Some(edge) => edge.node
+        })
+    }
+
+
 }
 
 type relayOperationNode
