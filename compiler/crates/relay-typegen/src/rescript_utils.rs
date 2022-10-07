@@ -304,6 +304,7 @@ pub fn instruction_to_key_value_pair(instruction: &ConverterInstructions) -> (St
             (String::from("tnf"), type_name.to_string())
         }
         &ConverterInstructions::HasFragments => (String::from("f"), String::from("")),
+        &ConverterInstructions::BlockTraversal => (String::from("b"), String::from("")),
     }
 }
 
@@ -318,6 +319,16 @@ pub fn get_custom_scalar_name(
             | CustomScalarType::Path(CustomScalarTypeImport { name, .. }),
         ) => name.to_string(),
     }
+}
+
+pub fn get_custom_scalar_raw_typenames(custom_scalar_types: &CustomScalarsMap) -> Vec<String> {
+    custom_scalar_types
+        .iter()
+        .filter_map(|(_, v)| match &v {
+            CustomScalarType::Name(name) => Some(name.to_string()),
+            CustomScalarType::Path(_) => None,
+        })
+        .collect_vec()
 }
 
 fn print_wrapped_in_some(str: &String, print_as_optional: bool) -> String {
