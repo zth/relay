@@ -386,7 +386,7 @@ fn ast_to_prop_value(
                                 state.conversion_instructions.push(InstructionContainer {
                                     context: context.clone(),
                                     at_path: new_at_path,
-                                    instruction: ConverterInstructions::BlockTraversal,
+                                    instruction: ConverterInstructions::BlockTraversal(found_in_array),
                                 });
                             }
                         }

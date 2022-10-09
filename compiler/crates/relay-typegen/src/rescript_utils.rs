@@ -304,7 +304,10 @@ pub fn instruction_to_key_value_pair(instruction: &ConverterInstructions) -> (St
             (String::from("tnf"), type_name.to_string())
         }
         &ConverterInstructions::HasFragments => (String::from("f"), String::from("")),
-        &ConverterInstructions::BlockTraversal => (String::from("b"), String::from("")),
+        &ConverterInstructions::BlockTraversal(is_array) => (
+            String::from("b"),
+            String::from(if *is_array { "a" } else { "" }),
+        ),
     }
 }
 

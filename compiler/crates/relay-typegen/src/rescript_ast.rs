@@ -86,7 +86,7 @@ pub enum ConverterInstructions {
     ConvertUnion(String),
     ConvertCustomField(String),
     HasFragments,
-    BlockTraversal,
+    BlockTraversal(bool),
     ConvertTopLevelNodeField(String),
     RootObject(String), // TODO: Rename
 }

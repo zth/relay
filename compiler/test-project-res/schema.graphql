@@ -8,6 +8,7 @@ input InputA {
   recursiveA: InputA
   usingB: InputB
   timestamp: Timestamp
+  timestamps: [Timestamp]
   unmapped: UnmappedScalar
 }
 

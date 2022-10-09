@@ -35,6 +35,7 @@ type rec input_InputA = {
   recursiveA: option<input_InputA>,
   usingB: option<input_InputB>,
   timestamp: option<Timestamp.t>,
+  timestamps: option<array<option<Timestamp.t>>>,
   unmapped: option<RescriptRelay.any>,
 }
 
@@ -80,6 +81,7 @@ external make_InputA: (
   ~recursiveA: input_InputA=?,
   ~usingB: input_InputB=?,
   ~timestamp: Timestamp.t=?,
+  ~timestamps: array<option<Timestamp.t>>=?,
   ~unmapped: RescriptRelay.any=?,
   unit,
 ) => input_InputA = ""
