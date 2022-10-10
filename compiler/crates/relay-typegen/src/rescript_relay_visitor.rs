@@ -16,7 +16,7 @@ use lazy_static::lazy_static;
 use relay_config::CustomScalarType;
 use schema::{SDLSchema, Schema, Type};
 
-use crate::rescript_utils::get_connection_key_maker;
+use crate::rescript_utils::{get_connection_key_maker, get_custom_scalar_raw_typenames};
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 pub type CustomScalarsMap = FnvIndexMap<StringKey, CustomScalarType>;
 
@@ -51,6 +51,8 @@ pub struct RescriptRelayOperationMetaData {
     pub connection_config: Option<RescriptRelayConnectionConfig>,
     pub variables_with_connection_data_ids: Vec<String>,
     pub custom_scalars: CustomScalarsMap,
+    // All custom scalar raw typenames that aren't modules
+    pub custom_scalars_raw_typenames: Vec<String>,
     pub fragment_directives: Vec<RescriptRelayFragmentDirective>,
     pub field_directives: Vec<FieldDirectiveContainer>,
 }
@@ -289,6 +291,7 @@ pub fn find_assets_in_fragment<'a>(
     let mut operation_meta_data = RescriptRelayOperationMetaData {
         connection_config: None,
         custom_scalars: custom_scalars.clone(),
+        custom_scalars_raw_typenames: get_custom_scalar_raw_typenames(&custom_scalars),
         field_directives: vec![],
         fragment_directives: rescript_relay_directives,
         variables_with_connection_data_ids: vec![],
@@ -324,6 +327,7 @@ pub fn find_assets_in_operation<'a>(
     let mut operation_meta_data = RescriptRelayOperationMetaData {
         connection_config: None,
         custom_scalars: custom_scalars.clone(),
+        custom_scalars_raw_typenames: get_custom_scalar_raw_typenames(&custom_scalars),
         field_directives: vec![],
         fragment_directives: vec![],
         variables_with_connection_data_ids: vec![],

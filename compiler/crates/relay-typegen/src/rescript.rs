@@ -377,7 +377,19 @@ fn ast_to_prop_value(
                                 ),
                             })
                         }
-                        RescriptCustomTypeValue::Type => (),
+                        RescriptCustomTypeValue::Type => {
+                            if state
+                                .operation_meta_data
+                                .custom_scalars_raw_typenames
+                                .contains(&identifier)
+                            {
+                                state.conversion_instructions.push(InstructionContainer {
+                                    context: context.clone(),
+                                    at_path: new_at_path,
+                                    instruction: ConverterInstructions::BlockTraversal(found_in_array),
+                                });
+                            }
+                        }
                     }
 
                     Some(PropValue {
@@ -605,7 +617,6 @@ fn get_object_props(
         })
         .collect()
 }
-
 
 fn get_object_prop_type_as_string(
     state: &Box<ReScriptPrinter>,
@@ -1772,7 +1783,8 @@ fn write_get_connection_nodes_function(
                                 write!(str, "option<").unwrap()
                             }
 
-                            write!(str, "Types.{}", connection_obj.record_name.to_string()).unwrap();
+                            write!(str, "Types.{}", connection_obj.record_name.to_string())
+                                .unwrap();
 
                             if connection_nullable {
                                 write!(str, ">").unwrap();
@@ -2409,7 +2421,6 @@ impl Writer for ReScriptPrinter {
         match &self.operation_meta_data.connection_config {
             None => (),
             Some(connection_config) => {
-                
                 // Print the getConnectionNodes helper. This can target a
                 // connection that's either in a nested object somewhere, or
                 // directly on the fragment.
@@ -2427,7 +2438,10 @@ impl Writer for ReScriptPrinter {
                         )
                         .unwrap()
                     }
-                    (Some((_, TopLevelFragmentType::Object(_) | TopLevelFragmentType::Union(_))), _) => {
+                    (
+                        Some((_, TopLevelFragmentType::Object(_) | TopLevelFragmentType::Union(_))),
+                        _,
+                    ) => {
                         // More elements means this is an object somewhere else
                         // in the response. So, we'll need to find it.
                         match find_object_with_record_name(
@@ -2945,67 +2959,67 @@ impl Writer for ReScriptPrinter {
                     let mut provided_variables = vec![];
 
                     props.iter().for_each(|prop| match prop {
-                        Prop::KeyValuePair(KeyValuePairProp { value: AST::ExactObject(obj_props), key: key_value_pair_key, .. }) => 
-                                match &obj_props.iter().find_map(|p| match &p {
-                                    Prop::KeyValuePair(KeyValuePairProp {
-                                        value: AST::Callable(return_type_ast),
-                                        ..
-                                    }) => Some(return_type_ast.clone()),
-                                    _ => None,
-                                }) {
-                                    None => (),
-                                    Some(return_type_ast) => {
-                                        let mut needs_conversion = None;
-                                        provided_variables.push(ProvidedVariable {
-                                            key: key_value_pair_key.to_string(),
-                                            return_type: ast_to_string(
-                                                &return_type_ast.as_ref(),
-                                                self,
-                                                &Context::NotRelevant,
-                                                &mut needs_conversion,
-                                            ),
-                                            needs_conversion: needs_conversion.clone(),
-                                        });
+                        Prop::KeyValuePair(KeyValuePairProp {
+                            value: AST::ExactObject(obj_props),
+                            key: key_value_pair_key,
+                            ..
+                        }) => match &obj_props.iter().find_map(|p| match &p {
+                            Prop::KeyValuePair(KeyValuePairProp {
+                                value: AST::Callable(return_type_ast),
+                                ..
+                            }) => Some(return_type_ast.clone()),
+                            _ => None,
+                        }) {
+                            None => (),
+                            Some(return_type_ast) => {
+                                let mut needs_conversion = None;
+                                provided_variables.push(ProvidedVariable {
+                                    key: key_value_pair_key.to_string(),
+                                    return_type: ast_to_string(
+                                        &return_type_ast.as_ref(),
+                                        self,
+                                        &Context::NotRelevant,
+                                        &mut needs_conversion,
+                                    ),
+                                    needs_conversion: needs_conversion.clone(),
+                                });
 
-                                        // Make sure we note any provided
-                                        // variable that needs runtime
-                                        // conversion for input objects or
-                                        // custom scalars. We piggy back on the
-                                        // existing infra for converting
-                                        // variables.
-                                        match &needs_conversion {
-                                            None => (),
-                                            Some(AstToStringNeedsConversion::InputObject(
-                                                input_object_name,
-                                            )) => {
-                                                self.conversion_instructions.push(
-                                                    InstructionContainer {
-                                                        context: Context::Variables,
-                                                        at_path: vec![String::from("variables"),key_value_pair_key
-                                                            .to_string()],
-                                                        instruction:
-                                                            ConverterInstructions::RootObject(
-                                                                uncapitalize_string(&input_object_name),
-                                                            ),
-                                                    },
-                                                );
-                                            }
-                                            Some(AstToStringNeedsConversion::CustomScalar(
-                                                scalar_name,
-                                            )) => {
-                                                self.conversion_instructions
-                                                    .push(InstructionContainer {
-                                                    context: Context::Variables,
-                                                    at_path: vec![String::from("variables"), key_value_pair_key.to_string()],
-                                                    instruction:
-                                                        ConverterInstructions::ConvertCustomField(
-                                                            scalar_name.clone(),
-                                                        ),
-                                                });
-                                            }
-                                        }
-                                 
-                            },
+                                // Make sure we note any provided
+                                // variable that needs runtime
+                                // conversion for input objects or
+                                // custom scalars. We piggy back on the
+                                // existing infra for converting
+                                // variables.
+                                match &needs_conversion {
+                                    None => (),
+                                    Some(AstToStringNeedsConversion::InputObject(
+                                        input_object_name,
+                                    )) => {
+                                        self.conversion_instructions.push(InstructionContainer {
+                                            context: Context::Variables,
+                                            at_path: vec![
+                                                String::from("variables"),
+                                                key_value_pair_key.to_string(),
+                                            ],
+                                            instruction: ConverterInstructions::RootObject(
+                                                uncapitalize_string(&input_object_name),
+                                            ),
+                                        });
+                                    }
+                                    Some(AstToStringNeedsConversion::CustomScalar(scalar_name)) => {
+                                        self.conversion_instructions.push(InstructionContainer {
+                                            context: Context::Variables,
+                                            at_path: vec![
+                                                String::from("variables"),
+                                                key_value_pair_key.to_string(),
+                                            ],
+                                            instruction: ConverterInstructions::ConvertCustomField(
+                                                scalar_name.clone(),
+                                            ),
+                                        });
+                                    }
+                                }
+                            }
                         },
                         _ => (),
                     });
