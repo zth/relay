@@ -49,6 +49,7 @@ impl<'program> RescriptRelayTransformDisallowInvalidNames<'program> {
                 "when".intern(),
                 "while".intern(),
                 "with".intern(),
+                "private".intern(),
                 "fragment".intern(),
                 "t_fragment".intern(),
                 "subscription".intern(),

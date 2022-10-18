@@ -263,6 +263,7 @@ const DISALLOWED_IDENTIFIERS: &'static [&'static str] = &[
     "when",
     "while",
     "with",
+    "private",
     "fragment",
     "t_fragment",
     "subscription",

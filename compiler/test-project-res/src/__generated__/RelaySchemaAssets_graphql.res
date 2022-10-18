@@ -54,6 +54,7 @@ and input_SomeInput = {
   int: option<int>,
   datetime: option<SomeModule.Datetime.t>,
   recursive: option<input_SomeInput>,
+  @as("private") private_: option<bool>,
 }
 
 @live
@@ -102,6 +103,7 @@ external make_SomeInput: (
   ~int: int=?,
   ~datetime: SomeModule.Datetime.t=?,
   ~recursive: input_SomeInput=?,
+  ~_private: bool=?,
   unit,
 ) => input_SomeInput = ""
 

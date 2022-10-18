@@ -83,6 +83,7 @@ module Utils = {
     ~datetime: SomeModule.Datetime.t=?,
     ~float: float=?,
     ~int: int=?,
+    ~_private: bool=?,
     ~recursive: someInput=?,
     ~str: string=?,
     unit

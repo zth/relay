@@ -26,6 +26,7 @@ input SomeInput {
   int: Int
   datetime: Datetime
   recursive: SomeInput
+  private: Boolean
 }
 
 interface Node {
@@ -56,6 +57,7 @@ type User implements Node {
   lastName: String!
   avatarUrl: String
   isOnline: Boolean
+  private: Boolean
   onlineStatus(
     someInput: SomeInput
     inputB: InputB
