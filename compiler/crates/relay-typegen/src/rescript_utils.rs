@@ -640,6 +640,9 @@ pub fn get_connection_key_maker(
     .unwrap();
 
     write_indentation(&mut str, local_indentation).unwrap();
+    writeln!(str, "@live").unwrap();
+
+    write_indentation(&mut str, local_indentation).unwrap();
     writeln!(
         str,
         "let makeConnectionId = (connectionParentDataId: RescriptRelay.dataId, {}{}) => {{",

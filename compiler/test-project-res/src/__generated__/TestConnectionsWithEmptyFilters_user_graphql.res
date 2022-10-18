@@ -49,6 +49,7 @@ let connectionKey = "TestConnectionsWithEmptyFilters_user_friendsConnection"
   external internal_makeConnectionId: (RescriptRelay.dataId, @as("TestConnectionsWithEmptyFilters_user_friendsConnection") _, 'arguments) => RescriptRelay.dataId = "getConnectionID"
 )
 
+@live
 let makeConnectionId = (connectionParentDataId: RescriptRelay.dataId, ) => {
   let args = ()
   internal_makeConnectionId(connectionParentDataId, args)

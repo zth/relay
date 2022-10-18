@@ -49,6 +49,7 @@ let connectionKey = "TestConnectionsWithFilters_user_friendsConnection"
   external internal_makeConnectionId: (RescriptRelay.dataId, @as("TestConnectionsWithFilters_user_friendsConnection") _, 'arguments) => RescriptRelay.dataId = "getConnectionID"
 )
 
+@live
 let makeConnectionId = (connectionParentDataId: RescriptRelay.dataId, ~onlineStatuses: option<array<[#Online | #Idle | #Offline]>>=?, ~objTest: RelaySchemaAssets_graphql.input_SomeInput=Obj.magic({"str": "123"}), ()) => {
   let objTest = Some(objTest)
   let args = {"statuses": onlineStatuses, "objTest": objTest}

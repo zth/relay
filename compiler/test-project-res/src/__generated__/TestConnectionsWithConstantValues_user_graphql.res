@@ -49,6 +49,7 @@ let connectionKey = "TestConnectionsWithonstantValues_user_friendsConnection"
   external internal_makeConnectionId: (RescriptRelay.dataId, @as("TestConnectionsWithonstantValues_user_friendsConnection") _, 'arguments) => RescriptRelay.dataId = "getConnectionID"
 )
 
+@live
 let makeConnectionId = (connectionParentDataId: RescriptRelay.dataId, ~onlineStatus: [#Online | #Idle | #Offline], ~beforeDate: SomeModule.Datetime.t, ~datetime: Js.null<SomeModule.Datetime.t>=Js.null, ~bool: option<bool>=?, ~flt: Js.null<float>=Js.null, ~datetime2: option<SomeModule.Datetime.t>=?, ~datetime3: SomeModule.Datetime.t, ()) => {
   let onlineStatus = Some(onlineStatus)
   let beforeDate = Some(SomeModule.Datetime.serialize(beforeDate))
