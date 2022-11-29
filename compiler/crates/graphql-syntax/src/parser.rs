@@ -1219,7 +1219,23 @@ impl<'a> Parser<'a> {
         let (name, alias) = if self.peek_token_kind() == TokenKind::Colon {
             let colon = self.parse_kind(TokenKind::Colon)?;
             let alias = name;
-            let name = self.parse_identifier()?;
+            let name = {
+                match self.peek_token_kind() {
+                    TokenKind::Identifier => self.parse_identifier()?,
+                    token_kind => {
+                        let name = self.empty_identifier();
+                        self.record_error(Diagnostic::error(
+                            format!(
+                                "Incomplete field alias, expected {} but found {}",
+                                TokenKind::Identifier,
+                                token_kind
+                            ),
+                            Location::new(self.source_location, Span::new(start, name.span.end)),
+                        ));
+                        name
+                    }
+                }
+            };
             (
                 name,
                 Some(Alias {
@@ -1367,12 +1383,7 @@ impl<'a> Parser<'a> {
                             Span::new(start, self.peek().span.start),
                         ),
                     ));
-                    let empty_token = self.empty_token();
-                    Identifier {
-                        span: empty_token.span,
-                        token: empty_token,
-                        value: "".intern(),
-                    }
+                    self.empty_identifier()
                 })()
             };
 
@@ -1788,17 +1799,12 @@ impl<'a> Parser<'a> {
                 }
             }
             _ => {
-                let token = self.empty_token();
-                let error = Diagnostic::error(
+                let identifier = self.empty_identifier();
+                self.record_error(Diagnostic::error(
                     SyntaxError::Expected(TokenKind::Identifier),
-                    Location::new(self.source_location, token.span),
-                );
-                self.record_error(error);
-                Identifier {
-                    span: token.span,
-                    token,
-                    value: "".intern(),
-                }
+                    Location::new(self.source_location, identifier.span),
+                ));
+                identifier
             }
         }
     }
@@ -2047,6 +2053,15 @@ impl<'a> Parser<'a> {
         Token {
             span: Span::new(index, index),
             kind: TokenKind::Empty,
+        }
+    }
+
+    fn empty_identifier(&self) -> Identifier {
+        let token = self.empty_token();
+        Identifier {
+            span: token.span,
+            token,
+            value: "".intern(),
         }
     }
 }
