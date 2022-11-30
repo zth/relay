@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+mod interface;
+
 use std::collections::HashMap;
 use std::fmt;
 use std::hash::Hash;
@@ -22,9 +24,12 @@ use common::ScalarName;
 use common::WithLocation;
 use graphql_syntax::ConstantValue;
 use graphql_syntax::DirectiveLocation;
+pub use interface::*;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use lazy_static::lazy_static;
+
+use crate::Schema;
 
 lazy_static! {
     static ref DIRECTIVE_DEPRECATED: DirectiveName = DirectiveName("deprecated".intern());
@@ -114,6 +119,12 @@ impl Type {
 
     pub fn is_union(self) -> bool {
         matches!(self, Type::Union(_))
+    }
+
+    pub fn is_root_type<S: Schema>(&self, schema: &S) -> bool {
+        Some(*self) == schema.query_type()
+            || Some(*self) == schema.mutation_type()
+            || Some(*self) == schema.subscription_type()
     }
 
     pub fn get_enum_id(self) -> Option<EnumID> {
@@ -330,18 +341,6 @@ pub struct Union {
     pub is_extension: bool,
     pub members: Vec<ObjectID>,
     pub directives: Vec<DirectiveValue>,
-    pub description: Option<StringKey>,
-}
-
-#[derive(Clone, Debug, Eq, PartialEq, Hash)]
-pub struct Interface {
-    pub name: WithLocation<InterfaceName>,
-    pub is_extension: bool,
-    pub implementing_interfaces: Vec<InterfaceID>,
-    pub implementing_objects: Vec<ObjectID>,
-    pub fields: Vec<FieldID>,
-    pub directives: Vec<DirectiveValue>,
-    pub interfaces: Vec<InterfaceID>,
     pub description: Option<StringKey>,
 }
 

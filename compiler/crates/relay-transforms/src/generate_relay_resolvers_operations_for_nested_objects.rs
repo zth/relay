@@ -8,7 +8,6 @@
 use std::collections::HashSet;
 use std::sync::Arc;
 
-use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::NamedItem;
@@ -22,10 +21,10 @@ use graphql_ir::ScalarField;
 use graphql_ir::Selection;
 use graphql_syntax::OperationKind;
 use intern::string_key::Intern;
-use lazy_static::lazy_static;
 use relay_config::SchemaConfig;
 use schema::Field;
 use schema::FieldID;
+use schema::ObjectID;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
@@ -34,13 +33,9 @@ use crate::get_normalization_operation_name;
 use crate::match_::RawResponseGenerationMode;
 use crate::relay_resolvers::get_bool_argument_is_true;
 use crate::relay_resolvers::RELAY_RESOLVER_DIRECTIVE_NAME;
+use crate::relay_resolvers::RELAY_RESOLVER_HAS_OUTPUT_TYPE;
 use crate::SplitOperationMetadata;
 use crate::ValidationMessage;
-
-lazy_static! {
-    pub static ref HAS_OUTPUT_TYPE_ARGUMENT_NAME: ArgumentName =
-        ArgumentName("has_output_type".intern());
-}
 
 fn generate_fat_selections_from_type(
     schema: &SDLSchema,
@@ -48,12 +43,10 @@ fn generate_fat_selections_from_type(
     type_: Type,
     field_name: WithLocation<StringKey>,
 ) -> DiagnosticsResult<Vec<Selection>> {
-    let mut parent_types = HashSet::new();
-    parent_types.insert(type_);
-
     match type_ {
         Type::Object(object_id) => {
-            if !schema.object(object_id).is_extension {
+            let object = schema.object(object_id);
+            if !object.is_extension {
                 return Err(vec![Diagnostic::error(
                     ValidationMessage::RelayResolverServerTypeNotSupported {
                         field_name: field_name.item,
@@ -63,10 +56,11 @@ fn generate_fat_selections_from_type(
                 )]);
             }
 
-            generate_selections_from_fields(
+            let mut parent_types = HashSet::from([type_]);
+            generate_selections_from_object_fields(
                 schema,
                 schema_config,
-                &schema.object(object_id).fields,
+                &object.fields,
                 &mut parent_types,
             )
         }
@@ -112,7 +106,7 @@ fn generate_fat_selections_from_type(
     }
 }
 
-fn generate_selections_from_fields(
+fn generate_selections_from_object_fields(
     schema: &SDLSchema,
     schema_config: &SchemaConfig,
     field_ids: &[FieldID],
@@ -181,34 +175,13 @@ fn generate_selection_from_field(
             directives: vec![],
         }))),
         Type::Object(object_id) => {
-            if !schema.object(object_id).is_extension {
-                return Err(vec![Diagnostic::error(
-                    ValidationMessage::RelayResolverServerTypeNotSupported {
-                        field_name: field.name.item,
-                        type_name: schema.get_type_name(type_),
-                    },
-                    field.name.location,
-                )]);
-            }
-
-            if parent_types.contains(&type_) {
-                return Err(vec![Diagnostic::error(
-                    ValidationMessage::RelayResolverTypeRecursionDetected {
-                        type_name: schema.get_type_name(type_),
-                    },
-                    field.name.location,
-                )]);
-            }
-
-            parent_types.insert(type_);
-            let selections = generate_selections_from_fields(
+            let selections = generate_selections_from_object(
+                object_id,
+                parent_types,
                 schema,
                 schema_config,
-                &schema.object(object_id).fields,
-                parent_types,
+                field,
             )?;
-            parent_types.remove(&type_);
-
             Ok(Selection::LinkedField(Arc::new(LinkedField {
                 alias: None,
                 definition: WithLocation::generated(*field_id),
@@ -243,6 +216,41 @@ fn generate_selection_from_field(
     }
 }
 
+fn generate_selections_from_object(
+    object_id: ObjectID,
+    parent_types: &mut HashSet<Type>,
+    schema: &SDLSchema,
+    schema_config: &SchemaConfig,
+    field: &Field,
+) -> Result<Vec<Selection>, Vec<Diagnostic>> {
+    let object = schema.object(object_id);
+    let type_ = Type::Object(object_id);
+
+    if !object.is_extension {
+        return Err(vec![Diagnostic::error(
+            ValidationMessage::RelayResolverServerTypeNotSupported {
+                field_name: field.name.item,
+                type_name: object.name.item.0,
+            },
+            field.name.location,
+        )]);
+    }
+
+    if parent_types.contains(&type_) {
+        return Err(vec![Diagnostic::error(
+            ValidationMessage::RelayResolverTypeRecursionDetected {
+                type_name: object.name.item.0,
+            },
+            field.name.location,
+        )]);
+    }
+    let selections = with_additional_parent_type(parent_types, type_, |parent_types| {
+        generate_selections_from_object_fields(schema, schema_config, &object.fields, parent_types)
+    })?;
+
+    Ok(selections)
+}
+
 pub(crate) fn generate_name_for_nested_object_operation(
     schema: &SDLSchema,
     field: &Field,
@@ -274,7 +282,7 @@ pub fn generate_relay_resolvers_operations_for_nested_objects(
 
         if let Some(directive) = field.directives.named(*RELAY_RESOLVER_DIRECTIVE_NAME) {
             let has_output_type =
-                get_bool_argument_is_true(&directive.arguments, *HAS_OUTPUT_TYPE_ARGUMENT_NAME);
+                get_bool_argument_is_true(&directive.arguments, *RELAY_RESOLVER_HAS_OUTPUT_TYPE);
             if !has_output_type {
                 continue;
             }
@@ -343,4 +351,41 @@ pub fn generate_relay_resolvers_operations_for_nested_objects(
     } else {
         Err(errors)
     }
+}
+
+/// A wrapper function that allows us to avoid the pattern
+///
+/// parent_types.insert(t);
+/// // do some work
+/// parent_types.remove(t);
+///
+/// If there is an early return in the do some work section (e.g. a return or a ?),
+/// then we may never remove `t` from `parent_types`, which may cause logic errors.
+fn with_additional_parent_type<T>(
+    parent_types: &mut HashSet<Type>,
+    additional_parent_type: Type,
+    f: impl FnOnce(&mut HashSet<Type>) -> T,
+) -> T {
+    let len = parent_types.len();
+    assert!(
+        !parent_types.contains(&additional_parent_type),
+        "parent_types already contains {:?}",
+        additional_parent_type
+    );
+
+    parent_types.insert(additional_parent_type);
+    let t = f(parent_types);
+
+    let successfully_removed = parent_types.remove(&additional_parent_type);
+    assert!(
+        successfully_removed,
+        "parent_types unexpectedly did not contain {:?}",
+        additional_parent_type
+    );
+    assert!(
+        parent_types.len() == len,
+        "parent_types changed length unexpectedly"
+    );
+
+    t
 }
