@@ -5,11 +5,16 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::collections::HashSet;
+use std::fmt::Result as FmtResult;
+use std::path::PathBuf;
+
 use ::intern::intern;
 use ::intern::string_key::Intern;
 use ::intern::string_key::StringKey;
 use common::NamedItem;
 use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentDefinitionName;
 use graphql_ir::OperationDefinition;
 use graphql_ir::ProvidedVariableMetadata;
 use graphql_ir::Selection;
@@ -23,9 +28,6 @@ use relay_transforms::RelayDirective;
 use relay_transforms::ASSIGNABLE_DIRECTIVE;
 use relay_transforms::CHILDREN_CAN_BUBBLE_METADATA_KEY;
 use schema::Schema;
-use std::collections::HashSet;
-use std::fmt::Result as FmtResult;
-use std::path::PathBuf;
 
 use crate::typegen_state::ActorChangeStatus;
 use crate::typegen_state::EncounteredEnums;
@@ -105,7 +107,7 @@ pub(crate) fn write_operation_type_exports_section(
         None,
         typegen_operation
             .directives
-            .named(*CHILDREN_CAN_BUBBLE_METADATA_KEY)
+            .named(CHILDREN_CAN_BUBBLE_METADATA_KEY.0)
             .is_some(),
         false, // Query types can never be plural
         &mut encountered_enums,
@@ -185,12 +187,12 @@ pub(crate) fn write_operation_type_exports_section(
     write_custom_scalar_imports(custom_scalars, writer)?;
     write_input_object_types(input_object_types, writer)?;
 
-    let variables_identifier = format!("{}$variables", typegen_operation.name.item);
+    let variables_identifier = format!("{}$variables", typegen_operation.name.item.0);
     let variables_identifier_key = variables_identifier.as_str().intern();
 
     writer.write_export_type(&variables_identifier, &input_variables_type.into())?;
 
-    let response_identifier = format!("{}$data", typegen_operation.name.item);
+    let response_identifier = format!("{}$data", typegen_operation.name.item.0);
     let response_identifier_key = response_identifier.as_str().intern();
     writer.write_export_type(&response_identifier, &data_type)?;
 
@@ -205,7 +207,7 @@ pub(crate) fn write_operation_type_exports_section(
         raw_response_prop,
     )?;
     writer.write_export_type(
-        typegen_operation.name.item.lookup(),
+        typegen_operation.name.item.0.lookup(),
         &query_wrapper_type.into(),
     )?;
 
@@ -225,7 +227,7 @@ fn write_raw_response_and_get_raw_response_prop(
         for (key, ast) in match_fields.0 {
             writer.write_export_type(key.lookup(), &ast)?;
         }
-        let raw_response_identifier = format!("{}$rawResponse", typegen_operation.name.item);
+        let raw_response_identifier = format!("{}$rawResponse", typegen_operation.name.item.0);
         writer.write_export_type(&raw_response_identifier, &raw_response_type)?;
 
         Ok(Some(KeyValuePairProp {
@@ -283,7 +285,7 @@ pub(crate) fn write_split_operation_type_exports_section(
         writer.write_export_type(key.lookup(), &ast)?;
     }
 
-    writer.write_export_type(typegen_operation.name.item.lookup(), &raw_response_type)?;
+    writer.write_export_type(typegen_operation.name.item.0.lookup(), &raw_response_type)?;
 
     Ok(())
 }
@@ -342,7 +344,7 @@ pub(crate) fn write_fragment_type_exports_section(
         read_only: true,
         value: AST::Identifier(data_type_name.as_str().intern()),
     });
-    let fragment_name = fragment_definition.name.item;
+    let fragment_name = fragment_definition.name.item.0;
     let ref_type_fragment_spreads_property = Prop::KeyValuePair(KeyValuePairProp {
         key: if typegen_context.generating_updatable_types {
             *KEY_UPDATABLE_FRAGMENT_SPREADS
@@ -379,7 +381,7 @@ pub(crate) fn write_fragment_type_exports_section(
         },
         fragment_definition
             .directives
-            .named(*CHILDREN_CAN_BUBBLE_METADATA_KEY)
+            .named(CHILDREN_CAN_BUBBLE_METADATA_KEY.0)
             .is_some(),
         is_plural_fragment,
         &mut encountered_enums,
@@ -441,7 +443,7 @@ pub(crate) fn write_fragment_type_exports_section(
 
 fn write_fragment_imports(
     typegen_context: &'_ TypegenContext<'_>,
-    fragment_name_to_skip: Option<StringKey>,
+    fragment_name_to_skip: Option<FragmentDefinitionName>,
     encountered_fragments: EncounteredFragments,
     writer: &mut Box<dyn Writer>,
 ) -> FmtResult {
@@ -624,7 +626,7 @@ fn generate_provided_variables_type(
         .iter()
         .filter_map(|def| {
             def.directives
-                .named(ProvidedVariableMetadata::directive_name())?;
+                .named(ProvidedVariableMetadata::directive_name().0)?;
 
             let provider_func = AST::Callable(Box::new(transform_input_type(
                 typegen_context,
@@ -640,7 +642,7 @@ fn generate_provided_variables_type(
                 value: provider_func,
             });
             Some(Prop::KeyValuePair(KeyValuePairProp {
-                key: def.name.item,
+                key: def.name.item.0,
                 read_only: true,
                 optional: false,
                 value: AST::ExactObject(ExactObject::new(vec![provider_module])),
@@ -721,7 +723,7 @@ fn write_abstract_validator_function(
     fragment_definition: &FragmentDefinition,
     writer: &mut Box<dyn Writer>,
 ) -> FmtResult {
-    let fragment_name = fragment_definition.name.item.lookup();
+    let fragment_name = fragment_definition.name.item.0.lookup();
     let abstract_fragment_spread_marker = format!("__is{}", fragment_name).intern();
     let id_prop = Prop::KeyValuePair(KeyValuePairProp {
         key: *KEY_CLIENTID,
@@ -808,7 +810,7 @@ fn write_concrete_validator_function(
     fragment_definition: &FragmentDefinition,
     writer: &mut Box<dyn Writer>,
 ) -> FmtResult {
-    let fragment_name = fragment_definition.name.item.lookup();
+    let fragment_name = fragment_definition.name.item.0.lookup();
     let concrete_typename = typegen_context
         .schema
         .get_type_name(fragment_definition.type_condition);

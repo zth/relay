@@ -9,8 +9,8 @@ mod content;
 mod content_section;
 mod rescript_relay_utils;
 
-use crate::config::Config;
-use crate::config::ProjectConfig;
+use std::sync::Arc;
+
 use common::SourceLocationKey;
 use content::generate_split_operation;
 use content::generate_updatable_query;
@@ -20,7 +20,9 @@ use relay_codegen::Printer;
 use relay_codegen::QueryID;
 use relay_typegen::FragmentLocations;
 use schema::SDLSchema;
-use std::sync::Arc;
+
+use crate::config::Config;
+use crate::config::ProjectConfig;
 
 use self::content::{generate_fragment_rescript, generate_operation_rescript};
 

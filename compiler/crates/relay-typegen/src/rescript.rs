@@ -1879,8 +1879,8 @@ fn write_get_connection_nodes_function(
 
 fn warn_about_unimplemented_feature(definition_type: &DefinitionType, context: String) {
     warn!("'{}' (context: '{}') produced a type that RescriptRelay does not understand. Please open an issue on the repo https://github.com/zth/rescript-relay and describe what you were doing as this happened.", match &definition_type {
-        DefinitionType::Fragment(fragment_definition) => fragment_definition.name.item,
-        DefinitionType::Operation((operation_definition, _)) => operation_definition.name.item
+        DefinitionType::Fragment(fragment_definition) => fragment_definition.name.item.0,
+        DefinitionType::Operation((operation_definition, _)) => operation_definition.name.item.0
     }, context);
 }
 

@@ -663,11 +663,13 @@ dependencies = [
  "fnv",
  "graphql-cli",
  "graphql-syntax",
+ "indexmap",
  "intern",
  "lazy_static",
  "once_cell",
  "relay-test-schema",
  "schema",
+ "serde",
  "thiserror",
 ]
 
@@ -1603,6 +1605,7 @@ dependencies = [
  "extract-graphql",
  "fixture-tests",
  "graphql-cli",
+ "graphql-ir",
  "graphql-syntax",
  "graphql-test-helpers",
  "intern",

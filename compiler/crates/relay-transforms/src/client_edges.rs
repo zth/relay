@@ -5,26 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::refetchable_fragment::RefetchableFragment;
-use crate::refetchable_fragment::REFETCHABLE_NAME;
-use crate::RequiredMetadataDirective;
-use crate::ValidationMessage;
-use crate::REQUIRED_DIRECTIVE_NAME;
-use graphql_syntax::OperationKind;
-use intern::string_key::Intern;
-use intern::string_key::StringKey;
-use intern::string_key::StringKeyMap;
-use lazy_static::lazy_static;
-use relay_config::SchemaConfig;
-use schema::Type;
 use std::sync::Arc;
 
-use super::ValidationMessageWithData;
-use crate::relay_resolvers::RELAY_RESOLVER_DIRECTIVE_NAME;
 use common::Diagnostic;
 use common::DiagnosticsResult;
+use common::DirectiveName;
 use common::Location;
-use common::Named;
 use common::NamedItem;
 use common::WithLocation;
 use graphql_ir::associated_data_impl;
@@ -33,15 +19,32 @@ use graphql_ir::ConstantValue;
 use graphql_ir::Directive;
 use graphql_ir::Field;
 use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentDefinitionName;
 use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
 use graphql_ir::OperationDefinition;
+use graphql_ir::OperationDefinitionName;
 use graphql_ir::Program;
 use graphql_ir::Selection;
 use graphql_ir::Transformed;
 use graphql_ir::Transformer;
 use graphql_ir::Value;
+use graphql_syntax::OperationKind;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
+use intern::string_key::StringKeyMap;
+use lazy_static::lazy_static;
+use relay_config::SchemaConfig;
 use schema::Schema;
+use schema::Type;
+
+use super::ValidationMessageWithData;
+use crate::refetchable_fragment::RefetchableFragment;
+use crate::refetchable_fragment::REFETCHABLE_NAME;
+use crate::relay_resolvers::RELAY_RESOLVER_DIRECTIVE_NAME;
+use crate::RequiredMetadataDirective;
+use crate::ValidationMessage;
+use crate::REQUIRED_DIRECTIVE_NAME;
 
 lazy_static! {
     // This gets attached to the generated query
@@ -49,8 +52,8 @@ lazy_static! {
     pub static ref TYPE_NAME_ARG: StringKey = "typeName".intern();
     pub static ref CLIENT_EDGE_SOURCE_NAME: StringKey = "clientEdgeSourceDocument".intern();
     // This gets attached to fragment which defines the selection in the generated query
-    pub static ref CLIENT_EDGE_GENERATED_FRAGMENT_KEY: StringKey = "__clientEdgeGeneratedFragment".intern();
-    pub static ref CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME: StringKey = "waterfall".intern();
+    pub static ref CLIENT_EDGE_GENERATED_FRAGMENT_KEY: DirectiveName = DirectiveName("__clientEdgeGeneratedFragment".intern());
+    pub static ref CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME: DirectiveName = DirectiveName("waterfall".intern());
 }
 
 /// Directive added to inline fragments created by the transform. The inline
@@ -215,7 +218,7 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
             // source, and thus will be placed in the same `__generated__`
             // directory. Based on this assumption they import the file using `./`.
             document_name.location,
-            format!("Refetchable{}", generated_query_name).intern(),
+            FragmentDefinitionName(format!("Refetchable{}", generated_query_name).intern()),
         );
 
         let synthetic_refetchable_fragment = FragmentDefinition {
@@ -267,7 +270,7 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
                     kind: OperationKind::Query,
                     name: WithLocation::new(
                         document_name.location,
-                        refetchable_directive.query_name.item,
+                        OperationDefinitionName(refetchable_directive.query_name.item),
                     ),
                     type_: query_type,
                     variable_definitions: refetchable_root.variable_definitions,
@@ -294,7 +297,7 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
 
         let waterfall_directive = field
             .directives()
-            .named(*CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME);
+            .named(CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME.0);
 
         if !is_client_edge {
             // Non-Client-Edge fields do not incur a waterfall, and thus should
@@ -320,14 +323,14 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
             .filter(|directive| {
                 !allowed_directive_names
                     .iter()
-                    .any(|item| directive.name() == *item)
+                    .any(|item| directive.name.item == *item)
             })
             .collect::<Vec<_>>();
 
         for directive in other_directives {
             self.errors.push(Diagnostic::error(
                 ValidationMessage::ClientEdgeUnsupportedDirective {
-                    directive_name: directive.name(),
+                    directive_name: directive.name.item,
                 },
                 directive.name.location,
             ));
@@ -401,7 +404,7 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
         let mut inline_fragment_directives: Vec<Directive> = vec![metadata_directive.into()];
         if let Some(required_directive_metadata) = field
             .directives
-            .named(RequiredMetadataDirective::directive_name())
+            .named(RequiredMetadataDirective::directive_name().0)
             .cloned()
         {
             inline_fragment_directives.push(required_directive_metadata);
@@ -441,7 +444,7 @@ impl Transformer for ClientEdgesTransform<'_, '_> {
         &mut self,
         fragment: &FragmentDefinition,
     ) -> Transformed<FragmentDefinition> {
-        self.document_name = Some(fragment.name);
+        self.document_name = Some(fragment.name.map(|x| x.0));
         let new_fragment = self.default_transform_fragment(fragment);
         self.document_name = None;
         new_fragment
@@ -451,7 +454,7 @@ impl Transformer for ClientEdgesTransform<'_, '_> {
         &mut self,
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
-        self.document_name = Some(operation.name);
+        self.document_name = Some(operation.name.map(|x| x.0));
         let new_operation = self.default_transform_operation(operation);
         self.document_name = None;
         new_operation
@@ -491,7 +494,7 @@ impl Transformer for ClientEdgesTransform<'_, '_> {
     ) -> Transformed<Selection> {
         if let Some(directive) = field
             .directives()
-            .named(*CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME)
+            .named(CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME.0)
         {
             self.errors.push(Diagnostic::error_with_data(
                 ValidationMessageWithData::RelayResolversUnexpectedWaterfall,

@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::sync::Arc;
+
 use common::ConsoleLogger;
 use common::FeatureFlag;
 use common::FeatureFlags;
@@ -27,7 +29,6 @@ use relay_transforms::apply_transforms;
 use relay_typegen::FragmentLocations;
 use relay_typegen::TypegenConfig;
 use relay_typegen::TypegenLanguage;
-use std::sync::Arc;
 
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 
@@ -84,7 +85,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
 
     let fragment_locations = FragmentLocations::new(programs.typegen.fragments());
     let mut operations: Vec<_> = programs.typegen.operations().collect();
-    operations.sort_by_key(|op| op.name.item);
+    operations.sort_by_key(|op| op.name.item.0);
     let operation_strings = operations.into_iter().map(|typegen_operation| {
         let normalization_operation = programs
             .normalization

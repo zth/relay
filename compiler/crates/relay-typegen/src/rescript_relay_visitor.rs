@@ -108,7 +108,7 @@ fn visit_selections<'a>(
             let delete_edge_directive = field
                 .directives
                 .iter()
-                .find(|directive| directive.name.item == *DELETE_EDGE);
+                .find(|directive| directive.name.item.0 == *DELETE_EDGE);
 
             find_connections_arguments(delete_edge_directive)
                 .iter()
@@ -119,7 +119,7 @@ fn visit_selections<'a>(
                 });
 
             field.directives.iter().for_each(|directive| {
-                if directive.name.item == *FIELD_DIRECTIVE_ALLOW_UNSAFE_ENUM {
+                if directive.name.item.0 == *FIELD_DIRECTIVE_ALLOW_UNSAFE_ENUM {
                     let mut at_object_path = current_path.clone();
                     at_object_path.push(field.alias_or_name(schema).to_string());
 
@@ -206,10 +206,10 @@ fn visit_selections<'a>(
 
             // Look for $connections
             let edge_directive = field.directives.iter().find(|directive| {
-                directive.name.item == *APPEND_EDGE || directive.name.item == *PREPEND_EDGE
+                directive.name.item.0 == *APPEND_EDGE || directive.name.item.0 == *PREPEND_EDGE
             });
             let node_directive = field.directives.iter().find(|directive| {
-                directive.name.item == *APPEND_NODE || directive.name.item == *PREPEND_NODE
+                directive.name.item.0 == *APPEND_NODE || directive.name.item.0 == *PREPEND_NODE
             });
 
             find_connections_arguments(edge_directive)
@@ -280,7 +280,7 @@ pub fn find_assets_in_fragment<'a>(
         .directives
         .iter()
         .filter_map(|directive| {
-            if directive.name.item == *FRAGMENT_DIRECTIVE_IGNORE_UNUSED {
+            if directive.name.item.0 == *FRAGMENT_DIRECTIVE_IGNORE_UNUSED {
                 Some(RescriptRelayFragmentDirective::IgnoreUnused)
             } else {
                 None

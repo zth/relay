@@ -7,6 +7,7 @@
 
 use std::sync::Arc;
 
+use common::DirectiveName;
 use lazy_static::lazy_static;
 
 use graphql_ir::{
@@ -61,7 +62,7 @@ impl<'s> Transformer for RescriptRelayRemoveCustomDirectivesTransform<'s> {
                 .directives
                 .iter()
                 .filter_map(|directive| {
-                    if directive.name.item == *FRAGMENT_DIRECTIVE_IGNORE_UNUSED {
+                    if directive.name.item == DirectiveName(*FRAGMENT_DIRECTIVE_IGNORE_UNUSED) {
                         None
                     } else {
                         Some(directive.to_owned())
@@ -86,7 +87,7 @@ impl<'s> Transformer for RescriptRelayRemoveCustomDirectivesTransform<'s> {
                 .directives
                 .iter()
                 .filter_map(|directive| {
-                    if directive.name.item == *FIELD_DIRECTIVE_ALLOW_UNSAFE_ENUM {
+                    if directive.name.item == DirectiveName(*FIELD_DIRECTIVE_ALLOW_UNSAFE_ENUM) {
                         None
                     } else {
                         Some(directive.to_owned())

@@ -5,6 +5,21 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::fmt::Result as FmtResult;
+use std::sync::Arc;
+
+use common::Location;
+use fnv::FnvHashMap;
+use fnv::FnvHashSet;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentDefinitionName;
+use indexmap::IndexMap;
+use indexmap::IndexSet;
+use intern::string_key::StringKey;
+use schema::EnumID;
+use schema::SDLSchema;
+use schema::Schema;
+
 use crate::writer::ExactObject;
 use crate::writer::Writer;
 use crate::writer::AST;
@@ -12,18 +27,6 @@ use crate::LIVE_RESOLVERS_EXPERIMENTAL_STORE_PATH;
 use crate::LIVE_RESOLVERS_LIVE_STATE;
 use crate::LOCAL_3D_PAYLOAD;
 use crate::RELAY_RUNTIME;
-use common::Location;
-use fnv::FnvHashMap;
-use fnv::FnvHashSet;
-use graphql_ir::FragmentDefinition;
-use indexmap::IndexMap;
-use indexmap::IndexSet;
-use intern::string_key::StringKey;
-use schema::EnumID;
-use schema::SDLSchema;
-use schema::Schema;
-use std::fmt::Result as FmtResult;
-use std::sync::Arc;
 
 /// A struct that is mutated as we iterate through an operation/fragment and
 /// contains information about whether and how to write import types.
@@ -93,8 +96,8 @@ pub(crate) struct MatchFields(pub(crate) IndexMap<StringKey, AST>);
 
 #[derive(PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub(crate) enum EncounteredFragment {
-    Spread(StringKey),
-    Key(StringKey),
+    Spread(FragmentDefinitionName),
+    Key(FragmentDefinitionName),
 }
 
 /// This is a map FragmentName => Fragment Location
@@ -103,7 +106,7 @@ pub(crate) enum EncounteredFragment {
 /// reference it in another generated artifact.
 /// This is used in non-haste setups that do not have a single
 /// directory for generated artifacts.
-pub struct FragmentLocations(pub FnvHashMap<StringKey, Location>);
+pub struct FragmentLocations(pub FnvHashMap<FragmentDefinitionName, Location>);
 
 impl FragmentLocations {
     pub fn new<'a>(fragments: impl Iterator<Item = &'a Arc<FragmentDefinition>>) -> Self {
@@ -114,7 +117,7 @@ impl FragmentLocations {
         )
     }
 
-    pub fn location(&self, fragment_name: &StringKey) -> Option<&Location> {
+    pub fn location(&self, fragment_name: &FragmentDefinitionName) -> Option<&Location> {
         self.0.get(fragment_name)
     }
 }

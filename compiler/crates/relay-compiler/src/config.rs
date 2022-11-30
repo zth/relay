@@ -5,19 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::build_project::artifact_writer::ArtifactFileWriter;
-use crate::build_project::artifact_writer::ArtifactWriter;
-use crate::build_project::generate_extra_artifacts::GenerateExtraArtifactsFn;
-use crate::build_project::rescript_generate_extra_files::rescript_generate_extra_artifacts;
-use crate::build_project::AdditionalValidations;
-use crate::compiler_state::ProjectName;
-use crate::compiler_state::ProjectSet;
-use crate::errors::ConfigValidationError;
-use crate::errors::Error;
-use crate::errors::Result;
-use crate::saved_state::SavedStateLoader;
-use crate::status_reporter::ConsoleStatusReporter;
-use crate::status_reporter::StatusReporter;
+use std::env::current_dir;
+use std::ffi::OsStr;
+use std::fmt;
+use std::path::Path;
+use std::path::PathBuf;
+use std::sync::Arc;
+use std::vec;
+
 use async_trait::async_trait;
 use common::FeatureFlags;
 use common::Rollout;
@@ -34,6 +29,7 @@ use persist_query::PersistError;
 use rayon::prelude::*;
 use regex::Regex;
 use relay_config::CustomScalarType;
+use relay_config::DiagnosticReportConfig;
 use relay_config::FlowTypegenConfig;
 use relay_config::JsModuleFormat;
 pub use relay_config::LocalPersistConfig;
@@ -53,14 +49,21 @@ use serde::Serialize;
 use serde_json::Value;
 use sha1::Digest;
 use sha1::Sha1;
-use std::env::current_dir;
-use std::ffi::OsStr;
-use std::fmt;
-use std::path::Path;
-use std::path::PathBuf;
-use std::sync::Arc;
-use std::vec;
 use watchman_client::pdu::ScmAwareClockData;
+
+use crate::build_project::artifact_writer::ArtifactFileWriter;
+use crate::build_project::artifact_writer::ArtifactWriter;
+use crate::build_project::generate_extra_artifacts::GenerateExtraArtifactsFn;
+use crate::build_project::rescript_generate_extra_files::rescript_generate_extra_artifacts;
+use crate::build_project::AdditionalValidations;
+use crate::compiler_state::ProjectName;
+use crate::compiler_state::ProjectSet;
+use crate::errors::ConfigValidationError;
+use crate::errors::Error;
+use crate::errors::Result;
+use crate::saved_state::SavedStateLoader;
+use crate::status_reporter::ConsoleStatusReporter;
+use crate::status_reporter::StatusReporter;
 
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 
@@ -356,6 +359,7 @@ Example file:
                     rollout: config_file_project.rollout,
                     js_module_format: config_file_project.js_module_format,
                     module_import_config: config_file_project.module_import_config,
+                    diagnostic_report_config: config_file_project.diagnostic_report_config,
                 };
                 Ok((project_name, project_config))
             })
@@ -1004,6 +1008,9 @@ pub struct ConfigFileProject {
 
     #[serde(default)]
     pub module_import_config: ModuleImportConfig,
+
+    #[serde(default)]
+    pub diagnostic_report_config: DiagnosticReportConfig,
 }
 
 pub type PersistId = String;
