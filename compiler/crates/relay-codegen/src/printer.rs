@@ -26,6 +26,7 @@ use schema::SDLSchema;
 use crate::ast::Ast;
 use crate::ast::AstBuilder;
 use crate::ast::AstKey;
+use crate::ast::JSModuleDependency;
 use crate::ast::ObjectEntry;
 use crate::ast::Primitive;
 use crate::ast::QueryID;
@@ -472,10 +473,10 @@ impl<'b> JSONPrinter<'b> {
                     *key
                 )),
             ),
-            Primitive::JSModuleDependency {
+            Primitive::JSModuleDependency(JSModuleDependency {
                 path,
                 ..
-            } => self.write_js_dependency(
+            }) => self.write_js_dependency(
                 f,
                 ModuleImportName::Default(format!(
                     "rescript_module_{}",
@@ -509,6 +510,16 @@ impl<'b> JSONPrinter<'b> {
                     Ok(())
                 }
             },
+            Primitive::RelayResolverModel {
+                graphql_module,
+                js_module,
+                field_name,
+            } => self.write_relay_resolver_model(
+                f,
+                *graphql_module,
+                js_module,
+                field_name.as_ref().copied(),
+            ),
         }
     }
 
@@ -548,6 +559,49 @@ impl<'b> JSONPrinter<'b> {
                 }
             }
         }
+    }
+
+    fn write_relay_resolver_model(
+        &mut self,
+        f: &mut String,
+        graphql_module: StringKey,
+        js_module: &JSModuleDependency,
+        field_name: Option<StringKey>,
+    ) -> FmtResult {
+        let relay_resolver_with_type_module =
+            "relay-runtime/store/experimental-live-resolvers/FragmentDataInjector";
+        let relay_resolver_with_type_module_name = "RelayResolversFragmentDataInjector";
+
+        self.write_js_dependency(
+            f,
+            ModuleImportName::Default(relay_resolver_with_type_module_name.to_string()),
+            Cow::Borrowed(relay_resolver_with_type_module),
+        )?;
+        write!(f, "(")?;
+        self.write_js_dependency(
+            f,
+            ModuleImportName::Default(format!("{}_graphql", graphql_module)),
+            Cow::Owned(format!(
+                "{}.graphql",
+                get_module_path(self.js_module_format, graphql_module)
+            )),
+        )?;
+        write!(f, ", ")?;
+        self.write_js_dependency(
+            f,
+            js_module.named_import.map_or_else(
+                || ModuleImportName::Default(js_module.path.to_string()),
+                |name| ModuleImportName::Named {
+                    name: name.to_string(),
+                    import_as: js_module.import_as.map(|item| item.to_string()),
+                },
+            ),
+            get_module_path(self.js_module_format, js_module.path),
+        )?;
+        if let Some(field_name) = field_name {
+            write!(f, ", '{}'", field_name)?;
+        }
+        write!(f, ")")
     }
 }
 
@@ -716,5 +770,6 @@ fn write_constant_value(f: &mut String, builder: &AstBuilder, value: &Primitive)
         Primitive::GraphQLModuleDependency(_) => panic!("Unexpected GraphQLModuleDependency"),
         Primitive::JSModuleDependency { .. } => panic!("Unexpected JSModuleDependency"),
         Primitive::DynamicImport { .. } => panic!("Unexpected DynamicImport"),
+        Primitive::RelayResolverModel { .. } => panic!("Unexpected RelayResolver"),
     }
 }

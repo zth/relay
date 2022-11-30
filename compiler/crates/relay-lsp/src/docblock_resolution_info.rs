@@ -15,11 +15,9 @@ use crate::LSPRuntimeError;
 use crate::LSPRuntimeResult;
 
 pub enum DocblockResolutionInfo {
-    OnType(StringKey),
-    OnInterface(StringKey),
+    Type(StringKey),
     RootFragment(FragmentDefinitionName),
     FieldName(StringKey),
-    OutputType(StringKey),
     Deprecated,
 }
 
@@ -32,15 +30,16 @@ pub fn create_docblock_resolution_info(
             match resolver_ir.on {
                 On::Type(on_type) => {
                     if on_type.value.location.contains(position_span) {
-                        return Ok(DocblockResolutionInfo::OnType(on_type.value.item));
+                        return Ok(DocblockResolutionInfo::Type(on_type.value.item));
                     }
                 }
                 On::Interface(on_interface) => {
                     if on_interface.value.location.contains(position_span) {
-                        return Ok(DocblockResolutionInfo::OnInterface(on_interface.value.item));
+                        return Ok(DocblockResolutionInfo::Type(on_interface.value.item));
                     }
                 }
             };
+
             if let Some(root_fragment) = resolver_ir.root_fragment {
                 if root_fragment.location.contains(position_span) {
                     return Ok(DocblockResolutionInfo::RootFragment(root_fragment.item));
@@ -55,7 +54,7 @@ pub fn create_docblock_resolution_info(
 
             if let Some(output_type) = &resolver_ir.output_type {
                 if output_type.inner().location.contains(position_span) {
-                    return Ok(DocblockResolutionInfo::OutputType(
+                    return Ok(DocblockResolutionInfo::Type(
                         output_type.inner().item.inner().name.value,
                     ));
                 }
@@ -69,8 +68,70 @@ pub fn create_docblock_resolution_info(
 
             Err(LSPRuntimeError::ExpectedError)
         }
-        DocblockIr::StrongObjectResolver(_) => Err(LSPRuntimeError::UnexpectedError(
-            "TODO: Implement support for strong object.".to_owned(),
-        )),
+        DocblockIr::TerseRelayResolver(resolver_ir) => {
+            // Parent type
+            if resolver_ir.type_.location.contains(position_span) {
+                return Ok(DocblockResolutionInfo::Type(resolver_ir.type_.item));
+            }
+
+            let field_type_location = resolver_ir
+                .location
+                .with_span(resolver_ir.field.type_.span());
+
+            // Return type
+            if field_type_location.contains(position_span) {
+                return Ok(DocblockResolutionInfo::Type(
+                    resolver_ir.field.type_.inner().name.value,
+                ));
+            }
+
+            // Root fragment
+            if let Some(root_fragment) = resolver_ir.root_fragment {
+                if root_fragment.location.contains(position_span) {
+                    return Ok(DocblockResolutionInfo::RootFragment(root_fragment.item));
+                }
+            }
+
+            // @deprecated key
+            if let Some(deprecated) = resolver_ir.deprecated {
+                if deprecated.key_location.contains(position_span) {
+                    return Ok(DocblockResolutionInfo::Deprecated);
+                }
+            }
+
+            Err(LSPRuntimeError::ExpectedError)
+        }
+        DocblockIr::StrongObjectResolver(strong_object) => {
+            if strong_object.type_.value.location.contains(position_span) {
+                return Ok(DocblockResolutionInfo::Type(strong_object.type_.value.item));
+            }
+
+            if let Some(deprecated) = strong_object.deprecated {
+                if deprecated.key_location.contains(position_span) {
+                    return Ok(DocblockResolutionInfo::Deprecated);
+                }
+            }
+            Err(LSPRuntimeError::ExpectedError)
+        }
+        DocblockIr::WeakObjectType(weak_type_ir) => {
+            if weak_type_ir
+                .type_name
+                .value
+                .location
+                .contains(position_span)
+            {
+                return Ok(DocblockResolutionInfo::Type(
+                    weak_type_ir.type_name.value.item,
+                ));
+            }
+
+            if let Some(deprecated) = weak_type_ir.deprecated {
+                if deprecated.key_location.contains(position_span) {
+                    return Ok(DocblockResolutionInfo::Deprecated);
+                }
+            }
+            // TODO: We could provide location mapping for the @weak docblock attribute
+            Err(LSPRuntimeError::ExpectedError)
+        }
     }
 }

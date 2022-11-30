@@ -1736,6 +1736,7 @@ dependencies = [
  "graphql-test-helpers",
  "intern",
  "lazy_static",
+ "relay-schema",
  "relay-test-schema",
  "schema",
  "thiserror",
@@ -1787,6 +1788,7 @@ version = "0.0.0"
 dependencies = [
  "common",
  "intern",
+ "lazy_static",
  "schema",
 ]
 
@@ -1844,6 +1846,7 @@ dependencies = [
  "log",
  "relay-codegen",
  "relay-config",
+ "relay-schema",
  "relay-test-schema",
  "relay-transforms",
  "schema",
