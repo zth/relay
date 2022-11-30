@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7dc568a653144073f51c0cc7a94e11b5>>
+ * @generated SignedSource<<06bccd56c478724058514b941c1c3f2f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,7 +20,7 @@
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
 import type { RelayResolversWithOutputTypeTestFragment$fragmentType } from "./RelayResolversWithOutputTypeTestFragment.graphql";
-import queryTodosResolver from "../../../relay-runtime/store/__tests__/resolvers/QueryTodos.js";
+import {todos as queryTodosResolver} from "../../../relay-runtime/store/__tests__/resolvers/QueryTodos.js";
 // Type assertion validating that `queryTodosResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryTodosResolver: (
@@ -28,7 +28,8 @@ import queryTodosResolver from "../../../relay-runtime/store/__tests__/resolvers
     first: ?number,
     last: ?number,
   |}, 
-) => LiveState<any>);
+) => LiveState<?Query__todos$normalization>);
+import type { Query__todos$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__todos$normalization.graphql";
 export type RelayResolversWithOutputTypeTestExceptionalProjectQuery$variables = {||};
 export type RelayResolversWithOutputTypeTestExceptionalProjectQuery$data = {|
   +todos: ?{|
@@ -71,8 +72,13 @@ return {
           "fragment": null,
           "kind": "RelayLiveResolver",
           "name": "todos",
-          "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/QueryTodos'),
-          "path": "todos"
+          "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/QueryTodos').todos,
+          "path": "todos",
+          "normalizationInfo": {
+            "concreteType": "TodoConnection",
+            "plural": false,
+            "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__todos$normalization.graphql')
+          }
         },
         "linkedField": {
           "alias": null,
@@ -111,8 +117,7 @@ return {
             }
           ],
           "storageKey": "todos(first:10)"
-        },
-        "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__todos$normalization.graphql')
+        }
       }
     ],
     "type": "Query",

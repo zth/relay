@@ -3043,6 +3043,15 @@ impl Writer for ReScriptPrinter {
         }
         Ok(())
     }
+
+    fn write_import_module_named(
+        &mut self,
+        _name: &str,
+        _import_as: Option<&str>,
+        _from: &str,
+    ) -> Result {
+        Ok(())
+    }
 }
 
 impl ReScriptPrinter {

@@ -8,13 +8,13 @@
 use std::fmt::Result as FmtResult;
 use std::sync::Arc;
 
+use common::InputObjectName;
 use common::Location;
 use fnv::FnvHashMap;
 use fnv::FnvHashSet;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentDefinitionName;
 use indexmap::IndexMap;
-use indexmap::IndexSet;
 use intern::string_key::StringKey;
 use schema::EnumID;
 use schema::SDLSchema;
@@ -76,7 +76,7 @@ impl GeneratedInputObject {
     }
 }
 
-pub(crate) type InputObjectTypes = IndexMap<StringKey, GeneratedInputObject>;
+pub(crate) type InputObjectTypes = IndexMap<InputObjectName, GeneratedInputObject>;
 
 /// Because EncounteredEnums is passed around everywhere, we use a newtype
 /// to make it easy to track.
@@ -126,15 +126,25 @@ impl FragmentLocations {
 pub(crate) struct EncounteredFragments(pub(crate) FnvHashSet<EncounteredFragment>);
 
 pub(crate) struct ImportedResolver {
-    pub resolver_name: StringKey,
+    pub resolver_name: ImportedResolverName,
     pub resolver_type: AST,
+    pub import_path: StringKey,
+}
+
+#[derive(Clone, Copy)]
+pub(crate) enum ImportedResolverName {
+    Default(StringKey),
+    Named {
+        name: StringKey,
+        import_as: StringKey,
+    },
 }
 
 #[derive(Default)]
 pub(crate) struct ImportedResolvers(pub(crate) IndexMap<StringKey, ImportedResolver>);
 
 #[derive(Default)]
-pub(crate) struct ImportedRawResponseTypes(pub(crate) IndexSet<StringKey>);
+pub(crate) struct ImportedRawResponseTypes(pub(crate) IndexMap<StringKey, Option<Location>>);
 
 /// Have we encountered an actor change? Use an enum for bookkeeping, since it
 /// will be passed around in many places.

@@ -38,11 +38,13 @@ fragment Foo_user on User {
       # RelayResolverMetadata {
       #     field_parent_type: "User",
       #     import_path: "BestFriendResolver",
+      #     import_name: None,
       #     field_name: "best_friend",
       #     field_alias: None,
       #     field_path: "best_friend",
       #     field_arguments: [],
       #     live: false,
+      #     normalization_info: None,
       # }
        @waterfall
       best_friend @waterfall {
@@ -61,11 +63,13 @@ fragment Foo_user on User {
       # RelayResolverMetadata {
       #     field_parent_type: "User",
       #     import_path: "BestFriendResolver",
+      #     import_name: None,
       #     field_name: "best_friend",
       #     field_alias: None,
       #     field_path: "best_friend",
       #     field_arguments: [],
       #     live: false,
+      #     normalization_info: None,
       # }
        @waterfall
       best_friend @waterfall {

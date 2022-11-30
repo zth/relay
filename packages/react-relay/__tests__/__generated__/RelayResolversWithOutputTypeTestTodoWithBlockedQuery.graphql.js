@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<718d3485dcf9ba01884bddebcd1bc47f>>
+ * @generated SignedSource<<5576a492ea3984643a4e15277b0e6272>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,20 +21,22 @@ import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
 import type { RelayResolversWithOutputTypeTestFragment$fragmentType } from "./RelayResolversWithOutputTypeTestFragment.graphql";
 import type { TodoBlockedByResolverFragment$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoBlockedByResolverFragment.graphql";
-import queryTodoResolver from "../../../relay-runtime/store/__tests__/resolvers/QueryTodo.js";
+import {todo as queryTodoResolver} from "../../../relay-runtime/store/__tests__/resolvers/QueryTodo.js";
 // Type assertion validating that `queryTodoResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryTodoResolver: (
   args: {|
     todoID: string,
   |}, 
-) => LiveState<any>);
-import todoBlockedByResolver from "../../../relay-runtime/store/__tests__/resolvers/TodoBlockedByResolver.js";
+) => LiveState<?Query__todo$normalization>);
+import {blocked_by as todoBlockedByResolver} from "../../../relay-runtime/store/__tests__/resolvers/TodoBlockedByResolver.js";
 // Type assertion validating that `todoBlockedByResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoBlockedByResolver: (
   rootKey: TodoBlockedByResolverFragment$key, 
-) => mixed);
+) => $ReadOnlyArray<?Todo__blocked_by$normalization>);
+import type { Query__todo$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__todo$normalization.graphql";
+import type { Todo__blocked_by$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Todo__blocked_by$normalization.graphql";
 export type RelayResolversWithOutputTypeTestTodoWithBlockedQuery$variables = {|
   id: string,
 |};
@@ -84,8 +86,13 @@ return {
           "fragment": null,
           "kind": "RelayLiveResolver",
           "name": "todo",
-          "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/QueryTodo'),
-          "path": "todo"
+          "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/QueryTodo').todo,
+          "path": "todo",
+          "normalizationInfo": {
+            "concreteType": "Todo",
+            "plural": false,
+            "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__todo$normalization.graphql')
+          }
         },
         "linkedField": {
           "alias": null,
@@ -108,8 +115,13 @@ return {
                 },
                 "kind": "RelayResolver",
                 "name": "blocked_by",
-                "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/TodoBlockedByResolver'),
-                "path": "blocked_by"
+                "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/TodoBlockedByResolver').blocked_by,
+                "path": "blocked_by",
+                "normalizationInfo": {
+                  "concreteType": "Todo",
+                  "plural": true,
+                  "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Todo__blocked_by$normalization.graphql')
+                }
               },
               "linkedField": {
                 "alias": null,
@@ -126,13 +138,11 @@ return {
                   }
                 ],
                 "storageKey": null
-              },
-              "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Todo__blocked_by$normalization.graphql')
+              }
             }
           ],
           "storageKey": null
-        },
-        "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__todo$normalization.graphql')
+        }
       }
     ],
     "type": "Query",

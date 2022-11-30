@@ -31,6 +31,7 @@ use graphql_syntax::FragmentDefinition;
 use graphql_syntax::TypeAnnotation;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
+use intern::Lookup;
 pub use ir::Argument;
 pub use ir::DocblockIr;
 use ir::IrField;
@@ -38,9 +39,16 @@ pub use ir::On;
 use ir::OutputType;
 use ir::PopulatedIrField;
 pub use ir::RelayResolverIr;
+use ir::StrongObjectIr;
 use lazy_static::lazy_static;
 
 use crate::errors::ErrorMessages;
+
+#[derive(Default)]
+pub struct ParseOptions {
+    pub use_named_imports: bool,
+    pub relay_resolver_model_syntax_enabled: bool,
+}
 
 lazy_static! {
     static ref RELAY_RESOLVER_FIELD: StringKey = "RelayResolver".intern();
@@ -56,19 +64,21 @@ lazy_static! {
     static ref ARGUMENT_DEFINITIONS: DirectiveName = DirectiveName("argumentDefinitions".intern());
     static ref ARGUMENT_TYPE: StringKey = "type".intern();
     static ref DEFAULT_VALUE: StringKey = "defaultValue".intern();
+    static ref PROVIDER_ARG_NAME: StringKey = "provider".intern();
 }
 
 pub fn parse_docblock_ast(
     ast: &DocblockAST,
     definitions: Option<&Vec<ExecutableDefinition>>,
+    parse_options: ParseOptions,
 ) -> DiagnosticsResult<Option<DocblockIr>> {
     if ast.find_field(*RELAY_RESOLVER_FIELD).is_none() {
         return Ok(None);
     }
 
-    let parser = RelayResolverParser::new();
+    let parser = RelayResolverParser::new(parse_options);
     let resolver_ir = parser.parse(ast, definitions)?;
-    Ok(Some(DocblockIr::RelayResolver(resolver_ir)))
+    Ok(Some(resolver_ir))
 }
 
 type ParseResult<T> = Result<T, ()>;
@@ -79,10 +89,11 @@ struct RelayResolverParser {
     description: Option<WithLocation<StringKey>>,
     allowed_fields: Vec<StringKey>,
     errors: Vec<Diagnostic>,
+    options: ParseOptions,
 }
 
 impl RelayResolverParser {
-    fn new() -> Self {
+    fn new(options: ParseOptions) -> Self {
         Self {
             fields: Default::default(),
             description: Default::default(),
@@ -98,13 +109,15 @@ impl RelayResolverParser {
                 *LIVE_FIELD,
                 *OUTPUT_TYPE_FIELD,
             ],
+            options,
         }
     }
+
     fn parse(
         mut self,
         ast: &DocblockAST,
         definitions_in_file: Option<&Vec<ExecutableDefinition>>,
-    ) -> DiagnosticsResult<RelayResolverIr> {
+    ) -> DiagnosticsResult<DocblockIr> {
         let result = self.parse_sections(ast, definitions_in_file);
         if !self.errors.is_empty() {
             Err(self.errors)
@@ -117,7 +130,7 @@ impl RelayResolverParser {
         &mut self,
         ast: &DocblockAST,
         definitions_in_file: Option<&Vec<ExecutableDefinition>>,
-    ) -> ParseResult<RelayResolverIr> {
+    ) -> ParseResult<DocblockIr> {
         for section in &ast.sections {
             match section {
                 DocblockSection::Field(field) => self.parse_field(field),
@@ -136,6 +149,32 @@ impl RelayResolverParser {
                 }
             }
         }
+        let relay_resolver = self.fields.get(&RELAY_RESOLVER_FIELD).copied().unwrap();
+        // Currently, we expect Strong objects to be defined
+        // as @RelayResolver StrongTypeName. No other fields are expected
+        if relay_resolver.value.is_some() {
+            if !self.options.relay_resolver_model_syntax_enabled {
+                self.errors.push(Diagnostic::error(
+                    "Parsing Relay Models (@RelayResolver `StrongTypeName`) is not enabled.",
+                    relay_resolver.key_location,
+                ));
+
+                return Err(());
+            }
+
+            self.parse_strong_object(relay_resolver)
+                .map(DocblockIr::StrongObjectResolver)
+        } else {
+            self.parse_relay_resolver(ast.location, definitions_in_file)
+                .map(DocblockIr::RelayResolver)
+        }
+    }
+
+    fn parse_relay_resolver(
+        &mut self,
+        ast_location: Location,
+        definitions_in_file: Option<&Vec<ExecutableDefinition>>,
+    ) -> ParseResult<RelayResolverIr> {
         let live = self.fields.get(&LIVE_FIELD).copied();
         let root_fragment = self.get_field_with_value(*ROOT_FRAGMENT_FIELD)?;
         let fragment_definition = root_fragment
@@ -151,8 +190,8 @@ impl RelayResolverParser {
                 fragment_definition.type_condition.type_.value,
             )
         });
-        let on = self.assert_on(ast.location, &fragment_type_condition);
-        let field_string = self.assert_field_value_exists(*FIELD_NAME_FIELD, ast.location)?;
+        let on = self.assert_on(ast_location, &fragment_type_condition);
+        let field_string = self.assert_field_value_exists(*FIELD_NAME_FIELD, ast_location)?;
         let field = self.parse_field_definition(field_string)?;
         self.validate_field_arguments(&field, field_string.location.source_location());
 
@@ -184,6 +223,10 @@ impl RelayResolverParser {
                 }
             }
         }
+        // For the initial version the name of the export have to match
+        // the name of the resolver field. Adding JS parser capabilities will allow
+        // us to derive the name of the export from the source.
+        let named_import = self.options.use_named_imports.then_some(field.name.value);
 
         Ok(RelayResolverIr {
             field,
@@ -192,10 +235,11 @@ impl RelayResolverParser {
                 .map(|root_fragment| root_fragment.value.map(FragmentDefinitionName)),
             output_type: self.output_type(),
             description: self.description,
-            location: ast.location,
+            location: ast_location,
             deprecated,
             live,
             fragment_arguments,
+            named_import,
         })
     }
 
@@ -451,11 +495,19 @@ impl RelayResolverParser {
                 arguments
                     .items
                     .iter()
-                    .map(|arg: &graphql_syntax::Argument| {
+                    .filter_map(|arg: &graphql_syntax::Argument| {
                         let (type_, default_value) = if let graphql_syntax::Value::Constant(
                             graphql_syntax::ConstantValue::Object(object),
                         ) = &arg.value
                         {
+                            if object
+                                .items
+                                .iter()
+                                .any(|item| item.name.value == *PROVIDER_ARG_NAME)
+                            {
+                                return None;
+                            }
+
                             let type_value = &object
                                 .items
                                 .iter()
@@ -487,11 +539,11 @@ impl RelayResolverParser {
                             panic!("Expect the constant value for the argDef: {:?}", &arg.value);
                         };
 
-                        type_.map(|type_| Argument {
+                        Some(type_.map(|type_| Argument {
                             name: arg.name.clone(),
                             type_,
                             default_value,
-                        })
+                        }))
                     })
                     .filter_map(|result| result.map_err(|err| self.errors.extend(err)).ok())
                     .collect::<Vec<_>>()
@@ -526,5 +578,9 @@ impl RelayResolverParser {
                 }
             }
         }
+    }
+
+    fn parse_strong_object(&self, _relay_resolver_field: IrField) -> ParseResult<StrongObjectIr> {
+        todo!()
     }
 }

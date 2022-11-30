@@ -79,6 +79,7 @@ impl Writer for TypeScriptPrinter {
                 // TODO: Implement type generation for typescript
                 Ok(())
             }
+            AST::GenericType { outer, inner } => self.write_generic_type(*outer, inner),
         }
     }
 
@@ -101,6 +102,20 @@ impl Writer for TypeScriptPrinter {
             "import {} from \"{}\";",
             name, from_without_extension
         )
+    }
+
+    fn write_import_module_named(
+        &mut self,
+        name: &str,
+        import_as: Option<&str>,
+        from: &str,
+    ) -> FmtResult {
+        let local_name = if let Some(import_as) = import_as {
+            format!("{{{} as {}}}", name, import_as)
+        } else {
+            format!("{{{}}}", name)
+        };
+        self.write_import_module_default(&local_name, from)
     }
 
     fn write_import_type(&mut self, types: &[&str], from: &str) -> FmtResult {
@@ -305,6 +320,12 @@ impl TypeScriptPrinter {
     fn write_callable(&mut self, return_type: &AST) -> FmtResult {
         write!(&mut self.result, "() => ")?;
         self.write(return_type)
+    }
+
+    fn write_generic_type(&mut self, outer: StringKey, inner: &AST) -> FmtResult {
+        write!(&mut self.result, "{}<", outer)?;
+        self.write(inner)?;
+        write!(&mut self.result, ">")
     }
 }
 

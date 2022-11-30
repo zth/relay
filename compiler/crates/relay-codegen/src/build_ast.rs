@@ -25,8 +25,10 @@ use graphql_ir::VariableDefinition;
 use graphql_syntax::OperationKind;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
+use intern::Lookup;
 use md5::Digest;
 use md5::Md5;
+use relay_config::JsModuleFormat;
 use relay_config::ProjectConfig;
 use relay_transforms::extract_connection_metadata_from_directive;
 use relay_transforms::extract_handle_field_directives;
@@ -107,7 +109,7 @@ pub fn build_provided_variables(
         definition_source_location,
     );
 
-    operation_builder.build_operation_provided_variables(&operation.variable_definitions)
+    operation_builder.build_operation_provided_variables(operation)
 }
 
 pub fn build_request(
@@ -277,7 +279,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         &mut self,
         operation: &OperationDefinition,
     ) -> Option<ObjectEntry> {
-        // If the query contains frament spreads on abstract types which are
+        // If the query contains fragment spreads on abstract types which are
         // defined in the client schema, we attach extra metadata so that we
         // know which concrete types match these type conditions at runtime.
         ClientExtensionAbstractTypeMetadataDirective::find(&operation.directives).map(|directive| {
@@ -960,7 +962,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 }
                 // We expect all RelayResolver fragment spreads to be inlined into inline fragment spreads when generating Normalization ASTs.
                 CodegenVariant::Normalization => panic!(
-                    "Unexpected RelayResolverMetadata on fragment spread while generating normalizaton AST."
+                    "Unexpected RelayResolverMetadata on fragment spread while generating normalization AST."
                 ),
             };
 
@@ -1003,7 +1005,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         // information to _read_ the resolver. Specifically, enough data
         // to construct a fragment key, and an import of the resolver
         // module itself.
-        Primitive::Key(self.object(object! {
+        let mut object_props = object! {
             :build_alias(field_alias, field_name),
             args: match args {
                 None => Primitive::SkippableNull,
@@ -1015,9 +1017,42 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             },
             kind: Primitive::String(kind),
             name: Primitive::String(field_name),
-            resolver_module: Primitive::JSModuleDependency(import_path),
+            resolver_module: Primitive::JSModuleDependency {
+                path: import_path,
+                named_import: relay_resolver_metadata.import_name,
+                import_as: Some(relay_resolver_metadata.generate_local_resolver_name()),
+            },
             path: Primitive::String(path),
-        }))
+        };
+
+        if let Some(normalization_info) = &relay_resolver_metadata.normalization_info {
+            let normalization_artifact_source_location = normalization_info
+                .normalization_operation
+                .location
+                .source_location();
+
+            let path_for_artifact = self.project_config.create_path_for_artifact(
+                normalization_artifact_source_location,
+                normalization_info.normalization_operation.item.to_string(),
+            );
+
+            let normalization_import_path = self.project_config.js_module_import_path(
+                self.definition_source_location,
+                path_for_artifact.to_str().unwrap().intern(),
+            );
+            let normalization_info = object! {
+                concrete_type: Primitive::String(normalization_info.type_name),
+                plural: Primitive::Bool(normalization_info.plural),
+                normalization_node: Primitive::GraphQLModuleDependency(normalization_import_path),
+            };
+
+            object_props.push(ObjectEntry {
+                key: CODEGEN_CONSTANTS.relay_resolver_normalization_info,
+                value: Primitive::Key(self.object(normalization_info)),
+            })
+        }
+
+        Primitive::Key(self.object(object_props))
     }
 
     fn build_normalization_fragment_spread(
@@ -1237,37 +1272,13 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                     client_edge_selections_key: selections_item,
                 }))
             }
-            ClientEdgeMetadataDirective::ClientObject {
-                type_name,
-                normalization_operation,
-                ..
-            } => {
-                let mut object_props = object! {
+            ClientEdgeMetadataDirective::ClientObject { type_name, .. } => {
+                Primitive::Key(self.object(object! {
                     kind: Primitive::String(CODEGEN_CONSTANTS.client_edge_to_client_object),
-                    concrete_type: Primitive::String(type_name),
+                    concrete_type: Primitive::String(type_name.0),
                     client_edge_backing_field_key: backing_field,
                     client_edge_selections_key: selections_item,
-                };
-                if let Some(normalization_operation) = normalization_operation {
-                    let normalization_artifact_source_location =
-                        normalization_operation.location.source_location();
-
-                    let path_for_artifact = self.project_config.create_path_for_artifact(
-                        normalization_artifact_source_location,
-                        normalization_operation.item.to_string(),
-                    );
-
-                    let normalization_import_path = self.project_config.js_module_import_path(
-                        self.definition_source_location,
-                        path_for_artifact.to_str().unwrap().intern(),
-                    );
-
-                    object_props.push(ObjectEntry {
-                        key: CODEGEN_CONSTANTS.client_edge_normalization_node_key,
-                        value: Primitive::GraphQLModuleDependency(normalization_import_path),
-                    })
-                }
-                Primitive::Key(self.object(object_props))
+                }))
             }
         };
 
@@ -1693,15 +1704,32 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
 
     pub fn build_operation_provided_variables(
         &mut self,
-        variable_definitions: &[VariableDefinition],
+        operation: &OperationDefinition,
     ) -> Option<AstKey> {
-        let var_defs = variable_definitions
+        let var_defs = operation
+            .variable_definitions
             .iter()
             .filter_map(|def| {
-                let provider_module = ProvidedVariableMetadata::find(&def.directives)?.module_name;
+                let provider = ProvidedVariableMetadata::find(&def.directives)?;
+
+                let provider_module =
+                    if matches!(self.project_config.js_module_format, JsModuleFormat::Haste) {
+                        provider.module_name
+                    } else {
+                        // This will build a path from the operation artifact to the provider module
+                        self.project_config.js_module_import_path(
+                            operation.name.map(|name| name.0),
+                            provider.module_path().to_str().unwrap().intern(),
+                        )
+                    };
+
                 Some(ObjectEntry {
                     key: def.name.item.0,
-                    value: Primitive::JSModuleDependency(provider_module),
+                    value: Primitive::JSModuleDependency {
+                        path: provider_module,
+                        named_import: None,
+                        import_as: None,
+                    },
                 })
             })
             .collect::<Vec<_>>();
@@ -1775,7 +1803,11 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             key: CODEGEN_CONSTANTS.id,
             value: match request_parameters.id {
                 Some(QueryID::Persisted { id, .. }) => Primitive::RawString(id.clone()),
-                Some(QueryID::External(name)) => Primitive::JSModuleDependency(*name),
+                Some(QueryID::External(module_name)) => Primitive::JSModuleDependency {
+                    path: *module_name,
+                    named_import: None,
+                    import_as: None,
+                },
                 None => Primitive::Null,
             },
         };
@@ -1830,7 +1862,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 CODEGEN_CONSTANTS.provided_variables_definition,
             ))
         } else {
-            self.build_operation_provided_variables(&operation.variable_definitions)
+            self.build_operation_provided_variables(operation)
                 .map(Primitive::Key)
         };
         if let Some(value) = provided_variables {

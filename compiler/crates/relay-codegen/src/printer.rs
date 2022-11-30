@@ -18,6 +18,7 @@ use graphql_ir::FragmentDefinition;
 use graphql_ir::OperationDefinition;
 use indexmap::IndexMap;
 use intern::string_key::StringKey;
+use intern::Lookup;
 use relay_config::DynamicModuleProvider;
 use relay_config::ProjectConfig;
 use schema::SDLSchema;
@@ -38,6 +39,7 @@ use crate::build_ast::build_request_params_ast_key;
 use crate::constants::CODEGEN_CONSTANTS;
 use crate::indentation::print_indentation;
 use crate::object;
+use crate::top_level_statements::ModuleImportName;
 use crate::top_level_statements::TopLevelStatement;
 use crate::top_level_statements::TopLevelStatements;
 use crate::utils::escape;
@@ -464,16 +466,27 @@ impl<'b> JSONPrinter<'b> {
             }
             Primitive::GraphQLModuleDependency(key) => self.write_js_dependency(
                 f,
-                format!("rescript_graphql_node_{}", key),
-                Cow::Owned(format!("rescript_graphql_node_{}", key)),
+                ModuleImportName::Default(format!("rescript_graphql_node_{}", *key)),
+                Cow::Owned(format!(
+                    "rescript_graphql_node_{}",
+                    *key
+                )),
             ),
-            Primitive::JSModuleDependency(key) => self.write_js_dependency(
+            Primitive::JSModuleDependency {
+                path,
+                ..
+            } => self.write_js_dependency(
                 f,
-                key.to_string(),
+                ModuleImportName::Default(format!(
+                    "rescript_module_{}",
+                    common::rescript_utils::get_module_name_from_file_path(
+                        &path.to_string().as_str()
+                    )
+                )),
                 Cow::Owned(format!(
                     "rescript_module_{}",
                     common::rescript_utils::get_module_name_from_file_path(
-                        &key.to_string().as_str()
+                        &path.to_string().as_str()
                     )
                 )),
             ),
@@ -482,7 +495,7 @@ impl<'b> JSONPrinter<'b> {
                     self.top_level_statements.insert(
                         "JSResource".to_string(),
                         TopLevelStatement::ImportStatement {
-                            name: "JSResource".to_string(),
+                            module_import_name: ModuleImportName::Default("JSResource".to_string()),
                             path: "JSResource".to_string(),
                         },
                     );
@@ -502,21 +515,38 @@ impl<'b> JSONPrinter<'b> {
     fn write_js_dependency(
         &mut self,
         f: &mut String,
-        name: String,
+        module_import_name: ModuleImportName,
         path: Cow<'_, str>,
     ) -> FmtResult {
         if self.eager_es_modules {
-            let write_result = write!(f, "{}", name);
+            let path = path.into_owned();
+            let key = match module_import_name {
+                ModuleImportName::Default(ref name) => name.to_string(),
+                ModuleImportName::Named {
+                    ref name,
+                    ref import_as,
+                } => import_as
+                    .as_ref()
+                    .cloned()
+                    .unwrap_or_else(|| name.to_string()),
+            };
             self.top_level_statements.insert(
-                name.clone(),
+                key.to_string(),
                 TopLevelStatement::ImportStatement {
-                    name,
-                    path: path.into_owned(),
+                    module_import_name,
+                    path,
                 },
             );
-            write_result
+            write!(f, "{}", key)
         } else {
-            write!(f, "{}", path)
+            match module_import_name {
+                ModuleImportName::Default(_) => {
+                    write!(f, "{}", path)
+                }
+                ModuleImportName::Named { name, .. } => {
+                    write!(f, "{}.{}", path, name)
+                }
+            }
         }
     }
 }
@@ -684,7 +714,7 @@ fn write_constant_value(f: &mut String, builder: &AstBuilder, value: &Primitive)
         Primitive::StorageKey(_, _) => panic!("Unexpected StorageKey"),
         Primitive::RawString(_) => panic!("Unexpected RawString"),
         Primitive::GraphQLModuleDependency(_) => panic!("Unexpected GraphQLModuleDependency"),
-        Primitive::JSModuleDependency(_) => panic!("Unexpected JSModuleDependency"),
+        Primitive::JSModuleDependency { .. } => panic!("Unexpected JSModuleDependency"),
         Primitive::DynamicImport { .. } => panic!("Unexpected DynamicImport"),
     }
 }

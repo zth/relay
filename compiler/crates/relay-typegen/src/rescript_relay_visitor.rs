@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::ScalarName;
 use fnv::FnvBuildHasher;
 use graphql_ir::{
     Argument, ConstantValue, Directive, Field, FragmentDefinition, OperationDefinition, Selection,
@@ -18,7 +19,7 @@ use schema::{SDLSchema, Schema, Type};
 
 use crate::rescript_utils::{get_connection_key_maker, get_custom_scalar_raw_typenames};
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
-pub type CustomScalarsMap = FnvIndexMap<StringKey, CustomScalarType>;
+pub type CustomScalarsMap = FnvIndexMap<ScalarName, CustomScalarType>;
 
 #[derive(Debug)]
 pub struct RescriptRelayConnectionConfig {
@@ -239,9 +240,9 @@ fn visit_selections<'a>(
         }
         Selection::InlineFragment(inline_fragment) => {
             let type_name = match &inline_fragment.type_condition {
-                Some(Type::Object(id)) => Some(schema.object(*id).name),
-                Some(Type::Interface(id)) => Some(schema.interface(*id).name),
-                Some(Type::Union(id)) => Some(schema.union(*id).name),
+                Some(Type::Object(id)) => Some(schema.object(*id).name.item.0),
+                Some(Type::Interface(id)) => Some(schema.interface(*id).name.item.0),
+                Some(Type::Union(id)) => Some(schema.union(*id).name.item),
                 _ => None,
             };
 
@@ -253,7 +254,7 @@ fn visit_selections<'a>(
                     operation_meta_data,
                     &variable_definitions,
                     &custom_scalars,
-                    make_path(&current_path, type_name.item.to_string()),
+                    make_path(&current_path, type_name.to_string()),
                 ),
             }
         }

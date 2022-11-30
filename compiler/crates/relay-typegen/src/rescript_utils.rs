@@ -1,6 +1,6 @@
 use std::ops::Add;
 
-use common::WithLocation;
+use common::{WithLocation, ScalarName};
 use graphql_ir::{
     reexport::{Intern, StringKey},
     Argument, ConstantValue, FragmentDefinition, OperationDefinition, ProvidedVariableMetadata,
@@ -316,7 +316,7 @@ pub fn get_custom_scalar_name(
     custom_scalar_types: &CustomScalarsMap,
     custom_scalar: &str,
 ) -> String {
-    match custom_scalar_types.get(&custom_scalar.to_string().intern()) {
+    match custom_scalar_types.get(&ScalarName(custom_scalar.to_string().intern())) {
         None => custom_scalar.to_string(),
         Some(
             CustomScalarType::Name(name)
@@ -444,7 +444,7 @@ pub fn print_type_reference(
                         "String" | "ID" => String::from("string"),
                         custom_scalar => {
                             let is_custom_scalar = custom_scalar_types
-                                .get(&custom_scalar.to_string().intern())
+                                .get(&ScalarName(custom_scalar.to_string().intern()))
                                 .is_some();
 
                             if is_custom_scalar {
