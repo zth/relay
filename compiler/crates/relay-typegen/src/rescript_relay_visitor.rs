@@ -75,7 +75,7 @@ fn find_connections_arguments(directive: Option<&Directive>) -> Vec<String> {
         None => (),
         Some(directive) => {
             directive.arguments.iter().for_each(|argument| {
-                if argument.name.item == String::from("connections").intern() {
+                if argument.name.item.0 == String::from("connections").intern() {
                     match argument.value.item {
                         Value::Variable(Variable { name, type_: _ }) => {
                             variable_names.push(name.item.to_string())
@@ -170,10 +170,10 @@ fn visit_selections<'a>(
                         .arguments
                         .iter()
                         .filter(|arg| {
-                            if &arg.name.item == &"first".intern()
-                                || &arg.name.item == &"last".intern()
-                                || &arg.name.item == &"before".intern()
-                                || &arg.name.item == &"after".intern()
+                            if &arg.name.item.0 == &"first".intern()
+                                || &arg.name.item.0 == &"last".intern()
+                                || &arg.name.item.0 == &"before".intern()
+                                || &arg.name.item.0 == &"after".intern()
                             {
                                 false
                             } else {
