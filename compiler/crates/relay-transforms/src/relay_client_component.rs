@@ -7,6 +7,7 @@
 
 use std::sync::Arc;
 
+use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::DirectiveName;
@@ -49,7 +50,8 @@ use crate::util::get_normalization_operation_name;
 lazy_static! {
     pub static ref RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME: DirectiveName =
         DirectiveName("relay_client_component_server".intern());
-    pub static ref RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME: StringKey = "module_id".intern();
+    pub static ref RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME: ArgumentName =
+        ArgumentName("module_id".intern());
     pub static ref RELAY_CLIENT_COMPONENT_DIRECTIVE_NAME: DirectiveName =
         DirectiveName("relay_client_component".intern());
     static ref STRING_TYPE: StringKey = "String".intern();
@@ -247,7 +249,8 @@ impl<'program, 'flag> RelayClientComponentTransform<'program, 'flag> {
                         get_normalization_operation_name(spread.fragment.item.0).intern();
                     (
                         SplitOperationMetadata {
-                            derived_from: spread.fragment.item,
+                            derived_from: Some(spread.fragment.item),
+                            location: spread.fragment.location,
                             parent_documents: Default::default(),
                             raw_response_type: false,
                         },

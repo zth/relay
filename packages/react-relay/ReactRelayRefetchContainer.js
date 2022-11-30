@@ -79,6 +79,7 @@ function createContainerWithFragments<
   const containerName = getContainerName(Component);
 
   return class extends React.Component<ContainerProps, ContainerState> {
+    // $FlowFixMe[missing-local-annot]
     static displayName = containerName;
 
     _refetchSubscription: ?Subscription;
@@ -447,7 +448,9 @@ function createContainerWithFragments<
       };
     };
 
+    // $FlowFixMe[missing-local-annot]
     render() {
+      // eslint-disable-next-line no-unused-vars
       const {componentRef, __relayContext, __rootIsQueryRenderer, ...props} =
         this.props;
       const {relayProp, contextForChildren} = this.state;
