@@ -2680,7 +2680,7 @@ impl Writer for ReScriptPrinter {
         // fragments, and variables) as <Identifier>$<type>. So, here we look
         // for those key top level objects and treat them specially.
 
-        if name.ends_with("$data") {
+        if name.ends_with("$data") {            
             match classify_top_level_object_type_ast(&value) {
                 Some((nullable, ClassifiedTopLevelObjectType::Object(props))) => {
                     let context = match &self.typegen_definition {
@@ -2911,15 +2911,7 @@ impl Writer for ReScriptPrinter {
         }
     }
 
-    // We track Relay Resolvers here.
-    fn write_import_module_default(&mut self, name: &str, from: &str) -> Result {
-        if name.ends_with("Resolver") {
-            self.relay_resolvers.push(RelayResolverInfo {
-                local_resolver_name: name.to_string(),
-                resolver_module: get_module_name_from_file_path(&from),
-            })
-        }
-
+    fn write_import_module_default(&mut self, _name: &str, _from: &str) -> Result {
         Ok(())
     }
 
@@ -3044,12 +3036,24 @@ impl Writer for ReScriptPrinter {
         Ok(())
     }
 
+    // We track Relay Resolvers by picking up the imports the compiler adds for
+    // the resolvers themselves.
     fn write_import_module_named(
         &mut self,
-        _name: &str,
-        _import_as: Option<&str>,
-        _from: &str,
+        name: &str,
+        import_as: Option<&str>,
+        from: &str,
     ) -> Result {
+        let target_name = match import_as {
+            Some(name) => name,
+            None => name
+        };
+        if target_name.ends_with("Resolver") {
+            self.relay_resolvers.push(RelayResolverInfo {
+                local_resolver_name: target_name.to_string(),
+                resolver_module: get_module_name_from_file_path(&from),
+            })
+        }
         Ok(())
     }
 }
