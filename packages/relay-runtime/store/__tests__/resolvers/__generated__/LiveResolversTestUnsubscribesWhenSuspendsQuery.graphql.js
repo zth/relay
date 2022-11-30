@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<673229c10c4951dfc104568414e88676>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<d80ba1142ba83c206dbb0c9aafc00a87>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -41,7 +43,20 @@ export type LiveResolversTestUnsubscribesWhenSuspendsQuery = {|
 |};
 */
 
-var node/*: ClientRequest*/ = {
+var node/*: ClientRequest*/ = (function(){
+var v0 = {
+  "kind": "ClientExtension",
+  "selections": [
+    {
+      "name": "live_user_suspends_when_odd",
+      "args": null,
+      "fragment": null,
+      "kind": "RelayResolver",
+      "storageKey": null
+    }
+  ]
+};
+return {
   "fragment": {
     "argumentDefinitions": [],
     "kind": "Fragment",
@@ -105,17 +120,20 @@ var node/*: ClientRequest*/ = {
     "name": "LiveResolversTestUnsubscribesWhenSuspendsQuery",
     "selections": [
       {
-        "kind": "ClientExtension",
-        "selections": [
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "__id",
-            "storageKey": null
-          }
-        ]
-      }
+        "name": "live_external_greeting",
+        "args": null,
+        "fragment": {
+          "kind": "InlineFragment",
+          "selections": [
+            (v0/*: any*/)
+          ],
+          "type": "Query",
+          "abstractKey": null
+        },
+        "kind": "RelayResolver",
+        "storageKey": null
+      },
+      (v0/*: any*/)
     ]
   },
   "params": {
@@ -127,6 +145,7 @@ var node/*: ClientRequest*/ = {
     "text": null
   }
 };
+})();
 
 if (__DEV__) {
   (node/*: any*/).hash = "06f9d01a4042d27c7e069bc35d4694c1";

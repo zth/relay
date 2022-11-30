@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<68f74d6cf842409f5a85c49d1adb6ddb>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<5a2605488074f209a44287ac9bc30279>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -40,13 +42,15 @@ export type RelayReaderClientEdgesTest2Query = {|
 */
 
 var node/*: ConcreteRequest*/ = (function(){
-var v0 = {
-  "alias": null,
-  "args": null,
-  "kind": "ScalarField",
-  "name": "name",
-  "storageKey": null
-};
+var v0 = [
+  {
+    "alias": null,
+    "args": null,
+    "kind": "ScalarField",
+    "name": "name",
+    "storageKey": null
+  }
+];
 return {
   "fragment": {
     "argumentDefinitions": [],
@@ -95,9 +99,7 @@ return {
                   "kind": "LinkedField",
                   "name": "author",
                   "plural": false,
-                  "selections": [
-                    (v0/*: any*/)
-                  ],
+                  "selections": (v0/*: any*/),
                   "storageKey": null
                 }
               ],
@@ -125,7 +127,18 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
+          {
+            "name": "client_edge",
+            "args": null,
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": (v0/*: any*/),
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "RelayResolver",
+            "storageKey": null
+          },
           {
             "alias": null,
             "args": null,

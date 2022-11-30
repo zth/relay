@@ -6,6 +6,7 @@
  *
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -21,6 +22,7 @@ import type {
   RelayResolverError,
   SingularReaderSelector,
   Snapshot,
+  ResolverNormalizationInfo,
 } from './RelayStoreTypes';
 
 const recycleNodesInto = require('../util/recycleNodesInto');
@@ -41,7 +43,6 @@ type ResolverID = string;
 
 export type EvaluationResult<T> = {
   resolverResult: ?T,
-  resolverID: ResolverID,
   snapshot: ?Snapshot,
   error: ?RelayResolverError,
 };
@@ -56,11 +57,12 @@ export type GetDataForResolverFragmentFn =
 
 export interface ResolverCache {
   readFromCacheOrEvaluate<T>(
-    record: Record,
+    recordID: DataID,
     field: ReaderRelayResolver | ReaderRelayLiveResolver,
     variables: Variables,
     evaluate: () => EvaluationResult<T>,
     getDataForResolverFragment: GetDataForResolverFragmentFn,
+    normalizationObject: ?ResolverNormalizationInfo,
   ): [
     ?T /* Answer */,
     ?DataID /* Seen record */,
@@ -79,11 +81,12 @@ const emptySet: $ReadOnlySet<any> = new Set();
 
 class NoopResolverCache implements ResolverCache {
   readFromCacheOrEvaluate<T>(
-    record: Record,
+    recordID: DataID,
     field: ReaderRelayResolver | ReaderRelayLiveResolver,
     variables: Variables,
     evaluate: () => EvaluationResult<T>,
     getDataForResolverFragment: GetDataForResolverFragmentFn,
+    normalizationObject: ?ResolverNormalizationInfo,
   ): [
     ?T /* Answer */,
     ?DataID /* Seen record */,
@@ -134,11 +137,12 @@ class RecordResolverCache implements ResolverCache {
   }
 
   readFromCacheOrEvaluate<T>(
-    record: Record,
+    recordID: DataID,
     field: ReaderRelayResolver | ReaderRelayLiveResolver,
     variables: Variables,
     evaluate: () => EvaluationResult<T>,
     getDataForResolverFragment: GetDataForResolverFragmentFn,
+    normalizationObject: ?ResolverNormalizationInfo,
   ): [
     ?T /* Answer */,
     ?DataID /* Seen record */,
@@ -147,7 +151,13 @@ class RecordResolverCache implements ResolverCache {
     ?DataID /* ID of record containing a suspended Live field */,
   ] {
     const recordSource = this._getRecordSource();
-    const recordID = RelayModernRecord.getDataID(record);
+
+    // NOTE: Be very careful with `record` in this scope. After `evaluate` has
+    // been called, the `record` we have here may have been replaced in the
+    // Relay store with a new record containing new informaiton about nested
+    // resolvers on this parent record.
+    const record = recordSource.get(recordID);
+    invariant(record != null, 'We expect record to exist in the store.');
 
     const storageKey = getStorageKey(field, variables);
     let linkedID = RelayModernRecord.getLinkedRecordID(record, storageKey);
@@ -179,22 +189,34 @@ class RecordResolverCache implements ResolverCache {
       recordSource.set(linkedID, linkedRecord);
 
       // Link the resolver value record to the resolver field of the record being read:
-      const nextRecord = RelayModernRecord.clone(record);
-      RelayModernRecord.setLinkedRecordID(nextRecord, storageKey, linkedID);
-      recordSource.set(RelayModernRecord.getDataID(nextRecord), nextRecord);
 
-      // Put records observed by the resolver into the dependency graph:
-      const resolverID = evaluationResult.resolverID;
-      addDependencyEdge(this._resolverIDToRecordIDs, resolverID, linkedID);
-      addDependencyEdge(this._recordIDToResolverIDs, recordID, resolverID);
-      const seenRecordIds = evaluationResult.snapshot?.seenRecords;
-      if (seenRecordIds != null) {
-        for (const seenRecordID of seenRecordIds) {
-          addDependencyEdge(
-            this._recordIDToResolverIDs,
-            seenRecordID,
-            resolverID,
-          );
+      // Note: We get a fresh instance of the parent record from the record
+      // source, becuase it may have been updated when we traversed into child
+      // resolvers.
+      const currentRecord = recordSource.get(recordID);
+      invariant(
+        currentRecord != null,
+        'Expected the parent record to still be in the record source.',
+      );
+      const nextRecord = RelayModernRecord.clone(currentRecord);
+      RelayModernRecord.setLinkedRecordID(nextRecord, storageKey, linkedID);
+      recordSource.set(recordID, nextRecord);
+
+      if (field.fragment != null) {
+        // Put records observed by the resolver into the dependency graph:
+        const fragmentStorageKey = getStorageKey(field.fragment, variables);
+        const resolverID = generateClientID(recordID, fragmentStorageKey);
+        addDependencyEdge(this._resolverIDToRecordIDs, resolverID, linkedID);
+        addDependencyEdge(this._recordIDToResolverIDs, recordID, resolverID);
+        const seenRecordIds = evaluationResult.snapshot?.seenRecords;
+        if (seenRecordIds != null) {
+          for (const seenRecordID of seenRecordIds) {
+            addDependencyEdge(
+              this._recordIDToResolverIDs,
+              seenRecordID,
+              resolverID,
+            );
+          }
         }
       }
     }

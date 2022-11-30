@@ -96,10 +96,10 @@ impl<'s> ConnectionValidation<'s> {
 
         let first_arg = connection_field
             .arguments
-            .named(self.connection_constants.first_arg_name.0);
+            .named(self.connection_constants.first_arg_name);
         let last_arg = connection_field
             .arguments
-            .named(self.connection_constants.last_arg_name.0);
+            .named(self.connection_constants.last_arg_name);
         if first_arg.is_none() && last_arg.is_none() {
             return Err(vec![Diagnostic::error(
                 ValidationMessage::ExpectedConnectionToHaveCountArgs {
@@ -325,9 +325,9 @@ impl<'s> ConnectionValidation<'s> {
         &self,
         parent_type: Type,
         selection_name: StringKey,
-        is_valid: impl Fn(&Field, &TypeReference) -> bool,
+        is_valid: impl Fn(&Field, &TypeReference<Type>) -> bool,
         error: impl Fn() -> Vec<Diagnostic>,
-    ) -> DiagnosticsResult<(&Field, &TypeReference)> {
+    ) -> DiagnosticsResult<(&Field, &TypeReference<Type>)> {
         let schema = &self.program.schema;
         if let Some(field_id) = schema.named_field(parent_type, selection_name) {
             let field = schema.field(field_id);

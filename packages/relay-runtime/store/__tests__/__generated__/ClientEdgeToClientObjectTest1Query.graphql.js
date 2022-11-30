@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<741eb9cf63450e8db1091734784660a2>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<2627804800b1f9f5088a6682d2adad14>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -223,28 +225,41 @@ return {
         "plural": false,
         "selections": [
           {
-            "alias": null,
+            "name": "astrological_sign",
             "args": null,
-            "concreteType": "Date",
-            "kind": "LinkedField",
-            "name": "birthdate",
-            "plural": false,
-            "selections": [
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "month",
-                "storageKey": null
-              },
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "day",
-                "storageKey": null
-              }
-            ],
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "concreteType": "Date",
+                  "kind": "LinkedField",
+                  "name": "birthdate",
+                  "plural": false,
+                  "selections": [
+                    {
+                      "alias": null,
+                      "args": null,
+                      "kind": "ScalarField",
+                      "name": "month",
+                      "storageKey": null
+                    },
+                    {
+                      "alias": null,
+                      "args": null,
+                      "kind": "ScalarField",
+                      "name": "day",
+                      "storageKey": null
+                    }
+                  ],
+                  "storageKey": null
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "RelayResolver",
             "storageKey": null
           },
           {

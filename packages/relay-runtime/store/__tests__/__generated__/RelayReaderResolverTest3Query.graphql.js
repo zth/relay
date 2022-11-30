@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<630ebcc683deaeb0aa3f02e15a00473d>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<ce99da6810b1eb5df623c2fc2acfce4c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -85,10 +87,23 @@ var node/*: ConcreteRequest*/ = {
         "plural": false,
         "selections": [
           {
-            "alias": null,
+            "name": "greeting",
             "args": null,
-            "kind": "ScalarField",
-            "name": "name",
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "name",
+                  "storageKey": null
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "RelayResolver",
             "storageKey": null
           },
           {

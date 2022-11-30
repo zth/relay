@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e527e3ac526d28700f51a9e2ec77b908>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<11623bf0494ee64893396c8b4471c338>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -130,10 +132,23 @@ return {
             "selections": [
               (v2/*: any*/),
               {
-                "alias": null,
+                "name": "resolver_that_throws",
                 "args": null,
-                "kind": "ScalarField",
-                "name": "username",
+                "fragment": {
+                  "kind": "InlineFragment",
+                  "selections": [
+                    {
+                      "alias": null,
+                      "args": null,
+                      "kind": "ScalarField",
+                      "name": "username",
+                      "storageKey": null
+                    }
+                  ],
+                  "type": "User",
+                  "abstractKey": null
+                },
+                "kind": "RelayResolver",
                 "storageKey": null
               }
             ],

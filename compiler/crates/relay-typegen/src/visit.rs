@@ -250,7 +250,7 @@ fn visit_fragment_spread(
             type_condition_info: get_type_condition_info(fragment_spread),
             is_updatable_fragment_spread: fragment_spread
                 .directives
-                .named(UPDATABLE_DIRECTIVE_FOR_TYPEGEN.0)
+                .named(*UPDATABLE_DIRECTIVE_FOR_TYPEGEN)
                 .is_some(),
         });
 
@@ -556,7 +556,7 @@ fn visit_inline_fragment(
         }));
     } else if inline_fragment
         .directives
-        .named(RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN.0)
+        .named(*RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN)
         .is_some()
     {
         visit_actor_change(
@@ -736,7 +736,7 @@ fn raw_response_visit_inline_fragment(
     );
     if inline_fragment
         .directives
-        .named(CLIENT_EXTENSION_DIRECTIVE_NAME.0)
+        .named(*CLIENT_EXTENSION_DIRECTIVE_NAME)
         .is_some()
     {
         for selection in &mut selections {
@@ -1191,7 +1191,10 @@ pub(crate) fn raw_response_selections_to_babel(
     let mut by_concrete_type: IndexMap<Type, Vec<TypeSelection>> = Default::default();
 
     for selection in selections {
-        if let Some(concrete_type) = selection.get_enclosing_concrete_type() {
+        let enclosing_concrete_type = selection.get_enclosing_concrete_type();
+        if enclosing_concrete_type == concrete_type {
+            base_fields.push(selection);
+        } else if let Some(concrete_type) = enclosing_concrete_type {
             by_concrete_type
                 .entry(concrete_type)
                 .or_insert_with(Vec::new)
@@ -1569,7 +1572,7 @@ fn raw_response_make_prop(
 
 fn transform_scalar_type(
     typegen_context: &'_ TypegenContext<'_>,
-    type_reference: &TypeReference,
+    type_reference: &TypeReference<Type>,
     object_props: Option<AST>,
     encountered_enums: &mut EncounteredEnums,
     custom_scalars: &mut CustomScalarsImports,
@@ -1594,7 +1597,7 @@ fn transform_scalar_type(
 
 fn transform_non_nullable_scalar_type(
     typegen_context: &'_ TypegenContext<'_>,
-    type_reference: &TypeReference,
+    type_reference: &TypeReference<Type>,
     object_props: Option<AST>,
     encountered_enums: &mut EncounteredEnums,
     custom_scalars: &mut CustomScalarsImports,
@@ -1776,7 +1779,7 @@ pub(crate) fn raw_response_visit_selections(
 
 fn transform_non_nullable_input_type(
     typegen_context: &'_ TypegenContext<'_>,
-    type_ref: &TypeReference,
+    type_ref: &TypeReference<Type>,
     input_object_types: &mut InputObjectTypes,
     encountered_enums: &mut EncounteredEnums,
     custom_scalars: &mut CustomScalarsImports,
@@ -1844,7 +1847,7 @@ fn transform_non_nullable_input_type(
 
 pub(crate) fn transform_input_type(
     typegen_context: &'_ TypegenContext<'_>,
-    type_ref: &TypeReference,
+    type_ref: &TypeReference<Type>,
     input_object_types: &mut InputObjectTypes,
     encountered_enums: &mut EncounteredEnums,
     custom_scalars: &mut CustomScalarsImports,
@@ -2057,18 +2060,18 @@ fn group_refs(props: impl Iterator<Item = TypeSelection>) -> impl Iterator<Item 
 }
 
 fn apply_required_directive_nullability(
-    field_type: &TypeReference,
+    field_type: &TypeReference<Type>,
     directives: &[Directive],
-) -> TypeReference {
+) -> TypeReference<Type> {
     // We apply bubbling before the field's own @required directive (which may
     // negate the effects of bubbling) because we need handle the case where
     // null can bubble to the _items_ in a plural field which is itself
     // @required.
-    let bubbled_type = match directives.named(CHILDREN_CAN_BUBBLE_METADATA_KEY.0) {
+    let bubbled_type = match directives.named(*CHILDREN_CAN_BUBBLE_METADATA_KEY) {
         Some(_) => field_type.with_nullable_item_type(),
         None => field_type.clone(),
     };
-    match directives.named(RequiredMetadataDirective::directive_name().0) {
+    match directives.named(RequiredMetadataDirective::directive_name()) {
         Some(_) => bubbled_type.non_null(),
         None => bubbled_type,
     }
@@ -2095,7 +2098,7 @@ fn to_camel_case(non_camelized_string: String) -> String {
 fn get_type_condition_info(fragment_spread: &FragmentSpread) -> Option<TypeConditionInfo> {
     fragment_spread
         .directives
-        .named(ASSIGNABLE_DIRECTIVE_FOR_TYPEGEN.0)
+        .named(*ASSIGNABLE_DIRECTIVE_FOR_TYPEGEN)
         .map(|directive| {
             directive
                 .data

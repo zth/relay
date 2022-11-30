@@ -6,6 +6,7 @@
  *
  * @flow
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -146,6 +147,12 @@ export type RelayResolverErrors = Array<RelayResolverError>;
 export type MissingLiveResolverField = {
   +path: string,
   +liveStateID: DataID,
+};
+
+export type ResolverNormalizationInfo = {
+  +concreteType: string,
+  +normalizationNode: NormalizationSelectableNode,
+  +plural: boolean,
 };
 
 /**

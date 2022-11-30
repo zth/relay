@@ -53,7 +53,7 @@ pub type FragmentSignatures = FragmentDefinitionNameMap<FragmentSignature>;
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct ProvidedVariableMetadata {
     pub module_name: StringKey,
-    pub original_variable_name: StringKey,
+    pub original_variable_name: VariableName,
 }
 
 associated_data_impl!(ProvidedVariableMetadata);
@@ -312,9 +312,9 @@ fn build_fragment_variable_definitions(
                                 ProvidedVariableMetadata::directive_name(),
                             ),
                             arguments: Vec::new(),
-                            data: Some(Box::new(ProvidedVariableMetadata{
+                            data: Some(Box::new(ProvidedVariableMetadata {
                                 module_name: provider_module_name,
-                                original_variable_name: variable_name.value
+                                original_variable_name: VariableName(variable_name.value)
                             })),
                         });
                     }
@@ -389,7 +389,7 @@ fn get_argument_type(
     location: Location,
     type_arg: Option<&graphql_syntax::ConstantArgument>,
     object: &graphql_syntax::List<graphql_syntax::ConstantArgument>,
-) -> DiagnosticsResult<TypeReference> {
+) -> DiagnosticsResult<TypeReference<Type>> {
     let type_name_and_offset = match type_arg {
         Some(graphql_syntax::ConstantArgument {
             value: graphql_syntax::ConstantValue::String(type_name_node),
@@ -423,7 +423,7 @@ fn get_default_value(
     schema: &SDLSchema,
     location: Location,
     default_arg: Option<&graphql_syntax::ConstantArgument>,
-    type_: &TypeReference,
+    type_: &TypeReference<Type>,
 ) -> DiagnosticsResult<Option<WithLocation<ConstantValue>>> {
     default_arg
         .map(|x| {

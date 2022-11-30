@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -41,6 +41,7 @@ const RelayRecordSource = require('relay-runtime/store/RelayRecordSource');
 const {
   disallowConsoleErrors,
   disallowWarnings,
+  expectToWarn,
 } = require('relay-test-utils-internal');
 
 disallowWarnings();
@@ -287,6 +288,161 @@ describe.each([
     expect(data).toEqual({
       ping: 'pong',
     });
+  });
+
+  test('Subscriptions created while in an optimistic state is in place get cleaned up correctly', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+      },
+      '1': {
+        __id: '1',
+        __typename: 'User',
+        id: '1',
+        name: 'Alice',
+      },
+    });
+    const store = new LiveResolverStore(source, {gcReleaseBufferSize: 0});
+
+    const environment = new RelayModernEnvironment({
+      network: RelayNetwork.create(jest.fn()),
+      store,
+    });
+
+    const update = environment.applyUpdate({
+      storeUpdater: store => {
+        const alice = store.get('1');
+        if (alice == null) {
+          throw new Error('Expected to have record "1"');
+        }
+        const storeRoot = store.getRoot();
+        storeRoot.setLinkedRecord(alice, 'me');
+      },
+    });
+
+    const FooQuery = graphql`
+      query LiveResolversTestOptimisticUpdateQuery {
+        counter
+      }
+    `;
+
+    const operation = createOperationDescriptor(FooQuery, {});
+
+    // Read a live resolver field (Creating a subscription to the live state)
+    const snapshot = environment.lookup(operation.fragment);
+    const disposable = environment.subscribe(snapshot, () => {
+      // Noop. We just need to be subscribed.
+    });
+
+    // Revert the optimisitic update.
+    // This should unsubscribe the subscription created during the optimistic
+    // update, and then reread `counter`. Since `counter` is missing its `me`
+    // dependency, it should leave `counter` in a state with no liveValue and
+    // _no subscription_.
+    update.dispose();
+
+    // Fire the subscription, which should be ignored by Relay.
+    expect(() => {
+      GLOBAL_STORE.dispatch({type: 'INCREMENT'});
+    }).not.toThrow();
+
+    // Clean up (just good hygiene)
+    disposable.dispose();
+  });
+
+  test('Outer resolvers do not overwrite subscriptions made by inner resolvers (regression)', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        __typename: 'User',
+        id: '1',
+        name: 'Alice',
+      },
+    });
+
+    const FooQuery = graphql`
+      query LiveResolversTestNestedQuery {
+        # Outer consumes inner
+        outer
+        # We include inner again as a subsequent sibling of outer. This ensures
+        # that even if outer overwrites the cached version of inner, we end with
+        # inner in a valid state. This is nessesary to trigger the error.
+        inner
+      }
+    `;
+
+    const store = new LiveResolverStore(source, {gcReleaseBufferSize: 0});
+
+    const environment = new RelayModernEnvironment({
+      network: RelayNetwork.create(jest.fn()),
+      store,
+    });
+
+    function Environment({children}: {children: React.Node}) {
+      return (
+        <RelayEnvironmentProvider environment={environment}>
+          <React.Suspense fallback="Loading...">{children}</React.Suspense>
+        </RelayEnvironmentProvider>
+      );
+    }
+
+    function TestComponent() {
+      const queryData = useLazyLoadQuery(FooQuery, {});
+      return queryData.outer ?? null;
+    }
+
+    const renderer = TestRenderer.create(
+      <Environment>
+        <TestComponent />
+      </Environment>,
+    );
+
+    expect(renderer.toJSON()).toEqual('0');
+
+    let update;
+    // Delete data putting `inner`'s fragment into a state where it's missing
+    // data. This _should_ unsubscribe us from `inner`'s external state.
+    TestRenderer.act(() => {
+      update = environment.applyUpdate({
+        storeUpdater: store => {
+          const alice = store.get('1');
+          if (alice == null) {
+            throw new Error('Expected to have record "1"');
+          }
+          alice.setValue(undefined, 'name');
+        },
+      });
+    });
+
+    TestRenderer.act(() => jest.runAllImmediates());
+    expect(renderer.toJSON()).toEqual(null);
+
+    // Calling increment here should be ignored by Relay. However, if there are
+    // dangling subscriptions, this will put inner into a dirty state.
+    TestRenderer.act(() => {
+      GLOBAL_STORE.dispatch({type: 'INCREMENT'});
+    });
+    TestRenderer.act(() => jest.runAllImmediates());
+    expect(renderer.toJSON()).toEqual(null);
+
+    // Revering optimistic update puts inner back into a state where its
+    // fragment is valid. HOWEVER, if a dangling subscription has marked inner
+    // as dirty, we will try to read from a LiveValue that does not exist.
+    TestRenderer.act(() => update.dispose());
+    expect(renderer.toJSON()).toEqual('1');
+
+    // Not part of the repro, but just to confirm: We should now be resubscribed...
+    TestRenderer.act(() => {
+      GLOBAL_STORE.dispatch({type: 'INCREMENT'});
+    });
+    TestRenderer.act(() => jest.runAllImmediates());
+    expect(renderer.toJSON()).toEqual('2');
   });
 
   test("Resolvers without fragments aren't reevaluated when their parent record updates.", async () => {
@@ -1303,6 +1459,108 @@ describe.each([
       expect(renderer.toJSON()).toEqual('Loading...');
     });
   });
+
+  test('Subscriptions cleaned up correctly after GC', () => {
+    const store = new LiveResolverStore(RelayRecordSource.create(), {
+      gcReleaseBufferSize: 0,
+    });
+    const environment = new RelayModernEnvironment({
+      network: RelayNetwork.create(jest.fn()),
+      store,
+    });
+
+    // We're adding some data for `me { id } ` query so the initial read for
+    // `live_counter_with_possible_missing_fragment_data` won't have any missing data
+    //  and we will be able to create a valid live resolver record for it.
+    function publishMeData() {
+      environment.commitPayload(
+        createOperationDescriptor(
+          graphql`
+            query LiveResolversTestWithGCUserQuery {
+              me {
+                id
+              }
+            }
+          `,
+          {},
+        ),
+        {
+          me: {
+            id: '1',
+          },
+        },
+      );
+    }
+    publishMeData();
+
+    const operation = createOperationDescriptor(
+      graphql`
+        query LiveResolversTestWithGCQuery {
+          live_counter_with_possible_missing_fragment_data
+        }
+      `,
+      {},
+    );
+
+    // The first time we read `live_counter_with_possible_missing_fragment_data` we will
+    // create live resolver record and subscribe to the external store for updates
+    let snapshot = environment.lookup(operation.fragment);
+    expect(snapshot.data).toEqual({
+      live_counter_with_possible_missing_fragment_data: 0,
+    });
+    expect(snapshot.isMissingData).toBe(false);
+
+    // Note: this is another issue with GC here.
+    // Our GC will remove **all** records from the store(including __ROOT__) if they are not retained.
+    //
+    // So in this test we need to retain some unrelevant records in the store to keep the __ROOT__
+    // record arount after GC run.
+    environment.retain(
+      createOperationDescriptor(
+        graphql`
+          query LiveResolversTestWithGCCounterQuery {
+            counter_no_fragment
+          }
+        `,
+        {},
+      ),
+    );
+
+    // Go-go-go! Clean the store!
+    store.scheduleGC();
+    jest.runAllImmediates();
+    // This will clean the store, but won't unsubscribe from the external states
+
+    // Re-reading resolvers will create new records for them (but) the
+    // `live_counter_with_possible_missing_fragment_data` will have missing required data at this
+    // point so we won't be able to create a fully-valid live-resolver record for it (and subscribe/read)
+    // from the external state.
+    environment.lookup(operation.fragment);
+
+    // this will dispatch an action from the extenrnal store and the callback that was created before GC
+    expectToWarn(
+      'Unexpected callback for a incomplete live resolver record',
+      () => {
+        GLOBAL_STORE.dispatch({type: 'INCREMENT'});
+      },
+    );
+
+    // The data for the live resolver is missing (it has missing dependecies)
+    snapshot = environment.lookup(operation.fragment);
+    expect(snapshot.data).toEqual({
+      live_counter_with_possible_missing_fragment_data: undefined,
+    });
+    expect(snapshot.isMissingData).toBe(true);
+
+    // We should be able to re-read the data once the missing data in avaialbe again
+    publishMeData();
+
+    snapshot = environment.lookup(operation.fragment);
+    expect(snapshot.data).toEqual({
+      live_counter_with_possible_missing_fragment_data: 1,
+    });
+    expect(snapshot.isMissingData).toBe(false);
+  });
 });
 
 test('Errors when reading a @live resolver that does not return a LiveState object', () => {
@@ -1361,7 +1619,7 @@ test('Errors when reading a non-@live resolver that returns a LiveState object',
   expect(() => {
     environment.lookup(operation.fragment);
   }).toThrow(
-    'Unexpected LiveState value retuned from the non-@live Relay Resolver backing the field "non_live_resolver_with_live_return_value". Did you intend to add @live to this resolver?.',
+    'Unexpected LiveState value returned from the non-@live Relay Resolver backing the field "non_live_resolver_with_live_return_value". Did you intend to add @live to this resolver?.',
   );
 });
 

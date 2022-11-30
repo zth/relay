@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<08cc4811db72b4db229389c855848485>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<488b427c39eae94dd224af1b7452041c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -101,10 +103,10 @@ return {
                 "kind": "ClientExtension",
                 "selections": [
                   {
-                    "alias": null,
+                    "name": "counter_suspends_when_odd",
                     "args": null,
-                    "kind": "ScalarField",
-                    "name": "__id",
+                    "fragment": null,
+                    "kind": "RelayResolver",
                     "storageKey": null
                   }
                 ]

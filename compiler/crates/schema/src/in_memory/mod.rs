@@ -23,6 +23,8 @@ use crate::definitions::Argument;
 use crate::definitions::Directive;
 use crate::definitions::*;
 use crate::errors::SchemaError;
+use crate::field_descriptions::CLIENT_ID_DESCRIPTION;
+use crate::field_descriptions::TYPENAME_DESCRIPTION;
 use crate::graphql_schema::Schema;
 
 fn todo_add_location<T>(error: SchemaError) -> DiagnosticsResult<T> {
@@ -51,7 +53,7 @@ pub struct InMemorySchema {
     string_type: Option<Type>,
     id_type: Option<Type>,
 
-    unchecked_argument_type_sentinel: Option<TypeReference>,
+    unchecked_argument_type_sentinel: Option<TypeReference<Type>>,
 
     directives: HashMap<DirectiveName, Directive>,
 
@@ -217,7 +219,7 @@ impl Schema for InMemorySchema {
     /// have a type to instantiate the argument.
     ///
     /// TODO: we probably want to replace this with a proper `Unknown` type.
-    fn unchecked_argument_type_sentinel(&self) -> &TypeReference {
+    fn unchecked_argument_type_sentinel(&self) -> &TypeReference<Type> {
         self.unchecked_argument_type_sentinel.as_ref().unwrap()
     }
 
@@ -367,6 +369,15 @@ impl InMemorySchema {
             return todo_add_location(SchemaError::DuplicateDirectiveDefinition(directive.name.0));
         }
         self.directives.insert(directive.name, directive);
+        Ok(())
+    }
+
+    pub fn remove_directive(&mut self, directive_name: DirectiveName) -> DiagnosticsResult<()> {
+        if !self.directives.contains_key(&directive_name) {
+            // Cannot find the directive to remove
+            return todo_add_location(SchemaError::UndefinedDirective(directive_name.0));
+        }
+        self.directives.remove(&directive_name);
         Ok(())
     }
 
@@ -831,6 +842,28 @@ impl InMemorySchema {
                         }
                     }
                 }
+
+                if let TypeSystemDefinition::InterfaceTypeDefinition(InterfaceTypeDefinition {
+                    name,
+                    interfaces,
+                    ..
+                }) = definition
+                {
+                    let child_interface_id = match schema.type_map.get(&name.value) {
+                        Some(Type::Interface(id)) => id,
+                        _ => unreachable!("Must be an Interface type"),
+                    };
+                    for interface in interfaces {
+                        let type_ = schema.type_map.get(&interface.value).unwrap();
+                        match type_ {
+                            Type::Interface(id) => {
+                                let interface = schema.interfaces.get_mut(id.as_usize()).unwrap();
+                                interface.implementing_interfaces.push(*child_interface_id)
+                            }
+                            _ => unreachable!("Must be an interface"),
+                        }
+                    }
+                }
             }
         }
         schema.load_defaults();
@@ -884,7 +917,7 @@ impl InMemorySchema {
             type_: TypeReference::NonNull(Box::new(TypeReference::Named(string_type))),
             directives: Vec::new(),
             parent_type: None,
-            description: None,
+            description: Some(*TYPENAME_DESCRIPTION),
         });
     }
 
@@ -914,7 +947,7 @@ impl InMemorySchema {
             type_: TypeReference::NonNull(Box::new(TypeReference::Named(id_type))),
             directives: Vec::new(),
             parent_type: None,
-            description: None,
+            description: Some(*CLIENT_ID_DESCRIPTION),
         });
     }
 
@@ -1134,6 +1167,7 @@ impl InMemorySchema {
                 let directives = self.build_directive_values(directives);
                 self.interfaces.push(Interface {
                     name: WithLocation::new(Location::new(*location_key, name.span), name.value),
+                    implementing_interfaces: vec![],
                     implementing_objects: vec![],
                     is_extension,
                     fields,
@@ -1451,7 +1485,7 @@ impl InMemorySchema {
     fn build_input_object_reference(
         &mut self,
         ast_type: &TypeAnnotation,
-    ) -> DiagnosticsResult<TypeReference> {
+    ) -> DiagnosticsResult<TypeReference<Type>> {
         Ok(match ast_type {
             TypeAnnotation::Named(named_type) => {
                 let type_ = self.type_map.get(&named_type.name.value).ok_or_else(|| {
@@ -1482,7 +1516,7 @@ impl InMemorySchema {
         &mut self,
         ast_type: &TypeAnnotation,
         source_location: SourceLocationKey,
-    ) -> DiagnosticsResult<TypeReference> {
+    ) -> DiagnosticsResult<TypeReference<Type>> {
         Ok(match ast_type {
             TypeAnnotation::Named(named_type) => TypeReference::Named(
                 *self.type_map.get(&named_type.name.value).ok_or_else(|| {

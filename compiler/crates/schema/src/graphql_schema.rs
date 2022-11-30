@@ -66,7 +66,7 @@ pub trait Schema {
 
     fn named_field(&self, parent_type: Type, name: StringKey) -> Option<FieldID>;
 
-    fn unchecked_argument_type_sentinel(&self) -> &TypeReference;
+    fn unchecked_argument_type_sentinel(&self) -> &TypeReference<Type>;
 
     fn snapshot_print(&self) -> String;
 
@@ -78,8 +78,8 @@ pub trait Schema {
     // is_type_strict_subtype_of(Node, Node) => false, same type
     fn is_type_strict_subtype_of(
         &self,
-        maybe_subtype: &TypeReference,
-        super_type: &TypeReference,
+        maybe_subtype: &TypeReference<Type>,
+        super_type: &TypeReference<Type>,
     ) -> bool {
         match (maybe_subtype, super_type) {
             (TypeReference::NonNull(of_sub), TypeReference::NonNull(of_super)) => {
@@ -107,8 +107,8 @@ pub trait Schema {
 
     fn is_type_subtype_of(
         &self,
-        maybe_subtype: &TypeReference,
-        super_type: &TypeReference,
+        maybe_subtype: &TypeReference<Type>,
+        super_type: &TypeReference<Type>,
     ) -> bool {
         match (maybe_subtype, super_type) {
             (TypeReference::NonNull(of_sub), TypeReference::NonNull(of_super)) => {
@@ -182,14 +182,23 @@ pub trait Schema {
             a.iter().any(|item| b.contains(item))
         }
 
+        fn overlapping_interfaces(a: &[InterfaceID], b: &[InterfaceID]) -> bool {
+            a.iter().any(|item| b.contains(item))
+        }
+
         if a == b {
             return true;
         };
         match (a, b) {
-            (Type::Interface(a), Type::Interface(b)) => overlapping_objects(
-                &self.interface(a).implementing_objects,
-                &self.interface(b).implementing_objects,
-            ),
+            (Type::Interface(a), Type::Interface(b)) => {
+                overlapping_objects(
+                    &self.interface(a).implementing_objects,
+                    &self.interface(b).implementing_objects,
+                ) || overlapping_interfaces(
+                    &self.interface(a).implementing_interfaces,
+                    &self.interface(b).implementing_interfaces,
+                )
+            }
 
             (Type::Union(a), Type::Union(b)) => {
                 overlapping_objects(&self.union(a).members, &self.union(b).members)
@@ -216,7 +225,7 @@ pub trait Schema {
         }
     }
 
-    fn write_type_string(&self, writer: &mut String, type_: &TypeReference) -> FmtResult {
+    fn write_type_string(&self, writer: &mut String, type_: &TypeReference<Type>) -> FmtResult {
         match type_ {
             TypeReference::Named(inner) => {
                 write!(writer, "{}", self.get_type_name(*inner).lookup())
@@ -233,7 +242,7 @@ pub trait Schema {
         }
     }
 
-    fn get_type_string(&self, type_: &TypeReference) -> String {
+    fn get_type_string(&self, type_: &TypeReference<Type>) -> String {
         let mut result = String::new();
         self.write_type_string(&mut result, type_).unwrap();
         result

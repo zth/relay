@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4b551163a17a6ac23817e38f4bb19c56>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<99eae34cc8ea8181c8b2e4fd5493cd4d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -50,10 +52,45 @@ var v0 = [
     "name": "salutation"
   }
 ],
-v1 = {
+v1 = [
+  {
+    "kind": "Variable",
+    "name": "salutation",
+    "variableName": "salutation"
+  }
+],
+v2 = {
   "args": null,
   "kind": "FragmentSpread",
   "name": "UserCustomGreetingResolver"
+},
+v3 = [
+  {
+    "kind": "Literal",
+    "name": "salutation",
+    "value": "Greetz"
+  }
+],
+v4 = [
+  {
+    "kind": "Literal",
+    "name": "salutation",
+    "value": "Willkommen"
+  }
+],
+v5 = {
+  "kind": "InlineFragment",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "name",
+      "storageKey": null
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
 };
 return {
   "fragment": {
@@ -72,14 +109,8 @@ return {
         "selections": [
           {
             "alias": "dynamic_greeting",
-            "args": [
-              {
-                "kind": "Variable",
-                "name": "salutation",
-                "variableName": "salutation"
-              }
-            ],
-            "fragment": (v1/*: any*/),
+            "args": (v1/*: any*/),
+            "fragment": (v2/*: any*/),
             "kind": "RelayResolver",
             "name": "custom_greeting",
             "resolverModule": require('./../resolvers/UserCustomGreetingResolver'),
@@ -87,14 +118,8 @@ return {
           },
           {
             "alias": "greetz",
-            "args": [
-              {
-                "kind": "Literal",
-                "name": "salutation",
-                "value": "Greetz"
-              }
-            ],
-            "fragment": (v1/*: any*/),
+            "args": (v3/*: any*/),
+            "fragment": (v2/*: any*/),
             "kind": "RelayResolver",
             "name": "custom_greeting",
             "resolverModule": require('./../resolvers/UserCustomGreetingResolver'),
@@ -102,14 +127,8 @@ return {
           },
           {
             "alias": "willkommen",
-            "args": [
-              {
-                "kind": "Literal",
-                "name": "salutation",
-                "value": "Willkommen"
-              }
-            ],
-            "fragment": (v1/*: any*/),
+            "args": (v4/*: any*/),
+            "fragment": (v2/*: any*/),
             "kind": "RelayResolver",
             "name": "custom_greeting",
             "resolverModule": require('./../resolvers/UserCustomGreetingResolver'),
@@ -137,11 +156,25 @@ return {
         "plural": false,
         "selections": [
           {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "name",
+            "name": "custom_greeting",
+            "args": (v1/*: any*/),
+            "fragment": (v5/*: any*/),
+            "kind": "RelayResolver",
             "storageKey": null
+          },
+          {
+            "name": "custom_greeting",
+            "args": (v3/*: any*/),
+            "fragment": (v5/*: any*/),
+            "kind": "RelayResolver",
+            "storageKey": "custom_greeting(salutation:\"Greetz\")"
+          },
+          {
+            "name": "custom_greeting",
+            "args": (v4/*: any*/),
+            "fragment": (v5/*: any*/),
+            "kind": "RelayResolver",
+            "storageKey": "custom_greeting(salutation:\"Willkommen\")"
           },
           {
             "alias": null,

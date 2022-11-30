@@ -196,14 +196,14 @@ impl<'schema> ValidationContext<'schema> {
         let mut field_names = FnvHashSet::default();
         for field_id in fields {
             let field = self.schema.field(*field_id);
-            if field_names.contains(&field.name) {
+            if field_names.contains(&field.name.item) {
                 self.report_error(
                     SchemaValidationError::DuplicateField(field.name.item),
                     context,
                 );
                 continue;
             }
-            field_names.insert(field.name);
+            field_names.insert(field.name.item);
 
             // Ensure they are named correctly.
             self.validate_name(field.name.item, context);
@@ -320,7 +320,10 @@ impl<'schema> ValidationContext<'schema> {
         }
     }
 
-    fn validate_type_with_interfaces<T: TypeWithFields + Named>(&self, type_: &T) {
+    fn validate_type_with_interfaces<T: TypeWithFields + Named<Name = StringKey>>(
+        &self,
+        type_: &T,
+    ) {
         let mut interface_names = FnvHashSet::default();
         for interface_id in type_.interfaces().iter() {
             let interface = self.schema.interface(*interface_id);
@@ -339,7 +342,7 @@ impl<'schema> ValidationContext<'schema> {
         }
     }
 
-    fn validate_type_implements_interface<T: TypeWithFields + Named>(
+    fn validate_type_implements_interface<T: TypeWithFields + Named<Name = StringKey>>(
         &self,
         type_: &T,
         interface: &Interface,
@@ -589,7 +592,7 @@ fn is_introspection_type(type_: &Type, type_name: StringKey) -> bool {
     is_named_type(type_) && INTROSPECTION_TYPES.contains(&type_name)
 }
 
-fn is_output_type(type_: &TypeReference) -> bool {
+fn is_output_type(type_: &TypeReference<Type>) -> bool {
     let type_ = type_.inner();
     type_.is_enum()
         || type_.is_interface()
@@ -598,7 +601,7 @@ fn is_output_type(type_: &TypeReference) -> bool {
         || type_.is_union()
 }
 
-fn is_input_type(type_: &TypeReference) -> bool {
+fn is_input_type(type_: &TypeReference<Type>) -> bool {
     let type_ = type_.inner();
     type_.is_enum() || type_.is_input_type() || type_.is_scalar()
 }

@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c68b7409336201f125b0eb21644b0152>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<80e0297ca8e0ad47aca13fe8fbed11b1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -87,10 +89,10 @@ var node/*: ClientRequest*/ = {
         "kind": "ClientExtension",
         "selections": [
           {
-            "alias": null,
+            "name": "live_constant_client_edge",
             "args": null,
-            "kind": "ScalarField",
-            "name": "__id",
+            "fragment": null,
+            "kind": "RelayResolver",
             "storageKey": null
           }
         ]

@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a609ee19d7d141bc9f90c8ac373a3d7d>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<ffc1d6d274bd799fc85275e6a82110e4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -88,28 +90,41 @@ var node/*: ConcreteRequest*/ = {
         "plural": false,
         "selections": [
           {
-            "alias": null,
-            "args": [
-              {
-                "kind": "Literal",
-                "name": "scale",
-                "value": 1.5
-              }
-            ],
-            "concreteType": "Image",
-            "kind": "LinkedField",
-            "name": "profile_picture",
-            "plural": false,
-            "selections": [
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "uri",
-                "storageKey": null
-              }
-            ],
-            "storageKey": "profile_picture(scale:1.5)"
+            "name": "user_profile_picture_uri_with_scale_and_default_value",
+            "args": null,
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "alias": null,
+                  "args": [
+                    {
+                      "kind": "Literal",
+                      "name": "scale",
+                      "value": 1.5
+                    }
+                  ],
+                  "concreteType": "Image",
+                  "kind": "LinkedField",
+                  "name": "profile_picture",
+                  "plural": false,
+                  "selections": [
+                    {
+                      "alias": null,
+                      "args": null,
+                      "kind": "ScalarField",
+                      "name": "uri",
+                      "storageKey": null
+                    }
+                  ],
+                  "storageKey": "profile_picture(scale:1.5)"
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "RelayResolver",
+            "storageKey": null
           },
           {
             "alias": null,

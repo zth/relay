@@ -128,6 +128,13 @@ v2 = {
   "kind": "ScalarField",
   "name": "id",
   "storageKey": null
+},
+v3 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "lastName",
+  "storageKey": null
 };
 return {
   "fragment": {
@@ -232,11 +239,20 @@ return {
         "selections": [
           (v0/*: any*/),
           (v1/*: any*/),
+          (v3/*: any*/),
           {
-            "alias": null,
+            "name": "greeting",
             "args": null,
-            "kind": "ScalarField",
-            "name": "lastName",
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                (v0/*: any*/),
+                (v3/*: any*/)
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "RelayResolver",
             "storageKey": null
           },
           {

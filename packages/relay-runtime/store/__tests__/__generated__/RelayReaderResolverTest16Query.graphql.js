@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<7ef8670a10de1f2e7af4479e23f808bf>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<5454d2acd1add29e50d3dd453071574f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -105,21 +107,34 @@ return {
         "plural": false,
         "selections": [
           {
-            "alias": null,
-            "args": (v1/*: any*/),
-            "concreteType": "Image",
-            "kind": "LinkedField",
-            "name": "profile_picture",
-            "plural": false,
-            "selections": [
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "uri",
-                "storageKey": null
-              }
-            ],
+            "name": "user_profile_picture_uri_with_scale",
+            "args": null,
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "alias": null,
+                  "args": (v1/*: any*/),
+                  "concreteType": "Image",
+                  "kind": "LinkedField",
+                  "name": "profile_picture",
+                  "plural": false,
+                  "selections": [
+                    {
+                      "alias": null,
+                      "args": null,
+                      "kind": "ScalarField",
+                      "name": "uri",
+                      "storageKey": null
+                    }
+                  ],
+                  "storageKey": null
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "RelayResolver",
             "storageKey": null
           },
           {

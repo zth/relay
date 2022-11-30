@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<fd7ad2fee805076b290171098616f687>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<9daee6842032c50bca66034ec610418d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -96,22 +98,35 @@ return {
         "plural": false,
         "selections": [
           {
-            "alias": null,
-            "args": (v0/*: any*/),
-            "concreteType": "Image",
-            "kind": "LinkedField",
-            "name": "profile_picture",
-            "plural": false,
-            "selections": [
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "uri",
-                "storageKey": null
-              }
-            ],
-            "storageKey": "profile_picture(scale:2)"
+            "name": "user_profile_picture_uri_with_scale_and_default_value",
+            "args": null,
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "alias": null,
+                  "args": (v0/*: any*/),
+                  "concreteType": "Image",
+                  "kind": "LinkedField",
+                  "name": "profile_picture",
+                  "plural": false,
+                  "selections": [
+                    {
+                      "alias": null,
+                      "args": null,
+                      "kind": "ScalarField",
+                      "name": "uri",
+                      "storageKey": null
+                    }
+                  ],
+                  "storageKey": "profile_picture(scale:2)"
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "RelayResolver",
+            "storageKey": null
           },
           {
             "alias": null,

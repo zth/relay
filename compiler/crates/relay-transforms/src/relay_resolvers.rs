@@ -7,8 +7,10 @@
 
 use std::sync::Arc;
 
+use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
+use common::DirectiveName;
 use common::Location;
 use common::NamedItem;
 use common::WithLocation;
@@ -25,6 +27,7 @@ use graphql_ir::ScalarField;
 use graphql_ir::Selection;
 use graphql_ir::Transformed;
 use graphql_ir::Transformer;
+use graphql_ir::VariableName;
 use graphql_syntax::BooleanNode;
 use graphql_syntax::ConstantValue;
 use intern::string_key::Intern;
@@ -41,16 +44,28 @@ use crate::RequiredMetadataDirective;
 use crate::CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME;
 use crate::REQUIRED_DIRECTIVE_NAME;
 
+/// Transform Relay Resolver fields. This is done in two passes.
+///
+/// First we locate fields which are backed Relay Resolvers and attach a
+/// metadata directive to them, then we convert those fields into either an
+/// annotated stub `__id` field, or an annotated fragment spread referencing the
+/// resolver's root fragment.
+///
+/// See the docblock for `relay_resolvers_spread_transform` for more details
+/// about the resulting format.
 pub fn relay_resolvers(program: &Program, enabled: bool) -> DiagnosticsResult<Program> {
     let transformed_fields_program = relay_resolvers_fields_transform(program, enabled)?;
     relay_resolvers_spread_transform(&transformed_fields_program)
 }
 
 lazy_static! {
-    pub static ref RELAY_RESOLVER_DIRECTIVE_NAME: StringKey = "relay_resolver".intern();
-    pub static ref RELAY_RESOLVER_FRAGMENT_ARGUMENT_NAME: StringKey = "fragment_name".intern();
-    pub static ref RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME: StringKey = "import_path".intern();
-    pub static ref RELAY_RESOLVER_LIVE_ARGUMENT_NAME: StringKey = "live".intern();
+    pub static ref RELAY_RESOLVER_DIRECTIVE_NAME: DirectiveName =
+        DirectiveName("relay_resolver".intern());
+    pub static ref RELAY_RESOLVER_FRAGMENT_ARGUMENT_NAME: ArgumentName =
+        ArgumentName("fragment_name".intern());
+    pub static ref RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME: ArgumentName =
+        ArgumentName("import_path".intern());
+    pub static ref RELAY_RESOLVER_LIVE_ARGUMENT_NAME: ArgumentName = ArgumentName("live".intern());
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -75,7 +90,15 @@ pub struct RelayResolverMetadata {
 }
 associated_data_impl!(RelayResolverMetadata);
 
-/// Convert fields with Relay Resolver metadata attached to them into fragment spreads.
+/// Convert fields with attached Relay Resolver metadata into the fragment
+/// spread of their data dependencies (root fragment). Their
+/// `RelayResolverMetadata` IR directive is left attached to this fragment
+/// spread.
+///
+/// For resolvers without a fragment (for example @live resolvers that read from
+/// an external source, or resolvers which are simply a function of their
+/// arguments) the field is transformed into a `__id` field with the
+/// `RelayResolverMetadata` IR directive attached.
 fn relay_resolvers_spread_transform(program: &Program) -> DiagnosticsResult<Program> {
     let mut transform = RelayResolverSpreadTransform::new(program);
     let next_program = transform
@@ -118,7 +141,7 @@ impl<'program> RelayResolverSpreadTransform<'program> {
                     if let Some(fragment_definition) = fragment_definition {
                         fragment_definition
                             .variable_definitions
-                            .named(arg.name.item.0)
+                            .named(VariableName(arg.name.item.0))
                             .is_some()
                     } else {
                         false
@@ -215,7 +238,15 @@ impl<'program> Transformer for RelayResolverSpreadTransform<'program> {
     }
 }
 
-/// Attach metadata directives to Relay Resolver fields.
+/// Identify fields which are backed Relay Resolvers, and attach additional
+/// metadata to those fields, such as their resolvers' module locations, root
+/// fragments (if any), whether they're @live, etc. This is all derived from the
+/// schema, which is itself derived from the Resolver docblock annotations.
+///
+/// After this transform, future transforms should not need to consult the
+/// schema to know whether a field is backed by a Relay Resolver, or what its
+/// root fragment dependencies are. They should simply be able to check for the
+/// presence of the `RelayResolverFieldMetadata` IR directive on the field.
 fn relay_resolvers_fields_transform(
     program: &Program,
     enabled: bool,
@@ -371,6 +402,10 @@ impl Transformer for RelayResolverFieldTransform<'_> {
             self.path.push(alias.lookup())
         }
 
+        // Note that Client Edge fields have already been transformed into an inline
+        // fragment. This inline fragment is used like a tuple to group together the
+        // backing field which defines the relationship (resolver that returns an ID)
+        // and the selections hanging off of that.
         let transformed = match ClientEdgeMetadata::find(fragment) {
             Some(client_edge_metadata) => {
                 let backing_id_field = self
@@ -451,7 +486,7 @@ fn get_resolver_info(
 
 pub(crate) fn get_argument_value(
     arguments: &[ArgumentValue],
-    argument_name: StringKey,
+    argument_name: ArgumentName,
     error_location: Location,
 ) -> DiagnosticsResult<StringKey> {
     match arguments.named(argument_name) {
@@ -477,7 +512,10 @@ pub(crate) fn get_argument_value(
     }
 }
 
-fn get_bool_argument_is_true(arguments: &[ArgumentValue], argument_name: StringKey) -> bool {
+pub(crate) fn get_bool_argument_is_true(
+    arguments: &[ArgumentValue],
+    argument_name: ArgumentName,
+) -> bool {
     match arguments.named(argument_name) {
         Some(ArgumentValue {
             value: ConstantValue::Boolean(BooleanNode { value, .. }),

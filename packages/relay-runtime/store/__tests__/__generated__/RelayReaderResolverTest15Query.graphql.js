@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b51faaf2cce02559a90ea7e01869be27>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<6cc42e9b85442f3dfa1c759889d772f2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -64,33 +66,46 @@ var node/*: ConcreteRequest*/ = {
     "name": "RelayReaderResolverTest15Query",
     "selections": [
       {
-        "alias": null,
+        "name": "undefined_field",
         "args": null,
-        "concreteType": "User",
-        "kind": "LinkedField",
-        "name": "me",
-        "plural": false,
-        "selections": [
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "id",
-            "storageKey": null
-          },
-          {
-            "kind": "ClientExtension",
-            "selections": [
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "__id",
-                "storageKey": null
-              }
-            ]
-          }
-        ],
+        "fragment": {
+          "kind": "InlineFragment",
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "concreteType": "User",
+              "kind": "LinkedField",
+              "name": "me",
+              "plural": false,
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "id",
+                  "storageKey": null
+                },
+                {
+                  "kind": "ClientExtension",
+                  "selections": [
+                    {
+                      "alias": null,
+                      "args": null,
+                      "kind": "ScalarField",
+                      "name": "__id",
+                      "storageKey": null
+                    }
+                  ]
+                }
+              ],
+              "storageKey": null
+            }
+          ],
+          "type": "Query",
+          "abstractKey": null
+        },
+        "kind": "RelayResolver",
         "storageKey": null
       }
     ]

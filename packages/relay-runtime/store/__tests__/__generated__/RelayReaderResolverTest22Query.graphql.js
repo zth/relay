@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c3892a8a24958cf402c5e11c4268a396>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<01d9427e8c8338376e79f11fc05ab53c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -56,6 +58,13 @@ v1 = {
 v2 = [
   {
     "kind": "Variable",
+    "name": "name",
+    "variableName": "name"
+  }
+],
+v3 = [
+  {
+    "kind": "Variable",
     "name": "scale",
     "variableName": "scale"
   }
@@ -80,15 +89,9 @@ return {
         "selections": [
           {
             "alias": "profile_picture",
-            "args": [
-              {
-                "kind": "Variable",
-                "name": "name",
-                "variableName": "name"
-              }
-            ],
+            "args": (v2/*: any*/),
             "fragment": {
-              "args": (v2/*: any*/),
+              "args": (v3/*: any*/),
               "kind": "FragmentSpread",
               "name": "UserProfilePictureWithRuntimeArgumentResolver"
             },
@@ -122,21 +125,34 @@ return {
         "plural": false,
         "selections": [
           {
-            "alias": null,
+            "name": "user_profile_picture_uri_with_scale_and_additional_argument",
             "args": (v2/*: any*/),
-            "concreteType": "Image",
-            "kind": "LinkedField",
-            "name": "profile_picture",
-            "plural": false,
-            "selections": [
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "uri",
-                "storageKey": null
-              }
-            ],
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "alias": null,
+                  "args": (v3/*: any*/),
+                  "concreteType": "Image",
+                  "kind": "LinkedField",
+                  "name": "profile_picture",
+                  "plural": false,
+                  "selections": [
+                    {
+                      "alias": null,
+                      "args": null,
+                      "kind": "ScalarField",
+                      "name": "uri",
+                      "storageKey": null
+                    }
+                  ],
+                  "storageKey": null
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "RelayResolver",
             "storageKey": null
           },
           {

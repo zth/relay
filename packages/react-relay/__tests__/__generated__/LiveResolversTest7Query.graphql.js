@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<7242f7b39bdc04b01ebb286ad51aaa1c>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<c1dc66891c1a375bd425bb77d3748504>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -146,21 +148,61 @@ return {
             "selections": [
               (v2/*: any*/),
               {
-                "alias": null,
-                "args": (v3/*: any*/),
-                "concreteType": "Image",
-                "kind": "LinkedField",
-                "name": "profile_picture",
-                "plural": false,
-                "selections": [
-                  {
-                    "alias": null,
-                    "args": null,
-                    "kind": "ScalarField",
-                    "name": "uri",
-                    "storageKey": null
-                  }
-                ],
+                "name": "user_profile_picture_uri_suspends_when_the_counter_is_odd",
+                "args": null,
+                "fragment": {
+                  "kind": "InlineFragment",
+                  "selections": [
+                    {
+                      "name": "greeting",
+                      "args": null,
+                      "fragment": {
+                        "kind": "InlineFragment",
+                        "selections": [
+                          (v2/*: any*/)
+                        ],
+                        "type": "User",
+                        "abstractKey": null
+                      },
+                      "kind": "RelayResolver",
+                      "storageKey": null
+                    },
+                    {
+                      "name": "user_profile_picture_uri_with_scale",
+                      "args": null,
+                      "fragment": {
+                        "kind": "InlineFragment",
+                        "selections": [
+                          {
+                            "alias": null,
+                            "args": (v3/*: any*/),
+                            "concreteType": "Image",
+                            "kind": "LinkedField",
+                            "name": "profile_picture",
+                            "plural": false,
+                            "selections": [
+                              {
+                                "alias": null,
+                                "args": null,
+                                "kind": "ScalarField",
+                                "name": "uri",
+                                "storageKey": null
+                              }
+                            ],
+                            "storageKey": null
+                          }
+                        ],
+                        "type": "User",
+                        "abstractKey": null
+                      },
+                      "kind": "RelayResolver",
+                      "storageKey": null
+                    }
+                  ],
+                  "type": "User",
+                  "abstractKey": null
+                },
+                "kind": "RelayResolver",
                 "storageKey": null
               }
             ],

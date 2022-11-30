@@ -230,7 +230,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
 
     fn build_operation(&mut self, operation: &OperationDefinition) -> AstKey {
         let mut context = ContextualMetadata::default();
-        match operation.directives.named(DIRECTIVE_SPLIT_OPERATION.0) {
+        match operation.directives.named(*DIRECTIVE_SPLIT_OPERATION) {
             Some(_split_directive) => {
                 let metadata = Primitive::Key(self.object(vec![]));
                 let selections = self.build_selections(&mut context, operation.selections.iter());
@@ -525,7 +525,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             Selection::InlineFragment(inline_fragment) => {
                 let defer = inline_fragment
                     .directives
-                    .named(DEFER_STREAM_CONSTANTS.defer_name.0);
+                    .named(DEFER_STREAM_CONSTANTS.defer_name);
                 if let Some(defer) = defer {
                     vec![self.build_defer(context, inline_fragment, defer)]
                 } else if let Some(inline_data_directive) =
@@ -544,16 +544,35 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                     self.build_module_import_selections(module_metadata, inline_fragment)
                 } else if inline_fragment
                     .directives
-                    .named(RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN.0)
+                    .named(*RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN)
                     .is_some()
                 {
                     vec![self.build_actor_change(context, inline_fragment)]
+                } else if let Some(resolver_metadata) =
+                    RelayResolverMetadata::find(&inline_fragment.directives)
+                {
+                    match self.variant {
+                        CodegenVariant::Reader => {
+                            panic!(
+                                "Unexpected RelayResolverMetadata on inline fragment while generating Reader AST"
+                            )
+                        }
+                        CodegenVariant::Normalization => {
+                            let fragment_primitive =
+                                self.build_inline_fragment(context, inline_fragment);
+
+                            vec![self.build_normalization_relay_resolver(
+                                resolver_metadata,
+                                Some(fragment_primitive),
+                            )]
+                        }
+                    }
                 } else {
                     vec![self.build_inline_fragment(context, inline_fragment)]
                 }
             }
             Selection::LinkedField(field) => {
-                let stream = field.directives.named(DEFER_STREAM_CONSTANTS.stream_name.0);
+                let stream = field.directives.named(DEFER_STREAM_CONSTANTS.stream_name);
 
                 match stream {
                     Some(stream) => vec![self.build_stream(context, field, stream)],
@@ -589,18 +608,53 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         field: &ScalarField,
         resolver_metadata: &RelayResolverMetadata,
     ) -> Primitive {
-        match self.variant {
-            CodegenVariant::Reader => {
-                let resolver_primitive = self.build_relay_resolver(None, resolver_metadata);
-                if let Some(required_metadata) = RequiredMetadataDirective::find(&field.directives)
-                {
-                    self.build_required_field(required_metadata, resolver_primitive)
-                } else {
-                    resolver_primitive
-                }
+        let resolver_primitive = match self.variant {
+            CodegenVariant::Reader => self.build_reader_relay_resolver(resolver_metadata, None),
+            CodegenVariant::Normalization => {
+                self.build_normalization_relay_resolver(resolver_metadata, None)
             }
-            CodegenVariant::Normalization => self.build_scalar_field(field),
+        };
+        if let Some(required_metadata) = RequiredMetadataDirective::find(&field.directives) {
+            self.build_required_field(required_metadata, resolver_primitive)
+        } else {
+            resolver_primitive
         }
+    }
+
+    // For Relay Resolvers in the normalization AST, we need to include enough
+    // information to retain resolver fields during GC. Tha means the data for
+    // the resolver's root query as well as enough data to derive the storage
+    // key for the resolver itself in the cache.
+    fn build_normalization_relay_resolver(
+        &mut self,
+        resolver_metadata: &RelayResolverMetadata,
+        inline_fragment: Option<Primitive>,
+    ) -> Primitive {
+        let field_name = resolver_metadata.field_name;
+        let field_arguments = &resolver_metadata.field_arguments;
+        let args = self.build_arguments(field_arguments);
+        Primitive::Key(self.object(object! {
+            name: Primitive::String(field_name),
+            args: match args {
+                None => Primitive::SkippableNull,
+                Some(key) => Primitive::Key(key),
+            },
+            fragment: match inline_fragment {
+                None => Primitive::SkippableNull,
+                Some(fragment) => fragment,
+            },
+            kind: Primitive::String(CODEGEN_CONSTANTS.relay_resolver),
+            storage_key: match args {
+                None => Primitive::SkippableNull,
+                Some(key) => {
+                    if is_static_storage_key_available(&resolver_metadata.field_arguments) {
+                        Primitive::StorageKey(field_name, key)
+                    } else {
+                        Primitive::SkippableNull
+                    }
+                }
+            },
+        }))
     }
 
     fn build_scalar_field_and_handles(&mut self, field: &ScalarField) -> Vec<Primitive> {
@@ -637,7 +691,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         let args = self.build_arguments(&field.arguments);
         let kind = match field
             .directives
-            .named(REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY.0)
+            .named(*REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY)
         {
             Some(_flight_directive) => Primitive::String(CODEGEN_CONSTANTS.flight_field),
             None => Primitive::String(CODEGEN_CONSTANTS.scalar_field),
@@ -865,7 +919,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         if self.variant == CodegenVariant::Normalization
             && frag_spread
                 .directives
-                .named(RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME.0)
+                .named(*RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME)
                 .is_some()
         {
             return self.build_relay_client_component_fragment_spread(frag_spread);
@@ -900,7 +954,16 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             }))
         } else if let Some(resolver_metadata) = RelayResolverMetadata::find(&frag_spread.directives)
         {
-            let resolver_primitive = self.build_relay_resolver(Some(primitive), resolver_metadata);
+            let resolver_primitive = match self.variant {
+                CodegenVariant::Reader => {
+                    self.build_reader_relay_resolver(resolver_metadata, Some(primitive))
+                }
+                // We expect all RelayResolver fragment spreads to be inlined into inline fragment spreads when generating Normalization ASTs.
+                CodegenVariant::Normalization => panic!(
+                    "Unexpected RelayResolverMetadata on fragment spread while generating normalizaton AST."
+                ),
+            };
+
             if let Some(required_metadata) =
                 RequiredMetadataDirective::find(&frag_spread.directives)
             {
@@ -913,10 +976,10 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         }
     }
 
-    fn build_relay_resolver(
+    fn build_reader_relay_resolver(
         &mut self,
-        fragment_primitive: Option<Primitive>,
         relay_resolver_metadata: &RelayResolverMetadata,
+        fragment_primitive: Option<Primitive>,
     ) -> Primitive {
         let module = relay_resolver_metadata.import_path;
         let field_name = relay_resolver_metadata.field_name;
@@ -936,6 +999,10 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
 
         let args = self.build_arguments(field_arguments);
 
+        // For Relay Resolvers in the Reader AST, we need enough
+        // information to _read_ the resolver. Specifically, enough data
+        // to construct a fragment key, and an import of the resolver
+        // module itself.
         Primitive::Key(self.object(object! {
             :build_alias(field_alias, field_name),
             args: match args {
@@ -969,7 +1036,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 kind: Primitive::String(
                         if frag_spread
                             .directives
-                            .named(RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME.0)
+                            .named(*RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME)
                             .is_some()
                         {
                             CODEGEN_CONSTANTS.client_component
@@ -986,10 +1053,10 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
     ) -> Primitive {
         let normalization_name = frag_spread
             .directives
-            .named(RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME.0)
+            .named(*RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME)
             .unwrap()
             .arguments
-            .named(RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME.0)
+            .named(*RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME)
             .unwrap()
             .value
             .item
@@ -1170,13 +1237,37 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                     client_edge_selections_key: selections_item,
                 }))
             }
-            ClientEdgeMetadataDirective::ClientObject { type_name, .. } => {
-                Primitive::Key(self.object(object! {
+            ClientEdgeMetadataDirective::ClientObject {
+                type_name,
+                normalization_operation,
+                ..
+            } => {
+                let mut object_props = object! {
                     kind: Primitive::String(CODEGEN_CONSTANTS.client_edge_to_client_object),
                     concrete_type: Primitive::String(type_name),
                     client_edge_backing_field_key: backing_field,
                     client_edge_selections_key: selections_item,
-                }))
+                };
+                if let Some(normalization_operation) = normalization_operation {
+                    let normalization_artifact_source_location =
+                        normalization_operation.location.source_location();
+
+                    let path_for_artifact = self.project_config.create_path_for_artifact(
+                        normalization_artifact_source_location,
+                        normalization_operation.item.to_string(),
+                    );
+
+                    let normalization_import_path = self.project_config.js_module_import_path(
+                        self.definition_source_location,
+                        path_for_artifact.to_str().unwrap().intern(),
+                    );
+
+                    object_props.push(ObjectEntry {
+                        key: CODEGEN_CONSTANTS.client_edge_normalization_node_key,
+                        value: Primitive::GraphQLModuleDependency(normalization_import_path),
+                    })
+                }
+                Primitive::Key(self.object(object_props))
             }
         };
 
@@ -1504,7 +1595,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 let json_values = sorted_val_object
                     .into_iter()
                     .map(|arg| ObjectEntry {
-                        key: arg.name.item,
+                        key: arg.name.item.0,
                         value: self.build_constant_value(&arg.value.item),
                     })
                     .collect::<Vec<_>>();
@@ -1816,7 +1907,7 @@ fn is_type_discriminator_selection(selection: &Selection) -> bool {
     if let Selection::ScalarField(selection) = selection {
         selection
             .directives
-            .named(TYPE_DISCRIMINATOR_DIRECTIVE_NAME.0)
+            .named(*TYPE_DISCRIMINATOR_DIRECTIVE_NAME)
             .is_some()
     } else {
         false

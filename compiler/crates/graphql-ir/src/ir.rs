@@ -81,8 +81,9 @@ pub struct OperationDefinition {
 }
 
 impl Named for OperationDefinition {
-    fn name(&self) -> StringKey {
-        self.name.item.0
+    type Name = OperationDefinitionName;
+    fn name(&self) -> OperationDefinitionName {
+        self.name.item
     }
 }
 
@@ -135,7 +136,7 @@ impl Display for VariableName {
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct VariableDefinition {
     pub name: WithLocation<VariableName>,
-    pub type_: TypeReference,
+    pub type_: TypeReference<Type>,
     pub default_value: Option<WithLocation<ConstantValue>>,
     pub directives: Vec<Directive>,
 }
@@ -150,8 +151,9 @@ impl VariableDefinition {
 }
 
 impl Named for VariableDefinition {
-    fn name(&self) -> StringKey {
-        self.name.item.0
+    type Name = VariableName;
+    fn name(&self) -> VariableName {
+        self.name.item
     }
 }
 
@@ -388,8 +390,9 @@ pub struct Directive {
     pub data: Option<Box<dyn AssociatedData>>,
 }
 impl Named for Directive {
-    fn name(&self) -> StringKey {
-        self.name.item.0
+    type Name = DirectiveName;
+    fn name(&self) -> DirectiveName {
+        self.name.item
     }
 }
 
@@ -400,8 +403,9 @@ pub struct Argument {
     pub value: WithLocation<Value>,
 }
 impl Named for Argument {
-    fn name(&self) -> StringKey {
-        self.name.item.0
+    type Name = ArgumentName;
+    fn name(&self) -> ArgumentName {
+        self.name.item
     }
 }
 
@@ -451,17 +455,18 @@ impl Value {
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Variable {
     pub name: WithLocation<VariableName>,
-    pub type_: TypeReference,
+    pub type_: TypeReference<Type>,
 }
 
 /// Name : Value[Const]
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct ConstantArgument {
-    pub name: WithLocation<StringKey>,
+    pub name: WithLocation<ArgumentName>,
     pub value: WithLocation<ConstantValue>,
 }
 impl Named for ConstantArgument {
-    fn name(&self) -> StringKey {
+    type Name = ArgumentName;
+    fn name(&self) -> ArgumentName {
         self.name.item
     }
 }

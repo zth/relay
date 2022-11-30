@@ -182,7 +182,7 @@ impl Schema for SDLSchema {
     /// have a type to instantiate the argument.
     ///
     /// TODO: we probably want to replace this with a proper `Unknown` type.
-    fn unchecked_argument_type_sentinel(&self) -> &TypeReference {
+    fn unchecked_argument_type_sentinel(&self) -> &TypeReference<Type> {
         match self {
             SDLSchema::FlatBuffer(schema) => schema.unchecked_argument_type_sentinel(),
             SDLSchema::InMemory(schema) => schema.unchecked_argument_type_sentinel(),
@@ -393,6 +393,13 @@ impl SDLSchema {
         match self {
             SDLSchema::FlatBuffer(_schema) => todo!(),
             SDLSchema::InMemory(schema) => schema.add_directive(directive),
+        }
+    }
+
+    pub fn remove_directive(&mut self, directive_name: DirectiveName) -> DiagnosticsResult<()> {
+        match self {
+            SDLSchema::FlatBuffer(_schema) => todo!(),
+            SDLSchema::InMemory(schema) => schema.remove_directive(directive_name),
         }
     }
 

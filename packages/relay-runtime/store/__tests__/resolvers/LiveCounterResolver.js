@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -29,6 +29,7 @@ const {readFragment} = require('relay-runtime/store/ResolverFragments');
  * Resolver interface.
  */
 function counter(rootKey: LiveCounterResolver$key): LiveState<number> {
+  counter.callCount += 1;
   readFragment(
     graphql`
       fragment LiveCounterResolver on Query {
@@ -51,5 +52,7 @@ function counter(rootKey: LiveCounterResolver$key): LiveState<number> {
     },
   };
 }
+
+counter.callCount = 0;
 
 module.exports = counter;

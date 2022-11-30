@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<cb7b132119689add051fdcdd1a88ae29>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<4af261f14b5f59444f09eff827dfdb3c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -108,10 +110,10 @@ return {
         "kind": "ClientExtension",
         "selections": [
           {
-            "alias": null,
+            "name": "counter_no_fragment",
             "args": null,
-            "kind": "ScalarField",
-            "name": "__id",
+            "fragment": null,
+            "kind": "RelayResolver",
             "storageKey": null
           }
         ]

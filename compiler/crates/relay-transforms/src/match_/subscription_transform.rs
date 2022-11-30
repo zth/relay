@@ -128,7 +128,7 @@ impl<'program> SubscriptionTransform<'program> {
         }
     }
 
-    fn is_valid_js_dependency(&self, type_: &TypeReference) -> bool {
+    fn is_valid_js_dependency(&self, type_: &TypeReference<Type>) -> bool {
         match type_ {
             TypeReference::Named(Type::Scalar(scalar_id)) => {
                 let scalar = self.program.schema.scalar(*scalar_id);
@@ -199,6 +199,12 @@ impl<'program> SubscriptionTransform<'program> {
                         module_name: normalization_operation_name,
                         source_document_name: operation.name.item.0,
                         fragment_name: fragment_spread.fragment.item,
+                        fragment_source_location: self
+                            .program
+                            .fragment(fragment_spread.fragment.item)
+                            .unwrap()
+                            .name
+                            .location,
                         location: name_location,
                         no_inline: false,
                     }

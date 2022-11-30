@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4164e06fc37dbba4897b3270084d84f7>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<be4f1ce7bdc0bc85064c1f66aca751e0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -136,28 +138,67 @@ return {
             "kind": "InlineFragment",
             "selections": [
               {
-                "alias": null,
+                "name": "user_profile_picture_uri_suspends_when_the_counter_is_odd",
                 "args": null,
-                "kind": "ScalarField",
-                "name": "name",
-                "storageKey": null
-              },
-              {
-                "alias": null,
-                "args": (v2/*: any*/),
-                "concreteType": "Image",
-                "kind": "LinkedField",
-                "name": "profile_picture",
-                "plural": false,
-                "selections": [
-                  {
-                    "alias": null,
-                    "args": null,
-                    "kind": "ScalarField",
-                    "name": "uri",
-                    "storageKey": null
-                  }
-                ],
+                "fragment": {
+                  "kind": "InlineFragment",
+                  "selections": [
+                    {
+                      "name": "greeting",
+                      "args": null,
+                      "fragment": {
+                        "kind": "InlineFragment",
+                        "selections": [
+                          {
+                            "alias": null,
+                            "args": null,
+                            "kind": "ScalarField",
+                            "name": "name",
+                            "storageKey": null
+                          }
+                        ],
+                        "type": "User",
+                        "abstractKey": null
+                      },
+                      "kind": "RelayResolver",
+                      "storageKey": null
+                    },
+                    {
+                      "name": "user_profile_picture_uri_with_scale",
+                      "args": null,
+                      "fragment": {
+                        "kind": "InlineFragment",
+                        "selections": [
+                          {
+                            "alias": null,
+                            "args": (v2/*: any*/),
+                            "concreteType": "Image",
+                            "kind": "LinkedField",
+                            "name": "profile_picture",
+                            "plural": false,
+                            "selections": [
+                              {
+                                "alias": null,
+                                "args": null,
+                                "kind": "ScalarField",
+                                "name": "uri",
+                                "storageKey": null
+                              }
+                            ],
+                            "storageKey": null
+                          }
+                        ],
+                        "type": "User",
+                        "abstractKey": null
+                      },
+                      "kind": "RelayResolver",
+                      "storageKey": null
+                    }
+                  ],
+                  "type": "User",
+                  "abstractKey": null
+                },
+                "kind": "RelayResolver",
                 "storageKey": null
               }
             ],

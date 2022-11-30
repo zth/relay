@@ -737,34 +737,42 @@ fn write_object_maker(
 
     let mut has_nullable = false;
 
+    let mut written_props = vec![];
+
     definition.values.iter().for_each(|prop_value| {
-        let mut field_path_name = definition.at_path.clone();
-        field_path_name.push(prop_value.key.to_owned());
+        let prop_name = match &prop_value.original_key {
+            Some(original_key) => format!("_{}", original_key),
+            None => format!("{}", prop_value.key),
+        };
 
-        write_indentation(str, indentation + 1).unwrap();
-        write!(
-            str,
-            "~{}: {}",
-            match &prop_value.original_key {
-                Some(original_key) => format!("_{}", original_key),
-                None => format!("{}", prop_value.key),
-            },
-            get_object_prop_type_as_string(
-                &state,
-                &prop_value.prop_type,
-                &Context::Variables,
-                indentation,
-                &field_path_name
+        if !written_props.contains(&prop_name) {
+            written_props.push(prop_name.clone());        
+
+            let mut field_path_name = definition.at_path.clone();
+            field_path_name.push(prop_value.key.to_owned());
+
+            write_indentation(str, indentation + 1).unwrap();
+            write!(
+                str,
+                "~{}: {}",
+                prop_name,
+                get_object_prop_type_as_string(
+                    &state,
+                    &prop_value.prop_type,
+                    &Context::Variables,
+                    indentation,
+                    &field_path_name
+                )
             )
-        )
-        .unwrap();
+            .unwrap();
 
-        if prop_value.nullable {
-            has_nullable = true;
-            write!(str, "=?").unwrap();
+            if prop_value.nullable {
+                has_nullable = true;
+                write!(str, "=?").unwrap();
+            }
+
+            writeln!(str, ",").unwrap();
         }
-
-        writeln!(str, ",").unwrap();
     });
 
     // Print unit if there's any nullable present

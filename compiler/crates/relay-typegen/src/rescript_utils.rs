@@ -405,7 +405,7 @@ pub fn print_constant_value(
 }
 
 pub fn print_type_reference(
-    typ: &TypeReference,
+    typ: &TypeReference<Type>,
     schema: &SDLSchema,
     custom_scalar_types: &CustomScalarsMap,
     nullable: bool,
@@ -601,7 +601,7 @@ pub fn find_all_connection_variables(
     }
 }
 
-pub fn dig_type_ref(typ: &TypeReference) -> &Type {
+pub fn dig_type_ref(typ: &TypeReference<Type>) -> &Type {
     match typ {
         TypeReference::Named(named_typ) => named_typ,
         TypeReference::List(typ) => dig_type_ref(typ),

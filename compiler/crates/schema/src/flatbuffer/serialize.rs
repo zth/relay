@@ -309,6 +309,14 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
                     .interface_id
             })
             .collect::<Vec<_>>();
+        let implementing_interfaces = &interface
+            .implementing_interfaces
+            .iter()
+            .map(|interface_id| {
+                self.get_type_args(Type::Interface(*interface_id))
+                    .interface_id
+            })
+            .collect::<Vec<_>>();
         let implementing_objects = &interface
             .implementing_objects
             .iter()
@@ -320,6 +328,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
             directives: Some(self.bldr.create_vector(directives)),
             fields: Some(self.bldr.create_vector(fields)),
             interfaces: Some(self.bldr.create_vector(interfaces)),
+            implementing_interfaces: Some(self.bldr.create_vector(implementing_interfaces)),
             implementing_objects: Some(self.bldr.create_vector(implementing_objects)),
         };
         self.interfaces[idx] = schema_flatbuffer::Interface::create(&mut self.bldr, &args);
@@ -423,7 +432,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
 
     fn serialize_type_reference(
         &mut self,
-        type_: &TypeReference,
+        type_: &TypeReference<Type>,
     ) -> WIPOffset<schema_flatbuffer::TypeReference<'fb>> {
         let mut args = schema_flatbuffer::TypeReferenceArgs::default();
         match type_ {
