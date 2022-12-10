@@ -14,9 +14,7 @@ use schema::{SDLSchema, Schema, Type, TypeReference};
 
 use crate::{
     rescript::{DefinitionType, ReScriptPrinter},
-    rescript_ast::{
-        AstToStringNeedsConversion, Context, ConverterInstructions, FullEnum, ProvidedVariable,
-    },
+    rescript_ast::{AstToStringNeedsConversion, Context, FullEnum, ProvidedVariable},
     rescript_relay_visitor::{
         find_assets_in_fragment, find_assets_in_operation, CustomScalarsMap,
         RescriptRelayOperationMetaData,
@@ -290,27 +288,27 @@ pub fn get_safe_key(original_key: &String) -> (String, Option<String>) {
     }
 }
 
-pub fn instruction_to_key_value_pair(instruction: &ConverterInstructions) -> (String, String) {
-    match &instruction {
-        &ConverterInstructions::ConvertUnion(union_record_name) => {
-            (String::from("u"), union_record_name.to_string())
-        }
-        &ConverterInstructions::ConvertCustomField(converter_name) => {
-            (String::from("c"), converter_name.to_string())
-        }
-        &ConverterInstructions::RootObject(object_name) => {
-            (String::from("r"), object_name.to_string())
-        }
-        &ConverterInstructions::ConvertTopLevelNodeField(type_name) => {
-            (String::from("tnf"), type_name.to_string())
-        }
-        &ConverterInstructions::HasFragments => (String::from("f"), String::from("")),
-        &ConverterInstructions::BlockTraversal(is_array) => (
-            String::from("b"),
-            String::from(if *is_array { "a" } else { "" }),
-        ),
-    }
-}
+// pub fn instruction_to_key_value_pair(instruction: &ConverterInstructions) -> (String, String) {
+//     match &instruction {
+//         &ConverterInstructions::ConvertUnion(union_record_name) => {
+//             (String::from("u"), union_record_name.to_string())
+//         }
+//         &ConverterInstructions::ConvertCustomField(converter_name) => {
+//             (String::from("c"), converter_name.to_string())
+//         }
+//         &ConverterInstructions::RootObject(object_name) => {
+//             (String::from("r"), object_name.to_string())
+//         }
+//         &ConverterInstructions::ConvertTopLevelNodeField(type_name) => {
+//             (String::from("tnf"), type_name.to_string())
+//         }
+//         &ConverterInstructions::HasFragments => (String::from("f"), String::from("")),
+//         &ConverterInstructions::BlockTraversal(is_array) => (
+//             String::from("b"),
+//             String::from(if *is_array { "a" } else { "" }),
+//         ),
+//     }
+// }
 
 pub fn get_custom_scalar_name(
     custom_scalar_types: &CustomScalarsMap,

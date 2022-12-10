@@ -81,14 +81,13 @@ pub struct FullEnum {
 // polymorphic variants, etc. For that, we have "conversion instructions". We
 // keep track of what conversions are needed anywhere in what Relay gives us,
 // and apply them accordingly.
-#[derive(Debug, Clone)]
-pub enum ConverterInstructions {
-    ConvertUnion(String),
-    ConvertCustomField(String),
-    HasFragments,
-    BlockTraversal(bool),
-    ConvertTopLevelNodeField(String),
-    RootObject(String), // TODO: Rename
+#[derive(Default, Debug, Clone)]
+pub struct ConverterInstructions {
+    pub convert_union: Option<String>,
+    pub convert_custom_field: Option<String>,
+    pub has_fragments: bool,
+    pub convert_top_level_node_field: Option<String>,
+    pub root_object: Option<String>, // TODO: Rename
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -111,16 +110,16 @@ pub struct InstructionContainer {
     pub instruction: ConverterInstructions,
 }
 
-#[derive(Debug)]
-pub enum ConversionDirection {
-    Wrap,
-    Unwrap,
-}
+// #[derive(Debug)]
+// pub enum ConversionDirection {
+//     Wrap,
+//     Unwrap,
+// }
 
 #[derive(Debug)]
 pub enum NullableType {
     Undefined,
-    Null,
+    // Null,
 }
 
 #[derive(Debug, Clone)]

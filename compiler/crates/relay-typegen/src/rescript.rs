@@ -92,7 +92,7 @@ pub struct ReScriptPrinter {
     // This holds all conversion instructions we've found when traversing the
     // full types and artifact. Read more in the file for conversion
     // instructions.
-    pub conversion_instructions: Vec<InstructionContainer>,
+    pub conversion_instructions: FnvHashMap<Vec<String>, ConverterInstructions>,
 
     // This holds meta data for this current operation, which we extract in "rescript_relay_visitor".
     pub operation_meta_data: RescriptRelayOperationMetaData,
@@ -289,11 +289,16 @@ fn ast_to_prop_value(
 
                     let object_record_name = object.record_name.to_string();
 
-                    state.conversion_instructions.push(InstructionContainer {
-                        context: context.clone(),
-                        at_path: new_at_path.clone(),
-                        instruction: ConverterInstructions::ConvertTopLevelNodeField(typename),
-                    });
+                    state
+                        .conversion_instructions
+                        .entry(new_at_path.clone())
+                        .and_modify(|instruction| {
+                            instruction.convert_top_level_node_field = Some(typename.clone())
+                        })
+                        .or_insert(ConverterInstructions {
+                            convert_top_level_node_field: Some(typename),
+                            ..Default::default()
+                        });
 
                     state.objects.push(object);
 
@@ -323,11 +328,16 @@ fn ast_to_prop_value(
 
             state.unions.push(union);
 
-            state.conversion_instructions.push(InstructionContainer {
-                context: context.clone(),
-                at_path: new_at_path.clone(),
-                instruction: ConverterInstructions::ConvertUnion(union_record_name.to_string()),
-            });
+            state
+                .conversion_instructions
+                .entry(new_at_path.clone())
+                .and_modify(|instruction| {
+                    instruction.convert_union = Some(union_record_name.to_string())
+                })
+                .or_insert(ConverterInstructions {
+                    convert_union: Some(union_record_name.to_string()),
+                    ..Default::default()
+                });
 
             Some(PropValue {
                 key: safe_key,
@@ -369,27 +379,18 @@ fn ast_to_prop_value(
                     // to be autoconverted by RescriptRelay).
                     match classify_rescript_value_string(&identifier) {
                         RescriptCustomTypeValue::Module => {
-                            state.conversion_instructions.push(InstructionContainer {
-                                context: context.clone(),
-                                at_path: new_at_path,
-                                instruction: ConverterInstructions::ConvertCustomField(
-                                    identifier.to_string(),
-                                ),
-                            })
-                        }
-                        RescriptCustomTypeValue::Type => {
-                            if state
-                                .operation_meta_data
-                                .custom_scalars_raw_typenames
-                                .contains(&identifier)
-                            {
-                                state.conversion_instructions.push(InstructionContainer {
-                                    context: context.clone(),
-                                    at_path: new_at_path,
-                                    instruction: ConverterInstructions::BlockTraversal(found_in_array),
+                            state
+                                .conversion_instructions
+                                .entry(new_at_path.clone())
+                                .and_modify(|instruction| {
+                                    instruction.convert_custom_field = Some(identifier.to_string())
+                                })
+                                .or_insert(ConverterInstructions {
+                                    convert_custom_field: Some(identifier.to_string()),
+                                    ..Default::default()
                                 });
-                            }
                         }
+                        RescriptCustomTypeValue::Type => (),
                     }
 
                     Some(PropValue {
@@ -411,11 +412,16 @@ fn ast_to_prop_value(
                         let mut new_at_path = current_path.clone();
                         new_at_path.push(key.to_string());
 
-                        state.conversion_instructions.push(InstructionContainer {
-                            context: context.clone(),
-                            at_path: new_at_path.clone(),
-                            instruction: ConverterInstructions::RootObject(record_name.to_string()),
-                        });
+                        state
+                            .conversion_instructions
+                            .entry(new_at_path.clone())
+                            .and_modify(|instruction| {
+                                instruction.root_object = Some(record_name.to_string())
+                            })
+                            .or_insert(ConverterInstructions {
+                                root_object: Some(record_name.to_string()),
+                                ..Default::default()
+                            });
                     }
                     _ => (),
                 },
@@ -576,11 +582,14 @@ fn get_object_props(
                         // accordingly.
 
                         // Add a conversion instruction for this path
-                        state.conversion_instructions.push(InstructionContainer {
-                            context: context.clone(),
-                            at_path: current_path.clone(),
-                            instruction: ConverterInstructions::HasFragments,
-                        });
+                        state
+                            .conversion_instructions
+                            .entry(current_path.clone())
+                            .and_modify(|instruction| instruction.has_fragments = true)
+                            .or_insert(ConverterInstructions {
+                                has_fragments: true,
+                                ..Default::default()
+                            });
 
                         Some(PropValue {
                             key: String::from("fragmentRefs"),
@@ -946,364 +955,527 @@ fn write_union_definition(
     Ok(())
 }
 
-fn write_instruction_json_object(
+// fn write_instruction_json_object(
+//     str: &mut String,
+//     key: &String,
+//     instructions: &Vec<&InstructionContainer>,
+// ) -> Result {
+//     write!(str, "\"{}\":{{", key).unwrap();
+
+//     // Move all instructions into a hash map by path.
+//     let mut by_path = FnvHashMap::default();
+
+//     instructions.iter().for_each(|instruction_container| {
+//         let path_name = conversion_instruction_path_to_name(&instruction_container.at_path);
+//         match by_path.get_mut(&path_name) {
+//             None => {
+//                 by_path.insert(
+//                     conversion_instruction_path_to_name(&instruction_container.at_path),
+//                     vec![instruction_container.instruction.clone()],
+//                 );
+//                 ()
+//             }
+//             Some(existing_instructions) => {
+//                 existing_instructions.push(instruction_container.instruction.clone())
+//             }
+//         }
+//     });
+
+//     let num_by_path = by_path.len();
+
+//     by_path
+//         .iter()
+//         .sorted_by(|(path_a, _), (path_b, _)| path_b.cmp(&path_a))
+//         .enumerate()
+//         .for_each(|(index, (path_name, instructions))| {
+//             write!(str, "\"{}\":{{", path_name).unwrap();
+
+//             let mut has_printed_keys = FnvHashSet::default();
+
+//             let num_instructions = instructions.len();
+
+//             instructions
+//                 .iter()
+//                 .sorted_by(|instr_a, instr_b| {
+//                     let (key_a, _) = instruction_to_key_value_pair(&instr_a);
+//                     let (key_b, _) = instruction_to_key_value_pair(&instr_b);
+
+//                     key_b.cmp(&key_a)
+//                 })
+//                 .enumerate()
+//                 .for_each(|(index, instruction)| {
+//                     let (key, value) = instruction_to_key_value_pair(&instruction);
+
+//                     if has_printed_keys.contains(&key) {
+//                         return;
+//                     }
+
+//                     write!(str, "\"{}\":\"{}\"", key, value).unwrap();
+
+//                     if num_instructions != index + 1 {
+//                         write!(str, ",").unwrap();
+//                     }
+
+//                     has_printed_keys.insert(key);
+//                 });
+
+//             // Close this instruction
+//             write!(str, "}}").unwrap();
+
+//             if num_by_path != index + 1 {
+//                 write!(str, ",").unwrap();
+//             }
+//         });
+
+//     // Close this instruction
+//     write!(str, "}}").unwrap();
+
+//     Ok(())
+// }
+
+// // This produces the conversion instructions JSON object.
+// fn get_conversion_instructions(
+//     state: &Box<ReScriptPrinter>,
+//     conversion_instructions: &Vec<&InstructionContainer>,
+//     root_object_names: Vec<&String>,
+//     root_name: &String,
+// ) -> String {
+//     if conversion_instructions.len() == 0 {
+//         String::from("{}")
+//     } else {
+//         let mut str = String::from("{");
+
+//         // Print any root objects
+//         root_object_names.iter().for_each(|name| {
+//             write_instruction_json_object(
+//                 &mut str,
+//                 name,
+//                 &state
+//                     .conversion_instructions
+//                     .iter()
+//                     .filter(
+//                         |instruction_container| match &instruction_container.context {
+//                             Context::root_object(root_object_name) => {
+//                                 root_object_name.to_string() == name.to_string()
+//                             }
+//                             _ => false,
+//                         },
+//                     )
+//                     .collect_vec(),
+//             )
+//             .unwrap();
+//             write!(str, ",").unwrap();
+//         });
+
+//         // Write the root itself
+//         write_instruction_json_object(
+//             &mut str,
+//             &String::from("__root"),
+//             // The conversion instructions might contain root objects in
+//             // addition to the top level, so we need to get rid of everything
+//             // that doesn't the top level path prefix we're after.
+//             &conversion_instructions
+//                 .into_iter()
+//                 .filter_map(|instruction_container| {
+//                     if instruction_container.at_path[0] == root_name.as_str() {
+//                         Some(instruction_container.to_owned())
+//                     } else {
+//                         None
+//                     }
+//                 })
+//                 .collect_vec(),
+//         )
+//         .unwrap();
+
+//         // Close full obj
+//         write!(str, "}}").unwrap();
+
+//         str
+//     }
+// }
+
+// // This writes the converter map, used to convert things like custom scalars and
+// // unions.
+// fn write_converter_map(
+//     str: &mut String,
+//     indentation: usize,
+//     instructions: &Vec<&InstructionContainer>,
+//     name: &String,
+//     direction: ConversionDirection,
+// ) -> Result {
+//     write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
+
+//     write_indentation(str, indentation).unwrap();
+//     write!(str, "let {}ConverterMap = ", name).unwrap();
+
+//     let mut has_instructions = false;
+//     let mut printed_instruction_keys = vec![];
+
+//     instructions.iter().for_each(|instruction_container| {
+//         match &instruction_container.instruction {
+//             ConverterInstructions::ConvertUnion(union_name) => {
+//                 if !has_instructions {
+//                     has_instructions = true;
+//                     writeln!(str, "{{").unwrap();
+//                 }
+
+//                 if printed_instruction_keys.contains(union_name) {
+//                     return;
+//                 } else {
+//                     printed_instruction_keys.push(union_name.to_string());
+//                 }
+
+//                 write_indentation(str, indentation + 1).unwrap();
+//                 writeln!(
+//                     str,
+//                     "\"{}\": {},",
+//                     union_name,
+//                     format!(
+//                         "{}_{}",
+//                         match direction {
+//                             ConversionDirection::Wrap => "wrap",
+//                             ConversionDirection::Unwrap => "unwrap",
+//                         },
+//                         union_name,
+//                     ),
+//                 )
+//                 .unwrap();
+//             }
+//             ConverterInstructions::convert_custom_field(custom_field_name) => {
+//                 if !has_instructions {
+//                     has_instructions = true;
+//                     writeln!(str, "{{").unwrap();
+//                 }
+
+//                 if printed_instruction_keys.contains(custom_field_name) {
+//                     return;
+//                 } else {
+//                     printed_instruction_keys.push(custom_field_name.to_string());
+//                 }
+
+//                 write_indentation(str, indentation + 1).unwrap();
+//                 writeln!(
+//                     str,
+//                     "\"{}\": {},",
+//                     custom_field_name,
+//                     match classify_rescript_value_string(&custom_field_name) {
+//                         RescriptCustomTypeValue::Type => custom_field_name.to_string(),
+//                         RescriptCustomTypeValue::Module => format!(
+//                             "{}.{}",
+//                             custom_field_name,
+//                             match direction {
+//                                 ConversionDirection::Wrap => "serialize",
+//                                 ConversionDirection::Unwrap => "parse",
+//                             }
+//                         ),
+//                     },
+//                 )
+//                 .unwrap();
+//             }
+//             _ => (),
+//         };
+//     });
+
+//     if has_instructions {
+//         write_indentation(str, indentation).unwrap();
+//         writeln!(str, "}}").unwrap();
+//     } else {
+//         writeln!(str, "()").unwrap()
+//     }
+
+//     Ok(())
+// }
+
+fn write_converter(
     str: &mut String,
-    key: &String,
-    instructions: &Vec<&InstructionContainer>,
-) -> Result {
-    write!(str, "\"{}\":{{", key).unwrap();
-
-    // Move all instructions into a hash map by path.
-    let mut by_path = FnvHashMap::default();
-
-    instructions.iter().for_each(|instruction_container| {
-        let path_name = conversion_instruction_path_to_name(&instruction_container.at_path);
-        match by_path.get_mut(&path_name) {
-            None => {
-                by_path.insert(
-                    conversion_instruction_path_to_name(&instruction_container.at_path),
-                    vec![instruction_container.instruction.clone()],
-                );
-                ()
-            }
-            Some(existing_instructions) => {
-                existing_instructions.push(instruction_container.instruction.clone())
-            }
-        }
-    });
-
-    let num_by_path = by_path.len();
-
-    by_path
-        .iter()
-        .sorted_by(|(path_a, _), (path_b, _)| path_b.cmp(&path_a))
-        .enumerate()
-        .for_each(|(index, (path_name, instructions))| {
-            write!(str, "\"{}\":{{", path_name).unwrap();
-
-            let mut has_printed_keys = FnvHashSet::default();
-
-            let num_instructions = instructions.len();
-
-            instructions
-                .iter()
-                .sorted_by(|instr_a, instr_b| {
-                    let (key_a, _) = instruction_to_key_value_pair(&instr_a);
-                    let (key_b, _) = instruction_to_key_value_pair(&instr_b);
-
-                    key_b.cmp(&key_a)
-                })
-                .enumerate()
-                .for_each(|(index, instruction)| {
-                    let (key, value) = instruction_to_key_value_pair(&instruction);
-
-                    if has_printed_keys.contains(&key) {
-                        return;
-                    }
-
-                    write!(str, "\"{}\":\"{}\"", key, value).unwrap();
-
-                    if num_instructions != index + 1 {
-                        write!(str, ",").unwrap();
-                    }
-
-                    has_printed_keys.insert(key);
-                });
-
-            // Close this instruction
-            write!(str, "}}").unwrap();
-
-            if num_by_path != index + 1 {
-                write!(str, ",").unwrap();
-            }
-        });
-
-    // Close this instruction
-    write!(str, "}}").unwrap();
-
-    Ok(())
-}
-
-// This produces the conversion instructions JSON object.
-fn get_conversion_instructions(
-    state: &Box<ReScriptPrinter>,
-    conversion_instructions: &Vec<&InstructionContainer>,
-    root_object_names: Vec<&String>,
-    root_name: &String,
-) -> String {
-    if conversion_instructions.len() == 0 {
-        String::from("{}")
-    } else {
-        let mut str = String::from("{");
-
-        // Print any root objects
-        root_object_names.iter().for_each(|name| {
-            write_instruction_json_object(
-                &mut str,
-                name,
-                &state
-                    .conversion_instructions
-                    .iter()
-                    .filter(
-                        |instruction_container| match &instruction_container.context {
-                            Context::RootObject(root_object_name) => {
-                                root_object_name.to_string() == name.to_string()
-                            }
-                            _ => false,
-                        },
-                    )
-                    .collect_vec(),
-            )
-            .unwrap();
-            write!(str, ",").unwrap();
-        });
-
-        // Write the root itself
-        write_instruction_json_object(
-            &mut str,
-            &String::from("__root"),
-            // The conversion instructions might contain root objects in
-            // addition to the top level, so we need to get rid of everything
-            // that doesn't the top level path prefix we're after.
-            &conversion_instructions
-                .into_iter()
-                .filter_map(|instruction_container| {
-                    if instruction_container.at_path[0] == root_name.as_str() {
-                        Some(instruction_container.to_owned())
-                    } else {
-                        None
-                    }
-                })
-                .collect_vec(),
-        )
-        .unwrap();
-
-        // Close full obj
-        write!(str, "}}").unwrap();
-
-        str
-    }
-}
-
-// This writes the converter map, used to convert things like custom scalars and
-// unions.
-fn write_converter_map(
-    str: &mut String,
-    indentation: usize,
-    instructions: &Vec<&InstructionContainer>,
-    name: &String,
-    direction: ConversionDirection,
-) -> Result {
-    write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
-
-    write_indentation(str, indentation).unwrap();
-    write!(str, "let {}ConverterMap = ", name).unwrap();
-
-    let mut has_instructions = false;
-    let mut printed_instruction_keys = vec![];
-
-    instructions.iter().for_each(|instruction_container| {
-        match &instruction_container.instruction {
-            ConverterInstructions::ConvertUnion(union_name) => {
-                if !has_instructions {
-                    has_instructions = true;
-                    writeln!(str, "{{").unwrap();
-                }
-
-                if printed_instruction_keys.contains(union_name) {
-                    return;
-                } else {
-                    printed_instruction_keys.push(union_name.to_string());
-                }
-
-                write_indentation(str, indentation + 1).unwrap();
-                writeln!(
-                    str,
-                    "\"{}\": {},",
-                    union_name,
-                    format!(
-                        "{}_{}",
-                        match direction {
-                            ConversionDirection::Wrap => "wrap",
-                            ConversionDirection::Unwrap => "unwrap",
-                        },
-                        union_name,
-                    ),
-                )
-                .unwrap();
-            }
-            ConverterInstructions::ConvertCustomField(custom_field_name) => {
-                if !has_instructions {
-                    has_instructions = true;
-                    writeln!(str, "{{").unwrap();
-                }
-
-                if printed_instruction_keys.contains(custom_field_name) {
-                    return;
-                } else {
-                    printed_instruction_keys.push(custom_field_name.to_string());
-                }
-
-                write_indentation(str, indentation + 1).unwrap();
-                writeln!(
-                    str,
-                    "\"{}\": {},",
-                    custom_field_name,
-                    match classify_rescript_value_string(&custom_field_name) {
-                        RescriptCustomTypeValue::Type => custom_field_name.to_string(),
-                        RescriptCustomTypeValue::Module => format!(
-                            "{}.{}",
-                            custom_field_name,
-                            match direction {
-                                ConversionDirection::Wrap => "serialize",
-                                ConversionDirection::Unwrap => "parse",
-                            }
-                        ),
-                    },
-                )
-                .unwrap();
-            }
-            _ => (),
-        };
-    });
-
-    if has_instructions {
-        write_indentation(str, indentation).unwrap();
-        writeln!(str, "}}").unwrap();
-    } else {
-        writeln!(str, "()").unwrap()
-    }
-
-    Ok(())
-}
-
-// This writes "internal assets", which primarily is converters for going
-// between JS and ReScript runtime value representations. It's a total mess
-// right now and needs to be refactored, but I'll leave it like this for the
-// initial iteration of moving the typegen from OCaml to Rust.
-fn write_internal_assets(
-    str: &mut String,
-    indentation: usize,
-    state: &Box<ReScriptPrinter>,
-    target_context: Context,
-    name: String,
     include_raw: bool,
-    direction: ConversionDirection,
+    indentation: usize,
+    name: String,
+    nullable: bool,
     nullable_type: NullableType,
+    converter: String,
 ) -> Result {
-    let root_name = root_name_from_context(&target_context);
-
     if include_raw {
         write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
         write_indentation(str, indentation).unwrap();
         writeln!(str, "type {}Raw", name).unwrap();
     }
-
     write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
     write_indentation(str, indentation).unwrap();
     writeln!(
         str,
-        "let {}Converter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(",
-        name
-    )
-    .unwrap();
-
-    write_indentation(str, indentation + 1).unwrap();
-
-    // Map out all root objects (ie input objects) used in this conversion
-    // setup. This is because they are recursive, and thus needs to be treated
-    // separately. This only needs to happen when printing variables though,
-    // because that's the only context where input objects can appear.
-    let mut root_objects = FnvHashSet::default();
-
-    if &target_context == &Context::Variables {
-        state
-            .conversion_instructions
-            .iter()
-            .for_each(
-                |instruction_container| match &instruction_container.instruction {
-                    ConverterInstructions::RootObject(root_object_name) => {
-                        root_objects.insert(root_object_name);
-                    }
-                    _ => (),
-                },
-            );
-    }
-
-    // All conversion instructions applicable to this context.
-    let target_conversion_instructions: Vec<&InstructionContainer> = state
-        .conversion_instructions
-        .iter()
-        .filter(|instr| {
-            &instr.at_path[0] == root_name.as_str() || root_objects.contains(&instr.at_path[0])
-        })
-        .collect();
-
-    writeln!(
-        str,
-        "json`{}`",
-        get_conversion_instructions(
-            state,
-            &target_conversion_instructions,
-            root_objects.into_iter().collect_vec(),
-            &root_name
-        )
-    )
-    .unwrap();
-
-    write_indentation(str, indentation).unwrap();
-    writeln!(str, ")").unwrap();
-
-    // Converters are either unions (that needs to be wrapped/unwrapped), or
-    // custom scalars _that are ReScript modules_, and therefore should be
-    // autoconverted.
-    let converters: Vec<&InstructionContainer> = target_conversion_instructions
-        .into_iter()
-        .filter(|instruction_container| {
-            match &instruction_container.instruction {
-                ConverterInstructions::ConvertCustomField(field_name) => {
-                    // Try and infer what type of ReScript value this is
-                    match classify_rescript_value_string(&field_name) {
-                        RescriptCustomTypeValue::Type => false,
-                        RescriptCustomTypeValue::Module => true,
-                    }
-                }
-                ConverterInstructions::ConvertUnion(_) => true,
-                _ => false,
-            }
-        })
-        .collect();
-
-    write_converter_map(str, indentation, &converters, &name, direction).unwrap();
-
-    write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
-    write_indentation(str, indentation).unwrap();
-    writeln!(
-        str,
-        "let convert{} = v => v->RescriptRelay.convertObj(",
-        uppercase_first_letter(name.as_str())
-    )
-    .unwrap();
-
-    write_indentation(str, indentation + 1).unwrap();
-    writeln!(str, "{}Converter,", name).unwrap();
-    write_indentation(str, indentation + 1).unwrap();
-    writeln!(str, "{}ConverterMap,", name).unwrap();
-    write_indentation(str, indentation + 1).unwrap();
-    writeln!(
-        str,
-        "{}",
+        "let convert{} = RescriptRelay.convertObj({}, {}, {})",
+        uppercase_first_letter(name.as_str()),
         match nullable_type {
-            NullableType::Undefined => "Js.undefined",
-            NullableType::Null => "Js.null",
-        }
+            NullableType::Undefined => "Js.Nullable.undefined",
+            // NullableType::Null => "Js.Nullable.null",
+        },
+        nullable.to_string(),
+        converter
     )
     .unwrap();
-    write_indentation(str, indentation).unwrap();
-    writeln!(str, ")").unwrap();
-
     Ok(())
 }
+
+fn union_converter_to_string(_union: &Union, _state: &Box<ReScriptPrinter>) -> String {
+    String::from("Union") // todo implement this
+}
+
+fn prop_type_converter_to_string(
+    at_path: &Vec<String>,
+    key: &String,
+    prop_type: &Box<PropType>,
+    state: &Box<ReScriptPrinter>,
+) -> String {
+    let mut new_path = at_path.clone();
+    new_path.push(key.clone());
+    match &**prop_type {
+        PropType::DataId => String::from("DataId"),
+        PropType::Scalar(_scalar_value) => match state.conversion_instructions.get(&new_path) {
+            Some(ConverterInstructions {
+                convert_custom_field: Some(converter_name),
+                ..
+            }) => format!("Scalar(WithConverter({}))", converter_name),
+            Some(ConverterInstructions {
+                convert_custom_field: None,
+                ..
+            })
+            | None => String::from("Scalar(WithoutConverter)"),
+        },
+        PropType::StringLiteral(_value) => String::from("Scalar(WithoutConverter)"),
+        PropType::Enum(enum_name) => format!("Enum({})", enum_name),
+        PropType::Array((nullable, prop_type)) => format!(
+            "Array({{ nullable: {}, propType: {} }})",
+            nullable.to_string(),
+            prop_type_converter_to_string(at_path, key, &prop_type, state)
+        ),
+        PropType::FragmentSpreads(_fragment_spreads) => String::from("Fragment"),
+        PropType::InputObjectReference(object_name) => {
+            let object = state
+                .objects
+                .iter()
+                .find(|item| &item.record_name == object_name)
+                .unwrap();
+            format!("InputObject({})", object_converter_to_string(object, state))
+        }
+        PropType::RecordReference(object_name) => {
+            let object = state
+                .objects
+                .iter()
+                .find(|item| &item.record_name == object_name)
+                .unwrap();
+            format!("Object({})", object_converter_to_string(object, state))
+        }
+        PropType::UnionReference(union_name) => {
+            let union = state
+                .unions
+                .iter()
+                .find(|item| &item.record_name == union_name)
+                .unwrap();
+            format!("Union({})", union_converter_to_string(union, state))
+        }
+        PropType::RelayResolver(_) => String::from("RelayResolver"),
+
+        // Warning, this means we couldn't match this identifier into a "proper"
+        // type. Should probably investigate when this happens.
+        PropType::RawIdentifier(_id) => panic!("should not get a RawIdentifier here"),
+    }
+}
+
+fn object_converter_to_string(object: &Object, state: &Box<ReScriptPrinter>) -> String {
+    let default_instruction = &ConverterInstructions {
+        ..Default::default()
+    };
+    let instruction = state
+        .conversion_instructions
+        .get(&object.at_path)
+        .unwrap_or(default_instruction);
+    format!(
+        "{{ has_fragments: {}, convert_top_level_node_field: {}, fields: [{}]->Js.Dict.fromArray }}",
+        instruction.has_fragments.to_string(),
+        match &instruction.convert_top_level_node_field {
+            Some(name) => format!("Some({})", name),
+            None => String::from("None"),
+        },
+        object
+            .values
+            .iter()
+            .map(|value| format!(
+                "({}, {})",
+                value.key,
+                prop_type_converter_to_string(&object.at_path, &value.key, &value.prop_type, state)
+            ))
+            .collect::<Vec<String>>()
+            .join(", ")
+    )
+}
+
+fn write_fragment_converter(
+    str: &mut String,
+    indentation: usize,
+    state: &Box<ReScriptPrinter>,
+    fragment: &TopLevelFragmentType,
+    nullable: bool,
+    name: String,
+    nullable_type: NullableType,
+) -> Result {
+    let converter = format!(
+        "Fragment({})",
+        match &fragment {
+            TopLevelFragmentType::Object(object) =>
+                format!("Object({})", object_converter_to_string(object, state)),
+            TopLevelFragmentType::Union(union) =>
+                format!("Union({})", union_converter_to_string(union, state)),
+            TopLevelFragmentType::ArrayWithObject(object) => format!(
+                "ArrayWithObject({})",
+                object_converter_to_string(object, state)
+            ),
+            TopLevelFragmentType::ArrayWithUnion(union) => format!(
+                "ArrayWithUnion({})",
+                union_converter_to_string(union, state)
+            ),
+        }
+    );
+    write_converter(
+        str,
+        true,
+        indentation,
+        name,
+        nullable,
+        nullable_type,
+        converter,
+    )
+    .unwrap();
+    Ok(())
+}
+
+// // This writes "internal assets", which primarily is converters for going
+// // between JS and ReScript runtime value representations. It's a total mess
+// // right now and needs to be refactored, but I'll leave it like this for the
+// // initial iteration of moving the typegen from OCaml to Rust.
+// fn write_internal_assets(
+//     str: &mut String,
+//     indentation: usize,
+//     state: &Box<ReScriptPrinter>,
+//     target_context: Context,
+//     name: String,
+//     include_raw: bool,
+//     direction: ConversionDirection,
+//     nullable_type: NullableType,
+// ) -> Result {
+//     let root_name = root_name_from_context(&target_context);
+
+//     if include_raw {
+//         write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
+//         write_indentation(str, indentation).unwrap();
+//         writeln!(str, "type {}Raw", name).unwrap();
+//     }
+
+//     write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
+//     write_indentation(str, indentation).unwrap();
+//     writeln!(
+//         str,
+//         "let {}Converter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(",
+//         name
+//     )
+//     .unwrap();
+
+//     write_indentation(str, indentation + 1).unwrap();
+
+//     // Map out all root objects (ie input objects) used in this conversion
+//     // setup. This is because they are recursive, and thus needs to be treated
+//     // separately. This only needs to happen when printing variables though,
+//     // because that's the only context where input objects can appear.
+//     let mut root_objects = FnvHashSet::default();
+
+//     if &target_context == &Context::Variables {
+//         state
+//             .conversion_instructions
+//             .iter()
+//             .for_each(
+//                 |instruction_container| match &instruction_container.instruction {
+//                     ConverterInstructions::root_object(root_object_name) => {
+//                         root_objects.insert(root_object_name);
+//                     }
+//                     _ => (),
+//                 },
+//             );
+//     }
+
+//     // All conversion instructions applicable to this context.
+//     let target_conversion_instructions: Vec<&InstructionContainer> = state
+//         .conversion_instructions
+//         .iter()
+//         .filter(|instr| {
+//             &instr.at_path[0] == root_name.as_str() || root_objects.contains(&instr.at_path[0])
+//         })
+//         .collect();
+
+//     writeln!(
+//         str,
+//         "json`{}`",
+//         get_conversion_instructions(
+//             state,
+//             &target_conversion_instructions,
+//             root_objects.into_iter().collect_vec(),
+//             &root_name
+//         )
+//     )
+//     .unwrap();
+
+//     write_indentation(str, indentation).unwrap();
+//     writeln!(str, ")").unwrap();
+
+//     // Converters are either unions (that needs to be wrapped/unwrapped), or
+//     // custom scalars _that are ReScript modules_, and therefore should be
+//     // autoconverted.
+//     let converters: Vec<&InstructionContainer> = target_conversion_instructions
+//         .into_iter()
+//         .filter(|instruction_container| {
+//             match &instruction_container.instruction {
+//                 ConverterInstructions::convert_custom_field(field_name) => {
+//                     // Try and infer what type of ReScript value this is
+//                     match classify_rescript_value_string(&field_name) {
+//                         RescriptCustomTypeValue::Type => false,
+//                         RescriptCustomTypeValue::Module => true,
+//                     }
+//                 }
+//                 ConverterInstructions::ConvertUnion(_) => true,
+//                 _ => false,
+//             }
+//         })
+//         .collect();
+
+//     write_converter_map(str, indentation, &converters, &name, direction).unwrap();
+
+//     write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
+//     write_indentation(str, indentation).unwrap();
+//     writeln!(
+//         str,
+//         "let convert{} = v => v->RescriptRelay.convertObj(",
+//         uppercase_first_letter(name.as_str())
+//     )
+//     .unwrap();
+
+//     write_indentation(str, indentation + 1).unwrap();
+//     writeln!(str, "{}Converter,", name).unwrap();
+//     write_indentation(str, indentation + 1).unwrap();
+//     writeln!(str, "{}ConverterMap,", name).unwrap();
+//     write_indentation(str, indentation + 1).unwrap();
+//     writeln!(
+//         str,
+//         "{}",
+//         match nullable_type {
+//             NullableType::Undefined => "Js.undefined",
+//             NullableType::Null => "Js.null",
+//         }
+//     )
+//     .unwrap();
+//     write_indentation(str, indentation).unwrap();
+//     writeln!(str, ")").unwrap();
+
+//     Ok(())
+// }
 
 fn write_union_converters(str: &mut String, indentation: usize, union: &Union) -> Result {
     // Print the unwrap fn first. This is what turns the "raw" value coming from
@@ -2199,16 +2371,29 @@ impl Writer for ReScriptPrinter {
         writeln!(generated_types, "module Internal = {{").unwrap();
         indentation += 1;
 
+        // let mut by_path = FnvHashMap::default();
+
         match &self.fragment {
-            Some(_) => {
-                write_internal_assets(
+            Some((nullable, fragment)) => {
+                let name = String::from("fragment");
+                // write_internal_assets(
+                //     &mut generated_types,
+                //     indentation,
+                //     &self,
+                //     Context::Fragment,
+                //     name,
+                //     true,
+                //     ConversionDirection::Unwrap,
+                //     NullableType::Undefined,
+                // )
+                // .unwrap();
+                write_fragment_converter(
                     &mut generated_types,
                     indentation,
                     &self,
-                    Context::Fragment,
-                    String::from("fragment"),
-                    true,
-                    ConversionDirection::Unwrap,
+                    &fragment,
+                    *nullable,
+                    name,
                     NullableType::Undefined,
                 )
                 .unwrap();
@@ -2218,17 +2403,17 @@ impl Writer for ReScriptPrinter {
 
         match &self.variables {
             Some(_) => {
-                write_internal_assets(
-                    &mut generated_types,
-                    indentation,
-                    &self,
-                    Context::Variables,
-                    String::from("variables"),
-                    false,
-                    ConversionDirection::Wrap,
-                    NullableType::Undefined,
-                )
-                .unwrap();
+                // write_internal_assets(
+                //     &mut generated_types,
+                //     indentation,
+                //     &self,
+                //     Context::Variables,
+                //     String::from("variables"),
+                //     false,
+                //     ConversionDirection::Wrap,
+                //     NullableType::Undefined,
+                // )
+                // .unwrap();
             }
             None => (),
         };
@@ -2245,32 +2430,32 @@ impl Writer for ReScriptPrinter {
             (Some(_), DefinitionType::Operation((op, _))) => {
                 match &op.kind {
                     OperationKind::Query | OperationKind::Mutation => {
-                        write_internal_assets(
-                            &mut generated_types,
-                            indentation,
-                            &self,
-                            Context::Response,
-                            String::from("wrapResponse"),
-                            true,
-                            ConversionDirection::Wrap,
-                            NullableType::Null,
-                        )
-                        .unwrap();
+                        // write_internal_assets(
+                        //     &mut generated_types,
+                        //     indentation,
+                        //     &self,
+                        //     Context::Response,
+                        //     String::from("wrapResponse"),
+                        //     true,
+                        //     ConversionDirection::Wrap,
+                        //     NullableType::Null,
+                        // )
+                        // .unwrap();
                     }
                     OperationKind::Subscription => (),
                 }
 
-                write_internal_assets(
-                    &mut generated_types,
-                    indentation,
-                    &self,
-                    Context::Response,
-                    String::from("response"),
-                    true,
-                    ConversionDirection::Unwrap,
-                    NullableType::Undefined,
-                )
-                .unwrap();
+                // write_internal_assets(
+                //     &mut generated_types,
+                //     indentation,
+                //     &self,
+                //     Context::Response,
+                //     String::from("response"),
+                //     true,
+                //     ConversionDirection::Unwrap,
+                //     NullableType::Undefined,
+                // )
+                // .unwrap();
             }
             _ => (),
         };
@@ -2279,32 +2464,32 @@ impl Writer for ReScriptPrinter {
             (Some(_), Some(_), DefinitionType::Operation((op, _))) => {
                 match &op.kind {
                     OperationKind::Query | OperationKind::Mutation => {
-                        write_internal_assets(
-                            &mut generated_types,
-                            indentation,
-                            &self,
-                            Context::RawResponse,
-                            String::from("wrapRawResponse"),
-                            true,
-                            ConversionDirection::Wrap,
-                            NullableType::Null,
-                        )
-                        .unwrap();
+                        // write_internal_assets(
+                        //     &mut generated_types,
+                        //     indentation,
+                        //     &self,
+                        //     Context::RawResponse,
+                        //     String::from("wrapRawResponse"),
+                        //     true,
+                        //     ConversionDirection::Wrap,
+                        //     NullableType::Null,
+                        // )
+                        // .unwrap();
                     }
                     OperationKind::Subscription => (),
                 }
 
-                write_internal_assets(
-                    &mut generated_types,
-                    indentation,
-                    &self,
-                    Context::RawResponse,
-                    String::from("rawResponse"),
-                    true,
-                    ConversionDirection::Unwrap,
-                    NullableType::Undefined,
-                )
-                .unwrap();
+                // write_internal_assets(
+                //     &mut generated_types,
+                //     indentation,
+                //     &self,
+                //     Context::RawResponse,
+                //     String::from("rawResponse"),
+                //     true,
+                //     ConversionDirection::Unwrap,
+                //     NullableType::Undefined,
+                // )
+                // .unwrap();
             }
             (Some(_), None, DefinitionType::Operation((op, _))) => {
                 match &op.kind {
@@ -2741,11 +2926,15 @@ impl Writer for ReScriptPrinter {
                         members: union_members,
                     };
 
-                    self.conversion_instructions.push(InstructionContainer {
-                        context: context.clone(),
-                        at_path: current_path.clone(),
-                        instruction: ConverterInstructions::ConvertUnion(String::from("fragment")),
-                    });
+                    self.conversion_instructions
+                        .entry(current_path.clone())
+                        .and_modify(|instruction| {
+                            instruction.convert_union = Some(String::from("fragment"))
+                        })
+                        .or_insert(ConverterInstructions {
+                            convert_union: Some(String::from("fragment")),
+                            ..Default::default()
+                        });
 
                     self.fragment =
                         Some((nullable, TopLevelFragmentType::Union(fragment_union_type)));
@@ -2765,11 +2954,15 @@ impl Writer for ReScriptPrinter {
                         members: union_members,
                     };
 
-                    self.conversion_instructions.push(InstructionContainer {
-                        context: context.clone(),
-                        at_path: current_path.clone(),
-                        instruction: ConverterInstructions::ConvertUnion(String::from("fragment")),
-                    });
+                    self.conversion_instructions
+                        .entry(current_path.clone())
+                        .and_modify(|instruction| {
+                            instruction.convert_union = Some(String::from("fragment"))
+                        })
+                        .or_insert(ConverterInstructions {
+                            convert_union: Some(String::from("fragment")),
+                            ..Default::default()
+                        });
 
                     self.fragment = Some((
                         nullable,
@@ -2995,28 +3188,36 @@ impl Writer for ReScriptPrinter {
                                     Some(AstToStringNeedsConversion::InputObject(
                                         input_object_name,
                                     )) => {
-                                        self.conversion_instructions.push(InstructionContainer {
-                                            context: Context::Variables,
-                                            at_path: vec![
+                                        self.conversion_instructions
+                                            .entry(vec![
                                                 String::from("variables"),
                                                 key_value_pair_key.to_string(),
-                                            ],
-                                            instruction: ConverterInstructions::RootObject(
-                                                uncapitalize_string(&input_object_name),
-                                            ),
-                                        });
+                                            ])
+                                            .and_modify(|instruction| {
+                                                instruction.root_object =
+                                                    Some(uncapitalize_string(&input_object_name))
+                                            })
+                                            .or_insert(ConverterInstructions {
+                                                root_object: Some(uncapitalize_string(
+                                                    &input_object_name,
+                                                )),
+                                                ..Default::default()
+                                            });
                                     }
                                     Some(AstToStringNeedsConversion::CustomScalar(scalar_name)) => {
-                                        self.conversion_instructions.push(InstructionContainer {
-                                            context: Context::Variables,
-                                            at_path: vec![
+                                        self.conversion_instructions
+                                            .entry(vec![
                                                 String::from("variables"),
                                                 key_value_pair_key.to_string(),
-                                            ],
-                                            instruction: ConverterInstructions::ConvertCustomField(
-                                                scalar_name.clone(),
-                                            ),
-                                        });
+                                            ])
+                                            .and_modify(|instruction| {
+                                                instruction.convert_custom_field =
+                                                    Some(scalar_name.clone())
+                                            })
+                                            .or_insert(ConverterInstructions {
+                                                convert_custom_field: Some(scalar_name.clone()),
+                                                ..Default::default()
+                                            });
                                     }
                                 }
                             }
@@ -3052,7 +3253,7 @@ impl ReScriptPrinter {
             response: None,
             variables: None,
             typegen_definition,
-            conversion_instructions: vec![],
+            conversion_instructions: FnvHashMap::default(),
             operation_meta_data,
             relay_resolvers: vec![],
             provided_variables: None,
