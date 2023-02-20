@@ -50,7 +50,7 @@ let connectionKey = "TestConnections_user_friendsConnection"
 )
 
 @live
-let makeConnectionId = (connectionParentDataId: RescriptRelay.dataId, ~onlineStatuses: array<[#Online | #Idle | #Offline]>=[#Idle], ~beforeDate: SomeModule.Datetime.t, ()) => {
+let makeConnectionId = (connectionParentDataId: RescriptRelay.dataId, ~onlineStatuses: Js.Null.t<array<Js.Null.t<[#Online | #Idle | #Offline]>>>=[#Idle], ~beforeDate: Js.Null.t<SomeModule.Datetime.t>, ()) => {
   let onlineStatuses = Some(onlineStatuses)
   let beforeDate = Some(SomeModule.Datetime.serialize(beforeDate))
   let args = {"statuses": onlineStatuses, "beforeDate": beforeDate}

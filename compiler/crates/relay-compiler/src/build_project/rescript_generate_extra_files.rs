@@ -4,8 +4,12 @@ use common::SourceLocationKey;
 use graphql_ir::reexport::Intern;
 use relay_config::ProjectConfig;
 use relay_transforms::Programs;
-use relay_typegen::rescript_utils::{get_safe_key, print_type_reference};
-use schema::{SDLSchema, Schema, TypeReference};
+use relay_typegen::rescript_utils::get_safe_key;
+use relay_typegen::rescript_utils::print_nullable;
+use relay_typegen::rescript_utils::print_type_reference;
+use schema::SDLSchema;
+use schema::Schema;
+use schema::TypeReference;
 
 use crate::Artifact;
 
@@ -63,14 +67,23 @@ pub(crate) fn rescript_generate_extra_artifacts(
         input_obj.fields.iter().for_each(|field| {
             let (key, maybe_original_key) = get_safe_key(&field.name.to_string());
 
+            let is_optional = match &field.type_ {
+                TypeReference::NonNull(_) => false,
+                _ => true,
+            };
+
             writeln!(
                 content,
-                "  {}{}: {},",
+                "  {}{}{}: {},",
                 (match maybe_original_key {
                     Some(original_key) => format!("@as(\"{}\") ", original_key),
                     None => String::from(""),
                 }),
                 key,
+                match is_optional {
+                    true => "?",
+                    false => "",
+                },
                 print_type_reference(
                     &field.type_,
                     &schema,
@@ -115,12 +128,15 @@ pub(crate) fn rescript_generate_extra_artifacts(
                     Some(original_key) => format!("_{}", original_key),
                     None => key,
                 }),
-                print_type_reference(
-                    &arg.type_,
-                    &schema,
-                    &project_config.typegen_config.custom_scalar_types,
-                    false,
-                    false
+                print_nullable(
+                    &print_type_reference(
+                        &arg.type_,
+                        &schema,
+                        &project_config.typegen_config.custom_scalar_types,
+                        false,
+                        false
+                    ),
+                    is_optional
                 ),
                 if is_optional { "=?" } else { "" }
             )

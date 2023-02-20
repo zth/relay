@@ -343,9 +343,9 @@ fn print_wrapped_in_some(str: &String, print_as_optional: bool) -> String {
     }
 }
 
-fn print_opt(str: &String, optional: bool) -> String {
-    if optional {
-        format!("option<{}>", str)
+pub fn print_nullable(str: &String, nullable: bool) -> String {
+    if nullable {
+        format!("Js.Null.t<{}>", str)
     } else {
         format!("{}", str)
     }
@@ -412,8 +412,7 @@ pub fn print_type_reference(
     prefix_with_schema_module: bool,
 ) -> String {
     match typ {
-        TypeReference::Named(named_type) => print_opt(
-            &match named_type {
+        TypeReference::Named(named_type) => print_nullable( &match named_type {
                 Type::Enum(id) => format!(
                     "[{}]",
                     schema
@@ -467,17 +466,17 @@ pub fn print_type_reference(
             },
             nullable,
         ),
-        TypeReference::NonNull(typ) => format!(
-            "{}",
-            print_type_reference(
+        TypeReference::NonNull(typ) => print_nullable(
+            &print_type_reference(
                 &typ,
                 &schema,
                 &custom_scalar_types,
                 false,
                 prefix_with_schema_module
-            )
+            ),
+            nullable
         ),
-        TypeReference::List(typ) => print_opt(
+        TypeReference::List(typ) => print_nullable(
             &format!(
                 "array<{}>",
                 print_type_reference(
@@ -488,7 +487,7 @@ pub fn print_type_reference(
                     prefix_with_schema_module
                 )
             ),
-            nullable,
+            nullable
         ),
     }
 }
