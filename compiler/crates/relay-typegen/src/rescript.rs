@@ -1394,6 +1394,11 @@ enum ObjectPrintMode {
     PartOfRecursiveChain,
 }
 
+enum NullabilityMode {
+    Option,
+    Nullable
+}
+
 fn write_record_type_start(
     str: &mut String,
     print_mode: &ObjectPrintMode,
@@ -1424,6 +1429,11 @@ fn write_object_definition(
     context: &Context,
     is_refetch_var: bool,
 ) -> Result {
+    let nullability = match (state.operation_meta_data.operation_directives.contains(&RescriptRelayOperationDirective::NullableVariables), context) {
+        (true, &Context::Variables | &Context::RootObject(_)) => NullabilityMode::Nullable,
+        _ => NullabilityMode::Option,
+    };
+
     let is_generated_operation = match &state.typegen_definition {
         DefinitionType::Operation((
             OperationDefinition {
@@ -1485,7 +1495,7 @@ fn write_object_definition(
         write_indentation(str, in_object_indentation).unwrap();
         writeln!(
             str,
-            "{}{}{}: {},",
+            "{}{}{}{}: {},",
             // We suppress dead code warnings for a set of keys that we know
             // don't affect overfetching, and are used internally by
             // RescriptRelay, but end up in the types anyway because of
@@ -1514,6 +1524,10 @@ fn write_object_definition(
                 Some(original_key) => format!("@as(\"{}\") ", original_key),
             },
             prop.key,
+            match (&nullability, prop.nullable) {
+                (NullabilityMode::Nullable, true) => "?",
+                _ => ""
+            },
             match (prop.nullable, is_refetch_var) {
                 (true, true) => format!(
                     "option<option<{}>>",
@@ -1526,13 +1540,20 @@ fn write_object_definition(
                     )
                 ),
                 (true, false) | (false, true) => format!(
-                    "option<{}>",
-                    get_object_prop_type_as_string(
-                        state,
-                        &prop.prop_type,
-                        &context,
-                        indentation,
-                        &field_path_name
+                    "{}",
+                    print_opt(
+                        &get_object_prop_type_as_string(
+                            state,
+                            &prop.prop_type,
+                            &context,
+                            indentation,
+                            &field_path_name
+                        ),
+                        true, 
+                        match nullability {
+                            NullabilityMode::Option => false,
+                            NullabilityMode::Nullable => true
+                        }
                     )
                 ),
                 (false, false) => format!(

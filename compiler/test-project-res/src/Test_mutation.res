@@ -110,3 +110,18 @@ module MutationWithRecursiveInputsNullable = %relay(`
       }
     }
 `)
+
+module MutationTestNullability = %relay(`
+  mutation TestMutationNullabilityMutation($onlineStatus: OnlineStatus!, $datetime: Datetime, $recursive: SomeInput) @rescriptRelayNullableVariables {
+    setOnlineStatus(onlineStatus: $onlineStatus) {
+      user {
+        friendsConnection(
+          statuses: [Idle, $onlineStatus]
+          objTest: {str: "123", bool: false, float: 12.2, int: 64, datetime: $datetime, recursive: $recursive}
+        ) {
+          __typename
+        }
+      }
+    }
+  }
+`)

@@ -343,7 +343,7 @@ fn print_wrapped_in_some(str: &String, print_as_optional: bool) -> String {
     }
 }
 
-fn print_opt(str: &String, optional: bool, output_as_js_nullable: bool) -> String {
+pub fn print_opt(str: &String, optional: bool, output_as_js_nullable: bool) -> String {
     if optional {
         if output_as_js_nullable {
             format!("Js.Nullable.t<{}>", str)
