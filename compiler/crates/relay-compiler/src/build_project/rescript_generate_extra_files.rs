@@ -44,6 +44,7 @@ pub(crate) fn rescript_generate_extra_artifacts(
     // Write the input object types
     let mut has_written_initial_input_obj = false;
     schema.input_objects().for_each(|input_obj| {
+        // Write the regular types
         if let Some(desc) = input_obj.description {
             writeln!(content, "/** {} */", desc).unwrap();
         }
@@ -76,7 +77,60 @@ pub(crate) fn rescript_generate_extra_artifacts(
                     &schema,
                     &project_config.typegen_config.custom_scalar_types,
                     true,
+                    false,
                     false
+                )
+            )
+            .unwrap();
+        });
+
+        writeln!(content, "}}").unwrap();
+
+        if has_written_initial_input_obj == false {
+            has_written_initial_input_obj = true;
+        }
+
+        // Write the nullable type
+        if let Some(desc) = input_obj.description {
+            writeln!(content, "/** {} */", desc).unwrap();
+        }
+
+        writeln!(
+            content,
+            "{} input_{}_nullable = {{",
+            if has_written_initial_input_obj {
+                "\n@live\nand"
+            } else {
+                "@live\ntype rec"
+            },
+            input_obj.name.item
+        )
+        .unwrap();
+
+        input_obj.fields.iter().for_each(|field| {
+            let (key, maybe_original_key) = get_safe_key(&field.name.to_string());
+
+            let is_nullable = match &field.type_ {
+                TypeReference::NonNull(_) => false,
+                _ => true,
+            };
+
+            writeln!(
+                content,
+                "  {}{}{}: {},",
+                (match maybe_original_key {
+                    Some(original_key) => format!("@as(\"{}\") ", original_key),
+                    None => String::from(""),
+                }),
+                key,
+                if is_nullable { "?" } else { "" },
+                print_type_reference(
+                    &field.type_,
+                    &schema,
+                    &project_config.typegen_config.custom_scalar_types,
+                    true,
+                    false,
+                    true
                 )
             )
             .unwrap();
@@ -119,6 +173,7 @@ pub(crate) fn rescript_generate_extra_artifacts(
                     &arg.type_,
                     &schema,
                     &project_config.typegen_config.custom_scalar_types,
+                    false,
                     false,
                     false
                 ),
