@@ -102,3 +102,11 @@ module MutationWithMultipleTargets = %relay(`
       }
     }
 `)
+
+module MutationWithRecursiveInputsNullable = %relay(`
+    mutation TestMutationWithRecursiveInputsNullableMutation($input: InputA) @rescriptRelayNullableVariables {
+      recursiveInput(input: $input) {
+        recursionIsCool
+      }
+    }
+`)
