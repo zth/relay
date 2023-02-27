@@ -48,7 +48,7 @@ module Internal = {
   let convertVariables = v => v->RescriptRelay.convertObj(
     variablesConverter,
     variablesConverterMap,
-    Js.undefined
+    Js.null
   )
   @live
   type wrapResponseRaw

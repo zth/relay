@@ -2247,7 +2247,11 @@ impl Writer for ReScriptPrinter {
                     String::from("variables"),
                     false,
                     ConversionDirection::Wrap,
-                    NullableType::Undefined,
+                    if self.operation_meta_data.operation_directives.contains(&RescriptRelayOperationDirective::NullableVariables) {
+                        NullableType::Null
+                    } else {
+                        NullableType::Undefined
+                    },
                 )
                 .unwrap();
             }
