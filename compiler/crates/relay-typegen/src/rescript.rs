@@ -15,7 +15,7 @@ use log::{debug, warn};
 
 use crate::rescript_ast::*;
 use crate::rescript_relay_visitor::{
-    RescriptRelayFragmentDirective, RescriptRelayOperationMetaData,
+    RescriptRelayFragmentDirective, RescriptRelayOperationMetaData, RescriptRelayOperationDirective,
 };
 use crate::rescript_utils::*;
 use crate::writer::{KeyValuePairProp, Prop, Writer, AST};
@@ -1921,8 +1921,8 @@ impl Writer for ReScriptPrinter {
                     write_indentation(&mut generated_types, indentation).unwrap();
                     writeln!(
                         generated_types,
-                        "@live type {} = RelaySchemaAssets_graphql.input_{}",
-                        input_object.record_name, input_obj_name
+                        "@live type {} = RelaySchemaAssets_graphql.input_{}{}",
+                        input_object.record_name, input_obj_name, if self.operation_meta_data.operation_directives.contains(&RescriptRelayOperationDirective::NullableVariables) { "_nullable" } else {""}
                     )
                     .unwrap();
                 }
