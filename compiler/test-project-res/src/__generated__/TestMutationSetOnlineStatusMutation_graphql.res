@@ -310,7 +310,8 @@ return {
                   "abstractKey": null
                 },
                 "kind": "RelayResolver",
-                "storageKey": null
+                "storageKey": null,
+                "isOutputType": false
               },
               {
                 "kind": "ClientExtension",

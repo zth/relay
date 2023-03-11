@@ -11,16 +11,15 @@
 
 'use strict';
 
+import type {RecordObjectMap} from '../RelayStoreTypes';
 import type {DataID} from 'relay-runtime/util/RelayRuntimeTypes';
 
-import type {RecordObjectMap} from '../RelayStoreTypes';
-
 import RelayNetwork from '../../network/RelayNetwork';
-import RelayModernEnvironment from '../RelayModernEnvironment';
-import {createOperationDescriptor} from '../RelayModernOperationDescriptor';
-import LiveResolverStore from '../experimental-live-resolvers/LiveResolverStore';
 import {graphql} from '../../query/GraphQLTag';
 import RelayFeatureFlags from '../../util/RelayFeatureFlags';
+import LiveResolverStore from '../experimental-live-resolvers/LiveResolverStore';
+import RelayModernEnvironment from '../RelayModernEnvironment';
+import {createOperationDescriptor} from '../RelayModernOperationDescriptor';
 import {createNormalizationSelector} from '../RelayModernSelector';
 import RelayRecordSource from '../RelayRecordSource';
 import {mark} from '../RelayReferenceMarker';
@@ -961,7 +960,7 @@ describe('RelayReferenceMarker', () => {
         'client:root:counter',
       ]);
     });
-    it('with with @edgeTo client object is retained', () => {
+    it('with @edgeTo client object is retained', () => {
       const storeData = {
         'client:root': {
           __id: 'client:root',
@@ -1017,6 +1016,18 @@ describe('RelayReferenceMarker', () => {
       );
       expect(Array.from(references).sort()).toEqual([
         '1',
+        'client:AstrologicalSign:Aquarius',
+        'client:AstrologicalSign:Aries',
+        'client:AstrologicalSign:Cancer',
+        'client:AstrologicalSign:Capricorn',
+        'client:AstrologicalSign:Gemini',
+        'client:AstrologicalSign:Leo',
+        'client:AstrologicalSign:Libra',
+        'client:AstrologicalSign:Pisces',
+        'client:AstrologicalSign:Sagittarius',
+        'client:AstrologicalSign:Scorpio',
+        'client:AstrologicalSign:Taurus',
+        'client:AstrologicalSign:Virgo',
         'client:root',
         'client:root:all_astrological_signs',
       ]);

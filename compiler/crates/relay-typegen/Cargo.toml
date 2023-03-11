@@ -16,7 +16,7 @@ fnv = "1.0"
 log = { version = "0.4.14", features = ["kv_unstable", "kv_unstable_std"] }
 graphql-ir = { path = "../graphql-ir" }
 graphql-syntax = { path = "../graphql-syntax" }
-indexmap = { version = "1.9.1", features = ["rayon", "serde-1"] }
+indexmap = { version = "1.9.2", features = ["arbitrary", "rayon", "serde-1"] }
 intern = { path = "../intern" }
 itertools = "0.10.3"
 lazy_static = "1.4"

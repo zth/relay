@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8fa471eca1295f346d143e9a83cce428>>
+ * @generated SignedSource<<3983ea2457c99cb128c5e472f2360785>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,6 +18,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { DataID } from "relay-runtime";
 import type { AstrologicalSignNameResolver$key } from "./AstrologicalSignNameResolver.graphql";
 import type { AstrologicalSignOppositeResolver$key } from "./AstrologicalSignOppositeResolver.graphql";
 import type { UserAstrologicalSignResolver$key } from "./UserAstrologicalSignResolver.graphql";
@@ -25,20 +26,24 @@ import {name as astrologicalSignNameResolverType} from "../AstrologicalSignNameR
 // Type assertion validating that `astrologicalSignNameResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (astrologicalSignNameResolverType: (
-  rootKey: AstrologicalSignNameResolver$key, 
+  rootKey: AstrologicalSignNameResolver$key,
 ) => mixed);
 import {opposite as astrologicalSignOppositeResolverType} from "../AstrologicalSignOppositeResolver.js";
 // Type assertion validating that `astrologicalSignOppositeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (astrologicalSignOppositeResolverType: (
-  rootKey: AstrologicalSignOppositeResolver$key, 
-) => mixed);
+  rootKey: AstrologicalSignOppositeResolver$key,
+) => ?{|
+  +id: DataID,
+|});
 import {astrological_sign as userAstrologicalSignResolverType} from "../UserAstrologicalSignResolver.js";
 // Type assertion validating that `userAstrologicalSignResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userAstrologicalSignResolverType: (
-  rootKey: UserAstrologicalSignResolver$key, 
-) => mixed);
+  rootKey: UserAstrologicalSignResolver$key,
+) => ?{|
+  +id: DataID,
+|});
 export type ResolverGCTestResolverClientEdgeToClientRecursiveQuery$variables = {||};
 export type ResolverGCTestResolverClientEdgeToClientRecursiveQuery$data = {|
   +me: ?{|
@@ -92,7 +97,8 @@ v2 = {
         "abstractKey": null
       },
       "kind": "RelayResolver",
-      "storageKey": null
+      "storageKey": null,
+      "isOutputType": false
     }
   ],
   "type": "AstrologicalSign",
@@ -103,7 +109,8 @@ v3 = {
   "args": null,
   "fragment": (v2/*: any*/),
   "kind": "RelayResolver",
-  "storageKey": null
+  "storageKey": null,
+  "isOutputType": false
 };
 return {
   "fragment": {
@@ -239,7 +246,8 @@ return {
                 "abstractKey": null
               },
               "kind": "RelayResolver",
-              "storageKey": null
+              "storageKey": null,
+              "isOutputType": false
             },
             "linkedField": {
               "alias": null,
@@ -257,7 +265,8 @@ return {
                     "args": null,
                     "fragment": (v2/*: any*/),
                     "kind": "RelayResolver",
-                    "storageKey": null
+                    "storageKey": null,
+                    "isOutputType": false
                   },
                   "linkedField": {
                     "alias": null,

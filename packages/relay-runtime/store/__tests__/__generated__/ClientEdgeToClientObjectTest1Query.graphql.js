@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e7792998ae3a4aa97f29b2e580dbf210>>
+ * @generated SignedSource<<a7687f310599788d236ce2a7663c707f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,6 +18,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { DataID } from "relay-runtime";
 import type { AstrologicalSignHouseResolver$key } from "./../resolvers/__generated__/AstrologicalSignHouseResolver.graphql";
 import type { AstrologicalSignNameResolver$key } from "./../resolvers/__generated__/AstrologicalSignNameResolver.graphql";
 import type { AstrologicalSignOppositeResolver$key } from "./../resolvers/__generated__/AstrologicalSignOppositeResolver.graphql";
@@ -26,26 +27,30 @@ import {house as astrologicalSignHouseResolverType} from "../resolvers/Astrologi
 // Type assertion validating that `astrologicalSignHouseResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (astrologicalSignHouseResolverType: (
-  rootKey: AstrologicalSignHouseResolver$key, 
+  rootKey: AstrologicalSignHouseResolver$key,
 ) => mixed);
 import {name as astrologicalSignNameResolverType} from "../resolvers/AstrologicalSignNameResolver.js";
 // Type assertion validating that `astrologicalSignNameResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (astrologicalSignNameResolverType: (
-  rootKey: AstrologicalSignNameResolver$key, 
+  rootKey: AstrologicalSignNameResolver$key,
 ) => mixed);
 import {opposite as astrologicalSignOppositeResolverType} from "../resolvers/AstrologicalSignOppositeResolver.js";
 // Type assertion validating that `astrologicalSignOppositeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (astrologicalSignOppositeResolverType: (
-  rootKey: AstrologicalSignOppositeResolver$key, 
-) => mixed);
+  rootKey: AstrologicalSignOppositeResolver$key,
+) => ?{|
+  +id: DataID,
+|});
 import {astrological_sign as userAstrologicalSignResolverType} from "../resolvers/UserAstrologicalSignResolver.js";
 // Type assertion validating that `userAstrologicalSignResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userAstrologicalSignResolverType: (
-  rootKey: UserAstrologicalSignResolver$key, 
-) => mixed);
+  rootKey: UserAstrologicalSignResolver$key,
+) => ?{|
+  +id: DataID,
+|});
 export type ClientEdgeToClientObjectTest1Query$variables = {||};
 export type ClientEdgeToClientObjectTest1Query$data = {|
   +me: ?{|
@@ -140,7 +145,8 @@ v5 = {
         "abstractKey": null
       },
       "kind": "RelayResolver",
-      "storageKey": null
+      "storageKey": null,
+      "isOutputType": false
     }
   ],
   "type": "AstrologicalSign",
@@ -151,21 +157,24 @@ v6 = {
   "args": null,
   "fragment": (v5/*: any*/),
   "kind": "RelayResolver",
-  "storageKey": null
+  "storageKey": null,
+  "isOutputType": false
 },
 v7 = {
   "name": "house",
   "args": null,
   "fragment": (v5/*: any*/),
   "kind": "RelayResolver",
-  "storageKey": null
+  "storageKey": null,
+  "isOutputType": false
 },
 v8 = {
   "name": "opposite",
   "args": null,
   "fragment": (v5/*: any*/),
   "kind": "RelayResolver",
-  "storageKey": null
+  "storageKey": null,
+  "isOutputType": false
 };
 return {
   "fragment": {
@@ -311,7 +320,8 @@ return {
                 "abstractKey": null
               },
               "kind": "RelayResolver",
-              "storageKey": null
+              "storageKey": null,
+              "isOutputType": false
             },
             "linkedField": {
               "alias": null,

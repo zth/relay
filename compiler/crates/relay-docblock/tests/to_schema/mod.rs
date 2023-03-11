@@ -8,6 +8,7 @@
 use std::sync::Arc;
 
 use common::DiagnosticsResult;
+use common::FeatureFlag;
 use common::SourceLocationKey;
 use docblock_syntax::parse_docblock;
 use docblock_syntax::DocblockSource;
@@ -65,13 +66,16 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
             Some(&executable_documents),
             ParseOptions {
                 use_named_imports: fixture.content.contains("// relay:use_named_imports"),
-                relay_resolver_model_syntax_enabled: !fixture
-                    .content
-                    .contains("// relay:disable_relay_resolver_model_syntax"),
+                relay_resolver_model_syntax_enabled: true,
                 relay_resolver_enable_terse_syntax: !fixture
                     .content
                     .contains("// relay:disable_relay_resolver_terse_syntax"),
                 id_field_name: "id".intern(),
+                enable_output_type: if fixture.content.contains("// relay:enable_output_type") {
+                    FeatureFlag::Enabled
+                } else {
+                    FeatureFlag::Disabled
+                },
             },
         )?
         .unwrap();

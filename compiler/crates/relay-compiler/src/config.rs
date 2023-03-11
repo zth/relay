@@ -42,7 +42,7 @@ pub use relay_config::RemotePersistConfig;
 use relay_config::SchemaConfig;
 pub use relay_config::SchemaLocation;
 use relay_config::TypegenConfig;
-use relay_config::TypegenLanguage;
+pub use relay_config::TypegenLanguage;
 use relay_transforms::CustomTransformsConfig;
 use serde::de::Error as DeError;
 use serde::Deserialize;
@@ -745,7 +745,7 @@ impl Default for SingleProjectConfigFile {
             persist_config: None,
             is_dev_variable_name: None,
             codegen_command: None,
-            js_module_format: JsModuleFormat::CommonJS,
+            js_module_format: JsModuleFormat::Haste,
             typegen_phase: None,
             feature_flags: None,
             module_import_config: Default::default(),

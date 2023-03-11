@@ -93,8 +93,11 @@ use crate::writer::AST;
 use crate::MaskStatus;
 use crate::TypegenContext;
 use crate::FRAGMENT_PROP_NAME;
+use crate::KEY_DATA_ID;
 use crate::KEY_FRAGMENT_SPREADS;
 use crate::KEY_FRAGMENT_TYPE;
+use crate::KEY_RESOLVER_ID_FIELD;
+use crate::KEY_TYPENAME;
 use crate::KEY_UPDATABLE_FRAGMENT_SPREADS;
 use crate::LIVE_STATE_TYPE;
 use crate::MODULE_COMPONENT;
@@ -355,7 +358,7 @@ fn generate_resolver_type(
                 resolver_metadata.field_parent_type
             )
         });
-    let field = typegen_context
+    let field_id = typegen_context
         .schema
         .named_field(parent_resolver_type, resolver_metadata.field_name)
         .unwrap_or_else(|| {
@@ -365,7 +368,8 @@ fn generate_resolver_type(
             )
         });
     let mut args = vec![];
-    for field_argument in typegen_context.schema.field(field).arguments.iter() {
+    let schema_field = &typegen_context.schema.field(field_id);
+    for field_argument in schema_field.arguments.iter() {
         args.push(Prop::KeyValuePair(KeyValuePairProp {
             key: field_argument.name.0,
             optional: false,
@@ -387,52 +391,55 @@ fn generate_resolver_type(
             optional: false,
         });
     }
-    let inner_type = resolver_metadata
-        .output_type_info
-        .as_ref()
-        .map(|output_type_info| match output_type_info {
-            ResolverOutputTypeInfo::ScalarField(field_id) => {
-                let field = typegen_context.schema.field(*field_id);
-                if is_relay_resolver_type(typegen_context, field) {
-                    AST::Mixed
-                } else {
-                    transform_scalar_type(
-                        typegen_context,
-                        &field.type_,
-                        None,
-                        encountered_enums,
-                        custom_scalars,
-                    )
-                }
+    let inner_ast = match &resolver_metadata.output_type_info {
+        ResolverOutputTypeInfo::ScalarField => {
+            let field_id = resolver_metadata.get_field_id(typegen_context.schema);
+            let field = typegen_context.schema.field(field_id);
+            if is_relay_resolver_type(typegen_context, field) {
+                AST::Any
+            } else {
+                transform_scalar_type(
+                    typegen_context,
+                    &field.type_,
+                    None,
+                    encountered_enums,
+                    custom_scalars,
+                )
             }
-            ResolverOutputTypeInfo::Composite(normalization_info) => {
-                imported_raw_response_types.0.insert(
-                    normalization_info.normalization_operation.item.0,
-                    Some(normalization_info.normalization_operation.location),
-                );
+        }
+        ResolverOutputTypeInfo::Composite(normalization_info) => {
+            imported_raw_response_types.0.insert(
+                normalization_info.normalization_operation.item.0,
+                Some(normalization_info.normalization_operation.location),
+            );
 
-                let type_ = AST::Nullable(Box::new(AST::RawType(
-                    normalization_info.normalization_operation.item.0,
-                )));
+            let type_ = AST::Nullable(Box::new(AST::RawType(
+                normalization_info.normalization_operation.item.0,
+            )));
 
-                let ast = if let Some(instance_field_name) =
-                    normalization_info.weak_object_instance_field
-                {
-                    AST::PropertyType {
-                        type_: Box::new(type_),
-                        property_name: instance_field_name,
-                    }
-                } else {
-                    type_
-                };
+            let ast = if let Some(field_type) = normalization_info.weak_object_instance_field {
+                transform_scalar_type(
+                    typegen_context,
+                    &typegen_context.schema.field(field_type).type_,
+                    None,
+                    encountered_enums,
+                    custom_scalars,
+                )
+            } else {
+                type_
+            };
 
-                if normalization_info.plural {
-                    AST::ReadOnlyArray(Box::new(ast))
-                } else {
-                    ast
-                }
+            if normalization_info.plural {
+                AST::ReadOnlyArray(Box::new(ast))
+            } else {
+                ast
             }
-        });
+        }
+        ResolverOutputTypeInfo::EdgeTo => {
+            create_edge_to_return_type_ast(schema_field, typegen_context.schema, runtime_imports)
+        }
+        ResolverOutputTypeInfo::Legacy => AST::Mixed,
+    };
 
     let return_type = if matches!(
         typegen_context.project_config.typegen_config.language,
@@ -441,13 +448,13 @@ fn generate_resolver_type(
         // TODO: Add proper support for Resolver type generation in typescript
         AST::Any
     } else if resolver_metadata.live {
-        runtime_imports.import_relay_resolver_live_state_type = true;
+        runtime_imports.resolver_live_state_type = true;
         AST::GenericType {
             outer: *LIVE_STATE_TYPE,
-            inner: Box::new(inner_type.unwrap_or(AST::Any)),
+            inner: Box::new(inner_ast),
         }
     } else {
-        inner_type.unwrap_or(AST::Mixed)
+        inner_ast
     };
 
     AST::AssertFunctionType(FunctionTypeAssertion {
@@ -527,21 +534,21 @@ fn relay_resolver_field_type(
     required: bool,
     live: bool,
 ) -> AST {
-    let maybe_scalar_field = if let Some(ResolverOutputTypeInfo::ScalarField(field_id)) =
-        resolver_metadata.output_type_info
-    {
-        let field = typegen_context.schema.field(field_id);
-        // Scalar fields that return `RelayResolverValue` should behave as "classic"
-        // resolvers, where we infer the field type from the return type of the
-        // resolver function
-        if is_relay_resolver_type(typegen_context, field) {
-            None
+    let maybe_scalar_field =
+        if let ResolverOutputTypeInfo::ScalarField = resolver_metadata.output_type_info {
+            let field_id = resolver_metadata.get_field_id(typegen_context.schema);
+            let field = typegen_context.schema.field(field_id);
+            // Scalar fields that return `RelayResolverValue` should behave as "classic"
+            // resolvers, where we infer the field type from the return type of the
+            // resolver function
+            if is_relay_resolver_type(typegen_context, field) {
+                None
+            } else {
+                Some(field)
+            }
         } else {
-            Some(field)
-        }
-    } else {
-        None
-    };
+            None
+        };
 
     if let Some(field) = maybe_scalar_field {
         let inner_value = transform_scalar_type(
@@ -1478,7 +1485,7 @@ fn append_local_3d_payload(
             None
         }
     }) {
-        runtime_imports.local_3d_payload_type_should_be_imported = true;
+        runtime_imports.local_3d_payload_type = true;
 
         types.push(AST::Local3DPayload(
             module_import.document_name,
@@ -2341,4 +2348,58 @@ pub(crate) fn get_operation_type_export(
 
 fn has_typename_selection(selections: &[TypeSelection]) -> bool {
     selections.iter().any(TypeSelection::is_typename)
+}
+
+fn create_edge_to_return_type_ast(
+    schema_field: &Field,
+    schema: &SDLSchema,
+    runtime_imports: &mut RuntimeImports,
+) -> AST {
+    // Mark that the DataID type is used, and must be imported.
+    runtime_imports.data_id_type = true;
+
+    let inner_type = schema_field.type_.inner();
+    let plural = schema_field.type_.is_list();
+
+    let mut fields = vec![Prop::KeyValuePair(KeyValuePairProp {
+        // TODO consider reading the id field from the config. This must be done
+        // in conjunction with runtime changes.
+        key: *KEY_RESOLVER_ID_FIELD,
+        value: AST::RawType(*KEY_DATA_ID),
+        read_only: true,
+        optional: false,
+    })];
+    if inner_type.is_abstract_type() && schema.is_extension_type(inner_type) {
+        // Note: there is currently no way to create a resolver that returns an abstract
+        // client type, so this branch will not be hit until we enable that feature.
+        let interface_id = schema_field.type_.inner().get_interface_id().expect(
+            "Only interfaces are supported here. This indicates a bug in the Relay compiler.",
+        );
+        let valid_typenames = schema
+            .interface(interface_id)
+            .implementing_objects
+            .iter()
+            .map(|id| schema.object(*id).name.item)
+            .collect::<Vec<_>>();
+
+        fields.push(Prop::KeyValuePair(KeyValuePairProp {
+            key: *KEY_TYPENAME,
+            value: AST::Union(SortedASTList::new(
+                valid_typenames
+                    .iter()
+                    .map(|x| AST::StringLiteral(StringLiteral(x.0)))
+                    .collect(),
+            )),
+            read_only: true,
+            optional: false,
+        }))
+    }
+
+    let inner_ast = AST::Nullable(Box::new(AST::ExactObject(ExactObject::new(fields))));
+
+    if plural {
+        AST::ReadOnlyArray(Box::new(inner_ast))
+    } else {
+        inner_ast
+    }
 }

@@ -89,14 +89,28 @@ pub struct ResolverNormalizationInfo {
     pub inner_type: Type,
     pub plural: bool,
     pub normalization_operation: WithLocation<OperationDefinitionName>,
-    pub weak_object_instance_field: Option<StringKey>,
+    pub weak_object_instance_field: Option<FieldID>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-
 pub enum ResolverOutputTypeInfo {
-    ScalarField(FieldID),
+    /// Resolver returns an opaque scalar field
+    ScalarField,
     Composite(ResolverNormalizationInfo),
+    /// Resolver returns one or more edges to items in the store.
+    EdgeTo,
+    Legacy,
+}
+
+impl ResolverOutputTypeInfo {
+    pub fn normalization_ast_should_have_is_output_type_true(&self) -> bool {
+        match self {
+            ResolverOutputTypeInfo::ScalarField => true,
+            ResolverOutputTypeInfo::Composite(_) => true,
+            ResolverOutputTypeInfo::EdgeTo => false,
+            ResolverOutputTypeInfo::Legacy => false,
+        }
+    }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
@@ -113,7 +127,7 @@ struct RelayResolverFieldMetadata {
     fragment_data_injection_mode: Option<FragmentDataInjectionMode>,
     field_path: StringKey,
     live: bool,
-    output_type_info: Option<ResolverOutputTypeInfo>,
+    output_type_info: ResolverOutputTypeInfo,
 }
 associated_data_impl!(RelayResolverFieldMetadata);
 
@@ -127,7 +141,7 @@ pub struct RelayResolverMetadata {
     pub field_path: StringKey,
     pub field_arguments: Vec<Argument>,
     pub live: bool,
-    pub output_type_info: Option<ResolverOutputTypeInfo>,
+    pub output_type_info: ResolverOutputTypeInfo,
     /// A tuple with fragment name and field name we need read
     /// of that fragment to pass it to the resolver function.
     pub fragment_data_injection_mode: Option<(
@@ -151,6 +165,42 @@ impl RelayResolverMetadata {
             self.field_parent_type, self.field_name
         ))
         .intern()
+    }
+
+    pub fn get_field_id(&self, schema: &SDLSchema) -> FieldID {
+        let parent_type = schema.get_type(self.field_parent_type).expect(
+            "Expected type to exist in schema. This indicates a bug in the Relay compiler.",
+        );
+        let field_id = match parent_type {
+            Type::Object(object_id) => {
+                let object = schema.object(object_id);
+                object
+                        .fields
+                        .iter()
+                        .find(|field| {
+                            schema.field(**field).name.item == self.field_name
+                        })
+                        .expect(
+                            "Expected field to exist in schema. This indicates a bug in the Relay compiler",
+                        )
+            }
+            Type::Interface(interface_id) => {
+                let interface = schema.interface(interface_id);
+                interface
+                        .fields
+                        .iter()
+                        .find(|field| {
+                            schema.field(**field).name.item == self.field_name
+                        })
+                        .expect(
+                            "Expected field to exist in schema. This indicates a bug in the Relay compiler",
+                        )
+            }
+            _ => panic!(
+                "Resolvers can only be defined on interfaces and objects, currently. This indicates a bug in Relay."
+            ),
+        };
+        *field_id
     }
 }
 
@@ -359,11 +409,11 @@ impl<'program> RelayResolverFieldTransform<'program> {
         &mut self,
         field: &impl IrField,
     ) -> Option<Vec<Directive>> {
-        let field_type = self.program.schema.field(field.definition().item);
+        let schema_field = self.program.schema.field(field.definition().item);
 
         get_resolver_info(
             &self.program.schema,
-            field_type,
+            schema_field,
             field.definition().location,
         )
         .and_then(|info| {
@@ -396,59 +446,76 @@ impl<'program> RelayResolverFieldTransform<'program> {
                             directive.name.location,
                         ));
                     }
+
+                    let parent_type = schema_field.parent_type.unwrap();
+                    let inner_type = schema_field.type_.inner();
+
                     if let Some(fragment_name) = fragment_name {
-                        if self.program.fragment(fragment_name).is_none() {
-                            self.errors.push(Diagnostic::error(
-                                ValidationMessage::InvalidRelayResolverFragmentName {
-                                    fragment_name,
-                                },
-                                // We don't have locations for directives in schema files.
-                                // So we send them to the field name, rather than the directive value.
-                                field_type.name.location,
-                            ));
-                            return None;
+                        match self.program.fragment(fragment_name) {
+                            Some(fragment_definition) => {
+                                if !self.program.schema.are_overlapping_types(
+                                    fragment_definition.type_condition,
+                                    parent_type,
+                                ) {
+                                    // This invariant is enforced when we generate docblock IR, but we double check here to
+                                    // ensure no later transforms break that invariant, and that manually written test
+                                    // schemas gets this right.
+                                    panic!("Invalid type condition on `{}`, the fragment backing the Relay Resolver field `{}`.", fragment_name, schema_field.name.item);
+                                }
+                            }
+                            None => {
+                                self.errors.push(Diagnostic::error(
+                                    ValidationMessage::InvalidRelayResolverFragmentName {
+                                        fragment_name,
+                                    },
+                                    // We don't have locations for directives in schema files.
+                                    // So we send them to the field name, rather than the directive value.
+                                    schema_field.name.location,
+                                ));
+                                return None;
+                            }
                         }
                     }
-                    let parent_type = field_type.parent_type.unwrap();
 
                     let output_type_info = if has_output_type {
-                        if field_type.type_.inner().is_composite_type() {
+                        if inner_type.is_composite_type() {
                             let normalization_operation = generate_name_for_nested_object_operation(
                                 &self.program.schema,
                                 self.program.schema.field(field.definition().item),
                             );
 
                             let weak_object_instance_field =
-                                field_type.type_.inner().get_object_id().and_then(|id| {
+                                inner_type.get_object_id().and_then(|id| {
                                     let object = self.program.schema.object(id);
                                     if object
                                         .directives
                                         .named(*RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE)
                                         .is_some()
                                     {
-                                        let field_id = object.fields.get(0).unwrap();
                                         // This is expect to be `__relay_model_instance`
                                         // TODO: Add validation/panic to assert that weak object has only
                                         // one field here, and it's a magic relay instance field.
-                                        Some(self.program.schema.field(*field_id).name.item)
+                                        Some(*object.fields.get(0).unwrap())
                                     } else {
                                         None
                                     }
                                 });
 
-                            Some(ResolverOutputTypeInfo::Composite(
+                            ResolverOutputTypeInfo::Composite(
                                 ResolverNormalizationInfo {
-                                    inner_type: field_type.type_.inner(),
-                                    plural: field_type.type_.is_list(),
+                                    inner_type,
+                                    plural: schema_field.type_.is_list(),
                                     normalization_operation,
                                     weak_object_instance_field,
                                 },
-                            ))
+                            )
                         } else {
-                            Some(ResolverOutputTypeInfo::ScalarField(field.definition().item))
+                            ResolverOutputTypeInfo::ScalarField
                         }
+                    } else if inner_type.is_composite_type() {
+                        ResolverOutputTypeInfo::EdgeTo
                     } else {
-                        None
+                        ResolverOutputTypeInfo::Legacy
                     };
 
                     let resolver_field_metadata = RelayResolverFieldMetadata {

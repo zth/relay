@@ -19,12 +19,14 @@ use graphql_ir::associated_data_impl;
 use graphql_ir::Argument;
 use graphql_ir::ConstantValue;
 use graphql_ir::Directive;
+use graphql_ir::ExecutableDefinitionName;
 use graphql_ir::Field;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
 use graphql_ir::OperationDefinition;
+use graphql_ir::OperationDefinitionName;
 use graphql_ir::Program;
 use graphql_ir::Selection;
 use graphql_ir::Transformed;
@@ -55,8 +57,6 @@ lazy_static! {
     pub static ref QUERY_NAME_ARG: ArgumentName = ArgumentName("queryName".intern());
     pub static ref TYPE_NAME_ARG: StringKey = "typeName".intern();
     pub static ref CLIENT_EDGE_SOURCE_NAME: ArgumentName = ArgumentName("clientEdgeSourceDocument".intern());
-    // This gets attached to fragment which defines the selection in the generated query
-    pub static ref CLIENT_EDGE_GENERATED_FRAGMENT_KEY: DirectiveName = DirectiveName("__clientEdgeGeneratedFragment".intern());
     pub static ref CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME: DirectiveName = DirectiveName("waterfall".intern());
 }
 
@@ -70,7 +70,7 @@ lazy_static! {
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum ClientEdgeMetadataDirective {
     ServerObject {
-        query_name: StringKey,
+        query_name: OperationDefinitionName,
         unique_id: u32,
     },
     ClientObject {
@@ -83,7 +83,7 @@ associated_data_impl!(ClientEdgeMetadataDirective);
 /// Metadata directive attached to generated queries
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct ClientEdgeGeneratedQueryMetadataDirective {
-    pub source_name: WithLocation<StringKey>,
+    pub source_name: WithLocation<ExecutableDefinitionName>,
 }
 associated_data_impl!(ClientEdgeGeneratedQueryMetadataDirective);
 
@@ -162,7 +162,7 @@ pub fn client_edges(program: &Program, schema_config: &SchemaConfig) -> Diagnost
 
 struct ClientEdgesTransform<'program, 'sc> {
     path: Vec<&'program str>,
-    document_name: Option<WithLocation<StringKey>>,
+    document_name: Option<WithLocation<ExecutableDefinitionName>>,
     query_names: StringKeyMap<usize>,
     program: &'program Program,
     new_fragments: Vec<Arc<FragmentDefinition>>,
@@ -187,7 +187,7 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
         }
     }
 
-    fn generate_query_name(&mut self) -> StringKey {
+    fn generate_query_name(&mut self) -> OperationDefinitionName {
         let document_name = self.document_name.expect("We are within a document");
         let name_root = format!(
             "ClientEdgeQuery_{}_{}",
@@ -207,14 +207,14 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
             .or_insert(0);
 
         match num {
-            0 => name_root,
-            n => format!("{}_{}", name_root, n).intern(),
+            0 => OperationDefinitionName(name_root),
+            n => OperationDefinitionName(format!("{}_{}", name_root, n).intern()),
         }
     }
 
     fn generate_client_edge_query(
         &mut self,
-        generated_query_name: StringKey,
+        generated_query_name: OperationDefinitionName,
         field_type: Type,
         selections: Vec<Selection>,
     ) {
@@ -235,16 +235,15 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
             variable_definitions: Vec::new(),
             used_global_variables: Vec::new(),
             type_condition: field_type,
-            directives: vec![Directive {
-                name: WithLocation::generated(*CLIENT_EDGE_GENERATED_FRAGMENT_KEY),
-                arguments: vec![Argument {
-                    name: WithLocation::generated(*CLIENT_EDGE_SOURCE_NAME),
-                    value: WithLocation::generated(Value::Constant(ConstantValue::String(
-                        document_name.item,
-                    ))),
-                }],
-                data: None,
-            }],
+            directives: vec![
+                // Used to influence where we place this generated file, and
+                // the document from which we derive the source hash for the
+                // Client Edge generated query's artifact.
+                ClientEdgeGeneratedQueryMetadataDirective {
+                    source_name: document_name,
+                }
+                .into(),
+            ],
             selections,
         };
 
@@ -456,7 +455,7 @@ impl Transformer for ClientEdgesTransform<'_, '_> {
         &mut self,
         fragment: &FragmentDefinition,
     ) -> Transformed<FragmentDefinition> {
-        self.document_name = Some(fragment.name.map(|x| x.0));
+        self.document_name = Some(fragment.name.map(|name| name.into()));
         let new_fragment = self.default_transform_fragment(fragment);
         self.document_name = None;
         new_fragment
@@ -466,7 +465,7 @@ impl Transformer for ClientEdgesTransform<'_, '_> {
         &mut self,
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
-        self.document_name = Some(operation.name.map(|x| x.0));
+        self.document_name = Some(operation.name.map(|name| name.into()));
         let new_operation = self.default_transform_operation(operation);
         self.document_name = None;
         new_operation
@@ -517,12 +516,12 @@ impl Transformer for ClientEdgesTransform<'_, '_> {
     }
 }
 
-fn make_refetchable_directive(query_name: StringKey) -> Directive {
+fn make_refetchable_directive(query_name: OperationDefinitionName) -> Directive {
     Directive {
         name: WithLocation::generated(*REFETCHABLE_NAME),
         arguments: vec![Argument {
             name: WithLocation::generated(*QUERY_NAME_ARG),
-            value: WithLocation::generated(Value::Constant(ConstantValue::String(query_name))),
+            value: WithLocation::generated(Value::Constant(ConstantValue::String(query_name.0))),
         }],
         data: None,
     }
