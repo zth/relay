@@ -12,6 +12,7 @@ path = "tests/generate_flow_with_custom_id_test.rs"
 
 [dependencies]
 common = { path = "../common" }
+docblock-shared = { path = "../docblock-shared" }
 fnv = "1.0"
 log = { version = "0.4.14", features = ["kv_unstable", "kv_unstable_std"] }
 graphql-ir = { path = "../graphql-ir" }
