@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<89a2538c53bc8a38639773421ea7c46d>>
+ * @generated SignedSource<<c6c6dd0598181e74a25fc45235b73544>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,10 +18,10 @@
 
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
-import {todo_model_null as queryTodoModelNullResolver} from "../../../relay-runtime/store/__tests__/resolvers/TodoModel.js";
-// Type assertion validating that `queryTodoModelNullResolver` resolver is correctly implemented.
+import {todo_model_null as queryTodoModelNullResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoModel.js";
+// Type assertion validating that `queryTodoModelNullResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryTodoModelNullResolver: () => mixed);
+(queryTodoModelNullResolverType: () => mixed);
 export type RelayResolverModelTestTodoNullQuery$variables = {||};
 export type RelayResolverModelTestTodoNullQuery$data = {|
   +todo_model_null: ?{|
@@ -34,7 +34,26 @@ export type RelayResolverModelTestTodoNullQuery = {|
 |};
 */
 
-var node/*: ClientRequest*/ = {
+var node/*: ClientRequest*/ = (function(){
+var v0 = {
+  "alias": null,
+  "args": null,
+  "concreteType": "TodoModel",
+  "kind": "LinkedField",
+  "name": "todo_model_null",
+  "plural": false,
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "id",
+      "storageKey": null
+    }
+  ],
+  "storageKey": null
+};
+return {
   "fragment": {
     "argumentDefinitions": [],
     "kind": "Fragment",
@@ -55,24 +74,7 @@ var node/*: ClientRequest*/ = {
           "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').todo_model_null,
           "path": "todo_model_null"
         },
-        "linkedField": {
-          "alias": null,
-          "args": null,
-          "concreteType": "TodoModel",
-          "kind": "LinkedField",
-          "name": "todo_model_null",
-          "plural": false,
-          "selections": [
-            {
-              "alias": null,
-              "args": null,
-              "kind": "ScalarField",
-              "name": "id",
-              "storageKey": null
-            }
-          ],
-          "storageKey": null
-        }
+        "linkedField": (v0/*: any*/)
       }
     ],
     "type": "Query",
@@ -85,11 +87,15 @@ var node/*: ClientRequest*/ = {
     "name": "RelayResolverModelTestTodoNullQuery",
     "selections": [
       {
-        "name": "todo_model_null",
-        "args": null,
-        "fragment": null,
-        "kind": "RelayResolver",
-        "storageKey": null
+        "kind": "ClientEdgeToClientObject",
+        "backingField": {
+          "name": "todo_model_null",
+          "args": null,
+          "fragment": null,
+          "kind": "RelayResolver",
+          "storageKey": null
+        },
+        "linkedField": (v0/*: any*/)
       }
     ]
   },
@@ -102,6 +108,7 @@ var node/*: ClientRequest*/ = {
     "text": null
   }
 };
+})();
 
 if (__DEV__) {
   (node/*: any*/).hash = "206392633843e125a92d4daffb6de27d";

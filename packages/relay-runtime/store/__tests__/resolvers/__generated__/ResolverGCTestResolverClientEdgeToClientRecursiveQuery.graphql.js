@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<25c058b3c74ac0ac67b17e7fab406b64>>
+ * @generated SignedSource<<8fa471eca1295f346d143e9a83cce428>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,31 +21,31 @@ import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { AstrologicalSignNameResolver$key } from "./AstrologicalSignNameResolver.graphql";
 import type { AstrologicalSignOppositeResolver$key } from "./AstrologicalSignOppositeResolver.graphql";
 import type { UserAstrologicalSignResolver$key } from "./UserAstrologicalSignResolver.graphql";
-import {name as astrologicalSignNameResolver} from "../AstrologicalSignNameResolver.js";
-// Type assertion validating that `astrologicalSignNameResolver` resolver is correctly implemented.
+import {name as astrologicalSignNameResolverType} from "../AstrologicalSignNameResolver.js";
+// Type assertion validating that `astrologicalSignNameResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(astrologicalSignNameResolver: (
+(astrologicalSignNameResolverType: (
   rootKey: AstrologicalSignNameResolver$key, 
 ) => mixed);
-import {opposite as astrologicalSignOppositeResolver} from "../AstrologicalSignOppositeResolver.js";
-// Type assertion validating that `astrologicalSignOppositeResolver` resolver is correctly implemented.
+import {opposite as astrologicalSignOppositeResolverType} from "../AstrologicalSignOppositeResolver.js";
+// Type assertion validating that `astrologicalSignOppositeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(astrologicalSignOppositeResolver: (
+(astrologicalSignOppositeResolverType: (
   rootKey: AstrologicalSignOppositeResolver$key, 
 ) => mixed);
-import {astrological_sign as userAstrologicalSignResolver} from "../UserAstrologicalSignResolver.js";
-// Type assertion validating that `userAstrologicalSignResolver` resolver is correctly implemented.
+import {astrological_sign as userAstrologicalSignResolverType} from "../UserAstrologicalSignResolver.js";
+// Type assertion validating that `userAstrologicalSignResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userAstrologicalSignResolver: (
+(userAstrologicalSignResolverType: (
   rootKey: UserAstrologicalSignResolver$key, 
 ) => mixed);
 export type ResolverGCTestResolverClientEdgeToClientRecursiveQuery$variables = {||};
 export type ResolverGCTestResolverClientEdgeToClientRecursiveQuery$data = {|
   +me: ?{|
     +astrological_sign: ?{|
-      +name: ?$Call<<R>((...empty[]) => R) => R, typeof astrologicalSignNameResolver>,
+      +name: ?$Call<<R>((...empty[]) => R) => R, typeof astrologicalSignNameResolverType>,
       +opposite: ?{|
-        +name: ?$Call<<R>((...empty[]) => R) => R, typeof astrologicalSignNameResolver>,
+        +name: ?$Call<<R>((...empty[]) => R) => R, typeof astrologicalSignNameResolverType>,
       |},
     |},
   |},
@@ -69,6 +69,41 @@ var v0 = {
   "name": "name",
   "resolverModule": require('./../AstrologicalSignNameResolver').name,
   "path": "me.name"
+},
+v1 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "id",
+  "storageKey": null
+},
+v2 = {
+  "kind": "InlineFragment",
+  "selections": [
+    {
+      "name": "self",
+      "args": null,
+      "fragment": {
+        "kind": "InlineFragment",
+        "selections": [
+          (v1/*: any*/)
+        ],
+        "type": "AstrologicalSign",
+        "abstractKey": null
+      },
+      "kind": "RelayResolver",
+      "storageKey": null
+    }
+  ],
+  "type": "AstrologicalSign",
+  "abstractKey": null
+},
+v3 = {
+  "name": "name",
+  "args": null,
+  "fragment": (v2/*: any*/),
+  "kind": "RelayResolver",
+  "storageKey": null
 };
 return {
   "fragment": {
@@ -167,50 +202,83 @@ return {
         "plural": false,
         "selections": [
           {
-            "name": "astrological_sign",
-            "args": null,
-            "fragment": {
-              "kind": "InlineFragment",
-              "selections": [
-                {
-                  "alias": null,
-                  "args": null,
-                  "concreteType": "Date",
-                  "kind": "LinkedField",
-                  "name": "birthdate",
-                  "plural": false,
-                  "selections": [
-                    {
-                      "alias": null,
-                      "args": null,
-                      "kind": "ScalarField",
-                      "name": "month",
-                      "storageKey": null
-                    },
-                    {
-                      "alias": null,
-                      "args": null,
-                      "kind": "ScalarField",
-                      "name": "day",
-                      "storageKey": null
-                    }
-                  ],
-                  "storageKey": null
-                }
-              ],
-              "type": "User",
-              "abstractKey": null
+            "kind": "ClientEdgeToClientObject",
+            "backingField": {
+              "name": "astrological_sign",
+              "args": null,
+              "fragment": {
+                "kind": "InlineFragment",
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "concreteType": "Date",
+                    "kind": "LinkedField",
+                    "name": "birthdate",
+                    "plural": false,
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "month",
+                        "storageKey": null
+                      },
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "day",
+                        "storageKey": null
+                      }
+                    ],
+                    "storageKey": null
+                  }
+                ],
+                "type": "User",
+                "abstractKey": null
+              },
+              "kind": "RelayResolver",
+              "storageKey": null
             },
-            "kind": "RelayResolver",
-            "storageKey": null
+            "linkedField": {
+              "alias": null,
+              "args": null,
+              "concreteType": "AstrologicalSign",
+              "kind": "LinkedField",
+              "name": "astrological_sign",
+              "plural": false,
+              "selections": [
+                (v3/*: any*/),
+                {
+                  "kind": "ClientEdgeToClientObject",
+                  "backingField": {
+                    "name": "opposite",
+                    "args": null,
+                    "fragment": (v2/*: any*/),
+                    "kind": "RelayResolver",
+                    "storageKey": null
+                  },
+                  "linkedField": {
+                    "alias": null,
+                    "args": null,
+                    "concreteType": "AstrologicalSign",
+                    "kind": "LinkedField",
+                    "name": "opposite",
+                    "plural": false,
+                    "selections": [
+                      (v3/*: any*/),
+                      (v1/*: any*/)
+                    ],
+                    "storageKey": null
+                  }
+                },
+                (v1/*: any*/)
+              ],
+              "storageKey": null
+            }
           },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "id",
-            "storageKey": null
-          }
+          (v1/*: any*/)
         ],
         "storageKey": null
       }
