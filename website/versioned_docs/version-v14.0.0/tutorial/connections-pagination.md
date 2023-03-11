@@ -24,7 +24,7 @@ In GraphQL, only nodes can have properties, not edges. So the first thing we’l
 
 Now the properties of the edge are represented by a new type of node called a “`FriendsEdge`”.
 
-The GraphQL to query this would like this:
+The GraphQL to query this would look like this:
 
 ```
 // XXX example only, not final code
@@ -50,7 +50,7 @@ Now consider what we would need to model in our schema in order to support pagin
 
 How can we use the features of GraphQL to do these things? Specifying the page size is done with field arguments. In other words, instead of just `friends` the query will say `friends(first: 3)`, passing the page size an argument to the `friends` field.
 
-For the server to say whether there is a next page or not, we need to introduce a node in the graph that has information about the *list of friends itself,* just like we introduces a node for each edge to store information about the edge itself. This new node is called a *Connection*.
+For the server to say whether there is a next page or not, we need to introduce a node in the graph that has information about the *list of friends itself,* just like we are introducing a node for each edge to store information about the edge itself. This new node is called a *Connection*.
 
 The Connection node represents the connection itself between you and your friends. Metadata about the connection is stored there — for example, it could have a `totalCount` field that says how many friends you have. In addition, it always has two fields which represent the *current* page: a `pageInfo` field with metadata about the current page, such as whether there is another page available — and an `edges` field that points to the edges we saw before:
 
@@ -329,7 +329,7 @@ We need to modify the Newsfeed component to map over the edges and render each n
 function Newsfeed() {
   const data = useLazyLoadQuery(NewsfeedFragment, {});
   // change-line
-  const storyEdges = data.newsfeedStories.edges;
+  const storyEdges = data.viewer.newsfeedStories.edges;
   return (
     <>
       {storyEdges.map(storyEdge =>
