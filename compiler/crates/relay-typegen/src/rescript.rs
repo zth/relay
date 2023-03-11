@@ -3073,7 +3073,7 @@ impl Writer for ReScriptPrinter {
             Some(name) => name,
             None => name
         };
-        if target_name.ends_with("Resolver") {
+        if target_name.ends_with("ResolverType") {
             self.relay_resolvers.push(RelayResolverInfo {
                 local_resolver_name: target_name.to_string(),
                 resolver_module: get_module_name_from_file_path(&from),
