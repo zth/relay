@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::ScalarName;
+use common::{ScalarName, DirectiveName};
 use fnv::FnvBuildHasher;
 use graphql_ir::{
     Argument, ConstantValue, Directive, Field, FragmentDefinition, OperationDefinition, Selection,
@@ -42,6 +42,11 @@ pub enum RescriptRelayFieldDirective {
 }
 
 #[derive(Debug, PartialEq, Eq)]
+pub enum RescriptRelayOperationDirective {
+    NullableVariables,
+}
+
+#[derive(Debug, PartialEq, Eq)]
 pub struct FieldDirectiveContainer {
     pub at_object_path: Vec<String>,
     pub directive: RescriptRelayFieldDirective,
@@ -56,6 +61,7 @@ pub struct RescriptRelayOperationMetaData {
     pub custom_scalars_raw_typenames: Vec<String>,
     pub fragment_directives: Vec<RescriptRelayFragmentDirective>,
     pub field_directives: Vec<FieldDirectiveContainer>,
+    pub operation_directives: Vec<RescriptRelayOperationDirective>,
 }
 
 lazy_static! {
@@ -67,6 +73,8 @@ lazy_static! {
     static ref FRAGMENT_DIRECTIVE_IGNORE_UNUSED: StringKey = "rescriptRelayIgnoreUnused".intern();
     static ref FIELD_DIRECTIVE_ALLOW_UNSAFE_ENUM: StringKey =
         "rescriptRelayAllowUnsafeEnum".intern();
+    static ref OPERATION_DIRECTIVE_NULLABLE_VARIABLES: StringKey =
+        "rescriptRelayNullableVariables".intern();
 }
 
 fn find_connections_arguments(directive: Option<&Directive>) -> Vec<String> {
@@ -296,6 +304,7 @@ pub fn find_assets_in_fragment<'a>(
         field_directives: vec![],
         fragment_directives: rescript_relay_directives,
         variables_with_connection_data_ids: vec![],
+        operation_directives: vec![],
     };
 
     let variable_definitions = if fragment.variable_definitions.len() > 0 {
@@ -325,6 +334,18 @@ pub fn find_assets_in_operation<'a>(
     schema: &'a SDLSchema,
     custom_scalars: CustomScalarsMap,
 ) -> RescriptRelayOperationMetaData {
+    let rescript_relay_directives: Vec<RescriptRelayOperationDirective> = operation
+        .directives
+        .iter()
+        .filter_map(|directive| {
+            if directive.name.item == DirectiveName(*OPERATION_DIRECTIVE_NULLABLE_VARIABLES) {
+                Some(RescriptRelayOperationDirective::NullableVariables)
+            } else {
+                None
+            }
+        })
+        .collect();
+
     let mut operation_meta_data = RescriptRelayOperationMetaData {
         connection_config: None,
         custom_scalars: custom_scalars.clone(),
@@ -332,6 +353,7 @@ pub fn find_assets_in_operation<'a>(
         field_directives: vec![],
         fragment_directives: vec![],
         variables_with_connection_data_ids: vec![],
+        operation_directives: rescript_relay_directives,
     };
 
     let variable_definitions = vec![];

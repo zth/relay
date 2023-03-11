@@ -25,6 +25,8 @@ pub fn rescript_relay_remove_custom_directives(program: &Program) -> Program {
 
 lazy_static! {
     static ref FRAGMENT_DIRECTIVE_IGNORE_UNUSED: StringKey = "rescriptRelayIgnoreUnused".intern();
+    static ref OPERATION_DIRECTIVE_NULLABLE_VARIABLES: StringKey =
+        "rescriptRelayNullableVariables".intern();
     static ref FIELD_DIRECTIVE_ALLOW_UNSAFE_ENUM: StringKey =
         "rescriptRelayAllowUnsafeEnum".intern();
 }
@@ -48,15 +50,30 @@ impl<'s> Transformer for RescriptRelayRemoveCustomDirectivesTransform<'s> {
 
     fn transform_operation(
         &mut self,
-        _operation: &OperationDefinition,
+        operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
-        Transformed::Keep
+        // TODO: Only replace if has directive?
+        Transformed::Replace(OperationDefinition {
+            directives: operation
+                .directives
+                .iter()
+                .filter_map(|directive| {
+                    if directive.name.item == DirectiveName(*OPERATION_DIRECTIVE_NULLABLE_VARIABLES) {
+                        None
+                    } else {
+                        Some(directive.to_owned())
+                    }
+                })
+                .collect::<Vec<Directive>>(),
+            ..operation.clone()
+        })
     }
 
     fn transform_fragment(
         &mut self,
         fragment: &FragmentDefinition,
     ) -> Transformed<FragmentDefinition> {
+        // TODO: Only replace if has directive?
         Transformed::Replace(FragmentDefinition {
             directives: fragment
                 .directives

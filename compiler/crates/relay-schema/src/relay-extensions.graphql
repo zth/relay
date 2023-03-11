@@ -296,6 +296,15 @@ Turns off safety features if this is an enum.
 directive @rescriptRelayAllowUnsafeEnum on FIELD
 
 """
+(RescriptRelay only)
+
+Make relevant variables nullable in this operation. Useful when you need to pass
+the value `null` as a variable, and `undefined` (`None` in ReScript) doesn't cut
+it.
+"""
+directive @rescriptRelayNullableVariables on QUERY | MUTATION | SUBSCRIPTION
+
+"""
 (Relay Only)
 
 Indicates that a given directive argument is expected to be provided statically.

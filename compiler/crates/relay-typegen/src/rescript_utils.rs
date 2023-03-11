@@ -343,9 +343,13 @@ fn print_wrapped_in_some(str: &String, print_as_optional: bool) -> String {
     }
 }
 
-fn print_opt(str: &String, optional: bool) -> String {
+pub fn print_opt(str: &String, optional: bool, output_as_js_nullable: bool) -> String {
     if optional {
-        format!("option<{}>", str)
+        if output_as_js_nullable {
+            format!("Js.Nullable.t<{}>", str)
+        } else {
+            format!("option<{}>", str)
+        }
     } else {
         format!("{}", str)
     }
@@ -410,6 +414,7 @@ pub fn print_type_reference(
     custom_scalar_types: &CustomScalarsMap,
     nullable: bool,
     prefix_with_schema_module: bool,
+    output_as_js_nullable: bool,
 ) -> String {
     match typ {
         TypeReference::Named(named_type) => print_opt(
@@ -426,13 +431,18 @@ pub fn print_type_reference(
                 Type::InputObject(id) => {
                     let obj = schema.input_object(*id);
                     format!(
-                        "{}input_{}",
+                        "{}input_{}{}",
                         if prefix_with_schema_module {
                             "RelaySchemaAssets_graphql."
                         } else {
                             ""
                         },
-                        obj.name.item
+                        obj.name.item,
+                        if output_as_js_nullable {
+                            "_nullable"
+                        } else {
+                            ""
+                        }
                     )
                 }
                 Type::Scalar(id) => format!(
@@ -466,6 +476,7 @@ pub fn print_type_reference(
                 _ => String::from("RescriptRelay.any"),
             },
             nullable,
+            output_as_js_nullable,
         ),
         TypeReference::NonNull(typ) => format!(
             "{}",
@@ -474,7 +485,8 @@ pub fn print_type_reference(
                 &schema,
                 &custom_scalar_types,
                 false,
-                prefix_with_schema_module
+                prefix_with_schema_module,
+                output_as_js_nullable
             )
         ),
         TypeReference::List(typ) => print_opt(
@@ -485,10 +497,12 @@ pub fn print_type_reference(
                     &schema,
                     &custom_scalar_types,
                     true,
-                    prefix_with_schema_module
+                    prefix_with_schema_module,
+                    output_as_js_nullable
                 )
             ),
             nullable,
+            output_as_js_nullable,
         ),
     }
 }
@@ -672,6 +686,7 @@ pub fn get_connection_key_maker(
                                 &custom_scalar_types,
                                 true,
                                 true,
+                                false
                             )
                         )
                     } else {
@@ -681,6 +696,7 @@ pub fn get_connection_key_maker(
                             &custom_scalar_types,
                             true,
                             true,
+                            false,
                         )
                     },
                     match (&default_value, &variable.type_) {

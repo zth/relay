@@ -40,10 +40,27 @@ type rec input_InputA = {
 }
 
 @live
+and input_InputA_nullable = {
+  time: SomeModule.Datetime.t,
+  recursiveA?: Js.Nullable.t<input_InputA_nullable>,
+  usingB?: Js.Nullable.t<input_InputB_nullable>,
+  timestamp?: Js.Nullable.t<Timestamp.t>,
+  timestamps?: Js.Nullable.t<array<Js.Nullable.t<Timestamp.t>>>,
+  unmapped?: Js.Nullable.t<RescriptRelay.any>,
+}
+
+@live
 and input_InputB = {
   time: option<SomeModule.Datetime.t>,
   usingA: option<input_InputA>,
   @as("constraint") constraint_: option<bool>,
+}
+
+@live
+and input_InputB_nullable = {
+  time?: Js.Nullable.t<SomeModule.Datetime.t>,
+  usingA?: Js.Nullable.t<input_InputA_nullable>,
+  @as("constraint") constraint_?: Js.Nullable.t<bool>,
 }
 
 @live
@@ -58,9 +75,26 @@ and input_SomeInput = {
 }
 
 @live
+and input_SomeInput_nullable = {
+  str?: Js.Nullable.t<string>,
+  bool?: Js.Nullable.t<bool>,
+  float?: Js.Nullable.t<float>,
+  int?: Js.Nullable.t<int>,
+  datetime?: Js.Nullable.t<SomeModule.Datetime.t>,
+  recursive?: Js.Nullable.t<input_SomeInput_nullable>,
+  @as("private") private_?: Js.Nullable.t<bool>,
+}
+
+@live
 and input_RecursiveSetOnlineStatusInput = {
   someValue: RescriptRelay.any,
   setOnlineStatus: option<input_SetOnlineStatusInput>,
+}
+
+@live
+and input_RecursiveSetOnlineStatusInput_nullable = {
+  someValue: RescriptRelay.any,
+  setOnlineStatus?: Js.Nullable.t<input_SetOnlineStatusInput_nullable>,
 }
 
 @live
@@ -70,9 +104,23 @@ and input_SetOnlineStatusInput = {
 }
 
 @live
+and input_SetOnlineStatusInput_nullable = {
+  onlineStatus: [#Online | #Idle | #Offline],
+  recursed?: Js.Nullable.t<input_RecursiveSetOnlineStatusInput_nullable>,
+}
+
+@live
 and input_PesticideListSearchInput = {
   companyName: option<array<string>>,
   pesticideIds: option<array<int>>,
+  skip: int,
+  take: int,
+}
+
+@live
+and input_PesticideListSearchInput_nullable = {
+  companyName?: Js.Nullable.t<array<string>>,
+  pesticideIds?: Js.Nullable.t<array<int>>,
   skip: int,
   take: int,
 }
