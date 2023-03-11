@@ -5,17 +5,16 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::super::ArtifactGeneratedTypes;
-use super::content_section::CommentAnnotationsSection;
-use super::content_section::ContentSection;
-use super::content_section::ContentSections;
-use super::content_section::DocblockSection;
-use super::content_section::GenericSection;
-use crate::config::Config;
-use crate::config::ProjectConfig;
+use std::fmt::Error as FmtError;
+use std::fmt::Result as FmtResult;
+use std::fmt::Write;
+use std::sync::Arc;
+
 use common::NamedItem;
 use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentDefinitionName;
 use graphql_ir::OperationDefinition;
+use intern::Lookup;
 use relay_codegen::build_request_params;
 use relay_codegen::Printer;
 use relay_codegen::QueryID;
@@ -37,10 +36,15 @@ use relay_typegen::TypegenConfig;
 use relay_typegen::TypegenLanguage;
 use schema::SDLSchema;
 use signedsource::SIGNING_TOKEN;
-use std::fmt::Error as FmtError;
-use std::fmt::Result as FmtResult;
-use std::fmt::Write;
-use std::sync::Arc;
+
+use super::super::ArtifactGeneratedTypes;
+use super::content_section::CommentAnnotationsSection;
+use super::content_section::ContentSection;
+use super::content_section::ContentSections;
+use super::content_section::DocblockSection;
+use super::content_section::GenericSection;
+use crate::config::Config;
+use crate::config::ProjectConfig;
 
 #[allow(clippy::too_many_arguments)]
 pub fn generate_updatable_query(
@@ -55,7 +59,7 @@ pub fn generate_updatable_query(
     fragment_locations: &FragmentLocations,
 ) -> Result<Vec<u8>, FmtError> {
     let operation_fragment = FragmentDefinition {
-        name: reader_operation.name,
+        name: reader_operation.name.map(|x| FragmentDefinitionName(x.0)),
         variable_definitions: reader_operation.variable_definitions.clone(),
         selections: reader_operation.selections.clone(),
         used_global_variables: Default::default(),
@@ -95,7 +99,7 @@ pub fn generate_updatable_query(
     }
 
     write_import_type_from(
-        &project_config.typegen_config.language,
+        project_config,
         &mut section,
         generated_types.imported_types,
         "relay-runtime",
@@ -182,7 +186,7 @@ pub fn generate_operation(
         request_parameters.text = text.clone();
     };
     let operation_fragment = FragmentDefinition {
-        name: reader_operation.name,
+        name: reader_operation.name.map(|x| FragmentDefinitionName(x.0)),
         variable_definitions: reader_operation.variable_definitions.clone(),
         selections: reader_operation.selections.clone(),
         used_global_variables: Default::default(),
@@ -259,7 +263,7 @@ pub fn generate_operation(
     }
 
     write_import_type_from(
-        &project_config.typegen_config.language,
+        project_config,
         &mut section,
         generated_types.imported_types,
         "relay-runtime",
@@ -398,8 +402,9 @@ pub fn generate_split_operation(
     schema: &SDLSchema,
     normalization_operation: &OperationDefinition,
     typegen_operation: &Option<Arc<OperationDefinition>>,
-    source_hash: &str,
+    source_hash: Option<&String>,
     fragment_locations: &FragmentLocations,
+    no_optional_fields_in_raw_response_type: bool,
 ) -> Result<Vec<u8>, FmtError> {
     let mut content_sections = ContentSections::default();
 
@@ -429,7 +434,7 @@ pub fn generate_split_operation(
         writeln!(section, "/*::")?;
     }
     write_import_type_from(
-        &project_config.typegen_config.language,
+        project_config,
         &mut section,
         "NormalizationSplitOperation",
         "relay-runtime",
@@ -446,6 +451,7 @@ pub fn generate_split_operation(
                 schema,
                 project_config,
                 fragment_locations,
+                no_optional_fields_in_raw_response_type
             )
         )?;
     }
@@ -480,12 +486,14 @@ pub fn generate_split_operation(
 
     // -- Begin Operation Node Hash Section --
     let mut section = GenericSection::default();
-    write_source_hash(
-        config,
-        &project_config.typegen_config.language,
-        &mut section,
-        source_hash,
-    )?;
+    if let Some(source_hash) = source_hash {
+        write_source_hash(
+            config,
+            &project_config.typegen_config.language,
+            &mut section,
+            source_hash,
+        )?;
+    }
     content_sections.push(ContentSection::Generic(section));
     // -- End Operation Node Hash Section --
 
@@ -506,7 +514,7 @@ pub fn generate_fragment(
     schema: &SDLSchema,
     reader_fragment: &FragmentDefinition,
     typegen_fragment: &FragmentDefinition,
-    source_hash: &str,
+    source_hash: Option<&String>,
     skip_types: bool,
     fragment_locations: &FragmentLocations,
 ) -> Result<Vec<u8>, FmtError> {
@@ -546,7 +554,7 @@ fn generate_read_only_fragment(
     schema: &SDLSchema,
     reader_fragment: &FragmentDefinition,
     typegen_fragment: &FragmentDefinition,
-    source_hash: &str,
+    source_hash: Option<&String>,
     skip_types: bool,
     fragment_locations: &FragmentLocations,
 ) -> Result<Vec<u8>, FmtError> {
@@ -601,7 +609,7 @@ fn generate_read_only_fragment(
     }
 
     write_import_type_from(
-        &project_config.typegen_config.language,
+        project_config,
         &mut section,
         generated_types.imported_types,
         "relay-runtime",
@@ -648,14 +656,16 @@ fn generate_read_only_fragment(
     // -- End Fragment Node Section --
 
     // -- Begin Fragment Node Hash Section --
-    let mut section = GenericSection::default();
-    write_source_hash(
-        config,
-        &project_config.typegen_config.language,
-        &mut section,
-        source_hash,
-    )?;
-    content_sections.push(ContentSection::Generic(section));
+    if let Some(source_hash) = source_hash {
+        let mut section = GenericSection::default();
+        write_source_hash(
+            config,
+            &project_config.typegen_config.language,
+            &mut section,
+            source_hash,
+        )?;
+        content_sections.push(ContentSection::Generic(section));
+    }
     // -- End Fragment Node Hash Section --
 
     // -- Begin Fragment Node Export Section --
@@ -795,15 +805,26 @@ fn generate_use_strict_section(language: &TypegenLanguage) -> Result<GenericSect
 }
 
 fn write_import_type_from(
-    language: &TypegenLanguage,
+    project_config: &ProjectConfig,
     section: &mut dyn Write,
     type_: &str,
     from: &str,
 ) -> FmtResult {
+    let language = &project_config.typegen_config.language;
     match language {
         TypegenLanguage::JavaScript | TypegenLanguage::ReScript => Ok(()),
         TypegenLanguage::Flow => writeln!(section, "import type {{ {} }} from '{}';", type_, from),
-        TypegenLanguage::TypeScript => writeln!(section, "import {{ {} }} from '{}';", type_, from),
+        TypegenLanguage::TypeScript => writeln!(
+            section,
+            "import {}{{ {} }} from '{}';",
+            if project_config.typegen_config.use_import_type_syntax {
+                "type "
+            } else {
+                ""
+            },
+            type_,
+            from
+        ),
     }
 }
 
@@ -813,23 +834,23 @@ fn write_export_generated_node(
     variable_node: &str,
     forced_type: Option<String>,
 ) -> FmtResult {
-    if typegen_config.eager_es_modules {
-        writeln!(section, "export default {};", variable_node)
-    } else {
-        match (typegen_config.language, forced_type) {
-            (TypegenLanguage::ReScript, _) => Ok(()),
-            (TypegenLanguage::Flow, None) | (TypegenLanguage::JavaScript, _) => {
-                writeln!(section, "module.exports = {};", variable_node)
-            }
-            (TypegenLanguage::Flow, Some(forced_type)) => writeln!(
-                section,
-                "module.exports = (({}/*: any*/)/*: {}*/);",
-                variable_node, forced_type
-            ),
-            (TypegenLanguage::TypeScript, _) => {
-                writeln!(section, "export default {};", variable_node)
-            }
+    let export_value = match (typegen_config.language, forced_type) {
+        (TypegenLanguage::ReScript, _) => String::new(),
+        (TypegenLanguage::Flow, None) | (TypegenLanguage::JavaScript, _) => {
+            variable_node.to_string()
         }
+        (TypegenLanguage::TypeScript, _) => {
+            // TODO: Support force_type for TypeScript
+            variable_node.to_string()
+        }
+        (TypegenLanguage::Flow, Some(forced_type)) => {
+            format!("(({}/*: any*/)/*: {}*/)", variable_node, forced_type)
+        }
+    };
+    if typegen_config.eager_es_modules || typegen_config.language == TypegenLanguage::TypeScript {
+        writeln!(section, "export default {};", export_value)
+    } else {
+        writeln!(section, "module.exports = {};", export_value)
     }
 }
 
@@ -922,7 +943,7 @@ pub fn generate_operation_rescript(
         request_parameters.text = text.clone();
     };
     let operation_fragment = FragmentDefinition {
-        name: reader_operation.name,
+        name: reader_operation.name.map(|x| FragmentDefinitionName(x.0)),
         variable_definitions: reader_operation.variable_definitions.clone(),
         selections: reader_operation.selections.clone(),
         used_global_variables: Default::default(),
@@ -1100,7 +1121,7 @@ pub fn generate_read_only_fragment_rescript(
     schema: &SDLSchema,
     reader_fragment: &FragmentDefinition,
     typegen_fragment: &FragmentDefinition,
-    _source_hash: &str,
+    _source_hash: Option<&String>,
     _skip_types: bool,
     fragment_locations: &FragmentLocations,
 ) -> Result<Vec<u8>, FmtError> {
@@ -1191,7 +1212,7 @@ pub fn generate_fragment_rescript(
     schema: &SDLSchema,
     reader_fragment: &FragmentDefinition,
     typegen_fragment: &FragmentDefinition,
-    source_hash: &str,
+    source_hash: Option<&String>,
     skip_types: bool,
     fragment_locations: &FragmentLocations,
 ) -> Result<Vec<u8>, FmtError> {

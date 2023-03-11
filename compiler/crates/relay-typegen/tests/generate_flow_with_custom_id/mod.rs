@@ -5,14 +5,18 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::sync::Arc;
+
 use common::ConsoleLogger;
 use common::FeatureFlag;
 use common::FeatureFlags;
+use common::ScalarName;
 use common::SourceLocationKey;
 use fixture_tests::Fixture;
 use fnv::FnvBuildHasher;
 use fnv::FnvHashMap;
 use graphql_ir::build_ir_in_relay_mode;
+use graphql_ir::OperationDefinitionName;
 use graphql_ir::Program;
 use graphql_syntax::parse_executable;
 use indexmap::IndexMap;
@@ -26,7 +30,6 @@ use relay_transforms::apply_transforms;
 use relay_typegen::FragmentLocations;
 use relay_typegen::TypegenConfig;
 use relay_typegen::TypegenLanguage;
-use std::sync::Arc;
 
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 
@@ -61,7 +64,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
 
     let mut custom_scalar_types = FnvIndexMap::default();
     custom_scalar_types.insert(
-        "Boolean".intern(),
+        ScalarName("Boolean".intern()),
         relay_config::CustomScalarType::Name("CustomBoolean".intern()),
     );
     let project_config = ProjectConfig {
@@ -93,11 +96,11 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
 
     let fragment_locations = FragmentLocations::new(programs.typegen.fragments());
     let mut operations: Vec<_> = programs.typegen.operations().collect();
-    operations.sort_by_key(|op| op.name.item);
+    operations.sort_by_key(|op| op.name.item.0);
     let operation_strings = operations.into_iter().map(|typegen_operation| {
         let normalization_operation = programs
             .normalization
-            .operation(typegen_operation.name.item)
+            .operation(OperationDefinitionName(typegen_operation.name.item.0))
             .unwrap();
         relay_typegen::generate_operation_type_exports_section(
             typegen_operation,

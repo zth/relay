@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -35,6 +35,7 @@ const {
 const {
   ACTOR_CHANGE,
   CLIENT_COMPONENT,
+  CLIENT_EDGE_TO_CLIENT_OBJECT,
   CLIENT_EXTENSION,
   CONDITION,
   CONNECTION,
@@ -45,6 +46,7 @@ const {
   LINKED_FIELD,
   LINKED_HANDLE,
   MODULE_IMPORT,
+  RELAY_RESOLVER,
   SCALAR_FIELD,
   SCALAR_HANDLE,
   STREAM,
@@ -96,7 +98,7 @@ function createIdGenerator() {
   };
 }
 
-const DEFAULT_MOCK_RESOLVERS = {
+const DEFAULT_MOCK_RESOLVERS: MockResolvers = {
   ID(context: MockResolverContext, generateId: () => number) {
     return `<${
       context.parentType != null && context.parentType !== DEFAULT_MOCK_TYPENAME
@@ -178,22 +180,22 @@ class RelayMockPayloadGenerator {
   _resolveValue: ValueResolver;
   _mockResolvers: MockResolvers;
   _selectionMetadata: SelectionMetadata;
+  _mockClientData: boolean;
 
   constructor(options: {
     +variables: Variables,
     +mockResolvers: MockResolvers | null,
     +selectionMetadata: SelectionMetadata | null,
+    +mockClientData: ?boolean,
   }) {
     this._variables = options.variables;
-    // $FlowFixMe[cannot-spread-inexact]
-    // $FlowFixMe[incompatible-type]
     this._mockResolvers = {
       ...DEFAULT_MOCK_RESOLVERS,
       ...(options.mockResolvers ?? {}),
     };
     this._selectionMetadata = options.selectionMetadata ?? {};
-    // $FlowFixMe[incompatible-call]
     this._resolveValue = createValueResolver(this._mockResolvers);
+    this._mockClientData = options.mockClientData ?? false;
   }
 
   generate(
@@ -295,6 +297,11 @@ class RelayMockPayloadGenerator {
           }
           break;
 
+        case CLIENT_EXTENSION:
+          if (!this._mockClientData) {
+            break;
+          }
+        // falls through
         case DEFER:
         case STREAM: {
           mockData = this._traverseSelections(
@@ -462,7 +469,6 @@ class RelayMockPayloadGenerator {
             if (mockData == null) {
               mockData = {};
             }
-            // $FlowFixMe[cannot-spread-indexer]
             mockData = {
               ...mockData,
               [TYPENAME_KEY]: typeName,
@@ -480,10 +486,6 @@ class RelayMockPayloadGenerator {
             };
           }
           break;
-        case CLIENT_EXTENSION:
-          // We do not expect to receive data for the client extensions
-          // from the server. MockPayloadGenerator should not generate it too.
-          break;
         case TYPE_DISCRIMINATOR:
           const {abstractKey} = selection;
           if (mockData != null) {
@@ -497,6 +499,28 @@ class RelayMockPayloadGenerator {
           throw new Error('Flight fields are not yet supported.');
         case ACTOR_CHANGE:
           throw new Error('ActorChange fields are not yet supported.');
+        case RELAY_RESOLVER:
+          if (selection.fragment) {
+            mockData = this._traverseSelections(
+              selection.fragment.selections,
+              typeName,
+              isAbstractType,
+              path,
+              mockData,
+              defaultValues,
+            );
+          }
+          break;
+        case CLIENT_EDGE_TO_CLIENT_OBJECT:
+          mockData = this._traverseSelections(
+            [selection.backingField],
+            typeName,
+            isAbstractType,
+            path,
+            mockData,
+            defaultValues,
+          );
+          break;
         default:
           (selection: empty);
           invariant(
@@ -727,7 +751,6 @@ class RelayMockPayloadGenerator {
             data[applicationName]
           : null,
         // $FlowFixMe[incompatible-call]
-        // $FlowFixMe[incompatible-variance]
         fieldDefaultValue,
       );
     };
@@ -854,11 +877,13 @@ function generateData(
   variables: Variables,
   mockResolvers: MockResolvers | null,
   selectionMetadata: SelectionMetadata | null,
+  options: ?{mockClientData?: boolean},
 ): MockData {
   const mockGenerator = new RelayMockPayloadGenerator({
     variables,
     mockResolvers,
     selectionMetadata,
+    mockClientData: options?.mockClientData,
   });
   let operationType;
   if (node.name.endsWith('Mutation')) {
@@ -913,12 +938,14 @@ function getSelectionMetadataFromOperation(
 function generateDataForOperation(
   operation: OperationDescriptor,
   mockResolvers: ?MockResolvers,
+  options: ?{mockClientData?: boolean},
 ): GraphQLSingularResponse {
   const data = generateData(
     operation.request.node.operation,
     operation.request.variables,
     mockResolvers ?? null,
     getSelectionMetadataFromOperation(operation),
+    options,
   );
   return {data};
 }

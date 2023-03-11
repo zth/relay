@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<12a515c571ef1347c44970cc73bec3ca>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<80f23411aff8f7b4427a615b8e946a1b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,16 +19,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { UserNamePassthroughResolver$key } from "./../resolvers/__generated__/UserNamePassthroughResolver.graphql";
-import userNamePassthroughResolver from "../resolvers/UserNamePassthroughResolver.js";
-// Type assertion validating that `userNamePassthroughResolver` resolver is correctly implemented.
+import {name_passthrough as userNamePassthroughResolverType} from "../resolvers/UserNamePassthroughResolver.js";
+// Type assertion validating that `userNamePassthroughResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userNamePassthroughResolver: (
-  rootKey: UserNamePassthroughResolver$key, 
+(userNamePassthroughResolverType: (
+  rootKey: UserNamePassthroughResolver$key,
 ) => mixed);
 export type RelayReaderResolverTest8Query$variables = {||};
 export type RelayReaderResolverTest8Query$data = {|
   +me: ?{|
-    +name_passthrough: $NonMaybeType<$Call<<R>((...empty[]) => R) => R, typeof userNamePassthroughResolver>>,
+    +name_passthrough: $NonMaybeType<$Call<<R>((...empty[]) => R) => R, typeof userNamePassthroughResolverType>>,
   |},
 |};
 export type RelayReaderResolverTest8Query = {|
@@ -62,7 +64,7 @@ var node/*: ConcreteRequest*/ = {
               },
               "kind": "RelayResolver",
               "name": "name_passthrough",
-              "resolverModule": require('./../resolvers/UserNamePassthroughResolver'),
+              "resolverModule": require('./../resolvers/UserNamePassthroughResolver').name_passthrough,
               "path": "me.name_passthrough"
             },
             "action": "NONE",
@@ -90,11 +92,25 @@ var node/*: ConcreteRequest*/ = {
         "plural": false,
         "selections": [
           {
-            "alias": null,
+            "name": "name_passthrough",
             "args": null,
-            "kind": "ScalarField",
-            "name": "name",
-            "storageKey": null
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "name",
+                  "storageKey": null
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "RelayResolver",
+            "storageKey": null,
+            "isOutputType": false
           },
           {
             "alias": null,

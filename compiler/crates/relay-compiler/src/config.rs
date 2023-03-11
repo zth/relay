@@ -5,22 +5,19 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::build_project::artifact_writer::ArtifactFileWriter;
-use crate::build_project::artifact_writer::ArtifactWriter;
-use crate::build_project::generate_extra_artifacts::GenerateExtraArtifactsFn;
-use crate::build_project::rescript_generate_extra_files::rescript_generate_extra_artifacts;
-use crate::build_project::AdditionalValidations;
-use crate::compiler_state::ProjectName;
-use crate::compiler_state::ProjectSet;
-use crate::errors::ConfigValidationError;
-use crate::errors::Error;
-use crate::errors::Result;
-use crate::saved_state::SavedStateLoader;
-use crate::status_reporter::ConsoleStatusReporter;
-use crate::status_reporter::StatusReporter;
+use std::env::current_dir;
+use std::ffi::OsStr;
+use std::fmt;
+use std::path::Path;
+use std::path::PathBuf;
+use std::sync::Arc;
+use std::vec;
+
 use async_trait::async_trait;
 use common::FeatureFlags;
 use common::Rollout;
+use common::ScalarName;
+use dunce::canonicalize;
 use fnv::FnvBuildHasher;
 use fnv::FnvHashSet;
 use graphql_ir::OperationDefinition;
@@ -34,6 +31,7 @@ use persist_query::PersistError;
 use rayon::prelude::*;
 use regex::Regex;
 use relay_config::CustomScalarType;
+use relay_config::DiagnosticReportConfig;
 use relay_config::FlowTypegenConfig;
 use relay_config::JsModuleFormat;
 pub use relay_config::LocalPersistConfig;
@@ -44,7 +42,7 @@ pub use relay_config::RemotePersistConfig;
 use relay_config::SchemaConfig;
 pub use relay_config::SchemaLocation;
 use relay_config::TypegenConfig;
-use relay_config::TypegenLanguage;
+pub use relay_config::TypegenLanguage;
 use relay_transforms::CustomTransformsConfig;
 use serde::de::Error as DeError;
 use serde::Deserialize;
@@ -53,14 +51,21 @@ use serde::Serialize;
 use serde_json::Value;
 use sha1::Digest;
 use sha1::Sha1;
-use std::env::current_dir;
-use std::ffi::OsStr;
-use std::fmt;
-use std::path::Path;
-use std::path::PathBuf;
-use std::sync::Arc;
-use std::vec;
 use watchman_client::pdu::ScmAwareClockData;
+
+use crate::build_project::artifact_writer::ArtifactFileWriter;
+use crate::build_project::artifact_writer::ArtifactWriter;
+use crate::build_project::generate_extra_artifacts::GenerateExtraArtifactsFn;
+use crate::build_project::rescript_generate_extra_files::rescript_generate_extra_artifacts;
+use crate::build_project::AdditionalValidations;
+use crate::compiler_state::ProjectName;
+use crate::compiler_state::ProjectSet;
+use crate::errors::ConfigValidationError;
+use crate::errors::Error;
+use crate::errors::Result;
+use crate::saved_state::SavedStateLoader;
+use crate::status_reporter::ConsoleStatusReporter;
+use crate::status_reporter::StatusReporter;
 
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 
@@ -141,6 +146,10 @@ pub struct Config {
     pub custom_transforms: Option<CustomTransformsConfig>,
 
     pub export_persisted_query_ids_to_file: Option<PathBuf>,
+
+    /// The async function is called before the compiler connects to the file
+    /// source.
+    pub initialize_resources: Option<Box<dyn Fn() + Send + Sync>>,
 }
 
 pub enum FileSourceKind {
@@ -158,8 +167,7 @@ fn normalize_path_from_config(
 ) -> PathBuf {
     let mut src = current_dir.join(path_from_config.clone());
 
-    src = src
-        .canonicalize()
+    src = canonicalize(src.clone())
         .unwrap_or_else(|err| panic!("Unable to canonicalize file {:?}. Error: {:?}", &src, err));
 
     src.strip_prefix(common_path.clone())
@@ -275,6 +283,11 @@ Example file:
         let mut hash = Sha1::new();
         serde_json::to_writer(&mut hash, &config_file).unwrap();
 
+        let is_multi_project = match config_file {
+            ConfigFile::MultiProject(_) => true,
+            ConfigFile::SingleProject(_) => false,
+        };
+
         let config_file = match config_file {
             ConfigFile::MultiProject(config) => *config,
             ConfigFile::SingleProject(config) => {
@@ -356,14 +369,16 @@ Example file:
                     rollout: config_file_project.rollout,
                     js_module_format: config_file_project.js_module_format,
                     module_import_config: config_file_project.module_import_config,
+                    diagnostic_report_config: config_file_project.diagnostic_report_config,
                 };
                 Ok((project_name, project_config))
             })
             .collect::<Result<FnvIndexMap<_, _>>>()?;
 
         let config_file_dir = config_path.parent().unwrap();
+
         let root_dir = if let Some(config_root) = config_file.root {
-            config_file_dir.join(config_root).canonicalize().unwrap()
+            canonicalize(config_file_dir.join(config_root)).unwrap()
         } else {
             config_file_dir.to_owned()
         };
@@ -371,7 +386,10 @@ Example file:
         let config = Self {
             name: config_file.name,
             artifact_writer: Box::new(ArtifactFileWriter::new(None, root_dir.clone())),
-            status_reporter: Box::new(ConsoleStatusReporter::new(root_dir.clone())),
+            status_reporter: Box::new(ConsoleStatusReporter::new(
+                root_dir.clone(),
+                is_multi_project,
+            )),
             root_dir,
             sources: config_file.sources,
             excludes: config_file.excludes,
@@ -393,6 +411,7 @@ Example file:
             file_source_config: FileSourceKind::Watchman,
             custom_transforms: None,
             export_persisted_query_ids_to_file: None,
+            initialize_resources: None,
         };
 
         let mut validation_errors = Vec::new();
@@ -676,7 +695,7 @@ pub struct SingleProjectConfigFile {
 
     /// Mappings from custom scalars in your schema to built-in GraphQL
     /// types, for type emission purposes.
-    pub custom_scalars: FnvIndexMap<StringKey, CustomScalarType>,
+    pub custom_scalars: FnvIndexMap<ScalarName, CustomScalarType>,
 
     /// This option enables emitting es modules artifacts.
     pub eager_es_modules: bool,
@@ -731,7 +750,7 @@ impl Default for SingleProjectConfigFile {
             persist_config: None,
             is_dev_variable_name: None,
             codegen_command: None,
-            js_module_format: JsModuleFormat::CommonJS,
+            js_module_format: JsModuleFormat::Haste,
             typegen_phase: None,
             feature_flags: None,
             module_import_config: Default::default(),
@@ -747,41 +766,34 @@ impl SingleProjectConfigFile {
         let mut paths = vec![];
         if let Some(artifact_directory_path) = self.artifact_directory.clone() {
             paths.push(
-                root_dir
-                    .join(artifact_directory_path.clone())
-                    .canonicalize()
-                    .map_err(|_| ConfigValidationError::ArtifactDirectoryNotExistent {
+                canonicalize(root_dir.join(artifact_directory_path.clone())).map_err(|_| {
+                    ConfigValidationError::ArtifactDirectoryNotExistent {
                         path: artifact_directory_path,
-                    })?,
+                    }
+                })?,
             );
         }
+        paths.push(canonicalize(root_dir.join(self.src.clone())).map_err(|_| {
+            ConfigValidationError::SourceNotExistent {
+                source_dir: self.src.clone(),
+            }
+        })?);
         paths.push(
-            root_dir
-                .join(self.src.clone())
-                .canonicalize()
-                .map_err(|_| ConfigValidationError::SourceNotExistent {
-                    source_dir: self.src.clone(),
-                })?,
-        );
-        paths.push(
-            root_dir
-                .join(self.schema.clone())
-                .canonicalize()
-                .map_err(|_| ConfigValidationError::SchemaFileNotExistent {
+            canonicalize(root_dir.join(self.schema.clone())).map_err(|_| {
+                ConfigValidationError::SchemaFileNotExistent {
                     project_name: self.project_name,
                     schema_file: self.schema.clone(),
-                })?,
+                }
+            })?,
         );
         for extension_dir in self.schema_extensions.iter() {
             paths.push(
-                root_dir
-                    .clone()
-                    .join(extension_dir.clone())
-                    .canonicalize()
-                    .map_err(|_| ConfigValidationError::ExtensionDirNotExistent {
+                canonicalize(root_dir.join(extension_dir.clone())).map_err(|_| {
+                    ConfigValidationError::ExtensionDirNotExistent {
                         project_name: self.project_name,
                         extension_dir: extension_dir.clone(),
-                    })?,
+                    }
+                })?,
             );
         }
         common_path::common_path_all(paths.iter().map(|path| path.as_path()))
@@ -1004,6 +1016,9 @@ pub struct ConfigFileProject {
 
     #[serde(default)]
     pub module_import_config: ModuleImportConfig,
+
+    #[serde(default)]
+    pub diagnostic_report_config: DiagnosticReportConfig,
 }
 
 pub type PersistId = String;

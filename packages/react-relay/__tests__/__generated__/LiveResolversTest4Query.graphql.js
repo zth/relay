@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<717042cc7be7dbb03e21e54bfe8509a7>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<68b5ecdb85b95668183936789164933a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,15 +20,15 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
 import type { LivePingPongResolver$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/LivePingPongResolver.graphql";
-import queryPingResolver from "../../../relay-runtime/store/__tests__/resolvers/LivePingPongResolver.js";
-// Type assertion validating that `queryPingResolver` resolver is correctly implemented.
+import {ping as queryPingResolverType} from "../../../relay-runtime/store/__tests__/resolvers/LivePingPongResolver.js";
+// Type assertion validating that `queryPingResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryPingResolver: (
-  rootKey: LivePingPongResolver$key, 
-) => LiveState<any>);
+(queryPingResolverType: (
+  rootKey: LivePingPongResolver$key,
+) => LiveState<mixed>);
 export type LiveResolversTest4Query$variables = {||};
 export type LiveResolversTest4Query$data = {|
-  +ping: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof queryPingResolver>["read"]>,
+  +ping: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof queryPingResolverType>["read"]>,
 |};
 export type LiveResolversTest4Query = {|
   response: LiveResolversTest4Query$data,
@@ -51,7 +53,7 @@ var node/*: ConcreteRequest*/ = {
         },
         "kind": "RelayLiveResolver",
         "name": "ping",
-        "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/LivePingPongResolver'),
+        "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/LivePingPongResolver').ping,
         "path": "ping"
       }
     ],
@@ -65,34 +67,48 @@ var node/*: ConcreteRequest*/ = {
     "name": "LiveResolversTest4Query",
     "selections": [
       {
-        "alias": null,
+        "name": "ping",
         "args": null,
-        "concreteType": "User",
-        "kind": "LinkedField",
-        "name": "me",
-        "plural": false,
-        "selections": [
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "id",
-            "storageKey": null
-          },
-          {
-            "kind": "ClientExtension",
-            "selections": [
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "__id",
-                "storageKey": null
-              }
-            ]
-          }
-        ],
-        "storageKey": null
+        "fragment": {
+          "kind": "InlineFragment",
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "concreteType": "User",
+              "kind": "LinkedField",
+              "name": "me",
+              "plural": false,
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "id",
+                  "storageKey": null
+                },
+                {
+                  "kind": "ClientExtension",
+                  "selections": [
+                    {
+                      "alias": null,
+                      "args": null,
+                      "kind": "ScalarField",
+                      "name": "__id",
+                      "storageKey": null
+                    }
+                  ]
+                }
+              ],
+              "storageKey": null
+            }
+          ],
+          "type": "Query",
+          "abstractKey": null
+        },
+        "kind": "RelayResolver",
+        "storageKey": null,
+        "isOutputType": false
       }
     ]
   },

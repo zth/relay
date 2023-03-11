@@ -5,10 +5,17 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::env;
+use std::env::current_dir;
+use std::path::PathBuf;
+use std::process::Command;
+use std::sync::Arc;
+
 use clap::ArgEnum;
 use clap::Parser;
 use common::ConsoleLogger;
 use intern::string_key::Intern;
+use intern::Lookup;
 use log::error;
 use log::info;
 use relay_compiler::build_project::artifact_writer::ArtifactValidationWriter;
@@ -29,11 +36,6 @@ use simplelog::ConfigBuilder as SimpleLogConfigBuilder;
 use simplelog::LevelFilter;
 use simplelog::TermLogger;
 use simplelog::TerminalMode;
-use std::env;
-use std::env::current_dir;
-use std::path::PathBuf;
-use std::process::Command;
-use std::sync::Arc;
 
 mod errors;
 

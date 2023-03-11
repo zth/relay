@@ -5,16 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::build_fragment_metadata_as_directive;
-use super::build_fragment_spread;
-use super::build_operation_variable_definitions;
-use super::build_used_global_variables;
-use super::validation_message::ValidationMessage;
-use super::QueryGenerator;
-use super::RefetchRoot;
-use super::RefetchableMetadata;
-use super::CONSTANTS;
-use crate::root_variables::VariableMap;
+use std::sync::Arc;
+
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::Location;
@@ -25,11 +17,13 @@ use graphql_ir::Field;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
+use graphql_ir::OperationDefinitionName;
 use graphql_ir::ScalarField;
 use graphql_ir::Selection;
 use graphql_ir::Value;
 use graphql_ir::Variable;
 use graphql_ir::VariableDefinition;
+use graphql_ir::VariableName;
 use intern::string_key::StringKey;
 use relay_config::SchemaConfig;
 use schema::Argument as ArgumentDef;
@@ -38,13 +32,23 @@ use schema::InterfaceID;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
-use std::sync::Arc;
+
+use super::build_fragment_metadata_as_directive;
+use super::build_fragment_spread;
+use super::build_operation_variable_definitions;
+use super::build_used_global_variables;
+use super::validation_message::ValidationMessage;
+use super::QueryGenerator;
+use super::RefetchRoot;
+use super::RefetchableMetadata;
+use super::CONSTANTS;
+use crate::root_variables::VariableMap;
 
 fn build_refetch_operation(
     schema: &SDLSchema,
     schema_config: &SchemaConfig,
     fragment: &Arc<FragmentDefinition>,
-    query_name: StringKey,
+    query_name: OperationDefinitionName,
     variables_map: &VariableMap,
 ) -> DiagnosticsResult<Option<RefetchRoot>> {
     let id_name = schema_config.node_interface_id_field;
@@ -138,7 +142,7 @@ fn build_refetch_operation(
                 ..fragment.as_ref().clone()
             });
             let mut variable_definitions = build_operation_variable_definitions(&fragment);
-            if let Some(id_argument) = variable_definitions.named(id_name) {
+            if let Some(id_argument) = variable_definitions.named(VariableName(id_name)) {
                 return Err(vec![Diagnostic::error(
                     ValidationMessage::RefetchableFragmentOnNodeWithExistingID {
                         fragment_name: fragment.name.item,
@@ -148,7 +152,7 @@ fn build_refetch_operation(
             }
 
             variable_definitions.push(VariableDefinition {
-                name: WithLocation::new(fragment.name.location, id_name),
+                name: WithLocation::new(fragment.name.location, VariableName(id_name)),
                 type_: id_arg.type_.non_null(),
                 default_value: None,
                 directives: vec![],
@@ -163,7 +167,10 @@ fn build_refetch_operation(
                         value: WithLocation::new(
                             fragment.name.location,
                             Value::Variable(Variable {
-                                name: WithLocation::new(fragment.name.location, id_name),
+                                name: WithLocation::new(
+                                    fragment.name.location,
+                                    VariableName(id_name),
+                                ),
                                 type_: id_arg.type_.non_null(),
                             }),
                         ),
@@ -246,6 +253,6 @@ fn enforce_selections_with_id_field(
 }
 
 pub const NODE_QUERY_GENERATOR: QueryGenerator = QueryGenerator {
-    description: "the Node interface or types implementing the Node interface",
+    description: "the Node interface, object types that implement the Node interface, interfaces whose implementing objects all implement Node, and unions whose members all implement Node",
     build_refetch_operation,
 };

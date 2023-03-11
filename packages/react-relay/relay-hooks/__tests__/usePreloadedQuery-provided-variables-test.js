@@ -4,14 +4,18 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow
  * @format
+ * @oncall relay
  */
 
 'use strict';
-
 import type {Sink} from '../../../relay-runtime/network/RelayObservable';
+import type {RequestParameters} from '../../../relay-runtime/util/RelayConcreteNode';
+import type {
+  CacheConfig,
+  Variables,
+} from '../../../relay-runtime/util/RelayRuntimeTypes';
 import type {GraphQLResponse} from 'relay-runtime/network/RelayNetworkTypes';
 
 const {loadQuery} = require('../loadQuery');
@@ -43,19 +47,19 @@ const fragmentPV = graphql`
   @argumentDefinitions(
     includeName: {
       type: "Boolean!"
-      provider: "../RelayProvider_returnsTrue.relayprovider"
+      provider: "./RelayProvider_returnsTrue.relayprovider"
     }
     includeFirstName: {
       type: "Boolean!"
-      provider: "../RelayProvider_returnsFalse.relayprovider"
+      provider: "./RelayProvider_returnsFalse.relayprovider"
     }
     skipLastName: {
       type: "Boolean!"
-      provider: "../RelayProvider_returnsFalse.relayprovider"
+      provider: "./RelayProvider_returnsFalse.relayprovider"
     }
     skipUsername: {
       type: "Boolean!"
-      provider: "../RelayProvider_returnsTrue.relayprovider"
+      provider: "./RelayProvider_returnsTrue.relayprovider"
     }
   ) {
     name @include(if: $includeName)
@@ -139,22 +143,30 @@ describe.each([
     };
     beforeEach(() => {
       dataSource = undefined;
-      fetch = jest.fn((_query, _variables, _cacheConfig) =>
-        Observable.create(sink => {
-          dataSource = sink;
-        }),
+      fetch = jest.fn(
+        (
+          _query: RequestParameters,
+          _variables: Variables,
+          _cacheConfig: CacheConfig,
+        ) =>
+          Observable.create((sink: Sink<GraphQLResponse>) => {
+            dataSource = sink;
+          }),
       );
       environment = new Environment({
+        // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
         network: Network.create(fetch),
         store: new Store(new RecordSource()),
       });
       RelayProvider_impure.test_reset();
-      withProvidedVariables.tests_only_resetDebugCache();
+      if (withProvidedVariables.tests_only_resetDebugCache !== undefined) {
+        withProvidedVariables.tests_only_resetDebugCache();
+      }
     });
 
     describe('using preloadQuery_DEPRECATED', () => {
       it('renders synchronously with provided variables', () => {
-        const prefetched = preloadQuery_DEPRECATED(
+        const prefetched = preloadQuery_DEPRECATED<any, empty>(
           environment,
           preloadableConcreteRequestPV,
           {
@@ -186,7 +198,7 @@ describe.each([
     });
     describe('using loadQuery', () => {
       it('renders synchronously when passed a preloadableConcreteRequest', () => {
-        const prefetched = loadQuery(
+        const prefetched = loadQuery<any, _>(
           environment,
           preloadableConcreteRequestPV,
           {
@@ -221,7 +233,7 @@ describe.each([
       });
 
       it('renders synchronously when passed a query AST', () => {
-        const prefetched = loadQuery(environment, queryPV, {
+        const prefetched = loadQuery<any, _>(environment, queryPV, {
           id: '4',
         });
         expect(dataSource).toBeDefined();
@@ -254,7 +266,7 @@ describe.each([
         @argumentDefinitions(
           impureProvider: {
             type: "Float!"
-            provider: "../RelayProvider_impure.relayprovider"
+            provider: "./RelayProvider_impure.relayprovider"
           }
         ) {
           profile_picture(scale: $impureProvider) {
@@ -271,7 +283,7 @@ describe.each([
       `;
 
       const preloadWithFetchKey = (fetchKey: string | number) => {
-        return preloadQuery_DEPRECATED(
+        return preloadQuery_DEPRECATED<any, empty>(
           environment,
           {
             kind: 'PreloadableConcreteRequest',

@@ -6,6 +6,7 @@
  *
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -101,7 +102,6 @@ export type $FragmentRef<T> = {
  * `props.relay` and returns the props of the container.
  */
 // prettier-ignore
-// $FlowFixMe[speculation-ambiguous]
 export type $RelayProps<Props, RelayPropT = RelayProp> = $ObjMap<
   $Diff<Props, { relay: RelayPropT | void, ... }>,
   & (<T: { +$fragmentType: empty, ... }>( T) =>  T)

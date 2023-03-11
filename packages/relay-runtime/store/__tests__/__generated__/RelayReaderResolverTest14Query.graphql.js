@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<211f157fe55d1789c4dcfd88e274b0b0>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<1cb32f6ea5b2d1b32c45d946001c7db5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,15 +19,15 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { ThrowBeforeReadResolver$key } from "./../resolvers/__generated__/ThrowBeforeReadResolver.graphql";
-import queryThrowBeforeReadResolver from "../resolvers/ThrowBeforeReadResolver.js";
-// Type assertion validating that `queryThrowBeforeReadResolver` resolver is correctly implemented.
+import {throw_before_read as queryThrowBeforeReadResolverType} from "../resolvers/ThrowBeforeReadResolver.js";
+// Type assertion validating that `queryThrowBeforeReadResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryThrowBeforeReadResolver: (
-  rootKey: ThrowBeforeReadResolver$key, 
+(queryThrowBeforeReadResolverType: (
+  rootKey: ThrowBeforeReadResolver$key,
 ) => mixed);
 export type RelayReaderResolverTest14Query$variables = {||};
 export type RelayReaderResolverTest14Query$data = {|
-  +throw_before_read: ?$Call<<R>((...empty[]) => R) => R, typeof queryThrowBeforeReadResolver>,
+  +throw_before_read: ?$Call<<R>((...empty[]) => R) => R, typeof queryThrowBeforeReadResolverType>,
 |};
 export type RelayReaderResolverTest14Query = {|
   response: RelayReaderResolverTest14Query$data,
@@ -50,7 +52,7 @@ var node/*: ConcreteRequest*/ = {
         },
         "kind": "RelayResolver",
         "name": "throw_before_read",
-        "resolverModule": require('./../resolvers/ThrowBeforeReadResolver'),
+        "resolverModule": require('./../resolvers/ThrowBeforeReadResolver').throw_before_read,
         "path": "throw_before_read"
       }
     ],
@@ -64,34 +66,48 @@ var node/*: ConcreteRequest*/ = {
     "name": "RelayReaderResolverTest14Query",
     "selections": [
       {
-        "alias": null,
+        "name": "throw_before_read",
         "args": null,
-        "concreteType": "User",
-        "kind": "LinkedField",
-        "name": "me",
-        "plural": false,
-        "selections": [
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "id",
-            "storageKey": null
-          },
-          {
-            "kind": "ClientExtension",
-            "selections": [
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "__id",
-                "storageKey": null
-              }
-            ]
-          }
-        ],
-        "storageKey": null
+        "fragment": {
+          "kind": "InlineFragment",
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "concreteType": "User",
+              "kind": "LinkedField",
+              "name": "me",
+              "plural": false,
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "id",
+                  "storageKey": null
+                },
+                {
+                  "kind": "ClientExtension",
+                  "selections": [
+                    {
+                      "alias": null,
+                      "args": null,
+                      "kind": "ScalarField",
+                      "name": "__id",
+                      "storageKey": null
+                    }
+                  ]
+                }
+              ],
+              "storageKey": null
+            }
+          ],
+          "type": "Query",
+          "abstractKey": null
+        },
+        "kind": "RelayResolver",
+        "storageKey": null,
+        "isOutputType": false
       }
     ]
   },

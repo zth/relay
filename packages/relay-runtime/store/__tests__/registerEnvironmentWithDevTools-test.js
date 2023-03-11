@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -28,7 +28,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
   environmentType => {
     describe(environmentType, () => {
       it('should register environment with DevTools', () => {
-        const registerEnvironment = jest.fn();
+        const registerEnvironment = jest.fn<$ReadOnlyArray<mixed>, mixed>();
         global.__RELAY_DEVTOOLS_HOOK__ = {
           registerEnvironment,
         };

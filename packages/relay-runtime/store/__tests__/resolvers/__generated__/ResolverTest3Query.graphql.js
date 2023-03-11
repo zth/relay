@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e2eb8edefe5e5338c364aa31f2625a47>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<0ad9e4164b1424ccd0325b168c2dbeac>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,13 +18,16 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { DataID } from "relay-runtime";
 import type { UserClientEdgeResolver$key } from "./UserClientEdgeResolver.graphql";
-import userClientEdgeResolver from "../UserClientEdgeResolver.js";
-// Type assertion validating that `userClientEdgeResolver` resolver is correctly implemented.
+import {client_edge as userClientEdgeResolverType} from "../UserClientEdgeResolver.js";
+// Type assertion validating that `userClientEdgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userClientEdgeResolver: (
-  rootKey: UserClientEdgeResolver$key, 
-) => mixed);
+(userClientEdgeResolverType: (
+  rootKey: UserClientEdgeResolver$key,
+) => ?{|
+  +id: DataID,
+|});
 export type ResolverTest3Query$variables = {||};
 export type ResolverTest3Query$data = {|
   +me: ?{|
@@ -67,7 +72,7 @@ var node/*: ConcreteRequest*/ = {
               },
               "kind": "RelayResolver",
               "name": "client_edge",
-              "resolverModule": require('./../UserClientEdgeResolver'),
+              "resolverModule": require('./../UserClientEdgeResolver').client_edge,
               "path": "me.client_edge"
             },
             "linkedField": {
@@ -111,11 +116,25 @@ var node/*: ConcreteRequest*/ = {
         "plural": false,
         "selections": [
           {
-            "alias": null,
+            "name": "client_edge",
             "args": null,
-            "kind": "ScalarField",
-            "name": "name",
-            "storageKey": null
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "name",
+                  "storageKey": null
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "RelayResolver",
+            "storageKey": null,
+            "isOutputType": false
           },
           {
             "alias": null,

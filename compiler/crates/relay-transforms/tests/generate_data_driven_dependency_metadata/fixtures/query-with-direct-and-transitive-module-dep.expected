@@ -67,8 +67,15 @@ query QueryWithDirectAndTransitiveModuleDep @__RelayDataDrivenDependencyMetadata
           #     key: "QueryWithDirectAndTransitiveModuleDep",
           #     module_id: "QueryWithDirectAndTransitiveModuleDep.node.nameRenderer",
           #     module_name: "PlainUserNameRenderer.react",
-          #     source_document_name: "QueryWithDirectAndTransitiveModuleDep",
-          #     fragment_name: "PlainUserNameRenderer_name",
+          #     source_document_name: OperationDefinitionName(
+          #         OperationDefinitionName(
+          #             "QueryWithDirectAndTransitiveModuleDep",
+          #         ),
+          #     ),
+          #     fragment_name: FragmentDefinitionName(
+          #         "PlainUserNameRenderer_name",
+          #     ),
+          #     fragment_source_location: query-with-direct-and-transitive-module-dep.graphql:586:612,
           #     no_inline: false,
           # }
            {
@@ -84,8 +91,15 @@ query QueryWithDirectAndTransitiveModuleDep @__RelayDataDrivenDependencyMetadata
           #     key: "QueryWithDirectAndTransitiveModuleDep",
           #     module_id: "QueryWithDirectAndTransitiveModuleDep.node.nameRenderer",
           #     module_name: "MarkdownUserNameRenderer.react",
-          #     source_document_name: "QueryWithDirectAndTransitiveModuleDep",
-          #     fragment_name: "MarkdownUserNameRenderer_name",
+          #     source_document_name: OperationDefinitionName(
+          #         OperationDefinitionName(
+          #             "QueryWithDirectAndTransitiveModuleDep",
+          #         ),
+          #     ),
+          #     fragment_name: FragmentDefinitionName(
+          #         "MarkdownUserNameRenderer_name",
+          #     ),
+          #     fragment_source_location: query-with-direct-and-transitive-module-dep.graphql:686:715,
           #     no_inline: false,
           # }
            {
@@ -120,8 +134,15 @@ fragment FragmentWithModuleDep on User @__RelayDataDrivenDependencyMetadata
       #     key: "FragmentWithModuleDep",
       #     module_id: "FragmentWithModuleDep.nameRenderer",
       #     module_name: "PlainUserNameRenderer.react",
-      #     source_document_name: "FragmentWithModuleDep",
-      #     fragment_name: "PlainUserNameRenderer_name",
+      #     source_document_name: FragmentDefinitionName(
+      #         FragmentDefinitionName(
+      #             "FragmentWithModuleDep",
+      #         ),
+      #     ),
+      #     fragment_name: FragmentDefinitionName(
+      #         "PlainUserNameRenderer_name",
+      #     ),
+      #     fragment_source_location: query-with-direct-and-transitive-module-dep.graphql:586:612,
       #     no_inline: false,
       # }
        {
@@ -137,8 +158,15 @@ fragment FragmentWithModuleDep on User @__RelayDataDrivenDependencyMetadata
       #     key: "FragmentWithModuleDep",
       #     module_id: "FragmentWithModuleDep.nameRenderer",
       #     module_name: "MarkdownUserNameRenderer.react",
-      #     source_document_name: "FragmentWithModuleDep",
-      #     fragment_name: "MarkdownUserNameRenderer_name",
+      #     source_document_name: FragmentDefinitionName(
+      #         FragmentDefinitionName(
+      #             "FragmentWithModuleDep",
+      #         ),
+      #     ),
+      #     fragment_name: FragmentDefinitionName(
+      #         "MarkdownUserNameRenderer_name",
+      #     ),
+      #     fragment_source_location: query-with-direct-and-transitive-module-dep.graphql:686:715,
       #     no_inline: false,
       # }
        {

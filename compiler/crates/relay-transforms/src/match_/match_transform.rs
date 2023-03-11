@@ -5,13 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::validation_message::ValidationMessage;
-use crate::defer_stream::DEFER_STREAM_CONSTANTS;
-use crate::inline_data_fragment::INLINE_DIRECTIVE_NAME;
-use crate::match_::MATCH_CONSTANTS;
-use crate::no_inline::attach_no_inline_directives_to_fragments;
-use crate::no_inline::validate_required_no_inline_directive;
-use crate::util::get_normalization_operation_name;
+use std::hash::Hash;
+use std::hash::Hasher;
+use std::sync::Arc;
+
+use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::FeatureFlag;
@@ -25,12 +23,16 @@ use graphql_ir::associated_data_impl;
 use graphql_ir::Argument;
 use graphql_ir::ConstantValue;
 use graphql_ir::Directive;
+use graphql_ir::ExecutableDefinitionName;
 use graphql_ir::Field;
 use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentDefinitionName;
+use graphql_ir::FragmentDefinitionNameMap;
 use graphql_ir::FragmentSpread;
 use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
 use graphql_ir::OperationDefinition;
+use graphql_ir::OperationDefinitionName;
 use graphql_ir::Program;
 use graphql_ir::ScalarField;
 use graphql_ir::Selection;
@@ -41,16 +43,21 @@ use graphql_ir::Value;
 use indexmap::IndexSet;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
-use intern::string_key::StringKeyMap;
+use intern::Lookup;
 use relay_config::ModuleImportConfig;
 use schema::FieldID;
 use schema::ScalarID;
 use schema::Schema;
 use schema::Type;
 use schema::TypeReference;
-use std::hash::Hash;
-use std::hash::Hasher;
-use std::sync::Arc;
+
+use super::validation_message::ValidationMessage;
+use crate::defer_stream::DEFER_STREAM_CONSTANTS;
+use crate::inline_data_fragment::INLINE_DIRECTIVE_NAME;
+use crate::match_::MATCH_CONSTANTS;
+use crate::no_inline::attach_no_inline_directives_to_fragments;
+use crate::no_inline::validate_required_no_inline_directive;
+use crate::util::get_normalization_operation_name;
 
 /// Transform and validate @match and @module
 pub fn transform_match(
@@ -84,7 +91,7 @@ impl Hash for Path {
 }
 
 struct TypeMatch {
-    fragment: WithLocation<StringKey>,
+    fragment: WithLocation<FragmentDefinitionName>,
     module_directive_name_argument: StringKey,
 }
 struct Matches {
@@ -96,7 +103,7 @@ type MatchesForPath = FnvHashMap<Vec<Path>, Matches>;
 pub struct MatchTransform<'program, 'flag> {
     program: &'program Program,
     parent_type: Type,
-    document_name: StringKey,
+    document_name: ExecutableDefinitionName,
     match_directive_key_argument: Option<StringKey>,
     errors: Vec<Diagnostic>,
     path: Vec<Path>,
@@ -104,7 +111,7 @@ pub struct MatchTransform<'program, 'flag> {
     enable_3d_branch_arg_generation: bool,
     no_inline_flag: &'flag FeatureFlag,
     // Stores the fragments that should use @no_inline and their parent document name
-    no_inline_fragments: StringKeyMap<Vec<StringKey>>,
+    no_inline_fragments: FragmentDefinitionNameMap<Vec<ExecutableDefinitionName>>,
     module_import_config: ModuleImportConfig,
 }
 
@@ -118,7 +125,9 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
             program,
             // Placeholders to make the types non-optional,
             parent_type: Type::Scalar(ScalarID(0)),
-            document_name: "".intern(),
+            document_name: ExecutableDefinitionName::OperationDefinitionName(
+                OperationDefinitionName("".intern()),
+            ),
             match_directive_key_argument: None,
             errors: Vec::new(),
             path: Default::default(),
@@ -146,7 +155,11 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
 
     // Validate that `JSDependency` is a server scalar type in the schema
     fn validate_js_module_type(&self, spread_location: Location) -> Result<(), Diagnostic> {
-        match self.program.schema.get_type(MATCH_CONSTANTS.js_field_type) {
+        match self
+            .program
+            .schema
+            .get_type(MATCH_CONSTANTS.js_field_type.0)
+        {
             Some(js_module_type) => match js_module_type {
                 Type::Scalar(id) => {
                     if self.program.schema.scalar(id).is_extension {
@@ -290,7 +303,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
 
         // Only process the fragment spread with @module
         if let Some(module_directive) = module_directive {
-            let should_use_no_inline = self.no_inline_flag.is_enabled_for(spread.fragment.item);
+            let should_use_no_inline = self.no_inline_flag.is_enabled_for(spread.fragment.item.0);
             // @arguments on the fragment spread is not allowed without @no_inline
             if !should_use_no_inline && !spread.arguments.is_empty() {
                 return Err(Diagnostic::error(
@@ -343,7 +356,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
             // most recently encountered while traversing the operation, or the document name
             let match_directive_key_argument = self
                 .match_directive_key_argument
-                .unwrap_or(self.document_name);
+                .unwrap_or_else(|| self.document_name.into());
 
             // If this is the first time we are encountering @module at this path, also ensure
             // that we have not previously encountered another @module associated with the same
@@ -437,7 +450,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
             // Done validating. Build out the resulting fragment spread.
 
             let module_id = if self.path.is_empty() {
-                self.document_name
+                self.document_name.into()
             } else {
                 let mut str = String::new();
                 str.push_str(self.document_name.lookup());
@@ -494,6 +507,12 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
                                 module_name: module_directive_name_argument,
                                 source_document_name: self.document_name,
                                 fragment_name: spread.fragment.item,
+                                fragment_source_location: self
+                                    .program
+                                    .fragment(spread.fragment.item)
+                                    .unwrap()
+                                    .name
+                                    .location,
                                 location: module_directive.name.location,
                                 no_inline: should_use_no_inline,
                             }
@@ -528,7 +547,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
             module_directive.name.location,
         )];
 
-        let mut normalization_name = get_normalization_operation_name(spread.fragment.item);
+        let mut normalization_name = get_normalization_operation_name(spread.fragment.item.0);
         normalization_name.push_str(".graphql");
         let mut operation_field_arguments = vec![build_string_literal_argument(
             MATCH_CONSTANTS.js_field_module_arg,
@@ -792,7 +811,7 @@ impl Transformer for MatchTransform<'_, '_> {
         &mut self,
         fragment: &FragmentDefinition,
     ) -> Transformed<FragmentDefinition> {
-        self.document_name = fragment.name.item;
+        self.document_name = fragment.name.item.into();
         self.matches_for_path = Default::default();
         self.match_directive_key_argument = None;
         self.parent_type = fragment.type_condition;
@@ -804,7 +823,7 @@ impl Transformer for MatchTransform<'_, '_> {
         &mut self,
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
-        self.document_name = operation.name.item;
+        self.document_name = operation.name.item.into();
         self.matches_for_path = Default::default();
         self.match_directive_key_argument = None;
         self.parent_type = operation.type_;
@@ -828,7 +847,11 @@ impl Transformer for MatchTransform<'_, '_> {
     fn transform_scalar_field(&mut self, field: &ScalarField) -> Transformed<Selection> {
         let field_definition = self.program.schema.field(field.definition.item);
         if field_definition.name.item == MATCH_CONSTANTS.js_field_name {
-            match self.program.schema.get_type(MATCH_CONSTANTS.js_field_type) {
+            match self
+                .program
+                .schema
+                .get_type(MATCH_CONSTANTS.js_field_type.0)
+            {
                 None => self.errors.push(Diagnostic::error(
                     ValidationMessage::MissingServerSchemaDefinition {
                         name: MATCH_CONSTANTS.js_field_name,
@@ -925,14 +948,15 @@ pub struct ModuleMetadata {
     pub key: StringKey,
     pub module_id: StringKey,
     pub module_name: StringKey,
-    pub source_document_name: StringKey,
-    pub fragment_name: StringKey,
+    pub source_document_name: ExecutableDefinitionName,
+    pub fragment_name: FragmentDefinitionName,
+    pub fragment_source_location: Location,
     pub no_inline: bool,
 }
 associated_data_impl!(ModuleMetadata);
 
 fn build_string_literal_argument(
-    name: StringKey,
+    name: ArgumentName,
     value: StringKey,
     location: Location,
 ) -> Argument {

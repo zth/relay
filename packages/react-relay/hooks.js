@@ -6,6 +6,7 @@
  *
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -13,6 +14,7 @@
 const EntryPointContainer = require('./relay-hooks/EntryPointContainer.react');
 const loadEntryPoint = require('./relay-hooks/loadEntryPoint');
 const {loadQuery} = require('./relay-hooks/loadQuery');
+const ProfilerContext = require('./relay-hooks/ProfilerContext');
 const RelayEnvironmentProvider = require('./relay-hooks/RelayEnvironmentProvider');
 const useEntryPointLoader = require('./relay-hooks/useEntryPointLoader');
 const useFragment = require('./relay-hooks/useFragment');
@@ -76,6 +78,8 @@ module.exports = {
 
   EntryPointContainer: EntryPointContainer,
   RelayEnvironmentProvider: RelayEnvironmentProvider,
+
+  ProfilerContext: ProfilerContext,
 
   fetchQuery: RelayRuntime.fetchQuery,
 

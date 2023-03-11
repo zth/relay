@@ -1,4 +1,4 @@
-use common::{Diagnostic, DiagnosticsResult, Location, WithLocation};
+use common::{Diagnostic, DiagnosticsResult, Location};
 use errors::validate;
 use graphql_ir::{
     Field, LinkedField, OperationDefinition, Program, ScalarField, ValidationMessage, Validator,
@@ -75,11 +75,15 @@ impl Validator for RescriptRelayTransformDisallowInvalidNames<'_> {
     fn validate_linked_field(&mut self, field: &LinkedField) -> DiagnosticsResult<()> {
         validate!(
             if let Some(alias) = field.alias {
-                validate_identifier(&self.reserved_names, alias, field.alias_or_name_location())
+                validate_identifier(
+                    &self.reserved_names,
+                    alias.item,
+                    field.alias_or_name_location(),
+                )
             } else {
                 validate_identifier(
                     &self.reserved_names,
-                    self.program.schema.field(field.definition.item).name,
+                    self.program.schema.field(field.definition.item).name.item,
                     field.alias_or_name_location(),
                 )
             },
@@ -89,11 +93,15 @@ impl Validator for RescriptRelayTransformDisallowInvalidNames<'_> {
 
     fn validate_scalar_field(&mut self, field: &ScalarField) -> DiagnosticsResult<()> {
         if let Some(alias) = field.alias {
-            validate_identifier(&self.reserved_names, alias, field.alias_or_name_location())
+            validate_identifier(
+                &self.reserved_names,
+                alias.item,
+                field.alias_or_name_location(),
+            )
         } else {
             validate_identifier(
                 &self.reserved_names,
-                self.program.schema.field(field.definition.item).name,
+                self.program.schema.field(field.definition.item).name.item,
                 field.alias_or_name_location(),
             )
         }
@@ -106,7 +114,7 @@ impl Validator for RescriptRelayTransformDisallowInvalidNames<'_> {
             .filter_map(|variable| {
                 match validate_identifier(
                     &self.reserved_names,
-                    variable.name,
+                    variable.name.item.0,
                     variable.name.location,
                 ) {
                     Ok(_) => None,
@@ -126,11 +134,11 @@ impl Validator for RescriptRelayTransformDisallowInvalidNames<'_> {
 
 fn validate_identifier(
     reserved_names: &[StringKey],
-    identifier: WithLocation<StringKey>,
+    identifier: StringKey,
     location: Location,
 ) -> DiagnosticsResult<()> {
     let mut validation_errors = vec![];
-    let the_field_name_as_str = identifier.item.to_string();
+    let the_field_name_as_str = identifier.to_string();
 
     let first_letter_as_uppercase = the_field_name_as_str.chars().collect::<Vec<char>>()[0]
         .to_uppercase()
@@ -167,10 +175,10 @@ fn validate_identifier(
 
 fn validate_identifier_once(
     reserved_name: StringKey,
-    identifier: WithLocation<StringKey>,
+    identifier: StringKey,
     location: Location,
 ) -> DiagnosticsResult<()> {
-    if identifier.item == reserved_name {
+    if identifier == reserved_name {
         Err(vec![Diagnostic::error(
             ValidationMessage::RescriptRelayDisallowSelectionName(reserved_name),
             location,

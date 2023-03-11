@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -30,23 +30,14 @@ function myTestResolver(rootKey: RelayResolverTestUtilsFlowTest$key): string {
   return `Hello ${user.name ?? 'stranger'}!`;
 }
 
+testResolver(myTestResolver, {name: 'Elizabeth', $fragmentType: (null: any)});
+
+// $FlowExpectedError foo is an unexpected key
 testResolver(myTestResolver, {
   name: 'Elizabeth',
+  foo: 'bar',
   $fragmentType: (null: any),
 });
 
-testResolver(
-  myTestResolver,
-  // $FlowExpectedError foo is an unexpected key
-  {
-    name: 'Elizabeth',
-    foo: 'bar',
-    $fragmentType: (null: any),
-  },
-);
-
-testResolver(myTestResolver, {
-  // $FlowExpectedError Object is not a string
-  name: {},
-  $fragmentType: (null: any),
-});
+// $FlowExpectedError Object is not a string
+testResolver(myTestResolver, {name: {}, $fragmentType: (null: any)});

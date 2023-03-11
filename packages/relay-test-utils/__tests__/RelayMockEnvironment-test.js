@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -67,7 +67,7 @@ describe('when using queuePendingOperation, queueOperationResolver and preloadQu
     let data;
     function Component(props: $FlowFixMe) {
       data = usePreloadedQuery(query, props.prefetched);
-      return data.node.name;
+      return data.node?.name;
     }
     const renderer = TestRenderer.create(
       <RelayEnvironmentProvider environment={mockEnvironment}>

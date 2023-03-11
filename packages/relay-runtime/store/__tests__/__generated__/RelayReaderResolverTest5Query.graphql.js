@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c969ff98c70ccbca8e214e907bd8428e>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<1731250b70734f9fc3bc978ba4db538e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,16 +19,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { UserShoutedGreetingResolver$key } from "./../resolvers/__generated__/UserShoutedGreetingResolver.graphql";
-import userShoutedGreetingResolver from "../resolvers/UserShoutedGreetingResolver.js";
-// Type assertion validating that `userShoutedGreetingResolver` resolver is correctly implemented.
+import {shouted_greeting as userShoutedGreetingResolverType} from "../resolvers/UserShoutedGreetingResolver.js";
+// Type assertion validating that `userShoutedGreetingResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userShoutedGreetingResolver: (
-  rootKey: UserShoutedGreetingResolver$key, 
+(userShoutedGreetingResolverType: (
+  rootKey: UserShoutedGreetingResolver$key,
 ) => mixed);
 export type RelayReaderResolverTest5Query$variables = {||};
 export type RelayReaderResolverTest5Query$data = {|
   +me: ?{|
-    +shouted_greeting: ?$Call<<R>((...empty[]) => R) => R, typeof userShoutedGreetingResolver>,
+    +shouted_greeting: ?$Call<<R>((...empty[]) => R) => R, typeof userShoutedGreetingResolverType>,
   |},
 |};
 export type RelayReaderResolverTest5Query = {|
@@ -60,7 +62,7 @@ var node/*: ConcreteRequest*/ = {
             },
             "kind": "RelayResolver",
             "name": "shouted_greeting",
-            "resolverModule": require('./../resolvers/UserShoutedGreetingResolver'),
+            "resolverModule": require('./../resolvers/UserShoutedGreetingResolver').shouted_greeting,
             "path": "me.shouted_greeting"
           }
         ],
@@ -85,11 +87,39 @@ var node/*: ConcreteRequest*/ = {
         "plural": false,
         "selections": [
           {
-            "alias": null,
+            "name": "shouted_greeting",
             "args": null,
-            "kind": "ScalarField",
-            "name": "name",
-            "storageKey": null
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "name": "greeting",
+                  "args": null,
+                  "fragment": {
+                    "kind": "InlineFragment",
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "name",
+                        "storageKey": null
+                      }
+                    ],
+                    "type": "User",
+                    "abstractKey": null
+                  },
+                  "kind": "RelayResolver",
+                  "storageKey": null,
+                  "isOutputType": false
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "RelayResolver",
+            "storageKey": null,
+            "isOutputType": false
           },
           {
             "alias": null,

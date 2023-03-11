@@ -4,12 +4,12 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @format
+ * @oncall relay
  */
 
+import {DEFAULT_STATE, FEATURE_FLAGS} from './ExplorerStateConstants';
 import * as LZString from 'lz-string';
-import {FEATURE_FLAGS, DEFAULT_STATE} from './ExplorerStateConstants';
 
 // Current version indicating our URL encoding scheme.
 // If we change this scheme in the future, we can use this to detect

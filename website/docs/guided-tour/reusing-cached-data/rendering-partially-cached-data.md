@@ -9,7 +9,7 @@ keywords:
 ---
 
 import DocsRating from '@site/src/core/DocsRating';
-import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
+import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
 import FbProfilePhotoHeaderExample from './fb/FbProfileHeaderExample.md';
 import FbSuspensePlaceholder from '../../fb/FbSuspensePlaceholder.md';
 
@@ -85,7 +85,7 @@ const {graphql, usePreloadedQuery} = require('react-relay');
 const UsernameComponent = require('./UsernameComponent.react');
 
 function HomeTab(props: Props) {
-  const data = usePreloadedQuery<AppQuery>(
+  const data = usePreloadedQuery(
     graphql`
       query HomeTabQuery($id: ID!) {
         user(id: $id) {
@@ -136,7 +136,7 @@ const UsernameComponent = require('./UsernameComponent.react');
 
 
 function HomeTab() {
-  const data = usePreloadedQuery<AppQuery>(
+  const data = usePreloadedQuery(
     graphql`
       query AppQuery($id: ID!) {
         user(id: $id) {

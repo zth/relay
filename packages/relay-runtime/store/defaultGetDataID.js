@@ -6,6 +6,7 @@
  *
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -17,10 +18,8 @@ function defaultGetDataID(
   typeName: string,
 ): mixed {
   if (typeName === VIEWER_TYPE) {
-    // $FlowFixMe[prop-missing]
     return fieldValue.id == null ? VIEWER_ID : fieldValue.id;
   }
-  // $FlowFixMe[prop-missing]
   return fieldValue.id;
 }
 

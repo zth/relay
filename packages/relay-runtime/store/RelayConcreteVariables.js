@@ -6,6 +6,7 @@
  *
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -43,7 +44,7 @@ function getFragmentVariables(
   if (fragment.argumentDefinitions == null) {
     return argumentVariables;
   }
-  let variables;
+  let variables: {[string]: $FlowFixMe};
   fragment.argumentDefinitions.forEach(definition => {
     if (argumentVariables.hasOwnProperty(definition.name)) {
       return;
@@ -123,7 +124,6 @@ function getLocalVariables(
   const nextVariables = {...currentVariables};
   const nextArgs = args ? getArgumentValues(args, currentVariables) : {};
   argumentDefinitions.forEach(def => {
-    // $FlowFixMe[cannot-write]
     const value = nextArgs[def.name] ?? def.defaultValue;
     nextVariables[def.name] = value;
   });

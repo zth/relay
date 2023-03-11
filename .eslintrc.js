@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -13,7 +14,7 @@ module.exports = {
   root: true,
   // TODO - migrate this onto @react-native-community/eslint-config
   extends: ['fbjs'],
-  plugins: ['jest', 'relay', 'react-hooks'],
+  plugins: ['jest', 'relay', 'react-hooks', 'relay-internal'],
   parser: 'hermes-eslint',
   rules: {
     // Consistency with internal config
@@ -40,7 +41,7 @@ module.exports = {
     // TODO T31139228: remove or re-enable these once eslint-plugin-flowtype
     // is compatible with babel-eslint >= 8
     'no-undef': 'off',
-    'no-unused-vars': 'off',
+    'no-unused-vars': [1, {args: 'none'}],
 
     // This has a different name internally
     'no-label-var': 'off',
@@ -69,5 +70,12 @@ module.exports = {
     // These rules are not required with hermes-eslint
     'ft-flow/define-flow-type': 0,
     'ft-flow/use-flow-type': 0,
+
+    // depreciated rules
+    'no-spaced-func': 0,
+
+    // Custom rules for our own codebase
+    'relay-internal/no-mixed-import-and-require': 'error',
+    'relay-internal/sort-imports': 'error',
   },
 };

@@ -4,12 +4,13 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
 'use strict';
+import type {Snapshot} from '../RelayStoreTypes';
 
 const {
   MultiActorEnvironment,
@@ -130,7 +131,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           queryOperation.request,
         );
         const snapshot = environment.lookup(selector);
-        const callback = jest.fn();
+        const callback = jest.fn<[Snapshot], void>();
         environment.subscribe(snapshot, callback);
 
         environment.applyMutation({
@@ -162,7 +163,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           queryOperation.request,
         );
         const snapshot = environment.lookup(selector);
-        const callback = jest.fn();
+        const callback = jest.fn<[Snapshot], void>();
         environment.subscribe(snapshot, callback);
 
         const disposable = environment.applyMutation({
@@ -195,7 +196,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           queryOperation.request,
         );
         const snapshot = environment.lookup(selector);
-        const callback = jest.fn();
+        const callback = jest.fn<[Snapshot], void>();
         environment.subscribe(snapshot, callback);
 
         environment.applyMutation({

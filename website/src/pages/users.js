@@ -5,9 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @format
+ * @oncall relay
  */
 
 import Container from '../core/Container';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Layout from '@theme/Layout';
 import * as React from 'react';
@@ -17,7 +19,7 @@ const Users = () => {
   const showcase = siteConfig.customFields.users.map(user => {
     return (
       <a href={user.infoLink} key={user.caption}>
-        <img src={user.image} title={user.caption} />
+        <img src={useBaseUrl(user.image)} title={user.caption} />
       </a>
     );
   });

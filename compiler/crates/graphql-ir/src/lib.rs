@@ -22,7 +22,6 @@ mod transform;
 mod validator;
 mod visitor;
 
-pub use crate::errors::ValidationMessage;
 pub use associated_data::AssociatedData;
 pub use build::build_directive;
 pub use build::build_ir as build;
@@ -32,6 +31,7 @@ pub use build::BuilderOptions;
 pub use build::FragmentVariablesSemantic;
 pub use build::RelayMode;
 pub use build::DIRECTIVE_ARGUMENTS;
+pub use build::FIXME_FAT_INTERFACE;
 pub use constants::ARGUMENT_DEFINITION;
 pub use ir::*;
 pub use program::Program;
@@ -46,9 +46,10 @@ pub use transform::Transformer;
 pub use validator::Validator;
 pub use visitor::Visitor;
 
+pub use crate::errors::ValidationMessage;
+
 /// Re-exported values to be used by the `associated_data_impl!` macro.
 pub mod reexport {
-    pub use crate::associated_data::AsAny;
     pub use common::NamedItem;
     pub use common::WithLocation;
     pub use fnv::FnvHasher;
@@ -56,4 +57,6 @@ pub mod reexport {
     pub use intern::string_key::Intern;
     pub use intern::string_key::StringKey;
     pub use once_cell::sync::Lazy;
+
+    pub use crate::associated_data::AsAny;
 }

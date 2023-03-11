@@ -4,12 +4,14 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
 'use strict';
+import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
+import type {Snapshot} from '../RelayStoreTypes';
 import type {
   RelayModernEnvironmentExecuteWithOptimisticResponseTestActor2Query$data,
   RelayModernEnvironmentExecuteWithOptimisticResponseTestActor2Query$variables,
@@ -81,15 +83,16 @@ describe('execute() with network that returns optimistic response', () => {
       foo: 'bar', // should be filtered from network fetch
     });
 
-    complete = jest.fn();
-    error = jest.fn();
-    next = jest.fn();
+    complete = jest.fn<[], mixed>();
+    error = jest.fn<[Error], mixed>();
+    next = jest.fn<[GraphQLResponse], mixed>();
     callbacks = {complete, error, next};
     fetch = (
       _query: RequestParameters,
       _variables: Variables,
       _cacheConfig: CacheConfig,
     ) => {
+      // $FlowFixMe[missing-local-annot] Error found while enabling LTI on this file
       return RelayObservable.create(sink => {
         dataSource = sink;
       });
@@ -110,7 +113,7 @@ describe('execute() with network that returns optimistic response', () => {
       operation.request,
     );
     const snapshot = environment.lookup(selector);
-    const callback = jest.fn();
+    const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(snapshot, callback);
 
     environment.execute({operation}).subscribe(callbacks);
@@ -150,7 +153,7 @@ describe('execute() with network that returns optimistic response', () => {
       operation.request,
     );
     const snapshot = environment.lookup(selector);
-    const callback = jest.fn();
+    const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(snapshot, callback);
 
     environment.execute({operation}).subscribe(callbacks);
@@ -209,7 +212,7 @@ describe('execute() with network that returns optimistic response', () => {
       operation.request,
     );
     const snapshot = environment.lookup(selector);
-    const callback = jest.fn();
+    const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(snapshot, callback);
 
     environment.execute({operation}).subscribe(callbacks);
@@ -251,7 +254,7 @@ describe('execute() with network that returns optimistic response', () => {
       operation.request,
     );
     const snapshot = environment.lookup(selector);
-    const callback = jest.fn();
+    const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(snapshot, callback);
 
     environment.execute({operation}).subscribe(callbacks);
@@ -295,7 +298,7 @@ describe('execute() with network that returns optimistic response', () => {
       operation.request,
     );
     const snapshot = environment.lookup(selector);
-    const callback = jest.fn();
+    const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(snapshot, callback);
 
     const subscription = environment.execute({operation}).subscribe(callbacks);
@@ -337,7 +340,7 @@ describe('execute() with network that returns optimistic response', () => {
       operation.request,
     );
     const snapshot = environment.lookup(selector);
-    const callback = jest.fn();
+    const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(snapshot, callback);
 
     const subscription = environment.execute({operation}).subscribe(callbacks);
@@ -390,7 +393,7 @@ describe('execute() with network that returns optimistic response', () => {
     );
 
     const snapshot = environment.lookup(selector);
-    const callback = jest.fn();
+    const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(snapshot, callback);
 
     environment.execute({operation}).subscribe(callbacks);

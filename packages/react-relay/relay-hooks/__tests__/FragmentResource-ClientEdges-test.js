@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -84,7 +84,7 @@ describe('FragmentResource Client Edges behavior', () => {
       __fragmentOwner: query.request,
     };
 
-    release = jest.fn();
+    release = jest.fn<$ReadOnlyArray<mixed>, mixed>();
     // eslint-disable-next-line ft-flow/no-flow-fix-me-comments
     // $FlowFixMe[method-unbinding]
     environment.retain.mockImplementation((...args) => {
@@ -142,11 +142,8 @@ describe('FragmentResource Client Edges behavior', () => {
         'componentDisplayName',
       );
     }).not.toThrow();
-    // $FlowFixMe[incompatible-use]
     expect(result?.data?.client_edge.name).toBe('Bob');
-    // $FlowFixMe[prop-missing]
     expect(result?.snapshot?.isMissingData).toBe(false);
-    // $FlowFixMe[prop-missing]
     expect(result?.snapshot?.missingClientEdges?.size ?? 0).toBe(0);
   });
 
@@ -237,7 +234,7 @@ describe('FragmentResource Client Edges behavior', () => {
     // Use our own simulation of setTimeout due to bugs in Jest's.
     // We can't mock SuspenseResource's setTimeout using Jest mocks because
     // they aren't imported from a module, so we swizzle the global one.
-    const timeouts = new Map();
+    const timeouts = new Map<number, $FlowFixMe>();
     let nextTimeoutID = 0;
     const originalSetTimeout = global.setTimeout;
     const originalClearTimeout = global.clearTimeout;
@@ -252,6 +249,7 @@ describe('FragmentResource Client Edges behavior', () => {
       // eslint-disable-next-line ft-flow/no-flow-fix-me-comments
       // $FlowFixMe[cannot-write]
       global.clearTimeout = id => {
+        // $FlowFixMe[incompatible-call] Error found while enabling LTI on this file
         timeouts.delete(id);
       };
       function runAllTimeouts() {

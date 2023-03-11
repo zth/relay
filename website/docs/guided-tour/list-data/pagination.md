@@ -9,7 +9,7 @@ keywords:
 ---
 
 import DocsRating from '@site/src/core/DocsRating';
-import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
+import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
 import FbPaginationUsingUseTransition from './fb/FbPaginationUsingUseTransition.md';
 
 To actually perform pagination over the connection, we need use the `loadNext` function to fetch the next page of items, which is available from `usePaginationFragment`:
@@ -21,7 +21,6 @@ To actually perform pagination over the connection, we need use the `loadNext` f
 <OssOnly>
 
 ```js
-import type {FriendsListPaginationQuery} from 'FriendsListPaginationQuery.graphql';
 import type {FriendsListComponent_user$key} from 'FriendsList_user.graphql';
 
 const React = require('React');
@@ -35,7 +34,7 @@ type Props = {
 };
 
 function FriendsListComponent(props: Props) {
-  const {data, loadNext} = usePaginationFragment<FriendsListPaginationQuery, _>(
+  const {data, loadNext} = usePaginationFragment(
     graphql`
       fragment FriendsListComponent_user on User
       @refetchable(queryName: "FriendsListPaginationQuery") {
@@ -111,7 +110,7 @@ function FriendsListComponent(props: Props) {
     data,
     loadNext,
     hasNext,
-  } = usePaginationFragment<FriendsListPaginationQuery, _>(
+  } = usePaginationFragment(
     graphql`...`,
     props.user,
   );

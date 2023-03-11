@@ -5,7 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @format
+ * @oncall relay
  */
+
+/* eslint-disable no-unused-vars */
 
 'use strict';
 
@@ -900,7 +903,7 @@ type JestObjectType = {
    * (setTimeout, setInterval, clearTimeout, clearInterval, nextTick,
    * setImmediate and clearImmediate).
    */
-  useFakeTimers(): JestObjectType,
+  useFakeTimers(type?: 'legacy' | 'modern'): JestObjectType,
   /**
    * Instructs Jest to use the real versions of the standard timer functions.
    */
@@ -970,11 +973,11 @@ declare var describe: {
    *
    * @param {table} table of Test
    */
-  each<TArguments: Array<mixed> | mixed>(
-    table: $ReadOnlyArray<TArguments>,
+  each(
+    table: $ReadOnlyArray<Array<mixed> | mixed>,
   ): (
     name: JestTestName,
-    fn?: (...args: TArguments) => ?Promise<mixed>,
+    fn?: (...args: Array<any>) => ?Promise<mixed>,
   ) => void,
   ...
 };
@@ -998,11 +1001,11 @@ declare var it: {
    *
    * @param {table} table of Test
    */
-  each<TArguments: Array<mixed> | mixed>(
-    table: $ReadOnlyArray<TArguments>,
+  each(
+    table: $ReadOnlyArray<Array<mixed> | mixed>,
   ): (
     name: JestTestName,
-    fn?: (...args: TArguments) => ?Promise<mixed>,
+    fn?: (...args: Array<any>) => ?Promise<mixed>,
   ) => void,
   /**
    * Only run this test
@@ -1016,11 +1019,11 @@ declare var it: {
     fn?: (done: () => void) => ?Promise<mixed>,
     timeout?: number,
   ): {
-    each<TArguments: Array<mixed> | mixed>(
-      table: $ReadOnlyArray<TArguments>,
+    each(
+      table: $ReadOnlyArray<Array<mixed> | mixed>,
     ): (
       name: JestTestName,
-      fn?: (...args: TArguments) => ?Promise<mixed>,
+      fn?: (...args: Array<any>) => ?Promise<mixed>,
     ) => void,
     ...
   },

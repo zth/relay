@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<fdcf7f6737c500b487fb65f5869d2e03>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<b8419632db0fedf8df3427b313f09863>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,15 +20,15 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { AstrologicalSignSelfResolver$key } from "./AstrologicalSignSelfResolver.graphql";
 import type { FragmentType } from "relay-runtime";
-import astrologicalSignSelfResolver from "../AstrologicalSignSelfResolver.js";
-// Type assertion validating that `astrologicalSignSelfResolver` resolver is correctly implemented.
+import {self as astrologicalSignSelfResolverType} from "../AstrologicalSignSelfResolver.js";
+// Type assertion validating that `astrologicalSignSelfResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(astrologicalSignSelfResolver: (
-  rootKey: AstrologicalSignSelfResolver$key, 
+(astrologicalSignSelfResolverType: (
+  rootKey: AstrologicalSignSelfResolver$key,
 ) => mixed);
 declare export opaque type AstrologicalSignOppositeResolver$fragmentType: FragmentType;
 export type AstrologicalSignOppositeResolver$data = {|
-  +self: ?$Call<<R>((...empty[]) => R) => R, typeof astrologicalSignSelfResolver>,
+  +self: ?$Call<<R>((...empty[]) => R) => R, typeof astrologicalSignSelfResolverType>,
   +$fragmentType: AstrologicalSignOppositeResolver$fragmentType,
 |};
 export type AstrologicalSignOppositeResolver$key = {
@@ -52,7 +54,7 @@ var node/*: ReaderFragment*/ = {
       },
       "kind": "RelayResolver",
       "name": "self",
-      "resolverModule": require('./../AstrologicalSignSelfResolver'),
+      "resolverModule": require('./../AstrologicalSignSelfResolver').self,
       "path": "self"
     }
   ],

@@ -221,11 +221,25 @@ fragment RefetchableClientEdgeQuery_relayResolverBackingClientEdgeQuery_me__best
         "plural": false,
         "selections": [
           {
-            "alias": null,
+            "name": "best_friend",
             "args": null,
-            "kind": "ScalarField",
-            "name": "actor_key",
-            "storageKey": null
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "actor_key",
+                  "storageKey": null
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "RelayResolver",
+            "storageKey": null,
+            "isOutputType": false
           },
           {
             "alias": null,

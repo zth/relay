@@ -4,12 +4,14 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow
  * @format
+ * @oncall relay
  */
 
 'use strict';
+
+import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
 
 const EntryPointContainer = require('../EntryPointContainer.react');
 const loadEntryPoint = require('../loadEntryPoint');
@@ -86,6 +88,7 @@ class FakeJSResource<T> {
 
     this.getModuleId = jest.fn(() => 'TheModuleID');
     this.getModuleIfRequired = jest.fn(() => this._resource);
+    // $FlowFixMe[incompatible-type-arg]
     this.load = jest.fn(() => {
       return new Promise(resolve => {
         this._resolve = resolve;
@@ -103,16 +106,21 @@ class FakeJSResource<T> {
 }
 
 beforeEach(() => {
+  // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
   fetch = jest.fn((_query, _variables, _cacheConfig) =>
+    // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
     Observable.create(sink => {
       dataSource = sink;
     }),
   );
   environment = new Environment({
+    // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
     network: Network.create(fetch),
     store: new Store(new RecordSource()),
   });
-  nestedEntryPointResource = new FakeJSResource();
+  nestedEntryPointResource = new FakeJSResource<
+    void | ((props: any) => empty),
+  >();
 
   entrypoint = {
     getPreloadProps(entryPointParams: any) {
@@ -146,7 +154,35 @@ afterAll(() => {
 });
 
 it('suspends while the query and component are pending', () => {
-  entryPointReference = loadEntryPoint(
+  entryPointReference = loadEntryPoint<
+    {id: string},
+    {...},
+    {...},
+    {...},
+    mixed,
+    any,
+    {
+      getPreloadProps(entryPointParams: any): {
+        entryPoints: {
+          nestedEntryPoint: {
+            entryPoint: {
+              getPreloadProps(nestedEntryPointParams: any): {
+                queries: {
+                  preloadedQuery: {
+                    parameters: {kind: string, params: RequestParameters},
+                    variables: {id: any},
+                  },
+                },
+              },
+              root: any,
+            },
+            entryPointParams: any,
+          },
+        },
+      },
+      root: any,
+    },
+  >(
     {
       getEnvironment: () => environment,
     },
@@ -161,6 +197,7 @@ it('suspends while the query and component are pending', () => {
   const renderer = TestRenderer.create(
     <RelayEnvironmentProvider environment={environment}>
       <React.Suspense fallback="Fallback">
+        {/* $FlowFixMe[incompatible-type-arg] */}
         <EntryPointContainer
           entryPointReference={entryPointReference}
           props={{}}
@@ -173,7 +210,35 @@ it('suspends while the query and component are pending', () => {
 });
 
 it('suspends then updates when the query and component load', () => {
-  entryPointReference = loadEntryPoint(
+  entryPointReference = loadEntryPoint<
+    {id: string},
+    {...},
+    {...},
+    {...},
+    mixed,
+    any,
+    {
+      getPreloadProps(entryPointParams: any): {
+        entryPoints: {
+          nestedEntryPoint: {
+            entryPoint: {
+              getPreloadProps(nestedEntryPointParams: any): {
+                queries: {
+                  preloadedQuery: {
+                    parameters: {kind: string, params: RequestParameters},
+                    variables: {id: any},
+                  },
+                },
+              },
+              root: any,
+            },
+            entryPointParams: any,
+          },
+        },
+      },
+      root: any,
+    },
+  >(
     {
       getEnvironment: () => environment,
     },
@@ -189,6 +254,7 @@ it('suspends then updates when the query and component load', () => {
   const renderer = TestRenderer.create(
     <RelayEnvironmentProvider environment={environment}>
       <React.Suspense fallback="Fallback">
+        {/* $FlowFixMe[incompatible-type-arg] */}
         <EntryPointContainer
           entryPointReference={entryPointReference}
           props={{}}
@@ -203,9 +269,9 @@ it('suspends then updates when the query and component load', () => {
     expect(props.queries.preloadedQuery.variables.id).toBe('my-id');
     preloadedQuery = props.queries.preloadedQuery;
     const data = usePreloadedQuery(query, props.queries.preloadedQuery);
-    return data.node.name;
+    return data.node?.name;
   }
-  nestedEntryPointResource.resolve(Component);
+  nestedEntryPointResource.resolve((Component: any));
   PreloadableQueryRegistry.set(ID, query);
   dataSource.next(response);
   dataSource.complete();
@@ -223,11 +289,39 @@ it('renders synchronously when the component has already loaded and the data arr
     expect(props.queries.preloadedQuery.variables.id).toBe('my-id');
     preloadedQuery = props.queries.preloadedQuery;
     const data = usePreloadedQuery(query, props.queries.preloadedQuery);
-    return data.node.name;
+    return data.node?.name;
   }
   PreloadableQueryRegistry.set(ID, query);
-  nestedEntryPointResource.resolve(Component);
-  entryPointReference = loadEntryPoint(
+  nestedEntryPointResource.resolve((Component: any));
+  entryPointReference = loadEntryPoint<
+    {id: string},
+    {...},
+    {...},
+    {...},
+    mixed,
+    any,
+    {
+      getPreloadProps(entryPointParams: any): {
+        entryPoints: {
+          nestedEntryPoint: {
+            entryPoint: {
+              getPreloadProps(nestedEntryPointParams: any): {
+                queries: {
+                  preloadedQuery: {
+                    parameters: {kind: string, params: RequestParameters},
+                    variables: {id: any},
+                  },
+                },
+              },
+              root: any,
+            },
+            entryPointParams: any,
+          },
+        },
+      },
+      root: any,
+    },
+  >(
     {
       getEnvironment: () => environment,
     },
@@ -242,6 +336,7 @@ it('renders synchronously when the component has already loaded and the data arr
   const renderer = TestRenderer.create(
     <RelayEnvironmentProvider environment={environment}>
       <React.Suspense fallback="Fallback">
+        {/* $FlowFixMe[incompatible-type-arg] */}
         <EntryPointContainer
           entryPointReference={entryPointReference}
           props={{}}
@@ -256,7 +351,7 @@ it('renders synchronously when the component has already loaded and the data arr
 });
 
 it('warns if the entryPointReference has already been disposed', () => {
-  // $FlowFixMe[incompatible-type]
+  // $FlowFixMe[incompatible-call]
   entryPointReference = loadEntryPoint(
     {
       getEnvironment: () => environment,
@@ -268,6 +363,7 @@ it('warns if the entryPointReference has already been disposed', () => {
     TestRenderer.create(
       <RelayEnvironmentProvider environment={environment}>
         <React.Suspense fallback="Fallback">
+          {/* $FlowFixMe[incompatible-type-arg] */}
           <EntryPointContainer
             entryPointReference={entryPointReference}
             props={{}}

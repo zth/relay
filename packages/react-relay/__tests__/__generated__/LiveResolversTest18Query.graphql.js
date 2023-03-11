@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<65a35c394a4cca821978c141eca450ef>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<c8eccfabd4a20b1572e3447298b17ad3>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,13 +19,13 @@
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
-import queryLiveResolverThrowsResolver from "../../../relay-runtime/store/__tests__/resolvers/QueryLiveResolverThrows.js";
-// Type assertion validating that `queryLiveResolverThrowsResolver` resolver is correctly implemented.
+import {live_resolver_throws as queryLiveResolverThrowsResolverType} from "../../../relay-runtime/store/__tests__/resolvers/QueryLiveResolverThrows.js";
+// Type assertion validating that `queryLiveResolverThrowsResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryLiveResolverThrowsResolver: () => LiveState<any>);
+(queryLiveResolverThrowsResolverType: () => LiveState<mixed>);
 export type LiveResolversTest18Query$variables = {||};
 export type LiveResolversTest18Query$data = {|
-  +live_resolver_throws: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof queryLiveResolverThrowsResolver>["read"]>,
+  +live_resolver_throws: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof queryLiveResolverThrowsResolverType>["read"]>,
 |};
 export type LiveResolversTest18Query = {|
   response: LiveResolversTest18Query$data,
@@ -47,7 +49,7 @@ var node/*: ClientRequest*/ = {
             "fragment": null,
             "kind": "RelayLiveResolver",
             "name": "live_resolver_throws",
-            "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/QueryLiveResolverThrows'),
+            "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/QueryLiveResolverThrows').live_resolver_throws,
             "path": "live_resolver_throws"
           }
         ]
@@ -66,11 +68,12 @@ var node/*: ClientRequest*/ = {
         "kind": "ClientExtension",
         "selections": [
           {
-            "alias": null,
+            "name": "live_resolver_throws",
             "args": null,
-            "kind": "ScalarField",
-            "name": "__id",
-            "storageKey": null
+            "fragment": null,
+            "kind": "RelayResolver",
+            "storageKey": null,
+            "isOutputType": false
           }
         ]
       }

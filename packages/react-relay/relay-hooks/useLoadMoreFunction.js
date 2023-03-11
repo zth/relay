@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -17,10 +17,9 @@ import type {
   Disposable,
   GraphQLResponse,
   Observer,
-  OperationType,
   ReaderFragment,
   ReaderPaginationMetadata,
-  VariablesOf,
+  Variables,
 } from 'relay-runtime';
 
 const useFetchTrackingRef = require('./useFetchTrackingRef');
@@ -30,8 +29,8 @@ const useRelayEnvironment = require('./useRelayEnvironment');
 const invariant = require('invariant');
 const {useCallback, useEffect, useState} = require('react');
 const {
-  ConnectionInterface,
   __internal: {fetchQuery},
+  ConnectionInterface,
   createOperationDescriptor,
   getPaginationVariables,
   getSelector,
@@ -39,11 +38,11 @@ const {
 } = require('relay-runtime');
 const warning = require('warning');
 
-export type LoadMoreFn<TQuery: OperationType> = (
+export type LoadMoreFn<TVariables: Variables> = (
   count: number,
   options?: {
     onComplete?: (Error | null) => void,
-    UNSTABLE_extraVariables?: $Shape<VariablesOf<TQuery>>,
+    UNSTABLE_extraVariables?: $Shape<TVariables>,
   },
 ) => Disposable;
 
@@ -62,9 +61,9 @@ export type UseLoadMoreFunctionArgs = {
   onReset: () => void,
 };
 
-function useLoadMoreFunction<TQuery: OperationType>(
+function useLoadMoreFunction<TVariables: Variables>(
   args: UseLoadMoreFunctionArgs,
-): [LoadMoreFn<TQuery>, boolean, () => void] {
+): [LoadMoreFn<TVariables>, boolean, () => void] {
   const {
     direction,
     fragmentNode,
@@ -123,7 +122,13 @@ function useLoadMoreFunction<TQuery: OperationType>(
   }, [disposeFetch]);
 
   const loadMore = useCallback(
-    (count, options) => {
+    (
+      count: number,
+      options: void | {
+        UNSTABLE_extraVariables?: $Shape<TVariables>,
+        onComplete?: (Error | null) => void,
+      },
+    ) => {
       // TODO(T41131846): Fetch/Caching policies for loadMore
 
       const onComplete = options?.onComplete;

@@ -6,16 +6,17 @@
  *
  * @flow
  * @format
+ * @oncall relay
  */
 
 'use strict';
 
 import type {
+  $RelayProps,
   GeneratedNodeMap,
   ObserverOrCallback,
   RefetchOptions,
   RelayRefetchProp,
-  $RelayProps,
 } from './ReactRelayTypes';
 import type {
   CacheConfig,
@@ -79,6 +80,7 @@ function createContainerWithFragments<
   const containerName = getContainerName(Component);
 
   return class extends React.Component<ContainerProps, ContainerState> {
+    // $FlowFixMe[missing-local-annot]
     static displayName = containerName;
 
     _refetchSubscription: ?Subscription;
@@ -142,7 +144,7 @@ function createContainerWithFragments<
     static getDerivedStateFromProps(
       nextProps: ContainerProps,
       prevState: ContainerState,
-    ): $Shape<ContainerState> | null {
+    ): Partial<ContainerState> | null {
       // Any props change could impact the query, so we mirror props in state.
       // This is an unusual pattern, but necessary for this container usecase.
       const {prevProps} = prevState;
@@ -369,7 +371,7 @@ function createContainerWithFragments<
 
       // Declare refetchSubscription before assigning it in .start(), since
       // synchronous completion may call callbacks .subscribe() returns.
-      let refetchSubscription;
+      let refetchSubscription: Subscription;
 
       const storeSnapshot = this._getQueryFetcher().lookupInStore(
         environment,
@@ -405,12 +407,12 @@ function createContainerWithFragments<
           // TODO (T26430099): Cleanup old references
           preservePreviousReferences: true,
         })
-        .mergeMap(response => {
+        .mergeMap<void>(response => {
           this.state.resolver.setVariables(
             fragmentVariables,
             operation.request.node,
           );
-          return Observable.create(sink =>
+          return Observable.create<void>(sink =>
             this.setState(
               latestState => ({
                 data: latestState.resolver.resolve(),
@@ -447,7 +449,9 @@ function createContainerWithFragments<
       };
     };
 
+    // $FlowFixMe[missing-local-annot]
     render() {
+      // eslint-disable-next-line no-unused-vars
       const {componentRef, __relayContext, __rootIsQueryRenderer, ...props} =
         this.props;
       const {relayProp, contextForChildren} = this.state;

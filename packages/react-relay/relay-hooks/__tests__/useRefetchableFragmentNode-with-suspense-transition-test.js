@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -56,7 +56,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
     ) {
       const [isPending, startTransition] = useTransition();
       const {fragmentData: data, ...result} =
-        useRefetchableFragmentNodeOriginal(
+        useRefetchableFragmentNodeOriginal<any, any>(
           fragmentNode,
           fragmentRef,
           'TestComponent',
@@ -262,6 +262,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
             [ID_KEY]:
               owner.request.variables.id ?? owner.request.variables.nodeID,
             [FRAGMENTS_KEY]: {
+              // $FlowFixMe[invalid-computed-prop] Error found while enabling LTI on this file
               [fragment.name]: {},
             },
             [FRAGMENT_OWNER_KEY]: owner.request,
@@ -393,7 +394,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
       describe('multiple refetches', () => {
         let fetchSpy;
         beforeEach(() => {
-          fetchSpy = jest.fn();
+          fetchSpy = jest.fn<Array<any>, mixed>();
           const internalRuntime = require('relay-runtime').__internal;
           const originalFetchQueryDeduped = internalRuntime.fetchQueryDeduped;
           jest

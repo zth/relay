@@ -5,6 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::fmt::Result as FmtResult;
+use std::fmt::Write;
+
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
+use itertools::Itertools;
+use relay_config::TypegenConfig;
+
 use crate::writer::Prop;
 use crate::writer::SortedASTList;
 use crate::writer::SortedStringKeyList;
@@ -14,12 +22,6 @@ use crate::writer::AST;
 use crate::KEY_DATA;
 use crate::KEY_FRAGMENT_SPREADS;
 use crate::KEY_FRAGMENT_TYPE;
-use intern::string_key::Intern;
-use intern::string_key::StringKey;
-use itertools::Itertools;
-use relay_config::TypegenConfig;
-use std::fmt::Result as FmtResult;
-use std::fmt::Write;
 
 pub struct TypeScriptPrinter {
     result: String,
@@ -45,6 +47,7 @@ impl Writer for TypeScriptPrinter {
     fn write(&mut self, ast: &AST) -> FmtResult {
         match ast {
             AST::Any => write!(&mut self.result, "any"),
+            AST::Mixed => write!(&mut self.result, "unknown"),
             AST::String => write!(&mut self.result, "string"),
             AST::StringLiteral(literal) => self.write_string_literal(**literal),
             AST::OtherTypename => self.write_other_string(),
@@ -77,6 +80,14 @@ impl Writer for TypeScriptPrinter {
                 // TODO: Implement type generation for typescript
                 Ok(())
             }
+            AST::GenericType { outer, inner } => self.write_generic_type(*outer, inner),
+            AST::PropertyType {
+                type_,
+                property_name,
+            } => {
+                self.write(type_)?;
+                write!(&mut self.result, "['{}']", property_name)
+            }
         }
     }
 
@@ -93,10 +104,30 @@ impl Writer for TypeScriptPrinter {
     }
 
     fn write_import_module_default(&mut self, name: &str, from: &str) -> FmtResult {
-        writeln!(&mut self.result, "import {} from \"{}\";", name, from)
+        let from_without_extension = from.strip_suffix(".ts").unwrap_or(from);
+        writeln!(
+            &mut self.result,
+            "import {} from \"{}\";",
+            name, from_without_extension
+        )
+    }
+
+    fn write_import_module_named(
+        &mut self,
+        name: &str,
+        import_as: Option<&str>,
+        from: &str,
+    ) -> FmtResult {
+        let import_type = if let Some(import_as) = import_as {
+            format!("{} as {}", name, import_as)
+        } else {
+            name.to_string()
+        };
+        self.write_import_type(&[&import_type], from)
     }
 
     fn write_import_type(&mut self, types: &[&str], from: &str) -> FmtResult {
+        let from_without_extension = from.strip_suffix(".ts").unwrap_or(from);
         writeln!(
             &mut self.result,
             "import {}{{ {} }} from \"{}\";",
@@ -106,7 +137,7 @@ impl Writer for TypeScriptPrinter {
                 ""
             },
             types.iter().format(", "),
-            from
+            from_without_extension
         )
     }
 
@@ -298,17 +329,23 @@ impl TypeScriptPrinter {
         write!(&mut self.result, "() => ")?;
         self.write(return_type)
     }
+
+    fn write_generic_type(&mut self, outer: StringKey, inner: &AST) -> FmtResult {
+        write!(&mut self.result, "{}<", outer)?;
+        self.write(inner)?;
+        write!(&mut self.result, ">")
+    }
 }
 
 #[cfg(test)]
 mod tests {
+    use intern::string_key::Intern;
+
+    use super::*;
     use crate::writer::ExactObject;
     use crate::writer::InexactObject;
     use crate::writer::KeyValuePairProp;
     use crate::writer::SortedASTList;
-
-    use super::*;
-    use intern::string_key::Intern;
 
     fn print_type(ast: &AST) -> String {
         print_type_with_config(ast)
@@ -517,6 +554,19 @@ mod tests {
         printer.write_import_type(&["A", "B"], "module").unwrap();
         assert_eq!(printer.into_string(), "import { A, B } from \"module\";\n");
 
+        let mut printer = Box::new(TypeScriptPrinter::new(&Default::default()));
+        printer.write_import_type(&["A", "B"], "module.ts").unwrap();
+        assert_eq!(printer.into_string(), "import { A, B } from \"module\";\n");
+
+        let mut printer = Box::new(TypeScriptPrinter::new(&Default::default()));
+        printer
+            .write_import_type(&["A", "B"], "../../../module.ts.ts")
+            .unwrap();
+        assert_eq!(
+            printer.into_string(),
+            "import { A, B } from \"../../../module.ts\";\n"
+        );
+
         let mut printer = Box::new(TypeScriptPrinter::new(&TypegenConfig {
             use_import_type_syntax: true,
             ..Default::default()
@@ -530,6 +580,21 @@ mod tests {
         let mut printer = Box::new(TypeScriptPrinter::new(&Default::default()));
         printer.write_import_module_default("A", "module").unwrap();
         assert_eq!(printer.into_string(), "import A from \"module\";\n");
+
+        let mut printer = Box::new(TypeScriptPrinter::new(&Default::default()));
+        printer
+            .write_import_module_default("A", "../../module.ts")
+            .unwrap();
+        assert_eq!(printer.into_string(), "import A from \"../../module\";\n");
+
+        let mut printer = Box::new(TypeScriptPrinter::new(&Default::default()));
+        printer
+            .write_import_module_default("A", "../../module.ts.ts")
+            .unwrap();
+        assert_eq!(
+            printer.into_string(),
+            "import A from \"../../module.ts\";\n"
+        );
     }
 
     #[test]

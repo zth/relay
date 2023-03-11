@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<deed8aa0c0676f67053251f0d12eb78a>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<53b0ceb6d8eee75e5095d64c1c90d2b2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,16 +20,16 @@
 import type { ReaderFragment, RefetchableFragment } from 'relay-runtime';
 import type { UserGreetingResolver$key } from "./UserGreetingResolver.graphql";
 import type { FragmentType } from "relay-runtime";
-import userGreetingResolver from "../UserGreetingResolver.js";
-// Type assertion validating that `userGreetingResolver` resolver is correctly implemented.
+import {greeting as userGreetingResolverType} from "../UserGreetingResolver.js";
+// Type assertion validating that `userGreetingResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userGreetingResolver: (
-  rootKey: UserGreetingResolver$key, 
+(userGreetingResolverType: (
+  rootKey: UserGreetingResolver$key,
 ) => mixed);
 declare export opaque type ResolverTest2Fragment$fragmentType: FragmentType;
 type ResolverTest1FragmentRefetchableQuery$variables = any;
 export type ResolverTest2Fragment$data = {|
-  +greeting: ?$Call<<R>((...empty[]) => R) => R, typeof userGreetingResolver>,
+  +greeting: ?$Call<<R>((...empty[]) => R) => R, typeof userGreetingResolverType>,
   +id: string,
   +$fragmentType: ResolverTest2Fragment$fragmentType,
 |};
@@ -63,7 +65,7 @@ var node/*: ReaderFragment*/ = {
       },
       "kind": "RelayResolver",
       "name": "greeting",
-      "resolverModule": require('./../UserGreetingResolver'),
+      "resolverModule": require('./../UserGreetingResolver').greeting,
       "path": "greeting"
     },
     {

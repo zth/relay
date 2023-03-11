@@ -5,20 +5,34 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::collections::HashMap;
+use std::collections::HashSet;
+use std::fmt;
+use std::fmt::Display;
+use std::fmt::Formatter;
+use std::hash::Hash;
+use std::str::FromStr;
+use std::sync::Arc;
+
+use common::ArgumentName;
+use common::DirectiveName;
 use common::Location;
 use common::Named;
 use common::WithLocation;
 use graphql_syntax::FloatValue;
 use graphql_syntax::OperationKind;
+use intern::impl_lookup;
+use intern::string_key::Intern;
 use intern::string_key::StringKey;
+use intern::BuildIdHasher;
+use intern::Lookup;
 use schema::FieldID;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
 use schema::TypeReference;
-use std::fmt;
-use std::hash::Hash;
-use std::sync::Arc;
+use serde::Deserialize;
+use serde::Serialize;
 
 use crate::AssociatedData;
 // Definitions
@@ -30,7 +44,7 @@ pub enum ExecutableDefinition {
 }
 
 impl ExecutableDefinition {
-    pub fn has_directive(&self, directive_name: StringKey) -> bool {
+    pub fn has_directive(&self, directive_name: DirectiveName) -> bool {
         match self {
             ExecutableDefinition::Operation(node) => node
                 .directives
@@ -45,22 +59,48 @@ impl ExecutableDefinition {
 
     pub fn name_with_location(&self) -> WithLocation<StringKey> {
         match self {
-            ExecutableDefinition::Operation(node) => node.name,
-            ExecutableDefinition::Fragment(node) => node.name,
+            ExecutableDefinition::Operation(node) => node.name.map(|x| x.0),
+            ExecutableDefinition::Fragment(node) => node.name.map(|x| x.0),
         }
     }
 }
+#[derive(
+    Copy,
+    Clone,
+    Debug,
+    Eq,
+    PartialEq,
+    Ord,
+    PartialOrd,
+    Hash,
+    Serialize,
+    Deserialize
+)]
+pub struct OperationDefinitionName(pub StringKey);
 
+impl Display for OperationDefinitionName {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+impl_lookup!(OperationDefinitionName);
 /// A fully-typed mutation, query, or subscription definition
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct OperationDefinition {
     pub kind: OperationKind,
-    pub name: WithLocation<StringKey>,
+    pub name: WithLocation<OperationDefinitionName>,
     pub type_: Type,
     pub variable_definitions: Vec<VariableDefinition>,
     pub directives: Vec<Directive>,
     pub selections: Vec<Selection>,
     pub generated: bool,
+}
+
+impl Named for OperationDefinition {
+    type Name = OperationDefinitionName;
+    fn name(&self) -> OperationDefinitionName {
+        self.name.item
+    }
 }
 
 impl OperationDefinition {
@@ -75,10 +115,36 @@ impl OperationDefinition {
     }
 }
 
+/// A newtype wrapper around StringKey to represent a FragmentDefinition's name
+#[derive(
+    Copy,
+    Clone,
+    Debug,
+    Eq,
+    PartialEq,
+    Hash,
+    Ord,
+    PartialOrd,
+    Serialize,
+    Deserialize
+)]
+pub struct FragmentDefinitionName(pub StringKey);
+
+impl fmt::Display for FragmentDefinitionName {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        self.0.fmt(f)
+    }
+}
+
+impl_lookup!(FragmentDefinitionName);
+
+pub type FragmentDefinitionNameMap<V> = HashMap<FragmentDefinitionName, V, BuildIdHasher<u32>>;
+pub type FragmentDefinitionNameSet = HashSet<FragmentDefinitionName, BuildIdHasher<u32>>;
+
 /// A fully-typed fragment definition
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct FragmentDefinition {
-    pub name: WithLocation<StringKey>,
+    pub name: WithLocation<FragmentDefinitionName>,
     pub variable_definitions: Vec<VariableDefinition>,
     pub used_global_variables: Vec<VariableDefinition>,
     pub type_condition: Type,
@@ -86,11 +152,100 @@ pub struct FragmentDefinition {
     pub selections: Vec<Selection>,
 }
 
+/// An enum that can contain an operation definition name (e.g. names of queries,
+/// subscriptions and mutations) or a fragment name. Note that the graphql spec
+/// [defines](https://spec.graphql.org/draft/#ExecutableDefinition) executable
+/// definitions as either operations or fragments.
+#[derive(
+    Copy,
+    Clone,
+    Debug,
+    Eq,
+    Hash,
+    PartialEq,
+    Ord,
+    PartialOrd,
+    Serialize,
+    Deserialize
+)]
+pub enum ExecutableDefinitionName {
+    OperationDefinitionName(OperationDefinitionName),
+    FragmentDefinitionName(FragmentDefinitionName),
+}
+
+impl fmt::Display for ExecutableDefinitionName {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        match self {
+            ExecutableDefinitionName::OperationDefinitionName(name) => name.fmt(f),
+            ExecutableDefinitionName::FragmentDefinitionName(name) => name.fmt(f),
+        }
+    }
+}
+
+impl From<OperationDefinitionName> for ExecutableDefinitionName {
+    fn from(name: OperationDefinitionName) -> Self {
+        ExecutableDefinitionName::OperationDefinitionName(name)
+    }
+}
+
+impl From<FragmentDefinitionName> for ExecutableDefinitionName {
+    fn from(name: FragmentDefinitionName) -> Self {
+        ExecutableDefinitionName::FragmentDefinitionName(name)
+    }
+}
+
+impl From<ExecutableDefinitionName> for StringKey {
+    fn from(executable_definition: ExecutableDefinitionName) -> Self {
+        match executable_definition {
+            ExecutableDefinitionName::OperationDefinitionName(name) => name.0,
+            ExecutableDefinitionName::FragmentDefinitionName(name) => name.0,
+        }
+    }
+}
+
+impl Lookup for ExecutableDefinitionName {
+    fn lookup(self) -> &'static str {
+        match self {
+            ExecutableDefinitionName::OperationDefinitionName(name) => name.lookup(),
+            ExecutableDefinitionName::FragmentDefinitionName(name) => name.lookup(),
+        }
+    }
+}
+
+impl ExecutableDefinitionName {
+    pub fn unwrap_fragment_definition_name(&self) -> FragmentDefinitionName {
+        match self {
+            ExecutableDefinitionName::OperationDefinitionName(_) => {
+                panic!("Expected FragmentDefinitionName, found {}", self)
+            }
+            ExecutableDefinitionName::FragmentDefinitionName(name) => *name,
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+pub struct VariableName(pub StringKey);
+
+impl Display for VariableName {
+    fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(fmt, "{}", self.0)
+    }
+}
+
+impl FromStr for VariableName {
+    type Err = std::convert::Infallible;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(VariableName(s.intern()))
+    }
+}
+
+impl_lookup!(VariableName);
+
 /// A variable definition of an operation or fragment
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct VariableDefinition {
-    pub name: WithLocation<StringKey>,
-    pub type_: TypeReference,
+    pub name: WithLocation<VariableName>,
+    pub type_: TypeReference<Type>,
     pub default_value: Option<WithLocation<ConstantValue>>,
     pub directives: Vec<Directive>,
 }
@@ -105,7 +260,8 @@ impl VariableDefinition {
 }
 
 impl Named for VariableDefinition {
-    fn name(&self) -> StringKey {
+    type Name = VariableName;
+    fn name(&self) -> VariableName {
         self.name.item
     }
 }
@@ -220,7 +376,7 @@ impl fmt::Debug for Selection {
 /// ... Name
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct FragmentSpread {
-    pub fragment: WithLocation<StringKey>,
+    pub fragment: WithLocation<FragmentDefinitionName>,
     pub arguments: Vec<Argument>,
     pub directives: Vec<Directive>,
 }
@@ -335,7 +491,7 @@ impl Condition {
 /// @ Name Arguments?
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Directive {
-    pub name: WithLocation<StringKey>,
+    pub name: WithLocation<DirectiveName>,
     pub arguments: Vec<Argument>,
     /// Optional typed data that has no textual representation. This can be used
     /// to attach arbitrary data on compiler-internal directives, such as to
@@ -343,7 +499,8 @@ pub struct Directive {
     pub data: Option<Box<dyn AssociatedData>>,
 }
 impl Named for Directive {
-    fn name(&self) -> StringKey {
+    type Name = DirectiveName;
+    fn name(&self) -> DirectiveName {
         self.name.item
     }
 }
@@ -351,11 +508,12 @@ impl Named for Directive {
 /// Name : Value
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Argument {
-    pub name: WithLocation<StringKey>,
+    pub name: WithLocation<ArgumentName>,
     pub value: WithLocation<Value>,
 }
 impl Named for Argument {
-    fn name(&self) -> StringKey {
+    type Name = ArgumentName;
+    fn name(&self) -> ArgumentName {
         self.name.item
     }
 }
@@ -405,18 +563,19 @@ impl Value {
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Variable {
-    pub name: WithLocation<StringKey>,
-    pub type_: TypeReference,
+    pub name: WithLocation<VariableName>,
+    pub type_: TypeReference<Type>,
 }
 
 /// Name : Value[Const]
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct ConstantArgument {
-    pub name: WithLocation<StringKey>,
+    pub name: WithLocation<ArgumentName>,
     pub value: WithLocation<ConstantValue>,
 }
 impl Named for ConstantArgument {
-    fn name(&self) -> StringKey {
+    type Name = ArgumentName;
+    fn name(&self) -> ArgumentName {
         self.name.item
     }
 }

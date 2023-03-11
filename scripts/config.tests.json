@@ -11,7 +11,9 @@
     "Copyright (c) Meta Platforms, Inc. and affiliates.",
     "",
     "This source code is licensed under the MIT license found in the",
-    "LICENSE file in the root directory of this source tree."
+    "LICENSE file in the root directory of this source tree.",
+    "",
+    "@oncall relay"
   ],
   "projects": {
     "tests": {
@@ -35,6 +37,18 @@
         },
         "enable_fragment_aliases": {
           "kind": "enabled"
+        },
+        "emit_normalization_nodes_for_client_edges": true,
+        "relay_resolver_enable_output_type": {
+          "kind": "limited",
+          "allowlist": [
+            "example_client_object",
+            "many_todos",
+            "todo",
+            "todos",
+            "blocked_by",
+            "text"
+          ]
         }
       },
       "language": "flow"

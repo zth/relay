@@ -5,9 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::root_variables::InferVariablesVisitor;
 use common::Diagnostic;
 use common::DiagnosticsResult;
+use common::DirectiveName;
 use common::NamedItem;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::OperationDefinition;
@@ -15,7 +15,8 @@ use graphql_ir::Program;
 use graphql_ir::ValidationMessage;
 use graphql_ir::Validator;
 use intern::string_key::Intern;
-use intern::string_key::StringKey;
+
+use crate::root_variables::InferVariablesVisitor;
 
 pub fn validate_unused_variables(program: &Program) -> DiagnosticsResult<()> {
     ValidateUnusedVariables::new(program).validate_program(program)
@@ -23,14 +24,16 @@ pub fn validate_unused_variables(program: &Program) -> DiagnosticsResult<()> {
 
 pub struct ValidateUnusedVariables<'program> {
     visitor: InferVariablesVisitor<'program>,
-    ignore_directive_name: StringKey,
+    ignore_directive_name: DirectiveName,
 }
 
 impl<'program> ValidateUnusedVariables<'program> {
     fn new(program: &'program Program) -> Self {
         Self {
             visitor: InferVariablesVisitor::new(program),
-            ignore_directive_name: "DEPRECATED__relay_ignore_unused_variables_error".intern(),
+            ignore_directive_name: DirectiveName(
+                "DEPRECATED__relay_ignore_unused_variables_error".intern(),
+            ),
         }
     }
 }
@@ -57,7 +60,7 @@ impl Validator for ValidateUnusedVariables<'_> {
                 .map(|unused_variable| {
                     Diagnostic::error(
                         ValidationMessage::UnusedVariable {
-                            operation_name: operation.name.item,
+                            operation_name: operation.name.item.0,
                             variable_name: unused_variable.name.item,
                         },
                         unused_variable.name.location,
@@ -69,7 +72,7 @@ impl Validator for ValidateUnusedVariables<'_> {
             if let Some(directive) = ignore_directive {
                 return Err(vec![Diagnostic::error(
                     ValidationMessage::UnusedIgnoreUnusedVariablesDirective {
-                        operation_name: operation.name.item,
+                        operation_name: operation.name.item.0,
                     },
                     directive.name.location,
                 )]);

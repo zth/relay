@@ -5,7 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use self::ignoring_type_and_location::arguments_equals;
+use std::collections::HashMap;
+use std::collections::HashSet;
+use std::collections::VecDeque;
+use std::marker::PhantomData;
+use std::sync::Arc;
+
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::Location;
@@ -18,22 +23,21 @@ use graphql_ir::node_identifier::LocationAgnosticBehavior;
 use graphql_ir::Argument;
 use graphql_ir::Field as IRField;
 use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentDefinitionName;
 use graphql_ir::LinkedField;
 use graphql_ir::OperationDefinition;
 use graphql_ir::Program;
 use graphql_ir::ScalarField;
 use graphql_ir::Selection;
 use intern::string_key::StringKey;
+use intern::Lookup;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
 use schema::TypeReference;
-use std::collections::HashMap;
-use std::collections::HashSet;
-use std::collections::VecDeque;
-use std::marker::PhantomData;
-use std::sync::Arc;
 use thiserror::Error;
+
+use self::ignoring_type_and_location::arguments_equals;
 
 /// Note:set `further_optimization` will enable: (1) cache the paired-fields; and (2) avoid duplicate fragment validations in multi-core machines.
 pub fn validate_selection_conflict<B: LocationAgnosticBehavior + Sync>(
@@ -56,7 +60,7 @@ struct ValidateSelectionConflict<'s, TBehavior: LocationAgnosticBehavior> {
     fragment_cache: DashMap<StringKey, Arc<Fields<'s>>, intern::BuildIdHasher<u32>>,
     fields_cache: DashMap<PointerAddress, Arc<Fields<'s>>>,
     further_optimization: bool,
-    verified_fields_pair: DashSet<(PointerAddress, PointerAddress)>,
+    verified_fields_pair: DashSet<(PointerAddress, PointerAddress, bool)>,
     _behavior: PhantomData<TBehavior>,
 }
 
@@ -74,7 +78,7 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
 
     fn validate_program(&self, program: &'s Program) -> DiagnosticsResult<()> {
         if self.further_optimization {
-            self.prewarm_fragments(program);
+            self.prewarm_fragments(program)?;
         }
 
         par_try_map(&program.operations, |operation| {
@@ -83,15 +87,17 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
         Ok(())
     }
 
-    fn prewarm_fragments(&self, program: &'s Program) {
+    fn prewarm_fragments(&self, program: &'s Program) -> DiagnosticsResult<()> {
         // Validate the fragments in topology order.
-        let mut unclaimed_fragment_queue: VecDeque<StringKey> = VecDeque::new();
+        let mut unclaimed_fragment_queue: VecDeque<FragmentDefinitionName> = VecDeque::new();
 
         // Construct the dependency graph, which is represented by two maps:
         // DAG1: fragment K -> Used by: {Fragment v_1, v_2, v_3, ...}
         // DAG2: fragment K -> Spreading: {Fragment v_1, v_2, v_3, ...}
-        let mut dag_used_by: HashMap<StringKey, HashSet<StringKey>> = HashMap::new();
-        let mut dag_spreading: HashMap<StringKey, HashSet<StringKey>> = HashMap::new();
+        let mut dag_used_by: HashMap<FragmentDefinitionName, HashSet<FragmentDefinitionName>> =
+            HashMap::new();
+        let mut dag_spreading: HashMap<FragmentDefinitionName, HashSet<FragmentDefinitionName>> =
+            HashMap::new();
         for fragment in program.fragments() {
             let fragment_ = fragment.name.item;
             let spreads = fragment
@@ -113,11 +119,13 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
 
         let dummy_hashset = HashSet::new();
         while let Some(visiting) = unclaimed_fragment_queue.pop_front() {
-            let _ = self.validate_and_collect_fragment(
+            if let Err(e) = self.validate_and_collect_fragment(
                 program
                     .fragment(visiting)
                     .expect("fragment must have been registered"),
-            );
+            ) {
+                return Err(e);
+            }
 
             for used_by in dag_used_by.get(&visiting).unwrap_or(&dummy_hashset) {
                 // fragment "used_by" now can assume "...now" cached.
@@ -128,6 +136,7 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
                 }
             }
         }
+        Ok(())
     }
 
     fn validate_operation(&self, operation: &'s OperationDefinition) -> DiagnosticsResult<()> {
@@ -178,12 +187,12 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
         &self,
         fragment: &'s FragmentDefinition,
     ) -> DiagnosticsResult<Arc<Fields<'s>>> {
-        if let Some(cached) = self.fragment_cache.get(&fragment.name.item) {
+        if let Some(cached) = self.fragment_cache.get(&fragment.name.item.0) {
             return Ok(Arc::clone(&cached));
         }
         let fields = Arc::new(self.validate_selections(&fragment.selections)?);
         self.fragment_cache
-            .insert(fragment.name.item, Arc::clone(&fields));
+            .insert(fragment.name.item.0, Arc::clone(&fields));
         Ok(fields)
     }
 
@@ -236,7 +245,13 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
             }
 
             let addr2 = existing_field.pointer_address();
-            if self.further_optimization && self.verified_fields_pair.contains(&(addr1, addr2)) {
+            if self.further_optimization
+                && self.verified_fields_pair.contains(&(
+                    addr1,
+                    addr2,
+                    parent_fields_mutually_exclusive,
+                ))
+            {
                 continue;
             }
 
@@ -263,7 +278,7 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
                             *l,
                             *r,
                         ) {
-                            errors.push(err)
+                            errors.push(err);
                         };
                     }
                     if has_same_type_reference_wrapping(&l_definition.type_, &r_definition.type_) {
@@ -308,7 +323,7 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
                             *l,
                             *r,
                         ) {
-                            errors.push(err)
+                            errors.push(err);
                         };
                     } else if l_definition.type_ != r_definition.type_ {
                         errors.push(
@@ -355,9 +370,11 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
                 }
             }
 
-            // save the verified pair into cache
-            if self.further_optimization && errors.is_empty() {
-                self.verified_fields_pair.insert((addr1, addr2));
+            // Save the verified pair into cache. The same pair of fields can appear under different parent
+            // fields, and the validation rule differs according to `parent_fields_mutually_exclusive`.
+            if self.further_optimization {
+                self.verified_fields_pair
+                    .insert((addr1, addr2, parent_fields_mutually_exclusive));
             }
         }
         if errors.is_empty() {
@@ -398,11 +415,11 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
             let left_stream_directive = l
                 .directives()
                 .iter()
-                .find(|d| d.name.item.lookup() == "stream");
+                .find(|d| d.name.item.0.lookup() == "stream");
             let right_stream_directive = r
                 .directives()
                 .iter()
-                .find(|d| d.name.item.lookup() == "stream");
+                .find(|d| d.name.item.0.lookup() == "stream");
             match (left_stream_directive, right_stream_directive) {
                 (Some(_), None) => Err(Diagnostic::error(
                     ValidationMessage::StreamConflictOnlyUsedInOnePlace { response_key },
@@ -432,32 +449,41 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
         location_b: Location,
         arguments_b: &[Argument],
     ) -> Diagnostic {
+        let arguments_a_printed = graphql_text_printer::print_arguments(
+            &self.program.schema,
+            arguments_a,
+            graphql_text_printer::PrinterOptions::default(),
+        );
+        let arguments_b_printed = graphql_text_printer::print_arguments(
+            &self.program.schema,
+            arguments_b,
+            graphql_text_printer::PrinterOptions::default(),
+        );
+
         Diagnostic::error(
             ValidationMessage::InvalidSameFieldWithDifferentArguments {
                 field_name,
-                arguments_a: graphql_text_printer::print_arguments(
-                    &self.program.schema,
-                    arguments_a,
-                    graphql_text_printer::PrinterOptions::default(),
-                ),
+                arguments_a: arguments_a_printed.clone(),
             },
             location_a,
         )
         .annotate(
             format!(
                 "which conflicts with this field with applied argument values {}",
-                graphql_text_printer::print_arguments(
-                    &self.program.schema,
-                    arguments_b,
-                    graphql_text_printer::PrinterOptions::default()
-                ),
+                &arguments_b_printed,
             ),
             location_b,
         )
+        .metadata_for_machine("err", "InvalidSameFieldWithDifferentArguments")
+        .metadata_for_machine("field_name", field_name.lookup())
+        .metadata_for_machine("arg_a", arguments_a_printed)
+        .metadata_for_machine("arg_b", arguments_b_printed)
+        .metadata_for_machine("loc_a", format!("{:?}", location_a))
+        .metadata_for_machine("loc_b", format!("{:?}", location_b))
     }
 }
 
-fn has_same_type_reference_wrapping(l: &TypeReference, r: &TypeReference) -> bool {
+fn has_same_type_reference_wrapping(l: &TypeReference<Type>, r: &TypeReference<Type>) -> bool {
     match (l, r) {
         (TypeReference::Named(_), TypeReference::Named(_)) => true,
         (TypeReference::NonNull(l), TypeReference::NonNull(r))
@@ -509,7 +535,7 @@ mod ignoring_type_and_location {
     /// which may not always be inferred identically.
     pub fn arguments_equals<B: LocationAgnosticBehavior>(a: &[Argument], b: &[Argument]) -> bool {
         order_agnostic_slice_equals(a, b, |a, b| {
-            a.name.location_agnostic_eq::<B>(&b.name)
+            a.name.item.0.location_agnostic_eq::<B>(&b.name.item.0)
                 && value_equals::<B>(&a.value.item, &b.value.item)
         })
     }
@@ -517,7 +543,9 @@ mod ignoring_type_and_location {
     fn value_equals<B: LocationAgnosticBehavior>(a: &Value, b: &Value) -> bool {
         match (a, b) {
             (Value::Constant(a), Value::Constant(b)) => a.location_agnostic_eq::<B>(b),
-            (Value::Variable(a), Value::Variable(b)) => a.name.location_agnostic_eq::<B>(&b.name),
+            (Value::Variable(a), Value::Variable(b)) => {
+                a.name.item.0.location_agnostic_eq::<B>(&b.name.item.0)
+            }
             (Value::List(a), Value::List(b)) => slice_equals(a, b, value_equals::<B>),
             (Value::Object(a), Value::Object(b)) => arguments_equals::<B>(a, b),
             _ => false,

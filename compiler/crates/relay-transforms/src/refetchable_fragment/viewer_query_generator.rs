@@ -5,6 +5,21 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::sync::Arc;
+
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::WithLocation;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::LinkedField;
+use graphql_ir::OperationDefinitionName;
+use graphql_ir::Selection;
+use relay_config::SchemaConfig;
+use schema::FieldID;
+use schema::SDLSchema;
+use schema::Schema;
+use schema::Type;
+
 use super::build_fragment_metadata_as_directive;
 use super::build_fragment_spread;
 use super::build_operation_variable_definitions;
@@ -15,25 +30,12 @@ use super::RefetchRoot;
 use super::RefetchableMetadata;
 use super::CONSTANTS;
 use crate::root_variables::VariableMap;
-use common::Diagnostic;
-use common::DiagnosticsResult;
-use common::WithLocation;
-use graphql_ir::FragmentDefinition;
-use graphql_ir::LinkedField;
-use graphql_ir::Selection;
-use intern::string_key::StringKey;
-use relay_config::SchemaConfig;
-use schema::FieldID;
-use schema::SDLSchema;
-use schema::Schema;
-use schema::Type;
-use std::sync::Arc;
 
 fn build_refetch_operation(
     schema: &SDLSchema,
     _schema_config: &SchemaConfig,
     fragment: &Arc<FragmentDefinition>,
-    query_name: StringKey,
+    query_name: OperationDefinitionName,
     variables_map: &VariableMap,
 ) -> DiagnosticsResult<Option<RefetchRoot>> {
     if schema.get_type_name(fragment.type_condition) != CONSTANTS.viewer_type_name {

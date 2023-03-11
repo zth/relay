@@ -5,15 +5,17 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::fmt::Result as FmtResult;
+use std::fmt::Write;
+
+use intern::string_key::StringKey;
+use itertools::Itertools;
+
 use crate::writer::FunctionTypeAssertion;
 use crate::writer::KeyValuePairProp;
 use crate::writer::Prop;
 use crate::writer::Writer;
 use crate::writer::AST;
-use intern::string_key::StringKey;
-use itertools::Itertools;
-use std::fmt::Result as FmtResult;
-use std::fmt::Write;
 
 pub struct FlowPrinter {
     result: String,
@@ -34,6 +36,7 @@ impl Writer for FlowPrinter {
     fn write(&mut self, ast: &AST) -> FmtResult {
         match ast {
             AST::Any => write!(&mut self.result, "any"),
+            AST::Mixed => write!(&mut self.result, "mixed"),
             AST::String => write!(&mut self.result, "string"),
             AST::StringLiteral(literal) => self.write_string_literal(**literal),
             AST::OtherTypename => self.write_other_string(),
@@ -67,6 +70,14 @@ impl Writer for FlowPrinter {
                 arguments,
                 return_type,
             }) => self.write_assert_function_type(*function_name, arguments, return_type),
+            AST::GenericType { outer, inner } => self.write_generic_type(*outer, inner),
+            AST::PropertyType {
+                type_,
+                property_name,
+            } => {
+                self.write(type_)?;
+                write!(&mut self.result, "['{}']", property_name)
+            }
         }
     }
 
@@ -88,6 +99,20 @@ impl Writer for FlowPrinter {
 
     fn write_import_module_default(&mut self, name: &str, from: &str) -> FmtResult {
         writeln!(&mut self.result, "import {} from \"{}\";", name, from)
+    }
+
+    fn write_import_module_named(
+        &mut self,
+        name: &str,
+        import_as: Option<&str>,
+        from: &str,
+    ) -> FmtResult {
+        let local_name = if let Some(import_as) = import_as {
+            format!("{{{} as {}}}", name, import_as)
+        } else {
+            format!("{{{}}}", name)
+        };
+        self.write_import_module_default(&local_name, from)
     }
 
     fn write_import_type(&mut self, types: &[&str], from: &str) -> FmtResult {
@@ -340,7 +365,7 @@ impl FlowPrinter {
                 self.write_indentation()?;
                 write!(&mut self.result, "{}: ", argument.key)?;
                 self.write(&argument.value)?;
-                writeln!(&mut self.result, ", ")?;
+                writeln!(&mut self.result, ",")?;
             }
             self.indentation -= 1;
         }
@@ -350,17 +375,23 @@ impl FlowPrinter {
 
         Ok(())
     }
+
+    fn write_generic_type(&mut self, outer: StringKey, inner: &AST) -> FmtResult {
+        write!(&mut self.result, "{}<", outer)?;
+        self.write(inner)?;
+        write!(&mut self.result, ">")
+    }
 }
 
 #[cfg(test)]
 mod tests {
+    use intern::string_key::Intern;
+
+    use super::*;
     use crate::writer::ExactObject;
     use crate::writer::InexactObject;
     use crate::writer::KeyValuePairProp;
     use crate::writer::SortedASTList;
-
-    use super::*;
-    use intern::string_key::Intern;
 
     fn print_type(ast: &AST) -> String {
         let mut printer = Box::new(FlowPrinter::new());

@@ -31,7 +31,9 @@ query RefetchableFragmentQuery(
   $id: ID!
 ) @__RefetchableDerivedFromMetadata
 # RefetchableDerivedFromMetadata(
-#     "PaginationFragment",
+#     FragmentDefinitionName(
+#         "PaginationFragment",
+#     ),
 # )
  {
   node(id: $id) {
@@ -70,7 +72,9 @@ fragment PaginationFragment on Node @refetchable(queryName: "RefetchableFragment
 # )
  @__RefetchableMetadata
 # RefetchableMetadata {
-#     operation_name: "RefetchableFragmentQuery",
+#     operation_name: OperationDefinitionName(
+#         "RefetchableFragmentQuery",
+#     ),
 #     path: [
 #         "node",
 #     ],

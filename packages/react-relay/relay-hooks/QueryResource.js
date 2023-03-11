@@ -5,8 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @flow strict-local
- * @emails oncall+relay
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -35,6 +35,7 @@ const warning = require('warning');
 
 const CACHE_CAPACITY = 1000;
 const DEFAULT_FETCH_POLICY = 'store-or-network';
+const DEFAULT_LIVE_FETCH_POLICY = 'store-and-network';
 
 export type QueryResource = QueryResourceImpl;
 
@@ -83,7 +84,11 @@ function getQueryCacheIdentifier(
   maybeRenderPolicy: ?RenderPolicy,
   cacheBreaker?: ?string | ?number,
 ): string {
-  const fetchPolicy = maybeFetchPolicy ?? DEFAULT_FETCH_POLICY;
+  const fetchPolicy =
+    maybeFetchPolicy ??
+    (operationIsLiveQuery(operation)
+      ? DEFAULT_LIVE_FETCH_POLICY
+      : DEFAULT_FETCH_POLICY);
   const renderPolicy =
     maybeRenderPolicy ?? environment.UNSTABLE_getDefaultRenderPolicy();
   const cacheIdentifier = `${fetchPolicy}-${renderPolicy}-${operation.request.identifier}`;
@@ -143,7 +148,18 @@ function createCacheEntry(
     };
   });
 
-  const cacheEntry = {
+  const cacheEntry: {
+    cacheIdentifier: string,
+    getValue(): QueryResult | Promise<void> | Error,
+    id: number,
+    operationAvailability: ?OperationAvailability,
+    permanentRetain(environment: IEnvironment): Disposable,
+    processedPayloadsCount: number,
+    releaseTemporaryRetain(): void,
+    setNetworkSubscription(subscription: ?Subscription): void,
+    setValue(val: QueryResult | Promise<void> | Error): void,
+    temporaryRetain(environment: IEnvironment): Disposable,
+  } = {
     cacheIdentifier,
     id: nextID++,
     processedPayloadsCount: 0,
@@ -225,7 +241,11 @@ class QueryResourceImpl {
     profilerContext: mixed,
   ): QueryResult {
     const environment = this._environment;
-    const fetchPolicy = maybeFetchPolicy ?? DEFAULT_FETCH_POLICY;
+    const fetchPolicy =
+      maybeFetchPolicy ??
+      (operationIsLiveQuery(operation)
+        ? DEFAULT_LIVE_FETCH_POLICY
+        : DEFAULT_FETCH_POLICY);
     const renderPolicy =
       maybeRenderPolicy ?? environment.UNSTABLE_getDefaultRenderPolicy();
 
@@ -525,7 +545,7 @@ class QueryResourceImpl {
 
       let cacheEntry = this._cache.get(cacheIdentifier);
       if (!cacheEntry) {
-        const networkPromise = new Promise(resolve => {
+        const networkPromise = new Promise<void>(resolve => {
           resolveNetworkPromise = resolve;
         });
 

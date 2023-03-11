@@ -5,22 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::diagnostic_reporter::DiagnosticReporter;
-use crate::docblock_resolution_info::create_docblock_resolution_info;
-use crate::graphql_tools::get_query_text;
-use crate::js_language_server::JSLanguageServer;
-use crate::lsp_runtime_error::LSPRuntimeResult;
-use crate::node_resolution_info::create_node_resolution_info;
-use crate::utils::extract_executable_definitions_from_text_document;
-use crate::utils::extract_feature_from_text;
-use crate::utils::extract_project_name_from_url;
-use crate::ContentConsumerType;
-use crate::DocblockNode;
-use crate::Feature;
-use crate::FeatureResolutionInfo;
-use crate::LSPExtraDataProvider;
-use crate::LSPRuntimeError;
-use common::convert_diagnostic;
+use std::path::PathBuf;
+use std::sync::Arc;
+
 use common::PerfLogger;
 use common::SourceLocationKey;
 use common::Span;
@@ -50,16 +37,30 @@ use lsp_types::Url;
 use relay_compiler::config::Config;
 use relay_compiler::FileCategorizer;
 use relay_docblock::parse_docblock_ast;
+use relay_docblock::ParseOptions;
 use relay_transforms::deprecated_fields_for_executable_definition;
 use schema::SDLSchema;
 use schema_documentation::CombinedSchemaDocumentation;
 use schema_documentation::SchemaDocumentation;
 use schema_documentation::SchemaDocumentationLoader;
-use std::path::PathBuf;
-use std::sync::Arc;
 use tokio::sync::Notify;
 
 use super::task_queue::TaskScheduler;
+use crate::diagnostic_reporter::DiagnosticReporter;
+use crate::docblock_resolution_info::create_docblock_resolution_info;
+use crate::graphql_tools::get_query_text;
+use crate::js_language_server::JSLanguageServer;
+use crate::lsp_runtime_error::LSPRuntimeResult;
+use crate::node_resolution_info::create_node_resolution_info;
+use crate::utils::extract_executable_definitions_from_text_document;
+use crate::utils::extract_feature_from_text;
+use crate::utils::extract_project_name_from_url;
+use crate::ContentConsumerType;
+use crate::DocblockNode;
+use crate::Feature;
+use crate::FeatureResolutionInfo;
+use crate::LSPExtraDataProvider;
+use crate::LSPRuntimeError;
 
 pub type Schemas = Arc<DashMap<StringKey, Arc<SDLSchema>, FnvBuildHasher>>;
 pub type SourcePrograms = Arc<DashMap<StringKey, Program, FnvBuildHasher>>;
@@ -235,8 +236,9 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                         &graphql_source.text_source().text,
                         source_location_key,
                     );
-                    diagnostics.extend(result.errors.iter().map(|diagnostic| {
-                        convert_diagnostic(graphql_source.text_source(), diagnostic)
+                    diagnostics.extend(result.diagnostics.iter().map(|diagnostic| {
+                        self.diagnostic_reporter
+                            .convert_diagnostic(graphql_source.text_source(), diagnostic)
                     }));
 
                     let compiler_diagnostics = match build_ir_with_extra_features(
@@ -266,7 +268,8 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                     };
 
                     diagnostics.extend(compiler_diagnostics.iter().map(|diagnostic| {
-                        convert_diagnostic(graphql_source.text_source(), diagnostic)
+                        self.diagnostic_reporter
+                            .convert_diagnostic(graphql_source.text_source(), diagnostic)
                     }));
 
                     executable_definitions.extend(result.item.definitions);
@@ -277,19 +280,28 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             }
         }
 
+        let project_config = self.config.projects.get(&project_name).unwrap();
         for (index, docblock_source) in docblock_sources.iter().enumerate() {
             let source_location_key = SourceLocationKey::embedded(url.as_ref(), index);
             let text_source = docblock_source.text_source();
             let text = &text_source.text;
-            let result = parse_docblock(text, source_location_key)
-                .and_then(|ast| parse_docblock_ast(&ast, Some(&executable_definitions)));
+            let result = parse_docblock(text, source_location_key).and_then(|ast| {
+                parse_docblock_ast(
+                    &ast,
+                    Some(&executable_definitions),
+                    ParseOptions {
+                        enable_output_type: &project_config
+                            .feature_flags
+                            .relay_resolver_enable_output_type,
+                    },
+                )
+            });
 
             if let Err(errors) = result {
-                diagnostics.extend(
-                    errors
-                        .iter()
-                        .map(|diagnostic| convert_diagnostic(text_source, diagnostic)),
-                );
+                diagnostics.extend(errors.iter().map(|diagnostic| {
+                    self.diagnostic_reporter
+                        .convert_diagnostic(text_source, diagnostic)
+                }));
             }
         }
         self.diagnostic_reporter
@@ -393,7 +405,8 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                 create_node_resolution_info(executable_document, position_span)?,
             ),
             Feature::DocblockIr(docblock_ir) => FeatureResolutionInfo::DocblockNode(DocblockNode {
-                resolution_info: create_docblock_resolution_info(&docblock_ir, position_span)?,
+                resolution_info: create_docblock_resolution_info(&docblock_ir, position_span)
+                    .ok_or(LSPRuntimeError::ExpectedError)?,
                 ir: docblock_ir,
             }),
         };
@@ -421,7 +434,15 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         position: &TextDocumentPositionParams,
         index_offset: usize,
     ) -> LSPRuntimeResult<(Feature, Span)> {
-        extract_feature_from_text(&self.synced_javascript_features, position, index_offset)
+        let project_name = self.extract_project_name_from_url(&position.text_document.uri)?;
+        let project_config = self.config.projects.get(&project_name).unwrap();
+
+        extract_feature_from_text(
+            project_config,
+            &self.synced_javascript_features,
+            position,
+            index_offset,
+        )
     }
 
     fn get_schema_documentation(&self, schema_name: &str) -> Self::TSchemaDocumentation {

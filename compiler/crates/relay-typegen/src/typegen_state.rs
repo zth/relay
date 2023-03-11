@@ -5,38 +5,44 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::writer::ExactObject;
-use crate::writer::Writer;
-use crate::writer::AST;
-use crate::LIVE_RESOLVERS_EXPERIMENTAL_STORE_PATH;
-use crate::LIVE_RESOLVERS_LIVE_STATE;
-use crate::LOCAL_3D_PAYLOAD;
-use crate::RELAY_RUNTIME;
+use std::fmt::Result as FmtResult;
+use std::sync::Arc;
+
+use common::InputObjectName;
 use common::Location;
 use fnv::FnvHashMap;
 use fnv::FnvHashSet;
 use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentDefinitionName;
 use indexmap::IndexMap;
-use indexmap::IndexSet;
 use intern::string_key::StringKey;
+use intern::Lookup;
 use schema::EnumID;
 use schema::SDLSchema;
 use schema::Schema;
-use std::fmt::Result as FmtResult;
-use std::sync::Arc;
+
+use crate::writer::ExactObject;
+use crate::writer::Writer;
+use crate::writer::AST;
+use crate::KEY_DATA_ID;
+use crate::LIVE_RESOLVERS_EXPERIMENTAL_STORE_PATH;
+use crate::LIVE_RESOLVERS_LIVE_STATE;
+use crate::LOCAL_3D_PAYLOAD;
+use crate::RELAY_RUNTIME;
 
 /// A struct that is mutated as we iterate through an operation/fragment and
 /// contains information about whether and how to write import types.
 #[derive(Default)]
 pub(crate) struct RuntimeImports {
-    pub(crate) local_3d_payload_type_should_be_imported: bool,
-    pub(crate) generic_fragment_type_should_be_imported: bool,
-    pub(crate) import_relay_resolver_live_state_type: bool,
+    pub(crate) local_3d_payload_type: bool,
+    pub(crate) generic_fragment_type: bool,
+    pub(crate) resolver_live_state_type: bool,
+    pub(crate) data_id_type: bool,
 }
 
 impl RuntimeImports {
     pub(crate) fn write_runtime_imports(&self, writer: &mut Box<dyn Writer>) -> FmtResult {
-        if self.import_relay_resolver_live_state_type {
+        if self.resolver_live_state_type {
             writer.write_import_type(
                 &[LIVE_RESOLVERS_LIVE_STATE],
                 LIVE_RESOLVERS_EXPERIMENTAL_STORE_PATH,
@@ -44,11 +50,14 @@ impl RuntimeImports {
         }
 
         let mut runtime_import_types = vec![];
-        if self.generic_fragment_type_should_be_imported {
+        if self.generic_fragment_type {
             runtime_import_types.push(writer.get_runtime_fragment_import())
         }
-        if self.local_3d_payload_type_should_be_imported {
+        if self.local_3d_payload_type {
             runtime_import_types.push(LOCAL_3D_PAYLOAD)
+        }
+        if self.data_id_type {
+            runtime_import_types.push(KEY_DATA_ID.lookup());
         }
         if !runtime_import_types.is_empty() {
             writer.write_import_type(&runtime_import_types, RELAY_RUNTIME)
@@ -73,7 +82,7 @@ impl GeneratedInputObject {
     }
 }
 
-pub(crate) type InputObjectTypes = IndexMap<StringKey, GeneratedInputObject>;
+pub(crate) type InputObjectTypes = IndexMap<InputObjectName, GeneratedInputObject>;
 
 /// Because EncounteredEnums is passed around everywhere, we use a newtype
 /// to make it easy to track.
@@ -93,8 +102,9 @@ pub(crate) struct MatchFields(pub(crate) IndexMap<StringKey, AST>);
 
 #[derive(PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub(crate) enum EncounteredFragment {
-    Spread(StringKey),
-    Key(StringKey),
+    Spread(FragmentDefinitionName),
+    Key(FragmentDefinitionName),
+    Data(FragmentDefinitionName),
 }
 
 /// This is a map FragmentName => Fragment Location
@@ -103,7 +113,7 @@ pub(crate) enum EncounteredFragment {
 /// reference it in another generated artifact.
 /// This is used in non-haste setups that do not have a single
 /// directory for generated artifacts.
-pub struct FragmentLocations(pub FnvHashMap<StringKey, Location>);
+pub struct FragmentLocations(pub FnvHashMap<FragmentDefinitionName, Location>);
 
 impl FragmentLocations {
     pub fn new<'a>(fragments: impl Iterator<Item = &'a Arc<FragmentDefinition>>) -> Self {
@@ -114,8 +124,8 @@ impl FragmentLocations {
         )
     }
 
-    pub fn location(&self, fragment_name: &StringKey) -> Option<&Location> {
-        self.0.get(fragment_name)
+    pub fn location(&self, fragment_name: &FragmentDefinitionName) -> Option<Location> {
+        self.0.get(fragment_name).copied()
     }
 }
 
@@ -123,15 +133,25 @@ impl FragmentLocations {
 pub(crate) struct EncounteredFragments(pub(crate) FnvHashSet<EncounteredFragment>);
 
 pub(crate) struct ImportedResolver {
-    pub resolver_name: StringKey,
+    pub resolver_name: ImportedResolverName,
     pub resolver_type: AST,
+    pub import_path: StringKey,
+}
+
+#[derive(Clone, Copy)]
+pub(crate) enum ImportedResolverName {
+    Default(StringKey),
+    Named {
+        name: StringKey,
+        import_as: StringKey,
+    },
 }
 
 #[derive(Default)]
 pub(crate) struct ImportedResolvers(pub(crate) IndexMap<StringKey, ImportedResolver>);
 
 #[derive(Default)]
-pub(crate) struct ImportedRawResponseTypes(pub(crate) IndexSet<StringKey>);
+pub(crate) struct ImportedRawResponseTypes(pub(crate) IndexMap<StringKey, Option<Location>>);
 
 /// Have we encountered an actor change? Use an enum for bookkeeping, since it
 /// will be passed around in many places.

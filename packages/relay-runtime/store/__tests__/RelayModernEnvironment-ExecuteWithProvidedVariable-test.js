@@ -4,13 +4,13 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
 'use strict';
-
+import type {Sink} from '../../network/RelayObservable';
 import type {ReaderFragment} from '../../util/ReaderNode';
 import type {OperationDescriptor, Snapshot} from '../RelayStoreTypes';
 
@@ -33,10 +33,31 @@ function getEnvironment(
   operation: OperationDescriptor,
 ): RelayModernEnvironment {
   let subject;
-  const fetch = jest.fn((_query, _variables, _cacheConfig) =>
-    RelayObservable.create(sink => {
-      subject = sink;
-    }),
+  const fetch = jest.fn(
+    (
+      _query: $FlowExpectedError,
+      _variables: $FlowExpectedError,
+      _cacheConfig: $FlowExpectedError,
+    ) =>
+      RelayObservable.create(
+        (
+          sink: Sink<{
+            data: {
+              node: {
+                __typename: string,
+                alternate_name: string,
+                id: string,
+                name: string,
+                profilePicture: {uri: string},
+                profile_picture: {uri: string},
+                username: string,
+              },
+            },
+          }>,
+        ) => {
+          subject = sink;
+        },
+      ),
   );
   const source = RelayRecordSource.create();
   const store = new RelayModernStore(source);
@@ -118,11 +139,11 @@ describe('query with fragments that use provided variables', () => {
       @argumentDefinitions(
         includeName: {
           type: "Boolean!"
-          provider: "../RelayProvider_returnsTrue.relayprovider"
+          provider: "./RelayProvider_returnsTrue.relayprovider"
         }
         skipUsername: {
           type: "Boolean!"
-          provider: "../RelayProvider_returnsTrue.relayprovider"
+          provider: "./RelayProvider_returnsTrue.relayprovider"
         }
       ) {
         id
@@ -139,12 +160,12 @@ describe('query with fragments that use provided variables', () => {
       @argumentDefinitions(
         includeName: {
           type: "Boolean!"
-          provider: "../RelayProvider_returnsTrue.relayprovider"
+          provider: "./RelayProvider_returnsTrue.relayprovider"
         }
         # should be able to define two arguments that use the same provider
         includeAlternateName: {
           type: "Boolean!"
-          provider: "../RelayProvider_returnsTrue.relayprovider"
+          provider: "./RelayProvider_returnsTrue.relayprovider"
         }
       ) {
         name @include(if: $includeName)
@@ -157,7 +178,7 @@ describe('query with fragments that use provided variables', () => {
       @argumentDefinitions(
         profilePictureScale: {
           type: "Float!"
-          provider: "../RelayProvider_pictureScale.relayprovider"
+          provider: "./RelayProvider_pictureScale.relayprovider"
         }
       ) {
         profile_picture(scale: $profilePictureScale) {

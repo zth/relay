@@ -5,16 +5,21 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::root_variables::VariableMap;
+use std::sync::Arc;
+
+use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
+use common::DirectiveName;
 use common::NamedItem;
 use common::WithLocation;
 use graphql_ir::associated_data_impl;
 use graphql_ir::Argument;
 use graphql_ir::Directive;
 use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentDefinitionName;
 use graphql_ir::FragmentSpread;
+use graphql_ir::OperationDefinitionName;
 use graphql_ir::Selection;
 use graphql_ir::Value;
 use graphql_ir::Variable;
@@ -22,21 +27,21 @@ use graphql_ir::VariableDefinition;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use lazy_static::lazy_static;
-use std::sync::Arc;
 
 use super::validation_message::ValidationMessage;
+use crate::root_variables::VariableMap;
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct RefetchableMetadata {
-    pub operation_name: StringKey,
+    pub operation_name: OperationDefinitionName,
     pub path: Vec<StringKey>,
     pub identifier_field: Option<StringKey>,
 }
 associated_data_impl!(RefetchableMetadata);
 
 pub struct Constants {
-    pub fetchable: StringKey,
-    pub field_name: StringKey,
+    pub fetchable: DirectiveName,
+    pub field_name: ArgumentName,
     pub node_field_name: StringKey,
     pub node_type_name: StringKey,
     pub viewer_field_name: StringKey,
@@ -45,8 +50,8 @@ pub struct Constants {
 
 lazy_static! {
     pub static ref CONSTANTS: Constants = Constants {
-        fetchable: "fetchable".intern(),
-        field_name: "field_name".intern(),
+        fetchable: DirectiveName("fetchable".intern()),
+        field_name: ArgumentName("field_name".intern()),
         node_field_name: "node".intern(),
         node_type_name: "Node".intern(),
         viewer_field_name: "viewer".intern(),
@@ -62,7 +67,7 @@ pub fn build_fragment_spread(fragment: &FragmentDefinition) -> Selection {
             .variable_definitions
             .iter()
             .map(|var| Argument {
-                name: var.name,
+                name: var.name.map(|x| ArgumentName(x.0)),
                 value: WithLocation::new(
                     var.name.location,
                     Value::Variable(Variable {
@@ -84,7 +89,7 @@ pub fn build_operation_variable_definitions(
         .chain(fragment.variable_definitions.iter())
         .cloned()
         .collect();
-    result.sort_unstable_by(|l, r| l.name.item.lookup().cmp(r.name.item.lookup()));
+    result.sort_unstable_by(|l, r| l.name.item.cmp(&r.name.item));
     result
 }
 
@@ -134,5 +139,5 @@ pub fn build_fragment_metadata_as_directive(
 /// Metadata attached to generated refetch queries storing the name of the
 /// fragment the operation was derived from.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-pub struct RefetchableDerivedFromMetadata(pub StringKey);
+pub struct RefetchableDerivedFromMetadata(pub FragmentDefinitionName);
 associated_data_impl!(RefetchableDerivedFromMetadata);

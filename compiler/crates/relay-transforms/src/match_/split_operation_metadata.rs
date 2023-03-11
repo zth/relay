@@ -5,22 +5,26 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::NamedItem;
-use common::WithLocation;
-use graphql_ir::Argument;
-use graphql_ir::ConstantValue;
-use graphql_ir::Directive;
-use graphql_ir::Value;
+use std::hash::Hash;
+
+use common::ArgumentName;
+use common::DirectiveName;
+use common::Location;
+use graphql_ir::associated_data_impl;
+use graphql_ir::ExecutableDefinitionName;
+use graphql_ir::FragmentDefinitionName;
 use intern::string_key::Intern;
-use intern::string_key::StringKey;
-use intern::string_key::StringKeySet;
 use lazy_static::lazy_static;
+use rustc_hash::FxHashSet;
 
 lazy_static! {
-    pub static ref DIRECTIVE_SPLIT_OPERATION: StringKey = "__splitOperation".intern();
-    static ref ARG_DERIVED_FROM: StringKey = "derivedFrom".intern();
-    static ref ARG_PARENT_DOCUMENTS: StringKey = "parentDocuments".intern();
-    static ref ARG_RAW_RESPONSE_TYPE: StringKey = "rawResponseType".intern();
+    pub static ref DIRECTIVE_SPLIT_OPERATION: DirectiveName =
+        SplitOperationMetadata::directive_name();
+    static ref ARG_DERIVED_FROM: ArgumentName = ArgumentName("derivedFrom".intern());
+    static ref ARG_PARENT_DOCUMENTS: ArgumentName = ArgumentName("parentDocuments".intern());
+    static ref ARG_RAW_RESPONSE_TYPE: ArgumentName = ArgumentName("rawResponseType".intern());
+    static ref ARG_RAW_RESPONSE_TYPE_STRICT: ArgumentName =
+        ArgumentName("rawResponseTypeStrict".intern());
 }
 
 /// The split operation metadata directive indicates that an operation was split
@@ -45,89 +49,45 @@ lazy_static! {
 ///   ...F @module
 /// }
 /// ```
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct SplitOperationMetadata {
     /// Name of the fragment that this split operation represents. This is used
     /// to determine the name of the generated artifact.
-    pub derived_from: StringKey,
+    pub derived_from: Option<FragmentDefinitionName>,
+
+    /// Location of the source file for this split operation
+    pub location: Location,
 
     /// The names of the fragments and operations that included this fragment.
-    /// They are the reason this split operation exist. If they are all removed,
+    /// They are the reason this split operation exists. If they are all removed,
     /// this file also needs to be removed.
-    pub parent_documents: StringKeySet,
+    pub parent_documents: FxHashSet<ExecutableDefinitionName>,
 
     /// Should a @raw_response_type style type be generated.
-    pub raw_response_type: bool,
+    pub raw_response_type_generation_mode: Option<RawResponseGenerationMode>,
 }
 
-impl SplitOperationMetadata {
-    pub fn to_directive(&self) -> Directive {
-        let mut arguments = vec![
-            Argument {
-                name: WithLocation::generated(*ARG_DERIVED_FROM),
-                value: WithLocation::generated(Value::Constant(ConstantValue::String(
-                    self.derived_from,
-                ))),
-            },
-            Argument {
-                name: WithLocation::generated(*ARG_PARENT_DOCUMENTS),
-                value: WithLocation::generated(Value::Constant(ConstantValue::List(
-                    self.parent_documents
-                        .iter()
-                        .cloned()
-                        .map(ConstantValue::String)
-                        .collect(),
-                ))),
-            },
-        ];
-        if self.raw_response_type {
-            arguments.push(Argument {
-                name: WithLocation::generated(*ARG_RAW_RESPONSE_TYPE),
-                value: WithLocation::generated(Value::Constant(ConstantValue::Null())),
-            });
-        }
-        Directive {
-            name: WithLocation::generated(*DIRECTIVE_SPLIT_OPERATION),
-            arguments,
-            data: None,
-        }
+// associated_data_impl requires Hash, and we cannot derive Hash since HashSet iteration
+// order is unstable.
+impl Hash for SplitOperationMetadata {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        // We should only have a single SplitOperationMetadata per unique derived_from or
+        // location. In addition, Hash implementations only requires this property.
+        //   k1 == k2 -> hash(k1) == hash(k2)
+        self.derived_from.hash(state);
+        self.location.hash(state);
     }
 }
 
-impl From<&Directive> for SplitOperationMetadata {
-    fn from(directive: &Directive) -> Self {
-        debug_assert!(directive.name.item == *DIRECTIVE_SPLIT_OPERATION);
-        let derived_from_arg = directive
-            .arguments
-            .named(*ARG_DERIVED_FROM)
-            .expect("Expected derived_from arg to exist");
-        let derived_from = derived_from_arg.value.item.expect_string_literal();
-        let parent_documents_arg = directive
-            .arguments
-            .named(*ARG_PARENT_DOCUMENTS)
-            .expect("Expected parent_documents arg to exist");
-        let raw_response_type = directive.arguments.named(*ARG_RAW_RESPONSE_TYPE).is_some();
+associated_data_impl!(SplitOperationMetadata);
 
-        if let Value::Constant(ConstantValue::List(source_definition_names)) =
-            &parent_documents_arg.value.item
-        {
-            let parent_documents = source_definition_names
-                .iter()
-                .map(|val| {
-                    if let ConstantValue::String(name) = val {
-                        name
-                    } else {
-                        panic!("Expected item in the parent sources to be a StringKey.")
-                    }
-                })
-                .cloned()
-                .collect();
-            Self {
-                derived_from,
-                parent_documents,
-                raw_response_type,
-            }
-        } else {
-            panic!("Expected parent sources to be a constant of list.");
-        }
-    }
+/// For split operations. This will define the mode for the type generation of RawResponse type
+/// With Relay resolvers we may need to require all keys to be presented in the response shape.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+pub enum RawResponseGenerationMode {
+    /// All keys are optional
+    AllFieldsOptional,
+    /// All keys in the raw response type are required
+    /// (values can still be optional, based on the schema type)
+    AllFieldsRequired,
 }

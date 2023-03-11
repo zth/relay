@@ -5,8 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @flow
- * @emails oncall+relay
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -18,8 +18,9 @@ import type {
   INetwork,
   PayloadData,
 } from '../network/RelayNetworkTypes';
+import type {Sink} from '../network/RelayObservable';
 import type {Disposable, RenderPolicy} from '../util/RelayRuntimeTypes';
-import type {ActiveState, TaskScheduler} from './OperationExecutor';
+import type {ActiveState} from './OperationExecutor';
 import type {GetDataID} from './RelayResponseNormalizer';
 import type {
   ExecuteMutationConfig,
@@ -42,12 +43,13 @@ import type {
   Snapshot,
   Store,
   StoreUpdater,
+  TaskScheduler,
 } from './RelayStoreTypes';
 
 const RelayDefaultHandlerProvider = require('../handlers/RelayDefaultHandlerProvider');
 const {
   INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
-  assertInternalActorIndentifier,
+  assertInternalActorIdentifier,
 } = require('../multi-actor-environment/ActorIdentifier');
 const RelayObservable = require('../network/RelayObservable');
 const wrapNetworkWithLogObserver = require('../network/wrapNetworkWithLogObserver');
@@ -94,7 +96,7 @@ class RelayModernEnvironment implements IEnvironment {
   _scheduler: ?TaskScheduler;
   _store: Store;
   configName: ?string;
-  _missingFieldHandlers: ?$ReadOnlyArray<MissingFieldHandler>;
+  _missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>;
   _operationTracker: OperationTracker;
   _getDataID: GetDataID;
   _treatMissingFieldsAsNull: boolean;
@@ -142,10 +144,12 @@ class RelayModernEnvironment implements IEnvironment {
     this._operationExecutions = new Map();
     this._network = wrapNetworkWithLogObserver(this, config.network);
     this._getDataID = config.getDataID ?? defaultGetDataID;
+    this._missingFieldHandlers = config.missingFieldHandlers ?? [];
     this._publishQueue = new RelayPublishQueue(
       config.store,
       config.handlerProvider ?? RelayDefaultHandlerProvider,
       this._getDataID,
+      this._missingFieldHandlers,
     );
     this._scheduler = config.scheduler ?? null;
     this._store = config.store;
@@ -160,7 +164,6 @@ class RelayModernEnvironment implements IEnvironment {
       (this: any).DEBUG_inspect = (dataID: ?string) => inspect(this, dataID);
     }
 
-    this._missingFieldHandlers = config.missingFieldHandlers;
     this._operationTracker =
       config.operationTracker ?? new RelayOperationTracker();
     this._reactFlightPayloadDeserializer = reactFlightPayloadDeserializer;
@@ -182,6 +185,10 @@ class RelayModernEnvironment implements IEnvironment {
 
   getOperationTracker(): RelayOperationTracker {
     return this._operationTracker;
+  }
+
+  getScheduler(): ?TaskScheduler {
+    return this._scheduler;
   }
 
   isRequestActive(requestIdentifier: string): boolean {
@@ -242,8 +249,8 @@ class RelayModernEnvironment implements IEnvironment {
 
   check(operation: OperationDescriptor): OperationAvailability {
     if (
-      this._missingFieldHandlers == null ||
-      this._missingFieldHandlers.length === 0
+      this._missingFieldHandlers.length === 0 &&
+      !operationHasClientAbstractTypes(operation)
     ) {
       return this._store.check(operation);
     }
@@ -299,11 +306,11 @@ class RelayModernEnvironment implements IEnvironment {
       handlers,
       defaultActorIdentifier: INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
       getSourceForActor(actorIdentifier: ActorIdentifier) {
-        assertInternalActorIndentifier(actorIdentifier);
+        assertInternalActorIdentifier(actorIdentifier);
         return source;
       },
       getTargetForActor(actorIdentifier: ActorIdentifier) {
-        assertInternalActorIndentifier(actorIdentifier);
+        assertInternalActorIdentifier(actorIdentifier);
         return target;
       },
     });
@@ -470,8 +477,8 @@ class RelayModernEnvironment implements IEnvironment {
   }): RelayObservable<GraphQLResponse> {
     const publishQueue = this._publishQueue;
     const store = this._store;
-    return RelayObservable.create(sink => {
-      const executor = OperationExecutor.execute({
+    return RelayObservable.create((sink: Sink<GraphQLResponse>) => {
+      const executor = OperationExecutor.execute<$FlowFixMe>({
         actorIdentifier: INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         getDataID: this._getDataID,
         isClientPayload,
@@ -482,7 +489,7 @@ class RelayModernEnvironment implements IEnvironment {
         operationTracker: this._operationTracker,
         optimisticConfig,
         getPublishQueue(actorIdentifier: ActorIdentifier) {
-          assertInternalActorIndentifier(actorIdentifier);
+          assertInternalActorIdentifier(actorIdentifier);
           return publishQueue;
         },
         reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
@@ -494,7 +501,7 @@ class RelayModernEnvironment implements IEnvironment {
         //       when the Observable is executed.
         source: createSource(),
         getStore(actorIdentifier: ActorIdentifier) {
-          assertInternalActorIndentifier(actorIdentifier);
+          assertInternalActorIdentifier(actorIdentifier);
           return store;
         },
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
@@ -503,6 +510,15 @@ class RelayModernEnvironment implements IEnvironment {
       return () => executor.cancel();
     });
   }
+}
+
+function operationHasClientAbstractTypes(
+  operation: OperationDescriptor,
+): boolean {
+  return (
+    operation.root.node.kind === 'Operation' &&
+    operation.root.node.clientAbstractTypes != null
+  );
 }
 
 // Add a sigil for detection by `isRelayModernEnvironment()` to avoid a

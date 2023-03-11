@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow
  * @format
+ * @oncall relay
  */
 
 import type {
@@ -15,6 +15,7 @@ import type {
   RecordChunk,
 } from './RelayExperimentalGraphResponseTransform';
 import type {MutableRecordSource, Record} from './RelayStoreTypes';
+import type {DataID} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const RelayModernRecord = require('./RelayModernRecord');
 const invariant = require('invariant');
@@ -98,7 +99,7 @@ class GraphModeHandler {
             } else if (value.hasOwnProperty('__ids')) {
               // Plural
               const streamIDs = ((value.__ids: any): Array<number | null>);
-              const ids = streamIDs.map(sID => {
+              const ids = streamIDs.map((sID): ?DataID => {
                 return sID == null ? null : this._lookupCacheKey(sID);
               });
               RelayModernRecord.setLinkedRecordIDs(parentRecord, key, ids);

@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -98,7 +98,7 @@ type RefetchFnExact<TQuery: OperationType, TOptions = Options> = RefetchFnBase<
 type RefetchFnInexact<
   TQuery: OperationType,
   TOptions = Options,
-> = RefetchFnBase<$Shape<VariablesOf<TQuery>>, TOptions>;
+> = RefetchFnBase<Partial<VariablesOf<TQuery>>, TOptions>;
 
 type Action =
   | {
@@ -204,8 +204,11 @@ function useRefetchableFragmentNode<
   const shouldReset =
     environment !== mirroredEnvironment ||
     fragmentIdentifier !== mirroredFragmentIdentifier;
-  const [queryRef, loadQuery, disposeQuery] =
-    useQueryLoader<TQuery>(refetchableRequest);
+  const [queryRef, loadQuery, disposeQuery] = useQueryLoader<
+    TQuery['variables'],
+    TQuery['response'],
+    TQuery['rawResponse'],
+  >((refetchableRequest: $FlowFixMe));
 
   let fragmentRef = parentFragmentRef;
   if (shouldReset) {
@@ -387,7 +390,10 @@ function useRefetchFunction<TQuery: OperationType>(
       ? fragmentData[identifierField]
       : null;
   return useCallback(
-    (providedRefetchVariables, options) => {
+    (
+      providedRefetchVariables: VariablesOf<TQuery>,
+      options: void | InternalOptions,
+    ) => {
       // Bail out and warn if we're trying to refetch after the component
       // has unmounted
       if (isMountedRef.current !== true) {

@@ -9,8 +9,6 @@ use std::collections::HashMap;
 use std::collections::HashSet;
 use std::sync::Arc;
 
-use super::make_markdown_table_documentation;
-use super::resolve_completion_items;
 use common::SourceLocationKey;
 use common::Span;
 use graphql_ir::build;
@@ -21,6 +19,9 @@ use intern::string_key::Intern;
 use lsp_types::CompletionItem;
 use lsp_types::Documentation;
 use relay_test_schema::get_test_schema;
+
+use super::make_markdown_table_documentation;
+use super::resolve_completion_items;
 
 fn parse_and_resolve_completion_items(
     source: &str,
@@ -542,6 +543,59 @@ fn fragment_spread_on_interface() {
         )),
     );
     assert_labels(items.unwrap(), vec!["TestFragment", "TestFragment2"]);
+}
+
+#[test]
+fn argument_value_object() {
+    let items = parse_and_resolve_completion_items(
+        r#"
+            fragment Test on Mutation {
+                commentCreate(inpu|) {
+                    __typename
+                }
+            }
+        "#,
+        None,
+    );
+    assert_labels(items.unwrap(), vec!["input"]);
+}
+
+#[test]
+fn argument_value_constant_object() {
+    let items = parse_and_resolve_completion_items(
+        r#"
+            fragment Test on Mutation {
+                commentCreate(input: {
+                    feedbackId: "some-id"
+                    |
+                }) {
+                    __typename
+                }
+            }
+        "#,
+        None,
+    );
+    assert_labels(items.unwrap(), vec!["client_mutation_id", "feedback"]);
+}
+
+#[test]
+fn argument_value_constant_object_nested() {
+    let items = parse_and_resolve_completion_items(
+        r#"
+            fragment Test on Mutation {
+                commentCreate(input: {
+                    feedbackId: "some-id"
+                    feedback: {
+                        |
+                    }
+                }) {
+                    __typename
+                }
+            }
+        "#,
+        None,
+    );
+    assert_labels(items.unwrap(), vec!["comment"]);
 }
 
 #[test]

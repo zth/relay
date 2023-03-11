@@ -210,6 +210,20 @@ v4 = {
   "kind": "ScalarField",
   "name": "onlineStatus",
   "storageKey": null
+},
+v5 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "firstName",
+  "storageKey": null
+},
+v6 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "lastName",
+  "storageKey": null
 };
 return {
   "fragment": {
@@ -281,19 +295,23 @@ return {
             "selections": [
               (v3/*: any*/),
               (v4/*: any*/),
+              (v5/*: any*/),
+              (v6/*: any*/),
               {
-                "alias": null,
+                "name": "greeting",
                 "args": null,
-                "kind": "ScalarField",
-                "name": "firstName",
-                "storageKey": null
-              },
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "lastName",
-                "storageKey": null
+                "fragment": {
+                  "kind": "InlineFragment",
+                  "selections": [
+                    (v5/*: any*/),
+                    (v6/*: any*/)
+                  ],
+                  "type": "User",
+                  "abstractKey": null
+                },
+                "kind": "RelayResolver",
+                "storageKey": null,
+                "isOutputType": false
               },
               {
                 "kind": "ClientExtension",

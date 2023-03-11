@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -24,7 +24,6 @@ const {
   FRAGMENTS_KEY,
   ID_KEY,
   createOperationDescriptor,
-  getRequest,
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
@@ -77,11 +76,8 @@ describe('useBlockingPaginationFragment with useTransition', () => {
       fragmentRef: any,
     ) {
       const [isPendingNext, startTransition] = useTransition();
-      // $FlowFixMe[incompatible-call]
       const {data, ...result} = useBlockingPaginationFragmentOriginal(
         fragmentNode,
-        // $FlowFixMe[prop-missing]
-        // $FlowFixMe[incompatible-call]
         fragmentRef,
       );
       loadNext = (...args: Array<any>) => {
@@ -218,7 +214,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
       environment = createMockEnvironment({
         handlerProvider: () => ConnectionHandler,
       });
-      release = jest.fn();
+      release = jest.fn<$ReadOnlyArray<mixed>, mixed>();
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       environment.retain.mockImplementation((...args) => {
         return {
@@ -495,7 +491,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
 
       // Sanity check test, should already be tested in useBlockingPagination test
       it('loads and renders next items in connection', () => {
-        const callback = jest.fn();
+        const callback = jest.fn<$ReadOnlyArray<mixed>, mixed>();
         const renderer = renderFragment();
         expectFragmentResults([
           {
@@ -599,7 +595,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
       });
 
       it('renders pending flag correctly if pagination update is interrupted before it commits (unsuspends)', () => {
-        const callback = jest.fn();
+        const callback = jest.fn<$ReadOnlyArray<mixed>, mixed>();
         const renderer = renderFragment();
         expectFragmentResults([
           {
@@ -728,7 +724,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
       });
 
       it('loads more correctly when original variables do not include an id', () => {
-        const callback = jest.fn();
+        const callback = jest.fn<$ReadOnlyArray<mixed>, mixed>();
         const viewer = environment.lookup(queryWithoutID.fragment).data?.viewer;
         const userRef =
           typeof viewer === 'object' && viewer != null ? viewer?.actor : null;
@@ -855,7 +851,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
       });
 
       it('calls callback with error when error occurs during fetch', () => {
-        const callback = jest.fn();
+        const callback = jest.fn<$ReadOnlyArray<mixed>, mixed>();
         const renderer = renderFragment();
         expectFragmentResults([
           {
@@ -897,7 +893,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
       });
 
       it('preserves pagination request if re-rendered with same fragment ref', () => {
-        const callback = jest.fn();
+        const callback = jest.fn<$ReadOnlyArray<mixed>, mixed>();
         const renderer = renderFragment();
         expectFragmentResults([
           {

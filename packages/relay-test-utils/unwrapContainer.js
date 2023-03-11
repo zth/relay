@@ -4,17 +4,19 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
+ * @flow
  * @format
+ * @oncall relay
  */
 
 'use strict';
 
 import type React from 'React';
 import type {
+  $RelayProps,
   RelayPaginationProp,
   RelayProp,
   RelayRefetchProp,
-  $RelayProps,
 } from 'react-relay';
 
 const invariant = require('invariant');

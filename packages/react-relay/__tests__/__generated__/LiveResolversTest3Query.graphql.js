@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1882f1d6bd852da6f5625d214c39a3d4>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<3b8a1c48f183b9db0808ac916027a762>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,15 +19,15 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { CounterPlusOneResolver$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/CounterPlusOneResolver.graphql";
-import queryCounterPlusOneResolver from "../../../relay-runtime/store/__tests__/resolvers/CounterPlusOneResolver.js";
-// Type assertion validating that `queryCounterPlusOneResolver` resolver is correctly implemented.
+import {counter_plus_one as queryCounterPlusOneResolverType} from "../../../relay-runtime/store/__tests__/resolvers/CounterPlusOneResolver.js";
+// Type assertion validating that `queryCounterPlusOneResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryCounterPlusOneResolver: (
-  rootKey: CounterPlusOneResolver$key, 
+(queryCounterPlusOneResolverType: (
+  rootKey: CounterPlusOneResolver$key,
 ) => mixed);
 export type LiveResolversTest3Query$variables = {||};
 export type LiveResolversTest3Query$data = {|
-  +counter_plus_one: ?$Call<<R>((...empty[]) => R) => R, typeof queryCounterPlusOneResolver>,
+  +counter_plus_one: ?$Call<<R>((...empty[]) => R) => R, typeof queryCounterPlusOneResolverType>,
 |};
 export type LiveResolversTest3Query = {|
   response: LiveResolversTest3Query$data,
@@ -50,7 +52,7 @@ var node/*: ConcreteRequest*/ = {
         },
         "kind": "RelayResolver",
         "name": "counter_plus_one",
-        "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/CounterPlusOneResolver'),
+        "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/CounterPlusOneResolver').counter_plus_one,
         "path": "counter_plus_one"
       }
     ],
@@ -64,34 +66,62 @@ var node/*: ConcreteRequest*/ = {
     "name": "LiveResolversTest3Query",
     "selections": [
       {
-        "alias": null,
+        "name": "counter_plus_one",
         "args": null,
-        "concreteType": "User",
-        "kind": "LinkedField",
-        "name": "me",
-        "plural": false,
-        "selections": [
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "id",
-            "storageKey": null
-          },
-          {
-            "kind": "ClientExtension",
-            "selections": [
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "__id",
-                "storageKey": null
-              }
-            ]
-          }
-        ],
-        "storageKey": null
+        "fragment": {
+          "kind": "InlineFragment",
+          "selections": [
+            {
+              "name": "counter",
+              "args": null,
+              "fragment": {
+                "kind": "InlineFragment",
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "concreteType": "User",
+                    "kind": "LinkedField",
+                    "name": "me",
+                    "plural": false,
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "id",
+                        "storageKey": null
+                      },
+                      {
+                        "kind": "ClientExtension",
+                        "selections": [
+                          {
+                            "alias": null,
+                            "args": null,
+                            "kind": "ScalarField",
+                            "name": "__id",
+                            "storageKey": null
+                          }
+                        ]
+                      }
+                    ],
+                    "storageKey": null
+                  }
+                ],
+                "type": "Query",
+                "abstractKey": null
+              },
+              "kind": "RelayResolver",
+              "storageKey": null,
+              "isOutputType": false
+            }
+          ],
+          "type": "Query",
+          "abstractKey": null
+        },
+        "kind": "RelayResolver",
+        "storageKey": null,
+        "isOutputType": false
       }
     ]
   },

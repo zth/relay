@@ -5,12 +5,16 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @format
+ * @oncall relay
  */
 
 'use strict';
 
 const versions = require('./versions.json');
-const {fbContent, isInternal} = require('internaldocs-fb-helpers');
+const {
+  fbContent,
+  isInternal,
+} = require('docusaurus-plugin-internaldocs-fb/internal');
 
 module.exports = {
   title: 'Relay',
@@ -449,9 +453,36 @@ module.exports = {
       copyright: `Copyright © ${new Date().getFullYear()} Meta Platforms, Inc. Built with Docusaurus.`,
     },
     prism: {
-      theme: require('prism-react-renderer/themes/github'),
+      theme: require('./prismTheme'),
       darkTheme: require('prism-react-renderer/themes/dracula'),
       defaultLanguage: 'javascript',
+      magicComments: [
+        {
+          className: 'code-change',
+          line: 'change-line',
+          block: {start: 'change', end: 'end-change'},
+        },
+        {
+          className: 'color1',
+          line: 'color1',
+        },
+        {
+          className: 'color2',
+          line: 'color2',
+        },
+        {
+          className: 'color3',
+          line: 'color3',
+        },
+        {
+          className: 'color4',
+          line: 'color4',
+        },
+        {
+          className: 'color5',
+          line: 'color5',
+        },
+      ],
     },
     algolia: {
       appId: 'BH4D9OD16A',

@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -60,7 +60,6 @@ let environment;
 let fetch;
 let sink;
 let executeObservable;
-let executeUnsubscribe;
 let networkUnsubscribe;
 
 beforeEach(() => {
@@ -68,13 +67,15 @@ beforeEach(() => {
 
   PreloadableQueryRegistry.clear();
 
+  // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
   fetch = jest.fn((_query, _variables, _cacheConfig) => {
+    // $FlowFixMe[missing-local-annot] Error found while enabling LTI on this file
     const observable = Observable.create(_sink => {
       sink = _sink;
     });
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const originalSubscribe = observable.subscribe.bind(observable);
-    networkUnsubscribe = jest.fn();
+    networkUnsubscribe = jest.fn<[], $FlowFixMe>();
     jest.spyOn(observable, 'subscribe').mockImplementation((...args) => {
       const subscription = originalSubscribe(...args);
       jest
@@ -85,13 +86,13 @@ beforeEach(() => {
     return observable;
   });
 
+  // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
   environment = createMockEnvironment({network: Network.create(fetch)});
 
   const originalExecuteWithSource =
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.executeWithSource.getMockImplementation();
   executeObservable = undefined;
-  executeUnsubscribe = undefined;
 
   jest
     .spyOn(environment, 'executeWithSource')
@@ -103,7 +104,7 @@ beforeEach(() => {
         .spyOn(executeObservable, 'subscribe')
         .mockImplementation(subscriptionCallbacks => {
           originalSubscribe(subscriptionCallbacks);
-          const executeUnsubscribeFn = jest.fn();
+          const executeUnsubscribeFn = jest.fn<$ReadOnlyArray<mixed>, mixed>();
           return {unsubscribe: executeUnsubscribeFn};
         });
       return executeObservable;
@@ -117,7 +118,7 @@ describe('when loading and disposing same query multiple times', () => {
 
     const QueryRenderer = function ({queryRef}: $FlowFixMe) {
       const data = usePreloadedQuery(query, queryRef);
-      return data.node.id;
+      return data.node?.id;
     };
     const Inner = function ({
       initialPreloadedQuery,
@@ -136,6 +137,7 @@ describe('when loading and disposing same query multiple times', () => {
         </React.Suspense>
       );
     };
+    // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
     const Container = function ({initialPreloadedQuery = undefined}: {}) {
       return (
         <RelayEnvironmentProvider environment={environment}>

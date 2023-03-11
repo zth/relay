@@ -5,12 +5,15 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::span::Span;
 use core::cmp::Ordering;
-use intern::string_key::Intern;
-use intern::string_key::StringKey;
 use std::fmt;
 use std::path::PathBuf;
+
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
+use intern::Lookup;
+
+use crate::span::Span;
 
 /// The location of a source. Could be a standalone file (e.g. test.graphql),
 /// an embedded source (GraphQL tag in a JS file) or generated code without a
@@ -61,6 +64,10 @@ impl SourceLocationKey {
         path.pop();
         path
     }
+
+    pub fn is_generated(&self) -> bool {
+        matches!(self, SourceLocationKey::Generated)
+    }
 }
 
 /// An absolute source location describing both the file and position (span)
@@ -98,8 +105,8 @@ impl Location {
         self.source_location
     }
 
-    pub fn span(&self) -> &Span {
-        &self.span
+    pub fn span(&self) -> Span {
+        self.span
     }
 
     pub fn with_span(&self, span: Span) -> Self {
@@ -151,6 +158,13 @@ impl<T> WithLocation<T> {
         Self {
             location: Location::generated(),
             item,
+        }
+    }
+
+    pub fn map<U>(self, f: impl FnOnce(T) -> U) -> WithLocation<U> {
+        WithLocation {
+            location: self.location,
+            item: f(self.item),
         }
     }
 }

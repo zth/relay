@@ -12,6 +12,54 @@ mod lsp_state;
 mod lsp_state_resources;
 mod task_queue;
 
+use std::ops::ControlFlow;
+use std::sync::Arc;
+
+use common::PerfLogEvent;
+use common::PerfLogger;
+use crossbeam::channel::Receiver;
+use crossbeam::select;
+use heartbeat::on_heartbeat;
+use heartbeat::HeartbeatRequest;
+use log::debug;
+pub use lsp_notification_dispatch::LSPNotificationDispatch;
+pub use lsp_request_dispatch::LSPRequestDispatch;
+use lsp_server::Connection;
+use lsp_server::ErrorCode;
+use lsp_server::Message;
+use lsp_server::Notification;
+use lsp_server::Response as ServerResponse;
+use lsp_server::ResponseError;
+pub use lsp_state::GlobalState;
+pub use lsp_state::LSPState;
+pub use lsp_state::Schemas;
+pub use lsp_state::SourcePrograms;
+use lsp_types::notification::Cancel;
+use lsp_types::notification::DidChangeTextDocument;
+use lsp_types::notification::DidCloseTextDocument;
+use lsp_types::notification::DidOpenTextDocument;
+use lsp_types::notification::DidSaveTextDocument;
+use lsp_types::notification::Exit;
+use lsp_types::request::CodeActionRequest;
+use lsp_types::request::Completion;
+use lsp_types::request::GotoDefinition;
+use lsp_types::request::HoverRequest;
+use lsp_types::request::References;
+use lsp_types::request::ResolveCompletionItem;
+use lsp_types::request::Shutdown;
+use lsp_types::CodeActionProviderCapability;
+use lsp_types::CompletionOptions;
+use lsp_types::InitializeParams;
+use lsp_types::ServerCapabilities;
+use lsp_types::TextDocumentSyncCapability;
+use lsp_types::TextDocumentSyncKind;
+use lsp_types::WorkDoneProgressOptions;
+use relay_compiler::config::Config;
+use relay_compiler::NoopArtifactWriter;
+use schema_documentation::SchemaDocumentation;
+use schema_documentation::SchemaDocumentationLoader;
+
+use self::task_queue::TaskProcessor;
 use crate::code_action::on_code_action;
 use crate::completion::on_completion;
 use crate::completion::on_resolve_completion_item;
@@ -44,55 +92,7 @@ use crate::text_documents::on_did_change_text_document;
 use crate::text_documents::on_did_close_text_document;
 use crate::text_documents::on_did_open_text_document;
 use crate::text_documents::on_did_save_text_document;
-use common::PerfLogEvent;
-use common::PerfLogger;
-use crossbeam::channel::Receiver;
-use crossbeam::select;
-use log::debug;
-pub use lsp_notification_dispatch::LSPNotificationDispatch;
-pub use lsp_request_dispatch::LSPRequestDispatch;
-use lsp_server::Connection;
-use lsp_server::ErrorCode;
-use lsp_server::Message;
-use lsp_server::Notification;
-use lsp_server::Response as ServerResponse;
-use lsp_server::ResponseError;
-use lsp_types::notification::Cancel;
-use lsp_types::notification::DidChangeTextDocument;
-use lsp_types::notification::DidCloseTextDocument;
-use lsp_types::notification::DidOpenTextDocument;
-use lsp_types::notification::DidSaveTextDocument;
-use lsp_types::notification::Exit;
-use lsp_types::request::CodeActionRequest;
-use lsp_types::request::Completion;
-use lsp_types::request::GotoDefinition;
-use lsp_types::request::HoverRequest;
-use lsp_types::request::References;
-use lsp_types::request::ResolveCompletionItem;
-use lsp_types::request::Shutdown;
-use lsp_types::CodeActionProviderCapability;
-use lsp_types::CompletionOptions;
-use lsp_types::InitializeParams;
-use lsp_types::ServerCapabilities;
-use lsp_types::TextDocumentSyncCapability;
-use lsp_types::TextDocumentSyncKind;
-use lsp_types::WorkDoneProgressOptions;
-use relay_compiler::config::Config;
-use relay_compiler::NoopArtifactWriter;
-use schema_documentation::SchemaDocumentation;
-use schema_documentation::SchemaDocumentationLoader;
-use std::sync::Arc;
-
 pub use crate::LSPExtraDataProvider;
-pub use lsp_state::GlobalState;
-pub use lsp_state::LSPState;
-pub use lsp_state::Schemas;
-pub use lsp_state::SourcePrograms;
-
-use heartbeat::on_heartbeat;
-use heartbeat::HeartbeatRequest;
-
-use self::task_queue::TaskProcessor;
 
 /// Initializes an LSP connection, handling the `initialize` message and `initialized` notification
 /// handshake.
@@ -226,7 +226,9 @@ fn handle_request<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: Schem
 }
 
 fn dispatch_request(request: lsp_server::Request, lsp_state: &impl GlobalState) -> ServerResponse {
-    let get_response = || -> Result<_, ServerResponse> {
+    // Returns ControlFlow::Break(ServerResponse) if the request
+    // was handled, ControlFlow::Continue(Request) otherwise.
+    let get_response = || {
         let request = LSPRequestDispatch::new(request, lsp_state)
             .on_request_sync::<ResolvedTypesAtLocation>(on_get_resolved_types_at_location)?
             .on_request_sync::<SearchSchemaItems>(on_search_schema_items)?
@@ -247,7 +249,12 @@ fn dispatch_request(request: lsp_server::Request, lsp_state: &impl GlobalState) 
             .request();
 
         // If we have gotten here, we have not handled the request
-        Ok(ServerResponse {
+        ControlFlow::Continue(request)
+    };
+
+    match get_response() {
+        ControlFlow::Break(response) => response,
+        ControlFlow::Continue(request) => ServerResponse {
             id: request.id,
             result: None,
             error: Some(ResponseError {
@@ -255,9 +262,8 @@ fn dispatch_request(request: lsp_server::Request, lsp_state: &impl GlobalState) 
                 data: None,
                 message: format!("No handler registered for method '{}'", request.method),
             }),
-        })
-    };
-    get_response().unwrap_or_else(|response| response)
+        },
+    }
 }
 
 fn with_request_logging<'a, TPerfLogger: PerfLogger + 'static>(
@@ -312,11 +318,11 @@ fn handle_notification<
     let notification_result = dispatch_notification(notification, lsp_state.as_ref());
 
     match notification_result {
-        Ok(()) => {
+        ControlFlow::Continue(()) => {
             // The notification is not handled
             lsp_notification_event.string("lsp_outcome", "error".to_string());
         }
-        Err(err) => {
+        ControlFlow::Break(err) => {
             if let Some(err) = err {
                 lsp_notification_event.string("lsp_outcome", "error".to_string());
                 if let LSPRuntimeError::UnexpectedError(message) = err {
@@ -335,7 +341,9 @@ fn handle_notification<
 fn dispatch_notification(
     notification: lsp_server::Notification,
     lsp_state: &impl GlobalState,
-) -> Result<(), Option<LSPRuntimeError>> {
+) -> ControlFlow<Option<LSPRuntimeError>, ()> {
+    // Returns ControlFlow::Break(Option<LSPRuntimeError>) if the notification
+    // was handled, ControlFlow::Continue(()) otherwise.
     let notification = LSPNotificationDispatch::new(notification, lsp_state)
         .on_notification_sync::<DidOpenTextDocument>(on_did_open_text_document)?
         .on_notification_sync::<DidCloseTextDocument>(on_did_close_text_document)?
@@ -350,5 +358,5 @@ fn dispatch_notification(
         "Error: no handler registered for notification '{}'",
         notification.method
     );
-    Ok(())
+    ControlFlow::Continue(())
 }

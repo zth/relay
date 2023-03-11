@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -18,8 +18,8 @@ import type {
   OperationType,
 } from 'relay-runtime';
 
-const useRefetchableFragmentInternal = require('./useRefetchableFragmentInternal_REACT_CACHE');
 const useStaticFragmentNodeWarning = require('../useStaticFragmentNodeWarning');
+const useRefetchableFragmentInternal = require('./useRefetchableFragmentInternal_REACT_CACHE');
 const {useDebugValue} = require('react');
 const {getFragment} = require('relay-runtime');
 

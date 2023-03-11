@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::{ScalarName, DirectiveName};
 use fnv::FnvBuildHasher;
 use graphql_ir::{
     Argument, ConstantValue, Directive, Field, FragmentDefinition, OperationDefinition, Selection,
@@ -18,7 +19,7 @@ use schema::{SDLSchema, Schema, Type};
 
 use crate::rescript_utils::{get_connection_key_maker, get_custom_scalar_raw_typenames};
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
-pub type CustomScalarsMap = FnvIndexMap<StringKey, CustomScalarType>;
+pub type CustomScalarsMap = FnvIndexMap<ScalarName, CustomScalarType>;
 
 #[derive(Debug)]
 pub struct RescriptRelayConnectionConfig {
@@ -83,7 +84,7 @@ fn find_connections_arguments(directive: Option<&Directive>) -> Vec<String> {
         None => (),
         Some(directive) => {
             directive.arguments.iter().for_each(|argument| {
-                if argument.name.item == String::from("connections").intern() {
+                if argument.name.item.0 == String::from("connections").intern() {
                     match argument.value.item {
                         Value::Variable(Variable { name, type_: _ }) => {
                             variable_names.push(name.item.to_string())
@@ -116,7 +117,7 @@ fn visit_selections<'a>(
             let delete_edge_directive = field
                 .directives
                 .iter()
-                .find(|directive| directive.name.item == *DELETE_EDGE);
+                .find(|directive| directive.name.item.0 == *DELETE_EDGE);
 
             find_connections_arguments(delete_edge_directive)
                 .iter()
@@ -127,7 +128,7 @@ fn visit_selections<'a>(
                 });
 
             field.directives.iter().for_each(|directive| {
-                if directive.name.item == *FIELD_DIRECTIVE_ALLOW_UNSAFE_ENUM {
+                if directive.name.item.0 == *FIELD_DIRECTIVE_ALLOW_UNSAFE_ENUM {
                     let mut at_object_path = current_path.clone();
                     at_object_path.push(field.alias_or_name(schema).to_string());
 
@@ -178,10 +179,10 @@ fn visit_selections<'a>(
                         .arguments
                         .iter()
                         .filter(|arg| {
-                            if &arg.name.item == &"first".intern()
-                                || &arg.name.item == &"last".intern()
-                                || &arg.name.item == &"before".intern()
-                                || &arg.name.item == &"after".intern()
+                            if &arg.name.item.0 == &"first".intern()
+                                || &arg.name.item.0 == &"last".intern()
+                                || &arg.name.item.0 == &"before".intern()
+                                || &arg.name.item.0 == &"after".intern()
                             {
                                 false
                             } else {
@@ -214,10 +215,10 @@ fn visit_selections<'a>(
 
             // Look for $connections
             let edge_directive = field.directives.iter().find(|directive| {
-                directive.name.item == *APPEND_EDGE || directive.name.item == *PREPEND_EDGE
+                directive.name.item.0 == *APPEND_EDGE || directive.name.item.0 == *PREPEND_EDGE
             });
             let node_directive = field.directives.iter().find(|directive| {
-                directive.name.item == *APPEND_NODE || directive.name.item == *PREPEND_NODE
+                directive.name.item.0 == *APPEND_NODE || directive.name.item.0 == *PREPEND_NODE
             });
 
             find_connections_arguments(edge_directive)
@@ -247,9 +248,9 @@ fn visit_selections<'a>(
         }
         Selection::InlineFragment(inline_fragment) => {
             let type_name = match &inline_fragment.type_condition {
-                Some(Type::Object(id)) => Some(schema.object(*id).name),
-                Some(Type::Interface(id)) => Some(schema.interface(*id).name),
-                Some(Type::Union(id)) => Some(schema.union(*id).name),
+                Some(Type::Object(id)) => Some(schema.object(*id).name.item.0),
+                Some(Type::Interface(id)) => Some(schema.interface(*id).name.item.0),
+                Some(Type::Union(id)) => Some(schema.union(*id).name.item),
                 _ => None,
             };
 
@@ -261,7 +262,7 @@ fn visit_selections<'a>(
                     operation_meta_data,
                     &variable_definitions,
                     &custom_scalars,
-                    make_path(&current_path, type_name.item.to_string()),
+                    make_path(&current_path, type_name.to_string()),
                 ),
             }
         }
@@ -288,7 +289,7 @@ pub fn find_assets_in_fragment<'a>(
         .directives
         .iter()
         .filter_map(|directive| {
-            if directive.name.item == *FRAGMENT_DIRECTIVE_IGNORE_UNUSED {
+            if directive.name.item.0 == *FRAGMENT_DIRECTIVE_IGNORE_UNUSED {
                 Some(RescriptRelayFragmentDirective::IgnoreUnused)
             } else {
                 None
@@ -337,7 +338,7 @@ pub fn find_assets_in_operation<'a>(
         .directives
         .iter()
         .filter_map(|directive| {
-            if directive.name.item == *OPERATION_DIRECTIVE_NULLABLE_VARIABLES {
+            if directive.name.item == DirectiveName(*OPERATION_DIRECTIVE_NULLABLE_VARIABLES) {
                 Some(RescriptRelayOperationDirective::NullableVariables)
             } else {
                 None

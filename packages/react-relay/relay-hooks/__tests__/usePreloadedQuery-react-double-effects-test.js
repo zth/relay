@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -92,7 +92,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
 
     environment = createMockEnvironment();
 
-    release = jest.fn();
+    release = jest.fn<[], mixed>();
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const originalRetain = environment.retain;
     (environment: $FlowFixMe).retain = jest.fn(operation => {
@@ -105,7 +105,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
       };
     });
 
-    cancelNetworkRequest = jest.fn();
+    cancelNetworkRequest = jest.fn<[], mixed>();
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const originalExecuteWithSource = environment.executeWithSource;
     (environment: $FlowFixMe).executeWithSource = jest.fn((...args) => {
@@ -158,7 +158,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
 
     renderLogs = [];
     QueryComponent = function (props: any) {
-      const result = usePreloadedQuery<_>(props.queryInput, props.queryRef);
+      const result = usePreloadedQuery(props.queryInput, props.queryRef);
 
       const name = result?.node?.name ?? 'Empty';
       useEffect(() => {
@@ -218,7 +218,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
   describe('using loadQuery', () => {
     describe('when request is in flight upon rendering', () => {
       it('forces a re-render when effects are double invoked and does NOT refetch when policy network-only', () => {
-        const queryRef = loadQuery(environment, gqlQuery, variables, {
+        const queryRef = loadQuery<any, _>(environment, gqlQuery, variables, {
           fetchPolicy: 'network-only',
         });
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
@@ -300,7 +300,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
       });
 
       it('forces a re-render when effects are double invoked and does NOT refetch when policy store-or-network', () => {
-        const queryRef = loadQuery(environment, gqlQuery, variables, {
+        const queryRef = loadQuery<any, _>(environment, gqlQuery, variables, {
           fetchPolicy: 'store-or-network',
         });
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
@@ -384,7 +384,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
 
     describe('when request is complete upon rendering', () => {
       it('forces a re-render when effects are double invoked and does NOT refetch when policy network-only', () => {
-        const queryRef = loadQuery(environment, gqlQuery, variables, {
+        const queryRef = loadQuery<any, _>(environment, gqlQuery, variables, {
           fetchPolicy: 'network-only',
         });
         // Resolve network response
@@ -457,7 +457,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
       });
 
       it('forces a re-render when effects are double invoked and does NOT refetch when policy store-or-network', () => {
-        const queryRef = loadQuery(environment, gqlQuery, variables, {
+        const queryRef = loadQuery<any, _>(environment, gqlQuery, variables, {
           fetchPolicy: 'store-or-network',
         });
         // Resolve network response
@@ -532,9 +532,14 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
 
     describe('with incremental delivery', () => {
       it('forces a re-render when effects are double invoked and does NOT refetch when policy is network-only', () => {
-        const queryRef = loadQuery(environment, gqlQueryWithDefer, variables, {
-          fetchPolicy: 'network-only',
-        });
+        const queryRef = loadQuery<any, _>(
+          environment,
+          gqlQueryWithDefer,
+          variables,
+          {
+            fetchPolicy: 'network-only',
+          },
+        );
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).toHaveBeenCalledTimes(1);
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
@@ -643,9 +648,14 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
       });
 
       it('forces a re-render when effects are double invoked and does NOT refetch when policy is store-or-network', () => {
-        const queryRef = loadQuery(environment, gqlQueryWithDefer, variables, {
-          fetchPolicy: 'store-or-network',
-        });
+        const queryRef = loadQuery<any, _>(
+          environment,
+          gqlQueryWithDefer,
+          variables,
+          {
+            fetchPolicy: 'store-or-network',
+          },
+        );
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).toHaveBeenCalledTimes(1);
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
@@ -758,7 +768,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
   describe('using preloadQuery_DEPRECATED', () => {
     describe('when request is in flight upon rendering', () => {
       it('forces a re-render when effects are double invoked and refetches when policy network-only', () => {
-        const queryRef = preloadQuery_DEPRECATED(
+        const queryRef = preloadQuery_DEPRECATED<any, empty>(
           environment,
           gqlQuery,
           variables,
@@ -865,7 +875,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
       });
 
       it('forces a re-render when effects are double invoked and does NOT refetch when policy store-or-network', () => {
-        const queryRef = preloadQuery_DEPRECATED(
+        const queryRef = preloadQuery_DEPRECATED<any, empty>(
           environment,
           gqlQuery,
           variables,
@@ -946,7 +956,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
 
     describe('when request is complete upon rendering', () => {
       it('forces a re-render when effects are double invoked and refetches when policy network-only', () => {
-        const queryRef = preloadQuery_DEPRECATED(
+        const queryRef = preloadQuery_DEPRECATED<any, empty>(
           environment,
           gqlQuery,
           variables,
@@ -1046,7 +1056,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
       });
 
       it('forces a re-render when effects are double invoked and does NOT refetch when policy store-or-network', () => {
-        const queryRef = preloadQuery_DEPRECATED(
+        const queryRef = preloadQuery_DEPRECATED<any, empty>(
           environment,
           gqlQuery,
           variables,
@@ -1129,7 +1139,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
 
     describe('with incremental delivery', () => {
       it('forces a re-render when effects are double invoked and refetches when policy is network-only', () => {
-        const queryRef = preloadQuery_DEPRECATED(
+        const queryRef = preloadQuery_DEPRECATED<any, empty>(
           environment,
           gqlQueryWithDefer,
           variables,
@@ -1270,7 +1280,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
       });
 
       it('forces a re-render when effects are double invoked and refetches when policy is store-or-network', () => {
-        const queryRef = preloadQuery_DEPRECATED(
+        const queryRef = preloadQuery_DEPRECATED<any, empty>(
           environment,
           gqlQueryWithDefer,
           variables,

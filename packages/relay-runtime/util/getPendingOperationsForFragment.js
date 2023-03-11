@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -54,6 +54,16 @@ function getPendingOperationsForFragment(
       : `Relay(${pendingOperationName}:${fragmentName})`;
   // $FlowExpectedError[prop-missing] Expando to annotate Promises.
   promise.displayName = promiseDisplayName;
+
+  // In order to monitor the efficacy of RelayOperationTracker, we log
+  // enough information to track whether we are suspending on the fragment
+  // owner's operation, or some other operation.
+  environment.__log({
+    name: 'pendingoperation.found',
+    fragment: fragmentNode,
+    fragmentOwner,
+    pendingOperations,
+  });
   return {promise, pendingOperations};
 }
 

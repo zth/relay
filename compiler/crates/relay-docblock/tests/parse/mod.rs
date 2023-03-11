@@ -6,6 +6,7 @@
  */
 
 use common::Diagnostic;
+use common::FeatureFlag;
 use common::SourceLocationKey;
 use docblock_syntax::parse_docblock;
 use extract_graphql::JavaScriptSourceFeature;
@@ -15,6 +16,7 @@ use graphql_syntax::parse_executable;
 use graphql_syntax::ExecutableDefinition;
 use intern::string_key::Intern;
 use relay_docblock::parse_docblock_ast;
+use relay_docblock::ParseOptions;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let js_features = extract_graphql::extract(fixture.content);
@@ -54,7 +56,22 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                         index: i as u16,
                     },
                 )
-                .and_then(|ast| parse_docblock_ast(&ast, Some(&executable_documents)))
+                .and_then(|ast| {
+                    parse_docblock_ast(
+                        &ast,
+                        Some(&executable_documents),
+                        ParseOptions {
+                            enable_output_type: if fixture
+                                .content
+                                .contains("// relay:enable_output_type")
+                            {
+                                &FeatureFlag::Enabled
+                            } else {
+                                &FeatureFlag::Disabled
+                            },
+                        },
+                    )
+                })
                 .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics)),
             ),
         })

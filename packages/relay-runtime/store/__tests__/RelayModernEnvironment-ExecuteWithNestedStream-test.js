@@ -4,12 +4,14 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
 'use strict';
+import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
+import type {Snapshot} from '../RelayStoreTypes';
 import type {
   HandleFieldPayload,
   RecordSourceProxy,
@@ -116,15 +118,16 @@ describe('execute() a query with nested @stream', () => {
       },
     };
 
-    complete = jest.fn();
-    error = jest.fn();
-    next = jest.fn();
+    complete = jest.fn<[], mixed>();
+    error = jest.fn<[Error], mixed>();
+    next = jest.fn<[GraphQLResponse], mixed>();
     callbacks = {complete, error, next};
     fetch = (
       _query: RequestParameters,
       _variables: Variables,
       _cacheConfig: CacheConfig,
     ) => {
+      // $FlowFixMe[missing-local-annot] Error found while enabling LTI on this file
       return RelayObservable.create(sink => {
         dataSource = sink;
       });
@@ -144,7 +147,7 @@ describe('execute() a query with nested @stream', () => {
 
     // Publish an initial root payload and a parent nested stream payload
     const initialSnapshot = environment.lookup(selector);
-    callback = jest.fn();
+    callback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialSnapshot, callback);
 
     environment.execute({operation}).subscribe(callbacks);

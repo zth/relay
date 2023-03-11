@@ -4,12 +4,13 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
 'use strict';
+import type {Snapshot} from '../RelayStoreTypes';
 import type {
   RelayModernStoreSubscriptionsTest1Fragment$data,
   RelayModernStoreSubscriptionsTest1Fragment$fragmentType,
@@ -26,6 +27,7 @@ import type {
   RelayModernStoreSubscriptionsTest2Query$data,
   RelayModernStoreSubscriptionsTest2Query$variables,
 } from './__generated__/RelayModernStoreSubscriptionsTest2Query.graphql';
+import type {SelectorData} from 'relay-runtime/store/RelayStoreTypes';
 import type {LogEvent} from 'relay-runtime/store/RelayStoreTypes';
 import type {Fragment, Query} from 'relay-runtime/util/RelayRuntimeTypes';
 
@@ -41,7 +43,7 @@ const RelayOptimisticRecordSource = require('../RelayOptimisticRecordSource');
 const RelayRecordSource = require('../RelayRecordSource');
 const {INVALIDATED_AT_KEY, REF_KEY} = require('../RelayStoreUtils');
 
-function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
+function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>): void {
   if (!value) {
     throw new Error(
       'Expected value to be a non-null object or array of objects',
@@ -63,8 +65,10 @@ function cloneEventWithSets(event: LogEvent) {
     if (event.hasOwnProperty(key)) {
       const val = event[key];
       if (val instanceof Set) {
+        // $FlowFixMe[prop-missing]
         nextEvent[key] = new Set(val);
       } else {
+        // $FlowFixMe[prop-missing]
         nextEvent[key] = val;
       }
     }
@@ -126,7 +130,9 @@ function cloneEventWithSets(event: LogEvent) {
             me: {__ref: '4'},
           },
         };
-        logEvents = [];
+        logEvents = ([]: Array<
+          $FlowFixMe | {...} | {data: ?SelectorData, kind: string},
+        >);
         source = getRecordSourceImplementation(data);
         store = new RelayModernStore(source, {
           log: event => {
@@ -162,7 +168,7 @@ function cloneEventWithSets(event: LogEvent) {
           owner.request,
         );
         const snapshot = store.lookup(selector);
-        const callback = jest.fn();
+        const callback = jest.fn<[Snapshot], void>();
         store.subscribe(snapshot, callback);
         // Publish a change to profilePicture.uri
         const nextSource = getRecordSourceImplementation({
@@ -217,7 +223,7 @@ function cloneEventWithSets(event: LogEvent) {
         const snapshot = store.lookup(selector);
         expect(snapshot.selector).toBe(selector);
 
-        const callback = jest.fn();
+        const callback = jest.fn<[Snapshot], void>();
         store.subscribe(snapshot, callback);
         // Publish a change to profilePicture.uri
         const nextSource = getRecordSourceImplementation({
@@ -253,7 +259,7 @@ function cloneEventWithSets(event: LogEvent) {
           owner.request,
         );
         const snapshot = store.lookup(selector);
-        const callback = jest.fn();
+        const callback = jest.fn<[Snapshot], void>();
         store.subscribe(snapshot, callback);
         // Publish a change to profilePicture.uri
         const nextSource = getRecordSourceImplementation({
@@ -281,7 +287,7 @@ function cloneEventWithSets(event: LogEvent) {
           owner.request,
         );
         const snapshot = store.lookup(selector);
-        const callback = jest.fn();
+        const callback = jest.fn<[Snapshot], void>();
         store.subscribe(snapshot, callback);
         // Publish a change to profilePicture.uri
         let nextSource = getRecordSourceImplementation({
@@ -346,7 +352,7 @@ function cloneEventWithSets(event: LogEvent) {
         const snapshot = store.lookup(selector);
         expect(snapshot.isMissingData).toEqual(true);
 
-        const callback = jest.fn();
+        const callback = jest.fn<[Snapshot], void>();
         // Record does not exist when subscribed
         store.subscribe(snapshot, callback);
         const nextSource = getRecordSourceImplementation({
@@ -386,7 +392,7 @@ function cloneEventWithSets(event: LogEvent) {
           owner.request,
         );
         const snapshot = store.lookup(selector);
-        const callback = jest.fn();
+        const callback = jest.fn<[Snapshot], void>();
         // Record does not exist when subscribed
         store.subscribe(snapshot, callback);
         const nextSource = getRecordSourceImplementation({
@@ -425,7 +431,7 @@ function cloneEventWithSets(event: LogEvent) {
         // Initially delete the record
         source.delete('842472');
         const snapshot = store.lookup(selector);
-        const callback = jest.fn();
+        const callback = jest.fn<[Snapshot], void>();
         // Record does not exist when subscribed
         store.subscribe(snapshot, callback);
         // Create it again
@@ -462,7 +468,7 @@ function cloneEventWithSets(event: LogEvent) {
           owner.request,
         );
         const snapshot = store.lookup(selector);
-        const callback = jest.fn();
+        const callback = jest.fn<[Snapshot], void>();
         store.subscribe(snapshot, callback);
         // Publish a change to profilePicture.uri
         const nextSource = getRecordSourceImplementation({
@@ -487,7 +493,7 @@ function cloneEventWithSets(event: LogEvent) {
           owner.request,
         );
         const snapshot = store.lookup(selector);
-        const callback = jest.fn();
+        const callback = jest.fn<[Snapshot], void>();
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         const {dispose} = store.subscribe(snapshot, callback);
         // Publish a change to profilePicture.uri
@@ -561,7 +567,7 @@ function cloneEventWithSets(event: LogEvent) {
             owner.request,
           );
           const snapshot = store.lookup(selector);
-          const callback = jest.fn();
+          const callback = jest.fn<[Snapshot], void>();
           store.subscribe(snapshot, callback);
           // Publish a change to profilePicture.uri
           const nextSource = getRecordSourceImplementation({
@@ -595,7 +601,7 @@ function cloneEventWithSets(event: LogEvent) {
             owner.request,
           );
           const snapshot = store.lookup(selector);
-          const callback = jest.fn();
+          const callback = jest.fn<[Snapshot], void>();
           store.subscribe(snapshot, callback);
           // Publish a change to profilePicture.uri
           const nextSource = getRecordSourceImplementation({
@@ -631,7 +637,7 @@ function cloneEventWithSets(event: LogEvent) {
             owner.request,
           );
           const snapshot = store.lookup(selector);
-          const callback = jest.fn();
+          const callback = jest.fn<[Snapshot], void>();
           store.subscribe(snapshot, callback);
           // Publish a change to profilePicture.uri
           const nextSource = getRecordSourceImplementation({
@@ -665,7 +671,7 @@ function cloneEventWithSets(event: LogEvent) {
           owner.request,
         );
         const snapshot = store.lookup(selector);
-        const callback = jest.fn(nextSnapshot => {
+        const callback = jest.fn((nextSnapshot: Snapshot) => {
           logEvents.push({
             kind: 'test_only_callback',
             data: nextSnapshot.data,
@@ -728,7 +734,7 @@ function cloneEventWithSets(event: LogEvent) {
             owner.request,
           );
           const snapshot = store.lookup(selector);
-          const callback = jest.fn(nextSnapshot => {
+          const callback = jest.fn((nextSnapshot: Snapshot) => {
             logEvents.push({
               kind: 'test_only_callback',
               data: nextSnapshot.data,

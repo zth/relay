@@ -4,13 +4,14 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
 'use strict';
-
+import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
+import type {NormalizationRootNode} from '../../util/NormalizationNode';
 import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
 import type {
   CacheConfig,
@@ -73,15 +74,16 @@ describe('execute() with @relay_client_component', () => {
       }
     `;
 
-    complete = jest.fn();
-    error = jest.fn();
-    next = jest.fn();
+    complete = jest.fn<[], mixed>();
+    error = jest.fn<[Error], mixed>();
+    next = jest.fn<[GraphQLResponse], mixed>();
     callbacks = {complete, error, next};
     fetch = (
       _query: RequestParameters,
       _variables: Variables,
       _cacheConfig: CacheConfig,
     ) => {
+      // $FlowFixMe[missing-local-annot] Error found while enabling LTI on this file
       return RelayObservable.create(sink => {
         dataSource = sink;
       });
@@ -89,8 +91,8 @@ describe('execute() with @relay_client_component', () => {
     network = RelayNetwork.create(fetch);
     source = RelayRecordSource.create();
     operationLoader = {
-      load: jest.fn(),
-      get: jest.fn(),
+      load: jest.fn<[mixed], Promise<?NormalizationRootNode>>(),
+      get: jest.fn<[mixed], ?NormalizationRootNode>(),
     };
     operation = createOperationDescriptor(Query, {id: '1'});
   });

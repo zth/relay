@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<6c3325b73c0ab66bd32ec2c01cf78a97>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<ea53f81ddf5494ef9f7acb063fc159b3>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,19 +19,19 @@
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
-import queryCounterNoFragmentWithArgResolver from "../../../relay-runtime/store/__tests__/resolvers/LiveCounterNoFragmentWithArg.js";
-// Type assertion validating that `queryCounterNoFragmentWithArgResolver` resolver is correctly implemented.
+import {counter_no_fragment_with_arg as queryCounterNoFragmentWithArgResolverType} from "../../../relay-runtime/store/__tests__/resolvers/LiveCounterNoFragmentWithArg.js";
+// Type assertion validating that `queryCounterNoFragmentWithArgResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryCounterNoFragmentWithArgResolver: (
+(queryCounterNoFragmentWithArgResolverType: (
   args: {|
     prefix: string,
-  |}, 
-) => LiveState<any>);
+  |},
+) => LiveState<mixed>);
 export type LiveResolversTest12Query$variables = {|
   prefix: string,
 |};
 export type LiveResolversTest12Query$data = {|
-  +counter_no_fragment_with_arg: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof queryCounterNoFragmentWithArgResolver>["read"]>,
+  +counter_no_fragment_with_arg: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof queryCounterNoFragmentWithArgResolverType>["read"]>,
 |};
 export type LiveResolversTest12Query = {|
   response: LiveResolversTest12Query$data,
@@ -44,6 +46,13 @@ var v0 = [
     "kind": "LocalArgument",
     "name": "prefix"
   }
+],
+v1 = [
+  {
+    "kind": "Variable",
+    "name": "prefix",
+    "variableName": "prefix"
+  }
 ];
 return {
   "fragment": {
@@ -57,17 +66,11 @@ return {
         "selections": [
           {
             "alias": null,
-            "args": [
-              {
-                "kind": "Variable",
-                "name": "prefix",
-                "variableName": "prefix"
-              }
-            ],
+            "args": (v1/*: any*/),
             "fragment": null,
             "kind": "RelayLiveResolver",
             "name": "counter_no_fragment_with_arg",
-            "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/LiveCounterNoFragmentWithArg'),
+            "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/LiveCounterNoFragmentWithArg').counter_no_fragment_with_arg,
             "path": "counter_no_fragment_with_arg"
           }
         ]
@@ -86,11 +89,12 @@ return {
         "kind": "ClientExtension",
         "selections": [
           {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "__id",
-            "storageKey": null
+            "name": "counter_no_fragment_with_arg",
+            "args": (v1/*: any*/),
+            "fragment": null,
+            "kind": "RelayResolver",
+            "storageKey": null,
+            "isOutputType": false
           }
         ]
       }

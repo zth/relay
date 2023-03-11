@@ -5,6 +5,31 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::sync::Arc;
+
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::NamedItem;
+use common::WithLocation;
+use graphql_ir::Argument;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::LinkedField;
+use graphql_ir::OperationDefinitionName;
+use graphql_ir::ScalarField;
+use graphql_ir::Selection;
+use graphql_ir::Value;
+use graphql_ir::Variable;
+use graphql_ir::VariableDefinition;
+use graphql_ir::VariableName;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
+use relay_config::SchemaConfig;
+use schema::Argument as ArgumentDef;
+use schema::FieldID;
+use schema::SDLSchema;
+use schema::Schema;
+use schema::Type;
+
 use super::build_fragment_metadata_as_directive;
 use super::build_fragment_spread;
 use super::build_operation_variable_definitions;
@@ -15,33 +40,12 @@ use super::RefetchRoot;
 use super::RefetchableMetadata;
 use super::CONSTANTS;
 use crate::root_variables::VariableMap;
-use common::Diagnostic;
-use common::DiagnosticsResult;
-use common::NamedItem;
-use common::WithLocation;
-use graphql_ir::Argument;
-use graphql_ir::FragmentDefinition;
-use graphql_ir::LinkedField;
-use graphql_ir::ScalarField;
-use graphql_ir::Selection;
-use graphql_ir::Value;
-use graphql_ir::Variable;
-use graphql_ir::VariableDefinition;
-use intern::string_key::Intern;
-use intern::string_key::StringKey;
-use relay_config::SchemaConfig;
-use schema::Argument as ArgumentDef;
-use schema::FieldID;
-use schema::SDLSchema;
-use schema::Schema;
-use schema::Type;
-use std::sync::Arc;
 
 fn build_refetch_operation(
     schema: &SDLSchema,
     schema_config: &SchemaConfig,
     fragment: &Arc<FragmentDefinition>,
-    query_name: StringKey,
+    query_name: OperationDefinitionName,
     variables_map: &VariableMap,
 ) -> DiagnosticsResult<Option<RefetchRoot>> {
     let id_name = schema_config.node_interface_id_field;
@@ -78,7 +82,7 @@ fn build_refetch_operation(
             ),
         });
         let mut variable_definitions = build_operation_variable_definitions(&fragment);
-        if let Some(id_argument) = variable_definitions.named(id_name) {
+        if let Some(id_argument) = variable_definitions.named(VariableName(id_name)) {
             return Err(vec![Diagnostic::error(
                 ValidationMessage::RefetchableFragmentOnNodeWithExistingID {
                     fragment_name: fragment.name.item,
@@ -87,7 +91,7 @@ fn build_refetch_operation(
             )]);
         }
         variable_definitions.push(VariableDefinition {
-            name: WithLocation::new(fragment.name.location, id_name),
+            name: WithLocation::new(fragment.name.location, VariableName(id_name)),
             type_: id_arg.type_.non_null(),
             default_value: None,
             directives: vec![],
@@ -103,7 +107,7 @@ fn build_refetch_operation(
                     value: WithLocation::new(
                         fragment.name.location,
                         Value::Variable(Variable {
-                            name: WithLocation::new(fragment.name.location, id_name),
+                            name: WithLocation::new(fragment.name.location, VariableName(id_name)),
                             type_: id_arg.type_.non_null(),
                         }),
                     ),
@@ -122,23 +126,33 @@ fn get_fetchable_field_name(
     fragment: &FragmentDefinition,
     schema: &SDLSchema,
 ) -> DiagnosticsResult<Option<StringKey>> {
-    if let Type::Object(id) = fragment.type_condition {
-        let object = schema.object(id);
-        if let Some(fetchable) = object.directives.named(CONSTANTS.fetchable) {
-            let field_name_arg = fetchable.arguments.named(CONSTANTS.field_name);
-            if let Some(field_name_arg) = field_name_arg {
-                if let Some(value) = field_name_arg.value.get_string_literal() {
-                    return Ok(Some(value));
-                }
-            }
-            return Err(vec![Diagnostic::error(
-                ValidationMessage::InvalidRefetchDirectiveDefinition {
-                    fragment_name: fragment.name.item,
-                },
-                fragment.name.location,
-            )]);
+    let fetchable_directive = match fragment.type_condition {
+        Type::Interface(interface_id) => {
+            let interface = schema.interface(interface_id);
+            interface.directives.named(CONSTANTS.fetchable)
         }
+        Type::Object(object_id) => {
+            let object = schema.object(object_id);
+            object.directives.named(CONSTANTS.fetchable)
+        }
+        _ => None,
+    };
+
+    if let Some(fetchable) = fetchable_directive {
+        let field_name_arg = fetchable.arguments.named(CONSTANTS.field_name);
+        if let Some(field_name_arg) = field_name_arg {
+            if let Some(value) = field_name_arg.value.get_string_literal() {
+                return Ok(Some(value));
+            }
+        }
+        return Err(vec![Diagnostic::error(
+            ValidationMessage::InvalidRefetchDirectiveDefinition {
+                fragment_name: fragment.name.item,
+            },
+            fragment.name.location,
+        )]);
     }
+
     Ok(None)
 }
 
@@ -227,6 +241,7 @@ fn enforce_selections_with_id_field(
 }
 
 pub const FETCHABLE_QUERY_GENERATOR: QueryGenerator = QueryGenerator {
-    description: "@fetchable type",
+    // T138625502 we should support interfaces and maybe unions
+    description: "server objects and interfaces with the @fetchable directive",
     build_refetch_operation,
 };

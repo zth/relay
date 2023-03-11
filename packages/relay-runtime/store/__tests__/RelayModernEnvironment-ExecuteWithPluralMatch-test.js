@@ -4,14 +4,15 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
 'use strict';
-
+import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
+import type {Snapshot} from '../RelayStoreTypes';
 import type {
   HandleFieldPayload,
   RecordSourceProxy,
@@ -113,15 +114,16 @@ describe('execute() a query with plural @match', () => {
       },
     };
 
-    complete = jest.fn();
-    error = jest.fn();
-    next = jest.fn();
+    complete = jest.fn<[], mixed>();
+    error = jest.fn<[Error], mixed>();
+    next = jest.fn<[GraphQLResponse], mixed>();
     callbacks = {complete, error, next};
     fetch = (
       _query: RequestParameters,
       _variables: Variables,
       _cacheConfig: CacheConfig,
     ) => {
+      // $FlowFixMe[missing-local-annot] Error found while enabling LTI on this file
       return RelayObservable.create(sink => {
         dataSource = sink;
       });
@@ -149,7 +151,7 @@ describe('execute() a query with plural @match', () => {
     });
 
     const operationSnapshot = environment.lookup(operation.fragment);
-    operationCallback = jest.fn();
+    operationCallback = jest.fn<[Snapshot], void>();
     environment.subscribe(operationSnapshot, operationCallback);
   });
 
@@ -268,7 +270,7 @@ describe('execute() a query with plural @match', () => {
     // initial results tested above
     const initialMatchSnapshot = environment.lookup(matchSelector);
     expect(initialMatchSnapshot.isMissingData).toBe(true);
-    const matchCallback = jest.fn();
+    const matchCallback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialMatchSnapshot, matchCallback);
 
     resolveFragment(markdownRendererNormalizationFragment);

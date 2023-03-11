@@ -77,7 +77,7 @@ file sources, and "listen" to the file changes in the "watch" mode. If
   - `nonNodeIdFields` Restricts the type of all fields named `id` to `ID`.
     - `allowedIdTypes` Mappings from types in your schema to allowed types
       for their fields named `id` (e.g. "ObjectType": "CustomIdType"). [object]
-- `noFutureProofEnums` For `flow` only. This option controls whether or not a
+- `noFutureProofEnums` This option controls whether or not a
   catch-all entry is added to enum type definitions values that may be added in
   the future. Enabling this means you will have to update your application
   whenever the GraphQL server schema adds new enum values to prevent it from
@@ -107,6 +107,10 @@ file sources, and "listen" to the file changes in the "watch" mode. If
   [string]
 - `jsModuleFormat` Formatting style for generated files. `commonjs` or `haste`.
   Default is `commonjs`. [string]
+- `diagnosticReportConfig` Options for configuring the output of compiler
+  diagnostics. [object]
+  - `criticalLevel` The severity level of diagnostics that will cause the
+    compiler to error out on. ["error" | "warning" | "info"]
 
 ### CLI Arguments
 

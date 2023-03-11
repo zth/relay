@@ -6,6 +6,7 @@
  */
 
 use fnv::FnvBuildHasher;
+use graphql_ir::ExecutableDefinitionName;
 use graphql_syntax::FloatValue;
 use graphql_syntax::OperationKind;
 use indexmap::IndexSet;
@@ -61,6 +62,30 @@ impl Ast {
     }
 }
 
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
+pub enum ModuleImportName {
+    Default(StringKey),
+    Named {
+        name: StringKey,
+        import_as: Option<StringKey>,
+    },
+}
+
+#[derive(Eq, PartialEq, Hash, PartialOrd, Ord, Debug, Clone)]
+pub struct JSModuleDependency {
+    pub path: StringKey,
+    pub import_name: ModuleImportName,
+}
+
+#[derive(Eq, PartialEq, Hash, PartialOrd, Ord, Debug, Clone)]
+pub enum GraphQLModuleDependency {
+    Name(ExecutableDefinitionName),
+    Path {
+        name: ExecutableDefinitionName,
+        path: StringKey,
+    },
+}
+
 #[derive(Eq, PartialEq, Hash, Debug)]
 pub enum Primitive {
     Key(AstKey),
@@ -72,14 +97,27 @@ pub enum Primitive {
     Null,
     StorageKey(StringKey, AstKey),
     RawString(String),
-    GraphQLModuleDependency(StringKey),
-    JSModuleDependency(StringKey),
+    GraphQLModuleDependency(GraphQLModuleDependency),
+    JSModuleDependency(JSModuleDependency),
+
     // Don't include the value in the output when
     // skip_printing_nulls is enabled
     SkippableNull,
     DynamicImport {
         provider: DynamicModuleProvider,
         module: StringKey,
+    },
+    RelayResolverModel {
+        graphql_module_name: StringKey,
+        graphql_module_path: StringKey,
+        js_module: JSModuleDependency,
+        injected_field_name_details: Option<(StringKey, bool)>,
+    },
+    RelayResolverWeakObjectWrapper {
+        resolver: Box<Primitive>,
+        key: StringKey,
+        plural: bool,
+        live: bool,
     },
 }
 

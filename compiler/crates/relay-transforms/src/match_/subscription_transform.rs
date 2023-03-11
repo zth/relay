@@ -5,9 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::match_::MATCH_CONSTANTS;
-use crate::util::get_normalization_operation_name;
-use crate::ModuleMetadata;
+use std::sync::Arc;
+
 use common::DiagnosticsResult;
 use common::Location;
 use common::WithLocation;
@@ -27,11 +26,15 @@ use graphql_ir::Transformer;
 use graphql_ir::Value;
 use graphql_syntax::OperationKind;
 use intern::string_key::Intern;
+use intern::Lookup;
 use schema::FieldID;
 use schema::Schema;
 use schema::Type;
 use schema::TypeReference;
-use std::sync::Arc;
+
+use crate::match_::MATCH_CONSTANTS;
+use crate::util::get_normalization_operation_name;
+use crate::ModuleMetadata;
 
 pub fn transform_subscriptions(program: &Program) -> DiagnosticsResult<Program> {
     let mut transformer = SubscriptionTransform::new(program);
@@ -126,7 +129,7 @@ impl<'program> SubscriptionTransform<'program> {
         }
     }
 
-    fn is_valid_js_dependency(&self, type_: &TypeReference) -> bool {
+    fn is_valid_js_dependency(&self, type_: &TypeReference<Type>) -> bool {
         match type_ {
             TypeReference::Named(Type::Scalar(scalar_id)) => {
                 let scalar = self.program.schema.scalar(*scalar_id);
@@ -147,10 +150,11 @@ impl<'program> SubscriptionTransform<'program> {
             fragment_spread,
         } = valid_result;
         let location = linked_field.definition.location;
-        let operation_name_with_suffix = format!("{}__subscription", operation.name.item.lookup());
+        let operation_name_with_suffix =
+            format!("{}__subscription", operation.name.item.0.lookup());
         let normalization_operation_name = format!(
             "{}.graphql",
-            get_normalization_operation_name(fragment_spread.fragment.item)
+            get_normalization_operation_name(fragment_spread.fragment.item.0)
         )
         .intern();
 
@@ -189,13 +193,19 @@ impl<'program> SubscriptionTransform<'program> {
                         key: operation_name_with_suffix.intern(),
                         module_id: format!(
                             "{}.{}",
-                            operation.name.item,
+                            operation.name.item.0,
                             linked_field.alias_or_name(&self.program.schema).lookup()
                         )
                         .intern(),
                         module_name: normalization_operation_name,
-                        source_document_name: operation.name.item,
+                        source_document_name: operation.name.item.into(),
                         fragment_name: fragment_spread.fragment.item,
+                        fragment_source_location: self
+                            .program
+                            .fragment(fragment_spread.fragment.item)
+                            .unwrap()
+                            .name
+                            .location,
                         location: name_location,
                         no_inline: false,
                     }

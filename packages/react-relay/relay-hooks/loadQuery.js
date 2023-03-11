@@ -6,12 +6,13 @@
  *
  * @flow strict-local
  * @format
- * @emails oncall+relay
+ * @oncall relay
  */
 
 'use strict';
 
 import type {
+  EnvironmentProviderOptions,
   LoadQueryOptions,
   PreloadableConcreteRequest,
   PreloadedQueryInner,
@@ -30,11 +31,11 @@ import type {
 const invariant = require('invariant');
 const React = require('react');
 const {
+  __internal: {fetchQueryDeduped},
   Observable,
   PreloadableQueryRegistry,
   RelayFeatureFlags,
   ReplaySubject,
-  __internal: {fetchQueryDeduped},
   createOperationDescriptor,
   getRequest,
   getRequestIdentifier,
@@ -55,7 +56,10 @@ function useTrackLoadQueryInRender() {
   }
 }
 
-function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
+function loadQuery<
+  TQuery: OperationType,
+  TEnvironmentProviderOptions = EnvironmentProviderOptions,
+>(
   environment: IEnvironment,
   preloadableRequest: GraphQLTaggedNode | PreloadableConcreteRequest<TQuery>,
   variables: TQuery['variables'],
@@ -115,8 +119,8 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
   // allows us to capture the events that occur during the eager execution
   // of the operation, and then replay them to the Observable we
   // ultimately return.
-  const executionSubject = new ReplaySubject();
-  const returnedObservable = Observable.create(sink =>
+  const executionSubject = new ReplaySubject<GraphQLResponse>();
+  const returnedObservable = Observable.create<GraphQLResponse>(sink =>
     executionSubject.subscribe(sink),
   );
 
@@ -139,7 +143,7 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
     didMakeNetworkRequest = true;
 
     let observable;
-    const subject = new ReplaySubject();
+    const subject = new ReplaySubject<GraphQLResponse>();
     if (RelayFeatureFlags.ENABLE_LOAD_QUERY_REQUEST_DEDUPING === true) {
       // Here, we are calling fetchQueryDeduped at the network layer level,
       // which ensures that only a single network request is active for a given
@@ -270,7 +274,7 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
   };
 
   let params;
-  let cancelOnLoadCallback;
+  let cancelOnLoadCallback: () => void;
   let queryId;
   if (preloadableRequest.kind === 'PreloadableConcreteRequest') {
     const preloadableConcreteRequest: PreloadableConcreteRequest<TQuery> =

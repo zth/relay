@@ -7,9 +7,6 @@
 
 use std::collections::VecDeque;
 
-use crate::lexer::TokenKind;
-use crate::node::*;
-use crate::syntax_error::SyntaxError;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::Location;
@@ -19,12 +16,35 @@ use common::WithDiagnostics;
 use intern::string_key::Intern;
 use logos::Logos;
 
+use crate::lexer::TokenKind;
+use crate::node::*;
+use crate::syntax_error::SyntaxError;
+
 type ParseResult<T> = Result<T, ()>;
+
+#[derive(Default, PartialEq)]
+pub enum FragmentArgumentSyntaxKind {
+    #[default]
+    None,
+    OnlyFragmentVariableDefinitions,
+    SpreadArgumentsAndFragmentVariableDefinitions,
+}
 
 #[derive(Default)]
 pub struct ParserFeatures {
-    /// Enable the experimental fragment variables definitions syntax
-    pub enable_variable_definitions: bool,
+    /// Whether and how to enable the experimental fragment variables definitions syntax
+    pub fragment_argument_capability: FragmentArgumentSyntaxKind,
+}
+
+impl ParserFeatures {
+    fn supports_variable_definition_syntax(&self) -> bool {
+        self.fragment_argument_capability != FragmentArgumentSyntaxKind::None
+    }
+
+    fn supports_spread_arguments_syntax(&self) -> bool {
+        self.fragment_argument_capability
+            == FragmentArgumentSyntaxKind::SpreadArgumentsAndFragmentVariableDefinitions
+    }
 }
 
 pub struct Parser<'a> {
@@ -112,6 +132,16 @@ impl<'a> Parser<'a> {
     pub fn parse_field_definition_stub(mut self) -> DiagnosticsResult<FieldDefinitionStub> {
         let stub = self.parse_field_definition_stub_impl();
         if self.errors.is_empty() {
+            Ok(stub.unwrap())
+        } else {
+            Err(self.errors)
+        }
+    }
+
+    /// Parses a string containing a field definition
+    pub fn parse_field_definition(mut self) -> DiagnosticsResult<FieldDefinition> {
+        let stub = self.parse_field_definition_impl();
+        if self.errors.is_empty() {
             self.parse_eof()?;
             Ok(stub.unwrap())
         } else {
@@ -132,7 +162,7 @@ impl<'a> Parser<'a> {
         });
         WithDiagnostics {
             item: document,
-            errors: self.errors,
+            diagnostics: self.errors,
         }
     }
 
@@ -152,6 +182,28 @@ impl<'a> Parser<'a> {
         if self.errors.is_empty() {
             self.parse_eof()?;
             Ok(type_annotation.unwrap())
+        } else {
+            Err(self.errors)
+        }
+    }
+
+    pub fn parse_identifier_result(mut self) -> DiagnosticsResult<Identifier> {
+        let identifier = self.parse_identifier();
+        if self.errors.is_empty() {
+            Ok(identifier.unwrap())
+        } else {
+            Err(self.errors)
+        }
+    }
+
+    pub fn parse_identifier_and_implements_interfaces_result(
+        mut self,
+    ) -> DiagnosticsResult<(Identifier, Vec<Identifier>)> {
+        let identifier = self.parse_identifier();
+        let impls = self.parse_implements_interfaces();
+        if self.errors.is_empty() {
+            self.parse_eof()?;
+            Ok((identifier.unwrap(), impls.unwrap()))
         } else {
             Err(self.errors)
         }
@@ -865,7 +917,7 @@ impl<'a> Parser<'a> {
         self.parse_optional_delimited_nonempty_list(
             TokenKind::OpenBrace,
             TokenKind::CloseBrace,
-            Self::parse_field_definition,
+            Self::parse_field_definition_impl,
         )
     }
 
@@ -873,7 +925,7 @@ impl<'a> Parser<'a> {
      * FieldDefinition :
      *   - Description? Name ArgumentsDefinition? : Type Directives?
      */
-    fn parse_field_definition(&mut self) -> ParseResult<FieldDefinition> {
+    fn parse_field_definition_impl(&mut self) -> ParseResult<FieldDefinition> {
         let description = self.parse_optional_description();
         let name = self.parse_identifier()?;
         let arguments = self.parse_argument_defs()?;
@@ -952,7 +1004,7 @@ impl<'a> Parser<'a> {
         let start = self.index();
         let fragment = self.parse_keyword("fragment")?;
         let name = self.parse_identifier()?;
-        let variable_definitions = if self.features.enable_variable_definitions {
+        let variable_definitions = if self.features.supports_variable_definition_syntax() {
             self.parse_optional_delimited_nonempty_list(
                 TokenKind::OpenParen,
                 TokenKind::CloseParen,
@@ -1279,11 +1331,17 @@ impl<'a> Parser<'a> {
         if !is_on_keyword && self.peek_token_kind() == TokenKind::Identifier {
             // fragment spread
             let name = self.parse_identifier()?;
+            let arguments = if self.features.supports_spread_arguments_syntax() {
+                self.parse_optional_arguments()?
+            } else {
+                None
+            };
             let directives = self.parse_directives()?;
             Ok(Selection::FragmentSpread(FragmentSpread {
                 span: Span::new(start, self.end_index),
                 spread,
                 name,
+                arguments,
                 directives,
             }))
         } else {

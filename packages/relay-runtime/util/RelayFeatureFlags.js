@@ -6,6 +6,7 @@
  *
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -29,6 +30,7 @@ export type FeatureFlags = {
   STRING_INTERN_LEVEL: number,
   USE_REACT_CACHE: boolean,
   USE_REACT_CACHE_LEGACY_TIMEOUTS: boolean,
+  ENABLE_QUERY_RENDERER_SET_STATE_PREVENTION: boolean,
 };
 
 const RelayFeatureFlags: FeatureFlags = {
@@ -48,6 +50,7 @@ const RelayFeatureFlags: FeatureFlags = {
   STRING_INTERN_LEVEL: 0,
   USE_REACT_CACHE: false,
   USE_REACT_CACHE_LEGACY_TIMEOUTS: true,
+  ENABLE_QUERY_RENDERER_SET_STATE_PREVENTION: false,
 };
 
 module.exports = RelayFeatureFlags;

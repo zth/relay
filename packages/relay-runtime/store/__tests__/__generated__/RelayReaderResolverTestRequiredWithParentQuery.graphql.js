@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<0ab095ed4a1a3a7049192c16cc5b4be4>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<c392a6ac43b5945c99eacb0b4e47a656>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,17 +19,17 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { UserRequiredNameResolver$key } from "./../resolvers/__generated__/UserRequiredNameResolver.graphql";
-import userRequiredNameResolver from "../resolvers/UserRequiredNameResolver.js";
-// Type assertion validating that `userRequiredNameResolver` resolver is correctly implemented.
+import {required_name as userRequiredNameResolverType} from "../resolvers/UserRequiredNameResolver.js";
+// Type assertion validating that `userRequiredNameResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userRequiredNameResolver: (
-  rootKey: UserRequiredNameResolver$key, 
+(userRequiredNameResolverType: (
+  rootKey: UserRequiredNameResolver$key,
 ) => mixed);
 export type RelayReaderResolverTestRequiredWithParentQuery$variables = {||};
 export type RelayReaderResolverTestRequiredWithParentQuery$data = {|
   +me: ?{|
     +lastName: string,
-    +required_name: ?$Call<<R>((...empty[]) => R) => R, typeof userRequiredNameResolver>,
+    +required_name: ?$Call<<R>((...empty[]) => R) => R, typeof userRequiredNameResolverType>,
   |},
 |};
 export type RelayReaderResolverTestRequiredWithParentQuery = {|
@@ -69,7 +71,7 @@ return {
             },
             "kind": "RelayResolver",
             "name": "required_name",
-            "resolverModule": require('./../resolvers/UserRequiredNameResolver'),
+            "resolverModule": require('./../resolvers/UserRequiredNameResolver').required_name,
             "path": "me.required_name"
           },
           {
@@ -100,11 +102,25 @@ return {
         "plural": false,
         "selections": [
           {
-            "alias": null,
+            "name": "required_name",
             "args": null,
-            "kind": "ScalarField",
-            "name": "name",
-            "storageKey": null
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "name",
+                  "storageKey": null
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "RelayResolver",
+            "storageKey": null,
+            "isOutputType": false
           },
           (v0/*: any*/),
           {

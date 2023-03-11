@@ -5,7 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::sync::Arc;
+
 use common::DiagnosticsResult;
+use common::FeatureFlag;
 use common::SourceLocationKey;
 use docblock_syntax::parse_docblock;
 use docblock_syntax::DocblockSource;
@@ -15,17 +18,17 @@ use graphql_syntax::parse_executable;
 use graphql_syntax::ExecutableDefinition;
 use graphql_test_helpers::diagnostics_to_sorted_string;
 use intern::string_key::Intern;
+use relay_docblock::extend_schema_with_resolver_type_system_definition;
 use relay_docblock::parse_docblock_ast;
-use relay_test_schema::get_test_schema;
+use relay_docblock::ParseOptions;
 use relay_test_schema::get_test_schema_with_extensions;
 use schema::SDLSchema;
-use std::sync::Arc;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts: Vec<_> = fixture.content.split("%extensions%").collect();
-    let (base, schema) = match parts.as_slice() {
+    let (base, mut schema) = match parts.as_slice() {
         [base, extensions] => (base, extract_schema_from_js(extensions)),
-        [base] => (base, get_test_schema()),
+        [base] => (base, get_test_schema_with_extensions("")),
         _ => panic!("Invalid fixture input {}", fixture.content),
     };
 
@@ -50,7 +53,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         .cloned()
         .collect::<Vec<ExecutableDefinition>>();
 
-    let stringify = |i: usize, source: &DocblockSource| -> DiagnosticsResult<String> {
+    let mut stringify = |i: usize, source: &DocblockSource| -> DiagnosticsResult<String> {
         let ast = parse_docblock(
             &source.text_source().text,
             SourceLocationKey::Embedded {
@@ -58,9 +61,35 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                 index: i as u16,
             },
         )?;
-        let ir = parse_docblock_ast(&ast, Some(&executable_documents))?.unwrap();
+        let ir = parse_docblock_ast(
+            &ast,
+            Some(&executable_documents),
+            ParseOptions {
+                enable_output_type: if fixture.content.contains("// relay:enable_output_type") {
+                    &FeatureFlag::Enabled
+                } else {
+                    &FeatureFlag::Disabled
+                },
+            },
+        )?
+        .unwrap();
 
-        ir.to_sdl_string(&schema)
+        // In non-tests, this function (correctly) consumes TypeSystemDefinition when modifying the
+        // schema.
+        // In tests, we need to clone, because we **also** want to print the schema changes.
+        let schema_document = ir
+            .clone()
+            .to_graphql_schema_ast(&schema, &Default::default())?;
+        for definition in &schema_document.definitions {
+            extend_schema_with_resolver_type_system_definition(
+                definition.clone(),
+                Arc::get_mut(&mut schema)
+                    .expect("Expected to be able to get mutable reference to schema"),
+                schema_document.location,
+            )?;
+        }
+
+        ir.to_sdl_string(&schema, &Default::default())
     };
 
     let schema_strings = js_features

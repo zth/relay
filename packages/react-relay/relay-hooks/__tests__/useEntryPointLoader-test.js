@@ -4,12 +4,13 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow
  * @format
+ * @oncall relay
  */
 
 'use strict';
+import type {EntryPointComponent} from '../EntryPointTypes.flow';
 import type {EnvironmentProviderOptions} from '../EntryPointTypes.flow';
 import type {IEnvironment} from 'relay-runtime/store/RelayStoreTypes';
 
@@ -32,12 +33,16 @@ let render;
 let Container;
 let defaultEntryPoint: any;
 
-const loadEntryPoint = jest.fn().mockImplementation(() => {
-  dispose = jest.fn();
-  return (loadEntryPointLastReturnValue = {
-    dispose,
+const loadEntryPoint = jest
+  /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
+   * enabling Flow LTI mode */
+  .fn<_, {dispose: JestMockFn<$ReadOnlyArray<mixed>, mixed>}>()
+  .mockImplementation(() => {
+    dispose = jest.fn();
+    return (loadEntryPointLastReturnValue = {
+      dispose,
+    });
   });
-});
 jest.mock('../loadEntryPoint', () => loadEntryPoint);
 
 beforeEach(() => {
@@ -73,7 +78,10 @@ beforeEach(() => {
   }) {
     renderCount = (renderCount || 0) + 1;
     [loadedEntryPoint, entryPointLoaderCallback, disposeEntryPoint] =
-      useEntryPointLoader(environmentProvider, entryPoint);
+      useEntryPointLoader<{...}, any, any, any, any, any, any>(
+        environmentProvider,
+        entryPoint,
+      );
     return null;
   };
   loadEntryPoint.mockClear();
@@ -172,10 +180,15 @@ it('does not dispose the entry point before the new component tree unsuspends in
     }
 
     function ComponentWithHook() {
-      [, entryPointLoaderCallback] = useEntryPointLoader(
-        defaultEnvironmentProvider,
-        defaultEntryPoint,
-      );
+      [, entryPointLoaderCallback] = useEntryPointLoader<
+        {...},
+        {...},
+        {...},
+        {...},
+        mixed,
+        EntryPointComponent<{...}, {...}, {...}, mixed>,
+        _,
+      >(defaultEnvironmentProvider, defaultEntryPoint);
       return null;
     }
 
@@ -276,10 +289,15 @@ it('disposes entry point references associated with previous suspensions when mu
     }
 
     function Inner({promise}: {promise: ?Promise<any>}) {
-      [, entryPointLoaderCallback] = useEntryPointLoader(
-        defaultEnvironmentProvider,
-        defaultEntryPoint,
-      );
+      [, entryPointLoaderCallback] = useEntryPointLoader<
+        {...},
+        {...},
+        {...},
+        {...},
+        mixed,
+        EntryPointComponent<{...}, {...}, {...}, mixed>,
+        _,
+      >(defaultEnvironmentProvider, defaultEntryPoint);
       if (
         promise == null ||
         (promise === resolvableSuspensePromise && resolved)
@@ -375,10 +393,15 @@ it('disposes entry point references associated with subsequent suspensions when 
 
     let innerUnsuspendedCorrectly = false;
     function Inner({promise}: {promise: ?Promise<any>}) {
-      [, entryPointLoaderCallback] = useEntryPointLoader(
-        defaultEnvironmentProvider,
-        defaultEntryPoint,
-      );
+      [, entryPointLoaderCallback] = useEntryPointLoader<
+        {...},
+        {...},
+        {...},
+        {...},
+        mixed,
+        EntryPointComponent<{...}, {...}, {...}, mixed>,
+        _,
+      >(defaultEnvironmentProvider, defaultEntryPoint);
       if (
         promise == null ||
         (promise === resolvableSuspensePromise && resolved)

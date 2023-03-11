@@ -4,17 +4,18 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
 'use strict';
-
+import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
 import type {
   NormalizationRootNode,
   NormalizationSplitOperation,
 } from '../../util/NormalizationNode';
+import type {Snapshot} from '../RelayStoreTypes';
 import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
 import type {
   CacheConfig,
@@ -40,7 +41,15 @@ const {disallowWarnings, expectToWarn} = require('relay-test-utils-internal');
 disallowWarnings();
 
 function createOperationLoader() {
-  const cache = new Map();
+  const cache = new Map<
+    mixed,
+    | {kind: 'value', operation: NormalizationSplitOperation}
+    | {
+        kind: 'promise',
+        promise: Promise<empty>,
+        resolve: (_x: NormalizationSplitOperation) => void,
+      },
+  >();
   const resolve = (operation: NormalizationSplitOperation) => {
     const moduleName = `${operation.name}.graphql`;
     const entry = cache.get(moduleName);
@@ -50,21 +59,24 @@ function createOperationLoader() {
     cache.set(moduleName, {kind: 'value', operation: operation});
   };
   const loader = {
+    // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
     get: jest.fn(moduleName => {
       const entry = cache.get(moduleName);
       if (entry && entry.kind === 'value') {
         return entry.operation;
       }
     }),
+    // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
     load: jest.fn(moduleName => {
       let entry = cache.get(moduleName);
       if (entry == null) {
         let resolveFn = (_x: NormalizationSplitOperation) => undefined;
         const promise = new Promise(resolve_ => {
-          // $FlowFixMe[incompatible-type]
           resolveFn = resolve_;
         });
+        // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
         entry = {kind: 'promise', promise, resolve: resolveFn};
+        // $FlowFixMe[incompatible-call] Error found while enabling LTI on this file
         cache.set(moduleName, entry);
         return promise;
       } else if (entry.kind === 'value') {
@@ -155,15 +167,16 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         `;
         variables = {id: '1'};
         operation = createOperationDescriptor(query, variables);
-        complete = jest.fn();
-        error = jest.fn();
-        next = jest.fn();
+        complete = jest.fn<[], mixed>();
+        error = jest.fn<[Error], mixed>();
+        next = jest.fn<[GraphQLResponse], mixed>();
         callbacks = {complete, error, next};
         fetch = (
           _query: RequestParameters,
           _variables: Variables,
           _cacheConfig: CacheConfig,
         ) => {
+          // $FlowFixMe[missing-local-annot] Error found while enabling LTI on this file
           return RelayObservable.create(sink => {
             dataSource = sink;
           });
@@ -171,10 +184,12 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         source = RelayRecordSource.create();
         store = new RelayModernStore(source);
 
+        // $FlowFixMe[incompatible-type-arg] Error found while enabling LTI on this file
         [resolveFragment, operationLoader] = createOperationLoader();
         const multiActorEnvironment = new MultiActorEnvironment({
           createNetworkForActor: _actorID => RelayNetwork.create(fetch),
           createStoreForActor: _actorID => store,
+          // $FlowFixMe[incompatible-call] Error found while enabling LTI on this file
           operationLoader,
         });
         environment =
@@ -193,7 +208,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           operation.request,
         );
         const userSnapshot = environment.lookup(userSelector);
-        userCallback = jest.fn();
+        userCallback = jest.fn<[Snapshot], void>();
         environment.subscribe(userSnapshot, userCallback);
 
         const actorSelector = createReaderSelector(
@@ -203,7 +218,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           operation.request,
         );
         const actorSnapshot = environment.lookup(actorSelector);
-        actorCallback = jest.fn();
+        actorCallback = jest.fn<[Snapshot], void>();
         environment.subscribe(actorSnapshot, actorCallback);
       });
 
@@ -460,7 +475,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
         beforeEach(() => {
           taskID = 0;
-          tasks = new Map();
+          tasks = new Map<string, () => void>();
           scheduler = {
             cancel: (id: string) => {
               tasks.delete(id);

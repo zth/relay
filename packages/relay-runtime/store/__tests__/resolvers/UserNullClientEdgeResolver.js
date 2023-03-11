@@ -4,15 +4,15 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
 'use strict';
 
 import type {UserNullClientEdgeResolver$key} from './__generated__/UserNullClientEdgeResolver.graphql';
-import type {DataID} from 'relay-runtime';
+import type {ConcreteClientEdgeResolverReturnType} from 'relay-runtime';
 
 const {graphql} = require('relay-runtime');
 const {readFragment} = require('relay-runtime/store/ResolverFragments');
@@ -24,9 +24,9 @@ const {readFragment} = require('relay-runtime/store/ResolverFragments');
  * @onType User
  * @edgeTo User
  */
-function UserNullClientEdgeResolver(
+function null_client_edge(
   rootKey: UserNullClientEdgeResolver$key,
-): ?DataID {
+): ?ConcreteClientEdgeResolverReturnType<> {
   readFragment(
     graphql`
       fragment UserNullClientEdgeResolver on User {
@@ -38,4 +38,6 @@ function UserNullClientEdgeResolver(
   return null;
 }
 
-module.exports = UserNullClientEdgeResolver;
+module.exports = {
+  null_client_edge,
+};

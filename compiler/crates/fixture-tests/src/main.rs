@@ -7,10 +7,6 @@
 
 #![deny(clippy::all)]
 
-use clap::Parser;
-use colored::Colorize;
-use signedsource::sign_file;
-use signedsource::SIGNING_TOKEN;
 use std::collections::HashMap;
 use std::fs;
 use std::fs::File;
@@ -18,12 +14,17 @@ use std::io::prelude::*;
 use std::path::Path;
 use std::path::PathBuf;
 
+use clap::Parser;
+use colored::Colorize;
+use signedsource::sign_file;
+use signedsource::SIGNING_TOKEN;
+
 #[derive(Debug, Parser)]
 #[clap(name = "fixture-tests", about = "Generates fixture tests.")]
 struct Options {
     /// List of directories, each should contain a `/fixtures` subdirectory
     /// from which a test file will be generated
-    #[clap(name = "DIR", parse(from_os_str))]
+    #[clap(name = "DIR")]
     dirs: Vec<PathBuf>,
 }
 

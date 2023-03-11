@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8724c5b5f9541916f650cfd3e658d3f8>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<d124d9e35d8fd50f075aa249f7e6d754>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,13 +18,16 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { DataID } from "relay-runtime";
 import type { UserNullClientEdgeResolver$key } from "./../resolvers/__generated__/UserNullClientEdgeResolver.graphql";
-import userNullClientEdgeResolver from "../resolvers/UserNullClientEdgeResolver.js";
-// Type assertion validating that `userNullClientEdgeResolver` resolver is correctly implemented.
+import {null_client_edge as userNullClientEdgeResolverType} from "../resolvers/UserNullClientEdgeResolver.js";
+// Type assertion validating that `userNullClientEdgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userNullClientEdgeResolver: (
-  rootKey: UserNullClientEdgeResolver$key, 
-) => mixed);
+(userNullClientEdgeResolverType: (
+  rootKey: UserNullClientEdgeResolver$key,
+) => ?{|
+  +id: DataID,
+|});
 export type RelayReaderClientEdgesTest7Query$variables = {||};
 export type RelayReaderClientEdgesTest7Query$data = {|
   +me: ?{|
@@ -38,13 +43,15 @@ export type RelayReaderClientEdgesTest7Query = {|
 */
 
 var node/*: ConcreteRequest*/ = (function(){
-var v0 = {
-  "alias": null,
-  "args": null,
-  "kind": "ScalarField",
-  "name": "name",
-  "storageKey": null
-};
+var v0 = [
+  {
+    "alias": null,
+    "args": null,
+    "kind": "ScalarField",
+    "name": "name",
+    "storageKey": null
+  }
+];
 return {
   "fragment": {
     "argumentDefinitions": [],
@@ -75,7 +82,7 @@ return {
               },
               "kind": "RelayResolver",
               "name": "null_client_edge",
-              "resolverModule": require('./../resolvers/UserNullClientEdgeResolver'),
+              "resolverModule": require('./../resolvers/UserNullClientEdgeResolver').null_client_edge,
               "path": "me.null_client_edge"
             },
             "linkedField": {
@@ -85,9 +92,7 @@ return {
               "kind": "LinkedField",
               "name": "null_client_edge",
               "plural": false,
-              "selections": [
-                (v0/*: any*/)
-              ],
+              "selections": (v0/*: any*/),
               "storageKey": null
             }
           }
@@ -112,7 +117,19 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
+          {
+            "name": "null_client_edge",
+            "args": null,
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": (v0/*: any*/),
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "RelayResolver",
+            "storageKey": null,
+            "isOutputType": false
+          },
           {
             "alias": null,
             "args": null,

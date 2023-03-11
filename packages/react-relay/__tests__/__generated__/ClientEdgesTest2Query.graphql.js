@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<06e403a018c076b02ddeeeafc8a4482e>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<e135bf5122d1aa942d1f10e625d2e1b6>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,14 +18,17 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-import userClientNodeResolver from "../../../relay-runtime/store/__tests__/resolvers/UserClientEdgeNodeResolver.js";
-// Type assertion validating that `userClientNodeResolver` resolver is correctly implemented.
+import type { DataID } from "relay-runtime";
+import {client_node as userClientNodeResolverType} from "../../../relay-runtime/store/__tests__/resolvers/UserClientEdgeNodeResolver.js";
+// Type assertion validating that `userClientNodeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userClientNodeResolver: (
+(userClientNodeResolverType: (
   args: {|
     id: string,
-  |}, 
-) => mixed);
+  |},
+) => ?{|
+  +id: DataID,
+|});
 export type ClientEdgesTest2Query$variables = {|
   id: string,
 |};
@@ -81,7 +86,7 @@ return {
               "fragment": null,
               "kind": "RelayResolver",
               "name": "client_node",
-              "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/UserClientEdgeNodeResolver'),
+              "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/UserClientEdgeNodeResolver').client_node,
               "path": "me.client_node"
             },
             "linkedField": {
@@ -132,23 +137,19 @@ return {
         "plural": false,
         "selections": [
           {
+            "name": "client_node",
+            "args": (v1/*: any*/),
+            "fragment": null,
+            "kind": "RelayResolver",
+            "storageKey": null,
+            "isOutputType": false
+          },
+          {
             "alias": null,
             "args": null,
             "kind": "ScalarField",
             "name": "id",
             "storageKey": null
-          },
-          {
-            "kind": "ClientExtension",
-            "selections": [
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "__id",
-                "storageKey": null
-              }
-            ]
           }
         ],
         "storageKey": null

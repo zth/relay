@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ee9f68ebe601419fe059edba49f88c2d>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<13b521fbf8e48f80d041322ccb45e364>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,16 +19,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { UserAlwaysThrowsResolver$key } from "./../resolvers/__generated__/UserAlwaysThrowsResolver.graphql";
-import userAlwaysThrowsResolver from "../resolvers/UserAlwaysThrowsResolver.js";
-// Type assertion validating that `userAlwaysThrowsResolver` resolver is correctly implemented.
+import {always_throws as userAlwaysThrowsResolverType} from "../resolvers/UserAlwaysThrowsResolver.js";
+// Type assertion validating that `userAlwaysThrowsResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userAlwaysThrowsResolver: (
-  rootKey: UserAlwaysThrowsResolver$key, 
+(userAlwaysThrowsResolverType: (
+  rootKey: UserAlwaysThrowsResolver$key,
 ) => mixed);
 export type RelayReaderResolverTest12Query$variables = {||};
 export type RelayReaderResolverTest12Query$data = {|
   +me: ?{|
-    +always_throws: ?$Call<<R>((...empty[]) => R) => R, typeof userAlwaysThrowsResolver>,
+    +always_throws: ?$Call<<R>((...empty[]) => R) => R, typeof userAlwaysThrowsResolverType>,
   |},
 |};
 export type RelayReaderResolverTest12Query = {|
@@ -60,7 +62,7 @@ var node/*: ConcreteRequest*/ = {
             },
             "kind": "RelayResolver",
             "name": "always_throws",
-            "resolverModule": require('./../resolvers/UserAlwaysThrowsResolver'),
+            "resolverModule": require('./../resolvers/UserAlwaysThrowsResolver').always_throws,
             "path": "me.always_throws"
           }
         ],
@@ -85,11 +87,25 @@ var node/*: ConcreteRequest*/ = {
         "plural": false,
         "selections": [
           {
-            "alias": null,
+            "name": "always_throws",
             "args": null,
-            "kind": "ScalarField",
-            "name": "__typename",
-            "storageKey": null
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "__typename",
+                  "storageKey": null
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "RelayResolver",
+            "storageKey": null,
+            "isOutputType": false
           },
           {
             "alias": null,

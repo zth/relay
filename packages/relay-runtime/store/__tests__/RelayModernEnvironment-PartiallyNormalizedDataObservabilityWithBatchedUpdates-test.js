@@ -4,13 +4,15 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
 'use strict';
+import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
+import type {Snapshot} from '../RelayStoreTypes';
 import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
 import type {
   CacheConfig,
@@ -70,6 +72,7 @@ describe('execute() a query with @module if the module fragment is available syn
       _variables: Variables,
       _cacheConfig: CacheConfig,
     ) => {
+      // $FlowFixMe[missing-local-annot] Error found while enabling LTI on this file
       return RelayObservable.create(sink => {
         dataSource = sink;
       });
@@ -112,9 +115,9 @@ describe('execute() a query with @module if the module fragment is available syn
       }
     `;
 
-    complete = jest.fn();
-    error = jest.fn();
-    next = jest.fn();
+    complete = jest.fn<[], mixed>();
+    error = jest.fn<[Error], mixed>();
+    next = jest.fn<[GraphQLResponse], mixed>();
     callbacks = {complete, error, next};
 
     // set up a subscription for the observation fragment.
@@ -122,7 +125,7 @@ describe('execute() a query with @module if the module fragment is available syn
     // this subscription) the fragment in a partially-complete
     // state.
     observationSnapshot = environment.lookup(observationSelector);
-    callback = jest.fn();
+    callback = jest.fn<[Snapshot], void>();
     environment.subscribe(observationSnapshot, callback);
 
     // ensure that the normalization fragment is available synchronously
@@ -189,6 +192,7 @@ describe('execute() a query with @module in @defer if the deferred fragment and 
       _variables: Variables,
       _cacheConfig: CacheConfig,
     ) => {
+      // $FlowFixMe[missing-local-annot] Error found while enabling LTI on this file
       return RelayObservable.create(sink => {
         dataSource = sink;
       });
@@ -238,9 +242,9 @@ describe('execute() a query with @module in @defer if the deferred fragment and 
       }
     `;
 
-    complete = jest.fn();
-    error = jest.fn();
-    next = jest.fn();
+    complete = jest.fn<[], mixed>();
+    error = jest.fn<[Error], mixed>();
+    next = jest.fn<[GraphQLResponse], mixed>();
     callbacks = {complete, error, next};
 
     // set up a subscription for the observation fragment.
@@ -248,7 +252,7 @@ describe('execute() a query with @module in @defer if the deferred fragment and 
     // this subscription) the fragment in a partially-complete
     // state.
     observationSnapshot = environment.lookup(observationSelector);
-    callback = jest.fn();
+    callback = jest.fn<[Snapshot], void>();
     environment.subscribe(observationSnapshot, callback);
 
     // ensure that the normalization fragment is available synchronously
@@ -328,6 +332,7 @@ describe('execute() a query with nested @module fragments, where the inner @modu
       _variables: Variables,
       _cacheConfig: CacheConfig,
     ) => {
+      // $FlowFixMe[missing-local-annot] Error found while enabling LTI on this file
       return RelayObservable.create(sink => {
         dataSource = sink;
       });
@@ -335,6 +340,7 @@ describe('execute() a query with nested @module fragments, where the inner @modu
 
     promise = new Promise(_resolve => (resolve = _resolve));
     operationLoader = {
+      // $FlowFixMe[incompatible-type-arg] Error found while enabling LTI on this file
       load: () => promise,
       get: jest.fn(),
     };
@@ -377,9 +383,9 @@ describe('execute() a query with nested @module fragments, where the inner @modu
       operation.request,
     );
 
-    complete = jest.fn();
-    error = jest.fn();
-    next = jest.fn();
+    complete = jest.fn<[], mixed>();
+    error = jest.fn<[Error], mixed>();
+    next = jest.fn<[GraphQLResponse], mixed>();
     callbacks = {complete, error, next};
 
     // set up a subscription for the observation fragment.
@@ -387,7 +393,7 @@ describe('execute() a query with nested @module fragments, where the inner @modu
     // this subscription) the fragment in a partially-complete
     // state.
     observationSnapshot = environment.lookup(observationSelector);
-    callback = jest.fn();
+    callback = jest.fn<[Snapshot], void>();
     environment.subscribe(observationSnapshot, callback);
 
     // ensure that the nested normalization fragment is available synchronously

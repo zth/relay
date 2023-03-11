@@ -6,10 +6,11 @@
  *
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
 'use strict';
-import type {GeneratedNodeMap, RelayProp, $RelayProps} from './ReactRelayTypes';
+import type {$RelayProps, GeneratedNodeMap, RelayProp} from './ReactRelayTypes';
 import type {
   FragmentMap,
   FragmentSpecResolver,
@@ -55,6 +56,7 @@ function createContainerWithFragments<
   const containerName = getContainerName(Component);
 
   return class extends React.Component<ContainerProps, ContainerState> {
+    // $FlowFixMe[missing-local-annot]
     static displayName = containerName;
     constructor(props: $FlowFixMe) {
       super(props);
@@ -88,7 +90,7 @@ function createContainerWithFragments<
     static getDerivedStateFromProps(
       nextProps: ContainerProps,
       prevState: ContainerState,
-    ): $Shape<ContainerState> | null {
+    ): Partial<ContainerState> | null {
       // Any props change could impact the query, so we mirror props in state.
       // This is an unusual pattern, but necessary for this container usecase.
       const {prevProps} = prevState;
@@ -235,7 +237,9 @@ function createContainerWithFragments<
       }
     }
 
+    // $FlowFixMe[missing-local-annot]
     render() {
+      // eslint-disable-next-line no-unused-vars
       const {componentRef, __relayContext, __rootIsQueryRenderer, ...props} =
         this.props;
       return React.createElement(Component, {

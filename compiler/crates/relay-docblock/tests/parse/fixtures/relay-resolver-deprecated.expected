@@ -47,37 +47,41 @@ RelayResolver(
         root_fragment: Some(
             WithLocation {
                 location: /path/to/test/fixture/relay-resolver-deprecated.js:100:114,
-                item: "myRootFragment",
-            },
-        ),
-        edge_to: Some(
-            WithLocation {
-                location: /path/to/test/fixture/relay-resolver-deprecated.js:78:82,
-                item: Named(
-                    NamedTypeAnnotation {
-                        name: Identifier {
-                            span: 78:82,
-                            token: Token {
-                                span: 78:82,
-                                kind: Identifier,
-                            },
-                            value: "Page",
-                        },
-                    },
+                item: FragmentDefinitionName(
+                    "myRootFragment",
                 ),
             },
+        ),
+        output_type: Some(
+            EdgeTo(
+                WithLocation {
+                    location: /path/to/test/fixture/relay-resolver-deprecated.js:78:82,
+                    item: Named(
+                        NamedTypeAnnotation {
+                            name: Identifier {
+                                span: 78:82,
+                                token: Token {
+                                    span: 78:82,
+                                    kind: Identifier,
+                                },
+                                value: "Page",
+                            },
+                        },
+                    ),
+                },
+            ),
         ),
         description: None,
         deprecated: Some(
-            IrField {
-                key_location: /path/to/test/fixture/relay-resolver-deprecated.js:119:129,
-                value: Some(
-                    WithLocation {
+            PopulatedIrField(
+                PopulatedIrField {
+                    key_location: /path/to/test/fixture/relay-resolver-deprecated.js:119:129,
+                    value: WithLocation {
                         location: /path/to/test/fixture/relay-resolver-deprecated.js:130:159,
                         item: "This one is not used any more",
                     },
-                ),
-            },
+                },
+            ),
         ),
         live: None,
         location: /path/to/test/fixture/relay-resolver-deprecated.js:0:160,

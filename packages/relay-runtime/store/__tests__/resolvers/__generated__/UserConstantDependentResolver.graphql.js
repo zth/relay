@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d3ec09d41bfdec4869edcce3f6761a65>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<f57aef44432f2f716ad5a94aeff5ca0b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,15 +20,15 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { UserConstantResolver$key } from "./UserConstantResolver.graphql";
 import type { FragmentType } from "relay-runtime";
-import userConstantResolver from "../UserConstantResolver.js";
-// Type assertion validating that `userConstantResolver` resolver is correctly implemented.
+import {constant as userConstantResolverType} from "../UserConstantResolver.js";
+// Type assertion validating that `userConstantResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userConstantResolver: (
-  rootKey: UserConstantResolver$key, 
+(userConstantResolverType: (
+  rootKey: UserConstantResolver$key,
 ) => mixed);
 declare export opaque type UserConstantDependentResolver$fragmentType: FragmentType;
 export type UserConstantDependentResolver$data = {|
-  +constant: ?$Call<<R>((...empty[]) => R) => R, typeof userConstantResolver>,
+  +constant: ?$Call<<R>((...empty[]) => R) => R, typeof userConstantResolverType>,
   +$fragmentType: UserConstantDependentResolver$fragmentType,
 |};
 export type UserConstantDependentResolver$key = {
@@ -52,7 +54,7 @@ var node/*: ReaderFragment*/ = {
       },
       "kind": "RelayResolver",
       "name": "constant",
-      "resolverModule": require('./../UserConstantResolver'),
+      "resolverModule": require('./../UserConstantResolver').constant,
       "path": "constant"
     }
   ],

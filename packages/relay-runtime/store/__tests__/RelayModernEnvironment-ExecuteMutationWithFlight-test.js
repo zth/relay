@@ -4,13 +4,18 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
 'use strict';
-
+import type {
+  ReactFlightServerError,
+  ReactFlightServerTree,
+} from '../../network/RelayNetworkTypes';
+import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
+import type {Snapshot} from '../RelayStoreTypes';
 import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
 import type {
   CacheConfig,
@@ -123,23 +128,25 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           id: '2',
         };
 
-        reactFlightPayloadDeserializer = jest.fn(payload => {
-          return {
-            readRoot() {
-              return payload;
-            },
-          };
-        });
-        complete = jest.fn();
-        error = jest.fn();
-        next = jest.fn();
+        reactFlightPayloadDeserializer = jest.fn(
+          (payload: ReactFlightServerTree) => {
+            return {
+              readRoot() {
+                return payload;
+              },
+            };
+          },
+        );
+        complete = jest.fn<[], mixed>();
+        error = jest.fn<[Error], mixed>();
+        next = jest.fn<[GraphQLResponse], mixed>();
         callbacks = {complete, error, next};
         fetch = (
           _query: RequestParameters,
           _variables: Variables,
           _cacheConfig: CacheConfig,
         ) => {
-          return RelayObservable.create(sink => {
+          return RelayObservable.create<any>(sink => {
             subject = sink;
           });
         };
@@ -155,10 +162,12 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           ),
         };
         source = RelayRecordSource.create();
+        // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
         store = new RelayModernStore(source, {operationLoader});
         const multiActorEnvironment = new MultiActorEnvironment({
           createNetworkForActor: _actorID => RelayNetwork.create(fetch),
           createStoreForActor: _actorID => store,
+          // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
           operationLoader,
           reactFlightPayloadDeserializer,
         });
@@ -167,6 +176,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             ? multiActorEnvironment.forActor(getActorIdentifier('actor:1234'))
             : new RelayModernEnvironment({
                 network: RelayNetwork.create(fetch),
+                // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
                 operationLoader,
                 store,
                 reactFlightPayloadDeserializer,
@@ -236,7 +246,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         it('updates Flight fields that were previously queried for', () => {
           // precondition - FlightQuery
           const snapshot = environment.lookup(queryOperation.fragment);
-          const callback = jest.fn();
+          const callback = jest.fn<[Snapshot], void>();
           environment.subscribe(snapshot, callback);
           // $FlowFixMe[incompatible-use] readRoot() to verify that it updated
           expect(snapshot.data.node.flightComponent.readRoot()).toEqual([
@@ -247,7 +257,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           const innerSnapshot = environment.lookup(
             innerQueryOperation.fragment,
           );
-          const innerCallback = jest.fn();
+          const innerCallback = jest.fn<[Snapshot], void>();
           environment.subscribe(innerSnapshot, innerCallback);
           expect(innerSnapshot.data).toEqual({node: {name: 'Lauren'}});
 
@@ -334,14 +344,17 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         describe('and ReactFlightServerErrorHandler is specified', () => {
           let reactFlightServerErrorHandler;
           beforeEach(() => {
-            reactFlightServerErrorHandler = jest.fn((status, errors) => {
-              const err = new Error(`${status}: ${errors[0].message}`);
-              err.stack = errors[0].stack;
-              throw err;
-            });
+            reactFlightServerErrorHandler = jest.fn(
+              (status: string, errors: Array<ReactFlightServerError>) => {
+                const err = new Error(`${status}: ${errors[0].message}`);
+                err.stack = errors[0].stack;
+                throw err;
+              },
+            );
             const multiActorEnvironment = new MultiActorEnvironment({
               createNetworkForActor: _actorID => RelayNetwork.create(fetch),
               createStoreForActor: _actorID => store,
+              // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
               operationLoader,
               reactFlightPayloadDeserializer,
               reactFlightServerErrorHandler,
@@ -353,6 +366,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
                   )
                 : new RelayModernEnvironment({
                     network: RelayNetwork.create(fetch),
+                    // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
                     operationLoader,
                     store,
                     reactFlightPayloadDeserializer,
@@ -362,7 +376,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           it('calls ReactFlightServerErrorHandler', () => {
             // precondition - FlightQuery
             const snapshot = environment.lookup(queryOperation.fragment);
-            const callback = jest.fn();
+            const callback = jest.fn<[Snapshot], void>();
             environment.subscribe(snapshot, callback);
             // $FlowFixMe[incompatible-use] readRoot() to verify that it updated
             expect(snapshot.data.node.flightComponent.readRoot()).toEqual([
@@ -373,7 +387,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             const innerSnapshot = environment.lookup(
               innerQueryOperation.fragment,
             );
-            const innerCallback = jest.fn();
+            const innerCallback = jest.fn<[Snapshot], void>();
             environment.subscribe(innerSnapshot, innerCallback);
             expect(innerSnapshot.data).toEqual({node: {name: 'Lauren'}});
 
@@ -424,7 +438,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           it('warns', () => {
             // precondition - FlightQuery
             const snapshot = environment.lookup(queryOperation.fragment);
-            const callback = jest.fn();
+            const callback = jest.fn<[Snapshot], void>();
             environment.subscribe(snapshot, callback);
             // $FlowFixMe[incompatible-use] readRoot() to verify that it updated
             expect(snapshot.data.node.flightComponent.readRoot()).toEqual([
@@ -435,7 +449,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             const innerSnapshot = environment.lookup(
               innerQueryOperation.fragment,
             );
-            const innerCallback = jest.fn();
+            const innerCallback = jest.fn<[Snapshot], void>();
             environment.subscribe(innerSnapshot, innerCallback);
             expect(innerSnapshot.data).toEqual({node: {name: 'Lauren'}});
 
@@ -488,7 +502,7 @@ Error
         it('warns when the row protocol is null', () => {
           // precondition - FlightQuery
           const snapshot = environment.lookup(queryOperation.fragment);
-          const callback = jest.fn();
+          const callback = jest.fn<[Snapshot], void>();
           environment.subscribe(snapshot, callback);
           // $FlowFixMe[incompatible-use] readRoot() to verify that it updated
           expect(snapshot.data.node.flightComponent.readRoot()).toEqual([
@@ -499,7 +513,7 @@ Error
           const innerSnapshot = environment.lookup(
             innerQueryOperation.fragment,
           );
-          const innerCallback = jest.fn();
+          const innerCallback = jest.fn<[Snapshot], void>();
           environment.subscribe(innerSnapshot, innerCallback);
           expect(innerSnapshot.data).toEqual({node: {name: 'Lauren'}});
 

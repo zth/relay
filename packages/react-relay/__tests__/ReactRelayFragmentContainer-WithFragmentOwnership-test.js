@@ -4,8 +4,8 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -21,7 +21,7 @@ const {
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils-internal');
 
-describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
+describe('ReactRelayFragmentContainer with fragment ownership', () => {
   let TestComponent;
   let TestContainer;
   let UserFragment;

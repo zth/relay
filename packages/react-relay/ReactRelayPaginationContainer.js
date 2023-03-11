@@ -6,16 +6,18 @@
  *
  * @flow
  * @format
+ * @oncall relay
  */
 
 'use strict';
 
+import type {Sink} from '../relay-runtime/network/RelayObservable';
 import type {
+  $RelayProps,
   GeneratedNodeMap,
   ObserverOrCallback,
   RefetchOptions,
   RelayPaginationProp,
-  $RelayProps,
 } from './ReactRelayTypes';
 import type {
   CacheConfig,
@@ -254,9 +256,9 @@ function createGetFragmentVariables(
     'ReactRelayPaginationContainer: Unable to synthesize a ' +
       'getFragmentVariables function.',
   );
-  return (prevVars: Variables, totalCount: number) => ({
+  return (prevVars: Variables, totalCount: number): Variables => ({
     ...prevVars,
-    [countVariable]: totalCount,
+    [(countVariable: string)]: totalCount,
   });
 }
 
@@ -346,6 +348,7 @@ function createContainerWithFragments<
     createGetFragmentVariables(metadata);
 
   return class extends React.Component<$FlowFixMeProps, ContainerState> {
+    // $FlowFixMe[missing-local-annot]
     static displayName = containerName;
 
     _isARequestInFlight: boolean;
@@ -564,6 +567,7 @@ function createContainerWithFragments<
       ...
     } {
       // Extract connection data and verify there are more edges to fetch
+      // eslint-disable-next-line no-unused-vars
       const {componentRef: _, ...restProps} = this.props;
       const props = {
         ...restProps,
@@ -694,7 +698,7 @@ function createContainerWithFragments<
       const observer = toObserver(observerOrCallback);
       const connectionData = this._getConnectionData();
       if (!connectionData) {
-        Observable.create(sink => sink.complete()).subscribe(observer);
+        Observable.create<empty>(sink => sink.complete()).subscribe(observer);
         return null;
       }
       const totalCount = connectionData.edgeCount + pageSize;
@@ -755,8 +759,11 @@ function createContainerWithFragments<
     ): Subscription {
       const {environment} = assertRelayContext(this.props.__relayContext);
       const {
+        // eslint-disable-next-line no-unused-vars
         componentRef: _,
+        // eslint-disable-next-line no-unused-vars
         __relayContext,
+        // eslint-disable-next-line no-unused-vars
         __rootIsQueryRenderer,
         ...restProps
       } = this.props;
@@ -764,7 +771,7 @@ function createContainerWithFragments<
         ...restProps,
         ...this.state.data,
       };
-      let fragmentVariables;
+      let fragmentVariables: Variables;
       const rootVariables = getRootVariablesForFragments(fragments, restProps);
       fragmentVariables = getVariablesFromObject(fragments, restProps);
       fragmentVariables = {
@@ -772,7 +779,7 @@ function createContainerWithFragments<
         ...fragmentVariables,
         ...this._refetchVariables,
       };
-      let fetchVariables = connectionConfig.getVariables(
+      let fetchVariables: Variables = connectionConfig.getVariables(
         props,
         {
           count: paginatingVariables.count,
@@ -787,14 +794,14 @@ function createContainerWithFragments<
         fetchVariables,
         componentName,
       );
-      fetchVariables = {
+      fetchVariables = ({
         ...fetchVariables,
         ...this._refetchVariables,
-      };
-      fragmentVariables = {
+      }: Variables);
+      fragmentVariables = ({
         ...fetchVariables,
         ...fragmentVariables,
-      };
+      }: Variables);
 
       const cacheConfig: ?CacheConfig = options
         ? {force: !!options.force}
@@ -865,8 +872,8 @@ function createContainerWithFragments<
           operation,
           preservePreviousReferences: true,
         })
-        .mergeMap(payload =>
-          Observable.create(sink => {
+        .mergeMap<void>(payload =>
+          Observable.create<void>((sink: Sink<void>) => {
             onNext(payload, () => {
               sink.next(); // pass void to public observer's `next`
               sink.complete();
@@ -902,7 +909,9 @@ function createContainerWithFragments<
       }
     }
 
+    // $FlowFixMe[missing-local-annot]
     render() {
+      // eslint-disable-next-line no-unused-vars
       const {componentRef, __relayContext, __rootIsQueryRenderer, ...props} =
         this.props;
       return (

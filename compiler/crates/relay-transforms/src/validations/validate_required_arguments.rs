@@ -21,15 +21,10 @@ use graphql_ir::Program;
 use graphql_ir::ScalarField;
 use graphql_ir::ValidationMessage;
 use graphql_ir::Validator;
-use intern::string_key::Intern;
+use graphql_ir::FIXME_FAT_INTERFACE;
 use intern::string_key::StringKey;
-use lazy_static::lazy_static;
 use schema::ArgumentDefinitions;
 use schema::Schema;
-
-lazy_static! {
-    static ref FAT_INTERFACE: StringKey = "fixme_fat_interface".intern();
-}
 
 pub fn validate_required_arguments(program: &Program) -> DiagnosticsResult<()> {
     let mut validator = ValidateRequiredArguments::new(program);
@@ -56,19 +51,22 @@ impl Validator for ValidateRequiredArguments<'_> {
     const VALIDATE_DIRECTIVES: bool = true;
 
     fn validate_operation(&mut self, operation: &OperationDefinition) -> DiagnosticsResult<()> {
-        self.root_name_with_location = Some(operation.name);
+        self.root_name_with_location = Some(WithLocation::new(
+            operation.name.location,
+            operation.name.item.0,
+        ));
         self.default_validate_operation(operation)
     }
 
     fn validate_fragment(&mut self, fragment: &FragmentDefinition) -> DiagnosticsResult<()> {
-        self.root_name_with_location = Some(fragment.name);
+        self.root_name_with_location = Some(fragment.name.map(|x| x.0));
         self.default_validate_fragment(fragment)
     }
 
     fn validate_scalar_field(&mut self, field: &ScalarField) -> DiagnosticsResult<()> {
         let definition = self.program.schema.field(field.definition.item);
         validate!(
-            if field.directives.named(*FAT_INTERFACE).is_some() {
+            if field.directives.named(*FIXME_FAT_INTERFACE).is_some() {
                 Ok(())
             } else {
                 self.validate_required_arguments(
@@ -86,7 +84,7 @@ impl Validator for ValidateRequiredArguments<'_> {
     fn validate_linked_field(&mut self, field: &LinkedField) -> DiagnosticsResult<()> {
         let definition = self.program.schema.field(field.definition.item);
         validate!(
-            if field.directives.named(*FAT_INTERFACE).is_some() {
+            if field.directives.named(*FIXME_FAT_INTERFACE).is_some() {
                 Ok(())
             } else {
                 self.validate_required_arguments(
@@ -107,7 +105,7 @@ impl Validator for ValidateRequiredArguments<'_> {
             self.validate_required_arguments(
                 &definition.arguments,
                 &directive.arguments,
-                directive.name.item,
+                directive.name.item.0,
                 directive.name.location,
                 self.root_name_with_location.unwrap(),
             )

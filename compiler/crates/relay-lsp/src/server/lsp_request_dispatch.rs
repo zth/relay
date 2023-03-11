@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::ops::ControlFlow;
+
 use lsp_server::ErrorCode;
 use lsp_server::Request as ServerRequest;
 use lsp_server::RequestId;
@@ -12,6 +14,7 @@ use lsp_server::RequestId as ServerRequestId;
 use lsp_server::Response as ServerResponse;
 use lsp_server::ResponseError;
 use lsp_types::request::Request;
+use serde_json::Value;
 
 use crate::lsp_runtime_error::LSPRuntimeError;
 use crate::lsp_runtime_error::LSPRuntimeResult;
@@ -27,14 +30,14 @@ impl<'state, TState> LSPRequestDispatch<'state, TState> {
     }
 
     /// Calls handler if the LSPRequestDispatch's request's method matches the method
-    /// of TRequest. Returns a Result which will be Ok if the handler was not called,
-    /// or Err if the handler was called.
+    /// of TRequest. Returns a ControlFlow which will be Break if the handler was called,
+    /// or Continue otherwise.
     /// Thus, multiple calls to `on_request_sync(...)?` can be chained. Doing so will
     /// cause LSPRequestDispatch to execute the first matching handler, if any.
     pub fn on_request_sync<TRequest: Request>(
         self,
         handler: fn(&TState, TRequest::Params) -> LSPRuntimeResult<TRequest::Result>,
-    ) -> Result<Self, ServerResponse> {
+    ) -> ControlFlow<ServerResponse, Self> {
         if self.request.method == TRequest::METHOD {
             match extract_request_params::<TRequest>(self.request) {
                 Ok((request_id, params)) => {
@@ -47,10 +50,10 @@ impl<'state, TState> LSPRequestDispatch<'state, TState> {
                     });
                     let server_response = convert_to_lsp_response(request_id, response);
 
-                    return Err(server_response);
+                    return ControlFlow::Break(server_response);
                 }
                 Err(error) => {
-                    return Err(convert_to_lsp_response(
+                    return ControlFlow::Break(convert_to_lsp_response(
                         ServerRequestId::from("default-lsp-id".to_string()),
                         Err(error),
                     ));
@@ -58,7 +61,7 @@ impl<'state, TState> LSPRequestDispatch<'state, TState> {
             }
         }
 
-        Ok(self)
+        ControlFlow::Continue(self)
     }
 
     pub fn request(self) -> lsp_server::Request {
@@ -74,6 +77,11 @@ fn convert_to_lsp_response(
         Ok(result) => ServerResponse {
             id,
             result: Some(result),
+            error: None,
+        },
+        Err(LSPRuntimeError::ExpectedError) => ServerResponse {
+            id,
+            result: Some(Value::Null),
             error: None,
         },
         Err(runtime_error) => {
@@ -110,7 +118,10 @@ where
 
 #[cfg(test)]
 mod test {
-    use crate::lsp_runtime_error::LSPRuntimeResult;
+    use std::ops::ControlFlow;
+    use std::sync::atomic::AtomicI32;
+    use std::sync::atomic::Ordering;
+
     use lsp_types::request::GotoDefinition;
     use lsp_types::request::HoverRequest;
     use lsp_types::request::Request;
@@ -118,10 +129,9 @@ mod test {
     use lsp_types::TextDocumentIdentifier;
     use lsp_types::TextDocumentPositionParams;
     use lsp_types::Url;
-    use std::sync::atomic::AtomicI32;
-    use std::sync::atomic::Ordering;
 
     use super::LSPRequestDispatch;
+    use crate::lsp_runtime_error::LSPRuntimeResult;
 
     #[test]
     fn calls_first_matching_request_handler() {
@@ -143,14 +153,14 @@ mod test {
             },
             &state,
         );
-        let dispatch = || -> Result<(), super::ServerResponse> {
+        let dispatch = || {
             dispatch
                 .on_request_sync::<HoverRequest>(hover_handler)?
                 .on_request_sync::<GotoDefinition>(goto_definition_handler)?;
-            Ok(())
+            ControlFlow::Continue(())
         };
         let result = dispatch();
-        assert!(result.is_err());
+        assert!(result.is_break());
         assert_eq!(state.load(Ordering::Relaxed), 2);
     }
 
@@ -175,9 +185,10 @@ mod test {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use lsp_types::request::CodeActionRequest;
     use serde_json::json;
+
+    use super::*;
 
     #[test]
     fn test_extract_request_params_error() {

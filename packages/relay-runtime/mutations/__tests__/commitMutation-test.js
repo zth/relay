@@ -4,13 +4,14 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
 'use strict';
 import type {GraphQLResponseWithoutData} from '../../network/RelayNetworkTypes';
+import type {Snapshot} from '../../store/RelayStoreTypes';
 import type {RecordSourceSelectorProxy} from '../../store/RelayStoreTypes';
 import type {
   commitMutationTest4Query$data,
@@ -121,8 +122,11 @@ describe('Configs: NODE_DELETE', () => {
         deletedIDFieldName: 'deletedCommentId',
       },
     ];
-    const optimisticUpdater = jest.fn();
-    const updater = jest.fn();
+    const optimisticUpdater = jest.fn<
+      [RecordSourceSelectorProxy, ?{...}],
+      void,
+    >();
+    const updater = jest.fn<[RecordSourceSelectorProxy, ?{...}], void>();
     const operationDescriptor = createOperationDescriptor(
       FeedbackCommentQuery,
       {},
@@ -136,7 +140,7 @@ describe('Configs: NODE_DELETE', () => {
         operationDescriptor.request,
       ),
     );
-    const callback = jest.fn();
+    const callback = jest.fn<[Snapshot], void>();
     store.subscribe(snapshot, callback);
     commitMutation(environment, {
       configs,
@@ -269,8 +273,11 @@ describe('Configs: RANGE_DELETE', () => {
       {},
     );
     environment.commitPayload(operationDescriptor, payload);
-    const optimisticUpdater = jest.fn();
-    const updater = jest.fn();
+    const optimisticUpdater = jest.fn<
+      [RecordSourceSelectorProxy, ?{...}],
+      void,
+    >();
+    const updater = jest.fn<[RecordSourceSelectorProxy, ?{...}], void>();
     const snapshot = store.lookup(
       createReaderSelector(
         FeedbackCommentQuery.fragment,
@@ -279,7 +286,7 @@ describe('Configs: RANGE_DELETE', () => {
         operationDescriptor.request,
       ),
     );
-    const callback = jest.fn();
+    const callback = jest.fn<[Snapshot], void>();
     store.subscribe(snapshot, callback);
     commitMutation(environment, {
       configs,
@@ -315,8 +322,11 @@ describe('Configs: RANGE_DELETE', () => {
   });
 
   it('handles config with deletedIDFieldName as path', () => {
-    const optimisticUpdater = jest.fn();
-    const updater = jest.fn();
+    const optimisticUpdater = jest.fn<
+      [RecordSourceSelectorProxy, ?{...}],
+      void,
+    >();
+    const updater = jest.fn<[RecordSourceSelectorProxy, ?{...}], void>();
     const mutation = graphql`
       mutation commitMutationTest3Mutation($input: UnfriendInput) {
         unfriend(input: $input) {
@@ -404,7 +414,7 @@ describe('Configs: RANGE_DELETE', () => {
         operationDescriptor.request,
       ),
     );
-    const callback = jest.fn();
+    const callback = jest.fn<[Snapshot], void>();
     store.subscribe(snapshot, callback);
     commitMutation(environment, {
       configs,
@@ -461,7 +471,7 @@ describe('Configs: RANGE_ADD', () => {
       feedback: feedbackID,
       message: {
         text: 'Hello!',
-        ranges: [],
+        ranges: ([]: Array<mixed>),
       },
     },
   };
@@ -536,8 +546,8 @@ describe('Configs: RANGE_ADD', () => {
         },
       },
     };
-    callback = jest.fn();
-    optimisticUpdater = jest.fn();
+    callback = jest.fn<[Snapshot], void>();
+    optimisticUpdater = jest.fn<[RecordSourceSelectorProxy, ?{...}], void>();
     updater = jest.fn();
     data = {
       data: {
@@ -1109,7 +1119,9 @@ describe('Required mutation roots', () => {
   let dataSource;
   let environment;
   beforeEach(() => {
+    // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
     const fetch = jest.fn((_query, _variables, _cacheConfig) => {
+      // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
       return RelayObservable.create(sink => {
         dataSource = sink;
       });
@@ -1117,6 +1129,7 @@ describe('Required mutation roots', () => {
     const source = RelayRecordSource.create({});
     const store = new RelayModernStore(source);
     environment = new RelayModernEnvironment({
+      // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
       network: RelayNetwork.create(fetch),
       store,
     });
@@ -1190,10 +1203,16 @@ describe('commitMutation()', () => {
       },
     };
 
-    onCompleted = jest.fn();
-    onError = jest.fn();
+    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
+     * enabling Flow LTI mode */
+    onCompleted = jest.fn<_, void>();
+    onError = jest.fn<[Error], void>();
+    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
+     * enabling Flow LTI mode */
     onNext = jest.fn();
+    // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
     const fetch = jest.fn((_query, _variables, _cacheConfig) => {
+      // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
       return RelayObservable.create(sink => {
         dataSource = sink;
       });
@@ -1201,6 +1220,7 @@ describe('commitMutation()', () => {
     const source = RelayRecordSource.create({});
     const store = new RelayModernStore(source);
     environment = new RelayModernEnvironment({
+      // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
       network: RelayNetwork.create(fetch),
       store,
     });
@@ -1211,7 +1231,7 @@ describe('commitMutation()', () => {
     const initialSnapshot = environment.lookup(
       createReaderSelector(fragment, '1', {}, operation.request),
     );
-    const callback = jest.fn();
+    const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialSnapshot, callback);
 
     commitMutation(environment, {
@@ -1512,13 +1532,17 @@ describe('commitMutation() cacheConfig', () => {
     };
 
     cacheConfig = undefined;
+    // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
     const fetch = jest.fn((_query, _variables, _cacheConfig) => {
       cacheConfig = _cacheConfig;
+      /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
+       * enabling Flow LTI mode */
       return RelayObservable.create(() => {});
     });
     const source = RelayRecordSource.create({});
     const store = new RelayModernStore(source);
     environment = new RelayModernEnvironment({
+      // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
       network: RelayNetwork.create(fetch),
       store,
     });
@@ -1529,7 +1553,7 @@ describe('commitMutation() cacheConfig', () => {
     const initialSnapshot = environment.lookup(
       createReaderSelector(fragment, '1', {}, operation.request),
     );
-    const callback = jest.fn();
+    const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialSnapshot, callback);
 
     const metadata = {
@@ -1556,7 +1580,7 @@ describe('commitMutation() cacheConfig', () => {
     const initialSnapshot = environment.lookup(
       createReaderSelector(fragment, '1', {}, operation.request),
     );
-    const callback = jest.fn();
+    const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialSnapshot, callback);
 
     commitMutation(environment, {

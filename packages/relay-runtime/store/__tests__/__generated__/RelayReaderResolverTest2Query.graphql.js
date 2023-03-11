@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<55e7a4ea41bb4d08dacd87f45cd8a55b>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<f5680fcca557c895ee9b1615240afd90>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,16 +19,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { UserConstantDependentResolver$key } from "./../resolvers/__generated__/UserConstantDependentResolver.graphql";
-import userConstantDependentResolver from "../resolvers/UserConstantDependentResolver.js";
-// Type assertion validating that `userConstantDependentResolver` resolver is correctly implemented.
+import {constant_dependent as userConstantDependentResolverType} from "../resolvers/UserConstantDependentResolver.js";
+// Type assertion validating that `userConstantDependentResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userConstantDependentResolver: (
-  rootKey: UserConstantDependentResolver$key, 
+(userConstantDependentResolverType: (
+  rootKey: UserConstantDependentResolver$key,
 ) => mixed);
 export type RelayReaderResolverTest2Query$variables = {||};
 export type RelayReaderResolverTest2Query$data = {|
   +me: ?{|
-    +constant_dependent: ?$Call<<R>((...empty[]) => R) => R, typeof userConstantDependentResolver>,
+    +constant_dependent: ?$Call<<R>((...empty[]) => R) => R, typeof userConstantDependentResolverType>,
   |},
 |};
 export type RelayReaderResolverTest2Query = {|
@@ -60,7 +62,7 @@ var node/*: ConcreteRequest*/ = {
             },
             "kind": "RelayResolver",
             "name": "constant_dependent",
-            "resolverModule": require('./../resolvers/UserConstantDependentResolver'),
+            "resolverModule": require('./../resolvers/UserConstantDependentResolver').constant_dependent,
             "path": "me.constant_dependent"
           }
         ],
@@ -85,11 +87,39 @@ var node/*: ConcreteRequest*/ = {
         "plural": false,
         "selections": [
           {
-            "alias": null,
+            "name": "constant_dependent",
             "args": null,
-            "kind": "ScalarField",
-            "name": "name",
-            "storageKey": null
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "name": "constant",
+                  "args": null,
+                  "fragment": {
+                    "kind": "InlineFragment",
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "name",
+                        "storageKey": null
+                      }
+                    ],
+                    "type": "User",
+                    "abstractKey": null
+                  },
+                  "kind": "RelayResolver",
+                  "storageKey": null,
+                  "isOutputType": false
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "RelayResolver",
+            "storageKey": null,
+            "isOutputType": false
           },
           {
             "alias": null,

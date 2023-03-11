@@ -7,6 +7,9 @@
 
 mod create_name_suggestion;
 
+use std::collections::HashMap;
+use std::collections::HashSet;
+
 use common::Span;
 use create_name_suggestion::create_default_name;
 use create_name_suggestion::create_default_name_with_index;
@@ -14,6 +17,7 @@ use create_name_suggestion::create_impactful_name;
 use create_name_suggestion::create_name_wrapper;
 use create_name_suggestion::DefinitionNameSuffix;
 use graphql_syntax::ExecutableDefinition;
+use intern::Lookup;
 use lsp_types::request::CodeActionRequest;
 use lsp_types::request::Request;
 use lsp_types::CodeAction;
@@ -31,22 +35,19 @@ use resolution_path::OperationDefinitionPath;
 use resolution_path::ResolutionPath;
 use resolution_path::ResolvePosition;
 use serde_json::Value;
-use std::collections::HashMap;
-use std::collections::HashSet;
 
 use crate::lsp_runtime_error::LSPRuntimeError;
 use crate::lsp_runtime_error::LSPRuntimeResult;
 use crate::server::GlobalState;
+use crate::utils::is_file_uri_in_dir;
 
 pub(crate) fn on_code_action(
     state: &impl GlobalState,
     params: <CodeActionRequest as Request>::Params,
 ) -> LSPRuntimeResult<<CodeActionRequest as Request>::Result> {
     let uri = params.text_document.uri.clone();
-    if !uri
-        .path()
-        .starts_with(state.root_dir().to_string_lossy().as_ref())
-    {
+
+    if !is_file_uri_in_dir(state.root_dir(), &uri) {
         return Err(LSPRuntimeError::ExpectedError);
     }
 
@@ -161,7 +162,7 @@ fn get_code_actions(
                 return None;
             };
 
-            let code_action_range = get_code_action_range(range, &operation_name.span);
+            let code_action_range = get_code_action_range(range, operation_name.span);
             Some(create_code_actions(
                 "Rename Operation",
                 operation_name.value.lookup(),
@@ -208,7 +209,7 @@ fn create_code_actions(
         .collect::<Vec<_>>()
 }
 
-fn get_code_action_range(range: Range, span: &Span) -> Range {
+fn get_code_action_range(range: Range, span: Span) -> Range {
     Range {
         start: Position {
             line: range.start.line,

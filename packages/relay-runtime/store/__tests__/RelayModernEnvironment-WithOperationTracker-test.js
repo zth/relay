@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -299,7 +299,7 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
     );
 
     invariant(result != null, 'Expected to have promise for operation');
-    const promiseCallback = jest.fn();
+    const promiseCallback = jest.fn<[void], mixed>();
     result.promise.then(promiseCallback);
     expect(promiseCallback).not.toBeCalled();
     environment.mock.complete(MutationOperation.request.node);

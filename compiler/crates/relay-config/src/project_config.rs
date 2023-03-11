@@ -5,6 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::fmt;
+use std::path::Path;
+use std::path::PathBuf;
+use std::str::FromStr;
+use std::sync::Arc;
+use std::usize;
+
+use common::DirectiveName;
 use common::FeatureFlags;
 use common::Rollout;
 use common::SourceLocationKey;
@@ -14,20 +22,16 @@ use fnv::FnvBuildHasher;
 use indexmap::IndexMap;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
+use intern::Lookup;
 use regex::Regex;
 use serde::de::Error;
 use serde::Deserialize;
 use serde::Deserializer;
 use serde::Serialize;
 use serde_json::Value;
-use std::fmt;
-use std::path::Path;
-use std::path::PathBuf;
-use std::str::FromStr;
-use std::sync::Arc;
-use std::usize;
 
 use crate::connection_interface::ConnectionInterface;
+use crate::diagnostic_report_config::DiagnosticReportConfig;
 use crate::module_import_config::ModuleImportConfig;
 use crate::non_node_id_fields_config::NonNodeIdFieldsConfig;
 use crate::JsModuleFormat;
@@ -47,6 +51,10 @@ pub struct RemotePersistConfig {
     /// additional parameters to send.
     #[serde(default)]
     pub params: FnvIndexMap<String, String>,
+
+    /// Additional headers to send
+    #[serde(default)]
+    pub headers: FnvIndexMap<String, String>,
 
     #[serde(
         default,
@@ -150,10 +158,18 @@ pub struct SchemaConfig {
 
     #[serde(default)]
     pub non_node_id_fields: Option<NonNodeIdFieldsConfig>,
+
+    /// The name of the directive indicating fields that cannot be selected
+    #[serde(default = "default_unselectable_directive_name")]
+    pub unselectable_directive_name: DirectiveName,
 }
 
 fn default_node_interface_id_field() -> StringKey {
     "id".intern()
+}
+
+fn default_unselectable_directive_name() -> DirectiveName {
+    DirectiveName("unselectable".intern())
 }
 
 impl Default for SchemaConfig {
@@ -162,6 +178,7 @@ impl Default for SchemaConfig {
             connection_interface: ConnectionInterface::default(),
             node_interface_id_field: default_node_interface_id_field(),
             non_node_id_fields: None,
+            unselectable_directive_name: default_unselectable_directive_name(),
         }
     }
 }
@@ -189,6 +206,7 @@ pub struct ProjectConfig {
     pub rollout: Rollout,
     pub js_module_format: JsModuleFormat,
     pub module_import_config: ModuleImportConfig,
+    pub diagnostic_report_config: DiagnosticReportConfig,
 }
 
 impl Default for ProjectConfig {
@@ -215,6 +233,7 @@ impl Default for ProjectConfig {
             rollout: Default::default(),
             js_module_format: Default::default(),
             module_import_config: Default::default(),
+            diagnostic_report_config: Default::default(),
         }
     }
 }
@@ -243,6 +262,7 @@ impl Debug for ProjectConfig {
             rollout,
             js_module_format,
             module_import_config,
+            diagnostic_report_config,
         } = self;
         f.debug_struct("ProjectConfig")
             .field("name", name)
@@ -280,6 +300,7 @@ impl Debug for ProjectConfig {
             .field("rollout", rollout)
             .field("js_module_format", js_module_format)
             .field("module_import_config", module_import_config)
+            .field("diagnostic_report_config", diagnostic_report_config)
             .finish()
     }
 }

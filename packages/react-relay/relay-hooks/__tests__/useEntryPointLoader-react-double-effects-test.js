@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -94,7 +94,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
       getEnvironment: () => environment,
     };
 
-    release = jest.fn();
+    release = jest.fn<[], mixed>();
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const originalRetain = environment.retain;
     (environment: $FlowFixMe).retain = jest.fn(operation => {
@@ -107,7 +107,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
       };
     });
 
-    cancelNetworkRequest = jest.fn();
+    cancelNetworkRequest = jest.fn<[], mixed>();
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const originalExecuteWithSource = environment.executeWithSource;
     (environment: $FlowFixMe).executeWithSource = jest.fn((...args) => {
@@ -162,17 +162,22 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
 
     loaderRenderLogs = [];
     LoaderComponent = function (props: any) {
-      const [entryPointRef] = useEntryPointLoader(
-        environmentProvider,
-        props.entryPoint,
-        {
-          TEST_ONLY__initialEntryPointData: {
-            entryPointParams:
-              props.initialEntryPointRef != null ? variables : null,
-            entryPointReference: props.initialEntryPointRef,
-          },
+      // $FlowFixMe[underconstrained-implicit-instantiation]
+      const [entryPointRef] = useEntryPointLoader<
+        _,
+        {...},
+        {...},
+        {...},
+        mixed,
+        _,
+        _,
+      >(environmentProvider, props.entryPoint, {
+        TEST_ONLY__initialEntryPointData: {
+          entryPointParams:
+            props.initialEntryPointRef != null ? variables : null,
+          entryPointReference: props.initialEntryPointRef,
         },
-      );
+      });
 
       let entryPointRefId;
       if (entryPointRef == null) {
@@ -194,6 +199,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
       }
       if (props.suspendWholeTree === true) {
         return (
+          // $FlowFixMe[underconstrained-implicit-instantiation]
           <EntryPointContainer entryPointReference={entryPointRef} props={{}} />
         );
       }
@@ -315,11 +321,15 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
   describe('when there is a committed query reference', () => {
     describe('when network request is in flight when effects are double invoked (i.e. component is hidden/re-shown)', () => {
       it('forces a re-render and refetches when policy is network-only', () => {
-        const initialEntryPointRef = loadEntryPoint(
-          environmentProvider,
-          entryPointNetworkOnly,
-          variables,
-        );
+        const initialEntryPointRef = loadEntryPoint<
+          {id: string},
+          {...},
+          {...},
+          {...},
+          mixed,
+          empty,
+          any,
+        >(environmentProvider, entryPointNetworkOnly, variables);
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).toHaveBeenCalledTimes(1);
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
@@ -430,11 +440,15 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
       });
 
       it('forces a re-render and refetches when policy is store-or-network', () => {
-        const initialEntryPointRef = loadEntryPoint(
-          environmentProvider,
-          entryPointStoreOrNetwork,
-          variables,
-        );
+        const initialEntryPointRef = loadEntryPoint<
+          {id: string},
+          {...},
+          {...},
+          {...},
+          mixed,
+          empty,
+          any,
+        >(environmentProvider, entryPointStoreOrNetwork, variables);
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).toHaveBeenCalledTimes(1);
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
@@ -548,11 +562,15 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
     describe('when network request is NOT in flight when effects are double invoked (i.e. component is hidden/re-shown)', () => {
       it('forces a re-render and refetches when policy is network-only', () => {
         // Initialize and complete the entrypoint ref
-        const initialEntryPointRef = loadEntryPoint(
-          environmentProvider,
-          entryPointNetworkOnly,
-          variables,
-        );
+        const initialEntryPointRef = loadEntryPoint<
+          {id: string},
+          {...},
+          {...},
+          {...},
+          mixed,
+          empty,
+          any,
+        >(environmentProvider, entryPointNetworkOnly, variables);
         ReactTestRenderer.act(() => {
           environment.mock.resolve(gqlQuery, {
             data: {
@@ -674,11 +692,15 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
 
       it('forces a re-render and does not refetch when policy is store-or-network', () => {
         // Initialize and complete the entrypoint ref
-        const initialEntryPointRef = loadEntryPoint(
-          environmentProvider,
-          entryPointStoreOrNetwork,
-          variables,
-        );
+        const initialEntryPointRef = loadEntryPoint<
+          {id: string},
+          {...},
+          {...},
+          {...},
+          mixed,
+          empty,
+          any,
+        >(environmentProvider, entryPointStoreOrNetwork, variables);
         ReactTestRenderer.act(() => {
           environment.mock.resolve(gqlQuery, {
             data: {
@@ -768,11 +790,15 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
 
   describe('when whole tree suspends on query reference', () => {
     it('forces a re-render and refetches when policy is network-only', () => {
-      const initialEntryPointRef = loadEntryPoint(
-        environmentProvider,
-        entryPointNetworkOnly,
-        variables,
-      );
+      const initialEntryPointRef = loadEntryPoint<
+        {id: string},
+        {...},
+        {...},
+        {...},
+        mixed,
+        empty,
+        any,
+      >(environmentProvider, entryPointNetworkOnly, variables);
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.executeWithSource).toHaveBeenCalledTimes(1);
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
@@ -907,11 +933,15 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
     });
 
     it('forces a re-render and does not refetch when policy is store-or-network', () => {
-      const initialEntryPointRef = loadEntryPoint(
-        environmentProvider,
-        entryPointStoreOrNetwork,
-        variables,
-      );
+      const initialEntryPointRef = loadEntryPoint<
+        {id: string},
+        {...},
+        {...},
+        {...},
+        mixed,
+        empty,
+        any,
+      >(environmentProvider, entryPointStoreOrNetwork, variables);
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.executeWithSource).toHaveBeenCalledTimes(1);
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters

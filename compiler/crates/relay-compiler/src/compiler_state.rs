@@ -5,6 +5,39 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::collections::hash_map::Entry;
+use std::env;
+use std::fmt;
+use std::fs::File as FsFile;
+use std::hash::Hash;
+use std::io::BufReader;
+use std::io::BufWriter;
+use std::path::PathBuf;
+use std::slice;
+use std::sync::Arc;
+use std::sync::RwLock;
+use std::vec;
+
+use bincode::Options;
+use common::PerfLogEvent;
+use common::PerfLogger;
+use common::SourceLocationKey;
+use dashmap::DashSet;
+use fnv::FnvBuildHasher;
+use fnv::FnvHashMap;
+use fnv::FnvHashSet;
+use graphql_ir::ExecutableDefinitionName;
+use intern::string_key::StringKey;
+use rayon::prelude::*;
+use relay_config::SchemaConfig;
+use schema::SDLSchema;
+use schema_diff::definitions::SchemaChange;
+use schema_diff::detect_changes;
+use serde::Deserialize;
+use serde::Serialize;
+use zstd::stream::read::Decoder as ZstdDecoder;
+use zstd::stream::write::Encoder as ZstdEncoder;
+
 use crate::artifact_map::ArtifactMap;
 use crate::config::Config;
 use crate::errors::Error;
@@ -20,36 +53,6 @@ use crate::file_source::LocatedDocblockSource;
 use crate::file_source::LocatedGraphQLSource;
 use crate::file_source::LocatedJavascriptSourceFeatures;
 use crate::file_source::SourceControlUpdateStatus;
-use bincode::Options;
-use common::PerfLogEvent;
-use common::PerfLogger;
-use common::SourceLocationKey;
-use dashmap::DashSet;
-use fnv::FnvBuildHasher;
-use fnv::FnvHashMap;
-use fnv::FnvHashSet;
-use intern::string_key::StringKey;
-use rayon::prelude::*;
-use relay_config::SchemaConfig;
-use schema::SDLSchema;
-use schema_diff::definitions::SchemaChange;
-use schema_diff::detect_changes;
-use serde::Deserialize;
-use serde::Serialize;
-use std::collections::hash_map::Entry;
-use std::env;
-use std::fmt;
-use std::fs::File as FsFile;
-use std::hash::Hash;
-use std::io::BufReader;
-use std::io::BufWriter;
-use std::path::PathBuf;
-use std::slice;
-use std::sync::Arc;
-use std::sync::RwLock;
-use std::vec;
-use zstd::stream::read::Decoder as ZstdDecoder;
-use zstd::stream::write::Encoder as ZstdEncoder;
 
 /// Name of a compiler project.
 pub type ProjectName = StringKey;
@@ -175,14 +178,6 @@ impl<V: Source + Clone> IncrementalSources<V> {
                     }
                 }
             }
-        }
-    }
-
-    /// Remove deleted sources from both pending sources and processed sources.
-    fn remove_sources(&mut self, removed_sources: &[PathBuf]) {
-        for source in removed_sources {
-            self.pending.remove(source);
-            self.processed.remove(source);
         }
     }
 
@@ -562,7 +557,7 @@ impl CompilerState {
     pub fn get_dirty_definitions(
         &self,
         config: &Config,
-    ) -> FnvHashMap<ProjectName, Vec<StringKey>> {
+    ) -> FnvHashMap<ProjectName, Vec<ExecutableDefinitionName>> {
         if self.dirty_artifact_paths.is_empty() {
             return Default::default();
         }
@@ -683,7 +678,9 @@ impl CompilerState {
         }
         for project_name in project_set {
             let entry = source_map.entry(project_name).or_default();
-            entry.remove_sources(&removed_sources);
+            for source in &removed_sources {
+                entry.pending.insert(source.clone(), "".to_string());
+            }
             entry.merge_pending_sources(&added_sources);
         }
         Ok(())
@@ -746,12 +743,13 @@ fn extract_sources(
 /// which requires "self descriptive" serialization formats and `bincode` does not
 /// support those enums.
 mod clock_json_string {
-    use crate::file_source::Clock;
     use serde::de::Error as DeserializationError;
     use serde::de::Visitor;
     use serde::ser::Error as SerializationError;
     use serde::Deserializer;
     use serde::Serializer;
+
+    use crate::file_source::Clock;
 
     pub fn serialize<S>(clock: &Option<Clock>, serializer: S) -> Result<S::Ok, S::Error>
     where

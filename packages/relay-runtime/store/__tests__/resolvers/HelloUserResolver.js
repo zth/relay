@@ -4,14 +4,14 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
 'use strict';
 
-import type {DataID} from '../../../util/RelayRuntimeTypes';
+import type {ConcreteClientEdgeResolverReturnType} from 'relay-runtime';
 
 /**
  * @RelayResolver
@@ -21,8 +21,12 @@ import type {DataID} from '../../../util/RelayRuntimeTypes';
  *
  * This should return the User
  */
-function helloUserResolver(args: {id: string}): DataID {
-  return args.id;
+function hello_user(args: {
+  id: string,
+}): ConcreteClientEdgeResolverReturnType<> {
+  return {id: args.id};
 }
 
-module.exports = helloUserResolver;
+module.exports = {
+  hello_user,
+};

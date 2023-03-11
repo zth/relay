@@ -22,13 +22,15 @@ extend type User {
 fragment Foo_user on User {
   ...PopStarNameResolverFragment_name @__RelayResolverMetadata
   # RelayResolverMetadata {
-  #     field_parent_type: "User",
+  #     field_id: FieldID(517),
   #     import_path: "PopStarNameResolver",
-  #     field_name: "pop_star_name",
+  #     import_name: None,
   #     field_alias: None,
   #     field_path: "pop_star_name",
   #     field_arguments: [],
   #     live: false,
+  #     output_type_info: Legacy,
+  #     fragment_data_injection_mode: None,
   # }
   
 }

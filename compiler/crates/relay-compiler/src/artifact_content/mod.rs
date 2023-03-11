@@ -9,8 +9,8 @@ mod content;
 mod content_section;
 mod rescript_relay_utils;
 
-use crate::config::Config;
-use crate::config::ProjectConfig;
+use std::sync::Arc;
+
 use common::SourceLocationKey;
 use content::generate_split_operation;
 use content::generate_updatable_query;
@@ -20,7 +20,9 @@ use relay_codegen::Printer;
 use relay_codegen::QueryID;
 use relay_typegen::FragmentLocations;
 use schema::SDLSchema;
-use std::sync::Arc;
+
+use crate::config::Config;
+use crate::config::ProjectConfig;
 
 use self::content::{generate_fragment_rescript, generate_operation_rescript};
 
@@ -42,12 +44,13 @@ pub enum ArtifactContent {
     Fragment {
         reader_fragment: Arc<FragmentDefinition>,
         typegen_fragment: Arc<FragmentDefinition>,
-        source_hash: String,
+        source_hash: Option<String>,
     },
     SplitOperation {
         normalization_operation: Arc<OperationDefinition>,
         typegen_operation: Option<Arc<OperationDefinition>>,
-        source_hash: String,
+        source_hash: Option<String>,
+        no_optional_fields_in_raw_response_type: bool,
     },
     Generic {
         content: Vec<u8>,
@@ -110,6 +113,7 @@ impl ArtifactContent {
             ArtifactContent::SplitOperation {
                 normalization_operation,
                 typegen_operation,
+                no_optional_fields_in_raw_response_type,
                 source_hash,
             } => generate_split_operation(
                 config,
@@ -118,8 +122,9 @@ impl ArtifactContent {
                 schema,
                 normalization_operation,
                 typegen_operation,
-                source_hash,
+                source_hash.as_ref(),
                 fragment_locations,
+                *no_optional_fields_in_raw_response_type,
             )
             .unwrap(),
             ArtifactContent::Fragment {
@@ -133,7 +138,7 @@ impl ArtifactContent {
                 schema,
                 reader_fragment,
                 typegen_fragment,
-                source_hash,
+                source_hash.as_ref(),
                 skip_types,
                 fragment_locations,
             )

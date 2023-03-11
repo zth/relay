@@ -9,10 +9,6 @@ use std::collections::HashSet;
 use std::path::Path;
 use std::path::PathBuf;
 
-use crate::compiler_state::CompilerState;
-use crate::config::Config;
-use crate::errors::Result;
-use crate::FileSourceResult;
 use common::PerfLogEvent;
 use common::PerfLogger;
 use log::debug;
@@ -20,6 +16,10 @@ use relay_typegen::TypegenLanguage;
 use walkdir::WalkDir;
 
 use super::File;
+use crate::compiler_state::CompilerState;
+use crate::config::Config;
+use crate::errors::Result;
+use crate::FileSourceResult;
 
 #[derive(Debug)]
 pub struct WalkDirFileSourceResult {
@@ -33,7 +33,7 @@ pub struct WalkDirFileSource<'config> {
 }
 
 fn get_expected_file_extensions(config: &Config) -> HashSet<&str> {
-    let mut file_extensions = HashSet::<&str>::with_capacity(5);
+    let mut file_extensions = HashSet::<&str>::with_capacity(6);
     file_extensions.insert("graphql");
     file_extensions.insert("gql");
 

@@ -737,34 +737,42 @@ fn write_object_maker(
 
     let mut has_nullable = false;
 
+    let mut written_props = vec![];
+
     definition.values.iter().for_each(|prop_value| {
-        let mut field_path_name = definition.at_path.clone();
-        field_path_name.push(prop_value.key.to_owned());
+        let prop_name = match &prop_value.original_key {
+            Some(original_key) => format!("_{}", original_key),
+            None => format!("{}", prop_value.key),
+        };
 
-        write_indentation(str, indentation + 1).unwrap();
-        write!(
-            str,
-            "~{}: {}",
-            match &prop_value.original_key {
-                Some(original_key) => format!("_{}", original_key),
-                None => format!("{}", prop_value.key),
-            },
-            get_object_prop_type_as_string(
-                &state,
-                &prop_value.prop_type,
-                &Context::Variables,
-                indentation,
-                &field_path_name
+        if !written_props.contains(&prop_name) {
+            written_props.push(prop_name.clone());        
+
+            let mut field_path_name = definition.at_path.clone();
+            field_path_name.push(prop_value.key.to_owned());
+
+            write_indentation(str, indentation + 1).unwrap();
+            write!(
+                str,
+                "~{}: {}",
+                prop_name,
+                get_object_prop_type_as_string(
+                    &state,
+                    &prop_value.prop_type,
+                    &Context::Variables,
+                    indentation,
+                    &field_path_name
+                )
             )
-        )
-        .unwrap();
+            .unwrap();
 
-        if prop_value.nullable {
-            has_nullable = true;
-            write!(str, "=?").unwrap();
+            if prop_value.nullable {
+                has_nullable = true;
+                write!(str, "=?").unwrap();
+            }
+
+            writeln!(str, ",").unwrap();
         }
-
-        writeln!(str, ",").unwrap();
     });
 
     // Print unit if there's any nullable present
@@ -1900,8 +1908,8 @@ fn write_get_connection_nodes_function(
 
 fn warn_about_unimplemented_feature(definition_type: &DefinitionType, context: String) {
     warn!("'{}' (context: '{}') produced a type that RescriptRelay does not understand. Please open an issue on the repo https://github.com/zth/rescript-relay and describe what you were doing as this happened.", match &definition_type {
-        DefinitionType::Fragment(fragment_definition) => fragment_definition.name.item,
-        DefinitionType::Operation((operation_definition, _)) => operation_definition.name.item
+        DefinitionType::Fragment(fragment_definition) => fragment_definition.name.item.0,
+        DefinitionType::Operation((operation_definition, _)) => operation_definition.name.item.0
     }, context);
 }
 
@@ -2697,7 +2705,7 @@ impl Writer for ReScriptPrinter {
         // fragments, and variables) as <Identifier>$<type>. So, here we look
         // for those key top level objects and treat them specially.
 
-        if name.ends_with("$data") {
+        if name.ends_with("$data") {            
             match classify_top_level_object_type_ast(&value) {
                 Some((nullable, ClassifiedTopLevelObjectType::Object(props))) => {
                     let context = match &self.typegen_definition {
@@ -2928,15 +2936,7 @@ impl Writer for ReScriptPrinter {
         }
     }
 
-    // We track Relay Resolvers here.
-    fn write_import_module_default(&mut self, name: &str, from: &str) -> Result {
-        if name.ends_with("Resolver") {
-            self.relay_resolvers.push(RelayResolverInfo {
-                local_resolver_name: name.to_string(),
-                resolver_module: get_module_name_from_file_path(&from),
-            })
-        }
-
+    fn write_import_module_default(&mut self, _name: &str, _from: &str) -> Result {
         Ok(())
     }
 
@@ -3057,6 +3057,27 @@ impl Writer for ReScriptPrinter {
             }
         } else {
             warn_about_unimplemented_feature(&self.typegen_definition, String::from("local type"));
+        }
+        Ok(())
+    }
+
+    // We track Relay Resolvers by picking up the imports the compiler adds for
+    // the resolvers themselves.
+    fn write_import_module_named(
+        &mut self,
+        name: &str,
+        import_as: Option<&str>,
+        from: &str,
+    ) -> Result {
+        let target_name = match import_as {
+            Some(name) => name,
+            None => name
+        };
+        if target_name.ends_with("ResolverType") {
+            self.relay_resolvers.push(RelayResolverInfo {
+                local_resolver_name: target_name.to_string(),
+                resolver_module: get_module_name_from_file_path(&from),
+            })
         }
         Ok(())
     }

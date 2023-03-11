@@ -6,6 +6,7 @@
  *
  * @flow
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -20,6 +21,7 @@ import type {Variables} from '../util/RelayRuntimeTypes';
 const {
   ACTOR_CHANGE,
   CLIENT_COMPONENT,
+  CLIENT_EDGE_TO_CLIENT_OBJECT,
   CLIENT_EXTENSION,
   CONDITION,
   DEFER,
@@ -29,6 +31,7 @@ const {
   LINKED_FIELD,
   LINKED_HANDLE,
   MODULE_IMPORT,
+  RELAY_RESOLVER,
   SCALAR_FIELD,
   SCALAR_HANDLE,
   STREAM,
@@ -119,7 +122,7 @@ if (__DEV__) {
     optimisticResponse: Object,
     selection: NormalizationSelection,
     context: ValidationContext,
-  ) => {
+  ): void => {
     switch (selection.kind) {
       case CONDITION:
         validateSelections(optimisticResponse, selection.selections, context);
@@ -162,6 +165,8 @@ if (__DEV__) {
         return validateModuleImport(context);
       case TYPE_DISCRIMINATOR:
         return validateAbstractKey(context, selection.abstractKey);
+      case RELAY_RESOLVER:
+      case CLIENT_EDGE_TO_CLIENT_OBJECT:
       case LINKED_HANDLE:
       case SCALAR_HANDLE:
       case DEFER:

@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b51faaf2cce02559a90ea7e01869be27>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<de5105ea489141bdb741bd5481e90fc3>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,15 +19,15 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { UndefinedFieldResolver$key } from "./../resolvers/__generated__/UndefinedFieldResolver.graphql";
-import queryUndefinedFieldResolver from "../resolvers/UndefinedFieldResolver.js";
-// Type assertion validating that `queryUndefinedFieldResolver` resolver is correctly implemented.
+import {undefined_field as queryUndefinedFieldResolverType} from "../resolvers/UndefinedFieldResolver.js";
+// Type assertion validating that `queryUndefinedFieldResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryUndefinedFieldResolver: (
-  rootKey: UndefinedFieldResolver$key, 
+(queryUndefinedFieldResolverType: (
+  rootKey: UndefinedFieldResolver$key,
 ) => mixed);
 export type RelayReaderResolverTest15Query$variables = {||};
 export type RelayReaderResolverTest15Query$data = {|
-  +undefined_field: ?$Call<<R>((...empty[]) => R) => R, typeof queryUndefinedFieldResolver>,
+  +undefined_field: ?$Call<<R>((...empty[]) => R) => R, typeof queryUndefinedFieldResolverType>,
 |};
 export type RelayReaderResolverTest15Query = {|
   response: RelayReaderResolverTest15Query$data,
@@ -50,7 +52,7 @@ var node/*: ConcreteRequest*/ = {
         },
         "kind": "RelayResolver",
         "name": "undefined_field",
-        "resolverModule": require('./../resolvers/UndefinedFieldResolver'),
+        "resolverModule": require('./../resolvers/UndefinedFieldResolver').undefined_field,
         "path": "undefined_field"
       }
     ],
@@ -64,34 +66,48 @@ var node/*: ConcreteRequest*/ = {
     "name": "RelayReaderResolverTest15Query",
     "selections": [
       {
-        "alias": null,
+        "name": "undefined_field",
         "args": null,
-        "concreteType": "User",
-        "kind": "LinkedField",
-        "name": "me",
-        "plural": false,
-        "selections": [
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "id",
-            "storageKey": null
-          },
-          {
-            "kind": "ClientExtension",
-            "selections": [
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "__id",
-                "storageKey": null
-              }
-            ]
-          }
-        ],
-        "storageKey": null
+        "fragment": {
+          "kind": "InlineFragment",
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "concreteType": "User",
+              "kind": "LinkedField",
+              "name": "me",
+              "plural": false,
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "id",
+                  "storageKey": null
+                },
+                {
+                  "kind": "ClientExtension",
+                  "selections": [
+                    {
+                      "alias": null,
+                      "args": null,
+                      "kind": "ScalarField",
+                      "name": "__id",
+                      "storageKey": null
+                    }
+                  ]
+                }
+              ],
+              "storageKey": null
+            }
+          ],
+          "type": "Query",
+          "abstractKey": null
+        },
+        "kind": "RelayResolver",
+        "storageKey": null,
+        "isOutputType": false
       }
     ]
   },

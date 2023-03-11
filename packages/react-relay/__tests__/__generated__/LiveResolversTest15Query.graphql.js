@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a2b4fdc7a6dbaebecb90e150e1bebeef>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<b856d93ef958b9fbdb03be7127f0096b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,10 +19,13 @@
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
-import queryLiveUserResolverAlwaysSuspendResolver from "../../../relay-runtime/store/__tests__/resolvers/LiveUserAlwaysSuspendResolver.js";
-// Type assertion validating that `queryLiveUserResolverAlwaysSuspendResolver` resolver is correctly implemented.
+import type { DataID } from "relay-runtime";
+import {live_user_resolver_always_suspend as queryLiveUserResolverAlwaysSuspendResolverType} from "../../../relay-runtime/store/__tests__/resolvers/LiveUserAlwaysSuspendResolver.js";
+// Type assertion validating that `queryLiveUserResolverAlwaysSuspendResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryLiveUserResolverAlwaysSuspendResolver: () => LiveState<any>);
+(queryLiveUserResolverAlwaysSuspendResolverType: () => LiveState<?{|
+  +id: DataID,
+|}>);
 export type LiveResolversTest15Query$variables = {||};
 export type LiveResolversTest15Query$data = {|
   +live_user_resolver_always_suspend: ?{|
@@ -51,7 +56,7 @@ var node/*: ClientRequest*/ = {
           "fragment": null,
           "kind": "RelayLiveResolver",
           "name": "live_user_resolver_always_suspend",
-          "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/LiveUserAlwaysSuspendResolver'),
+          "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/LiveUserAlwaysSuspendResolver').live_user_resolver_always_suspend,
           "path": "live_user_resolver_always_suspend"
         },
         "linkedField": {
@@ -84,16 +89,12 @@ var node/*: ClientRequest*/ = {
     "name": "LiveResolversTest15Query",
     "selections": [
       {
-        "kind": "ClientExtension",
-        "selections": [
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "__id",
-            "storageKey": null
-          }
-        ]
+        "name": "live_user_resolver_always_suspend",
+        "args": null,
+        "fragment": null,
+        "kind": "RelayResolver",
+        "storageKey": null,
+        "isOutputType": false
       }
     ]
   },

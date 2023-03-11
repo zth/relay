@@ -4,12 +4,13 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
 'use strict';
+import type {Snapshot} from '../RelayStoreTypes';
 import type {
   RelayModernEnvironmentTypeRefinementTest1Query$data,
   RelayModernEnvironmentTypeRefinementTest1Query$variables,
@@ -572,7 +573,7 @@ describe('missing data detection', () => {
     expect(environment.check(operation).status).toBe('missing');
 
     // Subscriptions are not notified of discriminator-only changes
-    const callback = jest.fn();
+    const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(fragmentSnapshot, callback);
     environment.commitUpdate(store => {
       const typeRecord = nullthrows(store.get(generateTypeID('User')));
@@ -629,7 +630,7 @@ describe('missing data detection', () => {
     expect(environment.check(operation).status).toBe('missing');
 
     // Subscriptions are not notified of discriminator-only changes
-    const callback = jest.fn();
+    const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(fragmentSnapshot, callback);
     environment.commitUpdate(store => {
       const typeRecord = nullthrows(store.get(generateTypeID('User')));
@@ -774,7 +775,7 @@ describe('missing data detection', () => {
     expect(environment.check(operation).status).toBe('missing');
 
     // Subscriptions are not notified of discriminator-only changes
-    const callback = jest.fn();
+    const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(fragmentSnapshot, callback);
     environment.commitUpdate(store => {
       const typeRecord = nullthrows(store.get(generateTypeID('User')));
@@ -831,7 +832,7 @@ describe('missing data detection', () => {
     expect(environment.check(operation).status).toBe('missing');
 
     // Subscriptions are not notified of discriminator-only changes
-    const callback = jest.fn();
+    const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(fragmentSnapshot, callback);
     environment.commitUpdate(store => {
       const typeRecord = nullthrows(store.get(generateTypeID('User')));
@@ -1872,6 +1873,66 @@ describe('missing data detection', () => {
         rootRecord.setLinkedRecord(clientObj, 'client_interface');
       });
       environment.commitPayload(operation, {});
+      const parentSnapshot: $FlowFixMe = environment.lookup(operation.fragment);
+      const fragmentSelector = nullthrows(
+        getSingularSelector(
+          AbstractClientInterfaceFragment,
+          parentSnapshot.data.client_interface,
+        ),
+      );
+      const fragmentSnapshot = environment.lookup(fragmentSelector);
+      expect(fragmentSnapshot.data).toEqual({
+        description: 'My Description',
+      });
+      expect(fragmentSnapshot.isMissingData).toBe(false);
+    });
+
+    it('knows when concrete types match abstract types by metadata attached to normalizaiton AST (without committing payloads)', () => {
+      operation = createOperationDescriptor(AbstractClientQuery, {});
+      environment.commitUpdate(store => {
+        const rootRecord = nullthrows(store.get(ROOT_ID));
+        const clientObj = store.create(
+          '4',
+          'OtherClientTypeImplementingClientInterface',
+        );
+        clientObj.setValue('4', 'id');
+        clientObj.setValue('My Description', 'description');
+        rootRecord.setLinkedRecord(clientObj, 'client_interface');
+      });
+      // DataChecker similar to normalizer will put abstract type information to the record source.
+      // In the previouse test we use `commitPayload(...)` so the normalizer can assign these `abstract types`.
+      environment.check(operation);
+      const parentSnapshot: $FlowFixMe = environment.lookup(operation.fragment);
+      const fragmentSelector = nullthrows(
+        getSingularSelector(
+          AbstractClientInterfaceFragment,
+          parentSnapshot.data.client_interface,
+        ),
+      );
+      const fragmentSnapshot = environment.lookup(fragmentSelector);
+      expect(fragmentSnapshot.data).toEqual({
+        description: 'My Description',
+      });
+      expect(fragmentSnapshot.isMissingData).toBe(false);
+    });
+
+    it('knows when concrete types match abstract types by metadata attached to normalizaiton AST: check after commited payload', () => {
+      operation = createOperationDescriptor(AbstractClientQuery, {});
+      environment.commitUpdate(store => {
+        const rootRecord = nullthrows(store.get(ROOT_ID));
+        const clientObj = store.create(
+          '4',
+          'OtherClientTypeImplementingClientInterface',
+        );
+        clientObj.setValue('4', 'id');
+        clientObj.setValue('My Description', 'description');
+        rootRecord.setLinkedRecord(clientObj, 'client_interface');
+      });
+      environment.commitPayload(operation, {});
+
+      // DataChecker similar to normalizer will put abstract type information to the record source.
+      // In the previouse test we use `commitPayload(...)` so the normalizer can assign these `abstract types`.
+      environment.check(operation);
       const parentSnapshot: $FlowFixMe = environment.lookup(operation.fragment);
       const fragmentSelector = nullthrows(
         getSingularSelector(

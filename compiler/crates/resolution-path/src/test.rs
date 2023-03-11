@@ -5,18 +5,21 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::*;
 use common::SourceLocationKey;
 use common::Span;
 use graphql_syntax::parse_executable_with_features;
+use graphql_syntax::FragmentArgumentSyntaxKind;
 use graphql_syntax::ParserFeatures;
+
+use super::*;
 
 pub(super) fn test_resolution(source: &str, sub_str: &str, cb: impl Fn(&ResolutionPath<'_>)) {
     let document = parse_executable_with_features(
         source,
         SourceLocationKey::standalone("/test/file"),
         ParserFeatures {
-            enable_variable_definitions: true,
+            fragment_argument_capability:
+                FragmentArgumentSyntaxKind::SpreadArgumentsAndFragmentVariableDefinitions,
         },
     )
     .unwrap();

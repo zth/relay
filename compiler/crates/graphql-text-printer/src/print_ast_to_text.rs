@@ -5,6 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::fmt::Result as FmtResult;
+use std::fmt::Write;
+
 use graphql_syntax::Argument;
 use graphql_syntax::Directive;
 use graphql_syntax::ExecutableDefinition;
@@ -17,9 +20,6 @@ use graphql_syntax::OperationDefinition;
 use graphql_syntax::ScalarField;
 use graphql_syntax::Selection;
 use graphql_syntax::VariableDefinition;
-
-use std::fmt::Result as FmtResult;
-use std::fmt::Write;
 
 pub fn print_operation_ast(node: &OperationDefinition) -> String {
     let mut printer: Printer = Default::default();
@@ -67,11 +67,11 @@ impl Printer {
     }
 
     fn print_fragment(&mut self, fragment: &FragmentDefinition) -> FmtResult {
-        write!(
-            self.output,
-            "fragment {} {}",
-            fragment.name, fragment.type_condition
-        )?;
+        write!(self.output, "fragment {}", fragment.name)?;
+        if let Some(variable_definitions) = &fragment.variable_definitions {
+            self.print_variable_definitions(variable_definitions)?;
+        }
+        write!(self.output, " {}", fragment.type_condition)?;
         self.print_directives(&fragment.directives)?;
         writeln!(self.output, " {{")?;
         self.print_selections(&fragment.selections, "  ")?;
@@ -167,6 +167,9 @@ impl Printer {
 
     fn print_fragment_spread(&mut self, node: &FragmentSpread) -> FmtResult {
         write!(self.output, "...{}", node.name)?;
+        if let Some(arguments) = &node.arguments {
+            self.print_arguments(arguments)?;
+        }
         self.print_directives(&node.directives)?;
 
         Ok(())

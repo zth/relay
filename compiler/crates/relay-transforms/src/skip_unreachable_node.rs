@@ -5,10 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::defer_stream::DEFER_STREAM_CONSTANTS;
-use crate::DeferDirective;
-use crate::NoInlineFragmentSpreadMetadata;
-use crate::StreamDirective;
+use std::sync::Arc;
+
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::NamedItem;
@@ -17,6 +15,8 @@ use graphql_ir::Condition;
 use graphql_ir::ConditionValue;
 use graphql_ir::ConstantValue;
 use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentDefinitionName;
+use graphql_ir::FragmentDefinitionNameMap;
 use graphql_ir::FragmentSpread;
 use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
@@ -28,9 +28,12 @@ use graphql_ir::TransformedValue;
 use graphql_ir::Transformer;
 use graphql_ir::Value;
 use intern::string_key::StringKey;
-use intern::string_key::StringKeyMap;
-use std::sync::Arc;
 use thiserror::Error;
+
+use super::defer_stream::DEFER_STREAM_CONSTANTS;
+use crate::DeferDirective;
+use crate::NoInlineFragmentSpreadMetadata;
+use crate::StreamDirective;
 
 enum ValidationMode {
     Strict(Vec<Diagnostic>),
@@ -63,7 +66,8 @@ fn skip_unreachable_node(program: &Program, validation_mode: &mut ValidationMode
     transformed.replace_or_else(|| program.clone())
 }
 
-type VisitedFragments = StringKeyMap<(Arc<FragmentDefinition>, Transformed<FragmentDefinition>)>;
+type VisitedFragments =
+    FragmentDefinitionNameMap<(Arc<FragmentDefinition>, Transformed<FragmentDefinition>)>;
 
 pub struct SkipUnreachableNodeTransform<'s> {
     visited_fragments: VisitedFragments,
@@ -103,7 +107,7 @@ impl<'s> Transformer for SkipUnreachableNodeTransform<'s> {
                         errors.push(Diagnostic::error(
                             ValidationMessage::EmptySelectionsInDocument {
                                 document: "query",
-                                name: operation.name.item,
+                                name: operation.name.item.0,
                             },
                             operation.name.location,
                         ));
@@ -138,7 +142,7 @@ impl<'s> Transformer for SkipUnreachableNodeTransform<'s> {
                             errors.push(Diagnostic::error(
                                 ValidationMessage::EmptySelectionsInDocument {
                                     document: "fragment",
-                                    name: fragment.name.item,
+                                    name: fragment.name.item.0,
                                 },
                                 fragment.name.location,
                             ));
@@ -249,7 +253,7 @@ impl<'s> SkipUnreachableNodeTransform<'s> {
     }
 
     // Visit the fragment definition and return true if it should be deleted
-    fn should_delete_fragment_definition(&mut self, key: StringKey) -> bool {
+    fn should_delete_fragment_definition(&mut self, key: FragmentDefinitionName) -> bool {
         if let Some((_, transformed)) = self.visited_fragments.get(&key) {
             return matches!(transformed, Transformed::Delete);
         }

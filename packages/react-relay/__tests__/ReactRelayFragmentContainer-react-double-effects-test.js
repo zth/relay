@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -40,7 +40,7 @@ describe.skip('ReactRelayFragmentContainer-react-double-effects-test', () => {
     // Set up mocks
     jest.spyOn(console, 'warn').mockImplementationOnce(() => {});
     jest.mock('warning');
-    renderSpy = jest.fn();
+    renderSpy = jest.fn<$ReadOnlyArray<mixed>, mixed>();
 
     // Set up environment and base data
     environment = createMockEnvironment();

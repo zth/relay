@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -53,13 +53,18 @@ describe('MatchContainer', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    loader = jest.fn();
+    loader = jest.fn<
+      [mixed],
+      React$AbstractComponent<any | {otherProp: string}, any>,
+    >();
+    // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
     UserComponent = jest.fn(props => (
       <div>
         <h1>User</h1>
         <pre>{JSON.stringify(props, null, 2)}</pre>
       </div>
     ));
+    // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
     ActorComponent = jest.fn(props => (
       <div>
         <h1>Actor</h1>

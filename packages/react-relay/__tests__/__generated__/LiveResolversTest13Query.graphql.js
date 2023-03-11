@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c68b7409336201f125b0eb21644b0152>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<1943cb4f897a7adfb802b75e83840da5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,10 +19,13 @@
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
-import queryLiveConstantClientEdgeResolver from "../../../relay-runtime/store/__tests__/resolvers/LiveConstantClientEdgeResolver.js";
-// Type assertion validating that `queryLiveConstantClientEdgeResolver` resolver is correctly implemented.
+import type { DataID } from "relay-runtime";
+import {live_constant_client_edge as queryLiveConstantClientEdgeResolverType} from "../../../relay-runtime/store/__tests__/resolvers/LiveConstantClientEdgeResolver.js";
+// Type assertion validating that `queryLiveConstantClientEdgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryLiveConstantClientEdgeResolver: () => LiveState<any>);
+(queryLiveConstantClientEdgeResolverType: () => LiveState<?{|
+  +id: DataID,
+|}>);
 export type LiveResolversTest13Query$variables = {||};
 export type LiveResolversTest13Query$data = {|
   +live_constant_client_edge: ?{|
@@ -51,7 +56,7 @@ var node/*: ClientRequest*/ = {
           "fragment": null,
           "kind": "RelayLiveResolver",
           "name": "live_constant_client_edge",
-          "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/LiveConstantClientEdgeResolver'),
+          "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/LiveConstantClientEdgeResolver').live_constant_client_edge,
           "path": "live_constant_client_edge"
         },
         "linkedField": {
@@ -84,16 +89,12 @@ var node/*: ClientRequest*/ = {
     "name": "LiveResolversTest13Query",
     "selections": [
       {
-        "kind": "ClientExtension",
-        "selections": [
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "__id",
-            "storageKey": null
-          }
-        ]
+        "name": "live_constant_client_edge",
+        "args": null,
+        "fragment": null,
+        "kind": "RelayResolver",
+        "storageKey": null,
+        "isOutputType": false
       }
     ]
   },

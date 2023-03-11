@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<6912b11afefb70d1c9230e590b81c880>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<b3f1a718908b7c024103bdf904ec563b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,13 +19,13 @@
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
-import queryLiveResolverReturnUndefinedResolver from "../../../relay-runtime/store/__tests__/resolvers/QueryLiveResolverReturnsUndefined.js";
-// Type assertion validating that `queryLiveResolverReturnUndefinedResolver` resolver is correctly implemented.
+import {live_resolver_return_undefined as queryLiveResolverReturnUndefinedResolverType} from "../../../relay-runtime/store/__tests__/resolvers/QueryLiveResolverReturnsUndefined.js";
+// Type assertion validating that `queryLiveResolverReturnUndefinedResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryLiveResolverReturnUndefinedResolver: () => LiveState<any>);
+(queryLiveResolverReturnUndefinedResolverType: () => LiveState<mixed>);
 export type LiveResolversTest19Query$variables = {||};
 export type LiveResolversTest19Query$data = {|
-  +live_resolver_return_undefined: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof queryLiveResolverReturnUndefinedResolver>["read"]>,
+  +live_resolver_return_undefined: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof queryLiveResolverReturnUndefinedResolverType>["read"]>,
 |};
 export type LiveResolversTest19Query = {|
   response: LiveResolversTest19Query$data,
@@ -47,7 +49,7 @@ var node/*: ClientRequest*/ = {
             "fragment": null,
             "kind": "RelayLiveResolver",
             "name": "live_resolver_return_undefined",
-            "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/QueryLiveResolverReturnsUndefined'),
+            "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/QueryLiveResolverReturnsUndefined').live_resolver_return_undefined,
             "path": "live_resolver_return_undefined"
           }
         ]
@@ -66,11 +68,12 @@ var node/*: ClientRequest*/ = {
         "kind": "ClientExtension",
         "selections": [
           {
-            "alias": null,
+            "name": "live_resolver_return_undefined",
             "args": null,
-            "kind": "ScalarField",
-            "name": "__id",
-            "storageKey": null
+            "fragment": null,
+            "kind": "RelayResolver",
+            "storageKey": null,
+            "isOutputType": false
           }
         ]
       }

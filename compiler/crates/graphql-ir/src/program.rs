@@ -5,20 +5,25 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::ir::ExecutableDefinition;
-use crate::ir::FragmentDefinition;
-use crate::ir::OperationDefinition;
-use intern::string_key::StringKey;
-use intern::string_key::StringKeyMap;
-use schema::SDLSchema;
 use std::collections::HashMap;
 use std::sync::Arc;
+
+use intern::BuildIdHasher;
+use schema::SDLSchema;
+
+use crate::ir::ExecutableDefinition;
+use crate::ir::FragmentDefinition;
+use crate::ir::FragmentDefinitionName;
+use crate::ir::FragmentDefinitionNameMap;
+use crate::ir::OperationDefinition;
+use crate::ir::OperationDefinitionName;
+use crate::ExecutableDefinitionName;
 
 /// A collection of all documents that are being compiled.
 #[derive(Debug, Clone)]
 pub struct Program {
     pub schema: Arc<SDLSchema>,
-    pub fragments: StringKeyMap<Arc<FragmentDefinition>>,
+    pub fragments: FragmentDefinitionNameMap<Arc<FragmentDefinition>>,
     pub operations: Vec<Arc<OperationDefinition>>,
 }
 
@@ -37,13 +42,29 @@ impl Program {
     ) -> Self {
         let mut operations = Vec::new();
         let mut fragments = HashMap::default();
+        let mut seen_operation_loc = HashMap::new();
         for definition in definitions {
             match definition {
                 ExecutableDefinition::Operation(operation) => {
-                    operations.push(Arc::new(operation));
+                    let loc = operation.name.location;
+                    let name = operation.name.item;
+                    if let Some(another) = seen_operation_loc.insert(name, loc) {
+                        panic!(
+                            "\nDuplicate operation definitions named {}: \nfirst one: {:?}\nsecond one: {:?}\n",
+                            name, loc, another
+                        );
+                    }
+                    operations.push(Arc::new(operation)); // Keep the order the operations same as inputs.
                 }
                 ExecutableDefinition::Fragment(fragment) => {
-                    fragments.insert(fragment.name.item, Arc::new(fragment));
+                    let loc = fragment.name.location;
+                    let name = fragment.name.item;
+                    if let Some(another) = fragments.insert(name, Arc::new(fragment)) {
+                        panic!(
+                            "\nDuplicate fragment definitions named {}: \nfirst one: {:?}\nsecond one: {:?}\n",
+                            name, loc, &another.name.location
+                        );
+                    }
                 }
             }
         }
@@ -64,11 +85,14 @@ impl Program {
         };
     }
 
-    pub fn fragment(&self, name: StringKey) -> Option<&Arc<FragmentDefinition>> {
+    pub fn fragment(&self, name: FragmentDefinitionName) -> Option<&Arc<FragmentDefinition>> {
         self.fragments.get(&name)
     }
 
-    pub fn fragment_mut(&mut self, name: StringKey) -> Option<&mut Arc<FragmentDefinition>> {
+    pub fn fragment_mut(
+        &mut self,
+        name: FragmentDefinitionName,
+    ) -> Option<&mut Arc<FragmentDefinition>> {
         self.fragments.get_mut(&name)
     }
 
@@ -77,7 +101,7 @@ impl Program {
     /// NOTE: This is a linear search, we currently don't frequently search
     ///       for operations by name, so this might be overall faster than
     ///       using a map internally.
-    pub fn operation(&self, name: StringKey) -> Option<&Arc<OperationDefinition>> {
+    pub fn operation(&self, name: OperationDefinitionName) -> Option<&Arc<OperationDefinition>> {
         self.operations()
             .find(|operation| operation.name.item == name)
     }
@@ -101,9 +125,13 @@ impl Program {
     pub fn merge_program(
         &mut self,
         other_program: &Self,
-        removed_definition_names: Option<&[StringKey]>,
+        removed_definition_names: Option<&[ExecutableDefinitionName]>,
     ) {
-        let mut operations: StringKeyMap<Arc<OperationDefinition>> = self
+        let mut operations: HashMap<
+            OperationDefinitionName,
+            Arc<OperationDefinition>,
+            BuildIdHasher<u32>,
+        > = self
             .operations
             .drain(..)
             .map(|op| (op.name.item, op))
@@ -117,8 +145,14 @@ impl Program {
         }
         if let Some(removed_definition_names) = removed_definition_names {
             for removed in removed_definition_names {
-                self.fragments.remove(removed);
-                operations.remove(removed);
+                match removed {
+                    ExecutableDefinitionName::OperationDefinitionName(name) => {
+                        operations.remove(name);
+                    }
+                    ExecutableDefinitionName::FragmentDefinitionName(name) => {
+                        self.fragments.remove(name);
+                    }
+                };
             }
         }
         self.operations

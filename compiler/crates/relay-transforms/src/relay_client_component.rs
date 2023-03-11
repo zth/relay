@@ -5,25 +5,27 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::ValidationMessage;
-use crate::match_::SplitOperationMetadata;
-use crate::no_inline::attach_no_inline_directives_to_fragments;
-use crate::no_inline::validate_required_no_inline_directive;
-use crate::util::get_fragment_filename;
-use crate::util::get_normalization_operation_name;
+use std::sync::Arc;
+
+use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
+use common::DirectiveName;
 use common::FeatureFlag;
 use common::FeatureFlags;
+use common::InterfaceName;
 use common::NamedItem;
 use common::WithLocation;
 use graphql_ir::associated_data_impl;
 use graphql_ir::Argument;
 use graphql_ir::ConstantValue;
 use graphql_ir::Directive;
+use graphql_ir::ExecutableDefinitionName;
 use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentDefinitionNameMap;
 use graphql_ir::FragmentSpread;
 use graphql_ir::OperationDefinition;
+use graphql_ir::OperationDefinitionName;
 use graphql_ir::Program;
 use graphql_ir::Selection;
 use graphql_ir::Transformed;
@@ -39,16 +41,23 @@ use lazy_static::lazy_static;
 use schema::InterfaceID;
 use schema::Schema;
 use schema::Type;
-use std::sync::Arc;
+
+use super::ValidationMessage;
+use crate::match_::SplitOperationMetadata;
+use crate::no_inline::attach_no_inline_directives_to_fragments;
+use crate::no_inline::validate_required_no_inline_directive;
+use crate::util::get_fragment_filename;
+use crate::util::get_normalization_operation_name;
 
 lazy_static! {
-    pub static ref RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME: StringKey =
-        "relay_client_component_server".intern();
-    pub static ref RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME: StringKey = "module_id".intern();
-    pub static ref RELAY_CLIENT_COMPONENT_DIRECTIVE_NAME: StringKey =
-        "relay_client_component".intern();
+    pub static ref RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME: DirectiveName =
+        DirectiveName("relay_client_component_server".intern());
+    pub static ref RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME: ArgumentName =
+        ArgumentName("module_id".intern());
+    pub static ref RELAY_CLIENT_COMPONENT_DIRECTIVE_NAME: DirectiveName =
+        DirectiveName("relay_client_component".intern());
     static ref STRING_TYPE: StringKey = "String".intern();
-    static ref NODE_TYPE_NAME: StringKey = "Node".intern();
+    static ref NODE_TYPE_NAME: InterfaceName = InterfaceName("Node".intern());
     static ref VIEWER_TYPE_NAME: StringKey = "Viewer".intern();
 }
 
@@ -72,7 +81,7 @@ pub fn relay_client_component(
     }
     let node_interface_id = program
         .schema
-        .get_type(*NODE_TYPE_NAME)
+        .get_type(NODE_TYPE_NAME.0)
         .and_then(|type_| {
             if let Type::Interface(id) = type_ {
                 Some(id)
@@ -97,8 +106,10 @@ pub fn relay_client_component(
     }
     if !transform.split_operations.is_empty() {
         for (_, (metadata, mut operation)) in transform.split_operations.drain() {
-            operation.directives.push(metadata.to_directive());
-            if let Some(prev_operation) = next_program.operation(operation.name.item) {
+            operation.directives.push(metadata.into());
+            if let Some(prev_operation) =
+                next_program.operation(OperationDefinitionName(operation.name.item.0))
+            {
                 transform.errors.push(Diagnostic::error(
                     ValidationMessage::DuplicateRelayClientComponentSplitOperation,
                     prev_operation.name.location,
@@ -122,11 +133,11 @@ struct RelayClientComponentTransform<'program, 'flag> {
     split_operations: StringKeyMap<(SplitOperationMetadata, OperationDefinition)>,
     node_interface_id: InterfaceID,
     /// Name of the document currently being transformed.
-    document_name: Option<StringKey>,
+    document_name: Option<ExecutableDefinitionName>,
     split_operation_filenames: StringKeySet,
     no_inline_flag: &'flag FeatureFlag,
     // Stores the fragments that should use @no_inline and their parent document name
-    no_inline_fragments: StringKeyMap<Vec<StringKey>>,
+    no_inline_fragments: FragmentDefinitionNameMap<Vec<ExecutableDefinitionName>>,
 }
 
 impl<'program, 'flag> RelayClientComponentTransform<'program, 'flag> {
@@ -224,7 +235,7 @@ impl<'program, 'flag> RelayClientComponentTransform<'program, 'flag> {
             ));
         }
 
-        let should_use_no_inline = self.no_inline_flag.is_enabled_for(spread.fragment.item);
+        let should_use_no_inline = self.no_inline_flag.is_enabled_for(spread.fragment.item.0);
         if should_use_no_inline {
             self.no_inline_fragments
                 .entry(fragment.name.item)
@@ -234,18 +245,27 @@ impl<'program, 'flag> RelayClientComponentTransform<'program, 'flag> {
             // Generate a SplitOperation AST
             let created_split_operation = self
                 .split_operations
-                .entry(spread.fragment.item)
+                .entry(spread.fragment.item.0)
                 .or_insert_with(|| {
                     let normalization_name =
-                        get_normalization_operation_name(spread.fragment.item).intern();
+                        get_normalization_operation_name(spread.fragment.item.0).intern();
                     (
                         SplitOperationMetadata {
-                            derived_from: spread.fragment.item,
+                            derived_from: Some(spread.fragment.item),
+                            location: self
+                                .program
+                                .fragment(spread.fragment.item)
+                                .unwrap()
+                                .name
+                                .location,
                             parent_documents: Default::default(),
-                            raw_response_type: false,
+                            raw_response_type_generation_mode: None,
                         },
                         OperationDefinition {
-                            name: WithLocation::new(spread.fragment.location, normalization_name),
+                            name: WithLocation::new(
+                                spread.fragment.location,
+                                OperationDefinitionName(normalization_name),
+                            ),
                             type_: fragment.type_condition,
                             kind: OperationKind::Query,
                             variable_definitions: fragment.variable_definitions.clone(),
@@ -312,7 +332,7 @@ impl<'program, 'flag> RelayClientComponentTransform<'program, 'flag> {
                     None
                 }
             })
-            .collect::<Vec<StringKey>>();
+            .collect::<Vec<DirectiveName>>();
         if !incompatible_directives.is_empty() {
             Some(Diagnostic::error(
                 ValidationMessage::IncompatibleRelayClientComponentDirectives {
@@ -344,7 +364,7 @@ impl<'program, 'flag> Transformer for RelayClientComponentTransform<'program, 'f
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
         assert!(self.split_operation_filenames.is_empty());
-        self.document_name = Some(operation.name.item);
+        self.document_name = Some(operation.name.item.into());
 
         let transformed = self.default_transform_operation(operation);
         if self.split_operation_filenames.is_empty() {
@@ -364,7 +384,7 @@ impl<'program, 'flag> Transformer for RelayClientComponentTransform<'program, 'f
         fragment: &FragmentDefinition,
     ) -> Transformed<FragmentDefinition> {
         assert!(self.split_operation_filenames.is_empty());
-        self.document_name = Some(fragment.name.item);
+        self.document_name = Some(fragment.name.item.into());
 
         let transformed = self.default_transform_fragment(fragment);
         if self.split_operation_filenames.is_empty() {

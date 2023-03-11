@@ -101,11 +101,25 @@ extend type User {
             "kind": "InlineFragment",
             "selections": [
               {
-                "alias": null,
+                "name": "pop_star_name",
                 "args": null,
-                "kind": "ScalarField",
-                "name": "name",
-                "storageKey": null
+                "fragment": {
+                  "kind": "InlineFragment",
+                  "selections": [
+                    {
+                      "alias": null,
+                      "args": null,
+                      "kind": "ScalarField",
+                      "name": "name",
+                      "storageKey": null
+                    }
+                  ],
+                  "type": "User",
+                  "abstractKey": null
+                },
+                "kind": "RelayResolver",
+                "storageKey": null,
+                "isOutputType": false
               }
             ],
             "type": "User",

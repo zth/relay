@@ -5,11 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @flow strict-local
- * @emails oncall+relay
  * @format
+ * @oncall relay
  */
 
 'use strict';
+
 import type {GraphQLResponse} from 'relay-runtime/network/RelayNetworkTypes';
 
 const preloadQuery_DEPRECATED = require('../preloadQuery_DEPRECATED');
@@ -27,7 +28,6 @@ const {
   MultiActorEnvironment,
   getActorIdentifier,
 } = require('relay-runtime/multi-actor-environment');
-
 const {
   disallowConsoleErrors,
   disallowWarnings,
@@ -78,13 +78,16 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         let operation;
 
         beforeEach(() => {
+          // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
           fetch = jest.fn((_query, _variables, _cacheConfig) => {
+            // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
             return Observable.create(_sink => {
               sink = _sink;
             });
           });
 
           const multiActorEnvironment = new MultiActorEnvironment({
+            // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
             createNetworkForActor: _actorID => Network.create(fetch),
             createStoreForActor: _actorID =>
               new Store(new RecordSource(), {
@@ -95,6 +98,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             environmentType === 'MultiActorEnvironment'
               ? multiActorEnvironment.forActor(getActorIdentifier('actor:1234'))
               : new Environment({
+                  // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
                   network: Network.create(fetch),
                   store: new Store(new RecordSource(), {
                     gcReleaseBufferSize: 1,
@@ -103,6 +107,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
           // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           const environmentCheck = environment.check;
+          // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
           check = jest.fn((...args) =>
             environmentCheck.apply(environment, args),
           );
@@ -113,7 +118,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
 
         function createObserver() {
-          const events = [];
+          const events: Array<$FlowFixMe | GraphQLResponse | Error | string> =
+            [];
           const observer = {
             complete: () => events.push('complete'),
             error: (error: Error) => events.push('error', error),
@@ -135,7 +141,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             });
             check.mockClear();
 
-            const preloaded = preloadQuery_DEPRECATED(
+            const preloaded = preloadQuery_DEPRECATED<$FlowFixMe, empty>(
               environment,
               params,
               variables,
@@ -166,7 +172,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               query,
             );
 
-            const preloaded = preloadQuery_DEPRECATED(
+            const preloaded = preloadQuery_DEPRECATED<$FlowFixMe, empty>(
               environment,
               params,
               variables,
@@ -184,7 +190,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           });
 
           it('fetches from the network if data is not available with concrete query', () => {
-            const preloaded = preloadQuery_DEPRECATED(
+            const preloaded = preloadQuery_DEPRECATED<$FlowFixMe, empty>(
               environment,
               query,
               variables,
@@ -202,12 +208,12 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           });
 
           it('returns a cached entry wo refetching if a previous fetch is pending', () => {
-            const preloaded1 = preloadQuery_DEPRECATED(
+            const preloaded1 = preloadQuery_DEPRECATED<$FlowFixMe, empty>(
               environment,
               params,
               variables,
             );
-            const preloaded2 = preloadQuery_DEPRECATED(
+            const preloaded2 = preloadQuery_DEPRECATED<$FlowFixMe, empty>(
               environment,
               params,
               variables,
@@ -236,7 +242,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           });
 
           it('fetches from the network if data/query are still missing and cache entry is consumed', () => {
-            const preloaded1 = preloadQuery_DEPRECATED(
+            const preloaded1 = preloadQuery_DEPRECATED<$FlowFixMe, empty>(
               environment,
               params,
               variables,
@@ -250,7 +256,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             sink.complete();
             expect(events).toEqual(['next', response, 'complete']);
             jest.runAllTimers(); // Ensure that the consumed entry is cleaned up.
-            const preloaded2 = preloadQuery_DEPRECATED(
+            const preloaded2 = preloadQuery_DEPRECATED<$FlowFixMe, empty>(
               environment,
               params,
               variables,
@@ -263,12 +269,16 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           });
 
           it('fetches from the network if data/query are still missing and cache entry has expired', () => {
-            preloadQuery_DEPRECATED(environment, params, variables);
+            preloadQuery_DEPRECATED<$FlowFixMe, empty>(
+              environment,
+              params,
+              variables,
+            );
             fetch.mockClear();
             sink.next(response);
             sink.complete();
             jest.runAllTimers();
-            const preloaded = preloadQuery_DEPRECATED(
+            const preloaded = preloadQuery_DEPRECATED<$FlowFixMe, empty>(
               environment,
               params,
               variables,
@@ -295,7 +305,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               query,
             );
 
-            const preloaded = preloadQuery_DEPRECATED(
+            const preloaded = preloadQuery_DEPRECATED<$FlowFixMe, empty>(
               environment,
               params,
               variables,
@@ -326,7 +336,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               query,
             );
 
-            const preloaded = preloadQuery_DEPRECATED(
+            const preloaded = preloadQuery_DEPRECATED<$FlowFixMe, empty>(
               environment,
               params,
               variables,
@@ -358,7 +368,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               query,
             );
 
-            const preloaded = preloadQuery_DEPRECATED(
+            const preloaded = preloadQuery_DEPRECATED<$FlowFixMe, empty>(
               environment,
               params,
               variables,
@@ -385,7 +395,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             });
             check.mockClear();
 
-            const preloaded = preloadQuery_DEPRECATED(
+            const preloaded = preloadQuery_DEPRECATED<$FlowFixMe, empty>(
               environment,
               query,
               variables,
@@ -405,7 +415,11 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             const fetchTime = Date.now();
             jest.spyOn(global.Date, 'now').mockImplementation(() => fetchTime);
 
-            preloadQuery_DEPRECATED(environment, params, variables);
+            preloadQuery_DEPRECATED<$FlowFixMe, empty>(
+              environment,
+              params,
+              variables,
+            );
             fetch.mockClear();
 
             environment.commitPayload(operation, response.data);
@@ -419,7 +433,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               query,
             );
 
-            const preloaded = preloadQuery_DEPRECATED(
+            const preloaded = preloadQuery_DEPRECATED<$FlowFixMe, empty>(
               environment,
               params,
               variables,
@@ -446,7 +460,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               query,
             );
 
-            const preloaded = preloadQuery_DEPRECATED(
+            const preloaded = preloadQuery_DEPRECATED<$FlowFixMe, empty>(
               environment,
               params,
               variables,
@@ -473,11 +487,15 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               query,
             );
 
-            preloadQuery_DEPRECATED(environment, params, variables);
+            preloadQuery_DEPRECATED<$FlowFixMe, empty>(
+              environment,
+              params,
+              variables,
+            );
             check.mockClear();
             jest.runAllTimers();
 
-            const preloaded = preloadQuery_DEPRECATED(
+            const preloaded = preloadQuery_DEPRECATED<$FlowFixMe, empty>(
               environment,
               params,
               variables,
@@ -504,7 +522,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               fetchTime,
             });
 
-            const preloaded = preloadQuery_DEPRECATED(
+            const preloaded = preloadQuery_DEPRECATED<$FlowFixMe, empty>(
               environment,
               params,
               variables,
@@ -528,7 +546,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           });
 
           it('does not fetch again if a previous fetch is pending', () => {
-            const preloaded1 = preloadQuery_DEPRECATED(
+            const preloaded1 = preloadQuery_DEPRECATED<$FlowFixMe, empty>(
               environment,
               params,
               variables,
@@ -536,7 +554,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
                 fetchPolicy: 'store-and-network',
               },
             );
-            const preloaded2 = preloadQuery_DEPRECATED(
+            const preloaded2 = preloadQuery_DEPRECATED<$FlowFixMe, empty>(
               environment,
               params,
               variables,
@@ -568,7 +586,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           });
 
           it('fetches from the network if data/query are still missing and cache entry is consumed', () => {
-            const preloaded1 = preloadQuery_DEPRECATED(
+            const preloaded1 = preloadQuery_DEPRECATED<$FlowFixMe, empty>(
               environment,
               params,
               variables,
@@ -585,7 +603,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             sink.complete();
             expect(events).toEqual(['next', response, 'complete']);
             jest.runAllTimers(); // Ensure that the consumed entry is cleaned up.
-            const preloaded2 = preloadQuery_DEPRECATED(
+            const preloaded2 = preloadQuery_DEPRECATED<$FlowFixMe, empty>(
               environment,
               params,
               variables,
@@ -601,14 +619,19 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           });
 
           it('fetches from the network if data/query are still missing and cache entry has expired', () => {
-            preloadQuery_DEPRECATED(environment, params, variables, {
-              fetchPolicy: 'store-and-network',
-            });
+            preloadQuery_DEPRECATED<$FlowFixMe, empty>(
+              environment,
+              params,
+              variables,
+              {
+                fetchPolicy: 'store-and-network',
+              },
+            );
             fetch.mockClear();
             sink.next(response);
             sink.complete();
             jest.runAllTimers();
-            const preloaded = preloadQuery_DEPRECATED(
+            const preloaded = preloadQuery_DEPRECATED<$FlowFixMe, empty>(
               environment,
               params,
               variables,
@@ -639,7 +662,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               fetchTime,
             });
 
-            const preloaded = preloadQuery_DEPRECATED(
+            const preloaded = preloadQuery_DEPRECATED<$FlowFixMe, empty>(
               environment,
               params,
               variables,
@@ -663,7 +686,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           });
 
           it('does not fetch again if a previous fetch is pending', () => {
-            const preloaded1 = preloadQuery_DEPRECATED(
+            const preloaded1 = preloadQuery_DEPRECATED<$FlowFixMe, empty>(
               environment,
               params,
               variables,
@@ -671,7 +694,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
                 fetchPolicy: 'network-only',
               },
             );
-            const preloaded2 = preloadQuery_DEPRECATED(
+            const preloaded2 = preloadQuery_DEPRECATED<$FlowFixMe, empty>(
               environment,
               params,
               variables,
@@ -703,7 +726,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           });
 
           it('fetches from the network if data/query are still missing and cache entry is consumed', () => {
-            const preloaded1 = preloadQuery_DEPRECATED(
+            const preloaded1 = preloadQuery_DEPRECATED<$FlowFixMe, empty>(
               environment,
               params,
               variables,
@@ -720,7 +743,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             sink.complete();
             expect(events).toEqual(['next', response, 'complete']);
             jest.runAllTimers(); // Ensure that the consumed entry is cleaned up.
-            const preloaded2 = preloadQuery_DEPRECATED(
+            const preloaded2 = preloadQuery_DEPRECATED<$FlowFixMe, empty>(
               environment,
               params,
               variables,
@@ -736,14 +759,19 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           });
 
           it('fetches from the network if data/query are still missing and cache entry has expired', () => {
-            preloadQuery_DEPRECATED(environment, params, variables, {
-              fetchPolicy: 'network-only',
-            });
+            preloadQuery_DEPRECATED<$FlowFixMe, empty>(
+              environment,
+              params,
+              variables,
+              {
+                fetchPolicy: 'network-only',
+              },
+            );
             fetch.mockClear();
             sink.next(response);
             sink.complete();
             jest.runAllTimers();
-            const preloaded = preloadQuery_DEPRECATED(
+            const preloaded = preloadQuery_DEPRECATED<$FlowFixMe, empty>(
               environment,
               params,
               variables,
@@ -768,12 +796,15 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         let variables;
 
         beforeEach(() => {
+          // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
           fetch = jest.fn((_query, _variables, _cacheConfig) => {
+            // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
             return Observable.create(_sink => {
               sink = _sink;
             });
           });
           const multiActorEnvironment = new MultiActorEnvironment({
+            // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
             createNetworkForActor: _actorID => Network.create(fetch),
             createStoreForActor: _actorID =>
               new Store(new RecordSource(), {
@@ -785,6 +816,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             environmentType === 'MultiActorEnvironment'
               ? multiActorEnvironment.forActor(getActorIdentifier('actor:1234'))
               : new Environment({
+                  // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
                   network: Network.create(fetch),
                   store: new Store(new RecordSource(), {
                     gcReleaseBufferSize: 1,
@@ -795,9 +827,14 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
         describe('network-only', () => {
           it('does not fetch from the network again because cached entry never expires in server environment', () => {
-            preloadQuery_DEPRECATED(environment, params, variables, {
-              fetchPolicy: 'network-only',
-            });
+            preloadQuery_DEPRECATED<$FlowFixMe, empty>(
+              environment,
+              params,
+              variables,
+              {
+                fetchPolicy: 'network-only',
+              },
+            );
             expect(fetch).toBeCalledTimes(1);
             sink.next(response);
             sink.complete();
@@ -806,7 +843,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             // This means that the second call to preloadQuery_DEPRECATED should not
             // produce a second call to the network.
             jest.runAllTimers();
-            const preloaded = preloadQuery_DEPRECATED(
+            const preloaded = preloadQuery_DEPRECATED<$FlowFixMe, empty>(
               environment,
               params,
               variables,
@@ -819,9 +856,14 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           });
           it('does not trigger timers', () => {
             jest.useFakeTimers();
-            preloadQuery_DEPRECATED(environment, params, variables, {
-              fetchPolicy: 'network-only',
-            });
+            preloadQuery_DEPRECATED<$FlowFixMe, empty>(
+              environment,
+              params,
+              variables,
+              {
+                fetchPolicy: 'network-only',
+              },
+            );
             expect(fetch).toBeCalledTimes(1);
             sink.next(response);
             sink.complete();
@@ -839,19 +881,19 @@ describe('Preload queries that use provided variables', () => {
     @argumentDefinitions(
       includeName: {
         type: "Boolean!"
-        provider: "../RelayProvider_returnsTrue.relayprovider"
+        provider: "./RelayProvider_returnsTrue.relayprovider"
       }
       includeFirstName: {
         type: "Boolean!"
-        provider: "../RelayProvider_returnsFalse.relayprovider"
+        provider: "./RelayProvider_returnsFalse.relayprovider"
       }
       skipLastName: {
         type: "Boolean!"
-        provider: "../RelayProvider_returnsFalse.relayprovider"
+        provider: "./RelayProvider_returnsFalse.relayprovider"
       }
       skipUsername: {
         type: "Boolean!"
-        provider: "../RelayProvider_returnsTrue.relayprovider"
+        provider: "./RelayProvider_returnsTrue.relayprovider"
       }
     ) {
       name @include(if: $includeName)
@@ -905,11 +947,14 @@ describe('Preload queries that use provided variables', () => {
   let operation;
 
   beforeEach(() => {
+    // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
     fetch = jest.fn((_query, _variables, _cacheConfig) => {
+      // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
       return Observable.create(_sink => {});
     });
 
     environment = new Environment({
+      // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
       network: Network.create(fetch),
       store: new Store(new RecordSource()),
     });
@@ -923,7 +968,7 @@ describe('Preload queries that use provided variables', () => {
     environment.commitPayload(operation, responseWithProvidedVar.data);
     expect(environment.check(operation).status).toEqual('available');
 
-    const preloaded = preloadQuery_DEPRECATED(
+    const preloaded = preloadQuery_DEPRECATED<$FlowFixMe, empty>(
       environment,
       paramsWithProvidedVar,
       variables,
@@ -942,7 +987,7 @@ describe('Preload queries that use provided variables', () => {
     environment.commitPayload(operation, responseWithProvidedVar.data);
     expect(environment.check(operation).status).toEqual('available');
 
-    const preloaded = preloadQuery_DEPRECATED(
+    const preloaded = preloadQuery_DEPRECATED<$FlowFixMe, empty>(
       environment,
       queryWithProvidedVar,
       variables,

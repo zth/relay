@@ -13,14 +13,9 @@ mod utils;
 mod validation_message;
 mod viewer_query_generator;
 
-use crate::connections::extract_connection_metadata_from_directive;
-use crate::connections::ConnectionConstants;
-use crate::relay_directive::PLURAL_ARG_NAME;
-use crate::relay_directive::RELAY_DIRECTIVE_NAME;
-use crate::root_variables::InferVariablesVisitor;
-use crate::root_variables::VariableMap;
+use std::fmt::Write;
+use std::sync::Arc;
 
-use self::validation_message::ValidationMessage;
 use ::errors::validate_map;
 use common::Diagnostic;
 use common::DiagnosticsResult;
@@ -29,21 +24,20 @@ use common::WithLocation;
 use fetchable_query_generator::FETCHABLE_QUERY_GENERATOR;
 use graphql_ir::Directive;
 use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentDefinitionName;
+use graphql_ir::FragmentDefinitionNameSet;
 use graphql_ir::OperationDefinition;
+use graphql_ir::OperationDefinitionName;
 use graphql_ir::Program;
 use graphql_ir::Selection;
 use graphql_ir::VariableDefinition;
 use graphql_syntax::OperationKind;
-use intern::string_key::StringKey;
 use intern::string_key::StringKeyMap;
-use intern::string_key::StringKeySet;
 use node_query_generator::NODE_QUERY_GENERATOR;
 use query_query_generator::QUERY_QUERY_GENERATOR;
 use relay_config::SchemaConfig;
 use schema::SDLSchema;
 use schema::Schema;
-use std::fmt::Write;
-use std::sync::Arc;
 pub use utils::RefetchableDerivedFromMetadata;
 pub use utils::RefetchableMetadata;
 pub use utils::CONSTANTS;
@@ -52,6 +46,13 @@ use viewer_query_generator::VIEWER_QUERY_GENERATOR;
 
 use self::refetchable_directive::RefetchableDirective;
 pub use self::refetchable_directive::REFETCHABLE_NAME;
+use self::validation_message::ValidationMessage;
+use crate::connections::extract_connection_metadata_from_directive;
+use crate::connections::ConnectionConstants;
+use crate::relay_directive::PLURAL_ARG_NAME;
+use crate::relay_directive::RELAY_DIRECTIVE_NAME;
+use crate::root_variables::InferVariablesVisitor;
+use crate::root_variables::VariableMap;
 
 /// This transform synthesizes "refetch" queries for fragments that
 /// are trivially refetchable. This is comprised of three main stages:
@@ -70,7 +71,7 @@ pub use self::refetchable_directive::REFETCHABLE_NAME;
 pub fn transform_refetchable_fragment(
     program: &Program,
     schema_config: &SchemaConfig,
-    base_fragment_names: &'_ StringKeySet,
+    base_fragment_names: &'_ FragmentDefinitionNameSet,
     for_typegen: bool,
 ) -> DiagnosticsResult<Program> {
     let mut next_program = Program::new(Arc::clone(&program.schema));
@@ -111,7 +112,7 @@ pub fn transform_refetchable_fragment(
     Ok(next_program)
 }
 
-type ExistingRefetchOperations = StringKeyMap<WithLocation<StringKey>>;
+type ExistingRefetchOperations = StringKeyMap<WithLocation<FragmentDefinitionName>>;
 
 pub struct RefetchableFragment<'program, 'sc> {
     connection_constants: ConnectionConstants,
@@ -222,15 +223,17 @@ impl<'program, 'sc> RefetchableFragment<'program, 'sc> {
         fragment: &FragmentDefinition,
         refetchable_directive: &RefetchableDirective,
     ) -> DiagnosticsResult<()> {
+        let fragment_name = fragment.name;
+
         // check for conflict with other @refetchable names
         if let Some(previous_fragment) = self
             .existing_refetch_operations
-            .insert(refetchable_directive.query_name.item, fragment.name)
+            .insert(refetchable_directive.query_name.item.0, fragment_name)
         {
             let (first_fragment, second_fragment) = if fragment.name.item > previous_fragment.item {
-                (previous_fragment, fragment.name)
+                (previous_fragment, fragment_name)
             } else {
-                (fragment.name, previous_fragment)
+                (fragment_name, previous_fragment)
             };
             return Err(vec![Diagnostic::error(
                 ValidationMessage::DuplicateRefetchableOperation {
@@ -248,16 +251,18 @@ impl<'program, 'sc> RefetchableFragment<'program, 'sc> {
             .program
             .operation(refetchable_directive.query_name.item)
         {
-            return Err(vec![Diagnostic::error(
-                ValidationMessage::RefetchableQueryConflictWithQuery {
-                    query_name: refetchable_directive.query_name.item,
-                },
-                refetchable_directive.query_name.location,
-            )
-            .annotate(
-                "an operation with that name is already defined here",
-                existing_query.name.location,
-            )]);
+            return Err(vec![
+                Diagnostic::error(
+                    ValidationMessage::RefetchableQueryConflictWithQuery {
+                        query_name: refetchable_directive.query_name.item,
+                    },
+                    refetchable_directive.query_name.location,
+                )
+                .annotate(
+                    "an operation with that name is already defined here",
+                    existing_query.name.location,
+                ),
+            ]);
         }
 
         Ok(())
@@ -321,7 +326,7 @@ type BuildRefetchOperationFn = fn(
     schema: &SDLSchema,
     schema_config: &SchemaConfig,
     fragment: &Arc<FragmentDefinition>,
-    query_name: StringKey,
+    query_name: OperationDefinitionName,
     variables_map: &VariableMap,
 ) -> DiagnosticsResult<Option<RefetchRoot>>;
 /// A strategy to generate queries for a given fragment. Multiple strategies

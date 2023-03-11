@@ -5,16 +5,19 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use fnv::FnvHashMap;
-use intern::string_key::StringKey;
-use itertools::Itertools;
-use schema::*;
 use std::collections::hash_map::DefaultHasher;
 use std::collections::BTreeMap;
 use std::fmt::Result as FmtResult;
 use std::fmt::Write;
 use std::hash::Hash;
 use std::hash::Hasher;
+
+use fnv::FnvHashMap;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
+use intern::Lookup;
+use itertools::Itertools;
+use schema::*;
 
 const DEAULT_SHARD_COUNT: usize = 1;
 
@@ -32,7 +35,7 @@ pub fn print(schema: &SDLSchema) -> String {
 }
 
 pub fn print_schema_definition(schema: &SDLSchema) -> String {
-    if is_schema_of_common_name(schema) {
+    if is_schema_of_common_name(schema) || !has_schema_definition_types(schema) {
         return String::new();
     }
     let mut result = vec![String::new(); DEAULT_SHARD_COUNT];
@@ -333,15 +336,16 @@ impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
         self.print_definition_end()
     }
 
-    fn print_fields(&mut self, fields: &[FieldID], type_name: StringKey) -> FmtResult {
+    fn print_fields(&mut self, fields: &[FieldID], type_name: impl Lookup) -> FmtResult {
         if fields.is_empty() {
             return Ok(());
         }
         write!(self.writer(), "{{")?;
         self.print_new_line()?;
+        let typename = type_name.lookup().intern();
         for field_id in fields {
             let field = &self.schema.field(*field_id);
-            self.update_writer_index_for_field_start(field.name.item, type_name);
+            self.update_writer_index_for_field_start(field.name.item, typename);
             self.print_space()?;
             self.print_space()?;
             write!(self.writer(), "{}", field.name.item)?;
@@ -351,7 +355,7 @@ impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
             self.print_directive_values(&field.directives)?;
             self.print_new_line()?;
         }
-        self.update_writer_index_for_all_field_end(type_name);
+        self.update_writer_index_for_all_field_end(typename);
         write!(self.writer(), "}}")
     }
 
@@ -509,6 +513,12 @@ fn is_schema_of_common_name(schema: &SDLSchema) -> bool {
     schema.query_type().is_some()
         && schema.mutation_type().is_some()
         && schema.subscription_type().is_some()
+}
+
+fn has_schema_definition_types(schema: &SDLSchema) -> bool {
+    schema.query_type().is_some()
+        || schema.mutation_type().is_some()
+        || schema.subscription_type().is_some()
 }
 
 fn calculate_hash<T: Hash>(t: &T) -> u64 {

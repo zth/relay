@@ -5,13 +5,15 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @flow strict-local
- * @emails oncall+relay
  * @format
+ * @oncall relay
  */
 
 'use strict';
 import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
+import type {Subscription} from '../../network/RelayObservable';
 import type {Observer} from '../../network/RelayObservable';
+import type {NormalizationSplitOperation} from '../../util/NormalizationNode';
 import type {
   fetchQueryInternalTest1Query$data,
   fetchQueryInternalTest1Query$variables,
@@ -378,10 +380,10 @@ describe('isRequestActive', () => {
 
   it('returns false if request is not active', () => {
     const observer = {
-      complete: jest.fn(),
-      error: jest.fn(),
-      next: jest.fn(),
-      unsubscribe: jest.fn(),
+      complete: jest.fn<[], mixed>(),
+      error: jest.fn<[Error], mixed>(),
+      next: jest.fn<[GraphQLResponse], mixed>(),
+      unsubscribe: jest.fn<[Subscription], mixed>(),
     };
     fetchQuery(environment, query).subscribe(observer);
     environment.mock.nextValue(gqlQuery, response);
@@ -406,10 +408,10 @@ describe('getPromiseForActiveRequest', () => {
 
   it('returns null if request is not active', () => {
     const observer = {
-      complete: jest.fn(),
-      error: jest.fn(),
-      next: jest.fn(),
-      unsubscribe: jest.fn(),
+      complete: jest.fn<[], mixed>(),
+      error: jest.fn<[Error], mixed>(),
+      next: jest.fn<[GraphQLResponse], mixed>(),
+      unsubscribe: jest.fn<[Subscription], mixed>(),
     };
     fetchQuery(environment, query).subscribe(observer);
     environment.mock.nextValue(gqlQuery, response);
@@ -420,10 +422,10 @@ describe('getPromiseForActiveRequest', () => {
 
   it('returns null after request has completed', () => {
     const observer = {
-      complete: jest.fn(),
-      error: jest.fn(),
-      next: jest.fn(),
-      unsubscribe: jest.fn(),
+      complete: jest.fn<[], mixed>(),
+      error: jest.fn<[Error], mixed>(),
+      next: jest.fn<[GraphQLResponse], mixed>(),
+      unsubscribe: jest.fn<[Subscription], mixed>(),
     };
     fetchQuery(environment, query).subscribe(observer);
     environment.mock.resolve(gqlQuery, response);
@@ -434,10 +436,10 @@ describe('getPromiseForActiveRequest', () => {
 
   it('returns null after request has errored', () => {
     const observer = {
-      complete: jest.fn(),
-      error: jest.fn(),
-      next: jest.fn(),
-      unsubscribe: jest.fn(),
+      complete: jest.fn<[], mixed>(),
+      error: jest.fn<[Error], mixed>(),
+      next: jest.fn<[GraphQLResponse], mixed>(),
+      unsubscribe: jest.fn<[Subscription], mixed>(),
     };
     fetchQuery(environment, query).subscribe(observer);
     environment.mock.reject(gqlQuery, new Error('Oops'));
@@ -448,10 +450,10 @@ describe('getPromiseForActiveRequest', () => {
 
   it('returns null after request has unsubscribed (canceled)', () => {
     const observer = {
-      complete: jest.fn(),
-      error: jest.fn(),
-      next: jest.fn(),
-      unsubscribe: jest.fn(),
+      complete: jest.fn<[], mixed>(),
+      error: jest.fn<[Error], mixed>(),
+      next: jest.fn<[GraphQLResponse], mixed>(),
+      unsubscribe: jest.fn<[Subscription], mixed>(),
     };
     const subscription = fetchQuery(environment, query).subscribe(observer);
     subscription.unsubscribe();
@@ -465,10 +467,10 @@ describe('getPromiseForActiveRequest', () => {
     let subscription;
     beforeEach(() => {
       observer = {
-        complete: jest.fn(),
-        error: jest.fn(),
-        next: jest.fn(),
-        unsubscribe: jest.fn(),
+        complete: jest.fn<[], mixed>(),
+        error: jest.fn<[Error], mixed>(),
+        next: jest.fn<[GraphQLResponse], mixed>(),
+        unsubscribe: jest.fn<[Subscription], mixed>(),
       };
       subscription = fetchQuery(environment, query).subscribe(observer);
     });
@@ -481,7 +483,7 @@ describe('getPromiseForActiveRequest', () => {
       }
 
       // Assert that promise hasn't resolved
-      const spy = jest.fn();
+      const spy = jest.fn<[void] | [$FlowFixMe], mixed>();
       promise.then(spy).catch(spy);
       jest.runAllTimers();
       expect(spy).toHaveBeenCalledTimes(0);
@@ -506,7 +508,7 @@ describe('getPromiseForActiveRequest', () => {
       }
 
       // Assert that promise hasn't resolved
-      const spy = jest.fn();
+      const spy = jest.fn<[void] | [$FlowFixMe], mixed>();
       promise.then(spy).catch(spy);
       jest.runAllTimers();
       expect(spy).toHaveBeenCalledTimes(0);
@@ -530,7 +532,7 @@ describe('getPromiseForActiveRequest', () => {
       }
 
       // Assert that promise hasn't resolved
-      const spy = jest.fn();
+      const spy = jest.fn<[void] | [$FlowFixMe], mixed>();
       promise.then(spy).catch(spy);
       jest.runAllTimers();
       expect(spy).toHaveBeenCalledTimes(0);
@@ -562,7 +564,7 @@ describe('getPromiseForActiveRequest', () => {
         }
 
         // Assert that promise hasn't resolved
-        const spy = jest.fn();
+        const spy = jest.fn<[void] | [$FlowFixMe], mixed>();
         promise.then(spy).catch(spy);
         jest.runAllTimers();
         expect(spy).toHaveBeenCalledTimes(0);
@@ -586,7 +588,7 @@ describe('getPromiseForActiveRequest', () => {
         }
 
         // Assert that promise hasn't resolved
-        const spy = jest.fn();
+        const spy = jest.fn<[void] | [$FlowFixMe], mixed>();
         promise.then(spy).catch(spy);
         jest.runAllTimers();
         expect(spy).toHaveBeenCalledTimes(0);
@@ -622,7 +624,7 @@ describe('getPromiseForActiveRequest', () => {
 
         // Assert that promise hasn't resolved even if first call to
         // `next` has already occurred
-        const spy = jest.fn();
+        const spy = jest.fn<[void] | [$FlowFixMe], mixed>();
         promise.then(spy).catch(spy);
         jest.runAllTimers();
         expect(spy).toHaveBeenCalledTimes(0);
@@ -652,7 +654,7 @@ describe('getPromiseForActiveRequest', () => {
 
         // Assert that promise hasn't resolved even if first call to
         // `next` has already occurred
-        const spy = jest.fn();
+        const spy = jest.fn<[void] | [$FlowFixMe], mixed>();
         promise.then(spy).catch(spy);
         jest.runAllTimers();
         expect(spy).toHaveBeenCalledTimes(0);
@@ -677,7 +679,7 @@ describe('getPromiseForActiveRequest', () => {
 
         // Assert that promise hasn't resolved even if first call to
         // `next` has already occurred
-        const spy = jest.fn();
+        const spy = jest.fn<[void] | [$FlowFixMe], mixed>();
         promise.then(spy).catch(spy);
         jest.runAllTimers();
         expect(spy).toHaveBeenCalledTimes(0);
@@ -702,19 +704,20 @@ describe('getPromiseForActiveRequest', () => {
 
     beforeEach(() => {
       observer = {
-        complete: jest.fn(),
-        error: jest.fn(),
-        next: jest.fn(),
-        unsubscribe: jest.fn(),
+        complete: jest.fn<[], mixed>(),
+        error: jest.fn<[Error], mixed>(),
+        next: jest.fn<[GraphQLResponse], mixed>(),
+        unsubscribe: jest.fn<[Subscription], mixed>(),
       };
       operationLoader = {
-        load: jest.fn(moduleName => {
+        load: jest.fn((moduleName: mixed) => {
           return new Promise(resolve => {
             resolveModule = resolve;
           });
         }),
-        get: jest.fn(),
+        get: jest.fn<[mixed], NormalizationSplitOperation>(),
       };
+      // $FlowFixMe[incompatible-call] error found when enabling Flow LTI mode
       environment = createMockEnvironment({operationLoader});
       gqlQuery = graphql`
         query fetchQueryInternalTest2Query($id: ID!) {
@@ -762,7 +765,6 @@ describe('getPromiseForActiveRequest', () => {
         return;
       }
 
-      // $FlowFixMe[prop-missing]
       operationLoader.get.mockImplementationOnce(
         () => markdownRendererNormalizationFragment,
       );
@@ -886,7 +888,7 @@ describe('getObservableForActiveRequest', () => {
   let observer: Observer<void>;
   let events;
   beforeEach(() => {
-    events = [];
+    events = ([]: Array<$FlowFixMe | Error | string>);
     observer = {
       complete: jest.fn(() => events.push('complete')),
       error: jest.fn(error => events.push('error', error)),
@@ -1019,13 +1021,14 @@ describe('getObservableForActiveRequest', () => {
 
     beforeEach(() => {
       operationLoader = {
-        load: jest.fn(moduleName => {
+        load: jest.fn((moduleName: mixed) => {
           return new Promise(resolve => {
             resolveModule = resolve;
           });
         }),
-        get: jest.fn(),
+        get: jest.fn<[mixed], NormalizationSplitOperation>(),
       };
+      // $FlowFixMe[incompatible-call] error found when enabling Flow LTI mode
       environment = createMockEnvironment({operationLoader});
       gqlQuery = graphql`
         query fetchQueryInternalTest3Query($id: ID!) {
@@ -1078,7 +1081,6 @@ describe('getObservableForActiveRequest', () => {
       observable.subscribe(observer);
       expect(events).toEqual([]);
 
-      // $FlowFixMe[prop-missing]
       operationLoader.get.mockImplementationOnce(
         () => markdownRendererNormalizationFragment,
       );

@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -30,8 +30,6 @@ describe('cloneRelayHandleSourceField()', () => {
       }
     `;
     // Get the selections on `me`.
-    // $FlowFixMe[incompatible-use]
-    // $FlowFixMe[prop-missing]
     selections = TestQuery.operation.selections[0].selections;
   });
 
@@ -50,7 +48,6 @@ describe('cloneRelayHandleSourceField()', () => {
     expect(clone.kind).toBe(LINKED_FIELD);
     expect(clone.name).toBe(getRelayHandleKey('test', null, 'address'));
     // $FlowFixMe[incompatible-use]
-    // $FlowFixMe[prop-missing]
     expect(clone.selections).toEqual(sourceField.selections);
   });
 

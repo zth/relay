@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -45,7 +45,6 @@ describe('RelayModernSelector', () => {
   let owner;
 
   beforeEach(() => {
-    // $FlowFixMe[incompatible-call]
     expect.extend(matchers);
     jest.mock('warning');
 
@@ -673,7 +672,6 @@ describe('RelayModernSelector', () => {
       );
       const clone = {
         ...selector,
-        // $FlowFixMe[cannot-spread-interface]
         variables: {...selector.variables},
       };
       expect(areEqualSelectors(selector, selector)).toBe(true);
@@ -709,7 +707,6 @@ describe('RelayModernSelector', () => {
       );
       const clone = {
         ...selector,
-        // $FlowFixMe[cannot-spread-interface]
         variables: {...selector.variables},
       };
       expect(areEqualSelectors(selector, selector)).toBe(true);

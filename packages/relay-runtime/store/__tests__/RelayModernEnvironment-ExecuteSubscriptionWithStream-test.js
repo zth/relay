@@ -4,12 +4,14 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
 'use strict';
+import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
+import type {Snapshot} from '../RelayStoreTypes';
 import type {
   HandleFieldPayload,
   RecordSourceProxy,
@@ -106,14 +108,18 @@ describe('executeSubscrption() with @stream', () => {
       },
     };
 
-    complete = jest.fn();
-    error = jest.fn();
-    next = jest.fn();
+    complete = jest.fn<[], mixed>();
+    error = jest.fn<[Error], mixed>();
+    next = jest.fn<[GraphQLResponse], mixed>();
     callbacks = {complete, error, next};
+    // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
     fetchFn = jest.fn((_query, _variables, _cacheConfig) =>
+      // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
       RelayObservable.create(sink => {}),
     );
+    // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
     subscribeFn = jest.fn((_query, _variables, _cacheConfig) =>
+      // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
       RelayObservable.create(sink => {
         dataSource = sink;
       }),
@@ -121,6 +127,7 @@ describe('executeSubscrption() with @stream', () => {
     source = RelayRecordSource.create();
     store = new RelayModernStore(source);
     environment = new RelayModernEnvironment({
+      // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
       network: RelayNetwork.create(fetchFn, subscribeFn),
       store,
       handlerProvider: name => {
@@ -138,7 +145,7 @@ describe('executeSubscrption() with @stream', () => {
       queryOperation.request,
     );
     const fragmentSnapshot = environment.lookup(selector);
-    fragmentCallback = jest.fn();
+    fragmentCallback = jest.fn<[Snapshot], void>();
     environment.subscribe(fragmentSnapshot, fragmentCallback);
   });
 

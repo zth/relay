@@ -6,11 +6,13 @@
  *
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
 'use strict';
 
 import type {GraphQLTaggedNode} from '../query/GraphQLTag';
+import type {Fragment} from '../util/RelayRuntimeTypes';
 import type {FragmentType, SingularReaderSelector} from './RelayStoreTypes';
 import type {ResolverFragmentResult} from './ResolverCache';
 
@@ -96,6 +98,11 @@ declare function readFragment<
   ) => ?TFragmentData,
   TKey,
 >;
+
+declare function readFragment<TKey: FragmentType, TData>(
+  fragmentInput: Fragment<TKey, TData>,
+  fragmentKey: TKey,
+): TData;
 
 function readFragment(
   fragmentInput: GraphQLTaggedNode,

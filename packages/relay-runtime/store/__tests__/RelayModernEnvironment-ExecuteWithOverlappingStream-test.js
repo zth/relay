@@ -4,12 +4,14 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
 'use strict';
+import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
+import type {Snapshot} from '../RelayStoreTypes';
 import type {
   HandleFieldPayload,
   RecordSourceProxy,
@@ -121,15 +123,16 @@ describe('execute() a query with multiple @stream selections on the same record'
       },
     };
 
-    complete = jest.fn();
-    error = jest.fn();
-    next = jest.fn();
+    complete = jest.fn<[], mixed>();
+    error = jest.fn<[Error], mixed>();
+    next = jest.fn<[GraphQLResponse], mixed>();
     callbacks = {complete, error, next};
     fetch = (
       _query: RequestParameters,
       _variables: Variables,
       _cacheConfig: CacheConfig,
     ) => {
+      // $FlowFixMe[missing-local-annot] Error found while enabling LTI on this file
       return RelayObservable.create(sink => {
         dataSource = sink;
       });
@@ -152,11 +155,11 @@ describe('execute() a query with multiple @stream selections on the same record'
 
   it('calls next() and publishes the initial payload to the store', () => {
     const initialSnapshot = environment.lookup(selector);
-    const callback = jest.fn();
+    const callback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialSnapshot, callback);
 
     environment.execute({operation}).subscribe(callbacks);
-    const payload = {
+    const payload: $FlowFixMe = {
       data: {
         node: {
           __typename: 'Feedback',
@@ -196,8 +199,8 @@ describe('execute() a query with multiple @stream selections on the same record'
 
   it('processes sequential payloads (all actors, then all viewedBy)', () => {
     const initialSnapshot = environment.lookup(selector);
-    const callback = jest.fn();
-    const deferCallback = jest.fn();
+    const callback = jest.fn<[Snapshot], void>();
+    const deferCallback = jest.fn<[Snapshot], void>();
 
     environment.subscribe(initialSnapshot, callback);
 
@@ -334,8 +337,8 @@ describe('execute() a query with multiple @stream selections on the same record'
 
   it('processes interleaved streamed payloads (actor/viewedBy/actor/viewedBy)', () => {
     const initialSnapshot = environment.lookup(selector);
-    const callback = jest.fn();
-    const deferCallback = jest.fn();
+    const callback = jest.fn<[Snapshot], void>();
+    const deferCallback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialSnapshot, callback);
 
     environment.execute({operation}).subscribe(callbacks);

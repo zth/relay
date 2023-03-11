@@ -6,6 +6,7 @@
  *
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -70,7 +71,6 @@ class RelayQueryResponseCache {
     if (Array.isArray(response.payload)) {
       return response.payload.map(
         payload =>
-          // $FlowFixMe[incompatible-cast]
           ({
             ...payload,
             extensions: {
@@ -80,7 +80,6 @@ class RelayQueryResponseCache {
           }: GraphQLSingularResponse),
       );
     }
-    // $FlowFixMe[incompatible-cast]
     return ({
       ...response.payload,
       extensions: {

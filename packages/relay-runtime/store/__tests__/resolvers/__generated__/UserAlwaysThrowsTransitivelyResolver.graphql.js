@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<778416a1e5169d952d06b7eb4038e11e>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<e51667054fbb8306cee818a8810ceaf2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,15 +20,15 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { UserAlwaysThrowsResolver$key } from "./UserAlwaysThrowsResolver.graphql";
 import type { FragmentType } from "relay-runtime";
-import userAlwaysThrowsResolver from "../UserAlwaysThrowsResolver.js";
-// Type assertion validating that `userAlwaysThrowsResolver` resolver is correctly implemented.
+import {always_throws as userAlwaysThrowsResolverType} from "../UserAlwaysThrowsResolver.js";
+// Type assertion validating that `userAlwaysThrowsResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userAlwaysThrowsResolver: (
-  rootKey: UserAlwaysThrowsResolver$key, 
+(userAlwaysThrowsResolverType: (
+  rootKey: UserAlwaysThrowsResolver$key,
 ) => mixed);
 declare export opaque type UserAlwaysThrowsTransitivelyResolver$fragmentType: FragmentType;
 export type UserAlwaysThrowsTransitivelyResolver$data = {|
-  +always_throws: ?$Call<<R>((...empty[]) => R) => R, typeof userAlwaysThrowsResolver>,
+  +always_throws: ?$Call<<R>((...empty[]) => R) => R, typeof userAlwaysThrowsResolverType>,
   +$fragmentType: UserAlwaysThrowsTransitivelyResolver$fragmentType,
 |};
 export type UserAlwaysThrowsTransitivelyResolver$key = {
@@ -52,7 +54,7 @@ var node/*: ReaderFragment*/ = {
       },
       "kind": "RelayResolver",
       "name": "always_throws",
-      "resolverModule": require('./../UserAlwaysThrowsResolver'),
+      "resolverModule": require('./../UserAlwaysThrowsResolver').always_throws,
       "path": "always_throws"
     }
   ],

@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<eb6415e0f7a17274b13f8b77bf1a3750>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<236a7c891b7e807f3d92505482e0e7e6>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,16 +19,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { UserBestFriendShoutedGreetingResolver$key } from "./../resolvers/__generated__/UserBestFriendShoutedGreetingResolver.graphql";
-import userBestFriendShoutedGreetingResolver from "../resolvers/UserBestFriendShoutedGreetingResolver.js";
-// Type assertion validating that `userBestFriendShoutedGreetingResolver` resolver is correctly implemented.
+import {best_friend_shouted_greeting as userBestFriendShoutedGreetingResolverType} from "../resolvers/UserBestFriendShoutedGreetingResolver.js";
+// Type assertion validating that `userBestFriendShoutedGreetingResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userBestFriendShoutedGreetingResolver: (
-  rootKey: UserBestFriendShoutedGreetingResolver$key, 
+(userBestFriendShoutedGreetingResolverType: (
+  rootKey: UserBestFriendShoutedGreetingResolver$key,
 ) => mixed);
 export type RelayReaderResolverTest6Query$variables = {||};
 export type RelayReaderResolverTest6Query$data = {|
   +me: ?{|
-    +best_friend_shouted_greeting: ?$Call<<R>((...empty[]) => R) => R, typeof userBestFriendShoutedGreetingResolver>,
+    +best_friend_shouted_greeting: ?$Call<<R>((...empty[]) => R) => R, typeof userBestFriendShoutedGreetingResolverType>,
   |},
 |};
 export type RelayReaderResolverTest6Query = {|
@@ -68,7 +70,7 @@ return {
             },
             "kind": "RelayResolver",
             "name": "best_friend_shouted_greeting",
-            "resolverModule": require('./../resolvers/UserBestFriendShoutedGreetingResolver'),
+            "resolverModule": require('./../resolvers/UserBestFriendShoutedGreetingResolver').best_friend_shouted_greeting,
             "path": "me.best_friend_shouted_greeting"
           }
         ],
@@ -93,58 +95,86 @@ return {
         "plural": false,
         "selections": [
           {
-            "alias": null,
-            "args": [
-              {
-                "kind": "Literal",
-                "name": "first",
-                "value": 1
-              }
-            ],
-            "concreteType": "FriendsConnection",
-            "kind": "LinkedField",
-            "name": "friends",
-            "plural": false,
-            "selections": [
-              {
-                "alias": null,
-                "args": null,
-                "concreteType": "FriendsEdge",
-                "kind": "LinkedField",
-                "name": "edges",
-                "plural": true,
-                "selections": [
-                  {
-                    "alias": null,
-                    "args": null,
-                    "kind": "ScalarField",
-                    "name": "cursor",
-                    "storageKey": null
-                  },
-                  {
-                    "alias": null,
-                    "args": null,
-                    "concreteType": "User",
-                    "kind": "LinkedField",
-                    "name": "node",
-                    "plural": false,
-                    "selections": [
-                      {
-                        "alias": null,
-                        "args": null,
-                        "kind": "ScalarField",
-                        "name": "name",
-                        "storageKey": null
-                      },
-                      (v0/*: any*/)
-                    ],
-                    "storageKey": null
-                  }
-                ],
-                "storageKey": null
-              }
-            ],
-            "storageKey": "friends(first:1)"
+            "name": "best_friend_shouted_greeting",
+            "args": null,
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "alias": null,
+                  "args": [
+                    {
+                      "kind": "Literal",
+                      "name": "first",
+                      "value": 1
+                    }
+                  ],
+                  "concreteType": "FriendsConnection",
+                  "kind": "LinkedField",
+                  "name": "friends",
+                  "plural": false,
+                  "selections": [
+                    {
+                      "alias": null,
+                      "args": null,
+                      "concreteType": "FriendsEdge",
+                      "kind": "LinkedField",
+                      "name": "edges",
+                      "plural": true,
+                      "selections": [
+                        {
+                          "alias": null,
+                          "args": null,
+                          "kind": "ScalarField",
+                          "name": "cursor",
+                          "storageKey": null
+                        },
+                        {
+                          "alias": null,
+                          "args": null,
+                          "concreteType": "User",
+                          "kind": "LinkedField",
+                          "name": "node",
+                          "plural": false,
+                          "selections": [
+                            {
+                              "name": "greeting",
+                              "args": null,
+                              "fragment": {
+                                "kind": "InlineFragment",
+                                "selections": [
+                                  {
+                                    "alias": null,
+                                    "args": null,
+                                    "kind": "ScalarField",
+                                    "name": "name",
+                                    "storageKey": null
+                                  }
+                                ],
+                                "type": "User",
+                                "abstractKey": null
+                              },
+                              "kind": "RelayResolver",
+                              "storageKey": null,
+                              "isOutputType": false
+                            },
+                            (v0/*: any*/)
+                          ],
+                          "storageKey": null
+                        }
+                      ],
+                      "storageKey": null
+                    }
+                  ],
+                  "storageKey": "friends(first:1)"
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "RelayResolver",
+            "storageKey": null,
+            "isOutputType": false
           },
           (v0/*: any*/)
         ],

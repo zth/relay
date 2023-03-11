@@ -5,14 +5,17 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::Rollout;
-use indexmap::IndexSet;
-use intern::string_key::StringKey;
-use serde::Deserialize;
-use serde::Serialize;
 use std::fmt::Display;
 use std::fmt::Formatter;
 use std::fmt::Result as FmtResult;
+
+use indexmap::IndexSet;
+use intern::string_key::StringKey;
+use intern::Lookup;
+use serde::Deserialize;
+use serde::Serialize;
+
+use crate::Rollout;
 
 #[derive(Default, Debug, Serialize, Deserialize, Clone)]
 #[serde(deny_unknown_fields)]
@@ -22,6 +25,10 @@ pub struct FeatureFlags {
 
     #[serde(default)]
     pub enable_relay_resolver_transform: bool,
+
+    /// Enable deprecated `@outputType` on Relay Resolvers.
+    #[serde(default)]
+    pub relay_resolver_enable_output_type: FeatureFlag,
 
     /// Enable hashing of the `supported` argument of 3D fields. Partial
     /// enabling of the feature flag checks the name based on the field type.
@@ -56,6 +63,14 @@ pub struct FeatureFlags {
     /// Enable support for the experimental `@alias` directive on fragment spreads.
     #[serde(default)]
     pub enable_fragment_aliases: FeatureFlag,
+
+    /// Print queries in compact form
+    #[serde(default)]
+    pub compact_query_text: FeatureFlag,
+
+    /// Create normalization nodes for client edges to client objects
+    #[serde(default)]
+    pub emit_normalization_nodes_for_client_edges: bool,
 }
 
 #[derive(Debug, Deserialize, Clone, Serialize)]

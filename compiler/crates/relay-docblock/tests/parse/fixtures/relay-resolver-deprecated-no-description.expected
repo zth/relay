@@ -47,32 +47,37 @@ RelayResolver(
         root_fragment: Some(
             WithLocation {
                 location: /path/to/test/fixture/relay-resolver-deprecated-no-description.js:100:114,
-                item: "myRootFragment",
-            },
-        ),
-        edge_to: Some(
-            WithLocation {
-                location: /path/to/test/fixture/relay-resolver-deprecated-no-description.js:78:82,
-                item: Named(
-                    NamedTypeAnnotation {
-                        name: Identifier {
-                            span: 78:82,
-                            token: Token {
-                                span: 78:82,
-                                kind: Identifier,
-                            },
-                            value: "Page",
-                        },
-                    },
+                item: FragmentDefinitionName(
+                    "myRootFragment",
                 ),
             },
         ),
+        output_type: Some(
+            EdgeTo(
+                WithLocation {
+                    location: /path/to/test/fixture/relay-resolver-deprecated-no-description.js:78:82,
+                    item: Named(
+                        NamedTypeAnnotation {
+                            name: Identifier {
+                                span: 78:82,
+                                token: Token {
+                                    span: 78:82,
+                                    kind: Identifier,
+                                },
+                                value: "Page",
+                            },
+                        },
+                    ),
+                },
+            ),
+        ),
         description: None,
         deprecated: Some(
-            IrField {
-                key_location: /path/to/test/fixture/relay-resolver-deprecated-no-description.js:119:129,
-                value: None,
-            },
+            UnpopulatedIrField(
+                UnpopulatedIrField {
+                    key_location: /path/to/test/fixture/relay-resolver-deprecated-no-description.js:119:129,
+                },
+            ),
         ),
         live: None,
         location: /path/to/test/fixture/relay-resolver-deprecated-no-description.js:0:130,

@@ -4,18 +4,18 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
 'use strict';
 
 import type {IEnvironment} from 'relay-runtime';
 
+const ReactRelayContext = require('./../ReactRelayContext');
 const invariant = require('invariant');
 const {useContext} = require('react');
-const ReactRelayContext = require('react-relay/ReactRelayContext');
 
 function useRelayEnvironment(): IEnvironment {
   const context = useContext(ReactRelayContext);

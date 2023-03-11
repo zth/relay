@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -15,11 +15,11 @@ import type {FetchPolicy, Subscription} from 'relay-runtime';
 
 const {getQueryResourceForEnvironment} = require('../QueryResource');
 const {
+  __internal: {fetchQuery},
   Observable,
   RecordSource,
   ROOT_ID,
   Store,
-  __internal: {fetchQuery},
   createOperationDescriptor,
   graphql,
 } = require('relay-runtime');
@@ -114,7 +114,7 @@ describe('QueryResource', () => {
       liveQueryMissingData,
     );
 
-    release = jest.fn();
+    release = jest.fn<$ReadOnlyArray<mixed>, mixed>();
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.retain.mockImplementation((...args) => {
       return {
@@ -285,8 +285,8 @@ describe('QueryResource', () => {
         it('should throw error if network request errors', () => {
           let thrown = false;
           let sink;
-          const networkExecute = jest.fn();
-          const errorFetchObservable = Observable.create(s => {
+          const networkExecute = jest.fn<[], mixed>();
+          const errorFetchObservable = Observable.create<$FlowFixMe>(s => {
             networkExecute();
             sink = s;
           });
@@ -330,8 +330,8 @@ describe('QueryResource', () => {
             status: 'missing',
           });
 
-          const networkExecute = jest.fn();
-          const syncFetchObservable = Observable.create(sink => {
+          const networkExecute = jest.fn<[], mixed>();
+          const syncFetchObservable = Observable.create<$FlowFixMe>(sink => {
             environment.commitPayload(queryMissingData, {
               node: {
                 __typename: 'User',
@@ -374,8 +374,8 @@ describe('QueryResource', () => {
 
         it('should throw error if network request errors synchronously', () => {
           let thrown = false;
-          const networkExecute = jest.fn();
-          const errorFetchObservable = Observable.create(sink => {
+          const networkExecute = jest.fn<[], mixed>();
+          const errorFetchObservable = Observable.create<$FlowFixMe>(sink => {
             networkExecute();
             sink.error(new Error('Oops'));
           });
@@ -701,8 +701,8 @@ describe('QueryResource', () => {
         it('should throw error if network request errors', () => {
           let thrown = false;
           let sink;
-          const networkExecute = jest.fn();
-          const errorFetchObservable = Observable.create(s => {
+          const networkExecute = jest.fn<[], mixed>();
+          const errorFetchObservable = Observable.create<$FlowFixMe>(s => {
             networkExecute();
             sink = s;
           });
@@ -752,8 +752,8 @@ describe('QueryResource', () => {
             status: 'missing',
           });
 
-          const networkExecute = jest.fn();
-          const syncFetchObservable = Observable.create(sink => {
+          const networkExecute = jest.fn<[], mixed>();
+          const syncFetchObservable = Observable.create<$FlowFixMe>(sink => {
             environment.commitPayload(queryMissingData, {
               node: {
                 __typename: 'User',
@@ -796,8 +796,8 @@ describe('QueryResource', () => {
 
         it('should throw error if network request errors synchronously', () => {
           let thrown = false;
-          const networkExecute = jest.fn();
-          const errorFetchObservable = Observable.create(sink => {
+          const networkExecute = jest.fn<[], mixed>();
+          const errorFetchObservable = Observable.create<$FlowFixMe>(sink => {
             networkExecute();
             sink.error(new Error('Oops'));
           });
@@ -1261,8 +1261,8 @@ describe('QueryResource', () => {
         it('should throw error if network request errors', () => {
           let thrown = false;
           let sink;
-          const networkExecute = jest.fn();
-          const errorFetchObservable = Observable.create(s => {
+          const networkExecute = jest.fn<[], mixed>();
+          const errorFetchObservable = Observable.create<$FlowFixMe>(s => {
             networkExecute();
             sink = s;
           });
@@ -1305,8 +1305,8 @@ describe('QueryResource', () => {
             status: 'missing',
           });
 
-          const networkExecute = jest.fn();
-          const syncFetchObservable = Observable.create(sink => {
+          const networkExecute = jest.fn<[], mixed>();
+          const syncFetchObservable = Observable.create<$FlowFixMe>(sink => {
             environment.commitPayload(queryMissingData, {
               node: {
                 __typename: 'User',
@@ -1349,8 +1349,8 @@ describe('QueryResource', () => {
 
         it('should throw error if network request errors synchronously', () => {
           let thrown = false;
-          const networkExecute = jest.fn();
-          const errorFetchObservable = Observable.create(sink => {
+          const networkExecute = jest.fn<[], mixed>();
+          const errorFetchObservable = Observable.create<$FlowFixMe>(sink => {
             networkExecute();
             sink.error(new Error('Oops'));
           });
@@ -1499,8 +1499,8 @@ describe('QueryResource', () => {
         it('should throw error if network request errors', () => {
           let thrown = false;
           let sink;
-          const networkExecute = jest.fn();
-          const errorFetchObservable = Observable.create(s => {
+          const networkExecute = jest.fn<[], mixed>();
+          const errorFetchObservable = Observable.create<$FlowFixMe>(s => {
             networkExecute();
             sink = s;
           });
@@ -1548,8 +1548,8 @@ describe('QueryResource', () => {
             status: 'missing',
           });
 
-          const networkExecute = jest.fn();
-          const syncFetchObservable = Observable.create(sink => {
+          const networkExecute = jest.fn<[], mixed>();
+          const syncFetchObservable = Observable.create<$FlowFixMe>(sink => {
             environment.commitPayload(queryMissingData, {
               node: {
                 __typename: 'User',
@@ -1592,8 +1592,8 @@ describe('QueryResource', () => {
 
         it('should throw error if network request errors synchronously', () => {
           let thrown = false;
-          const networkExecute = jest.fn();
-          const errorFetchObservable = Observable.create(sink => {
+          const networkExecute = jest.fn<[], mixed>();
+          const errorFetchObservable = Observable.create<$FlowFixMe>(sink => {
             networkExecute();
             sink.error(new Error('Oops'));
           });
@@ -1724,8 +1724,8 @@ describe('QueryResource', () => {
           let thrownPromise = false;
           let thrownError = false;
           let sink;
-          const networkExecute = jest.fn();
-          const errorFetchObservable = Observable.create(s => {
+          const networkExecute = jest.fn<[], mixed>();
+          const errorFetchObservable = Observable.create<$FlowFixMe>(s => {
             networkExecute();
             sink = s;
           });
@@ -1771,8 +1771,8 @@ describe('QueryResource', () => {
         });
 
         it('should return result if network observable returns synchronously', () => {
-          const networkExecute = jest.fn();
-          const syncFetchObservable = Observable.create(sink => {
+          const networkExecute = jest.fn<[], mixed>();
+          const syncFetchObservable = Observable.create<$FlowFixMe>(sink => {
             const snapshot = environment.lookup(query.fragment);
             networkExecute();
             sink.next((snapshot: $FlowFixMe));
@@ -1809,8 +1809,8 @@ describe('QueryResource', () => {
 
         it('should throw error if network request errors synchronously', () => {
           let thrown = false;
-          const networkExecute = jest.fn();
-          const errorFetchObservable = Observable.create(sink => {
+          const networkExecute = jest.fn<[], mixed>();
+          const errorFetchObservable = Observable.create<$FlowFixMe>(sink => {
             networkExecute();
             const error = new Error('Oops');
             sink.error(error);
@@ -1906,8 +1906,8 @@ describe('QueryResource', () => {
           let thrownPromise = false;
           let thrownError = false;
           let sink;
-          const networkExecute = jest.fn();
-          const errorFetchObservable = Observable.create(s => {
+          const networkExecute = jest.fn<[], mixed>();
+          const errorFetchObservable = Observable.create<$FlowFixMe>(s => {
             networkExecute();
             sink = s;
           });
@@ -1953,8 +1953,8 @@ describe('QueryResource', () => {
         });
 
         it('should return result if network observable returns synchronously', () => {
-          const networkExecute = jest.fn();
-          const syncFetchObservable = Observable.create(sink => {
+          const networkExecute = jest.fn<[], mixed>();
+          const syncFetchObservable = Observable.create<$FlowFixMe>(sink => {
             const snapshot = environment.lookup(query.fragment);
             networkExecute();
             sink.next((snapshot: $FlowFixMe));
@@ -1991,8 +1991,8 @@ describe('QueryResource', () => {
 
         it('should throw error if network request errors synchronously', () => {
           let thrown = false;
-          const networkExecute = jest.fn();
-          const errorFetchObservable = Observable.create(sink => {
+          const networkExecute = jest.fn<[], mixed>();
+          const errorFetchObservable = Observable.create<$FlowFixMe>(sink => {
             networkExecute();
             const error = new Error('Oops');
             sink.error(error);
@@ -2922,7 +2922,7 @@ describe('QueryResource, with an environment meant for SSR', () => {
 
     fetchObservable = fetchQuery(environment, query);
 
-    release = jest.fn();
+    release = jest.fn<$ReadOnlyArray<mixed>, mixed>();
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.retain.mockImplementation((...args) => {
       return {

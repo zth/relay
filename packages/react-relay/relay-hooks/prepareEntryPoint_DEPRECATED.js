@@ -4,13 +4,13 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
 'use strict';
-
+import type {OperationType} from '../../relay-runtime/util/RelayRuntimeTypes';
 import type {
   EntryPoint,
   EntryPointComponent,
@@ -40,6 +40,7 @@ function prepareEntryPoint<
 ): void {
   // Start loading the code for the entrypoint
   if (entryPoint.root.getModuleIfRequired() == null) {
+    // $FlowFixMe[unused-promise]
     entryPoint.root.load();
   }
   const preloadProps = entryPoint.getPreloadProps(entryPointParams);
@@ -56,7 +57,7 @@ function prepareEntryPoint<
         environmentProviderOptions,
       );
 
-      preloadedQueries[queryPropName] = preloadQuery(
+      preloadedQueries[queryPropName] = preloadQuery<OperationType, mixed>(
         environment,
         parameters,
         variables,
@@ -75,11 +76,15 @@ function prepareEntryPoint<
       }
       const {entryPoint: nestedEntryPoint, entryPointParams: nestedParams} =
         entryPointDescription;
-      preloadedEntryPoints[entryPointPropName] = prepareEntryPoint(
-        environmentProvider,
-        nestedEntryPoint,
-        nestedParams,
-      );
+      preloadedEntryPoints[entryPointPropName] = prepareEntryPoint<
+        TEntryPointParams,
+        TPreloadedQueries,
+        TPreloadedEntryPoints,
+        TRuntimeProps,
+        TExtraProps,
+        TEntryPointComponent,
+        TEntryPoint,
+      >(environmentProvider, nestedEntryPoint, nestedParams);
     });
   }
 }

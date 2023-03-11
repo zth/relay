@@ -6,6 +6,7 @@
  *
  * @flow
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -26,6 +27,7 @@ const ReactRelayQueryFetcher = require('./ReactRelayQueryFetcher');
 const ReactRelayQueryRendererContext = require('./ReactRelayQueryRendererContext');
 const areEqual = require('areEqual');
 const React = require('react');
+const {RelayFeatureFlags} = require('relay-runtime');
 const {
   createOperationDescriptor,
   deepFreeze,
@@ -172,7 +174,31 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
         const newState = resetQueryStateForUpdate(this.props, prevState);
         const {requestCacheKey, queryFetcher} = newState;
         if (requestCacheKey != null && requestCache[requestCacheKey] != null) {
-          queryFetcher.setOnDataChange(this._handleDataChange);
+          if (RelayFeatureFlags.ENABLE_QUERY_RENDERER_SET_STATE_PREVENTION) {
+            const fetchResult = queryFetcher.getFetchResult();
+            if (fetchResult != null) {
+              const snapshot = fetchResult.snapshot ?? null;
+              const error = fetchResult.error ?? null;
+
+              const {requestCacheKey: prevRequestCacheKey} = prevState;
+              if (prevRequestCacheKey != null) {
+                delete requestCache[prevRequestCacheKey];
+              }
+
+              newState.renderProps = getRenderProps(
+                error,
+                snapshot,
+                queryFetcher,
+                prevState.retryCallbacks,
+              );
+              newState.snapshot = snapshot;
+              newState.requestCacheKey = null;
+            } else {
+              queryFetcher.setOnDataChange(this._handleDataChange);
+            }
+          } else {
+            queryFetcher.setOnDataChange(this._handleDataChange);
+          }
         }
         return newState;
       });

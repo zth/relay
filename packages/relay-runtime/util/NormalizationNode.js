@@ -6,6 +6,7 @@
  *
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -76,6 +77,7 @@ export type NormalizationClientExtension = {
 };
 
 export type NormalizationField =
+  | NormalizationResolverField
   | NormalizationFlightField
   | NormalizationScalarField
   | NormalizationLinkedField;
@@ -170,6 +172,21 @@ export type NormalizationFlightField = {
   +storageKey: ?string,
 };
 
+export type NormalizationResolverField = {
+  +kind: 'RelayResolver',
+  +name: string,
+  +args: ?$ReadOnlyArray<NormalizationArgument>,
+  +fragment: ?NormalizationInlineFragment,
+  +storageKey: ?string,
+  +isOutputType: boolean,
+};
+
+export type NormalizationClientEdgeToClientObject = {
+  +kind: 'ClientEdgeToClientObject',
+  +linkedField: NormalizationLinkedField,
+  +backingField: NormalizationResolverField,
+};
+
 export type NormalizationClientComponent = {
   +args?: ?$ReadOnlyArray<NormalizationArgument>,
   +kind: 'ClientComponent',
@@ -185,6 +202,7 @@ export type NormalizationSelection =
   | NormalizationCondition
   | NormalizationClientComponent
   | NormalizationClientExtension
+  | NormalizationClientEdgeToClientObject
   | NormalizationDefer
   | NormalizationField
   | NormalizationFlightField

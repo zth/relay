@@ -4,14 +4,14 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow
  * @format
+ * @oncall relay
  */
 
 'use strict';
-
 import type {OperationDescriptor} from '../../../relay-runtime/store/RelayStoreTypes';
+import type {RefetchFn} from '../useRefetchableFragment';
 
 const useRefetchableFragmentOriginal = require('../useRefetchableFragment');
 const React = require('react');
@@ -41,8 +41,6 @@ describe('useRefetchableFragment', () => {
   function useRefetchableFragment(fragmentNode: any, fragmentRef: any) {
     const [data, refetch] = useRefetchableFragmentOriginal(
       fragmentNode,
-      // $FlowFixMe[incompatible-call]
-      // $FlowFixMe[prop-missing]
       fragmentRef,
     );
     renderSpy(data, refetch);
@@ -85,7 +83,7 @@ describe('useRefetchableFragment', () => {
     jest.resetModules();
     jest.spyOn(console, 'warn').mockImplementationOnce(() => {});
     jest.mock('warning');
-    renderSpy = jest.fn();
+    renderSpy = jest.fn<[any, RefetchFn<any, any>], mixed>();
 
     // Set up environment and base data
     environment = createMockEnvironment();

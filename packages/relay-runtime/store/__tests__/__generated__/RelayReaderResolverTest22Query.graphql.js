@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c3892a8a24958cf402c5e11c4268a396>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<fab889eddaf20290e56113be1783f7a9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,15 +19,15 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { UserProfilePictureWithRuntimeArgumentResolver$key } from "./../resolvers/__generated__/UserProfilePictureWithRuntimeArgumentResolver.graphql";
-import userUserProfilePictureUriWithScaleAndAdditionalArgumentResolver from "../resolvers/UserProfilePictureWithRuntimeArgumentResolver.js";
-// Type assertion validating that `userUserProfilePictureUriWithScaleAndAdditionalArgumentResolver` resolver is correctly implemented.
+import {user_profile_picture_uri_with_scale_and_additional_argument as userUserProfilePictureUriWithScaleAndAdditionalArgumentResolverType} from "../resolvers/UserProfilePictureWithRuntimeArgumentResolver.js";
+// Type assertion validating that `userUserProfilePictureUriWithScaleAndAdditionalArgumentResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userUserProfilePictureUriWithScaleAndAdditionalArgumentResolver: (
-  rootKey: UserProfilePictureWithRuntimeArgumentResolver$key, 
+(userUserProfilePictureUriWithScaleAndAdditionalArgumentResolverType: (
+  rootKey: UserProfilePictureWithRuntimeArgumentResolver$key,
   args: {|
     name: ?string,
     scale: ?number,
-  |}, 
+  |},
 ) => mixed);
 export type RelayReaderResolverTest22Query$variables = {|
   name?: ?string,
@@ -33,7 +35,7 @@ export type RelayReaderResolverTest22Query$variables = {|
 |};
 export type RelayReaderResolverTest22Query$data = {|
   +me: ?{|
-    +profile_picture: ?$Call<<R>((...empty[]) => R) => R, typeof userUserProfilePictureUriWithScaleAndAdditionalArgumentResolver>,
+    +profile_picture: ?$Call<<R>((...empty[]) => R) => R, typeof userUserProfilePictureUriWithScaleAndAdditionalArgumentResolverType>,
   |},
 |};
 export type RelayReaderResolverTest22Query = {|
@@ -54,6 +56,13 @@ v1 = {
   "name": "scale"
 },
 v2 = [
+  {
+    "kind": "Variable",
+    "name": "name",
+    "variableName": "name"
+  }
+],
+v3 = [
   {
     "kind": "Variable",
     "name": "scale",
@@ -80,21 +89,15 @@ return {
         "selections": [
           {
             "alias": "profile_picture",
-            "args": [
-              {
-                "kind": "Variable",
-                "name": "name",
-                "variableName": "name"
-              }
-            ],
+            "args": (v2/*: any*/),
             "fragment": {
-              "args": (v2/*: any*/),
+              "args": (v3/*: any*/),
               "kind": "FragmentSpread",
               "name": "UserProfilePictureWithRuntimeArgumentResolver"
             },
             "kind": "RelayResolver",
             "name": "user_profile_picture_uri_with_scale_and_additional_argument",
-            "resolverModule": require('./../resolvers/UserProfilePictureWithRuntimeArgumentResolver'),
+            "resolverModule": require('./../resolvers/UserProfilePictureWithRuntimeArgumentResolver').user_profile_picture_uri_with_scale_and_additional_argument,
             "path": "me.profile_picture"
           }
         ],
@@ -122,22 +125,36 @@ return {
         "plural": false,
         "selections": [
           {
-            "alias": null,
+            "name": "user_profile_picture_uri_with_scale_and_additional_argument",
             "args": (v2/*: any*/),
-            "concreteType": "Image",
-            "kind": "LinkedField",
-            "name": "profile_picture",
-            "plural": false,
-            "selections": [
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "uri",
-                "storageKey": null
-              }
-            ],
-            "storageKey": null
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "alias": null,
+                  "args": (v3/*: any*/),
+                  "concreteType": "Image",
+                  "kind": "LinkedField",
+                  "name": "profile_picture",
+                  "plural": false,
+                  "selections": [
+                    {
+                      "alias": null,
+                      "args": null,
+                      "kind": "ScalarField",
+                      "name": "uri",
+                      "storageKey": null
+                    }
+                  ],
+                  "storageKey": null
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "RelayResolver",
+            "storageKey": null,
+            "isOutputType": false
           },
           {
             "alias": null,

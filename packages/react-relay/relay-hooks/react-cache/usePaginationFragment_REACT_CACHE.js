@@ -4,14 +4,15 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
 'use strict';
 
 import type {LoadMoreFn, UseLoadMoreFunctionArgs} from '../useLoadMoreFunction';
+import type {Options} from './useRefetchableFragmentInternal_REACT_CACHE';
 import type {RefetchFnDynamic} from './useRefetchableFragmentInternal_REACT_CACHE';
 import type {
   FragmentType,
@@ -19,9 +20,12 @@ import type {
   GraphQLTaggedNode,
   Observer,
   OperationType,
+  Variables,
 } from 'relay-runtime';
+import type {VariablesOf} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const useLoadMoreFunction = require('../useLoadMoreFunction');
+const useRelayEnvironment = require('../useRelayEnvironment');
 const useStaticFragmentNodeWarning = require('../useStaticFragmentNodeWarning');
 const useRefetchableFragmentInternal = require('./useRefetchableFragmentInternal_REACT_CACHE');
 const {useCallback, useDebugValue, useState} = require('react');
@@ -33,8 +37,8 @@ const {
 
 export type ReturnType<TQuery: OperationType, TKey, TFragmentData> = {
   data: TFragmentData,
-  loadNext: LoadMoreFn<TQuery>,
-  loadPrevious: LoadMoreFn<TQuery>,
+  loadNext: LoadMoreFn<TQuery['variables']>,
+  loadPrevious: LoadMoreFn<TQuery['variables']>,
   hasNext: boolean,
   hasPrevious: boolean,
   isLoadingNext: boolean,
@@ -83,7 +87,7 @@ function usePaginationFragment<
 
   // Backward pagination
   const [loadPrevious, hasPrevious, isLoadingPrevious, disposeFetchPrevious] =
-    useLoadMore<TQuery>({
+    useLoadMore<TQuery['variables']>({
       componentDisplayName,
       connectionPathInFragmentData,
       direction: 'backward',
@@ -97,22 +101,23 @@ function usePaginationFragment<
     });
 
   // Forward pagination
-  const [loadNext, hasNext, isLoadingNext, disposeFetchNext] =
-    useLoadMore<TQuery>({
-      componentDisplayName,
-      connectionPathInFragmentData,
-      direction: 'forward',
-      fragmentData,
-      fragmentIdentifier,
-      fragmentNode,
-      fragmentRef,
-      identifierField,
-      paginationMetadata,
-      paginationRequest,
-    });
+  const [loadNext, hasNext, isLoadingNext, disposeFetchNext] = useLoadMore<
+    TQuery['variables'],
+  >({
+    componentDisplayName,
+    connectionPathInFragmentData,
+    direction: 'forward',
+    fragmentData,
+    fragmentIdentifier,
+    fragmentNode,
+    fragmentRef,
+    identifierField,
+    paginationMetadata,
+    paginationRequest,
+  });
 
   const refetchPagination: RefetchFnDynamic<TQuery, TKey> = useCallback(
-    (variables, options) => {
+    (variables: VariablesOf<TQuery>, options: void | Options) => {
       disposeFetchNext();
       disposeFetchPrevious();
       return refetch(variables, {...options, __environment: undefined});
@@ -143,7 +148,7 @@ function usePaginationFragment<
   };
 }
 
-function useLoadMore<TQuery: OperationType>(
+function useLoadMore<TVariables: Variables>(
   args: $Diff<
     UseLoadMoreFunctionArgs,
     {
@@ -152,15 +157,29 @@ function useLoadMore<TQuery: OperationType>(
       ...
     },
   >,
-): [LoadMoreFn<TQuery>, boolean, boolean, () => void] {
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
+): [LoadMoreFn<TVariables>, boolean, boolean, () => void] {
+  const environment = useRelayEnvironment();
+  const [isLoadingMore, reallySetIsLoadingMore] = useState(false);
+  // Schedule this update since it must be observed by components at the same
+  // batch as when hasNext changes. hasNext is read from the store and store
+  // updates are scheduled, so this must be scheduled too.
+  const setIsLoadingMore = (value: boolean) => {
+    const schedule = environment.getScheduler()?.schedule;
+    if (schedule) {
+      schedule(() => {
+        reallySetIsLoadingMore(value);
+      });
+    } else {
+      reallySetIsLoadingMore(value);
+    }
+  };
   const observer = {
     start: () => setIsLoadingMore(true),
     complete: () => setIsLoadingMore(false),
     error: () => setIsLoadingMore(false),
   };
   const handleReset = () => setIsLoadingMore(false);
-  const [loadMore, hasMore, disposeFetch] = useLoadMoreFunction({
+  const [loadMore, hasMore, disposeFetch] = useLoadMoreFunction<TVariables>({
     ...args,
     observer,
     onReset: handleReset,

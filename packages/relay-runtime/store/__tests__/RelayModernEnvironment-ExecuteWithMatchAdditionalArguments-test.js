@@ -4,14 +4,14 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
 'use strict';
-
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
+import type {Snapshot} from '../RelayStoreTypes';
 import type {
   HandleFieldPayload,
   RecordSourceProxy,
@@ -121,15 +121,16 @@ describe('execute() a query with @match with additional arguments', () => {
       },
     };
 
-    complete = jest.fn();
-    error = jest.fn();
-    next = jest.fn();
+    complete = jest.fn<$ReadOnlyArray<mixed>, mixed>();
+    error = jest.fn<$ReadOnlyArray<Error>, mixed>();
+    next = jest.fn<$ReadOnlyArray<mixed>, mixed>();
     callbacks = {complete, error, next};
     fetch = (
       _query: RequestParameters,
       _variables: Variables,
       _cacheConfig: CacheConfig,
     ) => {
+      // $FlowFixMe[missing-local-annot] Error found while enabling LTI on this file
       return RelayObservable.create(sink => {
         dataSource = sink;
       });
@@ -157,7 +158,7 @@ describe('execute() a query with @match with additional arguments', () => {
     });
 
     const operationSnapshot = environment.lookup(operation.fragment);
-    operationCallback = jest.fn();
+    operationCallback = jest.fn<[Snapshot], void>();
     environment.subscribe(operationSnapshot, operationCallback);
   });
 
@@ -270,7 +271,7 @@ describe('execute() a query with @match with additional arguments', () => {
     // initial results tested above
     const initialMatchSnapshot = environment.lookup(matchSelector);
     expect(initialMatchSnapshot.isMissingData).toBe(true);
-    const matchCallback = jest.fn();
+    const matchCallback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialMatchSnapshot, matchCallback);
 
     resolveFragment(markdownRendererNormalizationFragment);
@@ -351,7 +352,7 @@ describe('execute() a query with @match with additional arguments', () => {
 
   it('loads the @match fragment and normalizes/publishes the field payload with scheduling', () => {
     let taskID = 0;
-    const tasks = new Map();
+    const tasks = new Map<string, () => void>();
     const scheduler = {
       cancel: (id: string) => {
         tasks.delete(id);
@@ -423,7 +424,7 @@ describe('execute() a query with @match with additional arguments', () => {
     // initial results tested above
     const initialMatchSnapshot = environment.lookup(matchSelector);
     expect(initialMatchSnapshot.isMissingData).toBe(true);
-    const matchCallback = jest.fn();
+    const matchCallback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialMatchSnapshot, matchCallback);
 
     resolveFragment(markdownRendererNormalizationFragment);
@@ -451,7 +452,7 @@ describe('execute() a query with @match with additional arguments', () => {
 
   it('cancels processing of @match fragments with scheduling', () => {
     let taskID = 0;
-    const tasks = new Map();
+    const tasks = new Map<string, () => void>();
     const scheduler = {
       cancel: (id: string) => {
         tasks.delete(id);
@@ -522,7 +523,7 @@ describe('execute() a query with @match with additional arguments', () => {
     // initial results tested above
     const initialMatchSnapshot = environment.lookup(matchSelector);
     expect(initialMatchSnapshot.isMissingData).toBe(true);
-    const matchCallback = jest.fn();
+    const matchCallback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialMatchSnapshot, matchCallback);
 
     resolveFragment(markdownRendererNormalizationFragment);
@@ -790,7 +791,7 @@ describe('execute() a query with @match with additional arguments', () => {
     // initial results tested above
     const initialMatchSnapshot = environment.lookup(matchSelector);
     expect(initialMatchSnapshot.isMissingData).toBe(true);
-    const matchCallback = jest.fn();
+    const matchCallback = jest.fn<[Snapshot], void>();
     environment.subscribe(initialMatchSnapshot, matchCallback);
 
     subscription.unsubscribe();

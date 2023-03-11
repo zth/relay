@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c7a2b511364285e8df24b66227661e33>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<26a7429f74433068202e942d6958e8bd>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,13 +18,16 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { DataID } from "relay-runtime";
 import type { UserClientEdgeResolver$key } from "./../resolvers/__generated__/UserClientEdgeResolver.graphql";
-import userClientEdgeResolver from "../resolvers/UserClientEdgeResolver.js";
-// Type assertion validating that `userClientEdgeResolver` resolver is correctly implemented.
+import {client_edge as userClientEdgeResolverType} from "../resolvers/UserClientEdgeResolver.js";
+// Type assertion validating that `userClientEdgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userClientEdgeResolver: (
-  rootKey: UserClientEdgeResolver$key, 
-) => mixed);
+(userClientEdgeResolverType: (
+  rootKey: UserClientEdgeResolver$key,
+) => ?{|
+  +id: DataID,
+|});
 export type RelayReaderClientEdgesTest1Query$variables = {||};
 export type RelayReaderClientEdgesTest1Query$data = {|
   +me: ?{|
@@ -38,13 +43,15 @@ export type RelayReaderClientEdgesTest1Query = {|
 */
 
 var node/*: ConcreteRequest*/ = (function(){
-var v0 = {
-  "alias": null,
-  "args": null,
-  "kind": "ScalarField",
-  "name": "name",
-  "storageKey": null
-};
+var v0 = [
+  {
+    "alias": null,
+    "args": null,
+    "kind": "ScalarField",
+    "name": "name",
+    "storageKey": null
+  }
+];
 return {
   "fragment": {
     "argumentDefinitions": [],
@@ -75,7 +82,7 @@ return {
               },
               "kind": "RelayResolver",
               "name": "client_edge",
-              "resolverModule": require('./../resolvers/UserClientEdgeResolver'),
+              "resolverModule": require('./../resolvers/UserClientEdgeResolver').client_edge,
               "path": "me.client_edge"
             },
             "linkedField": {
@@ -85,9 +92,7 @@ return {
               "kind": "LinkedField",
               "name": "client_edge",
               "plural": false,
-              "selections": [
-                (v0/*: any*/)
-              ],
+              "selections": (v0/*: any*/),
               "storageKey": null
             }
           }
@@ -112,7 +117,19 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
+          {
+            "name": "client_edge",
+            "args": null,
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": (v0/*: any*/),
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "RelayResolver",
+            "storageKey": null,
+            "isOutputType": false
+          },
           {
             "alias": null,
             "args": null,

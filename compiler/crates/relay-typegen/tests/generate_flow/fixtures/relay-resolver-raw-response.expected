@@ -4,7 +4,7 @@ fragment relayResolver_PopStarNameResolverFragment_name on User {
 }
 
 fragment relayResolver_user on User {
-    pop_star_name
+  pop_star_name
 }
 
 query relayResolver_Query @raw_response_type {
@@ -16,7 +16,11 @@ query relayResolver_Query @raw_response_type {
 # %extensions%
 
 extend type User {
-  pop_star_name: Int @relay_resolver(fragment_name: "relayResolver_PopStarNameResolverFragment_name", import_path: "PopStarNameResolver")
+  pop_star_name: RelayResolverValue
+    @relay_resolver(
+      fragment_name: "relayResolver_PopStarNameResolverFragment_name"
+      import_path: "PopStarNameResolver"
+    )
 }
 ==================================== OUTPUT ===================================
 import type { relayResolver_user$fragmentType } from "relayResolver_user.graphql";
@@ -27,10 +31,12 @@ export type relayResolver_Query$data = {|
   |},
 |};
 export type relayResolver_Query$rawResponse = {|
-  +me: ?{|
+  +me: ?({|
+    +id: string,
+  |} | {|
     +id: string,
     +name: ?string,
-  |},
+  |}),
 |};
 export type relayResolver_Query = {|
   rawResponse: relayResolver_Query$rawResponse,
@@ -52,15 +58,15 @@ export type relayResolver_PopStarNameResolverFragment_name$key = {
 -------------------------------------------------------------------------------
 import type { relayResolver_PopStarNameResolverFragment_name$key } from "relayResolver_PopStarNameResolverFragment_name.graphql";
 import type { FragmentType } from "relay-runtime";
-import userPopStarNameResolver from "PopStarNameResolver";
-// Type assertion validating that `userPopStarNameResolver` resolver is correctly implemented.
+import userPopStarNameResolverType from "PopStarNameResolver";
+// Type assertion validating that `userPopStarNameResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userPopStarNameResolver: (
-  rootKey: relayResolver_PopStarNameResolverFragment_name$key, 
+(userPopStarNameResolverType: (
+  rootKey: relayResolver_PopStarNameResolverFragment_name$key,
 ) => mixed);
 declare export opaque type relayResolver_user$fragmentType: FragmentType;
 export type relayResolver_user$data = {|
-  +pop_star_name: ?$Call<<R>((...empty[]) => R) => R, typeof userPopStarNameResolver>,
+  +pop_star_name: ?$Call<<R>((...empty[]) => R) => R, typeof userPopStarNameResolverType>,
   +$fragmentType: relayResolver_user$fragmentType,
 |};
 export type relayResolver_user$key = {

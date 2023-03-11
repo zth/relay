@@ -4,14 +4,15 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
 'use strict';
 
 import type {AstrologicalSignOppositeResolver$key} from './__generated__/AstrologicalSignOppositeResolver.graphql';
+import type {ConcreteClientEdgeResolverReturnType} from 'relay-runtime';
 
 const {graphql} = require('relay-runtime');
 const {readFragment} = require('relay-runtime/store/ResolverFragments');
@@ -25,9 +26,9 @@ const {readFragment} = require('relay-runtime/store/ResolverFragments');
  *
  * Expose a sign's opposite as an edge in the graph.
  */
-function astrologicalSignOpposite(
+function opposite(
   rootKey: AstrologicalSignOppositeResolver$key,
-): string | null {
+): ConcreteClientEdgeResolverReturnType<> | null {
   const sign = readFragment(
     graphql`
       fragment AstrologicalSignOppositeResolver on AstrologicalSign {
@@ -36,7 +37,11 @@ function astrologicalSignOpposite(
     `,
     rootKey,
   );
-  return sign.self?.oppositeSignId ?? null;
+  return sign.self?.oppositeSignId != null
+    ? {id: sign.self.oppositeSignId}
+    : null;
 }
 
-module.exports = astrologicalSignOpposite;
+module.exports = {
+  opposite,
+};

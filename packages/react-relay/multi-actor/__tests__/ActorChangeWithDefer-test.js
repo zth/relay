@@ -5,8 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @flow strict-local
- * @emails oncall+relay
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -169,6 +169,7 @@ describe('ActorChange with @defer', () => {
         | CacheConfig
       )>
     ) => {
+      // $FlowFixMe[missing-local-annot] Error found while enabling LTI on this file
       return Observable.create(sink => {
         dataSource = sink;
       });

@@ -5,6 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::ArgumentName;
+use common::ScalarName;
+use graphql_ir::ExecutableDefinitionName;
+use graphql_ir::FragmentDefinitionName;
 use intern::string_key::StringKey;
 use thiserror::Error;
 
@@ -17,25 +21,25 @@ pub enum ValidationMessage {
     MissingServerSchemaDefinition { name: StringKey },
 
     #[error("Using @module requires the schema to define a scalar '{js_field_type}' type.")]
-    InvalidModuleNonScalarJSField { js_field_type: StringKey },
+    InvalidModuleNonScalarJSField { js_field_type: ScalarName },
 
     #[error(
         "@module used on invalid fragment spread '...{spread_name}'. @module requires the fragment type '{type_string}' to have a '{js_field_name}({js_field_module_arg}: String!, {js_field_id_arg}: String): {js_field_type}' field (your schema may choose to omit the 'id'  argument but if present it must accept a 'String')."
     )]
     InvalidModuleInvalidSchemaArguments {
-        spread_name: StringKey,
+        spread_name: FragmentDefinitionName,
         type_string: StringKey,
         js_field_name: StringKey,
-        js_field_module_arg: StringKey,
-        js_field_id_arg: StringKey,
-        js_field_type: StringKey,
+        js_field_module_arg: ArgumentName,
+        js_field_id_arg: ArgumentName,
+        js_field_type: ScalarName,
     },
 
     #[error(
         "@module used on invalid fragment spread '...{spread_name}'. @module may only be used with fragments on a concrete (object) type, but the fragment has abstract type '{type_string}'."
     )]
     InvalidModuleNotOnObject {
-        spread_name: StringKey,
+        spread_name: FragmentDefinitionName,
         type_string: StringKey,
     },
 
@@ -45,7 +49,7 @@ pub enum ValidationMessage {
     #[error(
         "@module used on invalid fragment spread '...{spread_name}'. @module may not have additional directives."
     )]
-    InvalidModuleWithAdditionalDirectives { spread_name: StringKey },
+    InvalidModuleWithAdditionalDirectives { spread_name: FragmentDefinitionName },
 
     #[error("@module does not support @inline fragments.")]
     InvalidModuleWithInline,
@@ -60,7 +64,7 @@ pub enum ValidationMessage {
         "Invalid @module selection: documents with multiple fields containing 3D selections must specify a unique 'key' value for each field: use '{parent_name} @match(key: \"{document_name}_<localName>\")'."
     )]
     InvalidModuleSelectionWithoutKey {
-        document_name: StringKey,
+        document_name: ExecutableDefinitionName,
         parent_name: StringKey,
     },
 
@@ -78,7 +82,9 @@ pub enum ValidationMessage {
     #[error(
         "Expected the 'key' argument of @match to be a literal string starting with the document name, e.g. '{document_name}_<localName>'."
     )]
-    InvalidMatchKeyArgument { document_name: StringKey },
+    InvalidMatchKeyArgument {
+        document_name: ExecutableDefinitionName,
+    },
 
     #[error(
         "@match used on incompatible field '{field_name}'. @match may only be used with fields that accept a 'supported: [String]' argument."
@@ -93,7 +99,7 @@ pub enum ValidationMessage {
     #[error(
         "Invalid @match selection: the '{supported_arg}' argument is automatically added and cannot be supplied explicitly.'"
     )]
-    InvalidMatchNoUserSuppliedSupportedArg { supported_arg: StringKey },
+    InvalidMatchNoUserSuppliedSupportedArg { supported_arg: ArgumentName },
 
     #[error(
         "Invalid @match selection: expected at least one @module selection. Remove @match or add a '...Fragment @module()' selection."

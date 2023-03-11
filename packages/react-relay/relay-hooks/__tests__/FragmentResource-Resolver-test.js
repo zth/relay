@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -61,7 +61,19 @@ describe('FragmentResource RelayResolver behavior', () => {
   let mockRequiredFieldLogger;
 
   beforeEach(() => {
-    mockRequiredFieldLogger = jest.fn();
+    mockRequiredFieldLogger = jest.fn<
+      [
+        | {+fieldPath: string, +kind: 'missing_field.log', +owner: string}
+        | {+fieldPath: string, +kind: 'missing_field.throw', +owner: string}
+        | {
+            +error: Error,
+            +fieldPath: string,
+            +kind: 'relay_resolver.error',
+            +owner: string,
+          },
+      ],
+      void,
+    >();
     environment = createMockEnvironment({
       requiredFieldLogger: mockRequiredFieldLogger,
     });

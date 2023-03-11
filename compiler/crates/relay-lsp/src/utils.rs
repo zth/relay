@@ -7,9 +7,6 @@
 
 use std::path::PathBuf;
 
-use crate::lsp_runtime_error::LSPRuntimeError;
-use crate::lsp_runtime_error::LSPRuntimeResult;
-use crate::Feature;
 use common::SourceLocationKey;
 use common::Span;
 use common::TextSource;
@@ -25,7 +22,22 @@ use lsp_types::TextDocumentPositionParams;
 use lsp_types::Url;
 use relay_compiler::FileCategorizer;
 use relay_compiler::FileGroup;
+use relay_compiler::ProjectConfig;
 use relay_docblock::parse_docblock_ast;
+use relay_docblock::ParseOptions;
+
+use crate::lsp_runtime_error::LSPRuntimeError;
+use crate::lsp_runtime_error::LSPRuntimeResult;
+use crate::Feature;
+
+pub fn is_file_uri_in_dir(root_dir: PathBuf, file_uri: &Url) -> bool {
+    let file_path_result = file_uri.to_file_path();
+
+    match file_path_result {
+        Ok(file_path) => file_path.starts_with(root_dir),
+        Err(()) => false,
+    }
+}
 
 pub fn extract_executable_definitions_from_text_document(
     text_document_uri: &Url,
@@ -63,7 +75,10 @@ pub fn extract_project_name_from_url(
     url: &Url,
     root_dir: &PathBuf,
 ) -> LSPRuntimeResult<StringKey> {
-    let absolute_file_path = PathBuf::from(url.path());
+    let absolute_file_path = url.to_file_path().map_err(|_| {
+        LSPRuntimeError::UnexpectedError(format!("Unable to convert URL to file path: {:?}", url))
+    })?;
+
     let file_path = absolute_file_path.strip_prefix(root_dir).map_err(|_e| {
         LSPRuntimeError::UnexpectedError(format!(
             "Failed to strip prefix {:?} from {:?}",
@@ -96,6 +111,7 @@ pub fn extract_project_name_from_url(
 /// Return a parsed executable document, or parsed Docblock IR for this LSP
 /// request, only if the request occurs within a GraphQL document or Docblock.
 pub fn extract_feature_from_text(
+    project_config: &ProjectConfig,
     source_feature_cache: &DashMap<Url, Vec<JavaScriptSourceFeature>>,
     text_document_position: &TextDocumentPositionParams,
     index_offset: usize,
@@ -153,7 +169,17 @@ pub fn extract_feature_from_text(
             let text_source = &docblock_source.text_source();
             let text = &text_source.text;
             let docblock_ir = parse_docblock(text, source_location_key)
-                .and_then(|ast| parse_docblock_ast(&ast, Some(&executable_definitions_in_file)))
+                .and_then(|ast| {
+                    parse_docblock_ast(
+                        &ast,
+                        Some(&executable_definitions_in_file),
+                        ParseOptions {
+                            enable_output_type: &project_config
+                                .feature_flags
+                                .relay_resolver_enable_output_type,
+                        },
+                    )
+                })
                 .map_err(|_| {
                     LSPRuntimeError::UnexpectedError("Failed to parse docblock".to_string())
                 })?

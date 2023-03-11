@@ -4,12 +4,13 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
 'use strict';
+import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
 import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
 import type {
   CacheConfig,
@@ -65,15 +66,16 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         `;
         operation = createOperationDescriptor(ParentQuery, {size: 32});
 
-        complete = jest.fn();
-        error = jest.fn();
-        next = jest.fn();
+        complete = jest.fn<[], mixed>();
+        error = jest.fn<[Error], mixed>();
+        next = jest.fn<[GraphQLResponse], mixed>();
         callbacks = {complete, error, next};
         fetch = (
           _query: RequestParameters,
           _variables: Variables,
           _cacheConfig: CacheConfig,
         ) => {
+          // $FlowFixMe[missing-local-annot] Error found while enabling LTI on this file
           return RelayObservable.create(sink => {
             dataSource = sink;
           });

@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -33,7 +33,7 @@ describe.skip('useFragmentNode-react-double-effects-test', () => {
     jest.mock('scheduler', () => require('scheduler/unstable_mock'));
     jest.mock('warning');
     jest.spyOn(console, 'warn').mockImplementationOnce(() => {});
-    renderSpy = jest.fn();
+    renderSpy = jest.fn<$ReadOnlyArray<mixed>, mixed>();
 
     // Set up environment and base data
     environment = createMockEnvironment();
@@ -75,7 +75,7 @@ describe.skip('useFragmentNode-react-double-effects-test', () => {
 
     let renderLogs = [];
     const FragmentComponent = ({user}: $TEMPORARY$object<{user: mixed}>) => {
-      const {data} = useFragmentNode(gqlFragment, user, 'TestComponent');
+      const {data} = useFragmentNode<any>(gqlFragment, user, 'TestComponent');
       useEffect(() => {
         renderLogs.push(`commit: ${data.name}`);
         return () => {

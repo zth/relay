@@ -5,8 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use graphql_cli::SourcePrinter;
 use std::ops::Range;
+
+use graphql_cli::SourcePrinter;
 
 const EXAMPLE: &str = "fragment Example on User {
   photo(size: 40) {
@@ -46,7 +47,7 @@ fn main() {
     for test_case in test_cases.into_iter() {
         let mut res = String::new();
         printer
-            .write_span(&mut res, &test_case.into(), EXAMPLE, 0)
+            .write_span(&mut res, test_case.into(), EXAMPLE, 0)
             .unwrap();
         println!("{}\n ---------\n", res);
     }

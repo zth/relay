@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use graphql_ir::FragmentDefinitionName;
 use intern::string_key::StringKey;
 use thiserror::Error;
 
@@ -38,7 +39,7 @@ pub enum ValidationMessage {
     )]
     UpdatableOnlyAssignableFragmentSpreads {
         outer_type_plural: &'static str,
-        fragment_name: StringKey,
+        fragment_name: FragmentDefinitionName,
     },
 
     #[error(
@@ -57,6 +58,11 @@ pub enum ValidationMessage {
         disallowed_directive_name: StringKey,
         outer_type_plural: &'static str,
     },
+
+    #[error(
+        "Fields defined using Relay Resolvers are not not allowed within @updatable operations."
+    )]
+    UpdatableDisallowRealyResolvers,
 
     #[error("The directives @include and @skip are not allowed within {outer_type_plural}.")]
     UpdatableNoConditions { outer_type_plural: &'static str },

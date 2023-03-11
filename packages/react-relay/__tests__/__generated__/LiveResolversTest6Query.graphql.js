@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<3ab22adb8c5a991392f9a89f78895d4f>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<328545432bb4a27ae857c424abf680e5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -27,7 +29,15 @@ export type LiveResolversTest6Query = {|
 |};
 */
 
-var node/*: ConcreteRequest*/ = {
+var node/*: ConcreteRequest*/ = (function(){
+var v0 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "id",
+  "storageKey": null
+};
+return {
   "fragment": {
     "argumentDefinitions": [],
     "kind": "Fragment",
@@ -50,41 +60,75 @@ var node/*: ConcreteRequest*/ = {
     "name": "LiveResolversTest6Query",
     "selections": [
       {
-        "alias": null,
+        "name": "user_name_and_counter_suspends_when_odd",
         "args": null,
-        "concreteType": "User",
-        "kind": "LinkedField",
-        "name": "me",
-        "plural": false,
-        "selections": [
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "name",
-            "storageKey": null
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "id",
-            "storageKey": null
-          },
-          {
-            "kind": "ClientExtension",
-            "selections": [
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "__id",
-                "storageKey": null
-              }
-            ]
-          }
-        ],
-        "storageKey": null
+        "fragment": {
+          "kind": "InlineFragment",
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "concreteType": "User",
+              "kind": "LinkedField",
+              "name": "me",
+              "plural": false,
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "name",
+                  "storageKey": null
+                },
+                (v0/*: any*/)
+              ],
+              "storageKey": null
+            },
+            {
+              "name": "counter_suspends_when_odd",
+              "args": null,
+              "fragment": {
+                "kind": "InlineFragment",
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "concreteType": "User",
+                    "kind": "LinkedField",
+                    "name": "me",
+                    "plural": false,
+                    "selections": [
+                      (v0/*: any*/),
+                      {
+                        "kind": "ClientExtension",
+                        "selections": [
+                          {
+                            "alias": null,
+                            "args": null,
+                            "kind": "ScalarField",
+                            "name": "__id",
+                            "storageKey": null
+                          }
+                        ]
+                      }
+                    ],
+                    "storageKey": null
+                  }
+                ],
+                "type": "Query",
+                "abstractKey": null
+              },
+              "kind": "RelayResolver",
+              "storageKey": null,
+              "isOutputType": false
+            }
+          ],
+          "type": "Query",
+          "abstractKey": null
+        },
+        "kind": "RelayResolver",
+        "storageKey": null,
+        "isOutputType": false
       }
     ]
   },
@@ -97,6 +141,7 @@ var node/*: ConcreteRequest*/ = {
     "text": "query LiveResolversTest6Query {\n  ...LiveResolversTest6Fragment\n}\n\nfragment CounterSuspendsWhenOdd on Query {\n  me {\n    id\n  }\n}\n\nfragment LiveResolversTest6Fragment on Query {\n  ...UserNameAndCounterSuspendsWhenOdd\n}\n\nfragment UserNameAndCounterSuspendsWhenOdd on Query {\n  me {\n    name\n    id\n  }\n  ...CounterSuspendsWhenOdd\n}\n"
   }
 };
+})();
 
 if (__DEV__) {
   (node/*: any*/).hash = "36648bb2cbac6fe4fecb46c1d8926b74";

@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -191,23 +191,20 @@ describe('Client-only queries', () => {
         const settings = store.create(settingsID, 'Settings');
         root.setLinkedRecord(settings, 'defaultSettings');
 
-        const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
+        const updatableData = store.readUpdatableQuery(
           updatableQuery,
           {},
         ).updatableData;
         const defaultSettings = updatableData.defaultSettings;
         if (defaultSettings != null) {
-          defaultSettings.client_field =
-            'Set with readUpdatableQuery_EXPERIMENTAL';
+          defaultSettings.client_field = 'Set with readUpdatableQuery';
         } else {
           throw new Error('Expected `defaultSettings` to be defined.');
         }
       });
     });
 
-    expect(renderer.toJSON()).toEqual(
-      'Set with readUpdatableQuery_EXPERIMENTAL',
-    );
+    expect(renderer.toJSON()).toEqual('Set with readUpdatableQuery');
   });
 });
 

@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e527e3ac526d28700f51a9e2ec77b908>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<67a36241918af609fd8c418891066e31>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,19 +20,19 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
 import type { ResolverThatThrows$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/ResolverThatThrows.graphql";
-import userResolverThatThrowsResolver from "../../../relay-runtime/store/__tests__/resolvers/ResolverThatThrows.js";
-// Type assertion validating that `userResolverThatThrowsResolver` resolver is correctly implemented.
+import {resolver_that_throws as userResolverThatThrowsResolverType} from "../../../relay-runtime/store/__tests__/resolvers/ResolverThatThrows.js";
+// Type assertion validating that `userResolverThatThrowsResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userResolverThatThrowsResolver: (
-  rootKey: ResolverThatThrows$key, 
-) => LiveState<any>);
+(userResolverThatThrowsResolverType: (
+  rootKey: ResolverThatThrows$key,
+) => LiveState<mixed>);
 export type LiveResolversTest8Query$variables = {|
   id: string,
 |};
 export type LiveResolversTest8Query$data = {|
   +node: ?{|
     +name?: ?string,
-    +resolver_that_throws?: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof userResolverThatThrowsResolver>["read"]>,
+    +resolver_that_throws?: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof userResolverThatThrowsResolverType>["read"]>,
   |},
 |};
 export type LiveResolversTest8Query = {|
@@ -90,7 +92,7 @@ return {
                 },
                 "kind": "RelayLiveResolver",
                 "name": "resolver_that_throws",
-                "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/ResolverThatThrows'),
+                "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/ResolverThatThrows').resolver_that_throws,
                 "path": "node.resolver_that_throws"
               }
             ],
@@ -130,11 +132,25 @@ return {
             "selections": [
               (v2/*: any*/),
               {
-                "alias": null,
+                "name": "resolver_that_throws",
                 "args": null,
-                "kind": "ScalarField",
-                "name": "username",
-                "storageKey": null
+                "fragment": {
+                  "kind": "InlineFragment",
+                  "selections": [
+                    {
+                      "alias": null,
+                      "args": null,
+                      "kind": "ScalarField",
+                      "name": "username",
+                      "storageKey": null
+                    }
+                  ],
+                  "type": "User",
+                  "abstractKey": null
+                },
+                "kind": "RelayResolver",
+                "storageKey": null,
+                "isOutputType": false
               }
             ],
             "type": "User",

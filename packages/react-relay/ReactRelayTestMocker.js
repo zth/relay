@@ -6,6 +6,7 @@
  *
  * @flow
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -13,6 +14,7 @@
 import type {
   CacheConfig,
   ConcreteRequest,
+  GraphQLResponse,
   GraphQLSingularResponse,
   IEnvironment,
   PayloadError,
@@ -145,7 +147,7 @@ class ReactRelayTestMocker {
     ) => {
       let resolve;
       let reject;
-      const promise = new Promise((res, rej) => {
+      const promise = new Promise<GraphQLResponse>((res, rej) => {
         resolve = res;
         reject = rej;
       });

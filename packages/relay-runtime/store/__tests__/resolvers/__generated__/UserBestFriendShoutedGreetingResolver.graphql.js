@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<2ebfd855f9458a3650d91484c2da40c0>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<a4fe6075cd6fb8b50ebb1d448dc66455>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,11 +20,11 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { UserGreetingResolver$key } from "./UserGreetingResolver.graphql";
 import type { FragmentType } from "relay-runtime";
-import userGreetingResolver from "../UserGreetingResolver.js";
-// Type assertion validating that `userGreetingResolver` resolver is correctly implemented.
+import {greeting as userGreetingResolverType} from "../UserGreetingResolver.js";
+// Type assertion validating that `userGreetingResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userGreetingResolver: (
-  rootKey: UserGreetingResolver$key, 
+(userGreetingResolverType: (
+  rootKey: UserGreetingResolver$key,
 ) => mixed);
 declare export opaque type UserBestFriendShoutedGreetingResolver$fragmentType: FragmentType;
 export type UserBestFriendShoutedGreetingResolver$data = {|
@@ -30,7 +32,7 @@ export type UserBestFriendShoutedGreetingResolver$data = {|
     +edges: ?$ReadOnlyArray<?{|
       +cursor: ?string,
       +node: ?{|
-        +greeting: ?$Call<<R>((...empty[]) => R) => R, typeof userGreetingResolver>,
+        +greeting: ?$Call<<R>((...empty[]) => R) => R, typeof userGreetingResolverType>,
       |},
     |}>,
   |},
@@ -96,7 +98,7 @@ var node/*: ReaderFragment*/ = {
                   },
                   "kind": "RelayResolver",
                   "name": "greeting",
-                  "resolverModule": require('./../UserGreetingResolver'),
+                  "resolverModule": require('./../UserGreetingResolver').greeting,
                   "path": "friends.edges.node.greeting"
                 }
               ],

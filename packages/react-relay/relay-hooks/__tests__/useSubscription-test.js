@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -41,10 +41,12 @@ describe('useSubscription', () => {
     variables: {},
     subscription: CommentCreateSubscription,
   };
-  const dispose = jest.fn();
-  const requestSubscription = jest.fn((_passedEnv, _passedConfig) => ({
-    dispose,
-  }));
+  const dispose = jest.fn<$ReadOnlyArray<mixed>, mixed>();
+  const requestSubscription = jest.fn(
+    (_passedEnv: any, _passedConfig: any) => ({
+      dispose,
+    }),
+  );
   const relayRuntime = require('relay-runtime');
   jest.mock('relay-runtime', () => {
     return {

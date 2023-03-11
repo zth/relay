@@ -6,19 +6,19 @@
  */
 
 //! Utilities for providing the completion language feature
-use crate::lsp_runtime_error::LSPRuntimeResult;
-use crate::node_resolution_info::TypePath;
-use crate::node_resolution_info::TypePathItem;
-use crate::server::GlobalState;
-use crate::LSPRuntimeError;
-use crate::SchemaDocumentation;
+use std::iter::once;
+
+use common::ArgumentName;
+use common::DirectiveName;
 use common::Named;
 use common::NamedItem;
 use common::Span;
-
 use fnv::FnvHashSet;
+use graphql_ir::FragmentDefinitionName;
+use graphql_ir::OperationDefinitionName;
 use graphql_ir::Program;
 use graphql_ir::VariableDefinition;
+use graphql_ir::VariableName;
 use graphql_ir::DIRECTIVE_ARGUMENTS;
 use graphql_syntax::Argument;
 use graphql_syntax::ConstantValue;
@@ -31,12 +31,12 @@ use graphql_syntax::InlineFragment;
 use graphql_syntax::LinkedField;
 use graphql_syntax::List;
 use graphql_syntax::OperationDefinition;
-use graphql_syntax::OperationKind;
 use graphql_syntax::ScalarField;
 use graphql_syntax::Selection;
 use graphql_syntax::TokenKind;
 use graphql_syntax::Value;
 use intern::string_key::StringKey;
+use intern::Lookup;
 use log::debug;
 use lsp_types::request::Completion;
 use lsp_types::request::Request;
@@ -50,12 +50,19 @@ use lsp_types::MarkupContent;
 use lsp_types::MarkupKind;
 use schema::Argument as SchemaArgument;
 use schema::Directive as SchemaDirective;
+use schema::InputObject;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
 use schema::TypeReference;
 use schema::TypeWithFields;
-use std::iter::once;
+
+use crate::lsp_runtime_error::LSPRuntimeResult;
+use crate::node_resolution_info::TypePath;
+use crate::node_resolution_info::TypePathItem;
+use crate::server::GlobalState;
+use crate::LSPRuntimeError;
+use crate::SchemaDocumentation;
 
 #[derive(Debug, Clone)]
 pub enum CompletionKind {
@@ -79,12 +86,17 @@ pub enum CompletionKind {
     InlineFragmentType {
         existing_inline_fragment: bool,
     },
+    InputObjectFieldName {
+        name: StringKey,
+        existing_names: FnvHashSet<StringKey>,
+        input_field_path: Vec<StringKey>,
+    },
 }
 
 #[derive(Debug, Clone)]
 pub enum ArgumentKind {
     Field,
-    Directive(StringKey),
+    Directive(DirectiveName),
     ArgumentsDirective(StringKey),
 }
 
@@ -112,28 +124,28 @@ impl CompletionRequest {
 #[derive(Debug, Copy, Clone)]
 pub enum ExecutableName {
     Operation(StringKey),
-    Fragment(StringKey),
+    Fragment(FragmentDefinitionName),
 }
 
 trait ArgumentLike {
     fn name(&self) -> StringKey;
-    fn type_(&self) -> &TypeReference;
+    fn type_(&self) -> &TypeReference<Type>;
 }
 
 impl ArgumentLike for &SchemaArgument {
     fn name(&self) -> StringKey {
-        self.name
+        self.name.0
     }
-    fn type_(&self) -> &TypeReference {
+    fn type_(&self) -> &TypeReference<Type> {
         &self.type_
     }
 }
 
 impl ArgumentLike for &VariableDefinition {
     fn name(&self) -> StringKey {
-        self.name.item
+        self.name.item.0
     }
-    fn type_(&self) -> &TypeReference {
+    fn type_(&self) -> &TypeReference<Type> {
         &self.type_
     }
 }
@@ -181,11 +193,7 @@ impl CompletionRequestBuilder {
                             ..
                         } = operation;
 
-                        let directive_location = match kind {
-                            OperationKind::Query => DirectiveLocation::Query,
-                            OperationKind::Mutation => DirectiveLocation::Mutation,
-                            OperationKind::Subscription => DirectiveLocation::Subscription,
-                        };
+                        let directive_location = kind.into();
 
                         if let Some(req) = self.build_request_from_selection_or_directives(
                             selections,
@@ -201,8 +209,9 @@ impl CompletionRequestBuilder {
                 }
                 ExecutableDefinition::Fragment(fragment) => {
                     if fragment.location.contains(position_span) {
-                        self.current_executable_name =
-                            Some(ExecutableName::Fragment(fragment.name.value));
+                        self.current_executable_name = Some(ExecutableName::Fragment(
+                            FragmentDefinitionName(fragment.name.value),
+                        ));
                         let type_name = fragment.type_condition.type_.value;
                         let type_path = vec![TypePathItem::FragmentDefinition { type_name }];
                         if let Some(req) = self.build_request_from_selection_or_directives(
@@ -355,6 +364,117 @@ impl CompletionRequestBuilder {
         ))
     }
 
+    fn build_request_from_constant_input_value(
+        &self,
+        position_span: Span,
+        type_path: Vec<TypePathItem>,
+        mut input_field_path: Vec<StringKey>,
+        constant_value: &ConstantValue,
+        name: StringKey,
+    ) -> Option<CompletionRequest> {
+        match constant_value {
+            ConstantValue::List(list) => list
+                .items
+                .iter()
+                .find(|arg| arg.span().contains(position_span))
+                .and_then(|constant_value| {
+                    self.build_request_from_constant_input_value(
+                        position_span,
+                        type_path,
+                        input_field_path,
+                        constant_value,
+                        name,
+                    )
+                }),
+            ConstantValue::Object(arguments) => {
+                if let Some(constant_argument) = arguments
+                    .items
+                    .iter()
+                    .find(|arg| arg.span.contains(position_span))
+                {
+                    input_field_path.push(constant_argument.name());
+                    self.build_request_from_constant_input_value(
+                        position_span,
+                        type_path,
+                        input_field_path,
+                        &constant_argument.value,
+                        name,
+                    )
+                } else {
+                    Some(self.new_request(
+                        CompletionKind::InputObjectFieldName {
+                            name,
+                            existing_names:
+                                arguments.items.iter().map(|item| item.name()).collect(),
+                            input_field_path,
+                        },
+                        type_path,
+                    ))
+                }
+            }
+            _ => None,
+        }
+    }
+
+    fn build_request_from_input_value(
+        &self,
+        position_span: Span,
+        type_path: Vec<TypePathItem>,
+        mut input_field_path: Vec<StringKey>,
+        value: &Value,
+        name: StringKey,
+    ) -> Option<CompletionRequest> {
+        match value {
+            Value::List(list) => list
+                .items
+                .iter()
+                .find(|arg| arg.span().contains(position_span))
+                .and_then(|value| {
+                    self.build_request_from_input_value(
+                        position_span,
+                        type_path,
+                        input_field_path,
+                        value,
+                        name,
+                    )
+                }),
+            Value::Object(arguments) => {
+                if let Some(position_argument) = arguments
+                    .items
+                    .iter()
+                    .find(|arg| arg.span.contains(position_span))
+                {
+                    input_field_path.push(position_argument.name());
+                    self.build_request_from_input_value(
+                        position_span,
+                        type_path,
+                        input_field_path,
+                        &position_argument.value,
+                        name,
+                    )
+                } else {
+                    Some(self.new_request(
+                        CompletionKind::InputObjectFieldName {
+                            name,
+                            existing_names:
+                                arguments.items.iter().map(|item| item.name()).collect(),
+                            input_field_path,
+                        },
+                        type_path,
+                    ))
+                }
+            }
+            Value::Constant(constant_value) => self.build_request_from_constant_input_value(
+                position_span,
+                type_path,
+                input_field_path,
+                constant_value,
+                name,
+            ),
+            _ => None,
+        }
+    }
+
     fn build_request_from_arguments(
         &self,
         arguments: &List<Argument>,
@@ -398,6 +518,14 @@ impl CompletionRequestBuilder {
                                 type_path,
                             ))
                         }
+                        Value::Constant(constant_value) => self
+                            .build_request_from_constant_input_value(
+                                position_span,
+                                type_path,
+                                Default::default(),
+                                constant_value,
+                                name.value,
+                            ),
                         Value::Variable(_) => Some(self.new_request(
                             CompletionKind::ArgumentValue {
                                 argument_name: name.value,
@@ -406,7 +534,13 @@ impl CompletionRequestBuilder {
                             },
                             type_path,
                         )),
-                        _ => None,
+                        value => self.build_request_from_input_value(
+                            position_span,
+                            type_path,
+                            Default::default(),
+                            value,
+                            name.value,
+                        ),
                     }
                 } else {
                     None
@@ -490,10 +624,10 @@ impl CompletionRequestBuilder {
                             if directive.name.value == *DIRECTIVE_ARGUMENTS {
                                 ArgumentKind::ArgumentsDirective(fragment_spread_name)
                             } else {
-                                ArgumentKind::Directive(directive.name.value)
+                                ArgumentKind::Directive(DirectiveName(directive.name.value))
                             }
                         } else {
-                            ArgumentKind::Directive(directive.name.value)
+                            ArgumentKind::Directive(DirectiveName(directive.name.value))
                         },
                     )
                 } else {
@@ -621,7 +755,7 @@ fn completion_items_for_request(
                 ))
             }
             ArgumentKind::ArgumentsDirective(fragment_spread_name) => {
-                let fragment = program.fragment(fragment_spread_name)?;
+                let fragment = program.fragment(FragmentDefinitionName(fragment_spread_name))?;
                 Some(resolve_completion_items_for_argument_name(
                     fragment.variable_definitions.iter(),
                     schema,
@@ -646,17 +780,21 @@ fn completion_items_for_request(
             let argument_type = match kind {
                 ArgumentKind::Field => {
                     let (_, field) = request.type_path.resolve_current_field(schema)?;
-                    &field.arguments.named(argument_name)?.type_
+                    &field.arguments.named(ArgumentName(argument_name))?.type_
                 }
                 ArgumentKind::ArgumentsDirective(fragment_spread_name) => {
-                    let fragment = program.fragment(fragment_spread_name)?;
-                    &fragment.variable_definitions.named(argument_name)?.type_
+                    let fragment =
+                        program.fragment(FragmentDefinitionName(fragment_spread_name))?;
+                    &fragment
+                        .variable_definitions
+                        .named(VariableName(argument_name))?
+                        .type_
                 }
                 ArgumentKind::Directive(directive_name) => {
                     &schema
                         .get_directive(directive_name)?
                         .arguments
-                        .named(argument_name)?
+                        .named(ArgumentName(argument_name))?
                         .type_
                 }
             };
@@ -677,6 +815,56 @@ fn completion_items_for_request(
                 existing_inline_fragment,
             ))
         }
+        CompletionKind::InputObjectFieldName {
+            name,
+            existing_names,
+            input_field_path,
+        } => {
+            let (_, field) = request.type_path.resolve_current_field(schema)?;
+
+            fn resolve_root_input_field<'a>(
+                schema: &'a SDLSchema,
+                input_object: &'a TypeReference<Type>,
+            ) -> Option<&'a InputObject> {
+                match input_object {
+                    TypeReference::Named(Type::InputObject(input_object_id)) => {
+                        Some(schema.input_object(*input_object_id))
+                    }
+                    TypeReference::Named(_) => None,
+                    TypeReference::NonNull(inner) => resolve_root_input_field(schema, inner),
+                    TypeReference::List(inner) => resolve_root_input_field(schema, inner),
+                }
+            }
+
+            fn resolve_input_field<'a>(
+                schema: &'a SDLSchema,
+                input_object: &'a InputObject,
+                field_name: &StringKey,
+            ) -> Option<&'a InputObject> {
+                input_object
+                    .fields
+                    .iter()
+                    .find(|field| field.name.0 == *field_name)
+                    .and_then(|field| resolve_root_input_field(schema, &field.type_))
+            }
+
+            let field_argument = field
+                .arguments
+                .iter()
+                .find(|argument| argument.name() == name)?;
+
+            let mut input_object = resolve_root_input_field(schema, &field_argument.type_)?;
+
+            for input_field_name in input_field_path.iter() {
+                input_object = resolve_input_field(schema, input_object, input_field_name)?;
+            }
+
+            Some(resolve_completion_items_for_input_object(
+                input_object,
+                schema,
+                existing_names,
+            ))
+        }
     }
 }
 
@@ -688,6 +876,50 @@ fn resolve_completion_items_typename(type_: Type, schema: &SDLSchema) -> Vec<Com
         item.kind = Some(CompletionItemKind::FIELD);
         vec![item]
     }
+}
+
+fn resolve_completion_items_for_input_object(
+    input_object: &InputObject,
+    schema: &SDLSchema,
+    existing_names: FnvHashSet<StringKey>,
+) -> Vec<CompletionItem> {
+    input_object
+        .fields
+        .iter()
+        .filter(|arg| !existing_names.contains(&arg.name()))
+        .map(|arg| {
+            let label = arg.name().lookup().to_string();
+            let detail = schema.get_type_string(arg.type_());
+            let kind = match arg.type_().inner() {
+                Type::InputObject(_) => Some(CompletionItemKind::STRUCT),
+                Type::Scalar(_) => Some(CompletionItemKind::FIELD),
+                _ => None,
+            };
+
+            CompletionItem {
+                label: label.clone(),
+                kind,
+                detail: Some(detail),
+                documentation: None,
+                deprecated: None,
+                preselect: None,
+                sort_text: None,
+                filter_text: None,
+                insert_text: Some(format!("{}: $1", label)),
+                insert_text_format: Some(lsp_types::InsertTextFormat::SNIPPET),
+                text_edit: None,
+                additional_text_edits: None,
+                command: Some(lsp_types::Command::new(
+                    "Suggest".into(),
+                    "editor.action.triggerSuggest".into(),
+                    None,
+                )),
+                data: None,
+                tags: None,
+                ..Default::default()
+            }
+        })
+        .collect()
 }
 
 fn resolve_completion_items_for_argument_name<T: ArgumentLike>(
@@ -744,7 +976,7 @@ fn resolve_completion_items_for_inline_fragment(
                     interface
                         .implementing_objects
                         .iter()
-                        .filter_map(|id| schema.get_type(schema.object(*id).name.item)),
+                        .filter_map(|id| schema.get_type(schema.object(*id).name.item.0)),
                 )
                 .collect()
         }
@@ -755,7 +987,7 @@ fn resolve_completion_items_for_inline_fragment(
                     union
                         .members
                         .iter()
-                        .filter_map(|id| schema.get_type(schema.object(*id).name.item)),
+                        .filter_map(|id| schema.get_type(schema.object(*id).name.item.0)),
                 )
                 .collect()
         }
@@ -796,7 +1028,7 @@ fn resolve_completion_items_for_inline_fragment(
 
 fn resolve_completion_items_for_argument_value(
     schema: &SDLSchema,
-    type_: &TypeReference,
+    type_: &TypeReference<Type>,
     program: &Program,
     executable_name: ExecutableName,
 ) -> Vec<CompletionItem> {
@@ -817,7 +1049,7 @@ fn resolve_completion_items_for_argument_value(
             }
         }
         ExecutableName::Operation(name) => {
-            if let Some(operation) = program.operation(name) {
+            if let Some(operation) = program.operation(OperationDefinitionName(name)) {
                 operation
                     .variable_definitions
                     .iter()
@@ -909,13 +1141,10 @@ fn resolve_completion_items_for_fields<T: TypeWithFields + Named>(
 
             let kind = match field.type_.inner() {
                 Type::Enum(_) => Some(CompletionItemKind::ENUM),
-                Type::Interface(_) => Some(CompletionItemKind::INTERFACE),
                 // There is no Kind for union, so we'll use interface
-                Type::Union(_) => Some(CompletionItemKind::INTERFACE),
-                Type::Object(_) => Some(CompletionItemKind::STRUCT),
-                Type::InputObject(_) => Some(CompletionItemKind::STRUCT),
-                type_ if schema.is_string(type_) => Some(CompletionItemKind::TEXT),
-                _ => Some(CompletionItemKind::VALUE),
+                Type::Interface(_) | Type::Union(_) => Some(CompletionItemKind::INTERFACE),
+                Type::Object(_) | Type::InputObject(_) => Some(CompletionItemKind::STRUCT),
+                Type::Scalar(_) => Some(CompletionItemKind::FIELD),
             };
 
             CompletionItem {

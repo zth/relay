@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c45a2297504a2c342ba54593d8a39530>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<9dbe872665053dd2d1154ff50a74046d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,24 +18,27 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { DataID } from "relay-runtime";
 import type { AstrologicalSignNameResolver$key } from "./../resolvers/__generated__/AstrologicalSignNameResolver.graphql";
 import type { QueryAllAstrologicalSignsResolver$key } from "./../resolvers/__generated__/QueryAllAstrologicalSignsResolver.graphql";
-import astrologicalSignNameResolver from "../resolvers/AstrologicalSignNameResolver.js";
-// Type assertion validating that `astrologicalSignNameResolver` resolver is correctly implemented.
+import {name as astrologicalSignNameResolverType} from "../resolvers/AstrologicalSignNameResolver.js";
+// Type assertion validating that `astrologicalSignNameResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(astrologicalSignNameResolver: (
-  rootKey: AstrologicalSignNameResolver$key, 
+(astrologicalSignNameResolverType: (
+  rootKey: AstrologicalSignNameResolver$key,
 ) => mixed);
-import queryAllAstrologicalSignsResolver from "../resolvers/QueryAllAstrologicalSignsResolver.js";
-// Type assertion validating that `queryAllAstrologicalSignsResolver` resolver is correctly implemented.
+import {all_astrological_signs as queryAllAstrologicalSignsResolverType} from "../resolvers/QueryAllAstrologicalSignsResolver.js";
+// Type assertion validating that `queryAllAstrologicalSignsResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryAllAstrologicalSignsResolver: (
-  rootKey: QueryAllAstrologicalSignsResolver$key, 
-) => mixed);
+(queryAllAstrologicalSignsResolverType: (
+  rootKey: QueryAllAstrologicalSignsResolver$key,
+) => ?$ReadOnlyArray<?{|
+  +id: DataID,
+|}>);
 export type ClientEdgeToClientObjectTest2Query$variables = {||};
 export type ClientEdgeToClientObjectTest2Query$data = {|
   +all_astrological_signs: ?$ReadOnlyArray<?{|
-    +name: ?$Call<<R>((...empty[]) => R) => R, typeof astrologicalSignNameResolver>,
+    +name: ?$Call<<R>((...empty[]) => R) => R, typeof astrologicalSignNameResolverType>,
   |}>,
 |};
 export type ClientEdgeToClientObjectTest2Query = {|
@@ -42,7 +47,15 @@ export type ClientEdgeToClientObjectTest2Query = {|
 |};
 */
 
-var node/*: ConcreteRequest*/ = {
+var node/*: ConcreteRequest*/ = (function(){
+var v0 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "id",
+  "storageKey": null
+};
+return {
   "fragment": {
     "argumentDefinitions": [],
     "kind": "Fragment",
@@ -64,7 +77,7 @@ var node/*: ConcreteRequest*/ = {
           },
           "kind": "RelayResolver",
           "name": "all_astrological_signs",
-          "resolverModule": require('./../resolvers/QueryAllAstrologicalSignsResolver'),
+          "resolverModule": require('./../resolvers/QueryAllAstrologicalSignsResolver').all_astrological_signs,
           "path": "all_astrological_signs"
         },
         "linkedField": {
@@ -85,7 +98,7 @@ var node/*: ConcreteRequest*/ = {
               },
               "kind": "RelayResolver",
               "name": "name",
-              "resolverModule": require('./../resolvers/AstrologicalSignNameResolver'),
+              "resolverModule": require('./../resolvers/AstrologicalSignNameResolver').name,
               "path": "name"
             }
           ],
@@ -103,29 +116,81 @@ var node/*: ConcreteRequest*/ = {
     "name": "ClientEdgeToClientObjectTest2Query",
     "selections": [
       {
-        "alias": null,
-        "args": null,
-        "concreteType": "User",
-        "kind": "LinkedField",
-        "name": "me",
-        "plural": false,
-        "selections": [
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "__typename",
-            "storageKey": null
+        "kind": "ClientEdgeToClientObject",
+        "backingField": {
+          "name": "all_astrological_signs",
+          "args": null,
+          "fragment": {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "concreteType": "User",
+                "kind": "LinkedField",
+                "name": "me",
+                "plural": false,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "__typename",
+                    "storageKey": null
+                  },
+                  (v0/*: any*/)
+                ],
+                "storageKey": null
+              }
+            ],
+            "type": "Query",
+            "abstractKey": null
           },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "id",
-            "storageKey": null
-          }
-        ],
-        "storageKey": null
+          "kind": "RelayResolver",
+          "storageKey": null,
+          "isOutputType": false
+        },
+        "linkedField": {
+          "alias": null,
+          "args": null,
+          "concreteType": "AstrologicalSign",
+          "kind": "LinkedField",
+          "name": "all_astrological_signs",
+          "plural": true,
+          "selections": [
+            {
+              "name": "name",
+              "args": null,
+              "fragment": {
+                "kind": "InlineFragment",
+                "selections": [
+                  {
+                    "name": "self",
+                    "args": null,
+                    "fragment": {
+                      "kind": "InlineFragment",
+                      "selections": [
+                        (v0/*: any*/)
+                      ],
+                      "type": "AstrologicalSign",
+                      "abstractKey": null
+                    },
+                    "kind": "RelayResolver",
+                    "storageKey": null,
+                    "isOutputType": false
+                  }
+                ],
+                "type": "AstrologicalSign",
+                "abstractKey": null
+              },
+              "kind": "RelayResolver",
+              "storageKey": null,
+              "isOutputType": false
+            },
+            (v0/*: any*/)
+          ],
+          "storageKey": null
+        }
       }
     ]
   },
@@ -138,6 +203,7 @@ var node/*: ConcreteRequest*/ = {
     "text": "query ClientEdgeToClientObjectTest2Query {\n  ...QueryAllAstrologicalSignsResolver\n}\n\nfragment QueryAllAstrologicalSignsResolver on Query {\n  me {\n    __typename\n    id\n  }\n}\n"
   }
 };
+})();
 
 if (__DEV__) {
   (node/*: any*/).hash = "b03fba0ae5a32ea645e8614e2f612822";

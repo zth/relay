@@ -6,6 +6,7 @@
  *
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -76,6 +77,7 @@ export type FetchPolicy =
 export type RenderPolicy = 'full' | 'partial';
 
 /* eslint-disable no-undef */
+/* eslint-disable no-unused-vars */
 
 /**
  * Return type of graphql tag literals for all operations.
@@ -126,7 +128,7 @@ declare export opaque type ClientQuery<
 declare export opaque type Mutation<
   -TVariables: Variables,
   +TData,
-  TRawResponse = void,
+  TRawResponse = {...},
 >: Operation<TVariables, TData, TRawResponse>;
 
 /**
@@ -161,5 +163,5 @@ declare export opaque type Fragment<TFragmentType, +TData>: ReaderFragment;
 declare export opaque type RefetchableFragment<
   TFragmentType,
   +TData,
-  -TVariables: Variables,
+  TVariables: Variables,
 >: Fragment<TFragmentType, TData>;

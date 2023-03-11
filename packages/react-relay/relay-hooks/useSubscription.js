@@ -6,6 +6,7 @@
  *
  * @flow
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -45,7 +46,6 @@ function useSubscription<TVariables, TData, TRawResponse>(
   useEffect(() => {
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const {dispose} = actualRequestSubscription(environment, config);
-    // $FlowFixMe[incompatible-call]
     return dispose;
   }, [environment, config, actualRequestSubscription]);
 }

@@ -4,14 +4,14 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
 'use strict';
 
-import type {DataID} from 'relay-runtime';
+import type {ConcreteClientEdgeResolverReturnType} from 'relay-runtime';
 import type {LiveState} from 'relay-runtime/store/experimental-live-resolvers/LiveResolverStore';
 
 /**
@@ -21,10 +21,12 @@ import type {LiveState} from 'relay-runtime/store/experimental-live-resolvers/Li
  * @edgeTo User
  * @live
  */
-function LiveConstantClientEdgeResolver(): LiveState<DataID> {
+function live_constant_client_edge(): LiveState<
+  ConcreteClientEdgeResolverReturnType<>,
+> {
   return {
     read() {
-      return '1338';
+      return {id: '1338'};
     },
     subscribe(cb) {
       return () => {};
@@ -32,4 +34,6 @@ function LiveConstantClientEdgeResolver(): LiveState<DataID> {
   };
 }
 
-module.exports = LiveConstantClientEdgeResolver;
+module.exports = {
+  live_constant_client_edge,
+};

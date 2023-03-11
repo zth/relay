@@ -6,6 +6,7 @@
  *
  * @flow
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -73,7 +74,7 @@ function requestSubscription<TVariables: Variables, TData, TRawResponse>(
   );
 
   const {updater} = configs
-    ? RelayDeclarativeMutationConfig.convert(
+    ? RelayDeclarativeMutationConfig.convert<$FlowFixMe>(
         configs,
         subscription,
         null /* optimisticUpdater */,
@@ -82,7 +83,7 @@ function requestSubscription<TVariables: Variables, TData, TRawResponse>(
     : config;
 
   const sub = environment
-    .executeSubscription({
+    .executeSubscription<$FlowFixMe>({
       operation,
       updater,
     })

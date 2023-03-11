@@ -5,12 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::path::PathBuf;
+
+use common::ScalarName;
 use fnv::FnvBuildHasher;
 use indexmap::IndexMap;
 use intern::string_key::StringKey;
 use serde::Deserialize;
 use serde::Serialize;
-use std::path::PathBuf;
 use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
@@ -86,7 +88,7 @@ pub struct TypegenConfig {
     /// { "Url": "String" }
     /// { "Url": {"name:: "MyURL", "path": "../src/MyUrlTypes"} }
     #[serde(default)]
-    pub custom_scalar_types: FnvIndexMap<StringKey, CustomScalarType>,
+    pub custom_scalar_types: FnvIndexMap<ScalarName, CustomScalarType>,
 
     /// Require all GraphQL scalar types mapping to be defined, will throw
     /// if a GraphQL scalar type doesn't have a JS type

@@ -4,14 +4,14 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
 'use strict';
 
-import type {DataID} from 'relay-runtime';
+import type {ConcreteClientEdgeResolverReturnType} from 'relay-runtime';
 
 /**
  * @RelayResolver
@@ -19,11 +19,15 @@ import type {DataID} from 'relay-runtime';
  * @edgeTo ClientObject
  * @onType User
  */
-function UserClientEdgeClientObjectResolver(args: {id: string}): ?DataID {
+function client_object(args: {
+  id: string,
+}): ?ConcreteClientEdgeResolverReturnType<> {
   if (args.id === '0') {
     return null;
   }
-  return args.id;
+  return {id: args.id};
 }
 
-module.exports = UserClientEdgeClientObjectResolver;
+module.exports = {
+  client_object,
+};

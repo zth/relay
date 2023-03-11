@@ -4,8 +4,8 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -13,7 +13,6 @@
 const ReactRelayContext = require('../ReactRelayContext');
 const ReactRelayFragmentContainer = require('../ReactRelayFragmentContainer');
 const ReactRelayRefetchContainer = require('../ReactRelayRefetchContainer');
-const readContext = require('../readContext');
 const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
 const {
@@ -26,7 +25,9 @@ const {
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils-internal');
 
-describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
+const {useContext} = React;
+
+describe('ReactRelayRefetchContainer with fragment ownership', () => {
   let TestChildComponent;
   let TestComponent;
   let TestChildContainer;
@@ -138,7 +139,7 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
     );
     render = jest.fn(props => {
       refetch = props.relay.refetch;
-      relayContext = readContext(ReactRelayContext);
+      relayContext = useContext(ReactRelayContext);
       return <TestChildContainer user={props.user} />;
     });
     variables = {id: '4', scale: 2};

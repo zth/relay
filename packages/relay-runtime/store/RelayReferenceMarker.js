@@ -6,15 +6,18 @@
  *
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
 'use strict';
 
 import type {
+  NormalizationClientEdgeToClientObject,
   NormalizationFlightField,
   NormalizationLinkedField,
   NormalizationModuleImport,
   NormalizationNode,
+  NormalizationResolverField,
   NormalizationSelection,
 } from '../util/NormalizationNode';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
@@ -31,6 +34,7 @@ const getOperation = require('../util/getOperation');
 const RelayConcreteNode = require('../util/RelayConcreteNode');
 const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const cloneRelayHandleSourceField = require('./cloneRelayHandleSourceField');
+const getOutputTypeRecordIDs = require('./experimental-live-resolvers/getOutputTypeRecordIDs');
 const {getLocalVariables} = require('./RelayConcreteVariables');
 const RelayModernRecord = require('./RelayModernRecord');
 const RelayStoreReactFlightUtils = require('./RelayStoreReactFlightUtils');
@@ -54,6 +58,8 @@ const {
   SCALAR_HANDLE,
   STREAM,
   TYPE_DISCRIMINATOR,
+  RELAY_RESOLVER,
+  CLIENT_EDGE_TO_CLIENT_OBJECT,
 } = RelayConcreteNode;
 const {ROOT_ID, getStorageKey, getModuleOperationKey} = RelayStoreUtils;
 
@@ -155,7 +161,18 @@ class RelayReferenceMarker {
         case INLINE_FRAGMENT:
           if (selection.abstractKey == null) {
             const typeName = RelayModernRecord.getType(record);
-            if (typeName != null && typeName === selection.type) {
+            if (
+              (typeName != null && typeName === selection.type) ||
+              // Our root record has a special type of `__Root` which may not
+              // match the schema type of Query/Mutation or whatever the schema
+              // specifies.
+              //
+              // If we have an inline fragment on a concrete type within an
+              // operation root, and our query has been validated, we know that
+              // concrete type must match, since the operation selection must be
+              // on a concrete type.
+              typeName === RelayStoreUtils.ROOT_TYPE
+            ) {
               this._traverseSelections(selection.selections, record);
             }
           } else {
@@ -228,6 +245,12 @@ class RelayReferenceMarker {
           }
           this._traverseSelections(selection.fragment.selections, record);
           break;
+        case RELAY_RESOLVER:
+          this._traverseResolverField(selection, record);
+          break;
+        case CLIENT_EDGE_TO_CLIENT_OBJECT:
+          this._traverseClientEdgeToClientObject(selection, record);
+          break;
         default:
           (selection: empty);
           invariant(
@@ -237,6 +260,81 @@ class RelayReferenceMarker {
           );
       }
     });
+  }
+
+  _traverseClientEdgeToClientObject(
+    field: NormalizationClientEdgeToClientObject,
+    record: Record,
+  ): void {
+    const dataID = this._traverseResolverField(field.backingField, record);
+    if (dataID == null) {
+      return;
+    }
+    const resolverRecord = this._recordSource.get(dataID);
+    if (resolverRecord == null) {
+      return;
+    }
+    if (field.backingField.isOutputType) {
+      // Mark all @outputType record IDs
+      const outputTypeRecordIDs = getOutputTypeRecordIDs(resolverRecord);
+      if (outputTypeRecordIDs != null) {
+        for (const dataID of outputTypeRecordIDs) {
+          this._references.add(dataID);
+        }
+      }
+    } else {
+      const {linkedField} = field;
+      const concreteType = linkedField.concreteType;
+      if (concreteType == null) {
+        // TODO: Handle retaining abstract client edges to client types.
+        return;
+      }
+      if (linkedField.plural) {
+        const dataIDs = RelayModernRecord.getResolverLinkedRecordIDs(
+          resolverRecord,
+          concreteType,
+        );
+
+        if (dataIDs != null) {
+          for (const dataID of dataIDs) {
+            if (dataID != null) {
+              this._traverse(linkedField, dataID);
+            }
+          }
+        }
+      } else {
+        const dataID = RelayModernRecord.getResolverLinkedRecordID(
+          resolverRecord,
+          concreteType,
+        );
+        if (dataID != null) {
+          this._traverse(linkedField, dataID);
+        }
+      }
+    }
+  }
+
+  _traverseResolverField(
+    field: NormalizationResolverField,
+    record: Record,
+  ): ?DataID {
+    const storageKey = getStorageKey(field, this._variables);
+    const dataID = RelayModernRecord.getLinkedRecordID(record, storageKey);
+
+    // If the resolver value has been created, we should retain it.
+    // This record contains our cached resolver value, and potential Live
+    // Resolver subscription.
+    if (dataID != null) {
+      this._references.add(dataID);
+    }
+
+    const {fragment} = field;
+    if (fragment != null) {
+      // Mark the contents of the resolver's data dependencies.
+      this._traverseSelections([fragment], record);
+    }
+
+    return dataID;
   }
 
   _traverseModuleImport(

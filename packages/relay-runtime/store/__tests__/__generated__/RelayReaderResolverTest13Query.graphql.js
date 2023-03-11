@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<6c6e82d69b02b563040f36017dec7b44>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<c09d5a62512d940511897afe1b02b4ab>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,16 +19,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { UserAlwaysThrowsTransitivelyResolver$key } from "./../resolvers/__generated__/UserAlwaysThrowsTransitivelyResolver.graphql";
-import userAlwaysThrowsTransitivelyResolver from "../resolvers/UserAlwaysThrowsTransitivelyResolver.js";
-// Type assertion validating that `userAlwaysThrowsTransitivelyResolver` resolver is correctly implemented.
+import {always_throws_transitively as userAlwaysThrowsTransitivelyResolverType} from "../resolvers/UserAlwaysThrowsTransitivelyResolver.js";
+// Type assertion validating that `userAlwaysThrowsTransitivelyResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userAlwaysThrowsTransitivelyResolver: (
-  rootKey: UserAlwaysThrowsTransitivelyResolver$key, 
+(userAlwaysThrowsTransitivelyResolverType: (
+  rootKey: UserAlwaysThrowsTransitivelyResolver$key,
 ) => mixed);
 export type RelayReaderResolverTest13Query$variables = {||};
 export type RelayReaderResolverTest13Query$data = {|
   +me: ?{|
-    +always_throws_transitively: ?$Call<<R>((...empty[]) => R) => R, typeof userAlwaysThrowsTransitivelyResolver>,
+    +always_throws_transitively: ?$Call<<R>((...empty[]) => R) => R, typeof userAlwaysThrowsTransitivelyResolverType>,
   |},
 |};
 export type RelayReaderResolverTest13Query = {|
@@ -60,7 +62,7 @@ var node/*: ConcreteRequest*/ = {
             },
             "kind": "RelayResolver",
             "name": "always_throws_transitively",
-            "resolverModule": require('./../resolvers/UserAlwaysThrowsTransitivelyResolver'),
+            "resolverModule": require('./../resolvers/UserAlwaysThrowsTransitivelyResolver').always_throws_transitively,
             "path": "me.always_throws_transitively"
           }
         ],
@@ -85,11 +87,39 @@ var node/*: ConcreteRequest*/ = {
         "plural": false,
         "selections": [
           {
-            "alias": null,
+            "name": "always_throws_transitively",
             "args": null,
-            "kind": "ScalarField",
-            "name": "__typename",
-            "storageKey": null
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "name": "always_throws",
+                  "args": null,
+                  "fragment": {
+                    "kind": "InlineFragment",
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "__typename",
+                        "storageKey": null
+                      }
+                    ],
+                    "type": "User",
+                    "abstractKey": null
+                  },
+                  "kind": "RelayResolver",
+                  "storageKey": null,
+                  "isOutputType": false
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "RelayResolver",
+            "storageKey": null,
+            "isOutputType": false
           },
           {
             "alias": null,

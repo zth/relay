@@ -6,6 +6,7 @@
  *
  * @flow
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -19,6 +20,7 @@ import type {
   NormalizationLinkedField,
   NormalizationModuleImport,
   NormalizationNode,
+  NormalizationResolverField,
   NormalizationScalarField,
   NormalizationStream,
 } from '../util/NormalizationNode';
@@ -43,6 +45,7 @@ const {
 const {
   ACTOR_CHANGE,
   CLIENT_COMPONENT,
+  CLIENT_EDGE_TO_CLIENT_OBJECT,
   CLIENT_EXTENSION,
   CONDITION,
   DEFER,
@@ -52,6 +55,7 @@ const {
   LINKED_FIELD,
   LINKED_HANDLE,
   MODULE_IMPORT,
+  RELAY_RESOLVER,
   SCALAR_FIELD,
   SCALAR_HANDLE,
   STREAM,
@@ -306,17 +310,13 @@ class RelayResponseNormalizer {
           const fieldKey = getStorageKey(selection, this._variables);
           const handleKey = getHandleStorageKey(selection, this._variables);
           this._handleFieldPayloads.push({
-            /* $FlowFixMe[class-object-subtyping] added when improving typing
-             * for this parameters */
             args,
             dataID: RelayModernRecord.getDataID(record),
             fieldKey,
             handle: selection.handle,
             handleKey,
             handleArgs: selection.handleArgs
-              ? /* $FlowFixMe[class-object-subtyping] added when improving typing
-                 * for this parameters */
-                getArgumentValues(selection.handleArgs, this._variables)
+              ? getArgumentValues(selection.handleArgs, this._variables)
               : {},
           });
           break;
@@ -351,6 +351,12 @@ class RelayResponseNormalizer {
         case ACTOR_CHANGE:
           this._normalizeActorChange(node, selection, record, data);
           break;
+        case RELAY_RESOLVER:
+          this._normalizeResolver(selection, record, data);
+          break;
+        case CLIENT_EDGE_TO_CLIENT_OBJECT:
+          this._normalizeResolver(selection.backingField, record, data);
+          break;
         default:
           (selection: empty);
           invariant(
@@ -359,6 +365,16 @@ class RelayResponseNormalizer {
             selection.kind,
           );
       }
+    }
+  }
+
+  _normalizeResolver(
+    resolver: NormalizationResolverField,
+    record: Record,
+    data: PayloadData,
+  ) {
+    if (resolver.fragment != null) {
+      this._traverseSelections(resolver.fragment, record, data);
     }
   }
 
@@ -897,7 +913,7 @@ class RelayResponseNormalizer {
       storageKey,
     );
     const prevIDs = RelayModernRecord.getLinkedRecordIDs(record, storageKey);
-    const nextIDs = [];
+    const nextIDs: Array<?DataID> = [];
     fieldValue.forEach((item, nextIndex) => {
       // validate response data
       if (item == null) {

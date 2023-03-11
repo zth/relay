@@ -4,12 +4,13 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
 'use strict';
+import type {ReactFlightServerError} from '../../network/RelayNetworkTypes';
 
 const {
   getActorIdentifier,
@@ -1439,7 +1440,7 @@ describe('RelayResponseNormalizer', () => {
           }
         }
       `;
-      const payload = {
+      const payload: $FlowFixMe = {
         node: {
           id: '1',
           __typename: 'Feedback',
@@ -1845,16 +1846,25 @@ describe('RelayResponseNormalizer', () => {
   describe('User-defined getDataID', () => {
     let recordSource;
 
-    const getDataID = jest.fn((fieldValue, typename) => {
-      return `${
-        // $FlowFixMe[prop-missing]
-        typeof fieldValue === 'string' ? fieldValue : String(fieldValue.id)
-      }:${String(typename)}`;
-    });
+    const getDataID = jest.fn(
+      (
+        fieldValue: string | {[string]: mixed},
+        typename: string | {[string]: mixed},
+      ) => {
+        return `${
+          typeof fieldValue === 'string' ? fieldValue : String(fieldValue.id)
+        }:${String(typename)}`;
+      },
+    );
 
-    const getNullAsDataID = jest.fn((fieldValue, typename) => {
-      return null;
-    });
+    const getNullAsDataID = jest.fn(
+      (
+        fieldValue: string | {[string]: mixed},
+        typename: string | {[string]: mixed},
+      ) => {
+        return null;
+      },
+    );
 
     beforeEach(() => {
       recordSource = new RelayRecordSource();
@@ -2495,19 +2505,19 @@ describe('RelayResponseNormalizer', () => {
       @argumentDefinitions(
         includeName: {
           type: "Boolean!"
-          provider: "../RelayProvider_returnsTrue.relayprovider"
+          provider: "./RelayProvider_returnsTrue.relayprovider"
         }
         includeFirstName: {
           type: "Boolean!"
-          provider: "../RelayProvider_returnsFalse.relayprovider"
+          provider: "./RelayProvider_returnsFalse.relayprovider"
         }
         skipLastName: {
           type: "Boolean!"
-          provider: "../RelayProvider_returnsFalse.relayprovider"
+          provider: "./RelayProvider_returnsFalse.relayprovider"
         }
         skipUsername: {
           type: "Boolean!"
-          provider: "../RelayProvider_returnsTrue.relayprovider"
+          provider: "./RelayProvider_returnsTrue.relayprovider"
         }
       ) {
         name @include(if: $includeName)
@@ -3536,7 +3546,7 @@ describe('RelayResponseNormalizer', () => {
 
     describe('when successful', () => {
       it('normalizes Flight fields', () => {
-        const payload = {
+        const payload: $FlowFixMe = {
           node: {
             id: '1',
             __typename: 'Story',
@@ -3656,7 +3666,7 @@ describe('RelayResponseNormalizer', () => {
       });
 
       it('asserts that reactFlightPayloadDeserializer is defined as a function', () => {
-        const payload = {
+        const payload: $FlowFixMe = {
           node: {
             id: '1',
             __typename: 'Story',
@@ -3701,9 +3711,12 @@ describe('RelayResponseNormalizer', () => {
 
     describe('when server errors are encountered', () => {
       describe('and ReactFlightServerErrorHandler is specified', () => {
-        const reactFlightServerErrorHandler = jest.fn();
+        const reactFlightServerErrorHandler = jest.fn<
+          [string, Array<ReactFlightServerError>],
+          void,
+        >();
         it('calls ReactFlightServerErrorHandler', () => {
-          const payload = {
+          const payload: $FlowFixMe = {
             node: {
               id: '1',
               __typename: 'Story',
@@ -3748,7 +3761,7 @@ describe('RelayResponseNormalizer', () => {
       });
       describe('and no ReactFlightServerErrorHandler is specified', () => {
         it('warns', () => {
-          const payload = {
+          const payload: $FlowFixMe = {
             node: {
               id: '1',
               __typename: 'Story',
@@ -3855,7 +3868,7 @@ describe('RelayResponseNormalizer', () => {
       });
 
       it('warns if the row protocol is null', () => {
-        const payload = {
+        const payload: $FlowFixMe = {
           node: {
             id: '1',
             __typename: 'Story',
