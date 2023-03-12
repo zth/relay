@@ -18,7 +18,7 @@ module Types = {
   type rawResponse = response
   @live
   type variables = {
-    input?: Js.Nullable.t<inputA>,
+    input?: Js.Null.t<inputA>,
   }
 }
 

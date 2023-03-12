@@ -25,13 +25,13 @@ module Types = {
   type rawResponse = response
   @live
   type variables = {
-    datetime?: Js.Nullable.t<SomeModule.Datetime.t>,
+    datetime?: Js.Null.t<SomeModule.Datetime.t>,
     onlineStatus: [
       | #Idle
       | #Offline
       | #Online
     ],
-    recursive?: Js.Nullable.t<someInput>,
+    recursive?: Js.Null.t<someInput>,
   }
 }
 

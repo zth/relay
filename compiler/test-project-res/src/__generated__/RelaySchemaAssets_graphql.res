@@ -42,11 +42,11 @@ type rec input_InputA = {
 @live
 and input_InputA_nullable = {
   time: SomeModule.Datetime.t,
-  recursiveA?: Js.Nullable.t<input_InputA_nullable>,
-  usingB?: Js.Nullable.t<input_InputB_nullable>,
-  timestamp?: Js.Nullable.t<Timestamp.t>,
-  timestamps?: Js.Nullable.t<array<Js.Nullable.t<Timestamp.t>>>,
-  unmapped?: Js.Nullable.t<RescriptRelay.any>,
+  recursiveA?: Js.Null.t<input_InputA_nullable>,
+  usingB?: Js.Null.t<input_InputB_nullable>,
+  timestamp?: Js.Null.t<Timestamp.t>,
+  timestamps?: Js.Null.t<array<Js.Null.t<Timestamp.t>>>,
+  unmapped?: Js.Null.t<RescriptRelay.any>,
 }
 
 @live
@@ -58,9 +58,9 @@ and input_InputB = {
 
 @live
 and input_InputB_nullable = {
-  time?: Js.Nullable.t<SomeModule.Datetime.t>,
-  usingA?: Js.Nullable.t<input_InputA_nullable>,
-  @as("constraint") constraint_?: Js.Nullable.t<bool>,
+  time?: Js.Null.t<SomeModule.Datetime.t>,
+  usingA?: Js.Null.t<input_InputA_nullable>,
+  @as("constraint") constraint_?: Js.Null.t<bool>,
 }
 
 @live
@@ -76,13 +76,13 @@ and input_SomeInput = {
 
 @live
 and input_SomeInput_nullable = {
-  str?: Js.Nullable.t<string>,
-  bool?: Js.Nullable.t<bool>,
-  float?: Js.Nullable.t<float>,
-  int?: Js.Nullable.t<int>,
-  datetime?: Js.Nullable.t<SomeModule.Datetime.t>,
-  recursive?: Js.Nullable.t<input_SomeInput_nullable>,
-  @as("private") private_?: Js.Nullable.t<bool>,
+  str?: Js.Null.t<string>,
+  bool?: Js.Null.t<bool>,
+  float?: Js.Null.t<float>,
+  int?: Js.Null.t<int>,
+  datetime?: Js.Null.t<SomeModule.Datetime.t>,
+  recursive?: Js.Null.t<input_SomeInput_nullable>,
+  @as("private") private_?: Js.Null.t<bool>,
 }
 
 @live
@@ -94,7 +94,7 @@ and input_RecursiveSetOnlineStatusInput = {
 @live
 and input_RecursiveSetOnlineStatusInput_nullable = {
   someValue: RescriptRelay.any,
-  setOnlineStatus?: Js.Nullable.t<input_SetOnlineStatusInput_nullable>,
+  setOnlineStatus?: Js.Null.t<input_SetOnlineStatusInput_nullable>,
 }
 
 @live
@@ -106,7 +106,7 @@ and input_SetOnlineStatusInput = {
 @live
 and input_SetOnlineStatusInput_nullable = {
   onlineStatus: [#Online | #Idle | #Offline],
-  recursed?: Js.Nullable.t<input_RecursiveSetOnlineStatusInput_nullable>,
+  recursed?: Js.Null.t<input_RecursiveSetOnlineStatusInput_nullable>,
 }
 
 @live
@@ -119,8 +119,8 @@ and input_PesticideListSearchInput = {
 
 @live
 and input_PesticideListSearchInput_nullable = {
-  companyName?: Js.Nullable.t<array<string>>,
-  pesticideIds?: Js.Nullable.t<array<int>>,
+  companyName?: Js.Null.t<array<string>>,
+  pesticideIds?: Js.Null.t<array<int>>,
   skip: int,
   take: int,
 }
