@@ -16,3 +16,8 @@ module Query = %relay(`
     }
 `)
 
+module Query = %relay(`
+    query TestCustomScalars2Query($asArray: [Datetime!]!) {
+      customScalarArray(asArray: $asArray)
+    }
+`)
