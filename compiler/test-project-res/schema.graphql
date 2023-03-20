@@ -197,6 +197,7 @@ type Query {
     last: Int
   ): UserConnection
   searchPesticie(input: PesticideListSearchInput!): String
+  customScalarArray(asArray: [Datetime!]!): String
 }
 
 type Mutation {

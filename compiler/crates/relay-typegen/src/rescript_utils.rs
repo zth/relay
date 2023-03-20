@@ -293,8 +293,11 @@ pub fn instruction_to_key_value_pair(instruction: &ConverterInstructions) -> (St
         &ConverterInstructions::ConvertUnion(union_record_name) => {
             (String::from("u"), union_record_name.to_string())
         }
-        &ConverterInstructions::ConvertCustomField(converter_name) => {
+        &ConverterInstructions::ConvertCustomField(converter_name, false) => {
             (String::from("c"), converter_name.to_string())
+        }
+        &ConverterInstructions::ConvertCustomField(converter_name, true) => {
+            (String::from("ca"), converter_name.to_string())
         }
         &ConverterInstructions::RootObject(object_name) => {
             (String::from("r"), object_name.to_string())
