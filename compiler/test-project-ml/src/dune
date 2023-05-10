@@ -1,0 +1,5 @@
+(library
+ (name reason_relay_test_project)
+ (modes melange)
+ (libraries rescript_relay)
+ (wrapped false))
