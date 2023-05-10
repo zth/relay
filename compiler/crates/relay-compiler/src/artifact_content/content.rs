@@ -371,6 +371,7 @@ pub fn generate_operation(
                     "PreloadableQueryRegistry.set(node.params.id, node);",
                 )?;
             }
+            TypegenLanguage::OCaml |
             TypegenLanguage::ReScript => {
                 // TODO
                 writeln!(section, "\n",)?;
@@ -772,7 +773,7 @@ fn write_variable_value_with_type(
         TypegenLanguage::TypeScript => {
             writeln!(section, "const {}: {} = {};", variable_name, type_, value)
         }
-        TypegenLanguage::ReScript => Ok(()),
+        TypegenLanguage::OCaml | TypegenLanguage::ReScript => Ok(()),
     }
 }
 
@@ -787,6 +788,7 @@ fn generate_disable_lint_section(language: &TypegenLanguage) -> Result<GenericSe
         TypegenLanguage::Flow | TypegenLanguage::JavaScript => {
             writeln!(section, "/* eslint-disable */")?;
         }
+        TypegenLanguage::OCaml |
         TypegenLanguage::ReScript => (),
     }
     Ok(section)
@@ -799,6 +801,7 @@ fn generate_use_strict_section(language: &TypegenLanguage) -> Result<GenericSect
         TypegenLanguage::Flow | TypegenLanguage::JavaScript => {
             writeln!(section, "'use strict';")?;
         }
+        TypegenLanguage::OCaml |
         TypegenLanguage::ReScript => {}
     }
     Ok(section)
@@ -812,7 +815,9 @@ fn write_import_type_from(
 ) -> FmtResult {
     let language = &project_config.typegen_config.language;
     match language {
-        TypegenLanguage::JavaScript | TypegenLanguage::ReScript => Ok(()),
+        TypegenLanguage::JavaScript |
+        TypegenLanguage::OCaml |
+        TypegenLanguage::ReScript => Ok(()),
         TypegenLanguage::Flow => writeln!(section, "import type {{ {} }} from '{}';", type_, from),
         TypegenLanguage::TypeScript => writeln!(
             section,
@@ -835,7 +840,7 @@ fn write_export_generated_node(
     forced_type: Option<String>,
 ) -> FmtResult {
     let export_value = match (typegen_config.language, forced_type) {
-        (TypegenLanguage::ReScript, _) => String::new(),
+        (TypegenLanguage::OCaml | TypegenLanguage::ReScript, _) => String::new(),
         (TypegenLanguage::Flow, None) | (TypegenLanguage::JavaScript, _) => {
             variable_node.to_string()
         }
@@ -890,7 +895,7 @@ fn write_source_hash(
     if let Some(is_dev_variable_name) = &config.is_dev_variable_name {
         writeln!(section, "if ({}) {{", is_dev_variable_name)?;
         match language {
-            TypegenLanguage::ReScript => writeln!(section, "")?,
+            TypegenLanguage::OCaml | TypegenLanguage::ReScript => writeln!(section, "")?,
             TypegenLanguage::Flow => {
                 writeln!(section, "  (node/*: any*/).hash = \"{}\";", source_hash)?
             }
@@ -902,7 +907,7 @@ fn write_source_hash(
         writeln!(section, "}}")?;
     } else {
         match language {
-            TypegenLanguage::ReScript => writeln!(section, "")?,
+            TypegenLanguage::OCaml | TypegenLanguage::ReScript => writeln!(section, "")?,
             TypegenLanguage::Flow => {
                 writeln!(section, "(node/*: any*/).hash = \"{}\";", source_hash)?
             }
@@ -953,21 +958,45 @@ pub fn generate_operation_rescript(
 
     let mut content_sections = ContentSections::default();
 
-    match super::rescript_relay_utils::rescript_get_source_loc_text(
-        &reader_operation.name.location.source_location(),
-    ) {
-        None => (),
-        Some(source_loc_str) => {
-            let mut section = GenericSection::default();
-            writeln!(section, "{}", source_loc_str).unwrap();
-            write!(
-                section,
-                "{}",
-                super::rescript_relay_utils::rescript_get_comments_for_generated()
-            )
-            .unwrap();
-            content_sections.push(ContentSection::Generic(section))
+    match project_config.typegen_config.language {
+        TypegenLanguage::OCaml => {
+            match super::ocaml_relay_utils::ocaml_get_source_loc_text(
+                &reader_operation.name.location.source_location(),
+            ) {
+                None => (),
+                Some(source_loc_str) => {
+                    let mut section = GenericSection::default();
+                    writeln!(section, "{}", source_loc_str).unwrap();
+                    write!(
+                        section,
+                        "{}",
+                        super::ocaml_relay_utils::ocaml_get_comments_for_generated()
+                    )
+                    .unwrap();
+                    content_sections.push(ContentSection::Generic(section))
+                }
+            };
         }
+        TypegenLanguage::ReScript => {
+            match super::rescript_relay_utils::rescript_get_source_loc_text(
+                &reader_operation.name.location.source_location(),
+            ) {
+                None => (),
+                Some(source_loc_str) => {
+                    let mut section = GenericSection::default();
+                    writeln!(section, "{}", source_loc_str).unwrap();
+                    write!(
+                        section,
+                        "{}",
+                        super::rescript_relay_utils::rescript_get_comments_for_generated()
+                    )
+                    .unwrap();
+                    content_sections.push(ContentSection::Generic(section))
+                }
+            };
+
+        }
+        _ => ()
     };
 
     // -- Begin Metadata Annotations Section --
@@ -1016,22 +1045,45 @@ pub fn generate_operation_rescript(
     .unwrap();
 
     // Print operation node types
-    writeln!(
-        section,
-        "type relayOperationNode\ntype operationType = RescriptRelay.{}Node<relayOperationNode>\n\n",
-        match typegen_operation.kind {
-            graphql_syntax::OperationKind::Query => {
-                "query"
-            }
-            graphql_syntax::OperationKind::Mutation => {
-                "mutation"
-            }
-            graphql_syntax::OperationKind::Subscription => {
-                "subscription"
-            }
+    match project_config.typegen_config.language {
+        TypegenLanguage::OCaml => {
+            writeln!(
+                section,
+                "type relayOperationNode\ntype operationType = relayOperationNode RescriptRelay.{}Node\n\n",
+                match typegen_operation.kind {
+                    graphql_syntax::OperationKind::Query => {
+                        "query"
+                    }
+                    graphql_syntax::OperationKind::Mutation => {
+                        "mutation"
+                    }
+                    graphql_syntax::OperationKind::Subscription => {
+                        "subscription"
+                    }
+                }
+            )
+            .unwrap();
         }
-    )
-    .unwrap();
+        TypegenLanguage::ReScript => {
+            writeln!(
+                section,
+                "type relayOperationNode\ntype operationType = RescriptRelay.{}Node<relayOperationNode>\n\n",
+                match typegen_operation.kind {
+                    graphql_syntax::OperationKind::Query => {
+                        "query"
+                    }
+                    graphql_syntax::OperationKind::Mutation => {
+                        "mutation"
+                    }
+                    graphql_syntax::OperationKind::Subscription => {
+                        "subscription"
+                    }
+                }
+            )
+            .unwrap();
+        }
+        _ => ()
+    };
 
     let mut top_level_statements: TopLevelStatements = Default::default();
 
@@ -1052,56 +1104,114 @@ pub fn generate_operation_rescript(
     }
 
     // Print node type
-    writeln!(
-        section,
-        "{}",
-        super::rescript_relay_utils::rescript_make_operation_type_and_node_text(
-            &printer.print_request(
-                schema,
-                normalization_operation,
-                &operation_fragment,
-                request_parameters,
-                &mut top_level_statements
-            ),
-            provided_variables.is_some()
-        )
-    )
-    .unwrap();
+    match project_config.typegen_config.language {
+        TypegenLanguage::OCaml => {
+            writeln!(
+                section,
+                "{}",
+                super::ocaml_relay_utils::ocaml_make_operation_type_and_node_text(
+                    &printer.print_request(
+                        schema,
+                        normalization_operation,
+                        &operation_fragment,
+                        request_parameters,
+                        &mut top_level_statements
+                    ),
+                    provided_variables.is_some()
+                )
+            )
+            .unwrap();
 
-    // Print other assets specific to various operation types.
-    writeln!(
-        section,
-        "{}",
-        match typegen_operation.kind {
-            graphql_syntax::OperationKind::Query => {
-                // TODO: Replace functor at some point
-                "include RescriptRelay.MakeLoadQuery({
-    type variables = Types.variables
-    type loadedQueryRef = queryRef
-    type response = Types.response
-    type node = relayOperationNode
-    let query = node
-    let convertVariables = Internal.convertVariables
-});"
-            }
-            graphql_syntax::OperationKind::Mutation
-            | graphql_syntax::OperationKind::Subscription => {
-                ""
+            // Print other assets specific to various operation types.
+            writeln!(
+                section,
+                "{}",
+                match typegen_operation.kind {
+                    graphql_syntax::OperationKind::Query => {
+                        // TODO: Replace functor at some point
+                        "include RescriptRelay.MakeLoadQuery(struct
+            type variables = Types.variables
+            type loadedQueryRef = queryRef
+            type response = Types.response
+            type node = relayOperationNode
+            let query = node
+            let convertVariables = Internal.convertVariables
+        end)"
+                    }
+                    graphql_syntax::OperationKind::Mutation
+                    | graphql_syntax::OperationKind::Subscription => {
+                        ""
+                    }
+                }
+            )
+            .unwrap();
+
+            // Write below types
+            if is_operation_preloadable(normalization_operation) && id_and_text_hash.is_some() {
+                writeln!(section, "type operationId\ntype operationTypeParams = {{id: operationId}}\nexternal getOperationTypeParams: operationType -> operationTypeParams = \"params\" [@@bs.get]",).unwrap();
+                writeln!(section, "external setPreloadQuery: operationType -> operationId -> unit = \"set\" [@@bs.module \"relay-runtime\"] [@@bs.scope \"PreloadableQueryRegistry\"]").unwrap();
+                writeln!(
+                    section,
+                    "\n let () = (getOperationTypeParams node).id |> setPreloadQuery node"
+                )
+                .unwrap()
             }
         }
-    )
-    .unwrap();
+        TypegenLanguage::ReScript => {
+            writeln!(
+                section,
+                "{}",
+                super::rescript_relay_utils::rescript_make_operation_type_and_node_text(
+                    &printer.print_request(
+                        schema,
+                        normalization_operation,
+                        &operation_fragment,
+                        request_parameters,
+                        &mut top_level_statements
+                    ),
+                    provided_variables.is_some()
+                )
+            )
+            .unwrap();
 
-    // Write below types
-    if is_operation_preloadable(normalization_operation) && id_and_text_hash.is_some() {
-        writeln!(section, "type operationId\ntype operationTypeParams = {{id: operationId}}\n@get external getOperationTypeParams: operationType => operationTypeParams = \"params\"",).unwrap();
-        writeln!(section, "@module(\"relay-runtime\") @scope(\"PreloadableQueryRegistry\") external setPreloadQuery: (operationType, operationId) => unit = \"set\"").unwrap();
-        writeln!(
-            section,
-            "getOperationTypeParams(node).id->setPreloadQuery(node)"
-        )
-        .unwrap()
-    }
+            // Print other assets specific to various operation types.
+            writeln!(
+                section,
+                "{}",
+                match typegen_operation.kind {
+                    graphql_syntax::OperationKind::Query => {
+                        // TODO: Replace functor at some point
+                        "include RescriptRelay.MakeLoadQuery({
+            type variables = Types.variables
+            type loadedQueryRef = queryRef
+            type response = Types.response
+            type node = relayOperationNode
+            let query = node
+            let convertVariables = Internal.convertVariables
+        });"
+                    }
+                    graphql_syntax::OperationKind::Mutation
+                    | graphql_syntax::OperationKind::Subscription => {
+                        ""
+                    }
+                }
+            )
+            .unwrap();
+
+            // Write below types
+            if is_operation_preloadable(normalization_operation) && id_and_text_hash.is_some() {
+                writeln!(section, "type operationId\ntype operationTypeParams = {{id: operationId}}\n@get external getOperationTypeParams: operationType => operationTypeParams = \"params\"",).unwrap();
+                writeln!(section, "@module(\"relay-runtime\") @scope(\"PreloadableQueryRegistry\") external setPreloadQuery: (operationType, operationId) => unit = \"set\"").unwrap();
+                writeln!(
+                    section,
+                    "getOperationTypeParams(node).id->setPreloadQuery(node)"
+                )
+                .unwrap()
+            }
+
+        }
+        _ => ()
+    };
 
     content_sections.push(ContentSection::Generic(section));
 
@@ -1127,22 +1237,47 @@ pub fn generate_read_only_fragment_rescript(
 ) -> Result<Vec<u8>, FmtError> {
     let mut content_sections = ContentSections::default();
 
-    match super::rescript_relay_utils::rescript_get_source_loc_text(
-        &reader_fragment.name.location.source_location(),
-    ) {
-        None => (),
-        Some(source_loc_str) => {
-            let mut section = GenericSection::default();
-            writeln!(section, "{}", source_loc_str).unwrap();
-            write!(
-                section,
-                "{}",
-                super::rescript_relay_utils::rescript_get_comments_for_generated()
-            )
-            .unwrap();
-            content_sections.push(ContentSection::Generic(section))
+
+    match project_config.typegen_config.language {
+        TypegenLanguage::OCaml => {
+            match super::ocaml_relay_utils::ocaml_get_source_loc_text(
+                &reader_fragment.name.location.source_location(),
+            ) {
+                None => (),
+                Some(source_loc_str) => {
+                    let mut section = GenericSection::default();
+                    writeln!(section, "{}", source_loc_str).unwrap();
+                    write!(
+                        section,
+                        "{}",
+                        super::ocaml_relay_utils::ocaml_get_comments_for_generated()
+                    )
+                    .unwrap();
+                    content_sections.push(ContentSection::Generic(section))
+                }
+            }
+
         }
-    }
+        TypegenLanguage::ReScript => {
+            match super::rescript_relay_utils::rescript_get_source_loc_text(
+                &reader_fragment.name.location.source_location(),
+            ) {
+                None => (),
+                Some(source_loc_str) => {
+                    let mut section = GenericSection::default();
+                    writeln!(section, "{}", source_loc_str).unwrap();
+                    write!(
+                        section,
+                        "{}",
+                        super::rescript_relay_utils::rescript_get_comments_for_generated()
+                    )
+                    .unwrap();
+                    content_sections.push(ContentSection::Generic(section))
+                }
+            }
+        }
+        _ => ()
+    };
 
     // -- Begin Metadata Annotations Section --
     let mut section = CommentAnnotationsSection::default();
@@ -1179,25 +1314,54 @@ pub fn generate_read_only_fragment_rescript(
     )?;
 
     // Print the operation type
-    writeln!(
-        section,
-        "type relayOperationNode\ntype operationType = RescriptRelay.{}Node<relayOperationNode>\n\n",
-        "fragment"
-    )
-    .unwrap();
+    match project_config.typegen_config.language {
+        TypegenLanguage::OCaml => {
+            writeln!(
+                section,
+                "type relayOperationNode\ntype operationType = relayOperationNode RescriptRelay.{}Node\n\n",
+                "fragment"
+            )
+            .unwrap();
+        }
+        TypegenLanguage::ReScript => {
+            writeln!(
+                section,
+                "type relayOperationNode\ntype operationType = RescriptRelay.{}Node<relayOperationNode>\n\n",
+                "fragment"
+            )
+            .unwrap();
+        }
+        _ => ()
+    };
 
     let mut import_statements = Default::default();
 
     // Print node type
-    writeln!(
-        section,
-        "{}",
-        super::rescript_relay_utils::rescript_make_operation_type_and_node_text(
-            &printer.print_fragment(schema, reader_fragment, &mut import_statements),
-            false
-        )
-    )
-    .unwrap();
+    match project_config.typegen_config.language {
+        TypegenLanguage::OCaml => {
+            writeln!(
+                section,
+                "{}",
+                super::ocaml_relay_utils::ocaml_make_operation_type_and_node_text(
+                    &printer.print_fragment(schema, reader_fragment, &mut import_statements),
+                    false
+                )
+            )
+            .unwrap();
+        }
+        TypegenLanguage::ReScript => {
+            writeln!(
+                section,
+                "{}",
+                super::rescript_relay_utils::rescript_make_operation_type_and_node_text(
+                    &printer.print_fragment(schema, reader_fragment, &mut import_statements),
+                    false
+                )
+            )
+            .unwrap();
+        }
+        _ => ()
+    };
 
     content_sections.push(ContentSection::Generic(section));
 

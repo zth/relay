@@ -57,6 +57,7 @@ use crate::build_project::artifact_writer::ArtifactFileWriter;
 use crate::build_project::artifact_writer::ArtifactWriter;
 use crate::build_project::generate_extra_artifacts::GenerateExtraArtifactsFn;
 use crate::build_project::rescript_generate_extra_files::rescript_generate_extra_artifacts;
+use crate::build_project::ocaml_generate_extra_files::ocaml_generate_extra_artifacts;
 use crate::build_project::AdditionalValidations;
 use crate::compiler_state::ProjectName;
 use crate::compiler_state::ProjectSet;
@@ -383,6 +384,15 @@ Example file:
             config_file_dir.to_owned()
         };
 
+        let language = projects
+            .first()
+            .map(|(_, first_project)| &first_project.typegen_config.language);
+        let generate_extra_artifacts: Option<GenerateExtraArtifactsFn> = match language {
+            Some(TypegenLanguage::ReScript) => Some(Box::new(rescript_generate_extra_artifacts)),
+            Some(TypegenLanguage::OCaml) => Some(Box::new(ocaml_generate_extra_artifacts)),
+            _ => None
+        };
+
         let config = Self {
             name: config_file.name,
             artifact_writer: Box::new(ArtifactFileWriter::new(None, root_dir.clone())),
@@ -397,7 +407,7 @@ Example file:
             header: config_file.header,
             codegen_command: config_file.codegen_command,
             load_saved_state_file: None,
-            generate_extra_artifacts: Some(Box::new(rescript_generate_extra_artifacts)),
+            generate_extra_artifacts: generate_extra_artifacts,
             generate_virtual_id_file_name: None,
             saved_state_config: config_file.saved_state_config,
             saved_state_loader: None,
@@ -743,7 +753,7 @@ impl Default for SingleProjectConfigFile {
             excludes: get_default_excludes(),
             schema_extensions: vec![],
             no_future_proof_enums: false,
-            language: Some(TypegenLanguage::ReScript),
+            language: Some(TypegenLanguage::OCaml),
             custom_scalars: Default::default(),
             schema_config: Default::default(),
             eager_es_modules: false,
@@ -867,7 +877,7 @@ impl SingleProjectConfigFile {
                 .collect(),
             persist: self.persist_config,
             typegen_config: TypegenConfig {
-                language: self.language.unwrap_or(TypegenLanguage::ReScript),
+                language: self.language.unwrap_or(TypegenLanguage::OCaml),
                 custom_scalar_types: self.custom_scalars.clone(),
                 eager_es_modules: self.eager_es_modules,
                 flow_typegen: FlowTypegenConfig {

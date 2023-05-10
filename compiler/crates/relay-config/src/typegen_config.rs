@@ -24,13 +24,14 @@ type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 pub enum TypegenLanguage {
     JavaScript,
     TypeScript,
+    OCaml,
     ReScript,
     Flow,
 }
 
 impl Default for TypegenLanguage {
     fn default() -> Self {
-        Self::ReScript
+        Self::OCaml
     }
 }
 

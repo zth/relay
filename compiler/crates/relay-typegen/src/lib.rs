@@ -15,6 +15,10 @@ mod rescript;
 mod rescript_ast;
 mod rescript_relay_visitor;
 pub mod rescript_utils;
+
+mod ocaml;
+pub mod ocaml_utils;
+
 mod type_selection;
 mod typegen_state;
 mod typescript;

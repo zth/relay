@@ -8,6 +8,7 @@
 mod content;
 mod content_section;
 mod rescript_relay_utils;
+mod ocaml_relay_utils;
 
 use std::sync::Arc;
 

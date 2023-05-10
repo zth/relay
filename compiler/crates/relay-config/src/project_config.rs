@@ -349,6 +349,7 @@ impl ProjectConfig {
                     format!("{}.graphql.js", definition_name)
                 }
                 TypegenLanguage::TypeScript => format!("{}.graphql.ts", definition_name),
+                TypegenLanguage::OCaml => format!("{}_graphql.ml", definition_name),
                 TypegenLanguage::ReScript => format!("{}_graphql.res", definition_name),
             }
         };

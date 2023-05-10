@@ -20,6 +20,8 @@ use crate::javascript::JavaScriptPrinter;
 use crate::rescript;
 use crate::rescript::DefinitionType;
 use crate::rescript_utils;
+use crate::ocaml;
+use crate::ocaml_utils;
 use crate::typescript::TypeScriptPrinter;
 use crate::TypegenContext;
 use crate::FUTURE_ENUM_VALUE;
@@ -441,6 +443,14 @@ pub(crate) fn new_writer_from_config(
     typegen_definition: DefinitionType,
 ) -> Box<dyn Writer> {
     match config.language {
+        TypegenLanguage::OCaml => Box::new(ocaml::OCamlPrinter::new(
+            ocaml_utils::get_rescript_relay_meta_data(
+                &typegen_opts.schema,
+                &typegen_definition,
+                &config,
+            ),
+            typegen_definition,
+        )),
         TypegenLanguage::ReScript => Box::new(rescript::ReScriptPrinter::new(
             rescript_utils::get_rescript_relay_meta_data(
                 &typegen_opts.schema,

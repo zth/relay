@@ -7,51 +7,27 @@
 
 use common::rescript_utils::get_module_name_from_file_path;
 use fnv::{FnvHashMap, FnvHashSet};
-use graphql_ir::{FragmentDefinition, OperationDefinition};
+use graphql_ir::{OperationDefinition};
 use graphql_syntax::OperationKind;
 use itertools::Itertools;
 use lazy_static::__Deref;
 use log::{debug, warn};
 
 use crate::rescript_ast::*;
+use crate::rescript::{
+    DefinitionType,
+    TopLevelFragmentType,
+    RelayResolverInfo
+};
 use crate::rescript_relay_visitor::{
     RescriptRelayFragmentDirective, RescriptRelayOperationMetaData, RescriptRelayOperationDirective,
 };
-use crate::rescript_utils::*;
+use crate::ocaml_utils::*;
 use crate::writer::{KeyValuePairProp, Prop, Writer, AST};
 use std::fmt::{Result, Write};
 
-// Fragments in Relay can be on either an abstract type (union/interface) or on
-// a concrete type (object). It can also be plural, meaning it's an array. This
-// enum allows us to keep track of what the current fragment we're looking at
-// is, and output types accordingly.
 #[derive(Debug)]
-pub enum TopLevelFragmentType {
-    Object(Object),
-    Union(Union),
-    ArrayWithObject(Object),
-    ArrayWithUnion(Union),
-}
-
-// The current operation type definition type, as given to us by the Relay
-// compiler.
-#[derive(Debug)]
-pub enum DefinitionType {
-    Fragment(FragmentDefinition),
-    // (typegen definition, normalization operation)
-    Operation((OperationDefinition, OperationDefinition)),
-}
-
-// We need to keep track of this information in order to figure out where to
-// import the Relay Resolver types from.
-#[derive(Debug)]
-pub struct RelayResolverInfo {
-    pub local_resolver_name: String,
-    pub resolver_module: String,
-}
-
-#[derive(Debug)]
-pub struct ReScriptPrinter {
+pub struct OCamlPrinter {
     // All encountered enums.
     pub enums: Vec<FullEnum>,
 
@@ -105,7 +81,7 @@ pub struct ReScriptPrinter {
     pub provided_variables: Option<Vec<ProvidedVariable>>,
 }
 
-impl Write for ReScriptPrinter {
+impl Write for OCamlPrinter {
     fn write_str(&mut self, _s: &str) -> Result {
         Ok(())
     }
@@ -113,7 +89,7 @@ impl Write for ReScriptPrinter {
 
 // Turns an AST element into a prop value.
 fn ast_to_prop_value(
-    state: &mut ReScriptPrinter,
+    state: &mut OCamlPrinter,
     current_path: Vec<String>,
     ast: &AST,
     key: &String,
@@ -479,7 +455,7 @@ fn get_first_union_member_ast_and_typename(members: &Vec<AST>) -> Option<(String
 }
 
 fn extract_union_members(
-    state: &mut ReScriptPrinter,
+    state: &mut OCamlPrinter,
     current_path: &Vec<String>,
     members: &Vec<AST>,
     context: &Context,
@@ -538,7 +514,7 @@ fn extract_union_members(
 }
 
 fn get_object_props(
-    state: &mut ReScriptPrinter,
+    state: &mut OCamlPrinter,
     current_path: &Vec<String>,
     props: &Vec<Prop>,
     found_in_union: bool,
@@ -619,7 +595,7 @@ fn get_object_props(
 }
 
 fn get_object_prop_type_as_string(
-    state: &Box<ReScriptPrinter>,
+    state: &Box<OCamlPrinter>,
     prop_value: &PropType,
     context: &Context,
     indentation: usize,
@@ -658,7 +634,7 @@ fn get_object_prop_type_as_string(
                 _ => format!("RelaySchemaAssets_graphql.enum_{}", enum_name),
             }
         }
-        &PropType::StringLiteral(literal) => format!("[ | #{}]", literal),
+        &PropType::StringLiteral(literal) => format!("[ | `{}]", literal),
         &PropType::InputObjectReference(input_object_name) => input_object_name.to_string(),
         &PropType::RecordReference(record_name) => record_name.to_string(),
         &PropType::UnionReference(union_record_name) => union_record_name.to_string(),
@@ -676,47 +652,37 @@ fn get_object_prop_type_as_string(
             &ScalarValues::String => String::from("string"),
         },
         &PropType::Array((nullable, inner_list_type)) => {
-            let mut str = String::from("array<");
-
-            if nullable.to_owned() == true {
-                write!(str, "option<").unwrap();
-            }
-
-            write!(
-                str,
-                "{}",
+            let mut str = String::from(
                 get_object_prop_type_as_string(
                     state,
                     inner_list_type.as_ref(),
                     &context,
                     indentation,
                     field_path_name
-                ),
-            )
-            .unwrap();
+                ));
 
-            if nullable.to_owned() == true {
-                write!(str, ">").unwrap();
+            if nullable.to_owned() {
+                write!(str, " option").unwrap();
             }
 
-            write!(str, ">").unwrap();
+            write!(str, " array").unwrap();
 
             str
         }
         &PropType::FragmentSpreads(fragment_names) => {
-            let mut str = String::from("RescriptRelay.fragmentRefs<[");
+            let mut str = String::from("[");
             fragment_names
                 .iter()
-                .for_each(|fragment_name| write!(str, " | #{}", fragment_name).unwrap());
+                .for_each(|fragment_name| write!(str, " | `{}", fragment_name).unwrap());
 
-            write!(str, "]>").unwrap();
+            write!(str, "] RescriptRelay.fragmentRefs").unwrap();
             str
         }
     }
 }
 
 fn write_object_maker(
-    state: &Box<ReScriptPrinter>,
+    state: &Box<OCamlPrinter>,
     str: &mut String,
     indentation: usize,
     definition: &Object,
@@ -724,12 +690,12 @@ fn write_object_maker(
     target_type: String,
 ) -> Result {
     write_indentation(str, indentation).unwrap();
-    write!(str, "@live @obj external {}: ", name).unwrap();
+    write!(str, "external {}: ", name).unwrap();
 
     let num_props = definition.values.len();
 
     if num_props == 0 {
-        writeln!(str, "unit => unit = \"\"").unwrap();
+        writeln!(str, "unit -> unit = \"\"").unwrap();
         return Ok(());
     } else {
         writeln!(str, "(").unwrap();
@@ -782,7 +748,7 @@ fn write_object_maker(
     }
 
     write_indentation(str, indentation).unwrap();
-    writeln!(str, ") => {} = \"\"", target_type).unwrap();
+    writeln!(str, ") -> {} = \"\" [@@bs.obj]", target_type).unwrap();
     writeln!(str, "\n").unwrap();
 
     Ok(())
@@ -797,12 +763,12 @@ fn write_object_maker_for_refetch_variables(
     definition: &Object,
 ) -> Result {
     write_indentation(str, indentation).unwrap();
-    write!(str, "@live let {} = (", "makeRefetchVariables").unwrap();
+    write!(str, "let makeRefetchVariables = fun (").unwrap();
 
     let num_props = definition.values.len();
 
     if num_props == 0 {
-        writeln!(str, ") => ()").unwrap();
+        writeln!(str, ") -> ()").unwrap();
         return Ok(());
     } else {
         writeln!(str, "").unwrap();
@@ -810,14 +776,14 @@ fn write_object_maker_for_refetch_variables(
 
     definition.values.iter().for_each(|prop_value| {
         write_indentation(str, indentation + 1).unwrap();
-        writeln!(str, "~{}=?,", prop_value.key).unwrap();
+        writeln!(str, "?{} ", prop_value.key).unwrap();
     });
 
     write_indentation(str, indentation + 1).unwrap();
     writeln!(str, "()").unwrap();
 
     write_indentation(str, indentation).unwrap();
-    writeln!(str, "): {} => {{", "refetchVariables").unwrap();
+    writeln!(str, "): {} -> {{", "refetchVariables").unwrap();
 
     // Print the fn body connecting all params
     definition
@@ -836,79 +802,65 @@ fn write_object_maker_for_refetch_variables(
     Ok(())
 }
 
-// Writes an @live annotation that tells reanalyze that this value should be
-// considered alive even if not used, so that dead code analysis can work
-// without it complaining about codegenned functions and types.
-fn write_suppress_dead_code_warning_annotation(str: &mut String, indentation: usize) -> Result {
-    write_indentation(str, indentation).unwrap();
-    writeln!(str, "@live")
-}
-
 fn write_enum_util_functions(str: &mut String, indentation: usize, full_enum: &FullEnum) -> Result {
     let name_uncapitalized = uncapitalize_string(&full_enum.name);
     // First, we write toString functions, that are essentially type casts. This
     // is fine because we're sure the underlying type is a string, if it made it
     // this far.
-    write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
     write_indentation(str, indentation).unwrap();
     writeln!(
         str,
-        "external {}_toString: RelaySchemaAssets_graphql.enum_{} => string = \"%identity\"",
+        "external {}_toString: RelaySchemaAssets_graphql.enum_{} -> string = \"%identity\"",
         name_uncapitalized, full_enum.name
     )
     .unwrap();
 
-    write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
     write_indentation(str, indentation).unwrap();
     writeln!(
         str,
-        "external {}_input_toString: RelaySchemaAssets_graphql.enum_{}_input => string = \"%identity\"",
+        "external {}_input_toString: RelaySchemaAssets_graphql.enum_{}_input -> string = \"%identity\"",
         name_uncapitalized, full_enum.name
     )
     .unwrap();
 
     // Then, we write a function that can turn the enum coming from the
     // response into the input version of the enum.
-    write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
     write_indentation(str, indentation).unwrap();
     writeln!(
         str,
-        "let {}_decode = (enum: RelaySchemaAssets_graphql.enum_{}): option<RelaySchemaAssets_graphql.enum_{}_input> => {{",
+        "let {}_decode (enum: RelaySchemaAssets_graphql.enum_{}): RelaySchemaAssets_graphql.enum_{}_input option =",
         name_uncapitalized, full_enum.name, full_enum.name
     )
     .unwrap();
     write_indentation(str, indentation + 1).unwrap();
-    writeln!(str, "switch enum {{",).unwrap();
+    writeln!(str, "(match enum with",).unwrap();
     write_indentation(str, indentation + 2).unwrap();
     writeln!(
         str,
-        "| #...RelaySchemaAssets_graphql.enum_{}_input as valid => Some(valid)",
+        "| #RelaySchemaAssets_graphql.enum_{}_input as valid -> Some(valid)",
         full_enum.name
     )
     .unwrap();
     write_indentation(str, indentation + 2).unwrap();
-    writeln!(str, "| _ => None",).unwrap();
+    writeln!(str, "| _ -> None",).unwrap();
     write_indentation(str, indentation + 1).unwrap();
-    writeln!(str, "}}",).unwrap();
+    writeln!(str, ")",).unwrap();
     write_indentation(str, indentation).unwrap();
-    writeln!(str, "}}",).unwrap();
 
     // Finally, we write a function that can parse a string into the enum
     // itself. This also leverages the fact that we're sure that a string is a
     // subtype of the enum coming back from the response, even if the type
     // system does not allow it.
-    write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
     write_indentation(str, indentation).unwrap();
     writeln!(
         str,
-        "let {}_fromString = (str: string): option<RelaySchemaAssets_graphql.enum_{}_input> => {{",
+        "let {}_fromString (str: string): RelaySchemaAssets_graphql.enum_{}_input option =",
         name_uncapitalized, full_enum.name
     )
     .unwrap();
     write_indentation(str, indentation + 1).unwrap();
-    writeln!(str, "{}_decode(Obj.magic(str))", name_uncapitalized,).unwrap();
+    writeln!(str, "{}_decode (Obj.magic str)", name_uncapitalized,).unwrap();
     write_indentation(str, indentation).unwrap();
-    writeln!(str, "}}",).unwrap();
 
     Ok(())
 }
@@ -920,7 +872,7 @@ fn write_union_definition_body(str: &mut String, indentation: usize, union: &Uni
         write_indentation(str, indentation + 1).unwrap();
         writeln!(
             str,
-            "| #{}({})",
+            "| `{} of {}",
             member.typename.to_string(),
             member.member_record_name.to_string()
         )
@@ -928,7 +880,7 @@ fn write_union_definition_body(str: &mut String, indentation: usize, union: &Uni
     }
 
     write_indentation(str, indentation + 1).unwrap();
-    writeln!(str, "| #UnselectedUnionMember(string)").unwrap();
+    writeln!(str, "| `UnselectedUnionMember of string").unwrap();
 
     write_indentation(str, indentation).unwrap();
     writeln!(str, "]\n").unwrap();
@@ -1034,7 +986,7 @@ fn write_instruction_json_object(
 
 // This produces the conversion instructions JSON object.
 fn get_conversion_instructions(
-    state: &Box<ReScriptPrinter>,
+    state: &Box<OCamlPrinter>,
     conversion_instructions: &Vec<&InstructionContainer>,
     root_object_names: Vec<&String>,
     root_name: &String,
@@ -1102,7 +1054,6 @@ fn write_converter_map(
     name: &String,
     direction: ConversionDirection,
 ) -> Result {
-    write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
 
     write_indentation(str, indentation).unwrap();
     write!(str, "let {}ConverterMap = ", name).unwrap();
@@ -1192,7 +1143,7 @@ fn write_converter_map(
 fn write_internal_assets(
     str: &mut String,
     indentation: usize,
-    state: &Box<ReScriptPrinter>,
+    state: &Box<OCamlPrinter>,
     target_context: Context,
     name: String,
     include_raw: bool,
@@ -1202,16 +1153,14 @@ fn write_internal_assets(
     let root_name = root_name_from_context(&target_context);
 
     if include_raw {
-        write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
         write_indentation(str, indentation).unwrap();
         writeln!(str, "type {}Raw", name).unwrap();
     }
 
-    write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
     write_indentation(str, indentation).unwrap();
     writeln!(
         str,
-        "let {}Converter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(",
+        "let {}Converter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%bs.raw ",
         name
     )
     .unwrap();
@@ -1249,7 +1198,7 @@ fn write_internal_assets(
 
     writeln!(
         str,
-        "json`{}`",
+        "{{json|{}|json}}",
         get_conversion_instructions(
             state,
             &target_conversion_instructions,
@@ -1260,7 +1209,7 @@ fn write_internal_assets(
     .unwrap();
 
     write_indentation(str, indentation).unwrap();
-    writeln!(str, ")").unwrap();
+    writeln!(str, "]").unwrap();
 
     // Converters are either unions (that needs to be wrapped/unwrapped), or
     // custom scalars _that are ReScript modules_, and therefore should be
@@ -1284,19 +1233,18 @@ fn write_internal_assets(
 
     write_converter_map(str, indentation, &converters, &name, direction).unwrap();
 
-    write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
     write_indentation(str, indentation).unwrap();
     writeln!(
         str,
-        "let convert{} = v => v->RescriptRelay.convertObj(",
+        "let convert{} v = RescriptRelay.convertObj v ",
         uppercase_first_letter(name.as_str())
     )
     .unwrap();
 
     write_indentation(str, indentation + 1).unwrap();
-    writeln!(str, "{}Converter,", name).unwrap();
+    writeln!(str, "{}Converter ", name).unwrap();
     write_indentation(str, indentation + 1).unwrap();
-    writeln!(str, "{}ConverterMap,", name).unwrap();
+    writeln!(str, "{}ConverterMap ", name).unwrap();
     write_indentation(str, indentation + 1).unwrap();
     writeln!(
         str,
@@ -1308,7 +1256,6 @@ fn write_internal_assets(
     )
     .unwrap();
     write_indentation(str, indentation).unwrap();
-    writeln!(str, ")").unwrap();
 
     Ok(())
 }
@@ -1316,11 +1263,10 @@ fn write_internal_assets(
 fn write_union_converters(str: &mut String, indentation: usize, union: &Union) -> Result {
     // Print the unwrap fn first. This is what turns the "raw" value coming from
     // Relay into a ReScript union.
-    write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
     write_indentation(str, indentation).unwrap();
     writeln!(
         str,
-        "let unwrap_{}: {{. \"__typename\": string }} => [",
+        "let unwrap_{}: < __typename: string > Js.t -> [",
         union.record_name
     )
     .unwrap();
@@ -1329,7 +1275,7 @@ fn write_union_converters(str: &mut String, indentation: usize, union: &Union) -
         write_indentation(str, indentation + 1).unwrap();
         writeln!(
             str,
-            "| #{}(Types.{})",
+            "| `{} of Types.{}",
             member.typename.to_string(),
             member.member_record_name.to_string()
         )
@@ -1337,16 +1283,16 @@ fn write_union_converters(str: &mut String, indentation: usize, union: &Union) -
     }
 
     write_indentation(str, indentation + 1).unwrap();
-    writeln!(str, "| #UnselectedUnionMember(string)").unwrap();
+    writeln!(str, "| `UnselectedUnionMember of string").unwrap();
 
     write_indentation(str, indentation).unwrap();
-    writeln!(str, "] = u => switch u[\"__typename\"] {{").unwrap();
+    writeln!(str, "] = fun u -> match u##__typename with ").unwrap();
 
     for member in &union.members {
         write_indentation(str, indentation + 1).unwrap();
         writeln!(
             str,
-            "| \"{}\" => #{}(u->Obj.magic)",
+            "| \"{}\" -> `{} (Obj.magic u)",
             member.typename.to_string(),
             member.typename.to_string(),
         )
@@ -1354,14 +1300,12 @@ fn write_union_converters(str: &mut String, indentation: usize, union: &Union) -
     }
 
     write_indentation(str, indentation + 1).unwrap();
-    writeln!(str, "| v => #UnselectedUnionMember(v)").unwrap();
+    writeln!(str, "| v -> `UnselectedUnionMember v").unwrap();
 
     write_indentation(str, indentation).unwrap();
-    writeln!(str, "}}\n").unwrap();
 
     // This prints the wrap function, which turns the ReScript union back into
     // its "raw" format.
-    write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
     write_indentation(str, indentation).unwrap();
     writeln!(str, "let wrap_{}: [", union.record_name).unwrap();
 
@@ -1369,7 +1313,7 @@ fn write_union_converters(str: &mut String, indentation: usize, union: &Union) -
         write_indentation(str, indentation + 1).unwrap();
         writeln!(
             str,
-            "| #{}(Types.{})",
+            "| `{} of Types.{}",
             member.typename.to_string(),
             member.member_record_name.to_string()
         )
@@ -1377,21 +1321,20 @@ fn write_union_converters(str: &mut String, indentation: usize, union: &Union) -
     }
 
     write_indentation(str, indentation + 1).unwrap();
-    writeln!(str, "| #UnselectedUnionMember(string)").unwrap();
+    writeln!(str, "| `UnselectedUnionMember of string").unwrap();
 
     write_indentation(str, indentation).unwrap();
-    writeln!(str, "] => {{. \"__typename\": string }} = v => switch v {{",).unwrap();
+    writeln!(str, "] -> < __typename: string > Js.t = function ",).unwrap();
 
     for member in &union.members {
         write_indentation(str, indentation + 1).unwrap();
-        writeln!(str, "| #{}(v) => v->Obj.magic", member.typename.to_string(),).unwrap();
+        writeln!(str, "| `{}(v) -> Obj.magic v", member.typename.to_string(),).unwrap();
     }
 
     write_indentation(str, indentation + 1).unwrap();
-    writeln!(str, "| #UnselectedUnionMember(v) => {{\"__typename\": v}}").unwrap();
+    writeln!(str, "| `UnselectedUnionMember v -> [%bs.obj {{ __typename = v }}]").unwrap();
 
     write_indentation(str, indentation).unwrap();
-    writeln!(str, "}}").unwrap();
 
     Ok(())
 }
@@ -1413,11 +1356,9 @@ fn write_record_type_start(
     name: &String,
 ) -> Result {
     match print_mode {
-        ObjectPrintMode::Standalone => {
-            write!(str, "type {} = ", name).unwrap();
-        }
+        ObjectPrintMode::Standalone |
         ObjectPrintMode::StartOfRecursiveChain => {
-            write!(str, "type rec {} = ", name).unwrap();
+            write!(str, "type {} = ", name).unwrap();
         }
         ObjectPrintMode::PartOfRecursiveChain => {
             write!(str, "and {} = ", name).unwrap();
@@ -1428,7 +1369,7 @@ fn write_record_type_start(
 }
 
 fn write_object_definition(
-    state: &Box<ReScriptPrinter>,
+    state: &Box<OCamlPrinter>,
     str: &mut String,
     indentation: usize,
     object: &Object,
@@ -1470,7 +1411,7 @@ fn write_object_definition(
                 _,
             )),
         ) => (),
-        _ => write_suppress_dead_code_warning_annotation(str, indentation).unwrap(),
+        _ => (),
     }
 
     write_indentation(str, indentation).unwrap();
@@ -1503,25 +1444,7 @@ fn write_object_definition(
         write_indentation(str, in_object_indentation).unwrap();
         writeln!(
             str,
-            "{}{}{}{}: {},",
-            // We suppress dead code warnings for a set of keys that we know
-            // don't affect overfetching, and are used internally by
-            // RescriptRelay, but end up in the types anyway because of
-            // *reasons*.
-            {
-                let should_ignore_all_unused = state
-                    .operation_meta_data
-                    .fragment_directives
-                    .iter()
-                    .find(|directive| {
-                        directive.to_owned() == &RescriptRelayFragmentDirective::IgnoreUnused
-                    })
-                    .is_some();
-                match (should_ignore_all_unused, &prop.key[..]) {
-                    (true, _) | (false, "id" | "__id" | "__typename") => "@live ",
-                    _ => "",
-                }
-            },
+            "{}{}{}: {}{};",
             // If original_key is set, that means that the key here has been
             // transformed (as it was probably an illegal identifier in
             // ReScript). When that happens, we print the @as decorator to deal
@@ -1529,7 +1452,7 @@ fn write_object_definition(
             // underlying key itself.
             match &prop.original_key {
                 None => String::from(""),
-                Some(original_key) => format!("@as(\"{}\") ", original_key),
+                Some(original_key) => format!("[@bs.as \"{}\"] ", original_key),
             },
             prop.key,
             match (&nullability, prop.nullable) {
@@ -1538,7 +1461,7 @@ fn write_object_definition(
             },
             match (prop.nullable, is_refetch_var) {
                 (true, true) => format!(
-                    "option<option<{}>>",
+                    "{} option option",
                     get_object_prop_type_as_string(
                         state,
                         &prop.prop_type,
@@ -1574,7 +1497,25 @@ fn write_object_definition(
                         &field_path_name
                     )
                 ),
-            }
+            },
+            // We suppress dead code warnings for a set of keys that we know
+            // don't affect overfetching, and are used internally by
+            // RescriptRelay, but end up in the types anyway because of
+            // *reasons*.
+            {
+                let should_ignore_all_unused = state
+                    .operation_meta_data
+                    .fragment_directives
+                    .iter()
+                    .find(|directive| {
+                        directive.to_owned() == &RescriptRelayFragmentDirective::IgnoreUnused
+                    })
+                    .is_some();
+                match (should_ignore_all_unused, &prop.key[..]) {
+                    (true, _) | (false, "id" | "__id" | "__typename") => " [@live]",
+                    _ => "",
+                }
+            },
         )
         .unwrap()
     });
@@ -1586,7 +1527,7 @@ fn write_object_definition(
 }
 
 fn write_fragment_definition(
-    state: &Box<ReScriptPrinter>,
+    state: &Box<OCamlPrinter>,
     str: &mut String,
     indentation: usize,
     fragment: &TopLevelFragmentType,
@@ -1609,7 +1550,7 @@ fn write_fragment_definition(
                 .unwrap();
 
                 write_indentation(str, indentation).unwrap();
-                writeln!(str, "type fragment = option<fragment_t>").unwrap()
+                writeln!(str, "type fragment = fragment_t option").unwrap()
             } else {
                 write_object_definition(
                     state,
@@ -1638,9 +1579,9 @@ fn write_fragment_definition(
             .unwrap();
             write_indentation(str, indentation).unwrap();
             if nullable {
-                writeln!(str, "type fragment = array<option<fragment_t>>").unwrap()
+                writeln!(str, "type fragment = fragment_t option array").unwrap()
             } else {
-                writeln!(str, "type fragment = array<fragment_t>").unwrap()
+                writeln!(str, "type fragment = fragment_t array").unwrap()
             }
         }
         &TopLevelFragmentType::Union(union) => {
@@ -1654,7 +1595,7 @@ fn write_fragment_definition(
                 )
                 .unwrap();
                 write_indentation(str, indentation).unwrap();
-                writeln!(str, "type fragment = option<fragment_t>").unwrap()
+                writeln!(str, "type fragment = fragment_t option").unwrap()
             } else {
                 write_union_definition(
                     str,
@@ -1677,9 +1618,9 @@ fn write_fragment_definition(
             .unwrap();
             write_indentation(str, indentation).unwrap();
             if nullable {
-                writeln!(str, "type fragment = array<option<fragment_t>>").unwrap()
+                writeln!(str, "type fragment = fragment_t option array").unwrap()
             } else {
-                writeln!(str, "type fragment = array<fragment_t>").unwrap()
+                writeln!(str, "type fragment = fragment_t array").unwrap()
             }
         }
     }
@@ -1689,7 +1630,7 @@ fn write_fragment_definition(
 
 fn find_object_with_record_name<'a>(
     record_name: &'a String,
-    state: &'a Box<ReScriptPrinter>,
+    state: &'a Box<OCamlPrinter>,
 ) -> Option<&'a Object> {
     state
         .objects
@@ -1711,7 +1652,7 @@ fn find_prop_at_key<'a>(
 }
 
 fn find_prop_obj_at_key<'a>(
-    state: &'a Box<ReScriptPrinter>,
+    state: &'a Box<OCamlPrinter>,
     object_with_connection: &'a Object,
     key_name: &'a String,
 ) -> Option<(bool, &'a Object)> {
@@ -1766,7 +1707,7 @@ fn find_edges<'a>(object_with_edges: &'a Object) -> Option<(bool, bool, String)>
 fn write_get_connection_nodes_function(
     str: &mut String,
     indentation: usize,
-    state: &Box<ReScriptPrinter>,
+    state: &Box<OCamlPrinter>,
     connection_field_name: &String,
     object_with_connection: &Object,
 ) -> Result {
@@ -1803,58 +1744,53 @@ fn write_get_connection_nodes_function(
 
                             // We've got all we need, let's print the function itself
                             writeln!(str, "").unwrap();
-                            write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
                             let mut local_indentation = indentation;
                             write_indentation(str, local_indentation).unwrap();
                             write!(str, "let getConnectionNodes: ").unwrap();
-
-                            if connection_nullable {
-                                write!(str, "option<").unwrap()
-                            }
 
                             write!(str, "Types.{}", connection_obj.record_name.to_string())
                                 .unwrap();
 
                             if connection_nullable {
-                                write!(str, ">").unwrap();
+                                write!(str, " option").unwrap();
                             }
 
-                            write!(str, " => array<Types.{}> = ", node_type_name).unwrap();
+                            write!(str, " -> Types.{} array = ", node_type_name).unwrap();
 
-                            writeln!(str, "connection => ").unwrap();
+                            writeln!(str, "connection -> ").unwrap();
 
                             let mut ending_str = String::new();
 
                             if connection_nullable {
                                 local_indentation += 1;
                                 write_indentation(str, local_indentation).unwrap();
-                                writeln!(str, "switch connection {{").unwrap();
+                                writeln!(str, "begin match connection with").unwrap();
 
                                 write_indentation(&mut ending_str, local_indentation).unwrap();
-                                writeln!(ending_str, "}}").unwrap();
+                                writeln!(ending_str, "end").unwrap();
 
                                 local_indentation += 1;
 
                                 write_indentation(str, local_indentation).unwrap();
-                                writeln!(str, "| None => []").unwrap();
+                                writeln!(str, "| None -> []").unwrap();
                                 write_indentation(str, local_indentation).unwrap();
-                                writeln!(str, "| Some(connection) => ").unwrap();
+                                writeln!(str, "| Some connection -> ").unwrap();
                             }
 
                             if edges_prop_nullable {
                                 local_indentation += 1;
                                 write_indentation(str, local_indentation).unwrap();
-                                writeln!(str, "switch connection.edges {{").unwrap();
+                                writeln!(str, "begin match connection.edges with").unwrap();
 
                                 write_indentation(&mut ending_str, local_indentation).unwrap();
-                                writeln!(ending_str, "}}").unwrap();
+                                writeln!(ending_str, "end").unwrap();
 
                                 local_indentation += 1;
 
                                 write_indentation(str, local_indentation).unwrap();
-                                writeln!(str, "| None => []").unwrap();
+                                writeln!(str, "| None -> []").unwrap();
                                 write_indentation(str, local_indentation).unwrap();
-                                writeln!(str, "| Some(edges) => edges").unwrap();
+                                writeln!(str, "| Some edges -> edges").unwrap();
                             } else {
                                 write_indentation(str, local_indentation).unwrap();
                                 writeln!(str, "connection.edges").unwrap();
@@ -1863,21 +1799,21 @@ fn write_get_connection_nodes_function(
                             local_indentation += 1;
                             if edges_nullable {
                                 write_indentation(str, local_indentation).unwrap();
-                                writeln!(str, "->Belt.Array.keepMap(edge => switch edge {{")
+                                writeln!(str, "|. Belt.Array.keepMap(function ")
                                     .unwrap();
 
                                 write_indentation(&mut ending_str, local_indentation).unwrap();
-                                writeln!(ending_str, "}})").unwrap();
+                                writeln!(ending_str, ")").unwrap();
 
                                 local_indentation += 1;
 
                                 write_indentation(str, local_indentation).unwrap();
-                                writeln!(str, "| None => None").unwrap();
+                                writeln!(str, "| None -> None").unwrap();
                                 write_indentation(str, local_indentation).unwrap();
-                                write!(str, "| Some(edge) => ").unwrap();
+                                write!(str, "| Some edge -> ").unwrap();
                             } else {
                                 write_indentation(str, local_indentation).unwrap();
-                                writeln!(str, "->Belt.Array.keepMap(edge => ").unwrap();
+                                writeln!(str, "|. Belt.Array.keepMap (fun edge -> ").unwrap();
 
                                 write_indentation(&mut ending_str, local_indentation).unwrap();
                                 writeln!(ending_str, ")").unwrap();
@@ -1922,7 +1858,7 @@ fn context_from_obj_path(at_path: &Vec<String>) -> Context {
     }
 }
 
-impl Writer for ReScriptPrinter {
+impl Writer for OCamlPrinter {
     // This is what does the actual printing of types. It does that by working
     // its way through the state produced by "write_export_type", which turns
     // the AST the Relay compiler feeds us into a state we can use to generate
@@ -1933,12 +1869,12 @@ impl Writer for ReScriptPrinter {
 
         // Print the Types module. This will contain most of the type
         // defintions.
-        writeln!(generated_types, "module Types = {{").unwrap();
+        writeln!(generated_types, "module Types = struct").unwrap();
 
         indentation += 1;
         write_indentation(&mut generated_types, indentation).unwrap();
 
-        writeln!(generated_types, "@@ocaml.warning(\"-30\")\n").unwrap();
+        writeln!(generated_types, "[@@@ocaml.warning \"-30\"]\n").unwrap();
 
         // Print input objects. These are just type aliases for the main type that's located in the schema assets file.
         self.input_objects
@@ -1950,7 +1886,7 @@ impl Writer for ReScriptPrinter {
                     write_indentation(&mut generated_types, indentation).unwrap();
                     writeln!(
                         generated_types,
-                        "@live type {} = RelaySchemaAssets_graphql.input_{}{}",
+                        "type {} = RelaySchemaAssets_graphql.input_{}{}",
                         input_object.record_name, input_obj_name, if self.operation_meta_data.operation_directives.contains(&RescriptRelayOperationDirective::NullableVariables) { "_nullable" } else {""}
                     )
                     .unwrap();
@@ -2105,8 +2041,6 @@ impl Writer for ReScriptPrinter {
                 )
                 .unwrap(),
                 None => {
-                    write_suppress_dead_code_warning_annotation(&mut generated_types, indentation)
-                        .unwrap();
                     write_indentation(&mut generated_types, indentation).unwrap();
                     writeln!(
                         generated_types,
@@ -2194,7 +2128,7 @@ impl Writer for ReScriptPrinter {
 
         indentation -= 1;
         write_indentation(&mut generated_types, indentation).unwrap();
-        writeln!(generated_types, "}}\n").unwrap();
+        writeln!(generated_types, "end\n").unwrap();
 
         // Print union converters for the fragment itself, if the fragment is on a union.
         match &self.fragment {
@@ -2225,7 +2159,7 @@ impl Writer for ReScriptPrinter {
         // just to reiterate that things found in here are indeed internal, and
         // shouldn't be used on their own.
         write_indentation(&mut generated_types, indentation).unwrap();
-        writeln!(generated_types, "module Internal = {{").unwrap();
+        writeln!(generated_types, "module Internal = struct").unwrap();
         indentation += 1;
 
         match &self.fragment {
@@ -2346,11 +2280,6 @@ impl Writer for ReScriptPrinter {
                         writeln!(generated_types, "type wrapRawResponseRaw = wrapResponseRaw")
                             .unwrap();
 
-                        write_suppress_dead_code_warning_annotation(
-                            &mut generated_types,
-                            indentation,
-                        )
-                        .unwrap();
                         write_indentation(&mut generated_types, indentation).unwrap();
                         writeln!(
                             generated_types,
@@ -2364,8 +2293,6 @@ impl Writer for ReScriptPrinter {
                 write_indentation(&mut generated_types, indentation).unwrap();
                 writeln!(generated_types, "type rawResponseRaw = responseRaw").unwrap();
 
-                write_suppress_dead_code_warning_annotation(&mut generated_types, indentation)
-                    .unwrap();
                 write_indentation(&mut generated_types, indentation).unwrap();
                 writeln!(generated_types, "let convertRawResponse = convertResponse").unwrap();
             }
@@ -2374,7 +2301,7 @@ impl Writer for ReScriptPrinter {
 
         indentation -= 1;
         write_indentation(&mut generated_types, indentation).unwrap();
-        writeln!(generated_types, "}}").unwrap();
+        writeln!(generated_types, "end").unwrap();
 
         // This prints assets for helping to unwrap Relay fragments in a type
         // safe way via ReScript.
@@ -2391,10 +2318,9 @@ impl Writer for ReScriptPrinter {
                 write_indentation(&mut generated_types, indentation + 1).unwrap();
                 writeln!(
                     generated_types,
-                    "{}RescriptRelay.fragmentRefs<[> | #{}]>{} => fragmentRef = \"%identity\"\n",
-                    if plural { "array<" } else { "" },
+                    "[> | `{}] RescriptRelay.fragmentRefs{} -> fragmentRef = \"%identity\"\n",
                     fragment_definition.name.item,
-                    if plural { ">" } else { "" }
+                    if plural { " array" } else { "" }
                 )
                 .unwrap();
             }
@@ -2418,8 +2344,6 @@ impl Writer for ReScriptPrinter {
         match &self.operation_meta_data.connection_config {
             None => (),
             Some(connection_config) => {
-                write_suppress_dead_code_warning_annotation(&mut generated_types, indentation)
-                    .unwrap();
                 write_indentation(&mut generated_types, indentation).unwrap();
                 writeln!(generated_types, "@inline").unwrap();
                 write_indentation(&mut generated_types, indentation).unwrap();
@@ -2442,11 +2366,11 @@ impl Writer for ReScriptPrinter {
         // Print utils module. This holds any utils needed (that the developer
         // might also want to access, so not internal here).
         write_indentation(&mut generated_types, indentation).unwrap();
-        writeln!(generated_types, "module Utils = {{").unwrap();
+        writeln!(generated_types, "module Utils = struct").unwrap();
 
         indentation += 1;
         write_indentation(&mut generated_types, indentation).unwrap();
-        writeln!(generated_types, "@@ocaml.warning(\"-33\")").unwrap();
+        writeln!(generated_types, "[@@@ocaml.warning \"-33\"]").unwrap();
         write_indentation(&mut generated_types, indentation).unwrap();
         writeln!(generated_types, "open Types").unwrap();
 
@@ -2572,7 +2496,7 @@ impl Writer for ReScriptPrinter {
 
         indentation -= 1;
         write_indentation(&mut generated_types, indentation).unwrap();
-        writeln!(generated_types, "}}").unwrap();
+        writeln!(generated_types, "end").unwrap();
 
         /*
          * PROVIDED VARIABLES.
@@ -2588,7 +2512,7 @@ impl Writer for ReScriptPrinter {
                     write_indentation(&mut generated_types, indentation).unwrap();
                     writeln!(
                         generated_types,
-                        "type providedVariable<'t> = {{ providedVariable: unit => 't, get: unit => 't }}"
+                        "type 't providedVariable = {{ providedVariable: unit -> 't; get: unit -> 't }}"
                     )
                     .unwrap();
 
@@ -2603,7 +2527,7 @@ impl Writer for ReScriptPrinter {
                             write_indentation(&mut generated_types, indentation).unwrap();
                             writeln!(
                                 generated_types,
-                                "{}: providedVariable<{}>,",
+                                "{}: {} providedVariable;",
                                 key, return_type
                             )
                             .unwrap();
@@ -2638,7 +2562,7 @@ impl Writer for ReScriptPrinter {
                             write_indentation(&mut generated_types, indentation).unwrap();
                             writeln!(
                                 generated_types,
-                                "providedVariable: {}.get,",
+                                "providedVariable = {}.get;",
                                 module_name
                             )
                             .unwrap();
@@ -2659,14 +2583,14 @@ impl Writer for ReScriptPrinter {
                                 // the keys, which means this works out.
                                 writeln!(
                                     generated_types,
-                                    "get: () => Internal.convertVariables(Js.Dict.fromArray([(\"{}\", {}.get())]))->Js.Dict.unsafeGet(\"{}\"),",
+                                    "get = (fun () -> Internal.convertVariables (Js.Dict.fromArray [(\"{}\", {}.get())]) |. Js.Dict.unsafeGet \"{}\");",
                                     key, module_name, key
                                 )
                                 .unwrap();
                             } else {
                                 writeln!(
                                 generated_types,
-                                "get: {}.get,",
+                                "get = {}.get;",
                                 module_name
                             )
                             .unwrap();
@@ -2678,7 +2602,7 @@ impl Writer for ReScriptPrinter {
                             write_indentation(&mut generated_types, indentation).unwrap();
                             writeln!(
                                 generated_types,
-                                "}},",
+                                "}};",
 
                             )
                             .unwrap();
@@ -3083,7 +3007,7 @@ impl Writer for ReScriptPrinter {
     }
 }
 
-impl ReScriptPrinter {
+impl OCamlPrinter {
     pub fn new(
         operation_meta_data: RescriptRelayOperationMetaData,
         typegen_definition: DefinitionType,
@@ -3105,3 +3029,4 @@ impl ReScriptPrinter {
         }
     }
 }
+
