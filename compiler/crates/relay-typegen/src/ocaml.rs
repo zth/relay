@@ -2000,7 +2000,7 @@ impl Writer for OCamlPrinter {
                 )
                 .unwrap();
                 write_indentation(&mut generated_types, indentation).unwrap();
-                writeln!(generated_types, "type response = option<response_t>").unwrap()
+                writeln!(generated_types, "type response = response_t option").unwrap()
             } else {
                 write_object_definition(
                     &self,
@@ -2345,7 +2345,6 @@ impl Writer for OCamlPrinter {
             None => (),
             Some(connection_config) => {
                 write_indentation(&mut generated_types, indentation).unwrap();
-                writeln!(generated_types, "@inline").unwrap();
                 write_indentation(&mut generated_types, indentation).unwrap();
                 writeln!(
                     generated_types,
@@ -2353,6 +2352,7 @@ impl Writer for OCamlPrinter {
                     connection_config.key
                 )
                 .unwrap();
+                writeln!(generated_types, "[@@bs.inline]").unwrap();
 
                 write!(
                     generated_types,

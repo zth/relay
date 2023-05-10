@@ -209,7 +209,7 @@ pub fn get_enum_definition_body(
 
     for value in &full_enum.values {
         write_indentation(&mut str, indentation + 2).unwrap();
-        writeln!(str, "| #{}", value.to_string()).unwrap();
+        writeln!(str, "| `{}", value.to_string()).unwrap();
     }
 
     write_indentation(&mut str, indentation + 1).unwrap();
@@ -347,9 +347,9 @@ fn print_wrapped_in_some(str: &String, print_as_optional: bool) -> String {
 pub fn print_opt(str: &String, optional: bool, output_as_js_nullable: bool) -> String {
     if optional {
         if output_as_js_nullable {
-            format!("Js.Null.t<{}>", str)
+            format!("{} Js.Null.t", str)
         } else {
-            format!("option<{}>", str)
+            format!("{} option", str)
         }
     } else {
         format!("{}", str)
@@ -371,7 +371,7 @@ pub fn print_constant_value(
         ConstantValue::Boolean(b) => print_wrapped_in_some(&b.to_string(), print_as_optional),
         ConstantValue::Null() => print_wrapped_in_some(&String::from("Js.null"), print_as_optional),
         ConstantValue::Enum(s) => {
-            print_wrapped_in_some(&format!("#{}", s.to_string()), print_as_optional)
+            print_wrapped_in_some(&format!("`{}", s.to_string()), print_as_optional)
         }
         ConstantValue::List(values) => print_wrapped_in_some(
             &format!(
@@ -380,6 +380,7 @@ pub fn print_constant_value(
                     .iter()
                     .map(|v| if wrap_in_arg {
                         format!(
+                            // TODO(anmonteiro)
                             "RescriptRelay_Internal.Arg({})",
                             print_constant_value(v, print_as_optional, wrap_in_arg)
                         )
@@ -392,17 +393,17 @@ pub fn print_constant_value(
         ),
         ConstantValue::Object(arguments) => print_wrapped_in_some(
             &format!(
-                "{{{}}}",
+                "[%bs.obj {{{}}}]",
                 arguments
                     .iter()
                     .map(|arg| {
                         format!(
-                            "\"{}\": {}",
+                            "\"{}\"= {}",
                             arg.name.item,
                             print_constant_value(&arg.value.item, print_as_optional, wrap_in_arg)
                         )
                     })
-                    .join(", "),
+                    .join("; "),
             ),
             print_as_optional,
         ),
@@ -426,7 +427,7 @@ pub fn print_type_reference(
                         .enum_(*id)
                         .values
                         .iter()
-                        .map(|v| { format!("#{}", v.value) })
+                        .map(|v| { format!("`{}", v.value) })
                         .join(" | ")
                 ),
                 Type::InputObject(id) => {
@@ -492,7 +493,7 @@ pub fn print_type_reference(
         ),
         TypeReference::List(typ) => print_opt(
             &format!(
-                "array<{}>",
+                "{} array",
                 print_type_reference(
                     &typ,
                     &schema,
@@ -529,17 +530,17 @@ pub fn print_value(value: &Value, print_as_optional: bool, wrap_in_arg: bool) ->
                 .join(", ")
         ),
         Value::Object(arguments) => format!(
-            "{{{}}}",
+            "[%bs.obj {{{}}}]",
             arguments
                 .iter()
                 .map(|arg| {
                     format!(
-                        "\"{}\": {}",
+                        "\"{}\" = {}",
                         arg.name.item.to_string(),
                         print_value(&arg.value.item, print_as_optional, wrap_in_arg)
                     )
                 })
-                .join(", ")
+                .join("; ")
         ),
     }
 }
@@ -649,18 +650,17 @@ pub fn get_connection_key_maker(
     write_indentation(&mut str, local_indentation).unwrap();
     write!(
         str,
-        "%%private(\n  @live @module(\"relay-runtime\") @scope(\"ConnectionHandler\")\n  external internal_makeConnectionId: (RescriptRelay.dataId, @as(\"{}\") _, 'arguments) => RescriptRelay.dataId = \"getConnectionID\"\n)\n\n",
+        "[%%private\n  external internal_makeConnectionId: (RescriptRelay.dataId, @as(\"{}\") _, 'arguments) -> RescriptRelay.dataId = \"getConnectionID\"\n[@@live] [@@bs.module \"relay-runtime\"] [@bs.scope \"ConnectionHandler\"]\n\n]",
         key
     )
     .unwrap();
 
     write_indentation(&mut str, local_indentation).unwrap();
-    writeln!(str, "@live").unwrap();
 
     write_indentation(&mut str, local_indentation).unwrap();
     writeln!(
         str,
-        "let makeConnectionId = (connectionParentDataId: RescriptRelay.dataId, {}{}) => {{",
+        "let makeConnectionId (connectionParentDataId: RescriptRelay.dataId) {}{}) =",
         all_variables
             .iter()
             .map(|(variable, default_value)| {
@@ -676,11 +676,17 @@ pub fn get_connection_key_maker(
                 };
 
                 format!(
-                    "~{}: {}{}",
+                    "{}({}: {}{})",
+                    match (&default_value, &variable.type_) {
+                        (Some(_), _) |
+                        (None, TypeReference::List(_) | TypeReference::Named(_)) =>
+                            String::from("?"),
+                        (None, TypeReference::NonNull(_)) => String::from("~"),
+                    },
                     variable.name.item,
                     if has_default_value_null {
                         format!(
-                            "Js.null<{}>",
+                            "{} Js.null",
                             print_type_reference(
                                 &variable.type_,
                                 &schema,
@@ -700,8 +706,8 @@ pub fn get_connection_key_maker(
                             false,
                         )
                     },
-                    match (&default_value, &variable.type_) {
-                        (Some(default_value), _) => format!(
+                    match &default_value {
+                        Some(default_value) => format!(
                             "={}",
                             match dig_type_ref(&variable.type_) {
                                 // Input objects are records (nominal) in
@@ -717,19 +723,17 @@ pub fn get_connection_key_maker(
                                 // cast the default constant value with
                                 // Obj.magic here.
                                 Type::InputObject(_) => format!(
-                                    "Obj.magic({})",
+                                    "(Obj.magic {})",
                                     print_constant_value(&default_value.item, false, false)
                                 ),
                                 _ => print_constant_value(&default_value.item, false, false),
                             }
                         ),
-                        (None, TypeReference::List(_) | TypeReference::Named(_)) =>
-                            String::from("=?"),
-                        (None, TypeReference::NonNull(_)) => String::from(""),
+                        None => String::from(""),
                     }
                 )
             })
-            .join(", "),
+            .join(" "),
         // Insert trailing unit if there are optional arguments.
         if all_variables
             .iter()
@@ -742,7 +746,7 @@ pub fn get_connection_key_maker(
             })
             .is_some()
         {
-            format!(", ()")
+            format!(" ()")
         } else {
             String::from("")
         }
@@ -797,7 +801,7 @@ pub fn get_connection_key_maker(
             write_indentation(&mut str, local_indentation).unwrap();
             writeln!(
                 str,
-                "let {} = {}->Js.Null.toOption",
+                "let {} = {} |. Js.Null.toOption",
                 variable.name.item, variable.name.item,
             )
             .unwrap();
@@ -808,14 +812,14 @@ pub fn get_connection_key_maker(
             if is_optional || has_default_value_null {
                 writeln!(
                     str,
-                    "let {} = switch {} {{ | None => None | Some(v) => Some({}.serialize(v)) }}",
+                    "let {} = match {} with | None -> None | Some v -> Some ({}.serialize v) ",
                     variable_name, variable_name, custom_scalar_module_name
                 )
                 .unwrap();
             } else {
                 writeln!(
                     str,
-                    "let {} = Some({}.serialize({}))",
+                    "let {} = Some ({}.serialize {})",
                     variable_name, custom_scalar_module_name, variable_name
                 )
                 .unwrap();
@@ -825,7 +829,7 @@ pub fn get_connection_key_maker(
                 write_indentation(&mut str, local_indentation).unwrap();
                 writeln!(
                     str,
-                    "let {} = Some({})",
+                    "let {} = Some {}",
                     variable.name.item, variable.name.item
                 )
                 .unwrap();
@@ -842,12 +846,12 @@ pub fn get_connection_key_maker(
                 .iter()
                 .map(|arg| {
                     format!(
-                        "\"{}\": {}",
+                        "\"{}\"= {}",
                         arg.name.item,
                         print_value(&arg.value.item, true, true)
                     )
                 })
-                .join(", ")
+                .join("; ")
         )
         .unwrap();
     } else {
@@ -863,7 +867,6 @@ pub fn get_connection_key_maker(
 
     local_indentation -= 1;
     write_indentation(&mut str, local_indentation).unwrap();
-    writeln!(str, "}}").unwrap();
 
     str
 }
@@ -980,7 +983,7 @@ pub fn ast_to_string<'a>(
         AST::Boolean => String::from("bool"),
         AST::String => String::from("string"),
         AST::StringLiteral(StringLiteral(string_literal)) => {
-            format!("[| #{}]", string_literal)
+            format!("[| `{}]", string_literal)
         }
         AST::ReadOnlyArray(inner_type) => format!(
             "array<{}>",

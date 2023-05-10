@@ -1181,14 +1181,14 @@ pub fn generate_operation_rescript(
                 match typegen_operation.kind {
                     graphql_syntax::OperationKind::Query => {
                         // TODO: Replace functor at some point
-                        "include RescriptRelay.MakeLoadQuery({
-            type variables = Types.variables
-            type loadedQueryRef = queryRef
-            type response = Types.response
-            type node = relayOperationNode
-            let query = node
-            let convertVariables = Internal.convertVariables
-        });"
+"include RescriptRelay.MakeLoadQuery({
+    type variables = Types.variables
+    type loadedQueryRef = queryRef
+    type response = Types.response
+    type node = relayOperationNode
+    let query = node
+    let convertVariables = Internal.convertVariables
+});"
                     }
                     graphql_syntax::OperationKind::Mutation
                     | graphql_syntax::OperationKind::Subscription => {
