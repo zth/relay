@@ -203,7 +203,7 @@ pub fn extract(input: &str) -> Vec<JavaScriptSourceFeature> {
             //   }
             '"' => consume_string(&mut it, '"'),
             '\'' => consume_string(&mut it, '\''),
-            '/' => {
+            '/' | '(' => {
                 match it.next() {
                     Some((_, '/')) => {
                         consume_line_comment(&mut it);
@@ -220,7 +220,7 @@ pub fn extract(input: &str) -> Vec<JavaScriptSourceFeature> {
                                 break;
                             }
                             first = false;
-                            if prev_c == '*' && c == '/' {
+                            if prev_c == '*' && (c == '/' || c == ')') {
                                 let end = i;
                                 let text = &input[start + 2..end - 1];
                                 if text.contains("@RelayResolver") {
