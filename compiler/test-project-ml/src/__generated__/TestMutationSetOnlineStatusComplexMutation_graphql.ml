@@ -72,13 +72,13 @@ module Utils = struct
       | `Online
     ]-> 
     ?recursed: recursiveSetOnlineStatusInput-> 
-    unit
+    unit ->
    setOnlineStatusInput = "" [@@bs.obj]
 
 
   external make_recursiveSetOnlineStatusInput:     ?setOnlineStatus: setOnlineStatusInput-> 
     someValue: RescriptRelay.any-> 
-    unit
+    unit ->
    recursiveSetOnlineStatusInput = "" [@@bs.obj]
 
 

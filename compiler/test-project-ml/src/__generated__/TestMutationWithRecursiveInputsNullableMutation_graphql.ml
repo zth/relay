@@ -14,38 +14,38 @@ module Types = struct
   }
   type rawResponse = response
   type variables = {
-    input?: inputA Js.Null.t;
+    input: inputA Js.Null.t [@bs.optional];
   }
 end
 
 module Internal = struct
-  let variablesConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%bs.raw 
+  let variablesConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%bs.raw
     {json|{"inputB":{"usingA":{"r":"inputA"},"time":{"c":"SomeModule.Datetime"}},"inputA":{"usingB":{"r":"inputB"},"timestamps":{"b":"a"},"timestamp":{"b":""},"time":{"c":"SomeModule.Datetime"},"recursiveA":{"r":"inputA"}},"__root":{"input":{"r":"inputA"}}}|json}
   ]
-  let variablesConverterMap = let o = Js.Dict.empty () in 
-    Js.Dict.set o "SomeModule.Datetime" SomeModule.Datetime.serialize;
+  let variablesConverterMap = let o = Js.Dict.empty () in
+    Js.Dict.set o "SomeModule.Datetime" (Obj.magic SomeModule.Datetime.serialize : unit);
   o
-  let convertVariables v = RescriptRelay.convertObj v 
-    variablesConverter 
-    variablesConverterMap 
+  let convertVariables v = RescriptRelay.convertObj v
+    variablesConverter
+    variablesConverterMap
     Js.null
     type wrapResponseRaw
-  let wrapResponseConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%bs.raw 
+  let wrapResponseConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%bs.raw
     {json|{}|json}
   ]
   let wrapResponseConverterMap = ()
-  let convertWrapResponse v = RescriptRelay.convertObj v 
-    wrapResponseConverter 
-    wrapResponseConverterMap 
+  let convertWrapResponse v = RescriptRelay.convertObj v
+    wrapResponseConverter
+    wrapResponseConverterMap
     Js.null
     type responseRaw
-  let responseConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%bs.raw 
+  let responseConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%bs.raw
     {json|{}|json}
   ]
   let responseConverterMap = ()
-  let convertResponse v = RescriptRelay.convertObj v 
-    responseConverter 
-    responseConverterMap 
+  let convertResponse v = RescriptRelay.convertObj v
+    responseConverter
+    responseConverterMap
     Js.undefined
     type wrapRawResponseRaw = wrapResponseRaw
   let convertWrapRawResponse = convertWrapResponse
@@ -55,25 +55,25 @@ end
 module Utils = struct
   [@@@ocaml.warning "-33"]
   open Types
-  external make_inputA:     ?recursiveA: inputA-> 
-    time: SomeModule.Datetime.t-> 
-    ?timestamp: Timestamp.t-> 
-    ?timestamps: Timestamp.t option array-> 
-    ?unmapped: RescriptRelay.any-> 
-    ?usingB: inputB-> 
-    unit
+  external make_inputA:     ?recursiveA: inputA->
+    time: SomeModule.Datetime.t->
+    ?timestamp: Timestamp.t->
+    ?timestamps: Timestamp.t option array->
+    ?unmapped: RescriptRelay.any->
+    ?usingB: inputB->
+    unit ->
    inputA = "" [@@bs.obj]
 
 
-  external make_inputB:     ?_constraint: bool-> 
-    ?time: SomeModule.Datetime.t-> 
-    ?usingA: inputA-> 
-    unit
+  external make_inputB:     ?_constraint: bool->
+    ?time: SomeModule.Datetime.t->
+    ?usingA: inputA->
+    unit ->
    inputB = "" [@@bs.obj]
 
 
-  external makeVariables:     ?input: inputA-> 
-    unit
+  external makeVariables:     ?input: inputA->
+    unit ->
    variables = "" [@@bs.obj]
 
 
@@ -144,5 +144,4 @@ return {
   }
 };
 })() |json}]
-
 

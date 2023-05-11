@@ -18,7 +18,7 @@ module Fragment = [%relay{|
 |}]
 
 let default = Fragment.makeRelayResolver (function
-    | { firstName = Some firstName; lastName = Some lastName} ->
+    | { firstName; lastName} ->
       Some {|${firstName} ${lastName}|}
     | _ -> None
   )

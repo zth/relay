@@ -45,7 +45,7 @@ module Internal = struct
     {json|{"__root":{"member":{"u":"fragment_member"}}}|json}
   ]
   let fragmentConverterMap = let o = Js.Dict.empty () in 
-    Js.Dict.set o "fragment_member" unwrap_fragment_member;
+    Js.Dict.set o "fragment_member" (Obj.magic unwrap_fragment_member : unit);
   o
   let convertFragment v = RescriptRelay.convertObj v 
     fragmentConverter 
@@ -69,14 +69,14 @@ let connectionKey = "TestConnections_user_friendsConnection"
   let onlineStatuses = Some onlineStatuses in
   let beforeDate = Some (SomeModule.Datetime.serialize beforeDate) in
   let args = [%bs.obj {statuses= onlineStatuses; beforeDate= beforeDate; objTests= [RescriptRelay_Internal.Arg(Some([%bs.obj {int = Some(123)}])); RescriptRelay_Internal.Arg(Some([%bs.obj {str = Some("Hello")}])); RescriptRelay_Internal.Arg(someInput)]}] in
-  internal_makeConnectionId(connectionParentDataId, args)
+  internal_makeConnectionId connectionParentDataId args
 module Utils = struct
   [@@@ocaml.warning "-33"]
   open Types
 
   let getConnectionNodes: Types.fragment_member_User_friendsConnection -> Types.fragment_member_User_friendsConnection_edges_node array = fun connection -> 
     begin match connection.edges with
-      | None -> []
+      | None -> [||]
       | Some edges -> edges
         |. Belt.Array.keepMap(function 
           | None -> None

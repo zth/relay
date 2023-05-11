@@ -64,7 +64,7 @@ module Internal = struct
     {json|{"__root":{"members_edges_node_User":{"f":""},"members_edges_node":{"u":"fragment_members_edges_node"}}}|json}
   ]
   let fragmentConverterMap = let o = Js.Dict.empty () in 
-    Js.Dict.set o "fragment_members_edges_node" unwrap_fragment_members_edges_node;
+    Js.Dict.set o "fragment_members_edges_node" (Obj.magic unwrap_fragment_members_edges_node : unit);
   o
   let convertFragment v = RescriptRelay.convertObj v 
     fragmentConverter 
@@ -87,17 +87,17 @@ let connectionKey = "TestPaginationUnion_query_members"
 ]let makeConnectionId (connectionParentDataId: RescriptRelay.dataId) ~(groupId: string) ?(onlineStatuses: [`Online | `Idle | `Offline] array option) () =
   let groupId = Some groupId in
   let args = [%bs.obj {groupId= groupId; onlineStatuses= onlineStatuses}] in
-  internal_makeConnectionId(connectionParentDataId, args)
+  internal_makeConnectionId connectionParentDataId args
 module Utils = struct
   [@@@ocaml.warning "-33"]
   open Types
 
   let getConnectionNodes: Types.fragment_members option -> Types.fragment_members_edges_node array = fun connection -> 
     begin match connection with
-      | None -> []
+      | None -> [||]
       | Some connection -> 
         begin match connection.edges with
-          | None -> []
+          | None -> [||]
           | Some edges -> edges
             |. Belt.Array.keepMap(function 
               | None -> None

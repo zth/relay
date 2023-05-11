@@ -46,7 +46,7 @@ and input_InputA_nullable = {
   timestamp: Timestamp.t Js.Null.t [@bs.optional];
   timestamps: Timestamp.t Js.Null.t array Js.Null.t [@bs.optional];
   unmapped: RescriptRelay.any Js.Null.t [@bs.optional];
-} [@@bs.deriving abstract]
+}
 
 and input_InputB = {
   time: SomeModule.Datetime.t option;
@@ -58,7 +58,7 @@ and input_InputB_nullable = {
   time: SomeModule.Datetime.t Js.Null.t [@bs.optional];
   usingA: input_InputA_nullable Js.Null.t [@bs.optional];
   constraint_: bool Js.Null.t [@bs.as "constraint"] [@bs.optional];
-} [@@bs.deriving abstract]
+}
 
 and input_SomeInput = {
   str: string option;
@@ -78,7 +78,7 @@ and input_SomeInput_nullable = {
   datetime: SomeModule.Datetime.t Js.Null.t [@bs.optional];
   recursive: input_SomeInput_nullable Js.Null.t [@bs.optional];
   private_: bool Js.Null.t [@bs.as "private"] [@bs.optional];
-} [@@bs.deriving abstract]
+}
 
 and input_RecursiveSetOnlineStatusInput = {
   someValue: RescriptRelay.any;
@@ -88,7 +88,7 @@ and input_RecursiveSetOnlineStatusInput = {
 and input_RecursiveSetOnlineStatusInput_nullable = {
   someValue: RescriptRelay.any;
   setOnlineStatus: input_SetOnlineStatusInput_nullable Js.Null.t [@bs.optional];
-} [@@bs.deriving abstract]
+}
 
 and input_SetOnlineStatusInput = {
   onlineStatus: [`Online | `Idle | `Offline];
@@ -98,7 +98,7 @@ and input_SetOnlineStatusInput = {
 and input_SetOnlineStatusInput_nullable = {
   onlineStatus: [`Online | `Idle | `Offline];
   recursed: input_RecursiveSetOnlineStatusInput_nullable Js.Null.t [@bs.optional];
-} [@@bs.deriving abstract]
+}
 
 and input_PesticideListSearchInput = {
   companyName: string array option;
@@ -112,7 +112,8 @@ and input_PesticideListSearchInput_nullable = {
   pesticideIds: int array Js.Null.t [@bs.optional];
   skip: int;
   take: int;
-} [@@bs.deriving abstract]
+}
+ [@@bs.deriving abstract]
 external make_InputA: 
   time: SomeModule.Datetime.t -> 
   ?recursiveA: input_InputA -> 

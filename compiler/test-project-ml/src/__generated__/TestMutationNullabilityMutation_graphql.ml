@@ -19,13 +19,13 @@ module Types = struct
   }
   type rawResponse = response
   type variables = {
-    datetime?: SomeModule.Datetime.t Js.Null.t;
+    datetime: SomeModule.Datetime.t Js.Null.t [@bs.optional];
     onlineStatus: [
       | `Idle
       | `Offline
       | `Online
     ];
-    recursive?: someInput Js.Null.t;
+    recursive: someInput Js.Null.t [@bs.optional];
   }
 end
 
@@ -34,7 +34,7 @@ module Internal = struct
     {json|{"someInput":{"recursive":{"r":"someInput"},"datetime":{"c":"SomeModule.Datetime"}},"__root":{"recursive":{"r":"someInput"},"datetime":{"c":"SomeModule.Datetime"}}}|json}
   ]
   let variablesConverterMap = let o = Js.Dict.empty () in 
-    Js.Dict.set o "SomeModule.Datetime" SomeModule.Datetime.serialize;
+    Js.Dict.set o "SomeModule.Datetime" (Obj.magic SomeModule.Datetime.serialize : unit);
   o
   let convertVariables v = RescriptRelay.convertObj v 
     variablesConverter 
@@ -82,7 +82,7 @@ module Utils = struct
     ?_private: bool-> 
     ?recursive: someInput-> 
     ?str: string-> 
-    unit
+    unit ->
    someInput = "" [@@bs.obj]
 
 
@@ -93,7 +93,7 @@ module Utils = struct
       | `Online
     ]-> 
     ?recursive: someInput-> 
-    unit
+    unit ->
    variables = "" [@@bs.obj]
 
 

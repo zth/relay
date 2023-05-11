@@ -1,4 +1,4 @@
-module Query = [%relay{|
+module Query1 = [%relay{|
     query TestNodeInterfaceQuery {
       node(id: "123") {
         ... on User {
@@ -8,7 +8,7 @@ module Query = [%relay{|
       }
 |}]
 
-module Query = [%relay{|
+module Query2 = [%relay{|
     query TestNodeInterfaceOnUnionQuery {
       node(id: "123") {
         ... on Member {
@@ -23,7 +23,7 @@ module Query = [%relay{|
       }
 |}]
 
-module Query = [%relay{|
+module Query3 = [%relay{|
     query TestNodeInterfaceOnInterfaceQuery {
       node(id: "123") {
         ... on HasName {

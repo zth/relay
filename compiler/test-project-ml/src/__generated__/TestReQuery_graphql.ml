@@ -94,7 +94,7 @@ module Utils = struct
       | `Offline
       | `Online
     ]-> 
-    unit
+    unit ->
    variables = "" [@@bs.obj]
 
 

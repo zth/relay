@@ -66,7 +66,7 @@ module Utils = struct
     ?pesticideIds: int array-> 
     skip: int-> 
     take: int-> 
-    unit
+    unit ->
    pesticideListSearchInput = "" [@@bs.obj]
 
 

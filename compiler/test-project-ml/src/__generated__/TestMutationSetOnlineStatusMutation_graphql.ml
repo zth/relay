@@ -110,7 +110,7 @@ module Utils = struct
 
 
   external makeOptimisticResponse:     ?setOnlineStatus: rawResponse_setOnlineStatus-> 
-    unit
+    unit ->
    rawResponse = "" [@@bs.obj]
 
 
@@ -123,12 +123,12 @@ module Utils = struct
       | `Offline
       | `Online
     ]-> 
-    unit
+    unit ->
    rawResponse_setOnlineStatus_user = "" [@@bs.obj]
 
 
   external make_rawResponse_setOnlineStatus:     ?user: rawResponse_setOnlineStatus_user-> 
-    unit
+    unit ->
    rawResponse_setOnlineStatus = "" [@@bs.obj]
 
 

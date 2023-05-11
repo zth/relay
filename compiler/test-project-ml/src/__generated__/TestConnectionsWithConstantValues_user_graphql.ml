@@ -50,15 +50,15 @@ let connectionKey = "TestConnectionsWithonstantValues_user_friendsConnection"
   let flt = flt |. Js.Null.toOption in
   let datetime2 = match datetime2 with | None -> None | Some v -> Some (SomeModule.Datetime.serialize v) in
   let datetime3 = Some (SomeModule.Datetime.serialize datetime3) in
-  let args = [%bs.obj {statuses= [RescriptRelay_Internal.Arg(Some(`Idle)); RescriptRelay_Internal.Arg(onlineStatus)]; beforeDate= beforeDate; objTest= [%bs.obj {"str" = Some("123"); "bool" = Some(false); "float" = Some(12.2); "int" = Some(64); "datetime" = datetime; "recursive" = [%bs.obj {"str" = Some("234"); "bool" = bool; "float" = flt; "int" = Some(Js.null); "datetime" = datetime2; "recursive" = [%bs.obj {"bool" = bool; "datetime" = datetime3}]}]}]}] in
-  internal_makeConnectionId(connectionParentDataId, args)
+  let args = [%bs.obj {statuses= [RescriptRelay_Internal.Arg(Some(`Idle)); RescriptRelay_Internal.Arg(onlineStatus)]; beforeDate= beforeDate; objTest= [%bs.obj {str = Some("123"); bool = Some(false); float = Some(12.2); int = Some(64); datetime = datetime; recursive = [%bs.obj {str = Some("234"); bool = bool; float = flt; int = Some(Js.null); datetime = datetime2; recursive = [%bs.obj {bool = bool; datetime = datetime3}]}]}]}] in
+  internal_makeConnectionId connectionParentDataId args
 module Utils = struct
   [@@@ocaml.warning "-33"]
   open Types
 
   let getConnectionNodes: Types.fragment_friendsConnection -> Types.fragment_friendsConnection_edges_node array = fun connection -> 
     begin match connection.edges with
-      | None -> []
+      | None -> [||]
       | Some edges -> edges
         |. Belt.Array.keepMap(function 
           | None -> None

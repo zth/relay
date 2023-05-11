@@ -1,5 +1,11 @@
+(dirs :standard __generated__)
+
+(include_subdirs unqualified)
+
 (library
  (name reason_relay_test_project)
  (modes melange)
- (libraries rescript_relay)
+ (libraries reason-relay)
+ (preprocess
+  (pps melange.ppx rescript-relay-ppx))
  (wrapped false))

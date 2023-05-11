@@ -46,14 +46,14 @@ let connectionKey = "TestPaginationInNode_friendsConnection"
 
 ]let makeConnectionId (connectionParentDataId: RescriptRelay.dataId) ?(onlineStatuses: [`Online | `Idle | `Offline] array option) () =
   let args = [%bs.obj {statuses= onlineStatuses}] in
-  internal_makeConnectionId(connectionParentDataId, args)
+  internal_makeConnectionId connectionParentDataId args
 module Utils = struct
   [@@@ocaml.warning "-33"]
   open Types
 
   let getConnectionNodes: Types.fragment_friendsConnection -> Types.fragment_friendsConnection_edges_node array = fun connection -> 
     begin match connection.edges with
-      | None -> []
+      | None -> [||]
       | Some edges -> edges
         |. Belt.Array.keepMap(function 
           | None -> None

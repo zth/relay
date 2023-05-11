@@ -51,7 +51,7 @@ type queryRef
 module Utils = struct
   [@@@ocaml.warning "-33"]
   open Types
-  external makeVariables: unit -> unit = ""
+  external makeVariables: unit -> unit = "" [@@bs.obj]
 end
 
 type relayOperationNode

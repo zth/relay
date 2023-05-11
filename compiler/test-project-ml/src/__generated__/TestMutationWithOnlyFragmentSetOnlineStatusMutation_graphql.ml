@@ -105,7 +105,7 @@ module Internal = struct
     {json|{"__root":{"setOnlineStatus_user_memberOf":{"u":"rawResponse_setOnlineStatus_user_memberOf"}}}|json}
   ]
   let wrapRawResponseConverterMap = let o = Js.Dict.empty () in 
-    Js.Dict.set o "rawResponse_setOnlineStatus_user_memberOf" wrap_rawResponse_setOnlineStatus_user_memberOf;
+    Js.Dict.set o "rawResponse_setOnlineStatus_user_memberOf" (Obj.magic wrap_rawResponse_setOnlineStatus_user_memberOf : unit);
   o
   let convertWrapRawResponse v = RescriptRelay.convertObj v 
     wrapRawResponseConverter 
@@ -116,7 +116,7 @@ module Internal = struct
     {json|{"__root":{"setOnlineStatus_user_memberOf":{"u":"rawResponse_setOnlineStatus_user_memberOf"}}}|json}
   ]
   let rawResponseConverterMap = let o = Js.Dict.empty () in 
-    Js.Dict.set o "rawResponse_setOnlineStatus_user_memberOf" unwrap_rawResponse_setOnlineStatus_user_memberOf;
+    Js.Dict.set o "rawResponse_setOnlineStatus_user_memberOf" (Obj.magic unwrap_rawResponse_setOnlineStatus_user_memberOf : unit);
   o
   let convertRawResponse v = RescriptRelay.convertObj v 
     rawResponseConverter 
@@ -144,7 +144,7 @@ module Utils = struct
 
 
   external makeOptimisticResponse:     ?setOnlineStatus: rawResponse_setOnlineStatus-> 
-    unit
+    unit ->
    rawResponse = "" [@@bs.obj]
 
 
@@ -171,12 +171,12 @@ module Utils = struct
       | `Offline
       | `Online
     ]-> 
-    unit
+    unit ->
    rawResponse_setOnlineStatus_user = "" [@@bs.obj]
 
 
   external make_rawResponse_setOnlineStatus:     ?user: rawResponse_setOnlineStatus_user-> 
-    unit
+    unit ->
    rawResponse_setOnlineStatus = "" [@@bs.obj]
 
 

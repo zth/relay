@@ -97,7 +97,7 @@ module Utils = struct
     ] array-> 
     id: string-> 
     ?showOnlineStatus: bool-> 
-    unit
+    unit ->
    variables = "" [@@bs.obj]
 
 

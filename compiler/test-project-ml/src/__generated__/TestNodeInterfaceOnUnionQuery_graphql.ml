@@ -57,7 +57,7 @@ module Internal = struct
     {json|{"__root":{"node":{"u":"response_node"}}}|json}
   ]
   let wrapResponseConverterMap = let o = Js.Dict.empty () in 
-    Js.Dict.set o "response_node" wrap_response_node;
+    Js.Dict.set o "response_node" (Obj.magic wrap_response_node : unit);
   o
   let convertWrapResponse v = RescriptRelay.convertObj v 
     wrapResponseConverter 
@@ -68,7 +68,7 @@ module Internal = struct
     {json|{"__root":{"node":{"u":"response_node"}}}|json}
   ]
   let responseConverterMap = let o = Js.Dict.empty () in 
-    Js.Dict.set o "response_node" unwrap_response_node;
+    Js.Dict.set o "response_node" (Obj.magic unwrap_response_node : unit);
   o
   let convertResponse v = RescriptRelay.convertObj v 
     responseConverter 
@@ -85,7 +85,7 @@ type queryRef
 module Utils = struct
   [@@@ocaml.warning "-33"]
   open Types
-  external makeVariables: unit -> unit = ""
+  external makeVariables: unit -> unit = "" [@@bs.obj]
 end
 
 type relayOperationNode

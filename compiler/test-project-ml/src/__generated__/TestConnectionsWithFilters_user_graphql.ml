@@ -45,14 +45,14 @@ let connectionKey = "TestConnectionsWithFilters_user_friendsConnection"
 ]let makeConnectionId (connectionParentDataId: RescriptRelay.dataId) ?(onlineStatuses: [`Online | `Idle | `Offline] array option) ?(objTest: RelaySchemaAssets_graphql.input_SomeInput=(Obj.magic [%bs.obj {str = "123"}])) () =
   let objTest = Some objTest in
   let args = [%bs.obj {statuses= onlineStatuses; objTest= objTest}] in
-  internal_makeConnectionId(connectionParentDataId, args)
+  internal_makeConnectionId connectionParentDataId args
 module Utils = struct
   [@@@ocaml.warning "-33"]
   open Types
 
   let getConnectionNodes: Types.fragment_friendsConnection -> Types.fragment_friendsConnection_edges_node array = fun connection -> 
     begin match connection.edges with
-      | None -> []
+      | None -> [||]
       | Some edges -> edges
         |. Belt.Array.keepMap(function 
           | None -> None

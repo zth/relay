@@ -102,8 +102,8 @@ module Internal = struct
     {json|{"__root":{"members_edges_node_Group_members":{"u":"response_members_edges_node_Group_members"},"members_edges_node":{"u":"response_members_edges_node"}}}|json}
   ]
   let wrapResponseConverterMap = let o = Js.Dict.empty () in 
-    Js.Dict.set o "response_members_edges_node_Group_members" wrap_response_members_edges_node_Group_members;
-    Js.Dict.set o "response_members_edges_node" wrap_response_members_edges_node;
+    Js.Dict.set o "response_members_edges_node_Group_members" (Obj.magic wrap_response_members_edges_node_Group_members : unit);
+    Js.Dict.set o "response_members_edges_node" (Obj.magic wrap_response_members_edges_node : unit);
   o
   let convertWrapResponse v = RescriptRelay.convertObj v 
     wrapResponseConverter 
@@ -114,8 +114,8 @@ module Internal = struct
     {json|{"__root":{"members_edges_node_Group_members":{"u":"response_members_edges_node_Group_members"},"members_edges_node":{"u":"response_members_edges_node"}}}|json}
   ]
   let responseConverterMap = let o = Js.Dict.empty () in 
-    Js.Dict.set o "response_members_edges_node_Group_members" unwrap_response_members_edges_node_Group_members;
-    Js.Dict.set o "response_members_edges_node" unwrap_response_members_edges_node;
+    Js.Dict.set o "response_members_edges_node_Group_members" (Obj.magic unwrap_response_members_edges_node_Group_members : unit);
+    Js.Dict.set o "response_members_edges_node" (Obj.magic unwrap_response_members_edges_node : unit);
   o
   let convertResponse v = RescriptRelay.convertObj v 
     responseConverter 
@@ -141,7 +141,7 @@ module Utils = struct
     )
     let onlineStatus_fromString (str: string): RelaySchemaAssets_graphql.enum_OnlineStatus_input option =
     onlineStatus_decode (Obj.magic str)
-    external makeVariables: unit -> unit = ""
+    external makeVariables: unit -> unit = "" [@@bs.obj]
 end
 
 type relayOperationNode

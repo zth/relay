@@ -23,7 +23,7 @@ module Internal = struct
     {json|{"inputB":{"usingA":{"r":"inputA"},"time":{"c":"SomeModule.Datetime"}},"inputA":{"usingB":{"r":"inputB"},"timestamps":{"b":"a"},"timestamp":{"b":""},"time":{"c":"SomeModule.Datetime"},"recursiveA":{"r":"inputA"}},"__root":{"input":{"r":"inputA"}}}|json}
   ]
   let variablesConverterMap = let o = Js.Dict.empty () in 
-    Js.Dict.set o "SomeModule.Datetime" SomeModule.Datetime.serialize;
+    Js.Dict.set o "SomeModule.Datetime" (Obj.magic SomeModule.Datetime.serialize : unit);
   o
   let convertVariables v = RescriptRelay.convertObj v 
     variablesConverter 
@@ -61,14 +61,14 @@ module Utils = struct
     ?timestamps: Timestamp.t option array-> 
     ?unmapped: RescriptRelay.any-> 
     ?usingB: inputB-> 
-    unit
+    unit ->
    inputA = "" [@@bs.obj]
 
 
   external make_inputB:     ?_constraint: bool-> 
     ?time: SomeModule.Datetime.t-> 
     ?usingA: inputA-> 
-    unit
+    unit ->
    inputB = "" [@@bs.obj]
 
 

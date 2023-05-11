@@ -75,7 +75,7 @@ module Utils = struct
     )
     let onlineStatus_fromString (str: string): RelaySchemaAssets_graphql.enum_OnlineStatus_input option =
     onlineStatus_decode (Obj.magic str)
-    external makeVariables: unit -> unit = ""
+    external makeVariables: unit -> unit = "" [@@bs.obj]
 end
 
 type relayOperationNode

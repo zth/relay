@@ -536,7 +536,7 @@ pub fn print_value(value: &Value, print_as_optional: bool, wrap_in_arg: bool) ->
                 .iter()
                 .map(|arg| {
                     format!(
-                        "\"{}\" = {}",
+                        "{} = {}",
                         arg.name.item.to_string(),
                         print_value(&arg.value.item, print_as_optional, wrap_in_arg)
                     )
@@ -856,13 +856,13 @@ pub fn get_connection_key_maker(
         )
         .unwrap();
     } else {
-        writeln!(str, "let args = ()").unwrap()
+        writeln!(str, "let args = () in").unwrap()
     }
 
     write_indentation(&mut str, local_indentation).unwrap();
     writeln!(
         str,
-        "internal_makeConnectionId(connectionParentDataId, args)"
+        "internal_makeConnectionId connectionParentDataId args"
     )
     .unwrap();
 

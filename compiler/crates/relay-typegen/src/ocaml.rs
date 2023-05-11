@@ -695,7 +695,7 @@ fn write_object_maker(
     let num_props = definition.values.len();
 
     if num_props == 0 {
-        writeln!(str, "unit -> unit = \"\"").unwrap();
+        writeln!(str, "unit -> unit = \"\" [@@bs.obj]").unwrap();
         return Ok(());
     }
 
@@ -743,7 +743,7 @@ fn write_object_maker(
     // Print unit if there's any nullable present
     if has_nullable {
         write_indentation(str, indentation + 1).unwrap();
-        writeln!(str, "unit").unwrap();
+        writeln!(str, "unit ->").unwrap();
     }
 
     write_indentation(str, indentation).unwrap();
@@ -1077,7 +1077,7 @@ fn write_converter_map(
                 write_indentation(str, indentation + 1).unwrap();
                 writeln!(
                     str,
-                    "Js.Dict.set o \"{}\" {};",
+                    "Js.Dict.set o \"{}\" (Obj.magic {} : unit);",
                     union_name,
                     format!(
                         "{}_{}",
@@ -1105,7 +1105,7 @@ fn write_converter_map(
                 write_indentation(str, indentation + 1).unwrap();
                 writeln!(
                     str,
-                    "Js.Dict.set o \"{}\" {};",
+                    "Js.Dict.set o \"{}\" (Obj.magic {} : unit);",
                     custom_field_name,
                     match classify_rescript_value_string(&custom_field_name) {
                         RescriptCustomTypeValue::Type => custom_field_name.to_string(),
@@ -1443,21 +1443,8 @@ fn write_object_definition(
         write_indentation(str, in_object_indentation).unwrap();
         writeln!(
             str,
-            "{}{}{}: {}{};",
-            // If original_key is set, that means that the key here has been
-            // transformed (as it was probably an illegal identifier in
-            // ReScript). When that happens, we print the @as decorator to deal
-            // with the illegal identifier, while not having to rename the
-            // underlying key itself.
-            match &prop.original_key {
-                None => String::from(""),
-                Some(original_key) => format!("[@bs.as \"{}\"] ", original_key),
-            },
+            "{}: {}{}{}{};",
             prop.key,
-            match (&nullability, prop.nullable) {
-                (NullabilityMode::Nullable, true) => "?",
-                _ => ""
-            },
             match (prop.nullable, is_refetch_var) {
                 (true, true) => format!(
                     "{} option option",
@@ -1497,6 +1484,10 @@ fn write_object_definition(
                     )
                 ),
             },
+            match (&nullability, prop.nullable) {
+                (NullabilityMode::Nullable, true) => " [@bs.optional]",
+                _ => ""
+            },
             // We suppress dead code warnings for a set of keys that we know
             // don't affect overfetching, and are used internally by
             // RescriptRelay, but end up in the types anyway because of
@@ -1514,6 +1505,15 @@ fn write_object_definition(
                     (true, _) | (false, "id" | "__id" | "__typename") => " [@live]",
                     _ => "",
                 }
+            },
+            // If original_key is set, that means that the key here has been
+            // transformed (as it was probably an illegal identifier in
+            // ReScript). When that happens, we print the @as decorator to deal
+            // with the illegal identifier, while not having to rename the
+            // underlying key itself.
+            match &prop.original_key {
+                None => String::from(""),
+                Some(original_key) => format!("[@bs.as \"{}\"] ", original_key),
             },
         )
         .unwrap()
@@ -1771,7 +1771,7 @@ fn write_get_connection_nodes_function(
                                 local_indentation += 1;
 
                                 write_indentation(str, local_indentation).unwrap();
-                                writeln!(str, "| None -> []").unwrap();
+                                writeln!(str, "| None -> [||]").unwrap();
                                 write_indentation(str, local_indentation).unwrap();
                                 writeln!(str, "| Some connection -> ").unwrap();
                             }
@@ -1787,7 +1787,7 @@ fn write_get_connection_nodes_function(
                                 local_indentation += 1;
 
                                 write_indentation(str, local_indentation).unwrap();
-                                writeln!(str, "| None -> []").unwrap();
+                                writeln!(str, "| None -> [||]").unwrap();
                                 write_indentation(str, local_indentation).unwrap();
                                 writeln!(str, "| Some edges -> edges").unwrap();
                             } else {
@@ -2552,7 +2552,7 @@ impl Writer for OCamlPrinter {
                             write_indentation(&mut generated_types, indentation).unwrap();
                             writeln!(
                                 generated_types,
-                                "{}: {{",
+                                "{} = {{",
                                 key
                             )
                             .unwrap();
@@ -2582,7 +2582,7 @@ impl Writer for OCamlPrinter {
                                 // the keys, which means this works out.
                                 writeln!(
                                     generated_types,
-                                    "get = (fun () -> Internal.convertVariables (Js.Dict.fromArray [(\"{}\", {}.get())]) |. Js.Dict.unsafeGet \"{}\");",
+                                    "get = (fun () -> Internal.convertVariables (Js.Dict.fromArray [|(\"{}\", {}.get())|]) |. Js.Dict.unsafeGet \"{}\");",
                                     key, module_name, key
                                 )
                                 .unwrap();

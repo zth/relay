@@ -1,4 +1,4 @@
-module Fragment = [%relay{|
+module Fragment1 = [%relay{|
   fragment TestConnections_user on User
     @argumentDefinitions(
       onlineStatuses: { type: "[OnlineStatus!]", defaultValue: [Idle] }
@@ -21,7 +21,7 @@ module Fragment = [%relay{|
     }
     |}]
 
-module Fragment = [%relay{|
+module Fragment2 = [%relay{|
   fragment TestConnectionsWithFilters_user on User
     @argumentDefinitions(
       onlineStatuses: { type: "[OnlineStatus!]" }
@@ -46,7 +46,7 @@ module Fragment = [%relay{|
     }
     |}]
 
-module Fragment = [%relay{|
+module Fragment3 = [%relay{|
   fragment TestConnectionsWithEmptyFilters_user on User
     @argumentDefinitions(
       onlineStatuses: { type: "[OnlineStatus!]" }
@@ -69,7 +69,7 @@ module Fragment = [%relay{|
     }
     |}]
 
-module Fragment = [%relay{|
+module Fragment4 = [%relay{|
   fragment TestConnectionsWithConstantValues_user on User
     @argumentDefinitions(
       onlineStatus: { type: "OnlineStatus!" }
@@ -115,7 +115,7 @@ module Fragment = [%relay{|
     }
     |}]
 
-module Fragment = [%relay{|
+module Fragment5 = [%relay{|
   fragment TestConnectionsUnion_user on Query
     @argumentDefinitions(
       onlineStatuses: { type: "[OnlineStatus!]", defaultValue: [Idle] }

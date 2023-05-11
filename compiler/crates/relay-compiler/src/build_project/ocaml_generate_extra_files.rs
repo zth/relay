@@ -86,7 +86,7 @@ pub(crate) fn ocaml_generate_extra_artifacts(
 
         writeln!(content, "}}").unwrap();
 
-        if has_written_initial_input_obj == false {
+        if !has_written_initial_input_obj {
             has_written_initial_input_obj = true;
         }
 
@@ -136,12 +136,16 @@ pub(crate) fn ocaml_generate_extra_artifacts(
             .unwrap();
         });
 
-        writeln!(content, "}} [@@bs.deriving abstract]").unwrap();
+        writeln!(content, "}}").unwrap();
 
-        if has_written_initial_input_obj == false {
+        if !has_written_initial_input_obj {
             has_written_initial_input_obj = true;
         }
     });
+    if has_written_initial_input_obj {
+        // Only need to add `[@@bs.deriving abstract]` once at the end.
+        writeln!(content, " [@@bs.deriving abstract]").unwrap();
+    }
 
     // Write object makers
     schema.input_objects().for_each(|input_obj| {

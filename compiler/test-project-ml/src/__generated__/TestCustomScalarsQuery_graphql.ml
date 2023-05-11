@@ -57,7 +57,7 @@ module Internal = struct
     {json|{"__root":{"beforeDate":{"c":"SomeModule.Datetime"}}}|json}
   ]
   let variablesConverterMap = let o = Js.Dict.empty () in 
-    Js.Dict.set o "SomeModule.Datetime" SomeModule.Datetime.serialize;
+    Js.Dict.set o "SomeModule.Datetime" (Obj.magic SomeModule.Datetime.serialize : unit);
   o
   let convertVariables v = RescriptRelay.convertObj v 
     variablesConverter 
@@ -68,8 +68,8 @@ module Internal = struct
     {json|{"__root":{"member_User_createdAt":{"c":"SomeModule.Datetime"},"member":{"u":"response_member"},"loggedInUser_friends_createdAt":{"c":"SomeModule.Datetime"},"loggedInUser_createdAt":{"c":"SomeModule.Datetime"}}}|json}
   ]
   let wrapResponseConverterMap = let o = Js.Dict.empty () in 
-    Js.Dict.set o "SomeModule.Datetime" SomeModule.Datetime.serialize;
-    Js.Dict.set o "response_member" wrap_response_member;
+    Js.Dict.set o "SomeModule.Datetime" (Obj.magic SomeModule.Datetime.serialize : unit);
+    Js.Dict.set o "response_member" (Obj.magic wrap_response_member : unit);
   o
   let convertWrapResponse v = RescriptRelay.convertObj v 
     wrapResponseConverter 
@@ -80,8 +80,8 @@ module Internal = struct
     {json|{"__root":{"member_User_createdAt":{"c":"SomeModule.Datetime"},"member":{"u":"response_member"},"loggedInUser_friends_createdAt":{"c":"SomeModule.Datetime"},"loggedInUser_createdAt":{"c":"SomeModule.Datetime"}}}|json}
   ]
   let responseConverterMap = let o = Js.Dict.empty () in 
-    Js.Dict.set o "SomeModule.Datetime" SomeModule.Datetime.parse;
-    Js.Dict.set o "response_member" unwrap_response_member;
+    Js.Dict.set o "SomeModule.Datetime" (Obj.magic SomeModule.Datetime.parse : unit);
+    Js.Dict.set o "response_member" (Obj.magic unwrap_response_member : unit);
   o
   let convertResponse v = RescriptRelay.convertObj v 
     responseConverter 
@@ -99,7 +99,7 @@ module Utils = struct
   [@@@ocaml.warning "-33"]
   open Types
   external makeVariables:     ?beforeDate: SomeModule.Datetime.t-> 
-    unit
+    unit ->
    variables = "" [@@bs.obj]
 
 

@@ -111,7 +111,7 @@ module Utils = struct
   external makeOptimisticResponse:     ?addFriend: rawResponse_addFriend-> 
     ?testIntInput1: rawResponse_testIntInput1-> 
     ?testIntInput2: rawResponse_testIntInput2-> 
-    unit
+    unit ->
    rawResponse = "" [@@bs.obj]
 
 
@@ -125,17 +125,17 @@ module Utils = struct
 
 
   external make_rawResponse_addFriend:     ?addedFriend: rawResponse_addFriend_addedFriend-> 
-    unit
+    unit ->
    rawResponse_addFriend = "" [@@bs.obj]
 
 
   external make_rawResponse_testIntInput1:     ?success: bool-> 
-    unit
+    unit ->
    rawResponse_testIntInput1 = "" [@@bs.obj]
 
 
   external make_rawResponse_testIntInput2:     ?success: bool-> 
-    unit
+    unit ->
    rawResponse_testIntInput2 = "" [@@bs.obj]
 
 

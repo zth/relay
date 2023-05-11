@@ -43,15 +43,15 @@ let connectionKey = "TestConnectionsWithEmptyFilters_user_friendsConnection"
 [@@live] [@@bs.module "relay-runtime"] [@@bs.scope "ConnectionHandler"]
 
 ]let makeConnectionId (connectionParentDataId: RescriptRelay.dataId)  =
-  let args = ()
-  internal_makeConnectionId(connectionParentDataId, args)
+  let args = () in
+  internal_makeConnectionId connectionParentDataId args
 module Utils = struct
   [@@@ocaml.warning "-33"]
   open Types
 
   let getConnectionNodes: Types.fragment_friendsConnection -> Types.fragment_friendsConnection_edges_node array = fun connection -> 
     begin match connection.edges with
-      | None -> []
+      | None -> [||]
       | Some edges -> edges
         |. Belt.Array.keepMap(function 
           | None -> None

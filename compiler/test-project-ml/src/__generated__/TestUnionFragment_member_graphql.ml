@@ -44,7 +44,7 @@ module Internal = struct
     {json|{"__root":{"User":{"f":""},"":{"u":"fragment"}}}|json}
   ]
   let fragmentConverterMap = let o = Js.Dict.empty () in 
-    Js.Dict.set o "fragment" unwrap_fragment;
+    Js.Dict.set o "fragment" (Obj.magic unwrap_fragment : unit);
   o
   let convertFragment v = RescriptRelay.convertObj v 
     fragmentConverter 

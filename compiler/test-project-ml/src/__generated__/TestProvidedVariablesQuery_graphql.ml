@@ -24,7 +24,7 @@ module Internal = struct
     {json|{"someInput":{"recursive":{"r":"someInput"},"datetime":{"c":"SomeModule.Datetime"}},"inputB":{"usingA":{"r":"inputA"},"time":{"c":"SomeModule.Datetime"}},"inputA":{"usingB":{"r":"inputB"},"timestamps":{"b":"a"},"timestamp":{"b":""},"time":{"c":"SomeModule.Datetime"},"recursiveA":{"r":"inputA"}},"__root":{"__relay_internal__pv__TestProvidedVariablesSomeInput":{"r":"someInput"},"__relay_internal__pv__TestProvidedVariablesInputB":{"r":"inputB"},"__relay_internal__pv__TestProvidedVariablesDatetimes":{"c":"SomeModule.Datetime"},"__relay_internal__pv__TestProvidedVariablesDatetime":{"c":"SomeModule.Datetime"}}}|json}
   ]
   let variablesConverterMap = let o = Js.Dict.empty () in 
-    Js.Dict.set o "SomeModule.Datetime" SomeModule.Datetime.serialize;
+    Js.Dict.set o "SomeModule.Datetime" (Obj.magic SomeModule.Datetime.serialize : unit);
   o
   let convertVariables v = RescriptRelay.convertObj v 
     variablesConverter 
@@ -66,14 +66,14 @@ module Utils = struct
     ?_private: bool-> 
     ?recursive: someInput-> 
     ?str: string-> 
-    unit
+    unit ->
    someInput = "" [@@bs.obj]
 
 
   external make_inputB:     ?_constraint: bool-> 
     ?time: SomeModule.Datetime.t-> 
     ?usingA: inputA-> 
-    unit
+    unit ->
    inputB = "" [@@bs.obj]
 
 
@@ -83,11 +83,11 @@ module Utils = struct
     ?timestamps: Timestamp.t option array-> 
     ?unmapped: RescriptRelay.any-> 
     ?usingB: inputB-> 
-    unit
+    unit ->
    inputA = "" [@@bs.obj]
 
 
-  external makeVariables: unit -> unit = ""
+  external makeVariables: unit -> unit = "" [@@bs.obj]
 end
 type 't providedVariable = { providedVariable: unit -> 't; get: unit -> 't }
 type providedVariablesType = {
@@ -102,41 +102,41 @@ type providedVariablesType = {
   __relay_internal__pv__TestProvidedVariablesStr: string providedVariable;
 }
 let providedVariablesDefinition: providedVariablesType = {
-  __relay_internal__pv__TestProvidedVariablesSomeInput: {
+  __relay_internal__pv__TestProvidedVariablesSomeInput = {
     providedVariable = TestProvidedVariables.SomeInput.get;
-    get = (fun () -> Internal.convertVariables (Js.Dict.fromArray [("__relay_internal__pv__TestProvidedVariablesSomeInput", TestProvidedVariables.SomeInput.get())]) |. Js.Dict.unsafeGet "__relay_internal__pv__TestProvidedVariablesSomeInput");
+    get = (fun () -> Internal.convertVariables (Js.Dict.fromArray [|("__relay_internal__pv__TestProvidedVariablesSomeInput", TestProvidedVariables.SomeInput.get())|]) |. Js.Dict.unsafeGet "__relay_internal__pv__TestProvidedVariablesSomeInput");
   };
-  __relay_internal__pv__TestProvidedVariablesInputB: {
+  __relay_internal__pv__TestProvidedVariablesInputB = {
     providedVariable = TestProvidedVariables.InputB.get;
-    get = (fun () -> Internal.convertVariables (Js.Dict.fromArray [("__relay_internal__pv__TestProvidedVariablesInputB", TestProvidedVariables.InputB.get())]) |. Js.Dict.unsafeGet "__relay_internal__pv__TestProvidedVariablesInputB");
+    get = (fun () -> Internal.convertVariables (Js.Dict.fromArray [|("__relay_internal__pv__TestProvidedVariablesInputB", TestProvidedVariables.InputB.get())|]) |. Js.Dict.unsafeGet "__relay_internal__pv__TestProvidedVariablesInputB");
   };
-  __relay_internal__pv__TestProvidedVariablesBool: {
+  __relay_internal__pv__TestProvidedVariablesBool = {
     providedVariable = TestProvidedVariables.Bool.get;
     get = TestProvidedVariables.Bool.get;
   };
-  __relay_internal__pv__TestProvidedVariablesStr: {
+  __relay_internal__pv__TestProvidedVariablesStr = {
     providedVariable = TestProvidedVariables.Str.get;
     get = TestProvidedVariables.Str.get;
   };
-  __relay_internal__pv__TestProvidedVariablesFloat: {
+  __relay_internal__pv__TestProvidedVariablesFloat = {
     providedVariable = TestProvidedVariables.Float.get;
     get = TestProvidedVariables.Float.get;
   };
-  __relay_internal__pv__TestProvidedVariablesInt: {
+  __relay_internal__pv__TestProvidedVariablesInt = {
     providedVariable = TestProvidedVariables.Int.get;
     get = TestProvidedVariables.Int.get;
   };
-  __relay_internal__pv__TestProvidedVariablesID: {
+  __relay_internal__pv__TestProvidedVariablesID = {
     providedVariable = TestProvidedVariables.ID.get;
     get = TestProvidedVariables.ID.get;
   };
-  __relay_internal__pv__TestProvidedVariablesDatetime: {
+  __relay_internal__pv__TestProvidedVariablesDatetime = {
     providedVariable = TestProvidedVariables.Datetime.get;
-    get = (fun () -> Internal.convertVariables (Js.Dict.fromArray [("__relay_internal__pv__TestProvidedVariablesDatetime", TestProvidedVariables.Datetime.get())]) |. Js.Dict.unsafeGet "__relay_internal__pv__TestProvidedVariablesDatetime");
+    get = (fun () -> Internal.convertVariables (Js.Dict.fromArray [|("__relay_internal__pv__TestProvidedVariablesDatetime", TestProvidedVariables.Datetime.get())|]) |. Js.Dict.unsafeGet "__relay_internal__pv__TestProvidedVariablesDatetime");
   };
-  __relay_internal__pv__TestProvidedVariablesDatetimes: {
+  __relay_internal__pv__TestProvidedVariablesDatetimes = {
     providedVariable = TestProvidedVariables.Datetimes.get;
-    get = (fun () -> Internal.convertVariables (Js.Dict.fromArray [("__relay_internal__pv__TestProvidedVariablesDatetimes", TestProvidedVariables.Datetimes.get())]) |. Js.Dict.unsafeGet "__relay_internal__pv__TestProvidedVariablesDatetimes");
+    get = (fun () -> Internal.convertVariables (Js.Dict.fromArray [|("__relay_internal__pv__TestProvidedVariablesDatetimes", TestProvidedVariables.Datetimes.get())|]) |. Js.Dict.unsafeGet "__relay_internal__pv__TestProvidedVariablesDatetimes");
   };
 }
 
