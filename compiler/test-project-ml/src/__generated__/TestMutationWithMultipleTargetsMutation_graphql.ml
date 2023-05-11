@@ -102,48 +102,41 @@ module Internal = struct
 module Utils = struct
   [@@@ocaml.warning "-33"]
   open Types
-  external makeVariables: (
-    ~friendId: string,
-    ~id: int,
-    ~ids: int array,
-  ) -> variables = "" [@@bs.obj]
+  external makeVariables:     friendId: string-> 
+    id: int-> 
+    ids: int array-> 
+   variables = "" [@@bs.obj]
 
 
-  external makeOptimisticResponse: (
-    ~addFriend: rawResponse_addFriend=?,
-    ~testIntInput1: rawResponse_testIntInput1=?,
-    ~testIntInput2: rawResponse_testIntInput2=?,
+  external makeOptimisticResponse:     ?addFriend: rawResponse_addFriend-> 
+    ?testIntInput1: rawResponse_testIntInput1-> 
+    ?testIntInput2: rawResponse_testIntInput2-> 
     unit
-  ) -> rawResponse = "" [@@bs.obj]
+   rawResponse = "" [@@bs.obj]
 
 
-  external make_rawResponse_addFriend_addedFriend_friends: (
-    ~id: string,
-  ) -> rawResponse_addFriend_addedFriend_friends = "" [@@bs.obj]
+  external make_rawResponse_addFriend_addedFriend_friends:     id: string-> 
+   rawResponse_addFriend_addedFriend_friends = "" [@@bs.obj]
 
 
-  external make_rawResponse_addFriend_addedFriend: (
-    ~friends: rawResponse_addFriend_addedFriend_friends array,
-    ~id: string,
-  ) -> rawResponse_addFriend_addedFriend = "" [@@bs.obj]
+  external make_rawResponse_addFriend_addedFriend:     friends: rawResponse_addFriend_addedFriend_friends array-> 
+    id: string-> 
+   rawResponse_addFriend_addedFriend = "" [@@bs.obj]
 
 
-  external make_rawResponse_addFriend: (
-    ~addedFriend: rawResponse_addFriend_addedFriend=?,
+  external make_rawResponse_addFriend:     ?addedFriend: rawResponse_addFriend_addedFriend-> 
     unit
-  ) -> rawResponse_addFriend = "" [@@bs.obj]
+   rawResponse_addFriend = "" [@@bs.obj]
 
 
-  external make_rawResponse_testIntInput1: (
-    ~success: bool=?,
+  external make_rawResponse_testIntInput1:     ?success: bool-> 
     unit
-  ) -> rawResponse_testIntInput1 = "" [@@bs.obj]
+   rawResponse_testIntInput1 = "" [@@bs.obj]
 
 
-  external make_rawResponse_testIntInput2: (
-    ~success: bool=?,
+  external make_rawResponse_testIntInput2:     ?success: bool-> 
     unit
-  ) -> rawResponse_testIntInput2 = "" [@@bs.obj]
+   rawResponse_testIntInput2 = "" [@@bs.obj]
 
 
 end

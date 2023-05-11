@@ -8,7 +8,7 @@ use graphql_ir::{
 };
 use itertools::Itertools;
 use log::warn;
-use relay_config::{CustomScalarType, CustomScalarTypeImport, TypegenConfig};
+use relay_config::{CustomScalarType, CustomScalarTypeImport, TypegenConfig, TypegenLanguage};
 use relay_transforms::RelayDirective;
 use schema::{SDLSchema, Schema, Type, TypeReference};
 
@@ -224,11 +224,13 @@ pub fn get_rescript_relay_meta_data(
 ) -> RescriptRelayOperationMetaData {
     match &typegen_definition {
         DefinitionType::Fragment(definition) => find_assets_in_fragment(
+            TypegenLanguage::ReScript,
             &definition,
             &schema,
             typegen_config.custom_scalar_types.clone(),
         ),
         DefinitionType::Operation((definition, _)) => find_assets_in_operation(
+            TypegenLanguage::ReScript,
             &definition,
             &schema,
             typegen_config.custom_scalar_types.clone(),

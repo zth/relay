@@ -38,28 +38,25 @@ external getFragmentRef:
 let connectionKey = "TestConnectionsWithonstantValues_user_friendsConnection"
 
 [@@bs.inline]
-%%private(
-  @live @module("relay-runtime") @scope("ConnectionHandler")
-  external internal_makeConnectionId: (RescriptRelay.dataId, @as("TestConnectionsWithonstantValues_user_friendsConnection") _, 'arguments) => RescriptRelay.dataId = "getConnectionID"
-)
+[%%private
+  external internal_makeConnectionId: RescriptRelay.dataId -> (_ [@bs.as "TestConnectionsWithonstantValues_user_friendsConnection"]) -> 'arguments -> RescriptRelay.dataId = "getConnectionID"
+[@@live] [@@bs.module "relay-runtime"] [@@bs.scope "ConnectionHandler"]
 
-@live
-let makeConnectionId = (connectionParentDataId: RescriptRelay.dataId, ~onlineStatus: [#Online | #Idle | #Offline], ~beforeDate: SomeModule.Datetime.t, ~datetime: Js.null<SomeModule.Datetime.t>=Js.null, ~bool: option<bool>=?, ~flt: Js.null<float>=Js.null, ~datetime2: option<SomeModule.Datetime.t>=?, ~datetime3: SomeModule.Datetime.t, ()) => {
-  let onlineStatus = Some(onlineStatus)
-  let beforeDate = Some(SomeModule.Datetime.serialize(beforeDate))
-  let datetime = datetime->Js.Null.toOption
-  let datetime = switch datetime { | None => None | Some(v) => Some(SomeModule.Datetime.serialize(v)) }
-  let flt = flt->Js.Null.toOption
-  let datetime2 = switch datetime2 { | None => None | Some(v) => Some(SomeModule.Datetime.serialize(v)) }
-  let datetime3 = Some(SomeModule.Datetime.serialize(datetime3))
-  let args = {"statuses": [RescriptRelay_Internal.Arg(Some(#Idle)), RescriptRelay_Internal.Arg(onlineStatus)], "beforeDate": beforeDate, "objTest": {"str": Some("123"), "bool": Some(false), "float": Some(12.2), "int": Some(64), "datetime": datetime, "recursive": {"str": Some("234"), "bool": bool, "float": flt, "int": Some(Js.null), "datetime": datetime2, "recursive": {"bool": bool, "datetime": datetime3}}}}
+]let makeConnectionId (connectionParentDataId: RescriptRelay.dataId) ~(onlineStatus: [`Online | `Idle | `Offline]) ~(beforeDate: SomeModule.Datetime.t) ?(datetime: SomeModule.Datetime.t Js.null=Js.null) ?(bool: bool option) ?(flt: float Js.null=Js.null) ?(datetime2: SomeModule.Datetime.t option) ~(datetime3: SomeModule.Datetime.t) () =
+  let onlineStatus = Some onlineStatus in
+  let beforeDate = Some (SomeModule.Datetime.serialize beforeDate) in
+  let datetime = datetime |. Js.Null.toOption in
+  let datetime = match datetime with | None -> None | Some v -> Some (SomeModule.Datetime.serialize v) in
+  let flt = flt |. Js.Null.toOption in
+  let datetime2 = match datetime2 with | None -> None | Some v -> Some (SomeModule.Datetime.serialize v) in
+  let datetime3 = Some (SomeModule.Datetime.serialize datetime3) in
+  let args = [%bs.obj {statuses= [RescriptRelay_Internal.Arg(Some(`Idle)); RescriptRelay_Internal.Arg(onlineStatus)]; beforeDate= beforeDate; objTest= [%bs.obj {"str" = Some("123"); "bool" = Some(false); "float" = Some(12.2); "int" = Some(64); "datetime" = datetime; "recursive" = [%bs.obj {"str" = Some("234"); "bool" = bool; "float" = flt; "int" = Some(Js.null); "datetime" = datetime2; "recursive" = [%bs.obj {"bool" = bool; "datetime" = datetime3}]}]}]}] in
   internal_makeConnectionId(connectionParentDataId, args)
-}
 module Utils = struct
   [@@@ocaml.warning "-33"]
   open Types
 
-  let getConnectionNodes: Types.fragment_friendsConnection -> Types.fragment_friendsConnection_edges_node array = connection -> 
+  let getConnectionNodes: Types.fragment_friendsConnection -> Types.fragment_friendsConnection_edges_node array = fun connection -> 
     begin match connection.edges with
       | None -> []
       | Some edges -> edges

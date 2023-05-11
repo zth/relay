@@ -16,8 +16,10 @@ use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
 use relay_config::CustomScalarType;
 use schema::{SDLSchema, Schema, Type};
+use relay_config::TypegenLanguage;
 
-use crate::rescript_utils::{get_connection_key_maker, get_custom_scalar_raw_typenames};
+use crate::rescript_utils;
+use crate::ocaml_utils;
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 pub type CustomScalarsMap = FnvIndexMap<ScalarName, CustomScalarType>;
 
@@ -54,6 +56,7 @@ pub struct FieldDirectiveContainer {
 
 #[derive(Debug)]
 pub struct RescriptRelayOperationMetaData {
+    pub language: TypegenLanguage,
     pub connection_config: Option<RescriptRelayConnectionConfig>,
     pub variables_with_connection_data_ids: Vec<String>,
     pub custom_scalars: CustomScalarsMap,
@@ -196,14 +199,25 @@ fn visit_selections<'a>(
                         .collect::<Vec<Argument>>();
 
                     operation_meta_data.connection_config = Some(RescriptRelayConnectionConfig {
-                        connection_id_maker_fn: get_connection_key_maker(
-                            0,
-                            &relevant_arguments,
-                            &variable_definitions,
-                            &key,
-                            &schema,
-                            &custom_scalars,
-                        ),
+                        connection_id_maker_fn: match operation_meta_data.language {
+                            TypegenLanguage::OCaml => ocaml_utils::get_connection_key_maker(
+                                0,
+                                &relevant_arguments,
+                                &variable_definitions,
+                                &key,
+                                &schema,
+                                &custom_scalars,
+                                ),
+                            TypegenLanguage::ReScript => rescript_utils::get_connection_key_maker(
+                                0,
+                                &relevant_arguments,
+                                &variable_definitions,
+                                &key,
+                                &schema,
+                                &custom_scalars,
+                                ),
+                            lang => panic!("Unexpected language {} in ReScript visitor", lang.to_string())
+                        },
                         key,
                         at_object_path: current_path.clone(),
                         field_name: field.alias_or_name(schema).to_string(),
@@ -281,6 +295,7 @@ fn visit_selections<'a>(
 }
 
 pub fn find_assets_in_fragment<'a>(
+    language: TypegenLanguage,
     fragment: &FragmentDefinition,
     schema: &'a SDLSchema,
     custom_scalars: CustomScalarsMap,
@@ -298,9 +313,16 @@ pub fn find_assets_in_fragment<'a>(
         .collect();
 
     let mut operation_meta_data = RescriptRelayOperationMetaData {
+        language: language,
         connection_config: None,
         custom_scalars: custom_scalars.clone(),
-        custom_scalars_raw_typenames: get_custom_scalar_raw_typenames(&custom_scalars),
+        custom_scalars_raw_typenames: match language {
+            TypegenLanguage::OCaml =>
+                ocaml_utils::get_custom_scalar_raw_typenames(&custom_scalars),
+            TypegenLanguage::ReScript =>
+                rescript_utils::get_custom_scalar_raw_typenames(&custom_scalars),
+            lang => panic!("Unexpected language {} in ReScript visitor", lang.to_string())
+        },
         field_directives: vec![],
         fragment_directives: rescript_relay_directives,
         variables_with_connection_data_ids: vec![],
@@ -330,6 +352,7 @@ pub fn find_assets_in_fragment<'a>(
 }
 
 pub fn find_assets_in_operation<'a>(
+    language: TypegenLanguage,
     operation: &OperationDefinition,
     schema: &'a SDLSchema,
     custom_scalars: CustomScalarsMap,
@@ -347,9 +370,16 @@ pub fn find_assets_in_operation<'a>(
         .collect();
 
     let mut operation_meta_data = RescriptRelayOperationMetaData {
+        language: language,
         connection_config: None,
         custom_scalars: custom_scalars.clone(),
-        custom_scalars_raw_typenames: get_custom_scalar_raw_typenames(&custom_scalars),
+        custom_scalars_raw_typenames: match language {
+            TypegenLanguage::OCaml =>
+                ocaml_utils::get_custom_scalar_raw_typenames(&custom_scalars),
+            TypegenLanguage::ReScript =>
+                rescript_utils::get_custom_scalar_raw_typenames(&custom_scalars),
+            lang => panic!("Unexpected language {} in ReScript visitor", lang.to_string())
+        },
         field_directives: vec![],
         fragment_directives: vec![],
         variables_with_connection_data_ids: vec![],

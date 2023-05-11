@@ -21,7 +21,7 @@ module Types = struct
   }
   type variables = unit
   type refetchVariables = unit
-  let makeRefetchVariables = fun () -> ()
+  let makeRefetchVariables () = ()
 end
 
 module Internal = struct

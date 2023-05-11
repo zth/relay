@@ -33,9 +33,9 @@ module Internal = struct
   let variablesConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%bs.raw 
     {json|{"someInput":{"recursive":{"r":"someInput"},"datetime":{"c":"SomeModule.Datetime"}},"__root":{"recursive":{"r":"someInput"},"datetime":{"c":"SomeModule.Datetime"}}}|json}
   ]
-  let variablesConverterMap = {
-    "SomeModule.Datetime": SomeModule.Datetime.serialize,
-  }
+  let variablesConverterMap = let o = Js.Dict.empty () in 
+    Js.Dict.set o "SomeModule.Datetime" SomeModule.Datetime.serialize;
+  o
   let convertVariables v = RescriptRelay.convertObj v 
     variablesConverter 
     variablesConverterMap 
@@ -75,28 +75,26 @@ module Utils = struct
     )
     let onlineStatus_fromString (str: string): RelaySchemaAssets_graphql.enum_OnlineStatus_input option =
     onlineStatus_decode (Obj.magic str)
-    external make_someInput: (
-    ~bool: bool=?,
-    ~datetime: SomeModule.Datetime.t=?,
-    ~float: float=?,
-    ~int: int=?,
-    ~_private: bool=?,
-    ~recursive: someInput=?,
-    ~str: string=?,
+    external make_someInput:     ?bool: bool-> 
+    ?datetime: SomeModule.Datetime.t-> 
+    ?float: float-> 
+    ?int: int-> 
+    ?_private: bool-> 
+    ?recursive: someInput-> 
+    ?str: string-> 
     unit
-  ) -> someInput = "" [@@bs.obj]
+   someInput = "" [@@bs.obj]
 
 
-  external makeVariables: (
-    ~datetime: SomeModule.Datetime.t=?,
-    ~onlineStatus: [
+  external makeVariables:     ?datetime: SomeModule.Datetime.t-> 
+    onlineStatus: [
       | `Idle
       | `Offline
       | `Online
-    ],
-    ~recursive: someInput=?,
+    ]-> 
+    ?recursive: someInput-> 
     unit
-  ) -> variables = "" [@@bs.obj]
+   variables = "" [@@bs.obj]
 
 
 end

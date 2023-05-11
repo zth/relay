@@ -63,9 +63,9 @@ module Internal = struct
   let fragmentConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%bs.raw 
     {json|{"__root":{"members_edges_node_User":{"f":""},"members_edges_node":{"u":"fragment_members_edges_node"}}}|json}
   ]
-  let fragmentConverterMap = {
-    "fragment_members_edges_node": unwrap_fragment_members_edges_node,
-  }
+  let fragmentConverterMap = let o = Js.Dict.empty () in 
+    Js.Dict.set o "fragment_members_edges_node" unwrap_fragment_members_edges_node;
+  o
   let convertFragment v = RescriptRelay.convertObj v 
     fragmentConverter 
     fragmentConverterMap 
@@ -80,22 +80,19 @@ external getFragmentRef:
 let connectionKey = "TestPaginationUnion_query_members"
 
 [@@bs.inline]
-%%private(
-  @live @module("relay-runtime") @scope("ConnectionHandler")
-  external internal_makeConnectionId: (RescriptRelay.dataId, @as("TestPaginationUnion_query_members") _, 'arguments) => RescriptRelay.dataId = "getConnectionID"
-)
+[%%private
+  external internal_makeConnectionId: RescriptRelay.dataId -> (_ [@bs.as "TestPaginationUnion_query_members"]) -> 'arguments -> RescriptRelay.dataId = "getConnectionID"
+[@@live] [@@bs.module "relay-runtime"] [@@bs.scope "ConnectionHandler"]
 
-@live
-let makeConnectionId = (connectionParentDataId: RescriptRelay.dataId, ~groupId: string, ~onlineStatuses: option<array<[#Online | #Idle | #Offline]>>=?, ()) => {
-  let groupId = Some(groupId)
-  let args = {"groupId": groupId, "onlineStatuses": onlineStatuses}
+]let makeConnectionId (connectionParentDataId: RescriptRelay.dataId) ~(groupId: string) ?(onlineStatuses: [`Online | `Idle | `Offline] array option) () =
+  let groupId = Some groupId in
+  let args = [%bs.obj {groupId= groupId; onlineStatuses= onlineStatuses}] in
   internal_makeConnectionId(connectionParentDataId, args)
-}
 module Utils = struct
   [@@@ocaml.warning "-33"]
   open Types
 
-  let getConnectionNodes: Types.fragment_members option -> Types.fragment_members_edges_node array = connection -> 
+  let getConnectionNodes: Types.fragment_members option -> Types.fragment_members_edges_node array = fun connection -> 
     begin match connection with
       | None -> []
       | Some connection -> 

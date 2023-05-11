@@ -697,8 +697,6 @@ fn write_object_maker(
     if num_props == 0 {
         writeln!(str, "unit -> unit = \"\"").unwrap();
         return Ok(());
-    } else {
-        writeln!(str, "(").unwrap();
     }
 
     let mut has_nullable = false;
@@ -718,9 +716,15 @@ fn write_object_maker(
             field_path_name.push(prop_value.key.to_owned());
 
             write_indentation(str, indentation + 1).unwrap();
+
+            if prop_value.nullable {
+                has_nullable = true;
+            }
+
             write!(
                 str,
-                "~{}: {}",
+                "{}{}: {}",
+                if prop_value.nullable { "?" } else { "" },
                 prop_name,
                 get_object_prop_type_as_string(
                     &state,
@@ -732,12 +736,7 @@ fn write_object_maker(
             )
             .unwrap();
 
-            if prop_value.nullable {
-                has_nullable = true;
-                write!(str, "=?").unwrap();
-            }
-
-            writeln!(str, ",").unwrap();
+            writeln!(str, "-> ").unwrap();
         }
     });
 
@@ -748,7 +747,7 @@ fn write_object_maker(
     }
 
     write_indentation(str, indentation).unwrap();
-    writeln!(str, ") -> {} = \"\" [@@bs.obj]", target_type).unwrap();
+    writeln!(str, " {} = \"\" [@@bs.obj]", target_type).unwrap();
     writeln!(str, "\n").unwrap();
 
     Ok(())
@@ -763,12 +762,12 @@ fn write_object_maker_for_refetch_variables(
     definition: &Object,
 ) -> Result {
     write_indentation(str, indentation).unwrap();
-    write!(str, "let makeRefetchVariables = fun (").unwrap();
+    write!(str, "let makeRefetchVariables ").unwrap();
 
     let num_props = definition.values.len();
 
     if num_props == 0 {
-        writeln!(str, ") -> ()").unwrap();
+        writeln!(str, "() = ()").unwrap();
         return Ok(());
     } else {
         writeln!(str, "").unwrap();
@@ -783,7 +782,7 @@ fn write_object_maker_for_refetch_variables(
     writeln!(str, "()").unwrap();
 
     write_indentation(str, indentation).unwrap();
-    writeln!(str, "): {} -> {{", "refetchVariables").unwrap();
+    writeln!(str, ": {} = {{", "refetchVariables").unwrap();
 
     // Print the fn body connecting all params
     definition
@@ -792,8 +791,8 @@ fn write_object_maker_for_refetch_variables(
         .enumerate()
         .for_each(|(index, prop_value)| {
             write_indentation(str, indentation + 1).unwrap();
-            write!(str, "{}: {}", prop_value.key, prop_value.key).unwrap();
-            writeln!(str, "{}", if index + 1 == num_props { "" } else { "," }).unwrap();
+            write!(str, "{}= {}", prop_value.key, prop_value.key).unwrap();
+            writeln!(str, "{}", if index + 1 == num_props { "" } else { ";" }).unwrap();
         });
 
     write_indentation(str, indentation).unwrap();
@@ -1066,7 +1065,7 @@ fn write_converter_map(
             ConverterInstructions::ConvertUnion(union_name) => {
                 if !has_instructions {
                     has_instructions = true;
-                    writeln!(str, "{{").unwrap();
+                    writeln!(str, "let o = Js.Dict.empty () in ").unwrap();
                 }
 
                 if printed_instruction_keys.contains(union_name) {
@@ -1078,7 +1077,7 @@ fn write_converter_map(
                 write_indentation(str, indentation + 1).unwrap();
                 writeln!(
                     str,
-                    "\"{}\": {},",
+                    "Js.Dict.set o \"{}\" {};",
                     union_name,
                     format!(
                         "{}_{}",
@@ -1094,7 +1093,7 @@ fn write_converter_map(
             ConverterInstructions::ConvertCustomField(custom_field_name) => {
                 if !has_instructions {
                     has_instructions = true;
-                    writeln!(str, "{{").unwrap();
+                    writeln!(str, "let o = Js.Dict.empty () in ").unwrap();
                 }
 
                 if printed_instruction_keys.contains(custom_field_name) {
@@ -1106,7 +1105,7 @@ fn write_converter_map(
                 write_indentation(str, indentation + 1).unwrap();
                 writeln!(
                     str,
-                    "\"{}\": {},",
+                    "Js.Dict.set o \"{}\" {};",
                     custom_field_name,
                     match classify_rescript_value_string(&custom_field_name) {
                         RescriptCustomTypeValue::Type => custom_field_name.to_string(),
@@ -1128,7 +1127,7 @@ fn write_converter_map(
 
     if has_instructions {
         write_indentation(str, indentation).unwrap();
-        writeln!(str, "}}").unwrap();
+        writeln!(str, "o").unwrap();
     } else {
         writeln!(str, "()").unwrap()
     }
@@ -1757,7 +1756,7 @@ fn write_get_connection_nodes_function(
 
                             write!(str, " -> Types.{} array = ", node_type_name).unwrap();
 
-                            writeln!(str, "connection -> ").unwrap();
+                            writeln!(str, "fun connection -> ").unwrap();
 
                             let mut ending_str = String::new();
 

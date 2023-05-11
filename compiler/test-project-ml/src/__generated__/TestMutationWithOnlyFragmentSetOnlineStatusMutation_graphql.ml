@@ -104,9 +104,9 @@ module Internal = struct
   let wrapRawResponseConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%bs.raw 
     {json|{"__root":{"setOnlineStatus_user_memberOf":{"u":"rawResponse_setOnlineStatus_user_memberOf"}}}|json}
   ]
-  let wrapRawResponseConverterMap = {
-    "rawResponse_setOnlineStatus_user_memberOf": wrap_rawResponse_setOnlineStatus_user_memberOf,
-  }
+  let wrapRawResponseConverterMap = let o = Js.Dict.empty () in 
+    Js.Dict.set o "rawResponse_setOnlineStatus_user_memberOf" wrap_rawResponse_setOnlineStatus_user_memberOf;
+  o
   let convertWrapRawResponse v = RescriptRelay.convertObj v 
     wrapRawResponseConverter 
     wrapRawResponseConverterMap 
@@ -115,9 +115,9 @@ module Internal = struct
   let rawResponseConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%bs.raw 
     {json|{"__root":{"setOnlineStatus_user_memberOf":{"u":"rawResponse_setOnlineStatus_user_memberOf"}}}|json}
   ]
-  let rawResponseConverterMap = {
-    "rawResponse_setOnlineStatus_user_memberOf": unwrap_rawResponse_setOnlineStatus_user_memberOf,
-  }
+  let rawResponseConverterMap = let o = Js.Dict.empty () in 
+    Js.Dict.set o "rawResponse_setOnlineStatus_user_memberOf" unwrap_rawResponse_setOnlineStatus_user_memberOf;
+  o
   let convertRawResponse v = RescriptRelay.convertObj v 
     rawResponseConverter 
     rawResponseConverterMap 
@@ -135,55 +135,49 @@ module Utils = struct
     )
     let onlineStatus_fromString (str: string): RelaySchemaAssets_graphql.enum_OnlineStatus_input option =
     onlineStatus_decode (Obj.magic str)
-    external makeVariables: (
-    ~onlineStatus: [
+    external makeVariables:     onlineStatus: [
       | `Idle
       | `Offline
       | `Online
-    ],
-  ) -> variables = "" [@@bs.obj]
+    ]-> 
+   variables = "" [@@bs.obj]
 
 
-  external makeOptimisticResponse: (
-    ~setOnlineStatus: rawResponse_setOnlineStatus=?,
+  external makeOptimisticResponse:     ?setOnlineStatus: rawResponse_setOnlineStatus-> 
     unit
-  ) -> rawResponse = "" [@@bs.obj]
+   rawResponse = "" [@@bs.obj]
 
 
-  external make_rawResponse_setOnlineStatus_user_memberOf_Group: (
-    ~__typename: [ | `Group],
-    ~__isNode: [ | `Group],
-    ~id: string,
-    ~name: string,
-  ) -> rawResponse_setOnlineStatus_user_memberOf_Group = "" [@@bs.obj]
+  external make_rawResponse_setOnlineStatus_user_memberOf_Group:     __typename: [ | `Group]-> 
+    __isNode: [ | `Group]-> 
+    id: string-> 
+    name: string-> 
+   rawResponse_setOnlineStatus_user_memberOf_Group = "" [@@bs.obj]
 
 
-  external make_rawResponse_setOnlineStatus_user_memberOf_User: (
-    ~__typename: [ | `User],
-    ~__isNode: [ | `User],
-    ~firstName: string,
-    ~id: string,
-  ) -> rawResponse_setOnlineStatus_user_memberOf_User = "" [@@bs.obj]
+  external make_rawResponse_setOnlineStatus_user_memberOf_User:     __typename: [ | `User]-> 
+    __isNode: [ | `User]-> 
+    firstName: string-> 
+    id: string-> 
+   rawResponse_setOnlineStatus_user_memberOf_User = "" [@@bs.obj]
 
 
-  external make_rawResponse_setOnlineStatus_user: (
-    ~firstName: string,
-    ~id: string,
-    ~lastName: string,
-    ~memberOf: rawResponse_setOnlineStatus_user_memberOf option array=?,
-    ~onlineStatus: [
+  external make_rawResponse_setOnlineStatus_user:     firstName: string-> 
+    id: string-> 
+    lastName: string-> 
+    ?memberOf: rawResponse_setOnlineStatus_user_memberOf option array-> 
+    ?onlineStatus: [
       | `Idle
       | `Offline
       | `Online
-    ]=?,
+    ]-> 
     unit
-  ) -> rawResponse_setOnlineStatus_user = "" [@@bs.obj]
+   rawResponse_setOnlineStatus_user = "" [@@bs.obj]
 
 
-  external make_rawResponse_setOnlineStatus: (
-    ~user: rawResponse_setOnlineStatus_user=?,
+  external make_rawResponse_setOnlineStatus:     ?user: rawResponse_setOnlineStatus_user-> 
     unit
-  ) -> rawResponse_setOnlineStatus = "" [@@bs.obj]
+   rawResponse_setOnlineStatus = "" [@@bs.obj]
 
 
 end

@@ -54,9 +54,8 @@ module Utils = struct
     )
     let onlineStatus_fromString (str: string): RelaySchemaAssets_graphql.enum_OnlineStatus_input option =
     onlineStatus_decode (Obj.magic str)
-    external makeVariables: (
-    ~userId: string,
-  ) -> variables = "" [@@bs.obj]
+    external makeVariables:     userId: string-> 
+   variables = "" [@@bs.obj]
 
 
 end

@@ -16,16 +16,16 @@ module Types = struct
   type rawResponse = response
   type variables = unit
   type refetchVariables = unit
-  let makeRefetchVariables = fun () -> ()
+  let makeRefetchVariables () = ()
 end
 
 module Internal = struct
   let variablesConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%bs.raw 
     {json|{"someInput":{"recursive":{"r":"someInput"},"datetime":{"c":"SomeModule.Datetime"}},"inputB":{"usingA":{"r":"inputA"},"time":{"c":"SomeModule.Datetime"}},"inputA":{"usingB":{"r":"inputB"},"timestamps":{"b":"a"},"timestamp":{"b":""},"time":{"c":"SomeModule.Datetime"},"recursiveA":{"r":"inputA"}},"__root":{"__relay_internal__pv__TestProvidedVariablesSomeInput":{"r":"someInput"},"__relay_internal__pv__TestProvidedVariablesInputB":{"r":"inputB"},"__relay_internal__pv__TestProvidedVariablesDatetimes":{"c":"SomeModule.Datetime"},"__relay_internal__pv__TestProvidedVariablesDatetime":{"c":"SomeModule.Datetime"}}}|json}
   ]
-  let variablesConverterMap = {
-    "SomeModule.Datetime": SomeModule.Datetime.serialize,
-  }
+  let variablesConverterMap = let o = Js.Dict.empty () in 
+    Js.Dict.set o "SomeModule.Datetime" SomeModule.Datetime.serialize;
+  o
   let convertVariables v = RescriptRelay.convertObj v 
     variablesConverter 
     variablesConverterMap 
@@ -59,35 +59,32 @@ type queryRef
 module Utils = struct
   [@@@ocaml.warning "-33"]
   open Types
-  external make_someInput: (
-    ~bool: bool=?,
-    ~datetime: SomeModule.Datetime.t=?,
-    ~float: float=?,
-    ~int: int=?,
-    ~_private: bool=?,
-    ~recursive: someInput=?,
-    ~str: string=?,
+  external make_someInput:     ?bool: bool-> 
+    ?datetime: SomeModule.Datetime.t-> 
+    ?float: float-> 
+    ?int: int-> 
+    ?_private: bool-> 
+    ?recursive: someInput-> 
+    ?str: string-> 
     unit
-  ) -> someInput = "" [@@bs.obj]
+   someInput = "" [@@bs.obj]
 
 
-  external make_inputB: (
-    ~_constraint: bool=?,
-    ~time: SomeModule.Datetime.t=?,
-    ~usingA: inputA=?,
+  external make_inputB:     ?_constraint: bool-> 
+    ?time: SomeModule.Datetime.t-> 
+    ?usingA: inputA-> 
     unit
-  ) -> inputB = "" [@@bs.obj]
+   inputB = "" [@@bs.obj]
 
 
-  external make_inputA: (
-    ~recursiveA: inputA=?,
-    ~time: SomeModule.Datetime.t,
-    ~timestamp: Timestamp.t=?,
-    ~timestamps: Timestamp.t option array=?,
-    ~unmapped: RescriptRelay.any=?,
-    ~usingB: inputB=?,
+  external make_inputA:     ?recursiveA: inputA-> 
+    time: SomeModule.Datetime.t-> 
+    ?timestamp: Timestamp.t-> 
+    ?timestamps: Timestamp.t option array-> 
+    ?unmapped: RescriptRelay.any-> 
+    ?usingB: inputB-> 
     unit
-  ) -> inputA = "" [@@bs.obj]
+   inputA = "" [@@bs.obj]
 
 
   external makeVariables: unit -> unit = ""
@@ -95,12 +92,12 @@ end
 type 't providedVariable = { providedVariable: unit -> 't; get: unit -> 't }
 type providedVariablesType = {
   __relay_internal__pv__TestProvidedVariablesBool: bool providedVariable;
-  __relay_internal__pv__TestProvidedVariablesDatetime: option<SomeModule.Datetime.t> providedVariable;
-  __relay_internal__pv__TestProvidedVariablesDatetimes: option<array<SomeModule.Datetime.t>> providedVariable;
+  __relay_internal__pv__TestProvidedVariablesDatetime: SomeModule.Datetime.t option providedVariable;
+  __relay_internal__pv__TestProvidedVariablesDatetimes: SomeModule.Datetime.t array option providedVariable;
   __relay_internal__pv__TestProvidedVariablesFloat: float providedVariable;
-  __relay_internal__pv__TestProvidedVariablesID: option<string> providedVariable;
+  __relay_internal__pv__TestProvidedVariablesID: string option providedVariable;
   __relay_internal__pv__TestProvidedVariablesInputB: RelaySchemaAssets_graphql.input_InputB providedVariable;
-  __relay_internal__pv__TestProvidedVariablesInt: option<int> providedVariable;
+  __relay_internal__pv__TestProvidedVariablesInt: int option providedVariable;
   __relay_internal__pv__TestProvidedVariablesSomeInput: RelaySchemaAssets_graphql.input_SomeInput providedVariable;
   __relay_internal__pv__TestProvidedVariablesStr: string providedVariable;
 }

@@ -40,21 +40,18 @@ external getFragmentRef:
 let connectionKey = "TestPaginationInNode_friendsConnection"
 
 [@@bs.inline]
-%%private(
-  @live @module("relay-runtime") @scope("ConnectionHandler")
-  external internal_makeConnectionId: (RescriptRelay.dataId, @as("TestPaginationInNode_friendsConnection") _, 'arguments) => RescriptRelay.dataId = "getConnectionID"
-)
+[%%private
+  external internal_makeConnectionId: RescriptRelay.dataId -> (_ [@bs.as "TestPaginationInNode_friendsConnection"]) -> 'arguments -> RescriptRelay.dataId = "getConnectionID"
+[@@live] [@@bs.module "relay-runtime"] [@@bs.scope "ConnectionHandler"]
 
-@live
-let makeConnectionId = (connectionParentDataId: RescriptRelay.dataId, ~onlineStatuses: option<array<[#Online | #Idle | #Offline]>>=?, ()) => {
-  let args = {"statuses": onlineStatuses}
+]let makeConnectionId (connectionParentDataId: RescriptRelay.dataId) ?(onlineStatuses: [`Online | `Idle | `Offline] array option) () =
+  let args = [%bs.obj {statuses= onlineStatuses}] in
   internal_makeConnectionId(connectionParentDataId, args)
-}
 module Utils = struct
   [@@@ocaml.warning "-33"]
   open Types
 
-  let getConnectionNodes: Types.fragment_friendsConnection -> Types.fragment_friendsConnection_edges_node array = connection -> 
+  let getConnectionNodes: Types.fragment_friendsConnection -> Types.fragment_friendsConnection_edges_node array = fun connection -> 
     begin match connection.edges with
       | None -> []
       | Some edges -> edges

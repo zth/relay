@@ -66,27 +66,24 @@ module Utils = struct
     )
     let onlineStatus_fromString (str: string): RelaySchemaAssets_graphql.enum_OnlineStatus_input option =
     onlineStatus_decode (Obj.magic str)
-    external make_setOnlineStatusInput: (
-    ~onlineStatus: [
+    external make_setOnlineStatusInput:     onlineStatus: [
       | `Idle
       | `Offline
       | `Online
-    ],
-    ~recursed: recursiveSetOnlineStatusInput=?,
+    ]-> 
+    ?recursed: recursiveSetOnlineStatusInput-> 
     unit
-  ) -> setOnlineStatusInput = "" [@@bs.obj]
+   setOnlineStatusInput = "" [@@bs.obj]
 
 
-  external make_recursiveSetOnlineStatusInput: (
-    ~setOnlineStatus: setOnlineStatusInput=?,
-    ~someValue: RescriptRelay.any,
+  external make_recursiveSetOnlineStatusInput:     ?setOnlineStatus: setOnlineStatusInput-> 
+    someValue: RescriptRelay.any-> 
     unit
-  ) -> recursiveSetOnlineStatusInput = "" [@@bs.obj]
+   recursiveSetOnlineStatusInput = "" [@@bs.obj]
 
 
-  external makeVariables: (
-    ~input: setOnlineStatusInput,
-  ) -> variables = "" [@@bs.obj]
+  external makeVariables:     input: setOnlineStatusInput-> 
+   variables = "" [@@bs.obj]
 
 
 end

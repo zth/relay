@@ -100,40 +100,36 @@ module Utils = struct
     )
     let onlineStatus_fromString (str: string): RelaySchemaAssets_graphql.enum_OnlineStatus_input option =
     onlineStatus_decode (Obj.magic str)
-    external makeVariables: (
-    ~connections: RescriptRelay.dataId array,
-    ~onlineStatus: [
+    external makeVariables:     connections: RescriptRelay.dataId array-> 
+    onlineStatus: [
       | `Idle
       | `Offline
       | `Online
-    ],
-  ) -> variables = "" [@@bs.obj]
+    ]-> 
+   variables = "" [@@bs.obj]
 
 
-  external makeOptimisticResponse: (
-    ~setOnlineStatus: rawResponse_setOnlineStatus=?,
+  external makeOptimisticResponse:     ?setOnlineStatus: rawResponse_setOnlineStatus-> 
     unit
-  ) -> rawResponse = "" [@@bs.obj]
+   rawResponse = "" [@@bs.obj]
 
 
-  external make_rawResponse_setOnlineStatus_user: (
-    ~__id: RescriptRelay.dataId=?,
-    ~firstName: string,
-    ~id: string,
-    ~lastName: string,
-    ~onlineStatus: [
+  external make_rawResponse_setOnlineStatus_user:     ?__id: RescriptRelay.dataId-> 
+    firstName: string-> 
+    id: string-> 
+    lastName: string-> 
+    ?onlineStatus: [
       | `Idle
       | `Offline
       | `Online
-    ]=?,
+    ]-> 
     unit
-  ) -> rawResponse_setOnlineStatus_user = "" [@@bs.obj]
+   rawResponse_setOnlineStatus_user = "" [@@bs.obj]
 
 
-  external make_rawResponse_setOnlineStatus: (
-    ~user: rawResponse_setOnlineStatus_user=?,
+  external make_rawResponse_setOnlineStatus:     ?user: rawResponse_setOnlineStatus_user-> 
     unit
-  ) -> rawResponse_setOnlineStatus = "" [@@bs.obj]
+   rawResponse_setOnlineStatus = "" [@@bs.obj]
 
 
 end

@@ -44,9 +44,9 @@ module Internal = struct
   let fragmentConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%bs.raw 
     {json|{"__root":{"member":{"u":"fragment_member"}}}|json}
   ]
-  let fragmentConverterMap = {
-    "fragment_member": unwrap_fragment_member,
-  }
+  let fragmentConverterMap = let o = Js.Dict.empty () in 
+    Js.Dict.set o "fragment_member" unwrap_fragment_member;
+  o
   let convertFragment v = RescriptRelay.convertObj v 
     fragmentConverter 
     fragmentConverterMap 
@@ -61,23 +61,20 @@ external getFragmentRef:
 let connectionKey = "TestConnections_user_friendsConnection"
 
 [@@bs.inline]
-%%private(
-  @live @module("relay-runtime") @scope("ConnectionHandler")
-  external internal_makeConnectionId: (RescriptRelay.dataId, @as("TestConnections_user_friendsConnection") _, 'arguments) => RescriptRelay.dataId = "getConnectionID"
-)
+[%%private
+  external internal_makeConnectionId: RescriptRelay.dataId -> (_ [@bs.as "TestConnections_user_friendsConnection"]) -> 'arguments -> RescriptRelay.dataId = "getConnectionID"
+[@@live] [@@bs.module "relay-runtime"] [@@bs.scope "ConnectionHandler"]
 
-@live
-let makeConnectionId = (connectionParentDataId: RescriptRelay.dataId, ~onlineStatuses: array<[#Online | #Idle | #Offline]>=[#Idle], ~beforeDate: SomeModule.Datetime.t, ~someInput: option<RelaySchemaAssets_graphql.input_SomeInput>=?, ()) => {
-  let onlineStatuses = Some(onlineStatuses)
-  let beforeDate = Some(SomeModule.Datetime.serialize(beforeDate))
-  let args = {"statuses": onlineStatuses, "beforeDate": beforeDate, "objTests": [RescriptRelay_Internal.Arg(Some({"int": Some(123)})), RescriptRelay_Internal.Arg(Some({"str": Some("Hello")})), RescriptRelay_Internal.Arg(someInput)]}
+]let makeConnectionId (connectionParentDataId: RescriptRelay.dataId) ?(onlineStatuses: [`Online | `Idle | `Offline] array=[| `Idle |]) ~(beforeDate: SomeModule.Datetime.t) ?(someInput: RelaySchemaAssets_graphql.input_SomeInput option) () =
+  let onlineStatuses = Some onlineStatuses in
+  let beforeDate = Some (SomeModule.Datetime.serialize beforeDate) in
+  let args = [%bs.obj {statuses= onlineStatuses; beforeDate= beforeDate; objTests= [RescriptRelay_Internal.Arg(Some([%bs.obj {int = Some(123)}])); RescriptRelay_Internal.Arg(Some([%bs.obj {str = Some("Hello")}])); RescriptRelay_Internal.Arg(someInput)]}] in
   internal_makeConnectionId(connectionParentDataId, args)
-}
 module Utils = struct
   [@@@ocaml.warning "-33"]
   open Types
 
-  let getConnectionNodes: Types.fragment_member_User_friendsConnection -> Types.fragment_member_User_friendsConnection_edges_node array = connection -> 
+  let getConnectionNodes: Types.fragment_member_User_friendsConnection -> Types.fragment_member_User_friendsConnection_edges_node array = fun connection -> 
     begin match connection.edges with
       | None -> []
       | Some edges -> edges

@@ -22,9 +22,9 @@ module Internal = struct
   let variablesConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%bs.raw 
     {json|{"inputB":{"usingA":{"r":"inputA"},"time":{"c":"SomeModule.Datetime"}},"inputA":{"usingB":{"r":"inputB"},"timestamps":{"b":"a"},"timestamp":{"b":""},"time":{"c":"SomeModule.Datetime"},"recursiveA":{"r":"inputA"}},"__root":{"input":{"r":"inputA"}}}|json}
   ]
-  let variablesConverterMap = {
-    "SomeModule.Datetime": SomeModule.Datetime.serialize,
-  }
+  let variablesConverterMap = let o = Js.Dict.empty () in 
+    Js.Dict.set o "SomeModule.Datetime" SomeModule.Datetime.serialize;
+  o
   let convertVariables v = RescriptRelay.convertObj v 
     variablesConverter 
     variablesConverterMap 
@@ -55,29 +55,26 @@ end
 module Utils = struct
   [@@@ocaml.warning "-33"]
   open Types
-  external make_inputA: (
-    ~recursiveA: inputA=?,
-    ~time: SomeModule.Datetime.t,
-    ~timestamp: Timestamp.t=?,
-    ~timestamps: Timestamp.t option array=?,
-    ~unmapped: RescriptRelay.any=?,
-    ~usingB: inputB=?,
+  external make_inputA:     ?recursiveA: inputA-> 
+    time: SomeModule.Datetime.t-> 
+    ?timestamp: Timestamp.t-> 
+    ?timestamps: Timestamp.t option array-> 
+    ?unmapped: RescriptRelay.any-> 
+    ?usingB: inputB-> 
     unit
-  ) -> inputA = "" [@@bs.obj]
+   inputA = "" [@@bs.obj]
 
 
-  external make_inputB: (
-    ~_constraint: bool=?,
-    ~time: SomeModule.Datetime.t=?,
-    ~usingA: inputA=?,
+  external make_inputB:     ?_constraint: bool-> 
+    ?time: SomeModule.Datetime.t-> 
+    ?usingA: inputA-> 
     unit
-  ) -> inputB = "" [@@bs.obj]
+   inputB = "" [@@bs.obj]
 
 
-  external makeVariables: (
-    ~input: inputA=?,
+  external makeVariables:     ?input: inputA-> 
     unit
-  ) -> variables = "" [@@bs.obj]
+   variables = "" [@@bs.obj]
 
 
 end

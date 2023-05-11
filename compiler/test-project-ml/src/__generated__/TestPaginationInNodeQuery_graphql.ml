@@ -19,11 +19,11 @@ module Types = struct
   type refetchVariables = {
     userId: string option;
   }
-  let makeRefetchVariables = fun (
+  let makeRefetchVariables 
     ?userId 
     ()
-  ): refetchVariables -> {
-    userId: userId
+  : refetchVariables = {
+    userId= userId
   }
 
 end
@@ -66,9 +66,8 @@ type queryRef
 module Utils = struct
   [@@@ocaml.warning "-33"]
   open Types
-  external makeVariables: (
-    ~userId: string,
-  ) -> variables = "" [@@bs.obj]
+  external makeVariables:     userId: string-> 
+   variables = "" [@@bs.obj]
 
 
 end

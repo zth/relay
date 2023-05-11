@@ -10,7 +10,7 @@ module Types = struct
   type rawResponse = response
   type variables = unit
   type refetchVariables = unit
-  let makeRefetchVariables = fun () -> ()
+  let makeRefetchVariables () = ()
 end
 
 module Internal = struct

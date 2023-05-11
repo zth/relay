@@ -4,7 +4,7 @@ use common::SourceLocationKey;
 use graphql_ir::reexport::Intern;
 use relay_config::ProjectConfig;
 use relay_transforms::Programs;
-use relay_typegen::rescript_utils::{get_safe_key, print_type_reference};
+use relay_typegen::ocaml_utils::{get_safe_key, print_type_reference};
 use schema::{SDLSchema, Schema, TypeReference};
 
 use crate::Artifact;
@@ -66,11 +66,7 @@ pub(crate) fn ocaml_generate_extra_artifacts(
 
             writeln!(
                 content,
-                "  {}{}: {},",
-                (match maybe_original_key {
-                    Some(original_key) => format!("[@bs.as \"{}\"] ", original_key),
-                    None => String::from(""),
-                }),
+                "  {}: {}{};",
                 key,
                 print_type_reference(
                     &field.type_,
@@ -79,7 +75,11 @@ pub(crate) fn ocaml_generate_extra_artifacts(
                     true,
                     false,
                     false
-                )
+                ),
+                (match maybe_original_key {
+                    Some(original_key) => format!(" [@bs.as \"{}\"]", original_key),
+                    None => String::from(""),
+                })
             )
             .unwrap();
         });
@@ -117,13 +117,8 @@ pub(crate) fn ocaml_generate_extra_artifacts(
 
             writeln!(
                 content,
-                "  {}{}{}: {},",
-                (match maybe_original_key {
-                    Some(original_key) => format!("[@bs.as \"{}\"] ", original_key),
-                    None => String::from(""),
-                }),
+                "  {}: {}{}{};",
                 key,
-                if is_nullable { "?" } else { "" },
                 print_type_reference(
                     &field.type_,
                     &schema,
@@ -131,12 +126,17 @@ pub(crate) fn ocaml_generate_extra_artifacts(
                     true,
                     false,
                     true
-                )
+                ),
+                (match maybe_original_key {
+                    Some(original_key) => format!(" [@bs.as \"{}\"]", original_key),
+                    None => String::from(""),
+                }),
+                if is_nullable { " [@bs.optional]" } else { "" }
             )
             .unwrap();
         });
 
-        writeln!(content, "}}").unwrap();
+        writeln!(content, "}} [@@bs.deriving abstract]").unwrap();
 
         if has_written_initial_input_obj == false {
             has_written_initial_input_obj = true;
@@ -147,7 +147,7 @@ pub(crate) fn ocaml_generate_extra_artifacts(
     schema.input_objects().for_each(|input_obj| {
         writeln!(
             content,
-            "external make_{}: (",
+            "external make_{}: ",
             input_obj.name.item
         )
         .unwrap();
@@ -164,7 +164,8 @@ pub(crate) fn ocaml_generate_extra_artifacts(
 
             writeln!(
                 content,
-                "  ~{}: {}{},",
+                "  {}{}: {} -> ",
+                if is_optional { "?" } else { "" },
                 (match maybe_original_key {
                     Some(original_key) => format!("_{}", original_key),
                     None => key,
@@ -177,7 +178,6 @@ pub(crate) fn ocaml_generate_extra_artifacts(
                     false,
                     false
                 ),
-                if is_optional { "=?" } else { "" }
             )
             .unwrap();
 
@@ -187,10 +187,10 @@ pub(crate) fn ocaml_generate_extra_artifacts(
         });
 
         if has_optional {
-            writeln!(content, "  unit,").unwrap()
+            writeln!(content, "  unit").unwrap()
         }
 
-        writeln!(content, ") -> input_{} = \"\" [@@bs.obj]\n", input_obj.name.item).unwrap();
+        writeln!(content, " -> input_{} = \"\" [@@bs.obj]\n", input_obj.name.item).unwrap();
     });
 
     vec![Artifact {

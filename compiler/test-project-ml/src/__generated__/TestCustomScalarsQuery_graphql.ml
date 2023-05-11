@@ -31,11 +31,11 @@ module Types = struct
   type refetchVariables = {
     beforeDate: SomeModule.Datetime.t option option;
   }
-  let makeRefetchVariables = fun (
+  let makeRefetchVariables 
     ?beforeDate 
     ()
-  ): refetchVariables -> {
-    beforeDate: beforeDate
+  : refetchVariables = {
+    beforeDate= beforeDate
   }
 
 end
@@ -56,9 +56,9 @@ module Internal = struct
   let variablesConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%bs.raw 
     {json|{"__root":{"beforeDate":{"c":"SomeModule.Datetime"}}}|json}
   ]
-  let variablesConverterMap = {
-    "SomeModule.Datetime": SomeModule.Datetime.serialize,
-  }
+  let variablesConverterMap = let o = Js.Dict.empty () in 
+    Js.Dict.set o "SomeModule.Datetime" SomeModule.Datetime.serialize;
+  o
   let convertVariables v = RescriptRelay.convertObj v 
     variablesConverter 
     variablesConverterMap 
@@ -67,10 +67,10 @@ module Internal = struct
   let wrapResponseConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%bs.raw 
     {json|{"__root":{"member_User_createdAt":{"c":"SomeModule.Datetime"},"member":{"u":"response_member"},"loggedInUser_friends_createdAt":{"c":"SomeModule.Datetime"},"loggedInUser_createdAt":{"c":"SomeModule.Datetime"}}}|json}
   ]
-  let wrapResponseConverterMap = {
-    "SomeModule.Datetime": SomeModule.Datetime.serialize,
-    "response_member": wrap_response_member,
-  }
+  let wrapResponseConverterMap = let o = Js.Dict.empty () in 
+    Js.Dict.set o "SomeModule.Datetime" SomeModule.Datetime.serialize;
+    Js.Dict.set o "response_member" wrap_response_member;
+  o
   let convertWrapResponse v = RescriptRelay.convertObj v 
     wrapResponseConverter 
     wrapResponseConverterMap 
@@ -79,10 +79,10 @@ module Internal = struct
   let responseConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%bs.raw 
     {json|{"__root":{"member_User_createdAt":{"c":"SomeModule.Datetime"},"member":{"u":"response_member"},"loggedInUser_friends_createdAt":{"c":"SomeModule.Datetime"},"loggedInUser_createdAt":{"c":"SomeModule.Datetime"}}}|json}
   ]
-  let responseConverterMap = {
-    "SomeModule.Datetime": SomeModule.Datetime.parse,
-    "response_member": unwrap_response_member,
-  }
+  let responseConverterMap = let o = Js.Dict.empty () in 
+    Js.Dict.set o "SomeModule.Datetime" SomeModule.Datetime.parse;
+    Js.Dict.set o "response_member" unwrap_response_member;
+  o
   let convertResponse v = RescriptRelay.convertObj v 
     responseConverter 
     responseConverterMap 
@@ -98,10 +98,9 @@ type queryRef
 module Utils = struct
   [@@@ocaml.warning "-33"]
   open Types
-  external makeVariables: (
-    ~beforeDate: SomeModule.Datetime.t=?,
+  external makeVariables:     ?beforeDate: SomeModule.Datetime.t-> 
     unit
-  ) -> variables = "" [@@bs.obj]
+   variables = "" [@@bs.obj]
 
 
 end

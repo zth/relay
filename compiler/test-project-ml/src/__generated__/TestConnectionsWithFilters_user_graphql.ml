@@ -38,22 +38,19 @@ external getFragmentRef:
 let connectionKey = "TestConnectionsWithFilters_user_friendsConnection"
 
 [@@bs.inline]
-%%private(
-  @live @module("relay-runtime") @scope("ConnectionHandler")
-  external internal_makeConnectionId: (RescriptRelay.dataId, @as("TestConnectionsWithFilters_user_friendsConnection") _, 'arguments) => RescriptRelay.dataId = "getConnectionID"
-)
+[%%private
+  external internal_makeConnectionId: RescriptRelay.dataId -> (_ [@bs.as "TestConnectionsWithFilters_user_friendsConnection"]) -> 'arguments -> RescriptRelay.dataId = "getConnectionID"
+[@@live] [@@bs.module "relay-runtime"] [@@bs.scope "ConnectionHandler"]
 
-@live
-let makeConnectionId = (connectionParentDataId: RescriptRelay.dataId, ~onlineStatuses: option<array<[#Online | #Idle | #Offline]>>=?, ~objTest: RelaySchemaAssets_graphql.input_SomeInput=Obj.magic({"str": "123"}), ()) => {
-  let objTest = Some(objTest)
-  let args = {"statuses": onlineStatuses, "objTest": objTest}
+]let makeConnectionId (connectionParentDataId: RescriptRelay.dataId) ?(onlineStatuses: [`Online | `Idle | `Offline] array option) ?(objTest: RelaySchemaAssets_graphql.input_SomeInput=(Obj.magic [%bs.obj {str = "123"}])) () =
+  let objTest = Some objTest in
+  let args = [%bs.obj {statuses= onlineStatuses; objTest= objTest}] in
   internal_makeConnectionId(connectionParentDataId, args)
-}
 module Utils = struct
   [@@@ocaml.warning "-33"]
   open Types
 
-  let getConnectionNodes: Types.fragment_friendsConnection -> Types.fragment_friendsConnection_edges_node array = connection -> 
+  let getConnectionNodes: Types.fragment_friendsConnection -> Types.fragment_friendsConnection_edges_node array = fun connection -> 
     begin match connection.edges with
       | None -> []
       | Some edges -> edges

@@ -48,9 +48,9 @@ module Internal = struct
   let fragmentConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%bs.raw 
     {json|{"__root":{"memberOf":{"u":"fragment_memberOf"}}}|json}
   ]
-  let fragmentConverterMap = {
-    "fragment_memberOf": unwrap_fragment_memberOf,
-  }
+  let fragmentConverterMap = let o = Js.Dict.empty () in 
+    Js.Dict.set o "fragment_memberOf" unwrap_fragment_memberOf;
+  o
   let convertFragment v = RescriptRelay.convertObj v 
     fragmentConverter 
     fragmentConverterMap 

@@ -24,7 +24,7 @@ module Types = struct
   type rawResponse = response
   type variables = unit
   type refetchVariables = unit
-  let makeRefetchVariables = fun () -> ()
+  let makeRefetchVariables () = ()
 end
 
 let unwrap_response_node: < __typename: string > Js.t -> [
@@ -56,9 +56,9 @@ module Internal = struct
   let wrapResponseConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%bs.raw 
     {json|{"__root":{"node":{"u":"response_node"}}}|json}
   ]
-  let wrapResponseConverterMap = {
-    "response_node": wrap_response_node,
-  }
+  let wrapResponseConverterMap = let o = Js.Dict.empty () in 
+    Js.Dict.set o "response_node" wrap_response_node;
+  o
   let convertWrapResponse v = RescriptRelay.convertObj v 
     wrapResponseConverter 
     wrapResponseConverterMap 
@@ -67,9 +67,9 @@ module Internal = struct
   let responseConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%bs.raw 
     {json|{"__root":{"node":{"u":"response_node"}}}|json}
   ]
-  let responseConverterMap = {
-    "response_node": unwrap_response_node,
-  }
+  let responseConverterMap = let o = Js.Dict.empty () in 
+    Js.Dict.set o "response_node" unwrap_response_node;
+  o
   let convertResponse v = RescriptRelay.convertObj v 
     responseConverter 
     responseConverterMap 

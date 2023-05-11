@@ -30,15 +30,15 @@ module Types = struct
     id: string option [@live];
     showOnlineStatus: bool option option;
   }
-  let makeRefetchVariables = fun (
+  let makeRefetchVariables 
     ?friendsOnlineStatuses 
     ?id 
     ?showOnlineStatus 
     ()
-  ): refetchVariables -> {
-    friendsOnlineStatuses: friendsOnlineStatuses,
-    id: id,
-    showOnlineStatus: showOnlineStatus
+  : refetchVariables = {
+    friendsOnlineStatuses= friendsOnlineStatuses;
+    id= id;
+    showOnlineStatus= showOnlineStatus
   }
 
 end
@@ -90,16 +90,15 @@ module Utils = struct
     )
     let onlineStatus_fromString (str: string): RelaySchemaAssets_graphql.enum_OnlineStatus_input option =
     onlineStatus_decode (Obj.magic str)
-    external makeVariables: (
-    ~friendsOnlineStatuses: [
+    external makeVariables:     ?friendsOnlineStatuses: [
       | `Idle
       | `Offline
       | `Online
-    ] array=?,
-    ~id: string,
-    ~showOnlineStatus: bool=?,
+    ] array-> 
+    id: string-> 
+    ?showOnlineStatus: bool-> 
     unit
-  ) -> variables = "" [@@bs.obj]
+   variables = "" [@@bs.obj]
 
 
 end

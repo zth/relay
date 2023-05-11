@@ -15,11 +15,11 @@ module Types = struct
   type refetchVariables = {
     input: pesticideListSearchInput option;
   }
-  let makeRefetchVariables = fun (
+  let makeRefetchVariables 
     ?input 
     ()
-  ): refetchVariables -> {
-    input: input
+  : refetchVariables = {
+    input= input
   }
 
 end
@@ -62,18 +62,16 @@ type queryRef
 module Utils = struct
   [@@@ocaml.warning "-33"]
   open Types
-  external make_pesticideListSearchInput: (
-    ~companyName: string array=?,
-    ~pesticideIds: int array=?,
-    ~skip: int,
-    ~take: int,
+  external make_pesticideListSearchInput:     ?companyName: string array-> 
+    ?pesticideIds: int array-> 
+    skip: int-> 
+    take: int-> 
     unit
-  ) -> pesticideListSearchInput = "" [@@bs.obj]
+   pesticideListSearchInput = "" [@@bs.obj]
 
 
-  external makeVariables: (
-    ~input: pesticideListSearchInput,
-  ) -> variables = "" [@@bs.obj]
+  external makeVariables:     input: pesticideListSearchInput-> 
+   variables = "" [@@bs.obj]
 
 
 end

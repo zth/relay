@@ -14,11 +14,11 @@ module Types = struct
   type refetchVariables = {
     groupId: string option;
   }
-  let makeRefetchVariables = fun (
+  let makeRefetchVariables 
     ?groupId 
     ()
-  ): refetchVariables -> {
-    groupId: groupId
+  : refetchVariables = {
+    groupId= groupId
   }
 
 end
@@ -61,9 +61,8 @@ type queryRef
 module Utils = struct
   [@@@ocaml.warning "-33"]
   open Types
-  external makeVariables: (
-    ~groupId: string,
-  ) -> variables = "" [@@bs.obj]
+  external makeVariables:     groupId: string-> 
+   variables = "" [@@bs.obj]
 
 
 end

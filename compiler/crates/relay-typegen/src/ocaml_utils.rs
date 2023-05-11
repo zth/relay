@@ -8,7 +8,7 @@ use graphql_ir::{
 };
 use itertools::Itertools;
 use log::warn;
-use relay_config::{CustomScalarType, CustomScalarTypeImport, TypegenConfig};
+use relay_config::{CustomScalarType, CustomScalarTypeImport, TypegenConfig, TypegenLanguage};
 use relay_transforms::RelayDirective;
 use schema::{SDLSchema, Schema, Type, TypeReference};
 
@@ -225,11 +225,13 @@ pub fn get_rescript_relay_meta_data(
 ) -> RescriptRelayOperationMetaData {
     match &typegen_definition {
         DefinitionType::Fragment(definition) => find_assets_in_fragment(
+            TypegenLanguage::OCaml,
             &definition,
             &schema,
             typegen_config.custom_scalar_types.clone(),
         ),
         DefinitionType::Operation((definition, _)) => find_assets_in_operation(
+            TypegenLanguage::OCaml,
             &definition,
             &schema,
             typegen_config.custom_scalar_types.clone(),
@@ -375,19 +377,18 @@ pub fn print_constant_value(
         }
         ConstantValue::List(values) => print_wrapped_in_some(
             &format!(
-                "[{}]",
+                "[| {} |]",
                 values
                     .iter()
                     .map(|v| if wrap_in_arg {
                         format!(
-                            // TODO(anmonteiro)
-                            "RescriptRelay_Internal.Arg({})",
+                            "RescriptRelay_Internal.Arg {}",
                             print_constant_value(v, print_as_optional, wrap_in_arg)
                         )
                     } else {
                         print_constant_value(v, print_as_optional, wrap_in_arg)
                     })
-                    .join(", ")
+                    .join("; ")
             ),
             print_as_optional,
         ),
@@ -398,7 +399,7 @@ pub fn print_constant_value(
                     .iter()
                     .map(|arg| {
                         format!(
-                            "\"{}\"= {}",
+                            "{} = {}",
                             arg.name.item,
                             print_constant_value(&arg.value.item, print_as_optional, wrap_in_arg)
                         )
@@ -527,7 +528,7 @@ pub fn print_value(value: &Value, print_as_optional: bool, wrap_in_arg: bool) ->
                 } else {
                     print_value(v, print_as_optional, wrap_in_arg)
                 })
-                .join(", ")
+                .join("; ")
         ),
         Value::Object(arguments) => format!(
             "[%bs.obj {{{}}}]",
@@ -650,7 +651,7 @@ pub fn get_connection_key_maker(
     write_indentation(&mut str, local_indentation).unwrap();
     write!(
         str,
-        "[%%private\n  external internal_makeConnectionId: (RescriptRelay.dataId, @as(\"{}\") _, 'arguments) -> RescriptRelay.dataId = \"getConnectionID\"\n[@@live] [@@bs.module \"relay-runtime\"] [@bs.scope \"ConnectionHandler\"]\n\n]",
+        "[%%private\n  external internal_makeConnectionId: RescriptRelay.dataId -> (_ [@bs.as \"{}\"]) -> 'arguments -> RescriptRelay.dataId = \"getConnectionID\"\n[@@live] [@@bs.module \"relay-runtime\"] [@@bs.scope \"ConnectionHandler\"]\n\n]",
         key
     )
     .unwrap();
@@ -660,7 +661,7 @@ pub fn get_connection_key_maker(
     write_indentation(&mut str, local_indentation).unwrap();
     writeln!(
         str,
-        "let makeConnectionId (connectionParentDataId: RescriptRelay.dataId) {}{}) =",
+        "let makeConnectionId (connectionParentDataId: RescriptRelay.dataId) {}{} =",
         all_variables
             .iter()
             .map(|(variable, default_value)| {
@@ -801,7 +802,7 @@ pub fn get_connection_key_maker(
             write_indentation(&mut str, local_indentation).unwrap();
             writeln!(
                 str,
-                "let {} = {} |. Js.Null.toOption",
+                "let {} = {} |. Js.Null.toOption in",
                 variable.name.item, variable.name.item,
             )
             .unwrap();
@@ -812,14 +813,14 @@ pub fn get_connection_key_maker(
             if is_optional || has_default_value_null {
                 writeln!(
                     str,
-                    "let {} = match {} with | None -> None | Some v -> Some ({}.serialize v) ",
+                    "let {} = match {} with | None -> None | Some v -> Some ({}.serialize v) in",
                     variable_name, variable_name, custom_scalar_module_name
                 )
                 .unwrap();
             } else {
                 writeln!(
                     str,
-                    "let {} = Some ({}.serialize {})",
+                    "let {} = Some ({}.serialize {}) in",
                     variable_name, custom_scalar_module_name, variable_name
                 )
                 .unwrap();
@@ -829,7 +830,7 @@ pub fn get_connection_key_maker(
                 write_indentation(&mut str, local_indentation).unwrap();
                 writeln!(
                     str,
-                    "let {} = Some {}",
+                    "let {} = Some {} in",
                     variable.name.item, variable.name.item
                 )
                 .unwrap();
@@ -841,12 +842,12 @@ pub fn get_connection_key_maker(
     if connection_key_arguments.len() > 0 {
         writeln!(
             str,
-            "let args = {{{}}}",
+            "let args = [%bs.obj {{{}}}] in",
             connection_key_arguments
                 .iter()
                 .map(|arg| {
                     format!(
-                        "\"{}\"= {}",
+                        "{}= {}",
                         arg.name.item,
                         print_value(&arg.value.item, true, true)
                     )
@@ -986,12 +987,12 @@ pub fn ast_to_string<'a>(
             format!("[| `{}]", string_literal)
         }
         AST::ReadOnlyArray(inner_type) => format!(
-            "array<{}>",
+            "{} array",
             ast_to_string(inner_type.as_ref(), state, &context, needs_conversion)
         ),
         AST::NonNullable(ast) => ast_to_string(ast, state, &context, needs_conversion),
         AST::Nullable(ast) => format!(
-            "option<{}>",
+            "{} option",
             ast_to_string(ast, state, &context, needs_conversion)
         ),
         AST::RawType(identifier) | AST::Identifier(identifier) => {
