@@ -1049,7 +1049,7 @@ pub fn generate_operation_rescript(
         TypegenLanguage::OCaml => {
             writeln!(
                 section,
-                "type relayOperationNode\ntype operationType = relayOperationNode RescriptRelay.{}Node\n\n",
+                "type relayOperationNode\ntype operationType = relayOperationNode Melange_relay.{}Node\n\n",
                 match typegen_operation.kind {
                     graphql_syntax::OperationKind::Query => {
                         "query"
@@ -1129,7 +1129,7 @@ pub fn generate_operation_rescript(
                 match typegen_operation.kind {
                     graphql_syntax::OperationKind::Query => {
                         // TODO: Replace functor at some point
-                        "include RescriptRelay.MakeLoadQuery(struct
+                        "include Melange_relay.MakeLoadQuery(struct
             type variables = Types.variables
             type loadedQueryRef = queryRef
             type response = Types.response
@@ -1318,7 +1318,7 @@ pub fn generate_read_only_fragment_rescript(
         TypegenLanguage::OCaml => {
             writeln!(
                 section,
-                "type relayOperationNode\ntype operationType = relayOperationNode RescriptRelay.{}Node\n\n",
+                "type relayOperationNode\ntype operationType = relayOperationNode Melange_relay.{}Node\n\n",
                 "fragment"
             )
             .unwrap();

@@ -382,7 +382,7 @@ pub fn print_constant_value(
                     .iter()
                     .map(|v| if wrap_in_arg {
                         format!(
-                            "RescriptRelay_Internal.Arg {}",
+                            "Melange_relay_internal.Arg {}",
                             print_constant_value(v, print_as_optional, wrap_in_arg)
                         )
                     } else {
@@ -471,12 +471,12 @@ pub fn print_type_reference(
                                     RescriptCustomTypeValue::Type => custom_scalar_name.to_string(),
                                 }
                             } else {
-                                String::from("RescriptRelay.any")
+                                String::from("Melange_relay.any")
                             }
                         }
                     }
                 ),
-                _ => String::from("RescriptRelay.any"),
+                _ => String::from("Melange_relay.any"),
             },
             nullable,
             output_as_js_nullable,
@@ -522,7 +522,7 @@ pub fn print_value(value: &Value, print_as_optional: bool, wrap_in_arg: bool) ->
                 .iter()
                 .map(|v| if wrap_in_arg {
                     format!(
-                        "RescriptRelay_Internal.Arg({})",
+                        "Melange_relay_internal.Arg({})",
                         print_value(v, print_as_optional, wrap_in_arg)
                     )
                 } else {
@@ -651,7 +651,7 @@ pub fn get_connection_key_maker(
     write_indentation(&mut str, local_indentation).unwrap();
     write!(
         str,
-        "[%%private\n  external internal_makeConnectionId: RescriptRelay.dataId -> (_ [@bs.as \"{}\"]) -> 'arguments -> RescriptRelay.dataId = \"getConnectionID\"\n[@@live] [@@bs.module \"relay-runtime\"] [@@bs.scope \"ConnectionHandler\"]\n\n]",
+        "[%%private\n  external internal_makeConnectionId: Melange_relay.dataId -> (_ [@bs.as \"{}\"]) -> 'arguments -> Melange_relay.dataId = \"getConnectionID\"\n[@@live] [@@bs.module \"relay-runtime\"] [@@bs.scope \"ConnectionHandler\"]\n\n]",
         key
     )
     .unwrap();
@@ -661,7 +661,7 @@ pub fn get_connection_key_maker(
     write_indentation(&mut str, local_indentation).unwrap();
     writeln!(
         str,
-        "let makeConnectionId (connectionParentDataId: RescriptRelay.dataId) {}{} =",
+        "let makeConnectionId (connectionParentDataId: Melange_relay.dataId) {}{} =",
         all_variables
             .iter()
             .map(|(variable, default_value)| {
@@ -1018,7 +1018,7 @@ pub fn ast_to_string<'a>(
                 }
             }
         }
-        _ => String::from("RescriptRelay.any"),
+        _ => String::from("Melange_relay.any"),
     }
 }
 

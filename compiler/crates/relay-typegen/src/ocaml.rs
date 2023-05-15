@@ -602,7 +602,7 @@ fn get_object_prop_type_as_string(
     field_path_name: &Vec<String>,
 ) -> String {
     match &prop_value {
-        &PropType::DataId => String::from("RescriptRelay.dataId"),
+        &PropType::DataId => String::from("Melange_relay.dataId"),
         &PropType::Enum(enum_name) => {
             let has_allow_unsafe_enum_directive = state
                 .operation_meta_data
@@ -646,7 +646,7 @@ fn get_object_prop_type_as_string(
             }
         }
         &PropType::Scalar(scalar_value) => match scalar_value {
-            &ScalarValues::Any => String::from("RescriptRelay.any"),
+            &ScalarValues::Any => String::from("Melange_relay.any"),
             &ScalarValues::Boolean => String::from("bool"),
             &ScalarValues::Float => String::from("float"),
             &ScalarValues::String => String::from("string"),
@@ -675,7 +675,7 @@ fn get_object_prop_type_as_string(
                 .iter()
                 .for_each(|fragment_name| write!(str, " | `{}", fragment_name).unwrap());
 
-            write!(str, "] RescriptRelay.fragmentRefs").unwrap();
+            write!(str, "] Melange_relay.fragmentRefs").unwrap();
             str
         }
     }
@@ -1235,7 +1235,7 @@ fn write_internal_assets(
     write_indentation(str, indentation).unwrap();
     writeln!(
         str,
-        "let convert{} v = RescriptRelay.convertObj v ",
+        "let convert{} v = Melange_relay.convertObj v ",
         uppercase_first_letter(name.as_str())
     )
     .unwrap();
@@ -1485,7 +1485,7 @@ fn write_object_definition(
                 ),
             },
             match (&nullability, prop.nullable) {
-                (NullabilityMode::Nullable, true) => " [@bs.optional]",
+                (NullabilityMode::Nullable, true) => " ",
                 _ => ""
             },
             // We suppress dead code warnings for a set of keys that we know
@@ -2317,7 +2317,7 @@ impl Writer for OCamlPrinter {
                 write_indentation(&mut generated_types, indentation + 1).unwrap();
                 writeln!(
                     generated_types,
-                    "[> | `{}] RescriptRelay.fragmentRefs{} -> fragmentRef = \"%identity\"\n",
+                    "[> | `{}] Melange_relay.fragmentRefs{} -> fragmentRef = \"%identity\"\n",
                     fragment_definition.name.item,
                     if plural { " array" } else { "" }
                 )

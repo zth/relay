@@ -7,5 +7,5 @@
  (modes melange)
  (libraries reason-relay)
  (preprocess
-  (pps melange.ppx rescript-relay-ppx))
+  (pps melange.ppx melange-relay.ppx))
  (wrapped false))
