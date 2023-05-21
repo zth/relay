@@ -21,7 +21,7 @@ module Internal = struct
     {json|{}|json}
   ]
   let fragmentConverterMap = ()
-  let convertFragment v = RescriptRelay.convertObj v 
+  let convertFragment v = Melange_relay.convertObj v 
     fragmentConverter 
     fragmentConverterMap 
     Js.undefined
@@ -30,7 +30,7 @@ module Internal = struct
 type t
 type fragmentRef
 external getFragmentRef:
-  [> | `TestRefetchingInNode_user] RescriptRelay.fragmentRefs -> fragmentRef = "%identity"
+  [> | `TestRefetchingInNode_user] Melange_relay.fragmentRefs -> fragmentRef = "%identity"
 
 module Utils = struct
   [@@@ocaml.warning "-33"]
@@ -47,7 +47,7 @@ module Utils = struct
   end
 
 type relayOperationNode
-type operationType = relayOperationNode RescriptRelay.fragmentNode
+type operationType = relayOperationNode Melange_relay.fragmentNode
 
 
 [%%private let makeNode rescript_graphql_node_TestRefetchingInNodeRefetchQuery: operationType = 

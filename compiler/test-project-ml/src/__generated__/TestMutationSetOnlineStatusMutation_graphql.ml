@@ -7,13 +7,13 @@ module Types = struct
   type response_setOnlineStatus_user = {
     id: string [@live];
     onlineStatus: RelaySchemaAssets_graphql.enum_OnlineStatus option;
-    fragmentRefs: [ | `TestFragment_user] RescriptRelay.fragmentRefs;
+    fragmentRefs: [ | `TestFragment_user] Melange_relay.fragmentRefs;
   }
   and response_setOnlineStatus = {
     user: response_setOnlineStatus_user option;
   }
   and rawResponse_setOnlineStatus_user = {
-    __id: RescriptRelay.dataId option [@live];
+    __id: Melange_relay.dataId option [@live];
     firstName: string;
     id: string [@live];
     lastName: string;
@@ -33,7 +33,7 @@ module Types = struct
     setOnlineStatus: rawResponse_setOnlineStatus option;
   }
   type variables = {
-    connections: RescriptRelay.dataId array;
+    connections: Melange_relay.dataId array;
     onlineStatus: [
       | `Idle
       | `Offline
@@ -47,7 +47,7 @@ module Internal = struct
     {json|{}|json}
   ]
   let variablesConverterMap = ()
-  let convertVariables v = RescriptRelay.convertObj v 
+  let convertVariables v = Melange_relay.convertObj v 
     variablesConverter 
     variablesConverterMap 
     Js.undefined
@@ -56,7 +56,7 @@ module Internal = struct
     {json|{"__root":{"setOnlineStatus_user":{"f":""}}}|json}
   ]
   let wrapResponseConverterMap = ()
-  let convertWrapResponse v = RescriptRelay.convertObj v 
+  let convertWrapResponse v = Melange_relay.convertObj v 
     wrapResponseConverter 
     wrapResponseConverterMap 
     Js.null
@@ -65,7 +65,7 @@ module Internal = struct
     {json|{"__root":{"setOnlineStatus_user":{"f":""}}}|json}
   ]
   let responseConverterMap = ()
-  let convertResponse v = RescriptRelay.convertObj v 
+  let convertResponse v = Melange_relay.convertObj v 
     responseConverter 
     responseConverterMap 
     Js.undefined
@@ -74,7 +74,7 @@ module Internal = struct
     {json|{}|json}
   ]
   let wrapRawResponseConverterMap = ()
-  let convertWrapRawResponse v = RescriptRelay.convertObj v 
+  let convertWrapRawResponse v = Melange_relay.convertObj v 
     wrapRawResponseConverter 
     wrapRawResponseConverterMap 
     Js.null
@@ -83,7 +83,7 @@ module Internal = struct
     {json|{}|json}
   ]
   let rawResponseConverterMap = ()
-  let convertRawResponse v = RescriptRelay.convertObj v 
+  let convertRawResponse v = Melange_relay.convertObj v 
     rawResponseConverter 
     rawResponseConverterMap 
     Js.undefined
@@ -100,7 +100,7 @@ module Utils = struct
     )
     let onlineStatus_fromString (str: string): RelaySchemaAssets_graphql.enum_OnlineStatus_input option =
     onlineStatus_decode (Obj.magic str)
-    external makeVariables:     connections: RescriptRelay.dataId array-> 
+    external makeVariables:     connections: Melange_relay.dataId array-> 
     onlineStatus: [
       | `Idle
       | `Offline
@@ -114,7 +114,7 @@ module Utils = struct
    rawResponse = "" [@@bs.obj]
 
 
-  external make_rawResponse_setOnlineStatus_user:     ?__id: RescriptRelay.dataId-> 
+  external make_rawResponse_setOnlineStatus_user:     ?__id: Melange_relay.dataId-> 
     firstName: string-> 
     id: string-> 
     lastName: string-> 
@@ -135,7 +135,7 @@ module Utils = struct
 end
 
 type relayOperationNode
-type operationType = relayOperationNode RescriptRelay.mutationNode
+type operationType = relayOperationNode Melange_relay.mutationNode
 
 
 let node: operationType = [%bs.raw {json| (function(){

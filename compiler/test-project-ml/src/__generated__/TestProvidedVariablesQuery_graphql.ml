@@ -8,7 +8,7 @@ module Types = struct
   type inputB = RelaySchemaAssets_graphql.input_InputB
   type inputA = RelaySchemaAssets_graphql.input_InputA
   type response_loggedInUser = {
-    fragmentRefs: [ | `TestProvidedVariables_user] RescriptRelay.fragmentRefs;
+    fragmentRefs: [ | `TestProvidedVariables_user] Melange_relay.fragmentRefs;
   }
   type response = {
     loggedInUser: response_loggedInUser;
@@ -26,7 +26,7 @@ module Internal = struct
   let variablesConverterMap = let o = Js.Dict.empty () in 
     Js.Dict.set o "SomeModule.Datetime" (Obj.magic SomeModule.Datetime.serialize : unit);
   o
-  let convertVariables v = RescriptRelay.convertObj v 
+  let convertVariables v = Melange_relay.convertObj v 
     variablesConverter 
     variablesConverterMap 
     Js.undefined
@@ -35,7 +35,7 @@ module Internal = struct
     {json|{"__root":{"loggedInUser":{"f":""}}}|json}
   ]
   let wrapResponseConverterMap = ()
-  let convertWrapResponse v = RescriptRelay.convertObj v 
+  let convertWrapResponse v = Melange_relay.convertObj v 
     wrapResponseConverter 
     wrapResponseConverterMap 
     Js.null
@@ -44,7 +44,7 @@ module Internal = struct
     {json|{"__root":{"loggedInUser":{"f":""}}}|json}
   ]
   let responseConverterMap = ()
-  let convertResponse v = RescriptRelay.convertObj v 
+  let convertResponse v = Melange_relay.convertObj v 
     responseConverter 
     responseConverterMap 
     Js.undefined
@@ -81,7 +81,7 @@ module Utils = struct
     time: SomeModule.Datetime.t-> 
     ?timestamp: Timestamp.t-> 
     ?timestamps: Timestamp.t option array-> 
-    ?unmapped: RescriptRelay.any-> 
+    ?unmapped: Melange_relay.any-> 
     ?usingB: inputB-> 
     unit ->
    inputA = "" [@@bs.obj]
@@ -141,7 +141,7 @@ let providedVariablesDefinition: providedVariablesType = {
 }
 
 type relayOperationNode
-type operationType = relayOperationNode RescriptRelay.queryNode
+type operationType = relayOperationNode Melange_relay.queryNode
 
 
 [%%private let makeNode providedVariablesDefinition: operationType = 
@@ -318,7 +318,7 @@ type operationType = relayOperationNode RescriptRelay.queryNode
 ]
 let node: operationType = makeNode providedVariablesDefinition
 
-include RescriptRelay.MakeLoadQuery(struct
+include Melange_relay.MakeLoadQuery(struct
             type variables = Types.variables
             type loadedQueryRef = queryRef
             type response = Types.response

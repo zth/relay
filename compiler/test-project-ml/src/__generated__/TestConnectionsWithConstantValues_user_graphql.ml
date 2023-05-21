@@ -24,7 +24,7 @@ module Internal = struct
     {json|{}|json}
   ]
   let fragmentConverterMap = ()
-  let convertFragment v = RescriptRelay.convertObj v 
+  let convertFragment v = Melange_relay.convertObj v 
     fragmentConverter 
     fragmentConverterMap 
     Js.undefined
@@ -33,16 +33,16 @@ module Internal = struct
 type t
 type fragmentRef
 external getFragmentRef:
-  [> | `TestConnectionsWithConstantValues_user] RescriptRelay.fragmentRefs -> fragmentRef = "%identity"
+  [> | `TestConnectionsWithConstantValues_user] Melange_relay.fragmentRefs -> fragmentRef = "%identity"
 
 let connectionKey = "TestConnectionsWithonstantValues_user_friendsConnection"
 
 [@@bs.inline]
 [%%private
-  external internal_makeConnectionId: RescriptRelay.dataId -> (_ [@bs.as "TestConnectionsWithonstantValues_user_friendsConnection"]) -> 'arguments -> RescriptRelay.dataId = "getConnectionID"
+  external internal_makeConnectionId: Melange_relay.dataId -> (_ [@bs.as "TestConnectionsWithonstantValues_user_friendsConnection"]) -> 'arguments -> Melange_relay.dataId = "getConnectionID"
 [@@live] [@@bs.module "relay-runtime"] [@@bs.scope "ConnectionHandler"]
 
-]let makeConnectionId (connectionParentDataId: RescriptRelay.dataId) ~(onlineStatus: [`Online | `Idle | `Offline]) ~(beforeDate: SomeModule.Datetime.t) ?(datetime: SomeModule.Datetime.t Js.null=Js.null) ?(bool: bool option) ?(flt: float Js.null=Js.null) ?(datetime2: SomeModule.Datetime.t option) ~(datetime3: SomeModule.Datetime.t) () =
+]let makeConnectionId (connectionParentDataId: Melange_relay.dataId) ~(onlineStatus: [`Online | `Idle | `Offline]) ~(beforeDate: SomeModule.Datetime.t) ?(datetime: SomeModule.Datetime.t Js.null=Js.null) ?(bool: bool option) ?(flt: float Js.null=Js.null) ?(datetime2: SomeModule.Datetime.t option) ~(datetime3: SomeModule.Datetime.t) () =
   let onlineStatus = Some onlineStatus in
   let beforeDate = Some (SomeModule.Datetime.serialize beforeDate) in
   let datetime = datetime |. Js.Null.toOption in
@@ -50,7 +50,7 @@ let connectionKey = "TestConnectionsWithonstantValues_user_friendsConnection"
   let flt = flt |. Js.Null.toOption in
   let datetime2 = match datetime2 with | None -> None | Some v -> Some (SomeModule.Datetime.serialize v) in
   let datetime3 = Some (SomeModule.Datetime.serialize datetime3) in
-  let args = [%bs.obj {statuses= [RescriptRelay_Internal.Arg(Some(`Idle)); RescriptRelay_Internal.Arg(onlineStatus)]; beforeDate= beforeDate; objTest= [%bs.obj {str = Some("123"); bool = Some(false); float = Some(12.2); int = Some(64); datetime = datetime; recursive = [%bs.obj {str = Some("234"); bool = bool; float = flt; int = Some(Js.null); datetime = datetime2; recursive = [%bs.obj {bool = bool; datetime = datetime3}]}]}]}] in
+  let args = [%bs.obj {statuses= [Melange_relay_internal.Arg(Some(`Idle)); Melange_relay_internal.Arg(onlineStatus)]; beforeDate= beforeDate; objTest= [%bs.obj {str = Some("123"); bool = Some(false); float = Some(12.2); int = Some(64); datetime = datetime; recursive = [%bs.obj {str = Some("234"); bool = bool; float = flt; int = Some(Js.null); datetime = datetime2; recursive = [%bs.obj {bool = bool; datetime = datetime3}]}]}]}] in
   internal_makeConnectionId connectionParentDataId args
 module Utils = struct
   [@@@ocaml.warning "-33"]
@@ -70,7 +70,7 @@ module Utils = struct
 end
 
 type relayOperationNode
-type operationType = relayOperationNode RescriptRelay.fragmentNode
+type operationType = relayOperationNode Melange_relay.fragmentNode
 
 
 let node: operationType = [%bs.raw {json| (function(){

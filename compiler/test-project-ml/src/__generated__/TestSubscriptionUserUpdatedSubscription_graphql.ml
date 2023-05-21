@@ -7,7 +7,7 @@ module Types = struct
   type response_userUpdated_user = {
     id: string [@live];
     onlineStatus: RelaySchemaAssets_graphql.enum_OnlineStatus option;
-    fragmentRefs: [ | `TestSubscription_user] RescriptRelay.fragmentRefs;
+    fragmentRefs: [ | `TestSubscription_user] Melange_relay.fragmentRefs;
   }
   and response_userUpdated = {
     user: response_userUpdated_user option;
@@ -26,7 +26,7 @@ module Internal = struct
     {json|{}|json}
   ]
   let variablesConverterMap = ()
-  let convertVariables v = RescriptRelay.convertObj v 
+  let convertVariables v = Melange_relay.convertObj v 
     variablesConverter 
     variablesConverterMap 
     Js.undefined
@@ -35,7 +35,7 @@ module Internal = struct
     {json|{"__root":{"userUpdated_user":{"f":""}}}|json}
   ]
   let responseConverterMap = ()
-  let convertResponse v = RescriptRelay.convertObj v 
+  let convertResponse v = Melange_relay.convertObj v 
     responseConverter 
     responseConverterMap 
     Js.undefined
@@ -61,7 +61,7 @@ module Utils = struct
 end
 
 type relayOperationNode
-type operationType = relayOperationNode RescriptRelay.subscriptionNode
+type operationType = relayOperationNode Melange_relay.subscriptionNode
 
 
 let node: operationType = [%bs.raw {json| (function(){

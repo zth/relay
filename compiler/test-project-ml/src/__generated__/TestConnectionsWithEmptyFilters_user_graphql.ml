@@ -24,7 +24,7 @@ module Internal = struct
     {json|{}|json}
   ]
   let fragmentConverterMap = ()
-  let convertFragment v = RescriptRelay.convertObj v 
+  let convertFragment v = Melange_relay.convertObj v 
     fragmentConverter 
     fragmentConverterMap 
     Js.undefined
@@ -33,16 +33,16 @@ module Internal = struct
 type t
 type fragmentRef
 external getFragmentRef:
-  [> | `TestConnectionsWithEmptyFilters_user] RescriptRelay.fragmentRefs -> fragmentRef = "%identity"
+  [> | `TestConnectionsWithEmptyFilters_user] Melange_relay.fragmentRefs -> fragmentRef = "%identity"
 
 let connectionKey = "TestConnectionsWithEmptyFilters_user_friendsConnection"
 
 [@@bs.inline]
 [%%private
-  external internal_makeConnectionId: RescriptRelay.dataId -> (_ [@bs.as "TestConnectionsWithEmptyFilters_user_friendsConnection"]) -> 'arguments -> RescriptRelay.dataId = "getConnectionID"
+  external internal_makeConnectionId: Melange_relay.dataId -> (_ [@bs.as "TestConnectionsWithEmptyFilters_user_friendsConnection"]) -> 'arguments -> Melange_relay.dataId = "getConnectionID"
 [@@live] [@@bs.module "relay-runtime"] [@@bs.scope "ConnectionHandler"]
 
-]let makeConnectionId (connectionParentDataId: RescriptRelay.dataId)  =
+]let makeConnectionId (connectionParentDataId: Melange_relay.dataId)  =
   let args = () in
   internal_makeConnectionId connectionParentDataId args
 module Utils = struct
@@ -63,7 +63,7 @@ module Utils = struct
 end
 
 type relayOperationNode
-type operationType = relayOperationNode RescriptRelay.fragmentNode
+type operationType = relayOperationNode Melange_relay.fragmentNode
 
 
 let node: operationType = [%bs.raw {json| {

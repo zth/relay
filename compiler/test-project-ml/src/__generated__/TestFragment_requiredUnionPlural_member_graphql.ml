@@ -47,7 +47,7 @@ module Internal = struct
   let fragmentConverterMap = let o = Js.Dict.empty () in 
     Js.Dict.set o "fragment" (Obj.magic unwrap_fragment : unit);
   o
-  let convertFragment v = RescriptRelay.convertObj v 
+  let convertFragment v = Melange_relay.convertObj v 
     fragmentConverter 
     fragmentConverterMap 
     Js.undefined
@@ -56,7 +56,7 @@ module Internal = struct
 type t
 type fragmentRef
 external getFragmentRef:
-  [> | `TestFragment_requiredUnionPlural_member] RescriptRelay.fragmentRefs array -> fragmentRef = "%identity"
+  [> | `TestFragment_requiredUnionPlural_member] Melange_relay.fragmentRefs array -> fragmentRef = "%identity"
 
 module Utils = struct
   [@@@ocaml.warning "-33"]
@@ -64,7 +64,7 @@ module Utils = struct
 end
 
 type relayOperationNode
-type operationType = relayOperationNode RescriptRelay.fragmentNode
+type operationType = relayOperationNode Melange_relay.fragmentNode
 
 
 let node: operationType = [%bs.raw {json| {

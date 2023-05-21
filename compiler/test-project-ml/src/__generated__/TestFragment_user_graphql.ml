@@ -5,10 +5,10 @@ module Types = struct
   [@@@ocaml.warning "-30"]
 
   type fragment = {
-    __id: RescriptRelay.dataId [@live];
+    __id: Melange_relay.dataId [@live];
     firstName: string;
     onlineStatus: RelaySchemaAssets_graphql.enum_OnlineStatus option;
-    fragmentRefs: [ | `TestFragment_sub_user] RescriptRelay.fragmentRefs;
+    fragmentRefs: [ | `TestFragment_sub_user] Melange_relay.fragmentRefs;
   }
 end
 
@@ -18,7 +18,7 @@ module Internal = struct
     {json|{"__root":{"":{"f":""}}}|json}
   ]
   let fragmentConverterMap = ()
-  let convertFragment v = RescriptRelay.convertObj v 
+  let convertFragment v = Melange_relay.convertObj v 
     fragmentConverter 
     fragmentConverterMap 
     Js.undefined
@@ -27,7 +27,7 @@ module Internal = struct
 type t
 type fragmentRef
 external getFragmentRef:
-  [> | `TestFragment_user] RescriptRelay.fragmentRefs -> fragmentRef = "%identity"
+  [> | `TestFragment_user] Melange_relay.fragmentRefs -> fragmentRef = "%identity"
 
 module Utils = struct
   [@@@ocaml.warning "-33"]
@@ -44,7 +44,7 @@ module Utils = struct
   end
 
 type relayOperationNode
-type operationType = relayOperationNode RescriptRelay.fragmentNode
+type operationType = relayOperationNode Melange_relay.fragmentNode
 
 
 let node: operationType = [%bs.raw {json| {

@@ -23,7 +23,7 @@ module Types = struct
   and fragment_members_edges_node_User = {
     __typename: [ | `User] [@live];
     id: string [@live];
-    fragmentRefs: [ | `TestPaginationUnion_user] RescriptRelay.fragmentRefs;
+    fragmentRefs: [ | `TestPaginationUnion_user] Melange_relay.fragmentRefs;
   }
   and fragment_members_edges_node = [
     | `Group of fragment_members_edges_node_Group
@@ -66,7 +66,7 @@ module Internal = struct
   let fragmentConverterMap = let o = Js.Dict.empty () in 
     Js.Dict.set o "fragment_members_edges_node" (Obj.magic unwrap_fragment_members_edges_node : unit);
   o
-  let convertFragment v = RescriptRelay.convertObj v 
+  let convertFragment v = Melange_relay.convertObj v 
     fragmentConverter 
     fragmentConverterMap 
     Js.undefined
@@ -75,16 +75,16 @@ module Internal = struct
 type t
 type fragmentRef
 external getFragmentRef:
-  [> | `TestPaginationUnion_query] RescriptRelay.fragmentRefs -> fragmentRef = "%identity"
+  [> | `TestPaginationUnion_query] Melange_relay.fragmentRefs -> fragmentRef = "%identity"
 
 let connectionKey = "TestPaginationUnion_query_members"
 
 [@@bs.inline]
 [%%private
-  external internal_makeConnectionId: RescriptRelay.dataId -> (_ [@bs.as "TestPaginationUnion_query_members"]) -> 'arguments -> RescriptRelay.dataId = "getConnectionID"
+  external internal_makeConnectionId: Melange_relay.dataId -> (_ [@bs.as "TestPaginationUnion_query_members"]) -> 'arguments -> Melange_relay.dataId = "getConnectionID"
 [@@live] [@@bs.module "relay-runtime"] [@@bs.scope "ConnectionHandler"]
 
-]let makeConnectionId (connectionParentDataId: RescriptRelay.dataId) ~(groupId: string) ?(onlineStatuses: [`Online | `Idle | `Offline] array option) () =
+]let makeConnectionId (connectionParentDataId: Melange_relay.dataId) ~(groupId: string) ?(onlineStatuses: [`Online | `Idle | `Offline] array option) () =
   let groupId = Some groupId in
   let args = [%bs.obj {groupId= groupId; onlineStatuses= onlineStatuses}] in
   internal_makeConnectionId connectionParentDataId args
@@ -110,7 +110,7 @@ module Utils = struct
 end
 
 type relayOperationNode
-type operationType = relayOperationNode RescriptRelay.fragmentNode
+type operationType = relayOperationNode Melange_relay.fragmentNode
 
 
 [%%private let makeNode rescript_graphql_node_TestPaginationUnionRefetchQuery: operationType = 

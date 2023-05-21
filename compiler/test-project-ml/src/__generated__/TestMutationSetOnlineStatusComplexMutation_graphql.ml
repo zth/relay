@@ -27,7 +27,7 @@ module Internal = struct
     {json|{"recursiveSetOnlineStatusInput":{"setOnlineStatus":{"r":"setOnlineStatusInput"}},"setOnlineStatusInput":{"recursed":{"r":"recursiveSetOnlineStatusInput"}},"__root":{"input":{"r":"setOnlineStatusInput"}}}|json}
   ]
   let variablesConverterMap = ()
-  let convertVariables v = RescriptRelay.convertObj v 
+  let convertVariables v = Melange_relay.convertObj v 
     variablesConverter 
     variablesConverterMap 
     Js.undefined
@@ -36,7 +36,7 @@ module Internal = struct
     {json|{}|json}
   ]
   let wrapResponseConverterMap = ()
-  let convertWrapResponse v = RescriptRelay.convertObj v 
+  let convertWrapResponse v = Melange_relay.convertObj v 
     wrapResponseConverter 
     wrapResponseConverterMap 
     Js.null
@@ -45,7 +45,7 @@ module Internal = struct
     {json|{}|json}
   ]
   let responseConverterMap = ()
-  let convertResponse v = RescriptRelay.convertObj v 
+  let convertResponse v = Melange_relay.convertObj v 
     responseConverter 
     responseConverterMap 
     Js.undefined
@@ -77,7 +77,7 @@ module Utils = struct
 
 
   external make_recursiveSetOnlineStatusInput:     ?setOnlineStatus: setOnlineStatusInput-> 
-    someValue: RescriptRelay.any-> 
+    someValue: Melange_relay.any-> 
     unit ->
    recursiveSetOnlineStatusInput = "" [@@bs.obj]
 
@@ -89,7 +89,7 @@ module Utils = struct
 end
 
 type relayOperationNode
-type operationType = relayOperationNode RescriptRelay.mutationNode
+type operationType = relayOperationNode Melange_relay.mutationNode
 
 
 let node: operationType = [%bs.raw {json| (function(){

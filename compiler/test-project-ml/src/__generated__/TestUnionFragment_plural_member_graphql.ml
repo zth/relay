@@ -12,7 +12,7 @@ module Types = struct
     __typename: [ | `User] [@live];
     firstName: string;
     onlineStatus: RelaySchemaAssets_graphql.enum_OnlineStatus option;
-    fragmentRefs: [ | `TestUnionFragmentUser_user] RescriptRelay.fragmentRefs;
+    fragmentRefs: [ | `TestUnionFragmentUser_user] Melange_relay.fragmentRefs;
   }
   type fragment_t = [
     | `Group of fragment_Group
@@ -47,7 +47,7 @@ module Internal = struct
   let fragmentConverterMap = let o = Js.Dict.empty () in 
     Js.Dict.set o "fragment" (Obj.magic unwrap_fragment : unit);
   o
-  let convertFragment v = RescriptRelay.convertObj v 
+  let convertFragment v = Melange_relay.convertObj v 
     fragmentConverter 
     fragmentConverterMap 
     Js.undefined
@@ -56,7 +56,7 @@ module Internal = struct
 type t
 type fragmentRef
 external getFragmentRef:
-  [> | `TestUnionFragment_plural_member] RescriptRelay.fragmentRefs array -> fragmentRef = "%identity"
+  [> | `TestUnionFragment_plural_member] Melange_relay.fragmentRefs array -> fragmentRef = "%identity"
 
 module Utils = struct
   [@@@ocaml.warning "-33"]
@@ -73,7 +73,7 @@ module Utils = struct
   end
 
 type relayOperationNode
-type operationType = relayOperationNode RescriptRelay.fragmentNode
+type operationType = relayOperationNode Melange_relay.fragmentNode
 
 
 let node: operationType = [%bs.raw {json| {

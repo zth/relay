@@ -36,16 +36,16 @@ type  input_InputA = {
   usingB: input_InputB option;
   timestamp: Timestamp.t option;
   timestamps: Timestamp.t option array option;
-  unmapped: RescriptRelay.any option;
+  unmapped: Melange_relay.any option;
 }
 
 and input_InputA_nullable = {
   time: SomeModule.Datetime.t;
-  recursiveA: input_InputA_nullable Js.Null.t [@bs.optional];
-  usingB: input_InputB_nullable Js.Null.t [@bs.optional];
-  timestamp: Timestamp.t Js.Null.t [@bs.optional];
-  timestamps: Timestamp.t Js.Null.t array Js.Null.t [@bs.optional];
-  unmapped: RescriptRelay.any Js.Null.t [@bs.optional];
+  recursiveA: input_InputA_nullable Js.Null.t option [@bs.optional];
+  usingB: input_InputB_nullable Js.Null.t option [@bs.optional];
+  timestamp: Timestamp.t Js.Null.t option [@bs.optional];
+  timestamps: Timestamp.t Js.Null.t array Js.Null.t option [@bs.optional];
+  unmapped: Melange_relay.any Js.Null.t option [@bs.optional];
 }
 
 and input_InputB = {
@@ -55,9 +55,9 @@ and input_InputB = {
 }
 
 and input_InputB_nullable = {
-  time: SomeModule.Datetime.t Js.Null.t [@bs.optional];
-  usingA: input_InputA_nullable Js.Null.t [@bs.optional];
-  constraint_: bool Js.Null.t [@bs.as "constraint"] [@bs.optional];
+  time: SomeModule.Datetime.t Js.Null.t option [@bs.optional];
+  usingA: input_InputA_nullable Js.Null.t option [@bs.optional];
+  constraint_: bool Js.Null.t [@bs.as "constraint"] option [@bs.optional];
 }
 
 and input_SomeInput = {
@@ -71,23 +71,23 @@ and input_SomeInput = {
 }
 
 and input_SomeInput_nullable = {
-  str: string Js.Null.t [@bs.optional];
-  bool: bool Js.Null.t [@bs.optional];
-  float: float Js.Null.t [@bs.optional];
-  int: int Js.Null.t [@bs.optional];
-  datetime: SomeModule.Datetime.t Js.Null.t [@bs.optional];
-  recursive: input_SomeInput_nullable Js.Null.t [@bs.optional];
-  private_: bool Js.Null.t [@bs.as "private"] [@bs.optional];
+  str: string Js.Null.t option [@bs.optional];
+  bool: bool Js.Null.t option [@bs.optional];
+  float: float Js.Null.t option [@bs.optional];
+  int: int Js.Null.t option [@bs.optional];
+  datetime: SomeModule.Datetime.t Js.Null.t option [@bs.optional];
+  recursive: input_SomeInput_nullable Js.Null.t option [@bs.optional];
+  private_: bool Js.Null.t [@bs.as "private"] option [@bs.optional];
 }
 
 and input_RecursiveSetOnlineStatusInput = {
-  someValue: RescriptRelay.any;
+  someValue: Melange_relay.any;
   setOnlineStatus: input_SetOnlineStatusInput option;
 }
 
 and input_RecursiveSetOnlineStatusInput_nullable = {
-  someValue: RescriptRelay.any;
-  setOnlineStatus: input_SetOnlineStatusInput_nullable Js.Null.t [@bs.optional];
+  someValue: Melange_relay.any;
+  setOnlineStatus: input_SetOnlineStatusInput_nullable Js.Null.t option [@bs.optional];
 }
 
 and input_SetOnlineStatusInput = {
@@ -97,7 +97,7 @@ and input_SetOnlineStatusInput = {
 
 and input_SetOnlineStatusInput_nullable = {
   onlineStatus: [`Online | `Idle | `Offline];
-  recursed: input_RecursiveSetOnlineStatusInput_nullable Js.Null.t [@bs.optional];
+  recursed: input_RecursiveSetOnlineStatusInput_nullable Js.Null.t option [@bs.optional];
 }
 
 and input_PesticideListSearchInput = {
@@ -108,19 +108,19 @@ and input_PesticideListSearchInput = {
 }
 
 and input_PesticideListSearchInput_nullable = {
-  companyName: string array Js.Null.t [@bs.optional];
-  pesticideIds: int array Js.Null.t [@bs.optional];
+  companyName: string array Js.Null.t option [@bs.optional];
+  pesticideIds: int array Js.Null.t option [@bs.optional];
   skip: int;
   take: int;
 }
- [@@bs.deriving abstract]
+ [@@deriving abstract]
 external make_InputA: 
   time: SomeModule.Datetime.t -> 
   ?recursiveA: input_InputA -> 
   ?usingB: input_InputB -> 
   ?timestamp: Timestamp.t -> 
   ?timestamps: Timestamp.t option array -> 
-  ?unmapped: RescriptRelay.any -> 
+  ?unmapped: Melange_relay.any -> 
   unit
  -> input_InputA = "" [@@bs.obj]
 
@@ -143,7 +143,7 @@ external make_SomeInput:
  -> input_SomeInput = "" [@@bs.obj]
 
 external make_RecursiveSetOnlineStatusInput: 
-  someValue: RescriptRelay.any -> 
+  someValue: Melange_relay.any -> 
   ?setOnlineStatus: input_SetOnlineStatusInput -> 
   unit
  -> input_RecursiveSetOnlineStatusInput = "" [@@bs.obj]

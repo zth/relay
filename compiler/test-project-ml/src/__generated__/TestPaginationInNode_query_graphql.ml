@@ -6,7 +6,7 @@ module Types = struct
 
   type fragment_friendsConnection_edges_node = {
     id: string [@live];
-    fragmentRefs: [ | `TestPaginationInNode_user] RescriptRelay.fragmentRefs;
+    fragmentRefs: [ | `TestPaginationInNode_user] Melange_relay.fragmentRefs;
   }
   and fragment_friendsConnection_edges = {
     node: fragment_friendsConnection_edges_node option;
@@ -26,7 +26,7 @@ module Internal = struct
     {json|{"__root":{"friendsConnection_edges_node":{"f":""}}}|json}
   ]
   let fragmentConverterMap = ()
-  let convertFragment v = RescriptRelay.convertObj v 
+  let convertFragment v = Melange_relay.convertObj v 
     fragmentConverter 
     fragmentConverterMap 
     Js.undefined
@@ -35,16 +35,16 @@ module Internal = struct
 type t
 type fragmentRef
 external getFragmentRef:
-  [> | `TestPaginationInNode_query] RescriptRelay.fragmentRefs -> fragmentRef = "%identity"
+  [> | `TestPaginationInNode_query] Melange_relay.fragmentRefs -> fragmentRef = "%identity"
 
 let connectionKey = "TestPaginationInNode_friendsConnection"
 
 [@@bs.inline]
 [%%private
-  external internal_makeConnectionId: RescriptRelay.dataId -> (_ [@bs.as "TestPaginationInNode_friendsConnection"]) -> 'arguments -> RescriptRelay.dataId = "getConnectionID"
+  external internal_makeConnectionId: Melange_relay.dataId -> (_ [@bs.as "TestPaginationInNode_friendsConnection"]) -> 'arguments -> Melange_relay.dataId = "getConnectionID"
 [@@live] [@@bs.module "relay-runtime"] [@@bs.scope "ConnectionHandler"]
 
-]let makeConnectionId (connectionParentDataId: RescriptRelay.dataId) ?(onlineStatuses: [`Online | `Idle | `Offline] array option) () =
+]let makeConnectionId (connectionParentDataId: Melange_relay.dataId) ?(onlineStatuses: [`Online | `Idle | `Offline] array option) () =
   let args = [%bs.obj {statuses= onlineStatuses}] in
   internal_makeConnectionId connectionParentDataId args
 module Utils = struct
@@ -65,7 +65,7 @@ module Utils = struct
 end
 
 type relayOperationNode
-type operationType = relayOperationNode RescriptRelay.fragmentNode
+type operationType = relayOperationNode Melange_relay.fragmentNode
 
 
 [%%private let makeNode rescript_graphql_node_TestPaginationInNodeRefetchQuery: operationType = 

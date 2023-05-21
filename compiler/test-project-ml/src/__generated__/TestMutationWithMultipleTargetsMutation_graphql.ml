@@ -58,7 +58,7 @@ module Internal = struct
     {json|{}|json}
   ]
   let variablesConverterMap = ()
-  let convertVariables v = RescriptRelay.convertObj v 
+  let convertVariables v = Melange_relay.convertObj v 
     variablesConverter 
     variablesConverterMap 
     Js.undefined
@@ -67,7 +67,7 @@ module Internal = struct
     {json|{}|json}
   ]
   let wrapResponseConverterMap = ()
-  let convertWrapResponse v = RescriptRelay.convertObj v 
+  let convertWrapResponse v = Melange_relay.convertObj v 
     wrapResponseConverter 
     wrapResponseConverterMap 
     Js.null
@@ -76,7 +76,7 @@ module Internal = struct
     {json|{}|json}
   ]
   let responseConverterMap = ()
-  let convertResponse v = RescriptRelay.convertObj v 
+  let convertResponse v = Melange_relay.convertObj v 
     responseConverter 
     responseConverterMap 
     Js.undefined
@@ -85,7 +85,7 @@ module Internal = struct
     {json|{}|json}
   ]
   let wrapRawResponseConverterMap = ()
-  let convertWrapRawResponse v = RescriptRelay.convertObj v 
+  let convertWrapRawResponse v = Melange_relay.convertObj v 
     wrapRawResponseConverter 
     wrapRawResponseConverterMap 
     Js.null
@@ -94,7 +94,7 @@ module Internal = struct
     {json|{}|json}
   ]
   let rawResponseConverterMap = ()
-  let convertRawResponse v = RescriptRelay.convertObj v 
+  let convertRawResponse v = Melange_relay.convertObj v 
     rawResponseConverter 
     rawResponseConverterMap 
     Js.undefined
@@ -142,7 +142,7 @@ module Utils = struct
 end
 
 type relayOperationNode
-type operationType = relayOperationNode RescriptRelay.mutationNode
+type operationType = relayOperationNode Melange_relay.mutationNode
 
 
 let node: operationType = [%bs.raw {json| (function(){

@@ -25,7 +25,7 @@ module Internal = struct
   let variablesConverterMap = let o = Js.Dict.empty () in 
     Js.Dict.set o "SomeModule.Datetime" (Obj.magic SomeModule.Datetime.serialize : unit);
   o
-  let convertVariables v = RescriptRelay.convertObj v 
+  let convertVariables v = Melange_relay.convertObj v 
     variablesConverter 
     variablesConverterMap 
     Js.undefined
@@ -34,7 +34,7 @@ module Internal = struct
     {json|{}|json}
   ]
   let wrapResponseConverterMap = ()
-  let convertWrapResponse v = RescriptRelay.convertObj v 
+  let convertWrapResponse v = Melange_relay.convertObj v 
     wrapResponseConverter 
     wrapResponseConverterMap 
     Js.null
@@ -43,7 +43,7 @@ module Internal = struct
     {json|{}|json}
   ]
   let responseConverterMap = ()
-  let convertResponse v = RescriptRelay.convertObj v 
+  let convertResponse v = Melange_relay.convertObj v 
     responseConverter 
     responseConverterMap 
     Js.undefined
@@ -59,7 +59,7 @@ module Utils = struct
     time: SomeModule.Datetime.t-> 
     ?timestamp: Timestamp.t-> 
     ?timestamps: Timestamp.t option array-> 
-    ?unmapped: RescriptRelay.any-> 
+    ?unmapped: Melange_relay.any-> 
     ?usingB: inputB-> 
     unit ->
    inputA = "" [@@bs.obj]
@@ -79,7 +79,7 @@ module Utils = struct
 end
 
 type relayOperationNode
-type operationType = relayOperationNode RescriptRelay.mutationNode
+type operationType = relayOperationNode Melange_relay.mutationNode
 
 
 let node: operationType = [%bs.raw {json| (function(){

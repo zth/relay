@@ -131,7 +131,7 @@ pub(crate) fn ocaml_generate_extra_artifacts(
                     Some(original_key) => format!(" [@bs.as \"{}\"]", original_key),
                     None => String::from(""),
                 }),
-                if is_nullable { " [@bs.optional]" } else { "" }
+                if is_nullable { " option [@bs.optional]" } else { "" }
             )
             .unwrap();
         });
@@ -143,8 +143,8 @@ pub(crate) fn ocaml_generate_extra_artifacts(
         }
     });
     if has_written_initial_input_obj {
-        // Only need to add `[@@bs.deriving abstract]` once at the end.
-        writeln!(content, " [@@bs.deriving abstract]").unwrap();
+        // Only need to add `[@@deriving abstract]` once at the end.
+        writeln!(content, " [@@deriving abstract]").unwrap();
     }
 
     // Write object makers

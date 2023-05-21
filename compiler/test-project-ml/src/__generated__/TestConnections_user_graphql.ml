@@ -24,7 +24,7 @@ module Internal = struct
     {json|{}|json}
   ]
   let fragmentConverterMap = ()
-  let convertFragment v = RescriptRelay.convertObj v 
+  let convertFragment v = Melange_relay.convertObj v 
     fragmentConverter 
     fragmentConverterMap 
     Js.undefined
@@ -33,16 +33,16 @@ module Internal = struct
 type t
 type fragmentRef
 external getFragmentRef:
-  [> | `TestConnections_user] RescriptRelay.fragmentRefs -> fragmentRef = "%identity"
+  [> | `TestConnections_user] Melange_relay.fragmentRefs -> fragmentRef = "%identity"
 
 let connectionKey = "TestConnections_user_friendsConnection"
 
 [@@bs.inline]
 [%%private
-  external internal_makeConnectionId: RescriptRelay.dataId -> (_ [@bs.as "TestConnections_user_friendsConnection"]) -> 'arguments -> RescriptRelay.dataId = "getConnectionID"
+  external internal_makeConnectionId: Melange_relay.dataId -> (_ [@bs.as "TestConnections_user_friendsConnection"]) -> 'arguments -> Melange_relay.dataId = "getConnectionID"
 [@@live] [@@bs.module "relay-runtime"] [@@bs.scope "ConnectionHandler"]
 
-]let makeConnectionId (connectionParentDataId: RescriptRelay.dataId) ?(onlineStatuses: [`Online | `Idle | `Offline] array=[| `Idle |]) ~(beforeDate: SomeModule.Datetime.t) () =
+]let makeConnectionId (connectionParentDataId: Melange_relay.dataId) ?(onlineStatuses: [`Online | `Idle | `Offline] array=[| `Idle |]) ~(beforeDate: SomeModule.Datetime.t) () =
   let onlineStatuses = Some onlineStatuses in
   let beforeDate = Some (SomeModule.Datetime.serialize beforeDate) in
   let args = [%bs.obj {statuses= onlineStatuses; beforeDate= beforeDate}] in
@@ -65,7 +65,7 @@ module Utils = struct
 end
 
 type relayOperationNode
-type operationType = relayOperationNode RescriptRelay.fragmentNode
+type operationType = relayOperationNode Melange_relay.fragmentNode
 
 
 let node: operationType = [%bs.raw {json| {

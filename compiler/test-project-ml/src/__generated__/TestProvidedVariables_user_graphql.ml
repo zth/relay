@@ -16,7 +16,7 @@ module Internal = struct
     {json|{}|json}
   ]
   let fragmentConverterMap = ()
-  let convertFragment v = RescriptRelay.convertObj v 
+  let convertFragment v = Melange_relay.convertObj v 
     fragmentConverter 
     fragmentConverterMap 
     Js.undefined
@@ -25,7 +25,7 @@ module Internal = struct
 type t
 type fragmentRef
 external getFragmentRef:
-  [> | `TestProvidedVariables_user] RescriptRelay.fragmentRefs -> fragmentRef = "%identity"
+  [> | `TestProvidedVariables_user] Melange_relay.fragmentRefs -> fragmentRef = "%identity"
 
 module Utils = struct
   [@@@ocaml.warning "-33"]
@@ -42,7 +42,7 @@ module Utils = struct
   end
 
 type relayOperationNode
-type operationType = relayOperationNode RescriptRelay.fragmentNode
+type operationType = relayOperationNode Melange_relay.fragmentNode
 
 
 let node: operationType = [%bs.raw {json| {

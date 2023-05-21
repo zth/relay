@@ -23,7 +23,7 @@ module Types = struct
   ]
 
   type response_setOnlineStatus_user = {
-    fragmentRefs: [ | `TestMutation_user] RescriptRelay.fragmentRefs;
+    fragmentRefs: [ | `TestMutation_user] Melange_relay.fragmentRefs;
   }
   and response_setOnlineStatus = {
     user: response_setOnlineStatus_user option;
@@ -78,7 +78,7 @@ module Internal = struct
     {json|{}|json}
   ]
   let variablesConverterMap = ()
-  let convertVariables v = RescriptRelay.convertObj v 
+  let convertVariables v = Melange_relay.convertObj v 
     variablesConverter 
     variablesConverterMap 
     Js.undefined
@@ -87,7 +87,7 @@ module Internal = struct
     {json|{"__root":{"setOnlineStatus_user":{"f":""}}}|json}
   ]
   let wrapResponseConverterMap = ()
-  let convertWrapResponse v = RescriptRelay.convertObj v 
+  let convertWrapResponse v = Melange_relay.convertObj v 
     wrapResponseConverter 
     wrapResponseConverterMap 
     Js.null
@@ -96,7 +96,7 @@ module Internal = struct
     {json|{"__root":{"setOnlineStatus_user":{"f":""}}}|json}
   ]
   let responseConverterMap = ()
-  let convertResponse v = RescriptRelay.convertObj v 
+  let convertResponse v = Melange_relay.convertObj v 
     responseConverter 
     responseConverterMap 
     Js.undefined
@@ -107,7 +107,7 @@ module Internal = struct
   let wrapRawResponseConverterMap = let o = Js.Dict.empty () in 
     Js.Dict.set o "rawResponse_setOnlineStatus_user_memberOf" (Obj.magic wrap_rawResponse_setOnlineStatus_user_memberOf : unit);
   o
-  let convertWrapRawResponse v = RescriptRelay.convertObj v 
+  let convertWrapRawResponse v = Melange_relay.convertObj v 
     wrapRawResponseConverter 
     wrapRawResponseConverterMap 
     Js.null
@@ -118,7 +118,7 @@ module Internal = struct
   let rawResponseConverterMap = let o = Js.Dict.empty () in 
     Js.Dict.set o "rawResponse_setOnlineStatus_user_memberOf" (Obj.magic unwrap_rawResponse_setOnlineStatus_user_memberOf : unit);
   o
-  let convertRawResponse v = RescriptRelay.convertObj v 
+  let convertRawResponse v = Melange_relay.convertObj v 
     rawResponseConverter 
     rawResponseConverterMap 
     Js.undefined
@@ -183,7 +183,7 @@ module Utils = struct
 end
 
 type relayOperationNode
-type operationType = relayOperationNode RescriptRelay.mutationNode
+type operationType = relayOperationNode Melange_relay.mutationNode
 
 
 let node: operationType = [%bs.raw {json| (function(){

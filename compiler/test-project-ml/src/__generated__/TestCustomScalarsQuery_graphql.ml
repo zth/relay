@@ -59,7 +59,7 @@ module Internal = struct
   let variablesConverterMap = let o = Js.Dict.empty () in 
     Js.Dict.set o "SomeModule.Datetime" (Obj.magic SomeModule.Datetime.serialize : unit);
   o
-  let convertVariables v = RescriptRelay.convertObj v 
+  let convertVariables v = Melange_relay.convertObj v 
     variablesConverter 
     variablesConverterMap 
     Js.undefined
@@ -71,7 +71,7 @@ module Internal = struct
     Js.Dict.set o "SomeModule.Datetime" (Obj.magic SomeModule.Datetime.serialize : unit);
     Js.Dict.set o "response_member" (Obj.magic wrap_response_member : unit);
   o
-  let convertWrapResponse v = RescriptRelay.convertObj v 
+  let convertWrapResponse v = Melange_relay.convertObj v 
     wrapResponseConverter 
     wrapResponseConverterMap 
     Js.null
@@ -83,7 +83,7 @@ module Internal = struct
     Js.Dict.set o "SomeModule.Datetime" (Obj.magic SomeModule.Datetime.parse : unit);
     Js.Dict.set o "response_member" (Obj.magic unwrap_response_member : unit);
   o
-  let convertResponse v = RescriptRelay.convertObj v 
+  let convertResponse v = Melange_relay.convertObj v 
     responseConverter 
     responseConverterMap 
     Js.undefined
@@ -106,7 +106,7 @@ module Utils = struct
 end
 
 type relayOperationNode
-type operationType = relayOperationNode RescriptRelay.queryNode
+type operationType = relayOperationNode Melange_relay.queryNode
 
 
 let node: operationType = [%bs.raw {json| (function(){
@@ -273,7 +273,7 @@ return {
 };
 })() |json}]
 
-include RescriptRelay.MakeLoadQuery(struct
+include Melange_relay.MakeLoadQuery(struct
             type variables = Types.variables
             type loadedQueryRef = queryRef
             type response = Types.response
