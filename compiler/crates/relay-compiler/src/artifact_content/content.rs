@@ -994,16 +994,6 @@ pub fn generate_operation_rescript(
     if let Some(data_driven_dependency_metadata) = data_driven_dependency_metadata {
         write_data_driven_dependency_annotation(&mut section, data_driven_dependency_metadata)?;
     }
-    if let Some(flight_metadata) =
-        ReactFlightLocalComponentsMetadata::find(&operation_fragment.directives)
-    {
-        write_react_flight_server_annotation(&mut section, flight_metadata)?;
-    }
-    let relay_client_component_metadata =
-        RelayClientComponentMetadata::find(&operation_fragment.directives);
-    if let Some(relay_client_component_metadata) = relay_client_component_metadata {
-        write_react_flight_client_annotation(&mut section, relay_client_component_metadata)?;
-    }
     content_sections.push(ContentSection::CommentAnnotations(section));
     // -- End Metadata Annotations Section --
 
@@ -1263,16 +1253,6 @@ pub fn generate_read_only_fragment_rescript(
         RelayDataDrivenDependencyMetadata::find(&reader_fragment.directives)
     {
         write_data_driven_dependency_annotation(&mut section, data_driven_dependency_metadata)?;
-    }
-    if let Some(flight_metadata) =
-        ReactFlightLocalComponentsMetadata::find(&reader_fragment.directives)
-    {
-        write_react_flight_server_annotation(&mut section, flight_metadata)?;
-    }
-    let relay_client_component_metadata =
-        RelayClientComponentMetadata::find(&reader_fragment.directives);
-    if let Some(relay_client_component_metadata) = relay_client_component_metadata {
-        write_react_flight_client_annotation(&mut section, relay_client_component_metadata)?;
     }
     content_sections.push(ContentSection::CommentAnnotations(section));
     // -- End Metadata Annotations Section --
