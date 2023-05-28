@@ -191,10 +191,10 @@ pub(crate) fn ocaml_generate_extra_artifacts(
         });
 
         if has_optional {
-            writeln!(content, "  unit").unwrap()
+            writeln!(content, "  unit ->").unwrap()
         }
 
-        writeln!(content, " -> input_{} = \"\" [@@bs.obj]\n", input_obj.name.item).unwrap();
+        writeln!(content, " input_{} = \"\" [@@bs.obj]\n", input_obj.name.item).unwrap();
     });
 
     vec![Artifact {

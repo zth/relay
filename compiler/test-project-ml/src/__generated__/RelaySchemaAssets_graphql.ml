@@ -121,15 +121,15 @@ external make_InputA:
   ?timestamp: Timestamp.t -> 
   ?timestamps: Timestamp.t option array -> 
   ?unmapped: Melange_relay.any -> 
-  unit
- -> input_InputA = "" [@@bs.obj]
+  unit ->
+ input_InputA = "" [@@bs.obj]
 
 external make_InputB: 
   ?time: SomeModule.Datetime.t -> 
   ?usingA: input_InputA -> 
   ?_constraint: bool -> 
-  unit
- -> input_InputB = "" [@@bs.obj]
+  unit ->
+ input_InputB = "" [@@bs.obj]
 
 external make_SomeInput: 
   ?str: string -> 
@@ -139,26 +139,26 @@ external make_SomeInput:
   ?datetime: SomeModule.Datetime.t -> 
   ?recursive: input_SomeInput -> 
   ?_private: bool -> 
-  unit
- -> input_SomeInput = "" [@@bs.obj]
+  unit ->
+ input_SomeInput = "" [@@bs.obj]
 
 external make_RecursiveSetOnlineStatusInput: 
   someValue: Melange_relay.any -> 
   ?setOnlineStatus: input_SetOnlineStatusInput -> 
-  unit
- -> input_RecursiveSetOnlineStatusInput = "" [@@bs.obj]
+  unit ->
+ input_RecursiveSetOnlineStatusInput = "" [@@bs.obj]
 
 external make_SetOnlineStatusInput: 
   onlineStatus: [`Online | `Idle | `Offline] -> 
   ?recursed: input_RecursiveSetOnlineStatusInput -> 
-  unit
- -> input_SetOnlineStatusInput = "" [@@bs.obj]
+  unit ->
+ input_SetOnlineStatusInput = "" [@@bs.obj]
 
 external make_PesticideListSearchInput: 
   ?companyName: string array -> 
   ?pesticideIds: int array -> 
   skip: int -> 
   take: int -> 
-  unit
- -> input_PesticideListSearchInput = "" [@@bs.obj]
+  unit ->
+ input_PesticideListSearchInput = "" [@@bs.obj]
 
