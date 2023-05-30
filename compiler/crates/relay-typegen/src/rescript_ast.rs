@@ -2,6 +2,7 @@
 pub struct UnionMember {
     pub typename: String,
     pub member_record_name: String,
+    pub object: Object,
 }
 
 #[derive(Debug)]
@@ -38,7 +39,7 @@ pub enum PropType {
     RawIdentifier(String),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct PropValue {
     // This key is safe for ReScript use, meaning it has been transformed
     // already if it was an illegal name in ReScript. If it was indeed
@@ -52,7 +53,7 @@ pub struct PropValue {
     pub prop_type: Box<PropType>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Object {
     pub comment: Option<String>,
     pub values: Vec<PropValue>,
@@ -67,6 +68,11 @@ pub struct Object {
     // other objects. This is because of the hierarchy/recursiveness of types,
     // which leads to us needing to print objects in a specific order.
     pub found_in_union: bool,
+
+    // Since direct union objects are always inlined, we need to know whether
+    // this specific object is an inline union object, so we can for example
+    // skip printing it as a regular record.
+    pub is_union_member_inline_obj: bool,
 }
 
 #[derive(Debug)]

@@ -4,29 +4,28 @@
 module Types = {
   @@warning("-30")
 
-  type rec response_node_User = {
-    @live __typename: [ | #User],
-    avatarUrl: option<string>,
-    firstName: string,
-    onlineStatus: option<RelaySchemaAssets_graphql.enum_OnlineStatus>,
-  }
-  @live
-  and rawResponse_node_User = {
-    @live __typename: [ | #User],
-    avatarUrl: option<string>,
-    firstName: string,
-    @live id: string,
-    onlineStatus: option<RelaySchemaAssets_graphql.enum_OnlineStatus_input>,
-  }
-  and response_node = [
-    | #User(response_node_User)
-    | #UnselectedUnionMember(string)
-  ]
+  type response_node = 
+    | User(
+      {
+        @live __typename: [ | #User],
+        avatarUrl: option<string>,
+        firstName: string,
+        onlineStatus: option<RelaySchemaAssets_graphql.enum_OnlineStatus>,
+      }
+    )
+    | @as("__unselected") UnselectedUnionMember(string)
 
-  and rawResponse_node = [
-    | #User(rawResponse_node_User)
-    | #UnselectedUnionMember(string)
-  ]
+  type rawResponse_node = 
+    | User(
+      {
+        @live __typename: [ | #User],
+        avatarUrl: option<string>,
+        firstName: string,
+        @live id: string,
+        onlineStatus: option<RelaySchemaAssets_graphql.enum_OnlineStatus>,
+      }
+    )
+    | @as("__unselected") UnselectedUnionMember(string)
 
   type response = {
     node: option<response_node>,
@@ -53,39 +52,13 @@ module Types = {
 }
 
 @live
-let unwrap_response_node: {. "__typename": string } => [
-  | #User(Types.response_node_User)
-  | #UnselectedUnionMember(string)
-] = u => switch u["__typename"] {
-  | "User" => #User(u->Obj.magic)
-  | v => #UnselectedUnionMember(v)
-}
-
+let unwrap_response_node: response_node => response_node = RescriptRelay__Internal.unwrapUnion
 @live
-let wrap_response_node: [
-  | #User(Types.response_node_User)
-  | #UnselectedUnionMember(string)
-] => {. "__typename": string } = v => switch v {
-  | #User(v) => v->Obj.magic
-  | #UnselectedUnionMember(v) => {"__typename": v}
-}
+let wrap_response_node: response_node => response_node = RescriptRelay__Internal.wrapUnion
 @live
-let unwrap_rawResponse_node: {. "__typename": string } => [
-  | #User(Types.rawResponse_node_User)
-  | #UnselectedUnionMember(string)
-] = u => switch u["__typename"] {
-  | "User" => #User(u->Obj.magic)
-  | v => #UnselectedUnionMember(v)
-}
-
+let unwrap_rawResponse_node: rawResponse_node => rawResponse_node = RescriptRelay__Internal.unwrapUnion
 @live
-let wrap_rawResponse_node: [
-  | #User(Types.rawResponse_node_User)
-  | #UnselectedUnionMember(string)
-] => {. "__typename": string } = v => switch v {
-  | #User(v) => v->Obj.magic
-  | #UnselectedUnionMember(v) => {"__typename": v}
-}
+let wrap_rawResponse_node: rawResponse_node => rawResponse_node = RescriptRelay__Internal.wrapUnion
 module Internal = {
   @live
   let variablesConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
