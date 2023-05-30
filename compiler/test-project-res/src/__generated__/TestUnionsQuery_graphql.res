@@ -62,13 +62,13 @@ module Types = {
 }
 
 @live
-let unwrap_response_members_edges_node_Group_members: response_members_edges_node_Group_members => response_members_edges_node_Group_members = RescriptRelay__Internal.unwrapUnion
+let unwrap_response_members_edges_node_Group_members: response_members_edges_node_Group_members => response_members_edges_node_Group_members = RescriptRelay_Internal.unwrapUnion
 @live
-let wrap_response_members_edges_node_Group_members: response_members_edges_node_Group_members => response_members_edges_node_Group_members = RescriptRelay__Internal.wrapUnion
+let wrap_response_members_edges_node_Group_members: response_members_edges_node_Group_members => response_members_edges_node_Group_members = RescriptRelay_Internal.wrapUnion
 @live
-let unwrap_response_members_edges_node: response_members_edges_node => response_members_edges_node = RescriptRelay__Internal.unwrapUnion
+let unwrap_response_members_edges_node: response_members_edges_node => response_members_edges_node = RescriptRelay_Internal.unwrapUnion
 @live
-let wrap_response_members_edges_node: response_members_edges_node => response_members_edges_node = RescriptRelay__Internal.wrapUnion
+let wrap_response_members_edges_node: response_members_edges_node => response_members_edges_node = RescriptRelay_Internal.wrapUnion
 module Internal = {
   @live
   let variablesConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(

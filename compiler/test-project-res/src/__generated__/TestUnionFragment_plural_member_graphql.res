@@ -25,9 +25,9 @@ module Types = {
 }
 
 @live
-let unwrap_fragment: fragment => fragment = RescriptRelay__Internal.unwrapUnion
+let unwrap_fragment: fragment => fragment = RescriptRelay_Internal.unwrapUnion
 @live
-let wrap_fragment: fragment => fragment = RescriptRelay__Internal.wrapUnion
+let wrap_fragment: fragment => fragment = RescriptRelay_Internal.wrapUnion
 module Internal = {
   @live
   type fragmentRaw
