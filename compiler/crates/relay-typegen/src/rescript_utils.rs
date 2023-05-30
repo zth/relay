@@ -1,30 +1,44 @@
+use std::fmt::Result;
+use std::fmt::Write;
 use std::ops::Add;
 
-use common::{WithLocation, ScalarName};
-use graphql_ir::{
-    reexport::{Intern, StringKey},
-    Argument, ConstantValue, FragmentDefinition, OperationDefinition, ProvidedVariableMetadata,
-    Value, Variable, VariableDefinition,
-};
+use common::ScalarName;
+use common::WithLocation;
+use graphql_ir::reexport::Intern;
+use graphql_ir::reexport::StringKey;
+use graphql_ir::Argument;
+use graphql_ir::ConstantValue;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::OperationDefinition;
+use graphql_ir::ProvidedVariableMetadata;
+use graphql_ir::Value;
+use graphql_ir::Variable;
+use graphql_ir::VariableDefinition;
 use itertools::Itertools;
 use log::warn;
-use relay_config::{CustomScalarType, CustomScalarTypeImport, TypegenConfig};
+use relay_config::CustomScalarType;
+use relay_config::CustomScalarTypeImport;
+use relay_config::TypegenConfig;
 use relay_transforms::RelayDirective;
-use schema::{SDLSchema, Schema, Type, TypeReference};
+use schema::SDLSchema;
+use schema::Schema;
+use schema::Type;
+use schema::TypeReference;
 
-use crate::{
-    rescript::{DefinitionType, ReScriptPrinter},
-    rescript_ast::{
-        AstToStringNeedsConversion, Context, ConverterInstructions, FullEnum, ProvidedVariable,
-    },
-    rescript_relay_visitor::{
-        find_assets_in_fragment, find_assets_in_operation, CustomScalarsMap,
-        RescriptRelayOperationMetaData,
-    },
-    writer::{Prop, StringLiteral, AST},
-};
-
-use std::fmt::{Result, Write};
+use crate::rescript::DefinitionType;
+use crate::rescript::ReScriptPrinter;
+use crate::rescript_ast::AstToStringNeedsConversion;
+use crate::rescript_ast::Context;
+use crate::rescript_ast::ConverterInstructions;
+use crate::rescript_ast::FullEnum;
+use crate::rescript_ast::ProvidedVariable;
+use crate::rescript_relay_visitor::find_assets_in_fragment;
+use crate::rescript_relay_visitor::find_assets_in_operation;
+use crate::rescript_relay_visitor::CustomScalarsMap;
+use crate::rescript_relay_visitor::RescriptRelayOperationMetaData;
+use crate::writer::Prop;
+use crate::writer::StringLiteral;
+use crate::writer::AST;
 
 pub fn uncapitalize_string(str: &String) -> String {
     str[..1].to_lowercase().add(&str[1..])
@@ -300,9 +314,6 @@ pub fn instruction_to_key_value_pair(instruction: &ConverterInstructions) -> (St
         }
         &ConverterInstructions::RootObject(object_name) => {
             (String::from("r"), object_name.to_string())
-        }
-        &ConverterInstructions::ConvertTopLevelNodeField(type_name) => {
-            (String::from("tnf"), type_name.to_string())
         }
         &ConverterInstructions::HasFragments => (String::from("f"), String::from("")),
         &ConverterInstructions::BlockTraversal(is_array) => (

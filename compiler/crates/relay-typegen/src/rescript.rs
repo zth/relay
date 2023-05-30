@@ -10,7 +10,6 @@ use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{FragmentDefinition, OperationDefinition};
 use graphql_syntax::OperationKind;
 use itertools::Itertools;
-use lazy_static::__Deref;
 use log::{debug, warn};
 
 use crate::rescript_ast::*;
@@ -249,68 +248,8 @@ fn ast_to_prop_value(
         }
         AST::Union(members) => {
             let mut new_at_path = current_path.clone();
-            new_at_path.push(key.to_string());
+            new_at_path.push(key.to_string());         
 
-            // The following applies only when using the top level node field in
-            // combination with selecting fields on a _single_ type only. So
-            // node(id: $id) { ... on User { ... } }.
-            // ---
-            // We do a bit of special treatment of the top level node interface
-            // field here, since it's a widely used, cache-enhanced way of
-            // pulling out single entities. However, when using it for that
-            // purpose, it's annoying to have to pattern match on an actual type
-            // (that's the only thing you'll want anyway). So, since we know
-            // what type you're after, we collapse that one member union into an
-            // option, and do the conversion automatically for the developer,
-            // behind the scenes.
-
-            // The new path having a length of two means we must be at ["response", "node"]
-            let is_potentially_at_top_level_node = new_at_path.len() == 2;
-
-            if key.as_str() == "node" && members.len() == 2 && is_potentially_at_top_level_node {
-                if let Some((typename, props)) = get_first_union_member_ast_and_typename(&members) {
-                    // Check that this type is an actual concrete type. If it's
-                    // not a concrete type, we won't be able to rely on our
-                    // runtime check for the correct type as we collapse the
-                    // node field, since abstract types can return one of many
-                    // typenames (and the top level node optimization only makes
-                    // sense for concrete types anyway).
-                    // TODO(upgrade-fork): Disabling schema check here to get around lifetime issue for schema. Try reintroducing after upgrade is complete.
-                    /*if let Some(typ) = state.schema.get_type(typename.clone().intern()) {
-                    if !typ.is_abstract_type() {*/
-                    let object = Object {
-                        at_path: new_at_path.clone(),
-                        comment: None,
-                        found_in_union: false,
-                        record_name: path_to_name(&new_at_path),
-                        original_type_name: None,
-                        values: get_object_props(state, &new_at_path, props, false, context),
-                    };
-
-                    let object_record_name = object.record_name.to_string();
-
-                    state.conversion_instructions.push(InstructionContainer {
-                        context: context.clone(),
-                        at_path: new_at_path.clone(),
-                        instruction: ConverterInstructions::ConvertTopLevelNodeField(typename),
-                    });
-
-                    state.objects.push(object);
-
-                    return Some(PropValue {
-                        key: safe_key,
-                        original_key,
-                        comment: None,
-                        nullable: is_nullable,
-                        prop_type: Box::new(PropType::RecordReference(object_record_name.clone())),
-                    });
-                    /*}
-                    }*/
-                }
-            }
-
-            // If it's not the top level node interface (with a single fragment
-            // spread selection), proceed treating it like a regular union.
             let union_members = extract_union_members(state, &new_at_path, members, context);
 
             let union_record_name = path_to_name(&new_at_path);
@@ -454,28 +393,6 @@ fn ast_to_prop_value(
         }
         _ => None,
     }
-}
-
-fn get_first_union_member_ast_and_typename(members: &Vec<AST>) -> Option<(String, &Vec<Prop>)> {
-    members.iter().find_map(|member| match member {
-        AST::ExactObject(props) => {
-            // The type of each union member is inside of the
-            // __typename string literal, so we need to look for
-            // that
-            props.iter().find_map(|prop| match &prop {
-                &Prop::GetterSetterPair(_) | &Prop::Spread(_) => None,
-                &Prop::KeyValuePair(key_value_pair) => {
-                    match (&key_value_pair.key.to_string()[..], &key_value_pair.value) {
-                        ("__typename", AST::StringLiteral(typename)) => {
-                            Some((typename.to_string(), props.deref()))
-                        }
-                        _ => None,
-                    }
-                }
-            })
-        }
-        _ => None,
-    })
 }
 
 fn extract_union_members(
