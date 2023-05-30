@@ -9,6 +9,9 @@
  * @oncall relay
  */
 
+import type {TodoDescription__some_client_type_with_interface$normalization} from './__generated__/TodoDescription__some_client_type_with_interface$normalization.graphql';
+import type {TodoDescription__some_interface$normalization} from './__generated__/TodoDescription__some_interface$normalization.graphql';
+
 /**
  * @RelayResolver TodoDescription
  * @weak
@@ -17,9 +20,6 @@ export opaque type TodoDescription = {
   text: string,
   color: string,
 };
-
-import type {TodoDescription__some_client_type_with_interface$normalization} from './__generated__/TodoDescription__some_client_type_with_interface$normalization.graphql';
-import type {TodoDescription__some_interface$normalization} from './__generated__/TodoDescription__some_interface$normalization.graphql';
 
 // Public constructor for opaque `TodoDescription`.
 // Other resolvers have to call this function to
@@ -42,6 +42,19 @@ function text(instance: ?TodoDescription): ?string {
 }
 
 /**
+ * @RelayResolver TodoDescription.text_with_prefix(prefix: String!): String
+ */
+function text_with_prefix(
+  instance: ?TodoDescription,
+  args: {prefix: string},
+): ?string {
+  if (instance == null) {
+    return null;
+  }
+  return `${args.prefix} ${instance.text}`;
+}
+
+/**
  * @RelayResolver TodoDescription.color: RelayResolverValue
  */
 function color(instance: ?TodoDescription): ?string {
@@ -53,7 +66,7 @@ function color(instance: ?TodoDescription): ?string {
  */
 function some_interface(
   instance: ?TodoDescription,
-): ?TodoDescription__some_interface$normalization {
+): TodoDescription__some_interface$normalization {
   return {
     __typename: 'ClientTypeImplementingClientInterface',
     description: 'It was a magical place',
@@ -65,7 +78,7 @@ function some_interface(
  */
 function some_client_type_with_interface(
   instance: ?TodoDescription,
-): ?TodoDescription__some_client_type_with_interface$normalization {
+): TodoDescription__some_client_type_with_interface$normalization {
   return {
     client_interface: {
       __typename: 'ClientTypeImplementingClientInterface',
@@ -75,6 +88,7 @@ function some_client_type_with_interface(
 }
 
 module.exports = {
+  text_with_prefix,
   createTodoDescription,
   text,
   color,

@@ -101,7 +101,6 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     ];
 
     let feature_flags = FeatureFlags {
-        enable_flight_transform: true,
         hash_supported_argument: FeatureFlag::Limited {
             allowlist: hash_supported_argument_allowlist.into_iter().collect(),
         },
@@ -113,7 +112,6 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         enable_3d_branch_arg_generation: true,
         actor_change_support: FeatureFlag::Enabled,
         text_artifacts: FeatureFlag::Disabled,
-        enable_client_edges: FeatureFlag::Enabled,
         skip_printing_nulls: FeatureFlag::Disabled,
         enable_fragment_aliases: FeatureFlag::Enabled,
         compact_query_text: FeatureFlag::Disabled,

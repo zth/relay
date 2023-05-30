@@ -21,9 +21,6 @@ use crate::Rollout;
 #[serde(deny_unknown_fields)]
 pub struct FeatureFlags {
     #[serde(default)]
-    pub enable_flight_transform: bool,
-
-    #[serde(default)]
     pub enable_relay_resolver_transform: bool,
 
     /// Enable deprecated `@outputType` on Relay Resolvers.
@@ -53,9 +50,6 @@ pub struct FeatureFlags {
     /// later.
     #[serde(default)]
     pub text_artifacts: FeatureFlag,
-
-    #[serde(default)]
-    pub enable_client_edges: FeatureFlag,
 
     #[serde(default)]
     pub skip_printing_nulls: FeatureFlag,
