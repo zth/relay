@@ -689,7 +689,7 @@ pub fn get_connection_key_maker(
     write_indentation(&mut str, local_indentation).unwrap();
     writeln!(
         str,
-        "let makeConnectionId = (connectionParentDataId: RescriptRelay.dataId, {}{}) => {{",
+        "let makeConnectionId = (connectionParentDataId: RescriptRelay.dataId, {}) => {{",
         all_variables
             .iter()
             .map(|(variable, default_value)| {
@@ -759,22 +759,6 @@ pub fn get_connection_key_maker(
                 )
             })
             .join(", "),
-        // Insert trailing unit if there are optional arguments.
-        if all_variables
-            .iter()
-            .find(|(v, default_value)| {
-                match (&v.type_, default_value) {
-                    (_, Some(_)) => true,
-                    (TypeReference::NonNull(_), _) => false,
-                    _ => true,
-                }
-            })
-            .is_some()
-        {
-            format!(", ()")
-        } else {
-            String::from("")
-        }
     )
     .unwrap();
 
