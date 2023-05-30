@@ -44,9 +44,9 @@ module Types = {
 }
 
 @live
-let unwrap_response_member: response_member => response_member = RescriptRelay_Internal.unwrapUnion
+let unwrap_response_member: Types.response_member => Types.response_member = RescriptRelay_Internal.unwrapUnion
 @live
-let wrap_response_member: response_member => response_member = RescriptRelay_Internal.wrapUnion
+let wrap_response_member: Types.response_member => Types.response_member = RescriptRelay_Internal.wrapUnion
 module Internal = {
   @live
   let variablesConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
