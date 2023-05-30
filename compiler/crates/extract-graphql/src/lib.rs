@@ -96,7 +96,7 @@ pub fn extract(input: &str) -> Vec<JavaScriptSourceFeature> {
     'code: while let Some((i, c)) = it.next() {
         match c {
             '%' => {
-                for expected in ['r', 'e', 'l', 'a', 'y'] {
+                for expected in ['r', 'e', 'l', 'a', 'y', '('] {
                     if let Some((_, c)) = it.next() {
                         if c != expected {
                             consume_identifier(&mut it);
@@ -107,43 +107,14 @@ pub fn extract(input: &str) -> Vec<JavaScriptSourceFeature> {
 
                 let mut whitespace_num: usize = 0;
 
-                // ReScript uses %relay(` ... `)
-                // Reason / OCaml use [%relay {| ... |}]
-                let expected_close_char: char;
-
                 loop {
                     if let Some((_, c)) = it.next() {
                         match c {
-                            '(' => {
-                                // ReScript
-                                if let Some((_, c)) = it.next() {
-                                    match c {
-                                        '`' => {
-                                            expected_close_char = '`';
-                                            break;
-                                        }
-                                        _ => {
-                                            consume_identifier(&mut it);
-                                            continue 'code;
-                                        }
-                                    }
-                                }
+                            '`' => {
+                                break;
                             }
                             ' ' | '\n' | '\r' | '\t' => {
                                 whitespace_num += 1;
-                            }
-                            '{' => {
-                                if let Some((_, c)) = it.next() {
-                                    match c {
-                                        '|' => {
-                                            expected_close_char = '|';
-                                            break
-                                        }
-                                        _ => {
-                                            continue 'code;
-                                        }
-                                    }
-                                }
                             }
                             _ => {
                                 consume_identifier(&mut it);
@@ -158,7 +129,7 @@ pub fn extract(input: &str) -> Vec<JavaScriptSourceFeature> {
                 let mut has_visited_first_char = false;
                 for (i, c) in &mut it {
                     match c {
-                        c if c == expected_close_char  => {
+                        '`' => {
                             let end = i;
                             let text = &input[start + (8 + whitespace_num)..end];
                             res.push(JavaScriptSourceFeature::GraphQL(GraphQLSource::new(
