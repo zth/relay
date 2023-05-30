@@ -2,7 +2,7 @@
 /* @generated */
 %%raw("/* @generated */")
 module Types = {
-  @@ocaml.warning("-30")
+  @@warning("-30")
 
   type rec response_member_User = {
     @live __typename: [ | #User],
@@ -120,14 +120,8 @@ module Internal = {
 type queryRef
 
 module Utils = {
-  @@ocaml.warning("-33")
+  @@warning("-33")
   open Types
-  @live @obj external makeVariables: (
-    ~beforeDate: SomeModule.Datetime.t=?,
-    unit
-  ) => variables = ""
-
-
 }
 
 type relayOperationNode

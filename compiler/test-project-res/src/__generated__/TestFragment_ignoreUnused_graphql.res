@@ -2,7 +2,7 @@
 /* @generated */
 %%raw("/* @generated */")
 module Types = {
-  @@ocaml.warning("-30")
+  @@warning("-30")
 
   type fragment = {
     @live firstName: string,
@@ -34,7 +34,7 @@ external getFragmentRef:
   RescriptRelay.fragmentRefs<[> | #TestFragment_ignoreUnused]> => fragmentRef = "%identity"
 
 module Utils = {
-  @@ocaml.warning("-33")
+  @@warning("-33")
   open Types
   @live
   external onlineStatus_toString: RelaySchemaAssets_graphql.enum_OnlineStatus => string = "%identity"

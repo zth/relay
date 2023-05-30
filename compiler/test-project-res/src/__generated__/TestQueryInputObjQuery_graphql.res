@@ -2,7 +2,7 @@
 /* @generated */
 %%raw("/* @generated */")
 module Types = {
-  @@ocaml.warning("-30")
+  @@warning("-30")
 
   @live type pesticideListSearchInput = RelaySchemaAssets_graphql.input_PesticideListSearchInput
   type response = {
@@ -79,22 +79,8 @@ module Internal = {
 type queryRef
 
 module Utils = {
-  @@ocaml.warning("-33")
+  @@warning("-33")
   open Types
-  @live @obj external make_pesticideListSearchInput: (
-    ~companyName: array<string>=?,
-    ~pesticideIds: array<int>=?,
-    ~skip: int,
-    ~take: int,
-    unit
-  ) => pesticideListSearchInput = ""
-
-
-  @live @obj external makeVariables: (
-    ~input: pesticideListSearchInput,
-  ) => variables = ""
-
-
 }
 
 type relayOperationNode
