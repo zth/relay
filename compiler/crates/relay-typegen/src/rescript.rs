@@ -566,10 +566,7 @@ fn get_object_prop_type_as_string(
                             warn!("Did not find enum");
                             String::from("invalid_enum")
                         }
-                        Some(full_enum) => format!(
-                            "{}",
-                            get_enum_definition_body(full_enum, indentation, false)
-                        ),
+                        Some(full_enum) => format!("RelaySchemaAssets_graphql.enum_{}_input", full_enum.name),
                     }
                 }
                 _ => format!("RelaySchemaAssets_graphql.enum_{}", enum_name),
@@ -797,14 +794,13 @@ fn write_enum_util_functions(str: &mut String, indentation: usize, full_enum: &F
     write_indentation(str, indentation + 1).unwrap();
     writeln!(str, "switch enum {{",).unwrap();
     write_indentation(str, indentation + 2).unwrap();
+    writeln!(str, "| FutureAddedValue(_) => None",).unwrap();
+    write_indentation(str, indentation + 2).unwrap();
     writeln!(
         str,
-        "| #...RelaySchemaAssets_graphql.enum_{}_input as valid => Some(valid)",
-        full_enum.name
+        "| valid => Some(Obj.magic(valid))"
     )
     .unwrap();
-    write_indentation(str, indentation + 2).unwrap();
-    writeln!(str, "| _ => None",).unwrap();
     write_indentation(str, indentation + 1).unwrap();
     writeln!(str, "}}",).unwrap();
     write_indentation(str, indentation).unwrap();

@@ -14,7 +14,7 @@ module Fragment = %relay(`
       @refetchable(queryName: "TestRefetchingInNodeRefetchQuery")
       @argumentDefinitions(
         showOnlineStatus: { type: "Boolean", defaultValue: false }
-        friendsOnlineStatuses: { type: "[OnlineStatus!]", defaultValue: [Online, Offline]}
+        friendsOnlineStatuses: { type: "[OnlineStatus!]", defaultValue: [Online, offline]}
       ) {
       firstName
       onlineStatus @include(if: $showOnlineStatus)

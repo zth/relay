@@ -41,7 +41,11 @@ use crate::writer::StringLiteral;
 use crate::writer::AST;
 
 pub fn uncapitalize_string(str: &String) -> String {
-    str[..1].to_lowercase().add(&str[1..])
+    str[..1].to_ascii_lowercase().add(&str[1..])
+}
+
+pub fn capitalize_string(str: &String) -> String {
+    str[..1].to_ascii_uppercase().add(&str[1..])
 }
 
 pub fn path_to_name(path: &Vec<String>) -> String {
@@ -211,26 +215,6 @@ pub fn write_indentation(str: &mut String, indentation: usize) -> Result {
     write!(str, "{}", &"  ".repeat(indentation))
 }
 
-pub fn get_enum_definition_body(
-    full_enum: &FullEnum,
-    indentation: usize,
-    as_private: bool,
-) -> String {
-    let mut str = String::new();
-
-    writeln!(str, "[{}", if as_private { ">" } else { "" }).unwrap();
-
-    for value in &full_enum.values {
-        write_indentation(&mut str, indentation + 2).unwrap();
-        writeln!(str, "| #{}", value.to_string()).unwrap();
-    }
-
-    write_indentation(&mut str, indentation + 1).unwrap();
-    write!(str, "]").unwrap();
-
-    str
-}
-
 pub fn get_rescript_relay_meta_data(
     schema: &SDLSchema,
     typegen_definition: &DefinitionType,
@@ -381,7 +365,7 @@ pub fn print_constant_value(
         ConstantValue::Boolean(b) => print_wrapped_in_some(&b.to_string(), print_as_optional),
         ConstantValue::Null() => print_wrapped_in_some(&String::from("Js.null"), print_as_optional),
         ConstantValue::Enum(s) => {
-            print_wrapped_in_some(&format!("#{}", s.to_string()), print_as_optional)
+            print_wrapped_in_some(&format!("{}", s.to_string()), print_as_optional)
         }
         ConstantValue::List(values) => print_wrapped_in_some(
             &format!(
@@ -430,15 +414,18 @@ pub fn print_type_reference(
     match typ {
         TypeReference::Named(named_type) => print_opt(
             &match named_type {
-                Type::Enum(id) => format!(
-                    "[{}]",
-                    schema
-                        .enum_(*id)
-                        .values
-                        .iter()
-                        .map(|v| { format!("#{}", v.value) })
-                        .join(" | ")
-                ),
+                Type::Enum(id) => {
+                    let enum_ = schema.enum_(*id);
+                    format!(
+                        "{}enum_{}",
+                        if prefix_with_schema_module {
+                            "RelaySchemaAssets_graphql."
+                        } else {
+                            ""
+                        },
+                        enum_.name.item,
+                    )
+                }
                 Type::InputObject(id) => {
                     let obj = schema.input_object(*id);
                     format!(

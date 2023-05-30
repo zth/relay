@@ -218,7 +218,7 @@ return {
                     "name": "statuses",
                     "value": [
                       "Online",
-                      "Offline"
+                      "offline"
                     ]
                   }
                 ],
@@ -235,7 +235,7 @@ return {
                     "storageKey": null
                   }
                 ],
-                "storageKey": "friendsConnection(statuses:[\"Online\",\"Offline\"])"
+                "storageKey": "friendsConnection(statuses:[\"Online\",\"offline\"])"
               }
             ],
             "type": "User",
@@ -247,12 +247,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "79c28e4ac7972486b1a6034f8c257222",
+    "cacheID": "462b4dc077de7c3873b2aed602d01343",
     "id": null,
     "metadata": {},
     "name": "TestRefetchingInNodeQuery",
     "operationKind": "query",
-    "text": "query TestRefetchingInNodeQuery(\n  $userId: ID!\n) {\n  node(id: $userId) {\n    __typename\n    ... on User {\n      ...TestRefetchingInNode_user\n    }\n    id\n  }\n}\n\nfragment TestRefetchingInNode_user on User {\n  firstName\n  friendsConnection(statuses: [Online, Offline]) {\n    totalCount\n  }\n  id\n}\n"
+    "text": "query TestRefetchingInNodeQuery(\n  $userId: ID!\n) {\n  node(id: $userId) {\n    __typename\n    ... on User {\n      ...TestRefetchingInNode_user\n    }\n    id\n  }\n}\n\nfragment TestRefetchingInNode_user on User {\n  firstName\n  friendsConnection(statuses: [Online, offline]) {\n    totalCount\n  }\n  id\n}\n"
   }
 };
 })() `)

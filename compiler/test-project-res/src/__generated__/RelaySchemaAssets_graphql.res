@@ -1,33 +1,35 @@
 /* @generated */
-@@ocaml.warning("-30")
+@@warning("-30")
 
-@live
-type enum_OnlineStatus = private [>
-  | #Online
-  | #Idle
-  | #Offline
-]
+@live @unboxed
+type enum_OnlineStatus = 
+  | Online
+  | Idle
+  | @as("offline") Offline
+  | FutureAddedValue(string)
 
-@live
-type enum_OnlineStatus_input = [
-  | #Online
-  | #Idle
-  | #Offline
-]
 
-@live
-type enum_RequiredFieldAction = private [>
-  | #NONE
-  | #LOG
-  | #THROW
-]
+@live @unboxed
+type enum_OnlineStatus_input = 
+  | Online
+  | Idle
+  | @as("offline") Offline
 
-@live
-type enum_RequiredFieldAction_input = [
-  | #NONE
-  | #LOG
-  | #THROW
-]
+
+@live @unboxed
+type enum_RequiredFieldAction = 
+  | NONE
+  | LOG
+  | THROW
+  | FutureAddedValue(string)
+
+
+@live @unboxed
+type enum_RequiredFieldAction_input = 
+  | NONE
+  | LOG
+  | THROW
+
 
 @live
 type rec input_InputA = {
@@ -99,13 +101,13 @@ and input_RecursiveSetOnlineStatusInput_nullable = {
 
 @live
 and input_SetOnlineStatusInput = {
-  onlineStatus: [#Online | #Idle | #Offline],
+  onlineStatus: enum_OnlineStatus,
   recursed: option<input_RecursiveSetOnlineStatusInput>,
 }
 
 @live
 and input_SetOnlineStatusInput_nullable = {
-  onlineStatus: [#Online | #Idle | #Offline],
+  onlineStatus: enum_OnlineStatus,
   recursed?: Js.Null.t<input_RecursiveSetOnlineStatusInput_nullable>,
 }
 
@@ -164,7 +166,7 @@ external make_RecursiveSetOnlineStatusInput: (
 
 @live @obj
 external make_SetOnlineStatusInput: (
-  ~onlineStatus: [#Online | #Idle | #Offline],
+  ~onlineStatus: enum_OnlineStatus,
   ~recursed: input_RecursiveSetOnlineStatusInput=?,
   unit,
 ) => input_SetOnlineStatusInput = ""

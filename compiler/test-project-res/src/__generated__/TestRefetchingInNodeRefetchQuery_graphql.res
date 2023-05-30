@@ -17,21 +17,13 @@ module Types = {
   type rawResponse = response
   @live
   type variables = {
-    friendsOnlineStatuses: option<array<[
-      | #Idle
-      | #Offline
-      | #Online
-    ]>>,
+    friendsOnlineStatuses: option<array<RelaySchemaAssets_graphql.enum_OnlineStatus_input>>,
     @live id: string,
     showOnlineStatus: option<bool>,
   }
   @live
   type refetchVariables = {
-    friendsOnlineStatuses: option<option<array<[
-      | #Idle
-      | #Offline
-      | #Online
-    ]>>>,
+    friendsOnlineStatuses: option<option<array<RelaySchemaAssets_graphql.enum_OnlineStatus_input>>>,
     @live id: option<string>,
     showOnlineStatus: option<option<bool>>,
   }
@@ -109,8 +101,8 @@ module Utils = {
   @live
   let onlineStatus_decode = (enum: RelaySchemaAssets_graphql.enum_OnlineStatus): option<RelaySchemaAssets_graphql.enum_OnlineStatus_input> => {
     switch enum {
-      | #...RelaySchemaAssets_graphql.enum_OnlineStatus_input as valid => Some(valid)
-      | _ => None
+      | FutureAddedValue(_) => None
+      | valid => Some(Obj.magic(valid))
     }
   }
   @live
@@ -118,11 +110,7 @@ module Utils = {
     onlineStatus_decode(Obj.magic(str))
   }
   @live @obj external makeVariables: (
-    ~friendsOnlineStatuses: array<[
-      | #Idle
-      | #Offline
-      | #Online
-    ]>=?,
+    ~friendsOnlineStatuses: array<RelaySchemaAssets_graphql.enum_OnlineStatus_input>=?,
     ~id: string,
     ~showOnlineStatus: bool=?,
     unit
@@ -139,7 +127,7 @@ let node: operationType = %raw(json` (function(){
 var v0 = {
   "defaultValue": [
     "Online",
-    "Offline"
+    "offline"
   ],
   "kind": "LocalArgument",
   "name": "friendsOnlineStatuses"
@@ -295,12 +283,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "7f7b04c6140e4282e20befe8a201c187",
+    "cacheID": "e7217882d5a40a907a6141c57f87b6a7",
     "id": null,
     "metadata": {},
     "name": "TestRefetchingInNodeRefetchQuery",
     "operationKind": "query",
-    "text": "query TestRefetchingInNodeRefetchQuery(\n  $friendsOnlineStatuses: [OnlineStatus!] = [Online, Offline]\n  $showOnlineStatus: Boolean = false\n  $id: ID!\n) {\n  node(id: $id) {\n    __typename\n    ...TestRefetchingInNode_user_lLXHd\n    id\n  }\n}\n\nfragment TestRefetchingInNode_user_lLXHd on User {\n  firstName\n  onlineStatus @include(if: $showOnlineStatus)\n  friendsConnection(statuses: $friendsOnlineStatuses) {\n    totalCount\n  }\n  id\n}\n"
+    "text": "query TestRefetchingInNodeRefetchQuery(\n  $friendsOnlineStatuses: [OnlineStatus!] = [Online, offline]\n  $showOnlineStatus: Boolean = false\n  $id: ID!\n) {\n  node(id: $id) {\n    __typename\n    ...TestRefetchingInNode_user_lLXHd\n    id\n  }\n}\n\nfragment TestRefetchingInNode_user_lLXHd on User {\n  firstName\n  onlineStatus @include(if: $showOnlineStatus)\n  friendsConnection(statuses: $friendsOnlineStatuses) {\n    totalCount\n  }\n  id\n}\n"
   }
 };
 })() `)

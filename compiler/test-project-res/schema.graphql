@@ -44,7 +44,7 @@ type PageInfo {
 enum OnlineStatus {
   Online
   Idle
-  Offline
+  offline
 }
 
 interface HasName {

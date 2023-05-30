@@ -26,11 +26,7 @@ module Types = {
   @live
   type variables = {
     datetime?: Js.Null.t<SomeModule.Datetime.t>,
-    onlineStatus: [
-      | #Idle
-      | #Offline
-      | #Online
-    ],
+    onlineStatus: RelaySchemaAssets_graphql.enum_OnlineStatus_input,
     recursive?: Js.Null.t<someInput>,
   }
 }
@@ -95,8 +91,8 @@ module Utils = {
   @live
   let onlineStatus_decode = (enum: RelaySchemaAssets_graphql.enum_OnlineStatus): option<RelaySchemaAssets_graphql.enum_OnlineStatus_input> => {
     switch enum {
-      | #...RelaySchemaAssets_graphql.enum_OnlineStatus_input as valid => Some(valid)
-      | _ => None
+      | FutureAddedValue(_) => None
+      | valid => Some(Obj.magic(valid))
     }
   }
   @live
@@ -117,11 +113,7 @@ module Utils = {
 
   @live @obj external makeVariables: (
     ~datetime: SomeModule.Datetime.t=?,
-    ~onlineStatus: [
-      | #Idle
-      | #Offline
-      | #Online
-    ],
+    ~onlineStatus: RelaySchemaAssets_graphql.enum_OnlineStatus_input,
     ~recursive: someInput=?,
     unit
   ) => variables = ""
