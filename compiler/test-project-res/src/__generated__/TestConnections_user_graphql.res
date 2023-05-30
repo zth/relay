@@ -50,7 +50,7 @@ let connectionKey = "TestConnections_user_friendsConnection"
 )
 
 @live
-let makeConnectionId = (connectionParentDataId: RescriptRelay.dataId, ~onlineStatuses: array<RelaySchemaAssets_graphql.enum_OnlineStatus>=[Idle], ~beforeDate: SomeModule.Datetime.t, ()) => {
+let makeConnectionId = (connectionParentDataId: RescriptRelay.dataId, ~onlineStatuses: array<RelaySchemaAssets_graphql.enum_OnlineStatus>=[Idle], ~beforeDate: SomeModule.Datetime.t) => {
   let onlineStatuses = Some(onlineStatuses)
   let beforeDate = Some(SomeModule.Datetime.serialize(beforeDate))
   let args = {"statuses": onlineStatuses, "beforeDate": beforeDate}
