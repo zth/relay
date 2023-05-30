@@ -2,7 +2,7 @@
 /* @generated */
 %%raw("/* @generated */")
 module Types = {
-  @@ocaml.warning("-30")
+  @@warning("-30")
 
   @live type someInput = RelaySchemaAssets_graphql.input_SomeInput
   @live type inputB = RelaySchemaAssets_graphql.input_InputB
@@ -76,40 +76,8 @@ module Internal = {
 type queryRef
 
 module Utils = {
-  @@ocaml.warning("-33")
+  @@warning("-33")
   open Types
-  @live @obj external make_someInput: (
-    ~bool: bool=?,
-    ~datetime: SomeModule.Datetime.t=?,
-    ~float: float=?,
-    ~int: int=?,
-    ~_private: bool=?,
-    ~recursive: someInput=?,
-    ~str: string=?,
-    unit
-  ) => someInput = ""
-
-
-  @live @obj external make_inputB: (
-    ~_constraint: bool=?,
-    ~time: SomeModule.Datetime.t=?,
-    ~usingA: inputA=?,
-    unit
-  ) => inputB = ""
-
-
-  @live @obj external make_inputA: (
-    ~recursiveA: inputA=?,
-    ~time: SomeModule.Datetime.t,
-    ~timestamp: Timestamp.t=?,
-    ~timestamps: array<option<Timestamp.t>>=?,
-    ~unmapped: RescriptRelay.any=?,
-    ~usingB: inputB=?,
-    unit
-  ) => inputA = ""
-
-
-  @live @obj external makeVariables: unit => unit = ""
 }
 type providedVariable<'t> = { providedVariable: unit => 't, get: unit => 't }
 type providedVariablesType = {

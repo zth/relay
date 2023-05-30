@@ -163,56 +163,6 @@ pub(crate) fn rescript_generate_extra_artifacts(
         }
     });
 
-    // Write object makers
-    schema.input_objects().for_each(|input_obj| {
-        writeln!(
-            content,
-            "@live @obj\nexternal make_{}: (",
-            input_obj.name.item
-        )
-        .unwrap();
-
-        let mut has_optional = false;
-
-        input_obj.fields.iter().for_each(|arg| {
-            let (key, maybe_original_key) = get_safe_key(&arg.name.to_string());
-
-            let is_optional = match &arg.type_ {
-                TypeReference::NonNull(_) => false,
-                _ => true,
-            };
-
-            writeln!(
-                content,
-                "  ~{}: {}{},",
-                (match maybe_original_key {
-                    Some(original_key) => format!("_{}", original_key),
-                    None => key,
-                }),
-                print_type_reference(
-                    &arg.type_,
-                    &schema,
-                    &project_config.typegen_config.custom_scalar_types,
-                    false,
-                    false,
-                    false
-                ),
-                if is_optional { "=?" } else { "" }
-            )
-            .unwrap();
-
-            if !has_optional && is_optional {
-                has_optional = true
-            }
-        });
-
-        if has_optional {
-            writeln!(content, "  unit,").unwrap()
-        }
-
-        writeln!(content, ") => input_{} = \"\"\n", input_obj.name.item).unwrap();
-    });
-
     vec![Artifact {
         source_definition_names: vec![],
         path: project_config.path_for_artifact(dummy_source_file, "RelaySchemaAssets".intern()),

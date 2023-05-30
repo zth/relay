@@ -2,7 +2,7 @@
 /* @generated */
 %%raw("/* @generated */")
 module Types = {
-  @@ocaml.warning("-30")
+  @@warning("-30")
 
   @live type someInput = RelaySchemaAssets_graphql.input_SomeInput_nullable
   @live
@@ -82,7 +82,7 @@ module Internal = {
   let convertRawResponse = convertResponse
 }
 module Utils = {
-  @@ocaml.warning("-33")
+  @@warning("-33")
   open Types
   @live
   external onlineStatus_toString: RelaySchemaAssets_graphql.enum_OnlineStatus => string = "%identity"
@@ -99,26 +99,6 @@ module Utils = {
   let onlineStatus_fromString = (str: string): option<RelaySchemaAssets_graphql.enum_OnlineStatus_input> => {
     onlineStatus_decode(Obj.magic(str))
   }
-  @live @obj external make_someInput: (
-    ~bool: bool=?,
-    ~datetime: SomeModule.Datetime.t=?,
-    ~float: float=?,
-    ~int: int=?,
-    ~_private: bool=?,
-    ~recursive: someInput=?,
-    ~str: string=?,
-    unit
-  ) => someInput = ""
-
-
-  @live @obj external makeVariables: (
-    ~datetime: SomeModule.Datetime.t=?,
-    ~onlineStatus: RelaySchemaAssets_graphql.enum_OnlineStatus_input,
-    ~recursive: someInput=?,
-    unit
-  ) => variables = ""
-
-
 }
 
 type relayOperationNode

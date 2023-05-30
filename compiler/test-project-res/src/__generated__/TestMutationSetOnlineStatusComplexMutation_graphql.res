@@ -2,7 +2,7 @@
 /* @generated */
 %%raw("/* @generated */")
 module Types = {
-  @@ocaml.warning("-30")
+  @@warning("-30")
 
   @live type setOnlineStatusInput = RelaySchemaAssets_graphql.input_SetOnlineStatusInput
   @live type recursiveSetOnlineStatusInput = RelaySchemaAssets_graphql.input_RecursiveSetOnlineStatusInput
@@ -76,7 +76,7 @@ module Internal = {
   let convertRawResponse = convertResponse
 }
 module Utils = {
-  @@ocaml.warning("-33")
+  @@warning("-33")
   open Types
   @live
   external onlineStatus_toString: RelaySchemaAssets_graphql.enum_OnlineStatus => string = "%identity"
@@ -93,25 +93,6 @@ module Utils = {
   let onlineStatus_fromString = (str: string): option<RelaySchemaAssets_graphql.enum_OnlineStatus_input> => {
     onlineStatus_decode(Obj.magic(str))
   }
-  @live @obj external make_setOnlineStatusInput: (
-    ~onlineStatus: RelaySchemaAssets_graphql.enum_OnlineStatus_input,
-    ~recursed: recursiveSetOnlineStatusInput=?,
-    unit
-  ) => setOnlineStatusInput = ""
-
-
-  @live @obj external make_recursiveSetOnlineStatusInput: (
-    ~setOnlineStatus: setOnlineStatusInput=?,
-    ~someValue: RescriptRelay.any,
-    unit
-  ) => recursiveSetOnlineStatusInput = ""
-
-
-  @live @obj external makeVariables: (
-    ~input: setOnlineStatusInput,
-  ) => variables = ""
-
-
 }
 
 type relayOperationNode

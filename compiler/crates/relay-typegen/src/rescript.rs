@@ -629,79 +629,6 @@ fn get_object_prop_type_as_string(
     }
 }
 
-fn write_object_maker(
-    state: &Box<ReScriptPrinter>,
-    str: &mut String,
-    indentation: usize,
-    definition: &Object,
-    name: String,
-    target_type: String,
-) -> Result {
-    write_indentation(str, indentation).unwrap();
-    write!(str, "@live @obj external {}: ", name).unwrap();
-
-    let num_props = definition.values.len();
-
-    if num_props == 0 {
-        writeln!(str, "unit => unit = \"\"").unwrap();
-        return Ok(());
-    } else {
-        writeln!(str, "(").unwrap();
-    }
-
-    let mut has_nullable = false;
-
-    let mut written_props = vec![];
-
-    definition.values.iter().for_each(|prop_value| {
-        let prop_name = match &prop_value.original_key {
-            Some(original_key) => format!("_{}", original_key),
-            None => format!("{}", prop_value.key),
-        };
-
-        if !written_props.contains(&prop_name) {
-            written_props.push(prop_name.clone());        
-
-            let mut field_path_name = definition.at_path.clone();
-            field_path_name.push(prop_value.key.to_owned());
-
-            write_indentation(str, indentation + 1).unwrap();
-            write!(
-                str,
-                "~{}: {}",
-                prop_name,
-                get_object_prop_type_as_string(
-                    &state,
-                    &prop_value.prop_type,
-                    &Context::Variables,
-                    indentation,
-                    &field_path_name
-                )
-            )
-            .unwrap();
-
-            if prop_value.nullable {
-                has_nullable = true;
-                write!(str, "=?").unwrap();
-            }
-
-            writeln!(str, ",").unwrap();
-        }
-    });
-
-    // Print unit if there's any nullable present
-    if has_nullable {
-        write_indentation(str, indentation + 1).unwrap();
-        writeln!(str, "unit").unwrap();
-    }
-
-    write_indentation(str, indentation).unwrap();
-    writeln!(str, ") => {} = \"\"", target_type).unwrap();
-    writeln!(str, "\n").unwrap();
-
-    Ok(())
-}
-
 // This fn is dedicated to writing object maker for refetch variables. It was
 // easier to split this one from the generalized one above, since this one is
 // more specialized.
@@ -1851,7 +1778,7 @@ impl Writer for ReScriptPrinter {
         indentation += 1;
         write_indentation(&mut generated_types, indentation).unwrap();
 
-        writeln!(generated_types, "@@ocaml.warning(\"-30\")\n").unwrap();
+        writeln!(generated_types, "@@warning(\"-30\")\n").unwrap();
 
         // Print input objects. These are just type aliases for the main type that's located in the schema assets file.
         self.input_objects
@@ -2359,7 +2286,7 @@ impl Writer for ReScriptPrinter {
 
         indentation += 1;
         write_indentation(&mut generated_types, indentation).unwrap();
-        writeln!(generated_types, "@@ocaml.warning(\"-33\")").unwrap();
+        writeln!(generated_types, "@@warning(\"-33\")").unwrap();
         write_indentation(&mut generated_types, indentation).unwrap();
         writeln!(generated_types, "open Types").unwrap();
 
@@ -2417,71 +2344,6 @@ impl Writer for ReScriptPrinter {
             .for_each(|full_enum| {
                 write_enum_util_functions(&mut generated_types, indentation, &full_enum).unwrap()
             });
-
-        // This prints a bunch of object maker helpers for input objects, and
-        // variables. In a future, these should probably not be emitted by
-        // default, but rather behind a dedicated RescriptRelay directive or
-        // similar.
-        self.input_objects.iter().for_each(|input_object| {
-            write_object_maker(
-                &self,
-                &mut generated_types,
-                indentation,
-                input_object,
-                format!("make_{}", input_object.record_name),
-                input_object.record_name.to_string(),
-            )
-            .unwrap();
-        });
-
-        match &self.variables {
-            None => (),
-            Some(variables_definition) => {
-                write_object_maker(
-                    &self,
-                    &mut generated_types,
-                    indentation,
-                    variables_definition,
-                    String::from("makeVariables"),
-                    String::from("variables"),
-                )
-                .unwrap();
-            }
-        }
-
-        // Print a maker for optimistic responses
-        match (&self.typegen_definition, &self.raw_response) {
-            (DefinitionType::Operation((def, _)), Some(raw_response)) => {
-                if def.kind == OperationKind::Mutation {
-                    write_object_maker(
-                        &self,
-                        &mut generated_types,
-                        indentation,
-                        raw_response,
-                        String::from("makeOptimisticResponse"),
-                        String::from("rawResponse"),
-                    )
-                    .unwrap();
-
-                    // Also print object makers for each object from the raw response
-                    self.objects
-                        .iter()
-                        .filter(|obj| obj.at_path[0].as_str() == "rawResponse")
-                        .for_each(|obj| {
-                            write_object_maker(
-                                &self,
-                                &mut generated_types,
-                                indentation,
-                                obj,
-                                format!("make_{}", obj.record_name),
-                                obj.record_name.to_string(),
-                            )
-                            .unwrap();
-                        });
-                }
-            }
-            _ => (),
-        }
 
         indentation -= 1;
         write_indentation(&mut generated_types, indentation).unwrap();

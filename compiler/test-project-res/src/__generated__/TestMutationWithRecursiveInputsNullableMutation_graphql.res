@@ -2,7 +2,7 @@
 /* @generated */
 %%raw("/* @generated */")
 module Types = {
-  @@ocaml.warning("-30")
+  @@warning("-30")
 
   @live type inputA = RelaySchemaAssets_graphql.input_InputA_nullable
   @live type inputB = RelaySchemaAssets_graphql.input_InputB_nullable
@@ -73,33 +73,8 @@ module Internal = {
   let convertRawResponse = convertResponse
 }
 module Utils = {
-  @@ocaml.warning("-33")
+  @@warning("-33")
   open Types
-  @live @obj external make_inputA: (
-    ~recursiveA: inputA=?,
-    ~time: SomeModule.Datetime.t,
-    ~timestamp: Timestamp.t=?,
-    ~timestamps: array<option<Timestamp.t>>=?,
-    ~unmapped: RescriptRelay.any=?,
-    ~usingB: inputB=?,
-    unit
-  ) => inputA = ""
-
-
-  @live @obj external make_inputB: (
-    ~_constraint: bool=?,
-    ~time: SomeModule.Datetime.t=?,
-    ~usingA: inputA=?,
-    unit
-  ) => inputB = ""
-
-
-  @live @obj external makeVariables: (
-    ~input: inputA=?,
-    unit
-  ) => variables = ""
-
-
 }
 
 type relayOperationNode

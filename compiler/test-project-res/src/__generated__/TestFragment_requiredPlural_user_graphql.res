@@ -2,7 +2,7 @@
 /* @generated */
 %%raw("/* @generated */")
 module Types = {
-  @@ocaml.warning("-30")
+  @@warning("-30")
 
   type fragment_t = {
     firstName: string,
@@ -35,7 +35,7 @@ external getFragmentRef:
   array<RescriptRelay.fragmentRefs<[> | #TestFragment_requiredPlural_user]>> => fragmentRef = "%identity"
 
 module Utils = {
-  @@ocaml.warning("-33")
+  @@warning("-33")
   open Types
 }
 
