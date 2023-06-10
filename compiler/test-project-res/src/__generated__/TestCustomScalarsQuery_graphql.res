@@ -28,11 +28,11 @@ module Types = {
   type rawResponse = response
   @live
   type variables = {
-    beforeDate: option<SomeModule.Datetime.t>,
+    beforeDate?: SomeModule.Datetime.t,
   }
   @live
   type refetchVariables = {
-    beforeDate: option<option<SomeModule.Datetime.t>>,
+    beforeDate?: option<SomeModule.Datetime.t>,
   }
   @live let makeRefetchVariables = (
     ~beforeDate=?,

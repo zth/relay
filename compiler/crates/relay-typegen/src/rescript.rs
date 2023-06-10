@@ -1242,6 +1242,7 @@ enum ObjectPrintMode {
     PartOfRecursiveChain,
 }
 
+#[derive(PartialEq)]
 enum NullabilityMode {
     Option,
     Nullable
@@ -1276,6 +1277,7 @@ fn write_object_definition(
     override_name: Option<String>,
     context: &Context,
     is_refetch_var: bool,
+    output_as_optional_fields: bool
 ) -> Result {
     let nullability = match (state.operation_meta_data.operation_directives.contains(&RescriptRelayOperationDirective::NullableVariables), context) {
         (true, &Context::Variables | &Context::RootObject(_)) => NullabilityMode::Nullable,
@@ -1372,13 +1374,20 @@ fn write_object_definition(
                 Some(original_key) => format!("@as(\"{}\") ", original_key),
             },
             prop.key,
-            match (&nullability, prop.nullable) {
-                (NullabilityMode::Nullable, true) => "?",
-                _ => ""
+            if output_as_optional_fields && prop.nullable {
+                "?"
+            } else {
+                match (&nullability, prop.nullable) {
+                    (NullabilityMode::Nullable, true) => "?",
+                    _ => ""
+                }
             },
+            // This messy part decides how to print the actual value. We have quite a few variants 
+            // here (option, Nullable.t, plain, plain depending on optional fields, etc) so I've 
+            // opted to have some logic here I feel is clear, but maybe not the most efficient.
             match (prop.nullable, is_refetch_var) {
                 (true, true) => format!(
-                    "option<option<{}>>",
+                    "option<{}>",
                     get_object_prop_type_as_string(
                         state,
                         &prop.prop_type,
@@ -1389,20 +1398,30 @@ fn write_object_definition(
                 ),
                 (true, false) | (false, true) => format!(
                     "{}",
-                    print_opt(
-                        &get_object_prop_type_as_string(
+                    if output_as_optional_fields && prop.nullable && nullability == NullabilityMode::Option {
+                        get_object_prop_type_as_string(
                             state,
                             &prop.prop_type,
                             &context,
                             indentation,
                             &field_path_name
-                        ),
-                        true, 
-                        match nullability {
-                            NullabilityMode::Option => false,
-                            NullabilityMode::Nullable => true
-                        }
-                    )
+                        )
+                    } else {
+                        print_opt(
+                            &get_object_prop_type_as_string(
+                                state,
+                                &prop.prop_type,
+                                &context,
+                                indentation,
+                                &field_path_name
+                            ),
+                            true, 
+                            match nullability {
+                                NullabilityMode::Option => false,
+                                NullabilityMode::Nullable => true
+                            }
+                        )
+                    }
                 ),
                 (false, false) => format!(
                     "{}",
@@ -1445,6 +1464,7 @@ fn write_fragment_definition(
                     Some(String::from("fragment_t")),
                     &context,
                     false,
+                    false
                 )
                 .unwrap();
 
@@ -1460,6 +1480,7 @@ fn write_fragment_definition(
                     None,
                     &context,
                     false,
+                    false
                 )
                 .unwrap();
             }
@@ -1474,6 +1495,7 @@ fn write_fragment_definition(
                 Some(String::from("fragment_t")),
                 &context,
                 false,
+                false
             )
             .unwrap();
             write_indentation(str, indentation).unwrap();
@@ -1828,6 +1850,7 @@ impl Writer for ReScriptPrinter {
                         _ => &Context::NotRelevant,
                     },
                     false,
+                    false
                 )
                 .unwrap()
             });
@@ -1872,6 +1895,7 @@ impl Writer for ReScriptPrinter {
                     None,
                     &context,
                     false,
+                    false
                 )
                 .unwrap()
             });
@@ -1901,6 +1925,7 @@ impl Writer for ReScriptPrinter {
                     Some(String::from("response_t")),
                     &Context::Response,
                     false,
+                    false
                 )
                 .unwrap();
                 write_indentation(&mut generated_types, indentation).unwrap();
@@ -1915,6 +1940,7 @@ impl Writer for ReScriptPrinter {
                     None,
                     &Context::Response,
                     false,
+                    false
                 )
                 .unwrap();
             }
@@ -1942,6 +1968,7 @@ impl Writer for ReScriptPrinter {
                     None,
                     &Context::RawResponse,
                     false,
+                    false
                 )
                 .unwrap(),
                 None => {
@@ -1973,6 +2000,7 @@ impl Writer for ReScriptPrinter {
                 None,
                 &Context::Variables,
                 false,
+                true
             )
             .unwrap();
 
@@ -2018,6 +2046,7 @@ impl Writer for ReScriptPrinter {
                         Some(String::from("refetchVariables")),
                         &Context::Variables,
                         true,
+                        true
                     )
                     .unwrap();
 

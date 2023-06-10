@@ -22,11 +22,11 @@ module Types = {
   type rawResponse = response
   @live
   type variables = {
-    status: option<RelaySchemaAssets_graphql.enum_OnlineStatus_input>,
+    status?: RelaySchemaAssets_graphql.enum_OnlineStatus_input,
   }
   @live
   type refetchVariables = {
-    status: option<option<RelaySchemaAssets_graphql.enum_OnlineStatus_input>>,
+    status?: option<RelaySchemaAssets_graphql.enum_OnlineStatus_input>,
   }
   @live let makeRefetchVariables = (
     ~status=?,

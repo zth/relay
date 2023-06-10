@@ -17,15 +17,15 @@ module Types = {
   type rawResponse = response
   @live
   type variables = {
-    friendsOnlineStatuses: option<array<RelaySchemaAssets_graphql.enum_OnlineStatus_input>>,
+    friendsOnlineStatuses?: array<RelaySchemaAssets_graphql.enum_OnlineStatus_input>,
     @live id: string,
-    showOnlineStatus: option<bool>,
+    showOnlineStatus?: bool,
   }
   @live
   type refetchVariables = {
-    friendsOnlineStatuses: option<option<array<RelaySchemaAssets_graphql.enum_OnlineStatus_input>>>,
+    friendsOnlineStatuses?: option<array<RelaySchemaAssets_graphql.enum_OnlineStatus_input>>,
     @live id: option<string>,
-    showOnlineStatus: option<option<bool>>,
+    showOnlineStatus?: option<bool>,
   }
   @live let makeRefetchVariables = (
     ~friendsOnlineStatuses=?,
