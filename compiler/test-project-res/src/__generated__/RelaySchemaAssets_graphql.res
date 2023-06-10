@@ -34,11 +34,11 @@ type enum_RequiredFieldAction_input =
 @live
 type rec input_InputA = {
   time: SomeModule.Datetime.t,
-  recursiveA: option<input_InputA>,
-  usingB: option<input_InputB>,
-  timestamp: option<Timestamp.t>,
-  timestamps: option<array<option<Timestamp.t>>>,
-  unmapped: option<RescriptRelay.any>,
+  recursiveA?: input_InputA,
+  usingB?: input_InputB,
+  timestamp?: Timestamp.t,
+  timestamps?: array<option<Timestamp.t>>,
+  unmapped?: RescriptRelay.any,
 }
 
 @live
@@ -53,9 +53,9 @@ and input_InputA_nullable = {
 
 @live
 and input_InputB = {
-  time: option<SomeModule.Datetime.t>,
-  usingA: option<input_InputA>,
-  @as("constraint") constraint_: option<bool>,
+  time?: SomeModule.Datetime.t,
+  usingA?: input_InputA,
+  @as("constraint") constraint_?: bool,
 }
 
 @live
@@ -67,13 +67,13 @@ and input_InputB_nullable = {
 
 @live
 and input_SomeInput = {
-  str: option<string>,
-  bool: option<bool>,
-  float: option<float>,
-  int: option<int>,
-  datetime: option<SomeModule.Datetime.t>,
-  recursive: option<input_SomeInput>,
-  @as("private") private_: option<bool>,
+  str?: string,
+  bool?: bool,
+  float?: float,
+  int?: int,
+  datetime?: SomeModule.Datetime.t,
+  recursive?: input_SomeInput,
+  @as("private") private_?: bool,
 }
 
 @live
@@ -90,7 +90,7 @@ and input_SomeInput_nullable = {
 @live
 and input_RecursiveSetOnlineStatusInput = {
   someValue: RescriptRelay.any,
-  setOnlineStatus: option<input_SetOnlineStatusInput>,
+  setOnlineStatus?: input_SetOnlineStatusInput,
 }
 
 @live
@@ -102,7 +102,7 @@ and input_RecursiveSetOnlineStatusInput_nullable = {
 @live
 and input_SetOnlineStatusInput = {
   onlineStatus: enum_OnlineStatus,
-  recursed: option<input_RecursiveSetOnlineStatusInput>,
+  recursed?: input_RecursiveSetOnlineStatusInput,
 }
 
 @live
@@ -113,8 +113,8 @@ and input_SetOnlineStatusInput_nullable = {
 
 @live
 and input_PesticideListSearchInput = {
-  companyName: option<array<string>>,
-  pesticideIds: option<array<int>>,
+  companyName?: array<string>,
+  pesticideIds?: array<int>,
   skip: int,
   take: int,
 }
