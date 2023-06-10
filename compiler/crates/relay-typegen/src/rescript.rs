@@ -1387,7 +1387,7 @@ fn write_object_definition(
             // opted to have some logic here I feel is clear, but maybe not the most efficient.
             match (prop.nullable, is_refetch_var) {
                 (true, true) => format!(
-                    "option<{}>",
+                    "option<option<{}>>",
                     get_object_prop_type_as_string(
                         state,
                         &prop.prop_type,
@@ -2046,7 +2046,7 @@ impl Writer for ReScriptPrinter {
                         Some(String::from("refetchVariables")),
                         &Context::Variables,
                         true,
-                        true
+                        false
                     )
                     .unwrap();
 
