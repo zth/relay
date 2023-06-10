@@ -58,7 +58,7 @@ let makeConnectionId = (connectionParentDataId: RescriptRelay.dataId, ~onlineSta
   let flt = flt->Js.Null.toOption
   let datetime2 = switch datetime2 { | None => None | Some(v) => Some(SomeModule.Datetime.serialize(v)) }
   let datetime3 = Some(SomeModule.Datetime.serialize(datetime3))
-  let args = {"statuses": [RescriptRelay_Internal.Arg(Some(Idle)), RescriptRelay_Internal.Arg(onlineStatus)], "beforeDate": beforeDate, "objTest": {"str": Some("123"), "bool": Some(false), "float": Some(12.2), "int": Some(64), "datetime": datetime, "recursive": {"str": Some("234"), "bool": bool, "float": flt, "int": Some(Js.null), "datetime": datetime2, "recursive": {"bool": bool, "datetime": datetime3}}}}
+  let args = {"statuses": [RescriptRelay_Internal.Arg(Some("Idle")), RescriptRelay_Internal.Arg(onlineStatus)], "beforeDate": beforeDate, "objTest": {"str": Some("123"), "bool": Some(false), "float": Some(12.2), "int": Some(64), "datetime": datetime, "recursive": {"str": Some("234"), "bool": bool, "float": flt, "int": Some(Js.null), "datetime": datetime2, "recursive": {"bool": bool, "datetime": datetime3}}}}
   internal_makeConnectionId(connectionParentDataId, args)
 }
 module Utils = {

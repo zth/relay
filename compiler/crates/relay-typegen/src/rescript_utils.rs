@@ -355,6 +355,7 @@ pub fn print_constant_value(
     value: &ConstantValue,
     print_as_optional: bool,
     wrap_in_arg: bool,
+    is_in_args_body: bool,
 ) -> String {
     match value {
         ConstantValue::Int(i) => print_wrapped_in_some(&i.to_string(), print_as_optional),
@@ -365,7 +366,15 @@ pub fn print_constant_value(
         ConstantValue::Boolean(b) => print_wrapped_in_some(&b.to_string(), print_as_optional),
         ConstantValue::Null() => print_wrapped_in_some(&String::from("Js.null"), print_as_optional),
         ConstantValue::Enum(s) => {
-            print_wrapped_in_some(&format!("{}", s.to_string()), print_as_optional)
+            // It's fine to print enum values as string here if we're in the args body, since it's not important this refers to the correct variant anyway.
+            if is_in_args_body {
+                print_wrapped_in_some(&format!("\"{}\"", s.to_string()), print_as_optional)
+            } else {
+                print_wrapped_in_some(
+                    &format!("{}", capitalize_string(&s.to_string())),
+                    print_as_optional,
+                )
+            }
         }
         ConstantValue::List(values) => print_wrapped_in_some(
             &format!(
@@ -375,10 +384,15 @@ pub fn print_constant_value(
                     .map(|v| if wrap_in_arg {
                         format!(
                             "RescriptRelay_Internal.Arg({})",
-                            print_constant_value(v, print_as_optional, wrap_in_arg)
+                            print_constant_value(
+                                v,
+                                print_as_optional,
+                                wrap_in_arg,
+                                is_in_args_body
+                            )
                         )
                     } else {
-                        print_constant_value(v, print_as_optional, wrap_in_arg)
+                        print_constant_value(v, print_as_optional, wrap_in_arg, is_in_args_body)
                     })
                     .join(", ")
             ),
@@ -393,7 +407,12 @@ pub fn print_constant_value(
                         format!(
                             "\"{}\": {}",
                             arg.name.item,
-                            print_constant_value(&arg.value.item, print_as_optional, wrap_in_arg)
+                            print_constant_value(
+                                &arg.value.item,
+                                print_as_optional,
+                                wrap_in_arg,
+                                is_in_args_body
+                            )
                         )
                     })
                     .join(", "),
@@ -505,11 +524,19 @@ pub fn print_type_reference(
     }
 }
 
-pub fn print_value(value: &Value, print_as_optional: bool, wrap_in_arg: bool) -> String {
+pub fn print_value(
+    value: &Value,
+    print_as_optional: bool,
+    wrap_in_arg: bool,
+    is_in_args_body: bool,
+) -> String {
     match value {
-        Value::Constant(constant_value) => {
-            print_constant_value(&constant_value, print_as_optional, wrap_in_arg)
-        }
+        Value::Constant(constant_value) => print_constant_value(
+            &constant_value,
+            print_as_optional,
+            wrap_in_arg,
+            is_in_args_body,
+        ),
         Value::Variable(variable) => variable.name.item.to_string(),
         Value::List(values) => format!(
             "[{}]",
@@ -518,10 +545,10 @@ pub fn print_value(value: &Value, print_as_optional: bool, wrap_in_arg: bool) ->
                 .map(|v| if wrap_in_arg {
                     format!(
                         "RescriptRelay_Internal.Arg({})",
-                        print_value(v, print_as_optional, wrap_in_arg)
+                        print_value(v, print_as_optional, wrap_in_arg, is_in_args_body)
                     )
                 } else {
-                    print_value(v, print_as_optional, wrap_in_arg)
+                    print_value(v, print_as_optional, wrap_in_arg, is_in_args_body)
                 })
                 .join(", ")
         ),
@@ -533,7 +560,12 @@ pub fn print_value(value: &Value, print_as_optional: bool, wrap_in_arg: bool) ->
                     format!(
                         "\"{}\": {}",
                         arg.name.item.to_string(),
-                        print_value(&arg.value.item, print_as_optional, wrap_in_arg)
+                        print_value(
+                            &arg.value.item,
+                            print_as_optional,
+                            wrap_in_arg,
+                            is_in_args_body
+                        )
                     )
                 })
                 .join(", ")
@@ -715,9 +747,9 @@ pub fn get_connection_key_maker(
                                 // Obj.magic here.
                                 Type::InputObject(_) => format!(
                                     "Obj.magic({})",
-                                    print_constant_value(&default_value.item, false, false)
+                                    print_constant_value(&default_value.item, false, false, false)
                                 ),
-                                _ => print_constant_value(&default_value.item, false, false),
+                                _ => print_constant_value(&default_value.item, false, false, false),
                             }
                         ),
                         (None, TypeReference::List(_) | TypeReference::Named(_)) =>
@@ -841,7 +873,7 @@ pub fn get_connection_key_maker(
                     format!(
                         "\"{}\": {}",
                         arg.name.item,
-                        print_value(&arg.value.item, true, true)
+                        print_value(&arg.value.item, true, true, true)
                     )
                 })
                 .join(", ")
