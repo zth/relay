@@ -45,7 +45,6 @@ module Types = {
   }
   @live let makeRefetchVariables = (
     ~id=?,
-    ()
   ): refetchVariables => {
     id: id
   }

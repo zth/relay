@@ -654,9 +654,6 @@ fn write_object_maker_for_refetch_variables(
         writeln!(str, "~{}=?,", prop_value.key).unwrap();
     });
 
-    write_indentation(str, indentation + 1).unwrap();
-    writeln!(str, "()").unwrap();
-
     write_indentation(str, indentation).unwrap();
     writeln!(str, "): {} => {{", "refetchVariables").unwrap();
 

@@ -28,7 +28,6 @@ module Types = {
   }
   @live let makeRefetchVariables = (
     ~userId=?,
-    ()
   ): refetchVariables => {
     userId: userId
   }
