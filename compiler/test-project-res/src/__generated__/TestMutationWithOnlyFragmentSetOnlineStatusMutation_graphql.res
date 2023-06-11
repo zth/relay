@@ -65,7 +65,7 @@ module Types = {
 }
 
 @live
-let unwrap_rawResponse_setOnlineStatus_user_memberOf: Types.rawResponse_setOnlineStatus_user_memberOf => Types.rawResponse_setOnlineStatus_user_memberOf = RescriptRelay_Internal.unwrapUnion
+let unwrap_rawResponse_setOnlineStatus_user_memberOf: Types.rawResponse_setOnlineStatus_user_memberOf => Types.rawResponse_setOnlineStatus_user_memberOf = RescriptRelay_Internal.unwrapUnion(_, ["Group", "User", "person"])
 @live
 let wrap_rawResponse_setOnlineStatus_user_memberOf: Types.rawResponse_setOnlineStatus_user_memberOf => Types.rawResponse_setOnlineStatus_user_memberOf = RescriptRelay_Internal.wrapUnion
 module Internal = {

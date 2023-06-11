@@ -29,7 +29,7 @@ module Types = {
 }
 
 @live
-let unwrap_fragment_memberOf: Types.fragment_memberOf => Types.fragment_memberOf = RescriptRelay_Internal.unwrapUnion
+let unwrap_fragment_memberOf: Types.fragment_memberOf => Types.fragment_memberOf = RescriptRelay_Internal.unwrapUnion(_, ["Group", "User"])
 @live
 let wrap_fragment_memberOf: Types.fragment_memberOf => Types.fragment_memberOf = RescriptRelay_Internal.wrapUnion
 module Internal = {

@@ -69,11 +69,11 @@ module Types = {
 }
 
 @live
-let unwrap_response_members_edges_node_Group_members: Types.response_members_edges_node_Group_members => Types.response_members_edges_node_Group_members = RescriptRelay_Internal.unwrapUnion
+let unwrap_response_members_edges_node_Group_members: Types.response_members_edges_node_Group_members => Types.response_members_edges_node_Group_members = RescriptRelay_Internal.unwrapUnion(_, ["Group", "User"])
 @live
 let wrap_response_members_edges_node_Group_members: Types.response_members_edges_node_Group_members => Types.response_members_edges_node_Group_members = RescriptRelay_Internal.wrapUnion
 @live
-let unwrap_response_members_edges_node: Types.response_members_edges_node => Types.response_members_edges_node = RescriptRelay_Internal.unwrapUnion
+let unwrap_response_members_edges_node: Types.response_members_edges_node => Types.response_members_edges_node = RescriptRelay_Internal.unwrapUnion(_, ["Group", "User", "person"])
 @live
 let wrap_response_members_edges_node: Types.response_members_edges_node => Types.response_members_edges_node = RescriptRelay_Internal.wrapUnion
 module Internal = {

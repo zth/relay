@@ -32,7 +32,7 @@ module Types = {
 }
 
 @live
-let unwrap_response_node: Types.response_node => Types.response_node = RescriptRelay_Internal.unwrapUnion
+let unwrap_response_node: Types.response_node => Types.response_node = RescriptRelay_Internal.unwrapUnion(_, ["Group", "User"])
 @live
 let wrap_response_node: Types.response_node => Types.response_node = RescriptRelay_Internal.wrapUnion
 module Internal = {

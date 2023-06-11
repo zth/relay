@@ -51,11 +51,11 @@ module Types = {
 }
 
 @live
-let unwrap_response_node: Types.response_node => Types.response_node = RescriptRelay_Internal.unwrapUnion
+let unwrap_response_node: Types.response_node => Types.response_node = RescriptRelay_Internal.unwrapUnion(_, ["User"])
 @live
 let wrap_response_node: Types.response_node => Types.response_node = RescriptRelay_Internal.wrapUnion
 @live
-let unwrap_rawResponse_node: Types.rawResponse_node => Types.rawResponse_node = RescriptRelay_Internal.unwrapUnion
+let unwrap_rawResponse_node: Types.rawResponse_node => Types.rawResponse_node = RescriptRelay_Internal.unwrapUnion(_, ["User"])
 @live
 let wrap_rawResponse_node: Types.rawResponse_node => Types.rawResponse_node = RescriptRelay_Internal.wrapUnion
 module Internal = {
