@@ -1169,7 +1169,7 @@ fn write_union_converters(str: &mut String, indentation: usize, union: &Union) -
     write_indentation(str, indentation).unwrap();
     writeln!(
         str,
-        "let unwrap_{}: {} => {} = RescriptRelay_Internal.unwrapUnion",
+        "let unwrap_{}: Types.{} => Types.{} = RescriptRelay_Internal.unwrapUnion",
         union.record_name, union.record_name, union.record_name
     )
     .unwrap();
@@ -1181,7 +1181,7 @@ fn write_union_converters(str: &mut String, indentation: usize, union: &Union) -
     write_indentation(str, indentation).unwrap();
     writeln!(
         str,
-        "let wrap_{}: {} => {} = RescriptRelay_Internal.wrapUnion",
+        "let wrap_{}: Types.{} => Types.{} = RescriptRelay_Internal.wrapUnion",
         union.record_name, union.record_name, union.record_name
     )
     .unwrap();

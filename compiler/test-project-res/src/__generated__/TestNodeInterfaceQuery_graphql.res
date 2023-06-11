@@ -26,9 +26,9 @@ module Types = {
 }
 
 @live
-let unwrap_response_node: response_node => response_node = RescriptRelay_Internal.unwrapUnion
+let unwrap_response_node: Types.response_node => Types.response_node = RescriptRelay_Internal.unwrapUnion
 @live
-let wrap_response_node: response_node => response_node = RescriptRelay_Internal.wrapUnion
+let wrap_response_node: Types.response_node => Types.response_node = RescriptRelay_Internal.wrapUnion
 module Internal = {
   @live
   let variablesConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(

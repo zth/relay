@@ -65,9 +65,9 @@ module Types = {
 }
 
 @live
-let unwrap_rawResponse_setOnlineStatus_user_memberOf: rawResponse_setOnlineStatus_user_memberOf => rawResponse_setOnlineStatus_user_memberOf = RescriptRelay_Internal.unwrapUnion
+let unwrap_rawResponse_setOnlineStatus_user_memberOf: Types.rawResponse_setOnlineStatus_user_memberOf => Types.rawResponse_setOnlineStatus_user_memberOf = RescriptRelay_Internal.unwrapUnion
 @live
-let wrap_rawResponse_setOnlineStatus_user_memberOf: rawResponse_setOnlineStatus_user_memberOf => rawResponse_setOnlineStatus_user_memberOf = RescriptRelay_Internal.wrapUnion
+let wrap_rawResponse_setOnlineStatus_user_memberOf: Types.rawResponse_setOnlineStatus_user_memberOf => Types.rawResponse_setOnlineStatus_user_memberOf = RescriptRelay_Internal.wrapUnion
 module Internal = {
   @live
   let variablesConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
