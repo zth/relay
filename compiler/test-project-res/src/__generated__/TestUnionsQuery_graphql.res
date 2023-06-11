@@ -4,7 +4,7 @@
 module Types = {
   @@warning("-30")
 
-  type response_members_edges_node_Group_members = 
+  @tag("__typename") type response_members_edges_node_Group_members = 
     | Group(
       {
         @live __typename: [ | #Group],
@@ -23,7 +23,7 @@ module Types = {
     )
     | @as("__unselected") UnselectedUnionMember(string)
 
-  type response_members_edges_node = 
+  @tag("__typename") type response_members_edges_node = 
     | Group(
       {
         @live __typename: [ | #Group],

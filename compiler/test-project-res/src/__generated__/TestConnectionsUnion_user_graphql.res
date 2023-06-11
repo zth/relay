@@ -13,7 +13,7 @@ module Types = {
   and fragment_member_User_friendsConnection = {
     edges: option<array<option<fragment_member_User_friendsConnection_edges>>>,
   }
-  and fragment_member = 
+  @tag("__typename") and fragment_member = 
     | User(
       {
         @live __typename: [ | #User],

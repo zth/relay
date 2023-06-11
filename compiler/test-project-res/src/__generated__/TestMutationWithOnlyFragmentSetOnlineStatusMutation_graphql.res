@@ -4,7 +4,7 @@
 module Types = {
   @@warning("-30")
 
-  type rawResponse_setOnlineStatus_user_memberOf = 
+  @tag("__typename") type rawResponse_setOnlineStatus_user_memberOf = 
     | Group(
       {
         @live __typename: [ | #Group],

@@ -4,7 +4,7 @@
 module Types = {
   @@warning("-30")
 
-  type response_node = 
+  @tag("__typename") type response_node = 
     | User(
       {
         @live __typename: [ | #User],

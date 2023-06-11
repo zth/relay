@@ -797,6 +797,7 @@ fn write_union_definition(
     };
 
     write_indentation(str, indentation).unwrap();
+    write!(str, "@tag(\"__typename\") ").unwrap();
     write_record_type_start(str, &print_mode, &name).unwrap();
     writeln!(str, "").unwrap();
     write_union_definition_body(state, str, indentation, &union, &context).unwrap();

@@ -4,7 +4,7 @@
 module Types = {
   @@warning("-30")
 
-  type fragment_t = 
+  @tag("__typename") type fragment_t = 
     | Group(
       {
         @live __typename: [ | #Group],

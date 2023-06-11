@@ -4,7 +4,7 @@
 module Types = {
   @@warning("-30")
 
-  type response_node = 
+  @tag("__typename") type response_node = 
     | User(
       {
         @live __typename: [ | #User],
@@ -15,7 +15,7 @@ module Types = {
     )
     | @as("__unselected") UnselectedUnionMember(string)
 
-  type rawResponse_node = 
+  @tag("__typename") type rawResponse_node = 
     | User(
       {
         @live __typename: [ | #User],
