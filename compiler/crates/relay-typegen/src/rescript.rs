@@ -234,6 +234,7 @@ fn ast_to_prop_value(
                 values: get_object_props(state, &new_at_path, props, found_in_union, context),
                 found_in_union,
                 original_type_name: None,
+                is_union_member_inline_obj: false
             };
 
             state.objects.push(obj);
@@ -435,13 +436,15 @@ fn extract_union_members(
                         values: member_fields,
                         found_in_union: true,
                         original_type_name: None,
+                        is_union_member_inline_obj: true
                     };
 
-                    state.objects.push(union_member_shape);
+                    state.objects.push(union_member_shape.clone());
 
                     Some(UnionMember {
                         typename: member_type,
                         member_record_name: union_member_record_name.to_string(),
+                        object: union_member_shape
                     })
                 } else {
                     None
@@ -750,31 +753,39 @@ fn write_enum_util_functions(str: &mut String, indentation: usize, full_enum: &F
     Ok(())
 }
 
-fn write_union_definition_body(str: &mut String, indentation: usize, union: &Union) -> Result {
-    writeln!(str, "[").unwrap();
-
+fn write_union_definition_body(state: &Box<ReScriptPrinter>, str: &mut String, indentation: usize, union: &Union, context: &Context,) -> Result {
     for member in &union.members {
         write_indentation(str, indentation + 1).unwrap();
-        writeln!(
+        let name_capitalized = capitalize_string(&member.typename);
+        write!(
             str,
-            "| #{}({})",
-            member.typename.to_string(),
-            member.member_record_name.to_string()
+            "| {}{}(\n",
+            if &name_capitalized != &member.typename {
+                format!("@as(\"{}\") ", member.typename.to_string())
+            } else {
+                String::from("")
+            },
+            name_capitalized
         )
         .unwrap();
+
+        write_indentation(str, indentation + 2).unwrap();
+        write_object_definition_body(state, str, indentation + 2, &member.object, &context, false, false).unwrap();
+        write_indentation(str, indentation + 1).unwrap();
+        writeln!(str, ")").unwrap();
     }
 
     write_indentation(str, indentation + 1).unwrap();
-    writeln!(str, "| #UnselectedUnionMember(string)").unwrap();
-
-    write_indentation(str, indentation).unwrap();
-    writeln!(str, "]\n").unwrap();
+    writeln!(str, "| @as(\"__unselected\") UnselectedUnionMember(string)").unwrap();
+    writeln!(str, "").unwrap();
 
     Ok(())
 }
 
 fn write_union_definition(
+    state: &Box<ReScriptPrinter>,
     str: &mut String,
+    context: &Context,
     indentation: usize,
     union: &Union,
     override_name: Option<String>,
@@ -787,7 +798,8 @@ fn write_union_definition(
 
     write_indentation(str, indentation).unwrap();
     write_record_type_start(str, &print_mode, &name).unwrap();
-    write_union_definition_body(str, indentation, &union).unwrap();
+    writeln!(str, "").unwrap();
+    write_union_definition_body(state, str, indentation, &union, &context).unwrap();
     Ok(())
 }
 
@@ -1157,78 +1169,22 @@ fn write_union_converters(str: &mut String, indentation: usize, union: &Union) -
     write_indentation(str, indentation).unwrap();
     writeln!(
         str,
-        "let unwrap_{}: {{. \"__typename\": string }} => [",
-        union.record_name
+        "let unwrap_{}: {} => {} = RescriptRelay_Internal.unwrapUnion",
+        union.record_name, union.record_name, union.record_name
     )
     .unwrap();
 
-    for member in &union.members {
-        write_indentation(str, indentation + 1).unwrap();
-        writeln!(
-            str,
-            "| #{}(Types.{})",
-            member.typename.to_string(),
-            member.member_record_name.to_string()
-        )
-        .unwrap();
-    }
-
-    write_indentation(str, indentation + 1).unwrap();
-    writeln!(str, "| #UnselectedUnionMember(string)").unwrap();
-
-    write_indentation(str, indentation).unwrap();
-    writeln!(str, "] = u => switch u[\"__typename\"] {{").unwrap();
-
-    for member in &union.members {
-        write_indentation(str, indentation + 1).unwrap();
-        writeln!(
-            str,
-            "| \"{}\" => #{}(u->Obj.magic)",
-            member.typename.to_string(),
-            member.typename.to_string(),
-        )
-        .unwrap();
-    }
-
-    write_indentation(str, indentation + 1).unwrap();
-    writeln!(str, "| v => #UnselectedUnionMember(v)").unwrap();
-
-    write_indentation(str, indentation).unwrap();
-    writeln!(str, "}}\n").unwrap();
-
     // This prints the wrap function, which turns the ReScript union back into
     // its "raw" format.
+    // TODO: This should probably be removed, but won't hurt having around for a little while because it won't affect anything.
     write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
     write_indentation(str, indentation).unwrap();
-    writeln!(str, "let wrap_{}: [", union.record_name).unwrap();
-
-    for member in &union.members {
-        write_indentation(str, indentation + 1).unwrap();
-        writeln!(
-            str,
-            "| #{}(Types.{})",
-            member.typename.to_string(),
-            member.member_record_name.to_string()
-        )
-        .unwrap();
-    }
-
-    write_indentation(str, indentation + 1).unwrap();
-    writeln!(str, "| #UnselectedUnionMember(string)").unwrap();
-
-    write_indentation(str, indentation).unwrap();
-    writeln!(str, "] => {{. \"__typename\": string }} = v => switch v {{",).unwrap();
-
-    for member in &union.members {
-        write_indentation(str, indentation + 1).unwrap();
-        writeln!(str, "| #{}(v) => v->Obj.magic", member.typename.to_string(),).unwrap();
-    }
-
-    write_indentation(str, indentation + 1).unwrap();
-    writeln!(str, "| #UnselectedUnionMember(v) => {{\"__typename\": v}}").unwrap();
-
-    write_indentation(str, indentation).unwrap();
-    writeln!(str, "}}").unwrap();
+    writeln!(
+        str,
+        "let wrap_{}: {} => {} = RescriptRelay_Internal.wrapUnion",
+        union.record_name, union.record_name, union.record_name
+    )
+    .unwrap();
 
     Ok(())
 }
@@ -1265,13 +1221,11 @@ fn write_record_type_start(
     Ok(())
 }
 
-fn write_object_definition(
+fn write_object_definition_body(
     state: &Box<ReScriptPrinter>,
     str: &mut String,
     indentation: usize,
     object: &Object,
-    print_mode: ObjectPrintMode,
-    override_name: Option<String>,
     context: &Context,
     is_refetch_var: bool,
     output_as_optional_fields: bool
@@ -1280,50 +1234,8 @@ fn write_object_definition(
         (true, &Context::Variables | &Context::RootObject(_)) => NullabilityMode::Nullable,
         _ => NullabilityMode::Option,
     };
-
-    let is_generated_operation = match &state.typegen_definition {
-        DefinitionType::Operation((
-            OperationDefinition {
-                generated: true, ..
-            },
-            _,
-        )) => true,
-        _ => false,
-    };
-
-    let name = match override_name {
-        None => object.record_name.to_string(),
-        Some(name) => name,
-    };
-
-    match (is_generated_operation, &context, &state.typegen_definition) {
-        (false, _, DefinitionType::Fragment(_))
-        | (
-            false,
-            Context::Response,
-            DefinitionType::Operation((
-                OperationDefinition {
-                    kind: OperationKind::Query,
-                    ..
-                },
-                _,
-            )),
-        ) => (),
-        _ => write_suppress_dead_code_warning_annotation(str, indentation).unwrap(),
-    }
-
-    write_indentation(str, indentation).unwrap();
-    write_record_type_start(str, &print_mode, &name).unwrap();
-
-    let num_props = object.values.len();
-
-    // Print this type as "unit" if it's empty
-    if num_props == 0 {
-        writeln!(str, "unit").unwrap();
-        return Ok(());
-    } else {
-        writeln!(str, "{{").unwrap();
-    }
+    
+    writeln!(str, "{{").unwrap();
 
     let in_object_indentation = indentation + 1;
 
@@ -1441,6 +1353,62 @@ fn write_object_definition(
     Ok(())
 }
 
+fn write_object_definition(
+    state: &Box<ReScriptPrinter>,
+    str: &mut String,
+    indentation: usize,
+    object: &Object,
+    print_mode: ObjectPrintMode,
+    override_name: Option<String>,
+    context: &Context,
+    is_refetch_var: bool,
+    output_as_optional_fields: bool
+) -> Result {
+    let is_generated_operation = match &state.typegen_definition {
+        DefinitionType::Operation((
+            OperationDefinition {
+                generated: true, ..
+            },
+            _,
+        )) => true,
+        _ => false,
+    };
+
+    let name = match override_name {
+        None => object.record_name.to_string(),
+        Some(name) => name,
+    };
+
+    match (is_generated_operation, &context, &state.typegen_definition) {
+        (false, _, DefinitionType::Fragment(_))
+        | (
+            false,
+            Context::Response,
+            DefinitionType::Operation((
+                OperationDefinition {
+                    kind: OperationKind::Query,
+                    ..
+                },
+                _,
+            )),
+        ) => (),
+        _ => write_suppress_dead_code_warning_annotation(str, indentation).unwrap(),
+    }
+
+    write_indentation(str, indentation).unwrap();
+    write_record_type_start(str, &print_mode, &name).unwrap();
+
+    let num_props = object.values.len();
+
+    // Print this type as "unit" if it's empty
+    if num_props == 0 {
+        writeln!(str, "unit").unwrap();
+        return Ok(());
+    } else {
+        write_object_definition_body(state, str, indentation, &object, &context, is_refetch_var, output_as_optional_fields)
+    }
+}
+
 fn write_fragment_definition(
     state: &Box<ReScriptPrinter>,
     str: &mut String,
@@ -1505,18 +1473,22 @@ fn write_fragment_definition(
         &TopLevelFragmentType::Union(union) => {
             if nullable {
                 write_union_definition(
+                    state,
                     str,
+                    &context,
                     indentation,
                     &union,
                     Some(String::from("fragment_t")),
-                    &ObjectPrintMode::Standalone,
+                    &ObjectPrintMode::Standalone,    
                 )
                 .unwrap();
                 write_indentation(str, indentation).unwrap();
                 writeln!(str, "type fragment = option<fragment_t>").unwrap()
             } else {
                 write_union_definition(
+                    state,
                     str,
+                    &context,
                     indentation,
                     &union,
                     None,
@@ -1527,7 +1499,9 @@ fn write_fragment_definition(
         }
         &TopLevelFragmentType::ArrayWithUnion(union) => {
             write_union_definition(
+                state,
                 str,
+                &context,
                 indentation,
                 union,
                 Some(String::from("fragment_t")),
@@ -1823,7 +1797,7 @@ impl Writer for ReScriptPrinter {
             .objects
             .iter()
             .unique_by(|object| &object.record_name)
-            .filter(|object| object.found_in_union)
+            .filter(|object| object.found_in_union && !object.is_union_member_inline_obj)
             .collect();
 
         objects_from_unions
@@ -1858,7 +1832,9 @@ impl Writer for ReScriptPrinter {
             .unique_by(|union| &union.record_name)
             .for_each(|union| {
                 write_union_definition(
+                    &self,
                     &mut generated_types,
+                    &Context::NotRelevant,
                     indentation,
                     &union,
                     None,
@@ -1875,7 +1851,7 @@ impl Writer for ReScriptPrinter {
         self.objects
             .iter()
             .unique_by(|object| &object.record_name)
-            .filter(|object| !object.found_in_union)
+            .filter(|object| !object.found_in_union && !object.is_union_member_inline_obj)
             .enumerate()
             .for_each(|(index, object)| {
                 let context = context_from_obj_path(&object.at_path);
@@ -2021,6 +1997,7 @@ impl Writer for ReScriptPrinter {
                         found_in_union: false,
                         record_name: String::from("refetchVariables"),
                         original_type_name: None,
+                        is_union_member_inline_obj: false,
                         values: variables
                             .values
                             .iter()
@@ -2524,6 +2501,7 @@ impl Writer for ReScriptPrinter {
                         values: get_object_props(self, &current_path, &props, false, &context),
                         found_in_union: false,
                         original_type_name: None,
+                        is_union_member_inline_obj: false
                     };
 
                     match &self.typegen_definition {
@@ -2553,6 +2531,7 @@ impl Writer for ReScriptPrinter {
                         values: get_object_props(self, &current_path, &props, false, &context),
                         found_in_union: false,
                         original_type_name: None,
+                        is_union_member_inline_obj: false
                     };
 
                     self.fragment = Some((
@@ -2632,6 +2611,7 @@ impl Writer for ReScriptPrinter {
                         values: get_object_props(self, &current_path, &props, false, &context),
                         found_in_union: false,
                         original_type_name: None,
+                        is_union_member_inline_obj: false
                     };
 
                     self.variables = Some(obj);
@@ -2658,6 +2638,7 @@ impl Writer for ReScriptPrinter {
                         values: get_object_props(self, &current_path, &props, false, &context),
                         found_in_union: false,
                         original_type_name: None,
+                        is_union_member_inline_obj: false
                     };
 
                     self.raw_response = Some(obj);
@@ -2700,6 +2681,7 @@ impl Writer for ReScriptPrinter {
                         at_path: path.clone(),
                         record_name: path_to_name(&path),
                         found_in_union: false,
+                        is_union_member_inline_obj: false
                     };
                     self.input_objects.push(obj);
                 }

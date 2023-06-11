@@ -99,7 +99,12 @@ type Group implements Node & HasName {
   ): UserConnection!
 }
 
-union Member = User | Group
+type person {
+  id: ID!
+  name: String!
+}
+
+union Member = User | Group | person
 
 type UserConnection {
   totalCount: Int!

@@ -4,25 +4,31 @@
 module Types = {
   @@warning("-30")
 
-  @live
-  type rec rawResponse_setOnlineStatus_user_memberOf_Group = {
-    @live __typename: [ | #Group],
-    __isNode: [ | #Group],
-    @live id: string,
-    name: string,
-  }
-  @live
-  and rawResponse_setOnlineStatus_user_memberOf_User = {
-    @live __typename: [ | #User],
-    __isNode: [ | #User],
-    firstName: string,
-    @live id: string,
-  }
-  and rawResponse_setOnlineStatus_user_memberOf = [
-    | #Group(rawResponse_setOnlineStatus_user_memberOf_Group)
-    | #User(rawResponse_setOnlineStatus_user_memberOf_User)
-    | #UnselectedUnionMember(string)
-  ]
+  type rawResponse_setOnlineStatus_user_memberOf = 
+    | Group(
+      {
+        @live __typename: [ | #Group],
+        __isNode: [ | #Group],
+        @live id: string,
+        name: string,
+      }
+    )
+    | User(
+      {
+        @live __typename: [ | #User],
+        __isNode: [ | #User],
+        firstName: string,
+        @live id: string,
+      }
+    )
+    | @as("person") Person(
+      {
+        @live __typename: [ | #person],
+        __isNode: [ | #person],
+        @live id: string,
+      }
+    )
+    | @as("__unselected") UnselectedUnionMember(string)
 
   @live
   type rec response_setOnlineStatus_user = {
@@ -59,26 +65,9 @@ module Types = {
 }
 
 @live
-let unwrap_rawResponse_setOnlineStatus_user_memberOf: {. "__typename": string } => [
-  | #Group(Types.rawResponse_setOnlineStatus_user_memberOf_Group)
-  | #User(Types.rawResponse_setOnlineStatus_user_memberOf_User)
-  | #UnselectedUnionMember(string)
-] = u => switch u["__typename"] {
-  | "Group" => #Group(u->Obj.magic)
-  | "User" => #User(u->Obj.magic)
-  | v => #UnselectedUnionMember(v)
-}
-
+let unwrap_rawResponse_setOnlineStatus_user_memberOf: rawResponse_setOnlineStatus_user_memberOf => rawResponse_setOnlineStatus_user_memberOf = RescriptRelay_Internal.unwrapUnion
 @live
-let wrap_rawResponse_setOnlineStatus_user_memberOf: [
-  | #Group(Types.rawResponse_setOnlineStatus_user_memberOf_Group)
-  | #User(Types.rawResponse_setOnlineStatus_user_memberOf_User)
-  | #UnselectedUnionMember(string)
-] => {. "__typename": string } = v => switch v {
-  | #Group(v) => v->Obj.magic
-  | #User(v) => v->Obj.magic
-  | #UnselectedUnionMember(v) => {"__typename": v}
-}
+let wrap_rawResponse_setOnlineStatus_user_memberOf: rawResponse_setOnlineStatus_user_memberOf => rawResponse_setOnlineStatus_user_memberOf = RescriptRelay_Internal.wrapUnion
 module Internal = {
   @live
   let variablesConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
@@ -205,7 +194,10 @@ v3 = {
   "kind": "ScalarField",
   "name": "firstName",
   "storageKey": null
-};
+},
+v4 = [
+  (v2/*: any*/)
+];
 return {
   "fragment": {
     "argumentDefinitions": (v0/*: any*/),
@@ -321,11 +313,15 @@ return {
                   },
                   {
                     "kind": "InlineFragment",
-                    "selections": [
-                      (v2/*: any*/)
-                    ],
+                    "selections": (v4/*: any*/),
                     "type": "Node",
                     "abstractKey": "__isNode"
+                  },
+                  {
+                    "kind": "InlineFragment",
+                    "selections": (v4/*: any*/),
+                    "type": "person",
+                    "abstractKey": null
                   }
                 ],
                 "storageKey": null
@@ -339,12 +335,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "322a5bb9a0514feff61365f595c40d31",
+    "cacheID": "4aa5abd1bc2391d152e1a14df472ec70",
     "id": null,
     "metadata": {},
     "name": "TestMutationWithOnlyFragmentSetOnlineStatusMutation",
     "operationKind": "mutation",
-    "text": "mutation TestMutationWithOnlyFragmentSetOnlineStatusMutation(\n  $onlineStatus: OnlineStatus!\n) {\n  setOnlineStatus(onlineStatus: $onlineStatus) {\n    user {\n      ...TestMutation_user\n      id\n    }\n  }\n}\n\nfragment TestMutation_user on User {\n  id\n  firstName\n  lastName\n  onlineStatus\n  memberOf {\n    __typename\n    ... on User {\n      firstName\n    }\n    ... on Group {\n      name\n    }\n    ... on Node {\n      __isNode: __typename\n      __typename\n      id\n    }\n  }\n}\n"
+    "text": "mutation TestMutationWithOnlyFragmentSetOnlineStatusMutation(\n  $onlineStatus: OnlineStatus!\n) {\n  setOnlineStatus(onlineStatus: $onlineStatus) {\n    user {\n      ...TestMutation_user\n      id\n    }\n  }\n}\n\nfragment TestMutation_user on User {\n  id\n  firstName\n  lastName\n  onlineStatus\n  memberOf {\n    __typename\n    ... on User {\n      firstName\n    }\n    ... on Group {\n      name\n    }\n    ... on Node {\n      __isNode: __typename\n      __typename\n      id\n    }\n    ... on person {\n      id\n    }\n  }\n}\n"
   }
 };
 })() `)

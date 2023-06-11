@@ -4,6 +4,10 @@ module Query = %relay(`
       edges {
         node {
           __typename
+          ... on person {
+            id
+            name
+          }
           ... on User {
             id
             firstName

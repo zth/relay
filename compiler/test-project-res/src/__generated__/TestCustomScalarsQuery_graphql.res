@@ -4,14 +4,14 @@
 module Types = {
   @@warning("-30")
 
-  type rec response_member_User = {
-    @live __typename: [ | #User],
-    createdAt: SomeModule.Datetime.t,
-  }
-  and response_member = [
-    | #User(response_member_User)
-    | #UnselectedUnionMember(string)
-  ]
+  type response_member = 
+    | User(
+      {
+        @live __typename: [ | #User],
+        createdAt: SomeModule.Datetime.t,
+      }
+    )
+    | @as("__unselected") UnselectedUnionMember(string)
 
   type rec response_loggedInUser_friends = {
     createdAt: SomeModule.Datetime.t,
@@ -43,22 +43,9 @@ module Types = {
 }
 
 @live
-let unwrap_response_member: {. "__typename": string } => [
-  | #User(Types.response_member_User)
-  | #UnselectedUnionMember(string)
-] = u => switch u["__typename"] {
-  | "User" => #User(u->Obj.magic)
-  | v => #UnselectedUnionMember(v)
-}
-
+let unwrap_response_member: response_member => response_member = RescriptRelay_Internal.unwrapUnion
 @live
-let wrap_response_member: [
-  | #User(Types.response_member_User)
-  | #UnselectedUnionMember(string)
-] => {. "__typename": string } = v => switch v {
-  | #User(v) => v->Obj.magic
-  | #UnselectedUnionMember(v) => {"__typename": v}
-}
+let wrap_response_member: response_member => response_member = RescriptRelay_Internal.wrapUnion
 module Internal = {
   @live
   let variablesConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
@@ -178,7 +165,10 @@ v7 = {
   "kind": "ScalarField",
   "name": "id",
   "storageKey": null
-};
+},
+v8 = [
+  (v7/*: any*/)
+];
 return {
   "fragment": {
     "argumentDefinitions": (v0/*: any*/),
@@ -269,11 +259,15 @@ return {
           (v6/*: any*/),
           {
             "kind": "InlineFragment",
-            "selections": [
-              (v7/*: any*/)
-            ],
+            "selections": (v8/*: any*/),
             "type": "Node",
             "abstractKey": "__isNode"
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": (v8/*: any*/),
+            "type": "person",
+            "abstractKey": null
           }
         ],
         "storageKey": "member(id:\"user-1\")"
@@ -281,12 +275,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "43f7703aae48d15853367c45e13db4eb",
+    "cacheID": "b14b357212de86a79ffcdd7bf57fa972",
     "id": null,
     "metadata": {},
     "name": "TestCustomScalarsQuery",
     "operationKind": "query",
-    "text": "query TestCustomScalarsQuery(\n  $beforeDate: Datetime\n) {\n  loggedInUser {\n    createdAt\n    friends(beforeDate: $beforeDate) {\n      createdAt\n      id\n    }\n    id\n  }\n  member(id: \"user-1\") {\n    __typename\n    ... on User {\n      createdAt\n    }\n    ... on Node {\n      __isNode: __typename\n      __typename\n      id\n    }\n  }\n}\n"
+    "text": "query TestCustomScalarsQuery(\n  $beforeDate: Datetime\n) {\n  loggedInUser {\n    createdAt\n    friends(beforeDate: $beforeDate) {\n      createdAt\n      id\n    }\n    id\n  }\n  member(id: \"user-1\") {\n    __typename\n    ... on User {\n      createdAt\n    }\n    ... on Node {\n      __isNode: __typename\n      __typename\n      id\n    }\n    ... on person {\n      id\n    }\n  }\n}\n"
   }
 };
 })() `)
