@@ -57,7 +57,7 @@ and input_InputB = {
 and input_InputB_nullable = {
   time: SomeModule.Datetime.t Js.Null.t option [@bs.optional];
   usingA: input_InputA_nullable Js.Null.t option [@bs.optional];
-  constraint_: bool Js.Null.t [@bs.as "constraint"] option [@bs.optional];
+  constraint_: bool Js.Null.t option [@bs.optional] [@bs.as "constraint"];
 }
 
 and input_SomeInput = {
@@ -77,7 +77,7 @@ and input_SomeInput_nullable = {
   int: int Js.Null.t option [@bs.optional];
   datetime: SomeModule.Datetime.t Js.Null.t option [@bs.optional];
   recursive: input_SomeInput_nullable Js.Null.t option [@bs.optional];
-  private_: bool Js.Null.t [@bs.as "private"] option [@bs.optional];
+  private_: bool Js.Null.t option [@bs.optional] [@bs.as "private"];
 }
 
 and input_RecursiveSetOnlineStatusInput = {

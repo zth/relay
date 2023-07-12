@@ -73,7 +73,10 @@ type operationType = relayOperationNode Melange_relay.fragmentNode
         "node"
       ],
       "operation": rescript_graphql_node_TestRefetchingRefetchQuery,
-      "identifierField": "id"
+      "identifierInfo": {
+        "identifierField": "id",
+        "identifierQueryVariableName": "id"
+      }
     }
   },
   "name": "TestRefetching_user",

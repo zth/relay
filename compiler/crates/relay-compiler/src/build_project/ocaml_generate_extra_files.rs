@@ -127,11 +127,11 @@ pub(crate) fn ocaml_generate_extra_artifacts(
                     false,
                     true
                 ),
+                if is_nullable { " option [@bs.optional]" } else { "" },
                 (match maybe_original_key {
                     Some(original_key) => format!(" [@bs.as \"{}\"]", original_key),
                     None => String::from(""),
                 }),
-                if is_nullable { " option [@bs.optional]" } else { "" }
             )
             .unwrap();
         });
