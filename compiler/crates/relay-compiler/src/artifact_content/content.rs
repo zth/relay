@@ -1125,8 +1125,8 @@ pub fn generate_operation_rescript(
 
             // Write below types
             if is_operation_preloadable(normalization_operation) && id_and_text_hash.is_some() {
-                writeln!(section, "type operationId\ntype operationTypeParams = {{id: operationId}}\nexternal getOperationTypeParams: operationType -> operationTypeParams = \"params\" [@@bs.get]",).unwrap();
-                writeln!(section, "external setPreloadQuery: operationType -> operationId -> unit = \"set\" [@@bs.module \"relay-runtime\"] [@@bs.scope \"PreloadableQueryRegistry\"]").unwrap();
+                writeln!(section, "type operationId\ntype operationTypeParams = {{id: operationId}}\nexternal getOperationTypeParams: operationType -> operationTypeParams = \"params\" [@@mel.get]",).unwrap();
+                writeln!(section, "external setPreloadQuery: operationType -> operationId -> unit = \"set\" [@@mel.module \"relay-runtime\"] [@@mel.scope \"PreloadableQueryRegistry\"]").unwrap();
                 writeln!(
                     section,
                     "\n let () = (getOperationTypeParams node).id |> setPreloadQuery node"

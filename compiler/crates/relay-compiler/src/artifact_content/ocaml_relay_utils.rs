@@ -25,7 +25,7 @@ pub fn ocaml_make_operation_type_and_node_text(
     if referenced_imports.len() == 0 {
         writeln!(
             str,
-            "let node: operationType = [%bs.raw {{json| {} |json}}]",
+            "let node: operationType = [%mel.raw {{json| {} |json}}]",
             &concrete_text
         )
         .unwrap()
@@ -125,7 +125,7 @@ pub fn ocaml_get_source_loc_text(source_file: &SourceLocationKey) -> Option<Stri
 }
 
 pub fn ocaml_get_comments_for_generated() -> String {
-    String::from("(* @generated *)\n[%%bs.raw \"/* @generated */\"]")
+    String::from("(* @generated *)\n[%%mel.raw \"/* @generated */\"]")
 }
 
 

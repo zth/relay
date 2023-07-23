@@ -1,6 +1,6 @@
 (* @sourceLoc Test_unionFragment.ml *)
 (* @generated *)
-[%%bs.raw "/* @generated */"]
+[%%mel.raw "/* @generated */"]
 module Types = struct
   [@@@ocaml.warning "-30"]
 
@@ -38,10 +38,10 @@ let wrap_fragment: [
 ] -> < __typename: string > Js.t = function 
   | `Group(v) -> Obj.magic v
   | `User(v) -> Obj.magic v
-  | `UnselectedUnionMember v -> [%bs.obj { __typename = v }]
+  | `UnselectedUnionMember v -> [%mel.obj { __typename = v }]
 module Internal = struct
   type fragmentRaw
-  let fragmentConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%bs.raw 
+  let fragmentConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%mel.raw 
     {json|{"__root":{"User":{"f":""},"":{"u":"fragment"}}}|json}
   ]
   let fragmentConverterMap = let o = Js.Dict.empty () in 
@@ -76,7 +76,7 @@ type relayOperationNode
 type operationType = relayOperationNode Melange_relay.fragmentNode
 
 
-let node: operationType = [%bs.raw {json| {
+let node: operationType = [%mel.raw {json| {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": {

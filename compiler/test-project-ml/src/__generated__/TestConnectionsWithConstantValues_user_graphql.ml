@@ -1,6 +1,6 @@
 (* @sourceLoc Test_connections.ml *)
 (* @generated *)
-[%%bs.raw "/* @generated */"]
+[%%mel.raw "/* @generated */"]
 module Types = struct
   [@@@ocaml.warning "-30"]
 
@@ -20,7 +20,7 @@ end
 
 module Internal = struct
   type fragmentRaw
-  let fragmentConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%bs.raw 
+  let fragmentConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%mel.raw 
     {json|{}|json}
   ]
   let fragmentConverterMap = ()
@@ -37,10 +37,10 @@ external getFragmentRef:
 
 let connectionKey = "TestConnectionsWithonstantValues_user_friendsConnection"
 
-[@@bs.inline]
+[@@mel.inline]
 [%%private
-  external internal_makeConnectionId: Melange_relay.dataId -> (_ [@bs.as "TestConnectionsWithonstantValues_user_friendsConnection"]) -> 'arguments -> Melange_relay.dataId = "getConnectionID"
-[@@live] [@@bs.module "relay-runtime"] [@@bs.scope "ConnectionHandler"]
+  external internal_makeConnectionId: Melange_relay.dataId -> (_ [@mel.as "TestConnectionsWithonstantValues_user_friendsConnection"]) -> 'arguments -> Melange_relay.dataId = "getConnectionID"
+[@@live] [@@mel.module "relay-runtime"] [@@mel.scope "ConnectionHandler"]
 
 ]let makeConnectionId (connectionParentDataId: Melange_relay.dataId) ~(onlineStatus: [`Online | `Idle | `Offline]) ~(beforeDate: SomeModule.Datetime.t) ?(datetime: SomeModule.Datetime.t Js.null=Js.null) ?(bool: bool option) ?(flt: float Js.null=Js.null) ?(datetime2: SomeModule.Datetime.t option) ~(datetime3: SomeModule.Datetime.t) () =
   let onlineStatus = Some onlineStatus in
@@ -50,7 +50,7 @@ let connectionKey = "TestConnectionsWithonstantValues_user_friendsConnection"
   let flt = flt |. Js.Null.toOption in
   let datetime2 = match datetime2 with | None -> None | Some v -> Some (SomeModule.Datetime.serialize v) in
   let datetime3 = Some (SomeModule.Datetime.serialize datetime3) in
-  let args = [%bs.obj {statuses= [Melange_relay_internal.Arg(Some(`Idle)); Melange_relay_internal.Arg(onlineStatus)]; beforeDate= beforeDate; objTest= [%bs.obj {str = Some("123"); bool = Some(false); float = Some(12.2); int = Some(64); datetime = datetime; recursive = [%bs.obj {str = Some("234"); bool = bool; float = flt; int = Some(Js.null); datetime = datetime2; recursive = [%bs.obj {bool = bool; datetime = datetime3}]}]}]}] in
+  let args = [%mel.obj {statuses= [Melange_relay_internal.Arg(Some(`Idle)); Melange_relay_internal.Arg(onlineStatus)]; beforeDate= beforeDate; objTest= [%mel.obj {str = Some("123"); bool = Some(false); float = Some(12.2); int = Some(64); datetime = datetime; recursive = [%mel.obj {str = Some("234"); bool = bool; float = flt; int = Some(Js.null); datetime = datetime2; recursive = [%mel.obj {bool = bool; datetime = datetime3}]}]}]}] in
   internal_makeConnectionId connectionParentDataId args
 module Utils = struct
   [@@@ocaml.warning "-33"]
@@ -73,7 +73,7 @@ type relayOperationNode
 type operationType = relayOperationNode Melange_relay.fragmentNode
 
 
-let node: operationType = [%bs.raw {json| (function(){
+let node: operationType = [%mel.raw {json| (function(){
 var v0 = {
   "kind": "Variable",
   "name": "bool",

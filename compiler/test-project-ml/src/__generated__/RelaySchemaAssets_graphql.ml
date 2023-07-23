@@ -41,23 +41,23 @@ type  input_InputA = {
 
 and input_InputA_nullable = {
   time: SomeModule.Datetime.t;
-  recursiveA: input_InputA_nullable Js.Null.t option [@bs.optional];
-  usingB: input_InputB_nullable Js.Null.t option [@bs.optional];
-  timestamp: Timestamp.t Js.Null.t option [@bs.optional];
-  timestamps: Timestamp.t Js.Null.t array Js.Null.t option [@bs.optional];
-  unmapped: Melange_relay.any Js.Null.t option [@bs.optional];
+  recursiveA: input_InputA_nullable Js.Null.t option [@mel.optional];
+  usingB: input_InputB_nullable Js.Null.t option [@mel.optional];
+  timestamp: Timestamp.t Js.Null.t option [@mel.optional];
+  timestamps: Timestamp.t Js.Null.t array Js.Null.t option [@mel.optional];
+  unmapped: Melange_relay.any Js.Null.t option [@mel.optional];
 }
 
 and input_InputB = {
   time: SomeModule.Datetime.t option;
   usingA: input_InputA option;
-  constraint_: bool option [@bs.as "constraint"];
+  constraint_: bool option [@mel.as "constraint"];
 }
 
 and input_InputB_nullable = {
-  time: SomeModule.Datetime.t Js.Null.t option [@bs.optional];
-  usingA: input_InputA_nullable Js.Null.t option [@bs.optional];
-  constraint_: bool Js.Null.t option [@bs.optional] [@bs.as "constraint"];
+  time: SomeModule.Datetime.t Js.Null.t option [@mel.optional];
+  usingA: input_InputA_nullable Js.Null.t option [@mel.optional];
+  constraint_: bool Js.Null.t option [@mel.optional] [@mel.as "constraint"];
 }
 
 and input_SomeInput = {
@@ -67,17 +67,17 @@ and input_SomeInput = {
   int: int option;
   datetime: SomeModule.Datetime.t option;
   recursive: input_SomeInput option;
-  private_: bool option [@bs.as "private"];
+  private_: bool option [@mel.as "private"];
 }
 
 and input_SomeInput_nullable = {
-  str: string Js.Null.t option [@bs.optional];
-  bool: bool Js.Null.t option [@bs.optional];
-  float: float Js.Null.t option [@bs.optional];
-  int: int Js.Null.t option [@bs.optional];
-  datetime: SomeModule.Datetime.t Js.Null.t option [@bs.optional];
-  recursive: input_SomeInput_nullable Js.Null.t option [@bs.optional];
-  private_: bool Js.Null.t option [@bs.optional] [@bs.as "private"];
+  str: string Js.Null.t option [@mel.optional];
+  bool: bool Js.Null.t option [@mel.optional];
+  float: float Js.Null.t option [@mel.optional];
+  int: int Js.Null.t option [@mel.optional];
+  datetime: SomeModule.Datetime.t Js.Null.t option [@mel.optional];
+  recursive: input_SomeInput_nullable Js.Null.t option [@mel.optional];
+  private_: bool Js.Null.t option [@mel.optional] [@mel.as "private"];
 }
 
 and input_RecursiveSetOnlineStatusInput = {
@@ -87,7 +87,7 @@ and input_RecursiveSetOnlineStatusInput = {
 
 and input_RecursiveSetOnlineStatusInput_nullable = {
   someValue: Melange_relay.any;
-  setOnlineStatus: input_SetOnlineStatusInput_nullable Js.Null.t option [@bs.optional];
+  setOnlineStatus: input_SetOnlineStatusInput_nullable Js.Null.t option [@mel.optional];
 }
 
 and input_SetOnlineStatusInput = {
@@ -97,7 +97,7 @@ and input_SetOnlineStatusInput = {
 
 and input_SetOnlineStatusInput_nullable = {
   onlineStatus: [`Online | `Idle | `Offline];
-  recursed: input_RecursiveSetOnlineStatusInput_nullable Js.Null.t option [@bs.optional];
+  recursed: input_RecursiveSetOnlineStatusInput_nullable Js.Null.t option [@mel.optional];
 }
 
 and input_PesticideListSearchInput = {
@@ -108,8 +108,8 @@ and input_PesticideListSearchInput = {
 }
 
 and input_PesticideListSearchInput_nullable = {
-  companyName: string array Js.Null.t option [@bs.optional];
-  pesticideIds: int array Js.Null.t option [@bs.optional];
+  companyName: string array Js.Null.t option [@mel.optional];
+  pesticideIds: int array Js.Null.t option [@mel.optional];
   skip: int;
   take: int;
 }
@@ -122,14 +122,14 @@ external make_InputA:
   ?timestamps: Timestamp.t option array -> 
   ?unmapped: Melange_relay.any -> 
   unit ->
- input_InputA = "" [@@bs.obj]
+ input_InputA = "" [@@mel.obj]
 
 external make_InputB: 
   ?time: SomeModule.Datetime.t -> 
   ?usingA: input_InputA -> 
   ?_constraint: bool -> 
   unit ->
- input_InputB = "" [@@bs.obj]
+ input_InputB = "" [@@mel.obj]
 
 external make_SomeInput: 
   ?str: string -> 
@@ -140,19 +140,19 @@ external make_SomeInput:
   ?recursive: input_SomeInput -> 
   ?_private: bool -> 
   unit ->
- input_SomeInput = "" [@@bs.obj]
+ input_SomeInput = "" [@@mel.obj]
 
 external make_RecursiveSetOnlineStatusInput: 
   someValue: Melange_relay.any -> 
   ?setOnlineStatus: input_SetOnlineStatusInput -> 
   unit ->
- input_RecursiveSetOnlineStatusInput = "" [@@bs.obj]
+ input_RecursiveSetOnlineStatusInput = "" [@@mel.obj]
 
 external make_SetOnlineStatusInput: 
   onlineStatus: [`Online | `Idle | `Offline] -> 
   ?recursed: input_RecursiveSetOnlineStatusInput -> 
   unit ->
- input_SetOnlineStatusInput = "" [@@bs.obj]
+ input_SetOnlineStatusInput = "" [@@mel.obj]
 
 external make_PesticideListSearchInput: 
   ?companyName: string array -> 
@@ -160,5 +160,5 @@ external make_PesticideListSearchInput:
   skip: int -> 
   take: int -> 
   unit ->
- input_PesticideListSearchInput = "" [@@bs.obj]
+ input_PesticideListSearchInput = "" [@@mel.obj]
 

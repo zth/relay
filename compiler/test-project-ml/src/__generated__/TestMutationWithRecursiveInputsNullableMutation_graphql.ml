@@ -1,6 +1,6 @@
 (* @sourceLoc Test_mutation.ml *)
 (* @generated *)
-[%%bs.raw "/* @generated */"]
+[%%mel.raw "/* @generated */"]
 module Types = struct
   [@@@ocaml.warning "-30"]
 
@@ -19,7 +19,7 @@ module Types = struct
 end
 
 module Internal = struct
-  let variablesConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%bs.raw 
+  let variablesConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%mel.raw 
     {json|{"inputB":{"usingA":{"r":"inputA"},"time":{"c":"SomeModule.Datetime"}},"inputA":{"usingB":{"r":"inputB"},"timestamps":{"b":"a"},"timestamp":{"b":""},"time":{"c":"SomeModule.Datetime"},"recursiveA":{"r":"inputA"}},"__root":{"input":{"r":"inputA"}}}|json}
   ]
   let variablesConverterMap = let o = Js.Dict.empty () in 
@@ -30,7 +30,7 @@ module Internal = struct
     variablesConverterMap 
     Js.null
     type wrapResponseRaw
-  let wrapResponseConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%bs.raw 
+  let wrapResponseConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%mel.raw 
     {json|{}|json}
   ]
   let wrapResponseConverterMap = ()
@@ -39,7 +39,7 @@ module Internal = struct
     wrapResponseConverterMap 
     Js.null
     type responseRaw
-  let responseConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%bs.raw 
+  let responseConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%mel.raw 
     {json|{}|json}
   ]
   let responseConverterMap = ()
@@ -62,19 +62,19 @@ module Utils = struct
     ?unmapped: Melange_relay.any-> 
     ?usingB: inputB-> 
     unit ->
-   inputA = "" [@@bs.obj]
+   inputA = "" [@@mel.obj]
 
 
   external make_inputB:     ?_constraint: bool-> 
     ?time: SomeModule.Datetime.t-> 
     ?usingA: inputA-> 
     unit ->
-   inputB = "" [@@bs.obj]
+   inputB = "" [@@mel.obj]
 
 
   external makeVariables:     ?input: inputA-> 
     unit ->
-   variables = "" [@@bs.obj]
+   variables = "" [@@mel.obj]
 
 
 end
@@ -83,7 +83,7 @@ type relayOperationNode
 type operationType = relayOperationNode Melange_relay.mutationNode
 
 
-let node: operationType = [%bs.raw {json| (function(){
+let node: operationType = [%mel.raw {json| (function(){
 var v0 = [
   {
     "defaultValue": null,

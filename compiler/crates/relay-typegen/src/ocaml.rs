@@ -695,7 +695,7 @@ fn write_object_maker(
     let num_props = definition.values.len();
 
     if num_props == 0 {
-        writeln!(str, "unit -> unit = \"\" [@@bs.obj]").unwrap();
+        writeln!(str, "unit -> unit = \"\" [@@mel.obj]").unwrap();
         return Ok(());
     }
 
@@ -747,7 +747,7 @@ fn write_object_maker(
     }
 
     write_indentation(str, indentation).unwrap();
-    writeln!(str, " {} = \"\" [@@bs.obj]", target_type).unwrap();
+    writeln!(str, " {} = \"\" [@@mel.obj]", target_type).unwrap();
     writeln!(str, "\n").unwrap();
 
     Ok(())
@@ -1159,7 +1159,7 @@ fn write_internal_assets(
     write_indentation(str, indentation).unwrap();
     writeln!(
         str,
-        "let {}Converter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%bs.raw ",
+        "let {}Converter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%mel.raw ",
         name
     )
     .unwrap();
@@ -1331,7 +1331,7 @@ fn write_union_converters(str: &mut String, indentation: usize, union: &Union) -
     }
 
     write_indentation(str, indentation + 1).unwrap();
-    writeln!(str, "| `UnselectedUnionMember v -> [%bs.obj {{ __typename = v }}]").unwrap();
+    writeln!(str, "| `UnselectedUnionMember v -> [%mel.obj {{ __typename = v }}]").unwrap();
 
     write_indentation(str, indentation).unwrap();
 
@@ -1513,7 +1513,7 @@ fn write_object_definition(
             // underlying key itself.
             match &prop.original_key {
                 None => String::from(""),
-                Some(original_key) => format!("[@bs.as \"{}\"] ", original_key),
+                Some(original_key) => format!("[@mel.as \"{}\"] ", original_key),
             },
         )
         .unwrap()
@@ -2351,7 +2351,7 @@ impl Writer for OCamlPrinter {
                     connection_config.key
                 )
                 .unwrap();
-                writeln!(generated_types, "[@@bs.inline]").unwrap();
+                writeln!(generated_types, "[@@mel.inline]").unwrap();
 
                 write!(
                     generated_types,

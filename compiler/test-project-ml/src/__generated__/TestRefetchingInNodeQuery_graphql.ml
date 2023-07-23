@@ -1,6 +1,6 @@
 (* @sourceLoc Test_refetchingInNode.ml *)
 (* @generated *)
-[%%bs.raw "/* @generated */"]
+[%%mel.raw "/* @generated */"]
 module Types = struct
   [@@@ocaml.warning "-30"]
 
@@ -28,7 +28,7 @@ module Types = struct
 end
 
 module Internal = struct
-  let variablesConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%bs.raw 
+  let variablesConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%mel.raw 
     {json|{}|json}
   ]
   let variablesConverterMap = ()
@@ -37,7 +37,7 @@ module Internal = struct
     variablesConverterMap 
     Js.undefined
     type wrapResponseRaw
-  let wrapResponseConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%bs.raw 
+  let wrapResponseConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%mel.raw 
     {json|{"__root":{"node":{"tnf":"User","f":""}}}|json}
   ]
   let wrapResponseConverterMap = ()
@@ -46,7 +46,7 @@ module Internal = struct
     wrapResponseConverterMap 
     Js.null
     type responseRaw
-  let responseConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%bs.raw 
+  let responseConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%mel.raw 
     {json|{"__root":{"node":{"tnf":"User","f":""}}}|json}
   ]
   let responseConverterMap = ()
@@ -66,7 +66,7 @@ module Utils = struct
   [@@@ocaml.warning "-33"]
   open Types
   external makeVariables:     userId: string-> 
-   variables = "" [@@bs.obj]
+   variables = "" [@@mel.obj]
 
 
 end
@@ -75,7 +75,7 @@ type relayOperationNode
 type operationType = relayOperationNode Melange_relay.queryNode
 
 
-let node: operationType = [%bs.raw {json| (function(){
+let node: operationType = [%mel.raw {json| (function(){
 var v0 = [
   {
     "defaultValue": null,

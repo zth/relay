@@ -394,7 +394,7 @@ pub fn print_constant_value(
         ),
         ConstantValue::Object(arguments) => print_wrapped_in_some(
             &format!(
-                "[%bs.obj {{{}}}]",
+                "[%mel.obj {{{}}}]",
                 arguments
                     .iter()
                     .map(|arg| {
@@ -531,7 +531,7 @@ pub fn print_value(value: &Value, print_as_optional: bool, wrap_in_arg: bool) ->
                 .join("; ")
         ),
         Value::Object(arguments) => format!(
-            "[%bs.obj {{{}}}]",
+            "[%mel.obj {{{}}}]",
             arguments
                 .iter()
                 .map(|arg| {
@@ -651,7 +651,7 @@ pub fn get_connection_key_maker(
     write_indentation(&mut str, local_indentation).unwrap();
     write!(
         str,
-        "[%%private\n  external internal_makeConnectionId: Melange_relay.dataId -> (_ [@bs.as \"{}\"]) -> 'arguments -> Melange_relay.dataId = \"getConnectionID\"\n[@@live] [@@bs.module \"relay-runtime\"] [@@bs.scope \"ConnectionHandler\"]\n\n]",
+        "[%%private\n  external internal_makeConnectionId: Melange_relay.dataId -> (_ [@mel.as \"{}\"]) -> 'arguments -> Melange_relay.dataId = \"getConnectionID\"\n[@@live] [@@mel.module \"relay-runtime\"] [@@mel.scope \"ConnectionHandler\"]\n\n]",
         key
     )
     .unwrap();
@@ -842,7 +842,7 @@ pub fn get_connection_key_maker(
     if connection_key_arguments.len() > 0 {
         writeln!(
             str,
-            "let args = [%bs.obj {{{}}}] in",
+            "let args = [%mel.obj {{{}}}] in",
             connection_key_arguments
                 .iter()
                 .map(|arg| {

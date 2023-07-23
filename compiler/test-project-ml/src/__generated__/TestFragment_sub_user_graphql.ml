@@ -1,6 +1,6 @@
 (* @sourceLoc Test_fragment.ml *)
 (* @generated *)
-[%%bs.raw "/* @generated */"]
+[%%mel.raw "/* @generated */"]
 module Types = struct
   [@@@ocaml.warning "-30"]
 
@@ -12,7 +12,7 @@ end
 
 module Internal = struct
   type fragmentRaw
-  let fragmentConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%bs.raw 
+  let fragmentConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%mel.raw 
     {json|{}|json}
   ]
   let fragmentConverterMap = ()

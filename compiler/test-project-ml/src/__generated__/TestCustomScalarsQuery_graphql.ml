@@ -1,6 +1,6 @@
 (* @sourceLoc Test_customScalars.ml *)
 (* @generated *)
-[%%bs.raw "/* @generated */"]
+[%%mel.raw "/* @generated */"]
 module Types = struct
   [@@@ocaml.warning "-30"]
 
@@ -51,9 +51,9 @@ let wrap_response_member: [
   | `UnselectedUnionMember of string
 ] -> < __typename: string > Js.t = function 
   | `User(v) -> Obj.magic v
-  | `UnselectedUnionMember v -> [%bs.obj { __typename = v }]
+  | `UnselectedUnionMember v -> [%mel.obj { __typename = v }]
 module Internal = struct
-  let variablesConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%bs.raw 
+  let variablesConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%mel.raw 
     {json|{"__root":{"beforeDate":{"c":"SomeModule.Datetime"}}}|json}
   ]
   let variablesConverterMap = let o = Js.Dict.empty () in 
@@ -64,7 +64,7 @@ module Internal = struct
     variablesConverterMap 
     Js.undefined
     type wrapResponseRaw
-  let wrapResponseConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%bs.raw 
+  let wrapResponseConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%mel.raw 
     {json|{"__root":{"member_User_createdAt":{"c":"SomeModule.Datetime"},"member":{"u":"response_member"},"loggedInUser_friends_createdAt":{"c":"SomeModule.Datetime"},"loggedInUser_createdAt":{"c":"SomeModule.Datetime"}}}|json}
   ]
   let wrapResponseConverterMap = let o = Js.Dict.empty () in 
@@ -76,7 +76,7 @@ module Internal = struct
     wrapResponseConverterMap 
     Js.null
     type responseRaw
-  let responseConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%bs.raw 
+  let responseConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%mel.raw 
     {json|{"__root":{"member_User_createdAt":{"c":"SomeModule.Datetime"},"member":{"u":"response_member"},"loggedInUser_friends_createdAt":{"c":"SomeModule.Datetime"},"loggedInUser_createdAt":{"c":"SomeModule.Datetime"}}}|json}
   ]
   let responseConverterMap = let o = Js.Dict.empty () in 
@@ -100,7 +100,7 @@ module Utils = struct
   open Types
   external makeVariables:     ?beforeDate: SomeModule.Datetime.t-> 
     unit ->
-   variables = "" [@@bs.obj]
+   variables = "" [@@mel.obj]
 
 
 end
@@ -109,7 +109,7 @@ type relayOperationNode
 type operationType = relayOperationNode Melange_relay.queryNode
 
 
-let node: operationType = [%bs.raw {json| (function(){
+let node: operationType = [%mel.raw {json| (function(){
 var v0 = [
   {
     "defaultValue": null,

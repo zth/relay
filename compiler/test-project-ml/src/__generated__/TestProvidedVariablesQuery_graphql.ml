@@ -1,6 +1,6 @@
 (* @sourceLoc Test_providedVariables.ml *)
 (* @generated *)
-[%%bs.raw "/* @generated */"]
+[%%mel.raw "/* @generated */"]
 module Types = struct
   [@@@ocaml.warning "-30"]
 
@@ -20,7 +20,7 @@ module Types = struct
 end
 
 module Internal = struct
-  let variablesConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%bs.raw 
+  let variablesConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%mel.raw 
     {json|{"someInput":{"recursive":{"r":"someInput"},"datetime":{"c":"SomeModule.Datetime"}},"inputB":{"usingA":{"r":"inputA"},"time":{"c":"SomeModule.Datetime"}},"inputA":{"usingB":{"r":"inputB"},"timestamps":{"b":"a"},"timestamp":{"b":""},"time":{"c":"SomeModule.Datetime"},"recursiveA":{"r":"inputA"}},"__root":{"__relay_internal__pv__TestProvidedVariablesSomeInput":{"r":"someInput"},"__relay_internal__pv__TestProvidedVariablesInputB":{"r":"inputB"},"__relay_internal__pv__TestProvidedVariablesDatetimes":{"c":"SomeModule.Datetime"},"__relay_internal__pv__TestProvidedVariablesDatetime":{"c":"SomeModule.Datetime"}}}|json}
   ]
   let variablesConverterMap = let o = Js.Dict.empty () in 
@@ -31,7 +31,7 @@ module Internal = struct
     variablesConverterMap 
     Js.undefined
     type wrapResponseRaw
-  let wrapResponseConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%bs.raw 
+  let wrapResponseConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%mel.raw 
     {json|{"__root":{"loggedInUser":{"f":""}}}|json}
   ]
   let wrapResponseConverterMap = ()
@@ -40,7 +40,7 @@ module Internal = struct
     wrapResponseConverterMap 
     Js.null
     type responseRaw
-  let responseConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%bs.raw 
+  let responseConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%mel.raw 
     {json|{"__root":{"loggedInUser":{"f":""}}}|json}
   ]
   let responseConverterMap = ()
@@ -67,14 +67,14 @@ module Utils = struct
     ?recursive: someInput-> 
     ?str: string-> 
     unit ->
-   someInput = "" [@@bs.obj]
+   someInput = "" [@@mel.obj]
 
 
   external make_inputB:     ?_constraint: bool-> 
     ?time: SomeModule.Datetime.t-> 
     ?usingA: inputA-> 
     unit ->
-   inputB = "" [@@bs.obj]
+   inputB = "" [@@mel.obj]
 
 
   external make_inputA:     ?recursiveA: inputA-> 
@@ -84,10 +84,10 @@ module Utils = struct
     ?unmapped: Melange_relay.any-> 
     ?usingB: inputB-> 
     unit ->
-   inputA = "" [@@bs.obj]
+   inputA = "" [@@mel.obj]
 
 
-  external makeVariables: unit -> unit = "" [@@bs.obj]
+  external makeVariables: unit -> unit = "" [@@mel.obj]
 end
 type 't providedVariable = { providedVariable: unit -> 't; get: unit -> 't }
 type providedVariablesType = {

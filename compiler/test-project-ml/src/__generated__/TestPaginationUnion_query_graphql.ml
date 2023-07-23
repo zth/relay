@@ -1,6 +1,6 @@
 (* @sourceLoc Test_paginationUnion.ml *)
 (* @generated *)
-[%%bs.raw "/* @generated */"]
+[%%mel.raw "/* @generated */"]
 module Types = struct
   [@@@ocaml.warning "-30"]
 
@@ -57,10 +57,10 @@ let wrap_fragment_members_edges_node: [
 ] -> < __typename: string > Js.t = function 
   | `Group(v) -> Obj.magic v
   | `User(v) -> Obj.magic v
-  | `UnselectedUnionMember v -> [%bs.obj { __typename = v }]
+  | `UnselectedUnionMember v -> [%mel.obj { __typename = v }]
 module Internal = struct
   type fragmentRaw
-  let fragmentConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%bs.raw 
+  let fragmentConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%mel.raw 
     {json|{"__root":{"members_edges_node_User":{"f":""},"members_edges_node":{"u":"fragment_members_edges_node"}}}|json}
   ]
   let fragmentConverterMap = let o = Js.Dict.empty () in 
@@ -79,14 +79,14 @@ external getFragmentRef:
 
 let connectionKey = "TestPaginationUnion_query_members"
 
-[@@bs.inline]
+[@@mel.inline]
 [%%private
-  external internal_makeConnectionId: Melange_relay.dataId -> (_ [@bs.as "TestPaginationUnion_query_members"]) -> 'arguments -> Melange_relay.dataId = "getConnectionID"
-[@@live] [@@bs.module "relay-runtime"] [@@bs.scope "ConnectionHandler"]
+  external internal_makeConnectionId: Melange_relay.dataId -> (_ [@mel.as "TestPaginationUnion_query_members"]) -> 'arguments -> Melange_relay.dataId = "getConnectionID"
+[@@live] [@@mel.module "relay-runtime"] [@@mel.scope "ConnectionHandler"]
 
 ]let makeConnectionId (connectionParentDataId: Melange_relay.dataId) ~(groupId: string) ?(onlineStatuses: [`Online | `Idle | `Offline] array option) () =
   let groupId = Some groupId in
-  let args = [%bs.obj {groupId= groupId; onlineStatuses= onlineStatuses}] in
+  let args = [%mel.obj {groupId= groupId; onlineStatuses= onlineStatuses}] in
   internal_makeConnectionId connectionParentDataId args
 module Utils = struct
   [@@@ocaml.warning "-33"]

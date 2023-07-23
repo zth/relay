@@ -1,6 +1,6 @@
 (* @sourceLoc Test_mutation.ml *)
 (* @generated *)
-[%%bs.raw "/* @generated */"]
+[%%mel.raw "/* @generated */"]
 module Types = struct
   [@@@ocaml.warning "-30"]
 
@@ -54,7 +54,7 @@ module Types = struct
 end
 
 module Internal = struct
-  let variablesConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%bs.raw 
+  let variablesConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%mel.raw 
     {json|{}|json}
   ]
   let variablesConverterMap = ()
@@ -63,7 +63,7 @@ module Internal = struct
     variablesConverterMap 
     Js.undefined
     type wrapResponseRaw
-  let wrapResponseConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%bs.raw 
+  let wrapResponseConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%mel.raw 
     {json|{}|json}
   ]
   let wrapResponseConverterMap = ()
@@ -72,7 +72,7 @@ module Internal = struct
     wrapResponseConverterMap 
     Js.null
     type responseRaw
-  let responseConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%bs.raw 
+  let responseConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%mel.raw 
     {json|{}|json}
   ]
   let responseConverterMap = ()
@@ -81,7 +81,7 @@ module Internal = struct
     responseConverterMap 
     Js.undefined
     type wrapRawResponseRaw
-  let wrapRawResponseConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%bs.raw 
+  let wrapRawResponseConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%mel.raw 
     {json|{}|json}
   ]
   let wrapRawResponseConverterMap = ()
@@ -90,7 +90,7 @@ module Internal = struct
     wrapRawResponseConverterMap 
     Js.null
     type rawResponseRaw
-  let rawResponseConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%bs.raw 
+  let rawResponseConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%mel.raw 
     {json|{}|json}
   ]
   let rawResponseConverterMap = ()
@@ -105,38 +105,38 @@ module Utils = struct
   external makeVariables:     friendId: string-> 
     id: int-> 
     ids: int array-> 
-   variables = "" [@@bs.obj]
+   variables = "" [@@mel.obj]
 
 
   external makeOptimisticResponse:     ?addFriend: rawResponse_addFriend-> 
     ?testIntInput1: rawResponse_testIntInput1-> 
     ?testIntInput2: rawResponse_testIntInput2-> 
     unit ->
-   rawResponse = "" [@@bs.obj]
+   rawResponse = "" [@@mel.obj]
 
 
   external make_rawResponse_addFriend_addedFriend_friends:     id: string-> 
-   rawResponse_addFriend_addedFriend_friends = "" [@@bs.obj]
+   rawResponse_addFriend_addedFriend_friends = "" [@@mel.obj]
 
 
   external make_rawResponse_addFriend_addedFriend:     friends: rawResponse_addFriend_addedFriend_friends array-> 
     id: string-> 
-   rawResponse_addFriend_addedFriend = "" [@@bs.obj]
+   rawResponse_addFriend_addedFriend = "" [@@mel.obj]
 
 
   external make_rawResponse_addFriend:     ?addedFriend: rawResponse_addFriend_addedFriend-> 
     unit ->
-   rawResponse_addFriend = "" [@@bs.obj]
+   rawResponse_addFriend = "" [@@mel.obj]
 
 
   external make_rawResponse_testIntInput1:     ?success: bool-> 
     unit ->
-   rawResponse_testIntInput1 = "" [@@bs.obj]
+   rawResponse_testIntInput1 = "" [@@mel.obj]
 
 
   external make_rawResponse_testIntInput2:     ?success: bool-> 
     unit ->
-   rawResponse_testIntInput2 = "" [@@bs.obj]
+   rawResponse_testIntInput2 = "" [@@mel.obj]
 
 
 end
@@ -145,7 +145,7 @@ type relayOperationNode
 type operationType = relayOperationNode Melange_relay.mutationNode
 
 
-let node: operationType = [%bs.raw {json| (function(){
+let node: operationType = [%mel.raw {json| (function(){
 var v0 = {
   "defaultValue": null,
   "kind": "LocalArgument",

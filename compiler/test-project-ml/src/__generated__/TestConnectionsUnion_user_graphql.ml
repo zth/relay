@@ -1,6 +1,6 @@
 (* @sourceLoc Test_connections.ml *)
 (* @generated *)
-[%%bs.raw "/* @generated */"]
+[%%mel.raw "/* @generated */"]
 module Types = struct
   [@@@ocaml.warning "-30"]
 
@@ -38,10 +38,10 @@ let wrap_fragment_member: [
   | `UnselectedUnionMember of string
 ] -> < __typename: string > Js.t = function 
   | `User(v) -> Obj.magic v
-  | `UnselectedUnionMember v -> [%bs.obj { __typename = v }]
+  | `UnselectedUnionMember v -> [%mel.obj { __typename = v }]
 module Internal = struct
   type fragmentRaw
-  let fragmentConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%bs.raw 
+  let fragmentConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%mel.raw 
     {json|{"__root":{"member":{"u":"fragment_member"}}}|json}
   ]
   let fragmentConverterMap = let o = Js.Dict.empty () in 
@@ -60,15 +60,15 @@ external getFragmentRef:
 
 let connectionKey = "TestConnections_user_friendsConnection"
 
-[@@bs.inline]
+[@@mel.inline]
 [%%private
-  external internal_makeConnectionId: Melange_relay.dataId -> (_ [@bs.as "TestConnections_user_friendsConnection"]) -> 'arguments -> Melange_relay.dataId = "getConnectionID"
-[@@live] [@@bs.module "relay-runtime"] [@@bs.scope "ConnectionHandler"]
+  external internal_makeConnectionId: Melange_relay.dataId -> (_ [@mel.as "TestConnections_user_friendsConnection"]) -> 'arguments -> Melange_relay.dataId = "getConnectionID"
+[@@live] [@@mel.module "relay-runtime"] [@@mel.scope "ConnectionHandler"]
 
 ]let makeConnectionId (connectionParentDataId: Melange_relay.dataId) ?(onlineStatuses: [`Online | `Idle | `Offline] array=[| `Idle |]) ~(beforeDate: SomeModule.Datetime.t) ?(someInput: RelaySchemaAssets_graphql.input_SomeInput option) () =
   let onlineStatuses = Some onlineStatuses in
   let beforeDate = Some (SomeModule.Datetime.serialize beforeDate) in
-  let args = [%bs.obj {statuses= onlineStatuses; beforeDate= beforeDate; objTests= [Melange_relay_internal.Arg(Some([%bs.obj {int = Some(123)}])); Melange_relay_internal.Arg(Some([%bs.obj {str = Some("Hello")}])); Melange_relay_internal.Arg(someInput)]}] in
+  let args = [%mel.obj {statuses= onlineStatuses; beforeDate= beforeDate; objTests= [Melange_relay_internal.Arg(Some([%mel.obj {int = Some(123)}])); Melange_relay_internal.Arg(Some([%mel.obj {str = Some("Hello")}])); Melange_relay_internal.Arg(someInput)]}] in
   internal_makeConnectionId connectionParentDataId args
 module Utils = struct
   [@@@ocaml.warning "-33"]
@@ -91,7 +91,7 @@ type relayOperationNode
 type operationType = relayOperationNode Melange_relay.fragmentNode
 
 
-let node: operationType = [%bs.raw {json| (function(){
+let node: operationType = [%mel.raw {json| (function(){
 var v0 = {
   "alias": null,
   "args": null,

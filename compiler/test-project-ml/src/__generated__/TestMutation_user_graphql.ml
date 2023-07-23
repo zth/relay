@@ -1,6 +1,6 @@
 (* @sourceLoc Test_mutation.ml *)
 (* @generated *)
-[%%bs.raw "/* @generated */"]
+[%%mel.raw "/* @generated */"]
 module Types = struct
   [@@@ocaml.warning "-30"]
 
@@ -42,10 +42,10 @@ let wrap_fragment_memberOf: [
 ] -> < __typename: string > Js.t = function 
   | `Group(v) -> Obj.magic v
   | `User(v) -> Obj.magic v
-  | `UnselectedUnionMember v -> [%bs.obj { __typename = v }]
+  | `UnselectedUnionMember v -> [%mel.obj { __typename = v }]
 module Internal = struct
   type fragmentRaw
-  let fragmentConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%bs.raw 
+  let fragmentConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%mel.raw 
     {json|{"__root":{"memberOf":{"u":"fragment_memberOf"}}}|json}
   ]
   let fragmentConverterMap = let o = Js.Dict.empty () in 
@@ -80,7 +80,7 @@ type relayOperationNode
 type operationType = relayOperationNode Melange_relay.fragmentNode
 
 
-let node: operationType = [%bs.raw {json| (function(){
+let node: operationType = [%mel.raw {json| (function(){
 var v0 = {
   "alias": null,
   "args": null,

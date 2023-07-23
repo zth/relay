@@ -1,6 +1,6 @@
 (* @sourceLoc Test_connections.ml *)
 (* @generated *)
-[%%bs.raw "/* @generated */"]
+[%%mel.raw "/* @generated */"]
 module Types = struct
   [@@@ocaml.warning "-30"]
 
@@ -20,7 +20,7 @@ end
 
 module Internal = struct
   type fragmentRaw
-  let fragmentConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%bs.raw 
+  let fragmentConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%mel.raw 
     {json|{}|json}
   ]
   let fragmentConverterMap = ()
@@ -37,10 +37,10 @@ external getFragmentRef:
 
 let connectionKey = "TestConnectionsWithEmptyFilters_user_friendsConnection"
 
-[@@bs.inline]
+[@@mel.inline]
 [%%private
-  external internal_makeConnectionId: Melange_relay.dataId -> (_ [@bs.as "TestConnectionsWithEmptyFilters_user_friendsConnection"]) -> 'arguments -> Melange_relay.dataId = "getConnectionID"
-[@@live] [@@bs.module "relay-runtime"] [@@bs.scope "ConnectionHandler"]
+  external internal_makeConnectionId: Melange_relay.dataId -> (_ [@mel.as "TestConnectionsWithEmptyFilters_user_friendsConnection"]) -> 'arguments -> Melange_relay.dataId = "getConnectionID"
+[@@live] [@@mel.module "relay-runtime"] [@@mel.scope "ConnectionHandler"]
 
 ]let makeConnectionId (connectionParentDataId: Melange_relay.dataId)  =
   let args = () in
@@ -66,7 +66,7 @@ type relayOperationNode
 type operationType = relayOperationNode Melange_relay.fragmentNode
 
 
-let node: operationType = [%bs.raw {json| {
+let node: operationType = [%mel.raw {json| {
   "argumentDefinitions": [
     {
       "defaultValue": null,

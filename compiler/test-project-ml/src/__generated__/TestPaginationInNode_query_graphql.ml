@@ -1,6 +1,6 @@
 (* @sourceLoc Test_paginationInNode.ml *)
 (* @generated *)
-[%%bs.raw "/* @generated */"]
+[%%mel.raw "/* @generated */"]
 module Types = struct
   [@@@ocaml.warning "-30"]
 
@@ -22,7 +22,7 @@ end
 
 module Internal = struct
   type fragmentRaw
-  let fragmentConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%bs.raw 
+  let fragmentConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%mel.raw 
     {json|{"__root":{"friendsConnection_edges_node":{"f":""}}}|json}
   ]
   let fragmentConverterMap = ()
@@ -39,13 +39,13 @@ external getFragmentRef:
 
 let connectionKey = "TestPaginationInNode_friendsConnection"
 
-[@@bs.inline]
+[@@mel.inline]
 [%%private
-  external internal_makeConnectionId: Melange_relay.dataId -> (_ [@bs.as "TestPaginationInNode_friendsConnection"]) -> 'arguments -> Melange_relay.dataId = "getConnectionID"
-[@@live] [@@bs.module "relay-runtime"] [@@bs.scope "ConnectionHandler"]
+  external internal_makeConnectionId: Melange_relay.dataId -> (_ [@mel.as "TestPaginationInNode_friendsConnection"]) -> 'arguments -> Melange_relay.dataId = "getConnectionID"
+[@@live] [@@mel.module "relay-runtime"] [@@mel.scope "ConnectionHandler"]
 
 ]let makeConnectionId (connectionParentDataId: Melange_relay.dataId) ?(onlineStatuses: [`Online | `Idle | `Offline] array option) () =
-  let args = [%bs.obj {statuses= onlineStatuses}] in
+  let args = [%mel.obj {statuses= onlineStatuses}] in
   internal_makeConnectionId connectionParentDataId args
 module Utils = struct
   [@@@ocaml.warning "-33"]

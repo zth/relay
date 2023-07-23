@@ -1,6 +1,6 @@
 (* @sourceLoc Test_mutation.ml *)
 (* @generated *)
-[%%bs.raw "/* @generated */"]
+[%%mel.raw "/* @generated */"]
 module Types = struct
   [@@@ocaml.warning "-30"]
 
@@ -43,7 +43,7 @@ module Types = struct
 end
 
 module Internal = struct
-  let variablesConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%bs.raw 
+  let variablesConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%mel.raw 
     {json|{}|json}
   ]
   let variablesConverterMap = ()
@@ -52,7 +52,7 @@ module Internal = struct
     variablesConverterMap 
     Js.undefined
     type wrapResponseRaw
-  let wrapResponseConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%bs.raw 
+  let wrapResponseConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%mel.raw 
     {json|{"__root":{"setOnlineStatus_user":{"f":""}}}|json}
   ]
   let wrapResponseConverterMap = ()
@@ -61,7 +61,7 @@ module Internal = struct
     wrapResponseConverterMap 
     Js.null
     type responseRaw
-  let responseConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%bs.raw 
+  let responseConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%mel.raw 
     {json|{"__root":{"setOnlineStatus_user":{"f":""}}}|json}
   ]
   let responseConverterMap = ()
@@ -70,7 +70,7 @@ module Internal = struct
     responseConverterMap 
     Js.undefined
     type wrapRawResponseRaw
-  let wrapRawResponseConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%bs.raw 
+  let wrapRawResponseConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%mel.raw 
     {json|{}|json}
   ]
   let wrapRawResponseConverterMap = ()
@@ -79,7 +79,7 @@ module Internal = struct
     wrapRawResponseConverterMap 
     Js.null
     type rawResponseRaw
-  let rawResponseConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%bs.raw 
+  let rawResponseConverter: string Js.Dict.t Js.Dict.t Js.Dict.t = [%mel.raw 
     {json|{}|json}
   ]
   let rawResponseConverterMap = ()
@@ -106,12 +106,12 @@ module Utils = struct
       | `Offline
       | `Online
     ]-> 
-   variables = "" [@@bs.obj]
+   variables = "" [@@mel.obj]
 
 
   external makeOptimisticResponse:     ?setOnlineStatus: rawResponse_setOnlineStatus-> 
     unit ->
-   rawResponse = "" [@@bs.obj]
+   rawResponse = "" [@@mel.obj]
 
 
   external make_rawResponse_setOnlineStatus_user:     ?__id: Melange_relay.dataId-> 
@@ -124,12 +124,12 @@ module Utils = struct
       | `Online
     ]-> 
     unit ->
-   rawResponse_setOnlineStatus_user = "" [@@bs.obj]
+   rawResponse_setOnlineStatus_user = "" [@@mel.obj]
 
 
   external make_rawResponse_setOnlineStatus:     ?user: rawResponse_setOnlineStatus_user-> 
     unit ->
-   rawResponse_setOnlineStatus = "" [@@bs.obj]
+   rawResponse_setOnlineStatus = "" [@@mel.obj]
 
 
 end
@@ -138,7 +138,7 @@ type relayOperationNode
 type operationType = relayOperationNode Melange_relay.mutationNode
 
 
-let node: operationType = [%bs.raw {json| (function(){
+let node: operationType = [%mel.raw {json| (function(){
 var v0 = {
   "defaultValue": null,
   "kind": "LocalArgument",
