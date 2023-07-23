@@ -264,7 +264,7 @@ fn visit_selections<'a>(
             let type_name = match &inline_fragment.type_condition {
                 Some(Type::Object(id)) => Some(schema.object(*id).name.item.0),
                 Some(Type::Interface(id)) => Some(schema.interface(*id).name.item.0),
-                Some(Type::Union(id)) => Some(schema.union(*id).name.item),
+                Some(Type::Union(id)) => Some(schema.union(*id).name.item.0),
                 _ => None,
             };
 
