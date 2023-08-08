@@ -4,8 +4,11 @@ use common::SourceLocationKey;
 use graphql_ir::reexport::Intern;
 use relay_config::ProjectConfig;
 use relay_transforms::Programs;
-use relay_typegen::rescript_utils::{get_safe_key, print_type_reference};
-use schema::{SDLSchema, Schema, TypeReference};
+use relay_typegen::rescript_utils::get_safe_key;
+use relay_typegen::rescript_utils::print_type_reference;
+use schema::SDLSchema;
+use schema::Schema;
+use schema::TypeReference;
 
 use crate::Artifact;
 
@@ -25,11 +28,13 @@ pub(crate) fn rescript_generate_extra_artifacts(
             writeln!(content, "/** {} */", desc).unwrap();
         }
 
-        writeln!(content, "@live\ntype enum_{} = private [>", e.name.item).unwrap();
-        e.values.iter().for_each(|v| {
-            writeln!(content, "  | #{}", v.value).unwrap();
-        });
-        writeln!(content, "]\n").unwrap();
+        if !e.is_extension {
+            writeln!(content, "@live\ntype enum_{} = private [>", e.name.item).unwrap();
+            e.values.iter().for_each(|v| {
+                writeln!(content, "  | #{}", v.value).unwrap();
+            });
+            writeln!(content, "]\n").unwrap();
+        }
 
         if let Some(desc) = e.description {
             writeln!(content, "/** {} */", desc).unwrap();

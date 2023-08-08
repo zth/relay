@@ -650,11 +650,12 @@ fn write_enum_definitions(
                 .map(|enum_value| AST::StringLiteral(StringLiteral(enum_value.value)))
                 .collect();
 
-            if !typegen_context
-                .project_config
-                .typegen_config
-                .flow_typegen
-                .no_future_proof_enums
+            if !enum_type.is_extension
+                && !typegen_context
+                    .project_config
+                    .typegen_config
+                    .flow_typegen
+                    .no_future_proof_enums
             {
                 members.push(AST::StringLiteral(StringLiteral(*FUTURE_ENUM_VALUE)));
             }

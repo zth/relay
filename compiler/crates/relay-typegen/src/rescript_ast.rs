@@ -73,6 +73,7 @@ pub struct Object {
 pub struct FullEnum {
     pub name: String,
     pub values: Vec<String>,
+    pub is_extension: bool,
 }
 
 // Because the runtime representation does not fully match of ReScript and what

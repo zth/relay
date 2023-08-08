@@ -637,25 +637,28 @@ fn get_object_prop_type_as_string(
                 })
                 .is_some();
 
+            let full_enum = state
+                .enums
+                .iter()
+                .find(|full_enum| full_enum.name == enum_name.to_string())
+                .expect("Internal error: Could not find enum.");
+
             match (has_allow_unsafe_enum_directive, &context) {
                 (true, _)
                 | (false, Context::Variables | Context::RawResponse | Context::RootObject(_)) => {
-                    match state
-                        .enums
-                        .iter()
-                        .find(|full_enum| full_enum.name == enum_name.to_string())
-                    {
-                        None => {
-                            warn!("Did not find enum");
-                            String::from("invalid_enum")
-                        }
-                        Some(full_enum) => format!(
-                            "{}",
-                            get_enum_definition_body(full_enum, indentation, false)
-                        ),
-                    }
+                    format!(
+                        "{}",
+                        get_enum_definition_body(full_enum, indentation, false)
+                    )
                 }
-                _ => format!("RelaySchemaAssets_graphql.enum_{}", enum_name),
+                _ => if full_enum.is_extension {
+                    format!(
+                        "{}",
+                        get_enum_definition_body(full_enum, indentation, false)
+                    )
+                } else {
+                    format!("RelaySchemaAssets_graphql.enum_{}", full_enum.name)
+                },
             }
         }
         &PropType::StringLiteral(literal) => format!("[ | #{}]", literal),
@@ -849,14 +852,16 @@ fn write_enum_util_functions(str: &mut String, indentation: usize, full_enum: &F
     // First, we write toString functions, that are essentially type casts. This
     // is fine because we're sure the underlying type is a string, if it made it
     // this far.
-    write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
-    write_indentation(str, indentation).unwrap();
-    writeln!(
-        str,
-        "external {}_toString: RelaySchemaAssets_graphql.enum_{} => string = \"%identity\"",
-        name_uncapitalized, full_enum.name
-    )
-    .unwrap();
+    if !full_enum.is_extension {
+        write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
+        write_indentation(str, indentation).unwrap();
+        writeln!(
+            str,
+            "external {}_toString: RelaySchemaAssets_graphql.enum_{} => string = \"%identity\"",
+            name_uncapitalized, full_enum.name
+        )
+        .unwrap();
+    }
 
     write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
     write_indentation(str, indentation).unwrap();
@@ -869,29 +874,31 @@ fn write_enum_util_functions(str: &mut String, indentation: usize, full_enum: &F
 
     // Then, we write a function that can turn the enum coming from the
     // response into the input version of the enum.
-    write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
-    write_indentation(str, indentation).unwrap();
-    writeln!(
-        str,
-        "let {}_decode = (enum: RelaySchemaAssets_graphql.enum_{}): option<RelaySchemaAssets_graphql.enum_{}_input> => {{",
-        name_uncapitalized, full_enum.name, full_enum.name
-    )
-    .unwrap();
-    write_indentation(str, indentation + 1).unwrap();
-    writeln!(str, "switch enum {{",).unwrap();
-    write_indentation(str, indentation + 2).unwrap();
-    writeln!(
-        str,
-        "| #...RelaySchemaAssets_graphql.enum_{}_input as valid => Some(valid)",
-        full_enum.name
-    )
-    .unwrap();
-    write_indentation(str, indentation + 2).unwrap();
-    writeln!(str, "| _ => None",).unwrap();
-    write_indentation(str, indentation + 1).unwrap();
-    writeln!(str, "}}",).unwrap();
-    write_indentation(str, indentation).unwrap();
-    writeln!(str, "}}",).unwrap();
+    if !full_enum.is_extension {
+        write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
+        write_indentation(str, indentation).unwrap();
+        writeln!(
+            str,
+            "let {}_decode = (enum: RelaySchemaAssets_graphql.enum_{}): option<RelaySchemaAssets_graphql.enum_{}_input> => {{",
+            name_uncapitalized, full_enum.name, full_enum.name
+        )
+        .unwrap();
+        write_indentation(str, indentation + 1).unwrap();
+        writeln!(str, "switch enum {{",).unwrap();
+        write_indentation(str, indentation + 2).unwrap();
+        writeln!(
+            str,
+            "| #...RelaySchemaAssets_graphql.enum_{}_input as valid => Some(valid)",
+            full_enum.name
+        )
+        .unwrap();
+        write_indentation(str, indentation + 2).unwrap();
+        writeln!(str, "| _ => None",).unwrap();
+        write_indentation(str, indentation + 1).unwrap();
+        writeln!(str, "}}",).unwrap();
+        write_indentation(str, indentation).unwrap();
+        writeln!(str, "}}",).unwrap();
+    }
 
     // Finally, we write a function that can parse a string into the enum
     // itself. This also leverages the fact that we're sure that a string is a
@@ -2903,6 +2910,11 @@ impl Writer for ReScriptPrinter {
                     self.input_objects.push(obj);
                 }
                 AST::Union(members) => {
+                    let is_extension = members.iter().find(|value| match value {
+                        AST::StringLiteral(enum_value) => enum_value.to_string().as_str() == "%future added value",
+                        _ => false
+                    }).is_none();
+
                     let enum_values = members
                         .iter()
                         .filter_map(|value| match value {
@@ -2926,6 +2938,7 @@ impl Writer for ReScriptPrinter {
                     let full_enum = FullEnum {
                         name: name.to_string(),
                         values: enum_values,
+                        is_extension
                     };
 
                     self.enums.push(full_enum);
