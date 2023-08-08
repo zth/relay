@@ -2,7 +2,7 @@
 /* @generated */
 %%raw("/* @generated */")
 module Types = {
-  @@ocaml.warning("-30")
+  @@warning("-30")
 
   type rec fragment_friendsConnection_edges_node = {
     @live id: string,
@@ -51,14 +51,14 @@ let connectionKey = "TestConnections_user_friendsConnection"
 )
 
 @live
-let makeConnectionId = (connectionParentDataId: RescriptRelay.dataId, ~onlineStatuses: array<[#Online | #Idle | #Offline]>=[#Idle], ~beforeDate: SomeModule.Datetime.t, ()) => {
+let makeConnectionId = (connectionParentDataId: RescriptRelay.dataId, ~onlineStatuses: array<RelaySchemaAssets_graphql.enum_OnlineStatus>=[Idle], ~beforeDate: SomeModule.Datetime.t) => {
   let onlineStatuses = Some(onlineStatuses)
   let beforeDate = Some(SomeModule.Datetime.serialize(beforeDate))
   let args = {"statuses": onlineStatuses, "beforeDate": beforeDate}
   internal_makeConnectionId(connectionParentDataId, args)
 }
 module Utils = {
-  @@ocaml.warning("-33")
+  @@warning("-33")
   open Types
 
   @live

@@ -2,7 +2,7 @@
 /* @generated */
 %%raw("/* @generated */")
 module Types = {
-  @@ocaml.warning("-30")
+  @@warning("-30")
 
   type rec fragment_member_User_friendsConnection_edges_node = {
     @live id: string,
@@ -13,14 +13,14 @@ module Types = {
   and fragment_member_User_friendsConnection = {
     edges: option<array<option<fragment_member_User_friendsConnection_edges>>>,
   }
-  and fragment_member_User = {
-    @live __typename: [ | #User],
-    friendsConnection: fragment_member_User_friendsConnection,
-  }
-  and fragment_member = [
-    | #User(fragment_member_User)
-    | #UnselectedUnionMember(string)
-  ]
+  and fragment_member = 
+    | User(
+      {
+        @live __typename: [ | #User],
+        friendsConnection: fragment_member_User_friendsConnection,
+      }
+    )
+    | @as("__unselected") UnselectedUnionMember(string)
 
   type fragment_t = {
     member: option<fragment_member>,
@@ -29,22 +29,9 @@ module Types = {
 }
 
 @live
-let unwrap_fragment_member: {. "__typename": string } => [
-  | #User(Types.fragment_member_User)
-  | #UnselectedUnionMember(string)
-] = u => switch u["__typename"] {
-  | "User" => #User(u->Obj.magic)
-  | v => #UnselectedUnionMember(v)
-}
-
+let unwrap_fragment_member: Types.fragment_member => Types.fragment_member = RescriptRelay_Internal.unwrapUnion
 @live
-let wrap_fragment_member: [
-  | #User(Types.fragment_member_User)
-  | #UnselectedUnionMember(string)
-] => {. "__typename": string } = v => switch v {
-  | #User(v) => v->Obj.magic
-  | #UnselectedUnionMember(v) => {"__typename": v}
-}
+let wrap_fragment_member: Types.fragment_member => Types.fragment_member = RescriptRelay_Internal.wrapUnion
 module Internal = {
   @live
   type fragmentRaw
@@ -79,14 +66,14 @@ let connectionKey = "TestConnections_user_friendsConnection"
 )
 
 @live
-let makeConnectionId = (connectionParentDataId: RescriptRelay.dataId, ~onlineStatuses: array<[#Online | #Idle | #Offline]>=[#Idle], ~beforeDate: SomeModule.Datetime.t, ~someInput: option<RelaySchemaAssets_graphql.input_SomeInput>=?, ()) => {
+let makeConnectionId = (connectionParentDataId: RescriptRelay.dataId, ~onlineStatuses: array<RelaySchemaAssets_graphql.enum_OnlineStatus>=[Idle], ~beforeDate: SomeModule.Datetime.t, ~someInput: option<RelaySchemaAssets_graphql.input_SomeInput>=?) => {
   let onlineStatuses = Some(onlineStatuses)
   let beforeDate = Some(SomeModule.Datetime.serialize(beforeDate))
   let args = {"statuses": onlineStatuses, "beforeDate": beforeDate, "objTests": [RescriptRelay_Internal.Arg(Some({"int": Some(123)})), RescriptRelay_Internal.Arg(Some({"str": Some("Hello")})), RescriptRelay_Internal.Arg(someInput)]}
   internal_makeConnectionId(connectionParentDataId, args)
 }
 module Utils = {
-  @@ocaml.warning("-33")
+  @@warning("-33")
   open Types
 
   @live
