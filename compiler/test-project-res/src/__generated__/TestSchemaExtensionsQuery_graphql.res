@@ -75,10 +75,6 @@ module Utils = {
   open Types
   @live
   external localStatus_input_toString: RelaySchemaAssets_graphql.enum_LocalStatus_input => string = "%identity"
-  @live
-  let localStatus_fromString = (str: string): option<RelaySchemaAssets_graphql.enum_LocalStatus_input> => {
-    localStatus_decode(Obj.magic(str))
-  }
   @live @obj external makeVariables: unit => unit = ""
 }
 

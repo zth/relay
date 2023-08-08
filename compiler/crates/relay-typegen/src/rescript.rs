@@ -904,18 +904,20 @@ fn write_enum_util_functions(str: &mut String, indentation: usize, full_enum: &F
     // itself. This also leverages the fact that we're sure that a string is a
     // subtype of the enum coming back from the response, even if the type
     // system does not allow it.
-    write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
-    write_indentation(str, indentation).unwrap();
-    writeln!(
-        str,
-        "let {}_fromString = (str: string): option<RelaySchemaAssets_graphql.enum_{}_input> => {{",
-        name_uncapitalized, full_enum.name
-    )
-    .unwrap();
-    write_indentation(str, indentation + 1).unwrap();
-    writeln!(str, "{}_decode(Obj.magic(str))", name_uncapitalized,).unwrap();
-    write_indentation(str, indentation).unwrap();
-    writeln!(str, "}}",).unwrap();
+    if !full_enum.is_extension {
+        write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
+        write_indentation(str, indentation).unwrap();
+        writeln!(
+            str,
+            "let {}_fromString = (str: string): option<RelaySchemaAssets_graphql.enum_{}_input> => {{",
+            name_uncapitalized, full_enum.name
+        )
+        .unwrap();
+        write_indentation(str, indentation + 1).unwrap();
+        writeln!(str, "{}_decode(Obj.magic(str))", name_uncapitalized,).unwrap();
+        write_indentation(str, indentation).unwrap();
+        writeln!(str, "}}",).unwrap();
+    }
 
     Ok(())
 }
