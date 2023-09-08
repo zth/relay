@@ -202,7 +202,7 @@ pub(crate) fn ocaml_generate_extra_artifacts(
     });
 
     vec![Artifact {
-        source_definition_names: vec![],
+        artifact_source_keys: vec![],
         path: project_config.path_for_artifact(dummy_source_file, "RelaySchemaAssets".intern()),
         source_file: dummy_source_file,
         content: crate::ArtifactContent::Generic {
