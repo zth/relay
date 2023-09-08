@@ -381,7 +381,7 @@ pub fn print_constant_value(
                     .iter()
                     .map(|v| if wrap_in_arg {
                         format!(
-                            "Melange_relay_internal.Arg {}",
+                            "Melange_relay.Internal.Arg {}",
                             print_constant_value(v, print_as_optional, wrap_in_arg)
                         )
                     } else {
@@ -521,7 +521,7 @@ pub fn print_value(value: &Value, print_as_optional: bool, wrap_in_arg: bool) ->
                 .iter()
                 .map(|v| if wrap_in_arg {
                     format!(
-                        "Melange_relay_internal.Arg({})",
+                        "Melange_relay.Internal.Arg({})",
                         print_value(v, print_as_optional, wrap_in_arg)
                     )
                 } else {
