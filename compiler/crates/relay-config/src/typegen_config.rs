@@ -32,7 +32,6 @@ pub enum TypegenLanguage {
     JavaScript,
     TypeScript,
     OCaml,
-    ReScript,
     Flow,
 }
 

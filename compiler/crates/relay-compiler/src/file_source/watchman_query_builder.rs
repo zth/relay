@@ -31,9 +31,6 @@ pub fn get_watchman_expr(config: &Config) -> Expr {
                         TypegenLanguage::OCaml => {
                             vec![PathBuf::from("re"), PathBuf::from("ml")]
                         }
-                        TypegenLanguage::ReScript => {
-                            vec![PathBuf::from("res")]
-                        }
                         TypegenLanguage::Flow | TypegenLanguage::JavaScript => {
                             vec![PathBuf::from("js"), PathBuf::from("jsx")]
                         }

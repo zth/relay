@@ -16,35 +16,35 @@ use graphql_ir::{
     OperationDefinition, Program, ScalarField, Selection, Transformed, Transformer,
 };
 
-pub fn rescript_relay_remove_custom_directives(program: &Program) -> Program {
-    let mut transform = RescriptRelayRemoveCustomDirectivesTransform::new(program);
+pub fn melange_relay_remove_custom_directives(program: &Program) -> Program {
+    let mut transform = MelangeRelayRemoveCustomDirectivesTransform::new(program);
     transform
         .transform_program(program)
         .replace_or_else(|| program.clone())
 }
 
 lazy_static! {
-    static ref FRAGMENT_DIRECTIVE_IGNORE_UNUSED: StringKey = "rescriptRelayIgnoreUnused".intern();
+    static ref FRAGMENT_DIRECTIVE_IGNORE_UNUSED: StringKey = "melangeRelayIgnoreUnused".intern();
     static ref OPERATION_DIRECTIVE_NULLABLE_VARIABLES: StringKey =
-        "rescriptRelayNullableVariables".intern();
+        "melangeRelayNullableVariables".intern();
     static ref FIELD_DIRECTIVE_ALLOW_UNSAFE_ENUM: StringKey =
-        "rescriptRelayAllowUnsafeEnum".intern();
+        "melangeRelayAllowUnsafeEnum".intern();
 }
 
 #[allow(dead_code)]
-struct RescriptRelayRemoveCustomDirectivesTransform<'s> {
+struct MelangeRelayRemoveCustomDirectivesTransform<'s> {
     program: &'s Program,
 }
 
 #[allow(dead_code)]
-impl<'s> RescriptRelayRemoveCustomDirectivesTransform<'s> {
+impl<'s> MelangeRelayRemoveCustomDirectivesTransform<'s> {
     fn new(program: &'s Program) -> Self {
         Self { program }
     }
 }
 
-impl<'s> Transformer for RescriptRelayRemoveCustomDirectivesTransform<'s> {
-    const NAME: &'static str = "RescriptRelayRemoveCustomDirectivesTransform";
+impl<'s> Transformer for MelangeRelayRemoveCustomDirectivesTransform<'s> {
+    const NAME: &'static str = "MelangeRelayRemoveCustomDirectivesTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
 

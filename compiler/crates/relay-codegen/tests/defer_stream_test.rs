@@ -16,12 +16,25 @@ use fixture_tests::test_fixture;
 fn fragment_with_defer_default_label() {
     let input = include_str!("defer_stream/fixtures/fragment-with-defer-default-label.graphql");
     let expected = include_str!("defer_stream/fixtures/fragment-with-defer-default-label.expected");
-    test_fixture(transform_fixture, "fragment-with-defer-default-label.graphql", "defer_stream/fixtures/fragment-with-defer-default-label.expected", input, expected);
+    test_fixture(
+        transform_fixture,
+        "fragment-with-defer-default-label.graphql",
+        "defer_stream/fixtures/fragment-with-defer-default-label.expected",
+        input,
+        expected,
+    );
 }
 
 #[test]
 fn fragment_with_stream_default_label() {
     let input = include_str!("defer_stream/fixtures/fragment-with-stream-default-label.graphql");
-    let expected = include_str!("defer_stream/fixtures/fragment-with-stream-default-label.expected");
-    test_fixture(transform_fixture, "fragment-with-stream-default-label.graphql", "defer_stream/fixtures/fragment-with-stream-default-label.expected", input, expected);
+    let expected =
+        include_str!("defer_stream/fixtures/fragment-with-stream-default-label.expected");
+    test_fixture(
+        transform_fixture,
+        "fragment-with-stream-default-label.graphql",
+        "defer_stream/fixtures/fragment-with-stream-default-label.expected",
+        input,
+        expected,
+    );
 }

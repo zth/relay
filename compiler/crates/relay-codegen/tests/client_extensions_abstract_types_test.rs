@@ -14,9 +14,19 @@ use fixture_tests::test_fixture;
 
 #[test]
 fn fragment_spread_on_client_interface() {
-    let input = include_str!("client_extensions_abstract_types/fixtures/fragment_spread_on_client_interface.graphql");
-    let expected = include_str!("client_extensions_abstract_types/fixtures/fragment_spread_on_client_interface.expected");
-    test_fixture(transform_fixture, "fragment_spread_on_client_interface.graphql", "client_extensions_abstract_types/fixtures/fragment_spread_on_client_interface.expected", input, expected);
+    let input = include_str!(
+        "client_extensions_abstract_types/fixtures/fragment_spread_on_client_interface.graphql"
+    );
+    let expected = include_str!(
+        "client_extensions_abstract_types/fixtures/fragment_spread_on_client_interface.expected"
+    );
+    test_fixture(
+        transform_fixture,
+        "fragment_spread_on_client_interface.graphql",
+        "client_extensions_abstract_types/fixtures/fragment_spread_on_client_interface.expected",
+        input,
+        expected,
+    );
 }
 
 #[test]
@@ -28,14 +38,34 @@ fn fragment_spread_on_client_interface_transitively() {
 
 #[test]
 fn fragment_spread_on_client_union() {
-    let input = include_str!("client_extensions_abstract_types/fixtures/fragment_spread_on_client_union.graphql");
-    let expected = include_str!("client_extensions_abstract_types/fixtures/fragment_spread_on_client_union.expected");
-    test_fixture(transform_fixture, "fragment_spread_on_client_union.graphql", "client_extensions_abstract_types/fixtures/fragment_spread_on_client_union.expected", input, expected);
+    let input = include_str!(
+        "client_extensions_abstract_types/fixtures/fragment_spread_on_client_union.graphql"
+    );
+    let expected = include_str!(
+        "client_extensions_abstract_types/fixtures/fragment_spread_on_client_union.expected"
+    );
+    test_fixture(
+        transform_fixture,
+        "fragment_spread_on_client_union.graphql",
+        "client_extensions_abstract_types/fixtures/fragment_spread_on_client_union.expected",
+        input,
+        expected,
+    );
 }
 
 #[test]
 fn inline_fragment_on_client_interface() {
-    let input = include_str!("client_extensions_abstract_types/fixtures/inline_fragment_on_client_interface.graphql");
-    let expected = include_str!("client_extensions_abstract_types/fixtures/inline_fragment_on_client_interface.expected");
-    test_fixture(transform_fixture, "inline_fragment_on_client_interface.graphql", "client_extensions_abstract_types/fixtures/inline_fragment_on_client_interface.expected", input, expected);
+    let input = include_str!(
+        "client_extensions_abstract_types/fixtures/inline_fragment_on_client_interface.graphql"
+    );
+    let expected = include_str!(
+        "client_extensions_abstract_types/fixtures/inline_fragment_on_client_interface.expected"
+    );
+    test_fixture(
+        transform_fixture,
+        "inline_fragment_on_client_interface.graphql",
+        "client_extensions_abstract_types/fixtures/inline_fragment_on_client_interface.expected",
+        input,
+        expected,
+    );
 }

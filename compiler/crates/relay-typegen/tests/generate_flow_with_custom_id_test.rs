@@ -9,19 +9,32 @@
 
 mod generate_flow_with_custom_id;
 
-use generate_flow_with_custom_id::transform_fixture;
 use fixture_tests::test_fixture;
+use generate_flow_with_custom_id::transform_fixture;
 
 #[test]
 fn relay_client_id_field() {
     let input = include_str!("generate_flow_with_custom_id/fixtures/relay-client-id-field.graphql");
-    let expected = include_str!("generate_flow_with_custom_id/fixtures/relay-client-id-field.expected");
-    test_fixture(transform_fixture, "relay-client-id-field.graphql", "generate_flow_with_custom_id/fixtures/relay-client-id-field.expected", input, expected);
+    let expected =
+        include_str!("generate_flow_with_custom_id/fixtures/relay-client-id-field.expected");
+    test_fixture(
+        transform_fixture,
+        "relay-client-id-field.graphql",
+        "generate_flow_with_custom_id/fixtures/relay-client-id-field.expected",
+        input,
+        expected,
+    );
 }
 
 #[test]
 fn simple() {
     let input = include_str!("generate_flow_with_custom_id/fixtures/simple.graphql");
     let expected = include_str!("generate_flow_with_custom_id/fixtures/simple.expected");
-    test_fixture(transform_fixture, "simple.graphql", "generate_flow_with_custom_id/fixtures/simple.expected", input, expected);
+    test_fixture(
+        transform_fixture,
+        "simple.graphql",
+        "generate_flow_with_custom_id/fixtures/simple.expected",
+        input,
+        expected,
+    );
 }

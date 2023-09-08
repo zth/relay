@@ -498,11 +498,11 @@ pub enum ValidationMessage {
     #[error("No fields can have an alias that start with two underscores.")]
     NoDoubleUnderscoreAlias,
 
-    #[error("RescriptRelay does not allow using identifier `{0}`. Please alias your field (or name your variable) to something else.")]
-    RescriptRelayDisallowSelectionName(StringKey),
+    #[error("MelangeRelay does not allow using identifier `{0}`. Please alias your field (or name your variable) to something else.")]
+    MelangeRelayDisallowSelectionName(StringKey),
 
-    #[error("RescriptRelay does not allow capitalized selections on fields, or in variable names. Please alias this selection (or change the variable name) to something that is not capitalized.")]
-    RescriptRelayDisallowCapitalizedNames,
+    #[error("MelangeRelay does not allow capitalized selections on fields, or in variable names. Please alias this selection (or change the variable name) to something that is not capitalized.")]
+    MelangeRelayDisallowCapitalizedNames,
 }
 
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]

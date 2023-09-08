@@ -361,7 +361,6 @@ fn is_extra_extensions(extension: &OsStr) -> bool {
 fn is_valid_source_code_extension(typegen_language: &TypegenLanguage, extension: &OsStr) -> bool {
     match typegen_language {
         TypegenLanguage::OCaml => extension == "re" || extension == "ml",
-        TypegenLanguage::ReScript => extension == "res",
         TypegenLanguage::TypeScript => is_source_code_extension(extension),
         TypegenLanguage::Flow | TypegenLanguage::JavaScript => {
             extension == "js" || extension == "jsx"

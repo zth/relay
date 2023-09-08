@@ -11,10 +11,8 @@
 
 mod flow;
 mod javascript;
-mod rescript;
-mod rescript_ast;
-mod rescript_relay_visitor;
-pub mod rescript_utils;
+mod melange_ast;
+mod melange_relay_visitor;
 
 mod ocaml;
 pub mod ocaml_utils;
@@ -139,7 +137,7 @@ pub fn generate_fragment_type_exports_section(
     let mut writer = new_writer_from_config(
         &project_config.typegen_config,
         &typegen_context,
-        rescript::DefinitionType::Fragment(fragment_definition.clone()),
+        ocaml::DefinitionType::Fragment(fragment_definition.clone()),
     );
     write_fragment_type_exports_section(&typegen_context, fragment_definition, &mut writer)
         .unwrap();
@@ -166,7 +164,7 @@ pub fn generate_named_validator_export(
     let mut writer = new_writer_from_config(
         &project_config.typegen_config,
         &typegen_context,
-        rescript::DefinitionType::Fragment(fragment_definition.clone()),
+        ocaml::DefinitionType::Fragment(fragment_definition.clone()),
     );
     write_validator_function(&typegen_context, fragment_definition, &mut writer).unwrap();
     let validator_function_body = writer.into_string();
@@ -205,7 +203,7 @@ pub fn generate_operation_type_exports_section(
     let mut writer = new_writer_from_config(
         &project_config.typegen_config,
         &typegen_context,
-        rescript::DefinitionType::Operation((
+        ocaml::DefinitionType::Operation((
             typegen_operation.clone(),
             normalization_operation.clone(),
         )),
@@ -245,7 +243,7 @@ pub fn generate_split_operation_type_exports_section(
     let mut writer = new_writer_from_config(
         &project_config.typegen_config,
         &typegen_context,
-        rescript::DefinitionType::Operation((
+        ocaml::DefinitionType::Operation((
             typegen_operation.clone(),
             normalization_operation.clone(),
         )),

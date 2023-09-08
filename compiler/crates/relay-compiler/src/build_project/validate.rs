@@ -62,7 +62,7 @@ pub fn validate(
         validate_updatable_directive(program),
         validate_updatable_fragment_spread(program),
         validate_assignable_directive(program),
-        relay_transforms::rescript_relay_disallow_invalid_names(program),
+        relay_transforms::melange_relay_disallow_invalid_names(program),
         if project_config.feature_flags.enable_relay_resolver_transform {
             validate_resolver_fragments(program)
         } else {

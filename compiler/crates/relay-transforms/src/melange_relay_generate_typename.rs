@@ -18,8 +18,8 @@ use std::sync::Arc;
 
 /// Transform to add the `__typename` field to any LinkedField that both a) returns an
 /// abstract type and b) does not already directly query `__typename`.
-pub fn rescript_relay_generate_typename(program: &Program) -> Program {
-    let mut transform = RescriptRelayGenerateTypenameTransform::new(program);
+pub fn melange_relay_generate_typename(program: &Program) -> Program {
+    let mut transform = MelangeRelayGenerateTypenameTransform::new(program);
     transform
         .transform_program(program)
         .replace_or_else(|| program.clone())
@@ -30,13 +30,13 @@ pub fn rescript_relay_generate_typename(program: &Program) -> Program {
 // reused for the lifetime of the transform.
 type Seen = FnvHashMap<PointerAddress, Transformed<Selection>>;
 
-struct RescriptRelayGenerateTypenameTransform<'s> {
+struct MelangeRelayGenerateTypenameTransform<'s> {
     program: &'s Program,
     seen: Seen,
     parent_type: Option<Type>,
 }
 
-impl<'s> RescriptRelayGenerateTypenameTransform<'s> {
+impl<'s> MelangeRelayGenerateTypenameTransform<'s> {
     fn new(program: &'s Program) -> Self {
         Self {
             program,
@@ -46,8 +46,8 @@ impl<'s> RescriptRelayGenerateTypenameTransform<'s> {
     }
 }
 
-impl<'s> Transformer for RescriptRelayGenerateTypenameTransform<'s> {
-    const NAME: &'static str = "RescriptRelayGenerateTypenameTransform";
+impl<'s> Transformer for MelangeRelayGenerateTypenameTransform<'s> {
+    const NAME: &'static str = "MelangeRelayGenerateTypenameTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
 

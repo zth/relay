@@ -28,7 +28,7 @@ use relay_typegen::generate_fragment_type_exports_section;
 use relay_typegen::generate_named_validator_export;
 use relay_typegen::generate_operation_type_exports_section;
 use relay_typegen::generate_split_operation_type_exports_section;
-use relay_typegen::rescript_utils::find_provided_variables;
+use relay_typegen::ocaml_utils::find_provided_variables;
 use relay_typegen::FragmentLocations;
 use relay_typegen::TypegenConfig;
 use relay_typegen::TypegenLanguage;
@@ -368,8 +368,7 @@ pub fn generate_operation(
                     "PreloadableQueryRegistry.set(node.params.id, node);",
                 )?;
             }
-            TypegenLanguage::OCaml |
-            TypegenLanguage::ReScript => {
+            TypegenLanguage::OCaml => {
                 // TODO
                 writeln!(section, "\n",)?;
             }
@@ -760,7 +759,7 @@ fn write_variable_value_with_type(
         TypegenLanguage::TypeScript => {
             writeln!(section, "const {}: {} = {};", variable_name, type_, value)
         }
-        TypegenLanguage::OCaml | TypegenLanguage::ReScript => Ok(()),
+        TypegenLanguage::OCaml => Ok(()),
     }
 }
 
@@ -775,8 +774,7 @@ fn generate_disable_lint_section(language: &TypegenLanguage) -> Result<GenericSe
         TypegenLanguage::Flow | TypegenLanguage::JavaScript => {
             writeln!(section, "/* eslint-disable */")?;
         }
-        TypegenLanguage::OCaml |
-        TypegenLanguage::ReScript => (),
+        TypegenLanguage::OCaml => (),
     }
     Ok(section)
 }
@@ -788,8 +786,7 @@ fn generate_use_strict_section(language: &TypegenLanguage) -> Result<GenericSect
         TypegenLanguage::Flow | TypegenLanguage::JavaScript => {
             writeln!(section, "'use strict';")?;
         }
-        TypegenLanguage::OCaml |
-        TypegenLanguage::ReScript => {}
+        TypegenLanguage::OCaml => {}
     }
     Ok(section)
 }
@@ -802,9 +799,7 @@ fn write_import_type_from(
 ) -> FmtResult {
     let language = &project_config.typegen_config.language;
     match language {
-        TypegenLanguage::JavaScript |
-        TypegenLanguage::OCaml |
-        TypegenLanguage::ReScript => Ok(()),
+        TypegenLanguage::JavaScript | TypegenLanguage::OCaml => Ok(()),
         TypegenLanguage::Flow => writeln!(section, "import type {{ {} }} from '{}';", type_, from),
         TypegenLanguage::TypeScript => writeln!(
             section,
@@ -827,7 +822,7 @@ fn write_export_generated_node(
     forced_type: Option<String>,
 ) -> FmtResult {
     let export_value = match (typegen_config.language, forced_type) {
-        (TypegenLanguage::OCaml | TypegenLanguage::ReScript, _) => String::new(),
+        (TypegenLanguage::OCaml, _) => String::new(),
         (TypegenLanguage::Flow, None) | (TypegenLanguage::JavaScript, _) => {
             variable_node.to_string()
         }
@@ -882,7 +877,7 @@ fn write_source_hash(
     if let Some(is_dev_variable_name) = &config.is_dev_variable_name {
         writeln!(section, "if ({}) {{", is_dev_variable_name)?;
         match language {
-            TypegenLanguage::OCaml | TypegenLanguage::ReScript => writeln!(section, "")?,
+            TypegenLanguage::OCaml => writeln!(section, "")?,
             TypegenLanguage::Flow => {
                 writeln!(section, "  (node/*: any*/).hash = \"{}\";", source_hash)?
             }
@@ -894,7 +889,7 @@ fn write_source_hash(
         writeln!(section, "}}")?;
     } else {
         match language {
-            TypegenLanguage::OCaml | TypegenLanguage::ReScript => writeln!(section, "")?,
+            TypegenLanguage::OCaml => writeln!(section, "")?,
             TypegenLanguage::Flow => {
                 writeln!(section, "(node/*: any*/).hash = \"{}\";", source_hash)?
             }
@@ -909,12 +904,12 @@ fn write_source_hash(
 }
 
 /**
- * RescriptRelay note: This is intentionally a separate function, copied
+ * MelangeRelay note: This is intentionally a separate function, copied
  * from the original one, in order to make it easier to maintain the
- * fork/see what differences we've applied to support RescriptRelay.
+ * fork/see what differences we've applied to support MelangeRelay.
  */
 #[allow(clippy::too_many_arguments, dead_code)]
-pub fn generate_operation_rescript(
+pub fn generate_operation_ocaml(
     _config: &Config,
     project_config: &ProjectConfig,
     printer: &mut Printer<'_>,
@@ -964,26 +959,7 @@ pub fn generate_operation_rescript(
                 }
             };
         }
-        TypegenLanguage::ReScript => {
-            match super::rescript_relay_utils::rescript_get_source_loc_text(
-                &reader_operation.name.location.source_location(),
-            ) {
-                None => (),
-                Some(source_loc_str) => {
-                    let mut section = GenericSection::default();
-                    writeln!(section, "{}", source_loc_str).unwrap();
-                    write!(
-                        section,
-                        "{}",
-                        super::rescript_relay_utils::rescript_get_comments_for_generated()
-                    )
-                    .unwrap();
-                    content_sections.push(ContentSection::Generic(section))
-                }
-            };
-
-        }
-        _ => ()
+        _ => (),
     };
 
     // -- Begin Metadata Annotations Section --
@@ -1041,32 +1017,14 @@ pub fn generate_operation_rescript(
             )
             .unwrap();
         }
-        TypegenLanguage::ReScript => {
-            writeln!(
-                section,
-                "type relayOperationNode\ntype operationType = RescriptRelay.{}Node<relayOperationNode>\n\n",
-                match typegen_operation.kind {
-                    graphql_syntax::OperationKind::Query => {
-                        "query"
-                    }
-                    graphql_syntax::OperationKind::Mutation => {
-                        "mutation"
-                    }
-                    graphql_syntax::OperationKind::Subscription => {
-                        "subscription"
-                    }
-                }
-            )
-            .unwrap();
-        }
-        _ => ()
+        _ => (),
     };
 
     let mut top_level_statements: TopLevelStatements = Default::default();
 
     // Provided variables. This just adds some metadata to make Relay output
     // what we want. Printing of the actual types and values involved in
-    // provided variables is handled inside of the ReScript typegen printer.
+    // provided variables is handled inside of the OCaml typegen printer.
     let provided_variables = find_provided_variables(&normalization_operation);
     if provided_variables.is_some() {
         // This needs to be inserted even though we're not actually printing
@@ -1134,60 +1092,7 @@ pub fn generate_operation_rescript(
                 .unwrap()
             }
         }
-        TypegenLanguage::ReScript => {
-            writeln!(
-                section,
-                "{}",
-                super::rescript_relay_utils::rescript_make_operation_type_and_node_text(
-                    &printer.print_request(
-                        schema,
-                        normalization_operation,
-                        &operation_fragment,
-                        request_parameters,
-                        &mut top_level_statements
-                    ),
-                    provided_variables.is_some()
-                )
-            )
-            .unwrap();
-
-            // Print other assets specific to various operation types.
-            writeln!(
-                section,
-                "{}",
-                match typegen_operation.kind {
-                    graphql_syntax::OperationKind::Query => {
-                        // TODO: Replace functor at some point
-"include RescriptRelay.MakeLoadQuery({
-    type variables = Types.variables
-    type loadedQueryRef = queryRef
-    type response = Types.response
-    type node = relayOperationNode
-    let query = node
-    let convertVariables = Internal.convertVariables
-});"
-                    }
-                    graphql_syntax::OperationKind::Mutation
-                    | graphql_syntax::OperationKind::Subscription => {
-                        ""
-                    }
-                }
-            )
-            .unwrap();
-
-            // Write below types
-            if is_operation_preloadable(normalization_operation) && id_and_text_hash.is_some() {
-                writeln!(section, "type operationId\ntype operationTypeParams = {{id: operationId}}\n@get external getOperationTypeParams: operationType => operationTypeParams = \"params\"",).unwrap();
-                writeln!(section, "@module(\"relay-runtime\") @scope(\"PreloadableQueryRegistry\") external setPreloadQuery: (operationType, operationId) => unit = \"set\"").unwrap();
-                writeln!(
-                    section,
-                    "getOperationTypeParams(node).id->setPreloadQuery(node)"
-                )
-                .unwrap()
-            }
-
-        }
-        _ => ()
+        _ => (),
     };
 
     content_sections.push(ContentSection::Generic(section));
@@ -1196,12 +1101,12 @@ pub fn generate_operation_rescript(
 }
 
 /**
-RescriptRelay note: This is intentionally a separate function, copied
+MelangeRelay note: This is intentionally a separate function, copied
 from the original one, in order to make it easier to maintain the
-fork/see what differences we've applied to support RescriptRelay.
+fork/see what differences we've applied to support MelangeRelay.
 */
 #[allow(clippy::too_many_arguments, dead_code)]
-pub fn generate_read_only_fragment_rescript(
+pub fn generate_read_only_fragment_ocaml(
     _config: &Config,
     project_config: &ProjectConfig,
     printer: &mut Printer<'_>,
@@ -1213,7 +1118,6 @@ pub fn generate_read_only_fragment_rescript(
     fragment_locations: &FragmentLocations,
 ) -> Result<Vec<u8>, FmtError> {
     let mut content_sections = ContentSections::default();
-
 
     match project_config.typegen_config.language {
         TypegenLanguage::OCaml => {
@@ -1233,27 +1137,8 @@ pub fn generate_read_only_fragment_rescript(
                     content_sections.push(ContentSection::Generic(section))
                 }
             }
-
         }
-        TypegenLanguage::ReScript => {
-            match super::rescript_relay_utils::rescript_get_source_loc_text(
-                &reader_fragment.name.location.source_location(),
-            ) {
-                None => (),
-                Some(source_loc_str) => {
-                    let mut section = GenericSection::default();
-                    writeln!(section, "{}", source_loc_str).unwrap();
-                    write!(
-                        section,
-                        "{}",
-                        super::rescript_relay_utils::rescript_get_comments_for_generated()
-                    )
-                    .unwrap();
-                    content_sections.push(ContentSection::Generic(section))
-                }
-            }
-        }
-        _ => ()
+        _ => (),
     };
 
     // -- Begin Metadata Annotations Section --
@@ -1290,15 +1175,7 @@ pub fn generate_read_only_fragment_rescript(
             )
             .unwrap();
         }
-        TypegenLanguage::ReScript => {
-            writeln!(
-                section,
-                "type relayOperationNode\ntype operationType = RescriptRelay.{}Node<relayOperationNode>\n\n",
-                "fragment"
-            )
-            .unwrap();
-        }
-        _ => ()
+        _ => (),
     };
 
     let mut import_statements = Default::default();
@@ -1316,18 +1193,7 @@ pub fn generate_read_only_fragment_rescript(
             )
             .unwrap();
         }
-        TypegenLanguage::ReScript => {
-            writeln!(
-                section,
-                "{}",
-                super::rescript_relay_utils::rescript_make_operation_type_and_node_text(
-                    &printer.print_fragment(schema, reader_fragment, &mut import_statements),
-                    false
-                )
-            )
-            .unwrap();
-        }
-        _ => ()
+        _ => (),
     };
 
     content_sections.push(ContentSection::Generic(section));
@@ -1336,7 +1202,7 @@ pub fn generate_read_only_fragment_rescript(
 }
 
 #[allow(clippy::too_many_arguments, dead_code)]
-pub fn generate_fragment_rescript(
+pub fn generate_fragment_ocaml(
     config: &Config,
     project_config: &ProjectConfig,
     printer: &mut Printer<'_>,
@@ -1356,7 +1222,7 @@ pub fn generate_fragment_rescript(
         // generate_assignable_fragment(config, project_config, schema, typegen_fragment, skip_types)
         Ok(vec![])
     } else {
-        generate_read_only_fragment_rescript(
+        generate_read_only_fragment_ocaml(
             config,
             project_config,
             printer,

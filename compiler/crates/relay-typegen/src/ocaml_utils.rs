@@ -1,6 +1,6 @@
 use std::ops::Add;
 
-use common::{WithLocation, ScalarName};
+use common::{ScalarName, WithLocation};
 use graphql_ir::{
     reexport::{Intern, StringKey},
     Argument, ConstantValue, FragmentDefinition, OperationDefinition, ProvidedVariableMetadata,
@@ -13,15 +13,14 @@ use relay_transforms::RelayDirective;
 use schema::{SDLSchema, Schema, Type, TypeReference};
 
 use crate::{
-    rescript::{DefinitionType},
-    ocaml::{ OCamlPrinter},
-    rescript_ast::{
+    melange_ast::{
         AstToStringNeedsConversion, Context, ConverterInstructions, FullEnum, ProvidedVariable,
     },
-    rescript_relay_visitor::{
+    melange_relay_visitor::{
         find_assets_in_fragment, find_assets_in_operation, CustomScalarsMap,
-        RescriptRelayOperationMetaData,
+        MelangeRelayOperationMetaData,
     },
+    ocaml::{DefinitionType, OCamlPrinter},
     writer::{Prop, StringLiteral, AST},
 };
 
@@ -145,31 +144,31 @@ pub fn conversion_instruction_path_to_name(path: &Vec<String>) -> String {
 }
 
 #[derive(PartialEq, Eq, Debug)]
-pub enum RescriptCustomTypeValue {
+pub enum MelangeCustomTypeValue {
     Module,
     Type,
 }
 
-// ReScript values/types can end up in the Relay compiler output through custom
-// scalar types. RescriptRelay supports custom scalars being either a type, or a
+// OCaml values/types can end up in the Relay compiler output through custom
+// scalar types. MelangeRelay supports custom scalars being either a type, or a
 // module that has a `parse` and `serialize` implementation (to allow for
-// autoconversion of custom scalars). Because of the ReScript syntax (types are
+// autoconversion of custom scalars). Because of the OCaml syntax (types are
 // always uncapitalized, modules are always capitalized) we can figure out what
 // type it is by looking at the string holding the value itself.
-pub fn classify_rescript_value_string(str: &String) -> RescriptCustomTypeValue {
+pub fn classify_ocaml_value_string(str: &String) -> MelangeCustomTypeValue {
     let target_value = str.as_str().split(".").last();
 
     match target_value {
         None => {
-            panic!("Could not classify ReScript value string. {}", str)
+            panic!("Could not classify OCaml value string. {}", str)
         }
         Some(last_value) => {
             let first_char = &last_value[0..1];
 
             if first_char == first_char.to_uppercase() {
-                RescriptCustomTypeValue::Module
+                MelangeCustomTypeValue::Module
             } else {
-                RescriptCustomTypeValue::Type
+                MelangeCustomTypeValue::Type
             }
         }
     }
@@ -218,11 +217,11 @@ pub fn get_enum_definition_body(
     str
 }
 
-pub fn get_rescript_relay_meta_data(
+pub fn get_melange_relay_meta_data(
     schema: &SDLSchema,
     typegen_definition: &DefinitionType,
     typegen_config: &TypegenConfig,
-) -> RescriptRelayOperationMetaData {
+) -> MelangeRelayOperationMetaData {
     match &typegen_definition {
         DefinitionType::Fragment(definition) => find_assets_in_fragment(
             TypegenLanguage::OCaml,
@@ -464,11 +463,11 @@ pub fn print_type_reference(
                                 let custom_scalar_name =
                                     get_custom_scalar_name(&custom_scalar_types, &custom_scalar);
 
-                                match classify_rescript_value_string(&custom_scalar_name) {
-                                    RescriptCustomTypeValue::Module => {
+                                match classify_ocaml_value_string(&custom_scalar_name) {
+                                    MelangeCustomTypeValue::Module => {
                                         format!("{}.t", custom_scalar_name)
                                     }
-                                    RescriptCustomTypeValue::Type => custom_scalar_name.to_string(),
+                                    MelangeCustomTypeValue::Type => custom_scalar_name.to_string(),
                                 }
                             } else {
                                 String::from("Melange_relay.any")
@@ -679,8 +678,7 @@ pub fn get_connection_key_maker(
                 format!(
                     "{}({}: {}{})",
                     match (&default_value, &variable.type_) {
-                        (Some(_), _) |
-                        (None, TypeReference::List(_) | TypeReference::Named(_)) =>
+                        (Some(_), _) | (None, TypeReference::List(_) | TypeReference::Named(_)) =>
                             String::from("?"),
                         (None, TypeReference::NonNull(_)) => String::from("~"),
                     },
@@ -712,7 +710,7 @@ pub fn get_connection_key_maker(
                             "={}",
                             match dig_type_ref(&variable.type_) {
                                 // Input objects are records (nominal) in
-                                // ReScript, and thus the type system, but
+                                // OCaml, and thus the type system, but
                                 // GraphQL allows them to be specified as
                                 // structural objects that does not have to
                                 // define all fields. This creates a problem at
@@ -787,11 +785,11 @@ pub fn get_connection_key_maker(
                 custom_scalar => {
                     let custom_scalar_name =
                         get_custom_scalar_name(&custom_scalar_types, &custom_scalar.to_string());
-                    match classify_rescript_value_string(&custom_scalar_name) {
-                        RescriptCustomTypeValue::Module => {
+                    match classify_ocaml_value_string(&custom_scalar_name) {
+                        MelangeCustomTypeValue::Module => {
                             Some((variable.name.item.to_string(), custom_scalar_name))
                         }
-                        RescriptCustomTypeValue::Type => None,
+                        MelangeCustomTypeValue::Type => None,
                     }
                 }
             },
@@ -860,11 +858,7 @@ pub fn get_connection_key_maker(
     }
 
     write_indentation(&mut str, local_indentation).unwrap();
-    writeln!(
-        str,
-        "internal_makeConnectionId connectionParentDataId args"
-    )
-    .unwrap();
+    writeln!(str, "internal_makeConnectionId connectionParentDataId args").unwrap();
 
     local_indentation -= 1;
     write_indentation(&mut str, local_indentation).unwrap();
@@ -906,8 +900,8 @@ fn value_is_custom_scalar(identifier: &StringKey, custom_scalars: &CustomScalars
     custom_scalars
         .into_iter()
         .find(
-            |(_custom_scalar_graphql_name, custom_scalar_mapped_rescript_name)| {
-                match custom_scalar_mapped_rescript_name {
+            |(_custom_scalar_graphql_name, custom_scalar_mapped_ocaml_name)| {
+                match custom_scalar_mapped_ocaml_name {
                     CustomScalarType::Name(name) => &name == &identifier,
                     CustomScalarType::Path(_) => false,
                 }
@@ -1007,13 +1001,13 @@ pub fn ast_to_string<'a>(
                     format!("RelaySchemaAssets_graphql.input_{}", full_identifier_name)
                 }
                 ClassifiedIdentifier::RawIdentifier(identifier) => {
-                    match classify_rescript_value_string(&identifier) {
-                        RescriptCustomTypeValue::Module => {
+                    match classify_ocaml_value_string(&identifier) {
+                        MelangeCustomTypeValue::Module => {
                             *needs_conversion =
                                 Some(AstToStringNeedsConversion::CustomScalar(identifier.clone()));
                             format!("{}.t", identifier)
                         }
-                        RescriptCustomTypeValue::Type => identifier.to_string(),
+                        MelangeCustomTypeValue::Type => identifier.to_string(),
                     }
                 }
             }
@@ -1048,22 +1042,22 @@ mod tests {
     }
 
     #[test]
-    fn classify_rescript_value_string_tests() {
+    fn classify_ocaml_value_string_tests() {
         assert_eq!(
-            classify_rescript_value_string(&String::from("Some.Module.Here")),
-            RescriptCustomTypeValue::Module
+            classify_ocaml_value_string(&String::from("Some.Module.Here")),
+            MelangeCustomTypeValue::Module
         );
         assert_eq!(
-            classify_rescript_value_string(&String::from("SomeModule")),
-            RescriptCustomTypeValue::Module
+            classify_ocaml_value_string(&String::from("SomeModule")),
+            MelangeCustomTypeValue::Module
         );
         assert_eq!(
-            classify_rescript_value_string(&String::from("Some.Module.Here.withType")),
-            RescriptCustomTypeValue::Type
+            classify_ocaml_value_string(&String::from("Some.Module.Here.withType")),
+            MelangeCustomTypeValue::Type
         );
         assert_eq!(
-            classify_rescript_value_string(&String::from("withType")),
-            RescriptCustomTypeValue::Type
+            classify_ocaml_value_string(&String::from("withType")),
+            MelangeCustomTypeValue::Type
         );
     }
 }
@@ -1071,4 +1065,3 @@ mod tests {
 pub fn is_plural(node: &FragmentDefinition) -> bool {
     RelayDirective::find(&node.directives).map_or(false, |relay_directive| relay_directive.plural)
 }
-

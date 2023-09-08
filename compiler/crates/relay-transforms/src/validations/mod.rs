@@ -10,7 +10,7 @@ mod disallow_circular_no_inline_fragments;
 mod disallow_non_node_id_fields;
 mod disallow_reserved_aliases;
 mod disallow_typename_on_root;
-mod rescript_relay_disallow_invalid_names;
+mod melange_relay_disallow_invalid_names;
 mod validate_connections;
 mod validate_global_variable_names;
 mod validate_global_variables;
@@ -32,7 +32,7 @@ pub use disallow_circular_no_inline_fragments::disallow_circular_no_inline_fragm
 pub use disallow_non_node_id_fields::disallow_non_node_id_fields;
 pub use disallow_reserved_aliases::disallow_reserved_aliases;
 pub use disallow_typename_on_root::disallow_typename_on_root;
-pub use rescript_relay_disallow_invalid_names::rescript_relay_disallow_invalid_names;
+pub use melange_relay_disallow_invalid_names::melange_relay_disallow_invalid_names;
 pub use validate_connections::validate_connections;
 pub use validate_global_variable_names::validate_global_variable_names;
 pub use validate_global_variables::validate_global_variables;

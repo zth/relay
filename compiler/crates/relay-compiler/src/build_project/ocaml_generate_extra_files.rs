@@ -127,7 +127,11 @@ pub(crate) fn ocaml_generate_extra_artifacts(
                     false,
                     true
                 ),
-                if is_nullable { " option [@mel.optional]" } else { "" },
+                if is_nullable {
+                    " option [@mel.optional]"
+                } else {
+                    ""
+                },
                 (match maybe_original_key {
                     Some(original_key) => format!(" [@mel.as \"{}\"]", original_key),
                     None => String::from(""),
@@ -149,12 +153,7 @@ pub(crate) fn ocaml_generate_extra_artifacts(
 
     // Write object makers
     schema.input_objects().for_each(|input_obj| {
-        writeln!(
-            content,
-            "external make_{}: ",
-            input_obj.name.item
-        )
-        .unwrap();
+        writeln!(content, "external make_{}: ", input_obj.name.item).unwrap();
 
         let mut has_optional = false;
 
@@ -194,7 +193,12 @@ pub(crate) fn ocaml_generate_extra_artifacts(
             writeln!(content, "  unit ->").unwrap()
         }
 
-        writeln!(content, " input_{} = \"\" [@@mel.obj]\n", input_obj.name.item).unwrap();
+        writeln!(
+            content,
+            " input_{} = \"\" [@@mel.obj]\n",
+            input_obj.name.item
+        )
+        .unwrap();
     });
 
     vec![Artifact {
@@ -206,4 +210,3 @@ pub(crate) fn ocaml_generate_extra_artifacts(
         },
     }]
 }
-

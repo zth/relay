@@ -1364,7 +1364,7 @@ pub(crate) fn raw_response_selections_to_babel(
     let mut by_concrete_type: IndexMap<Type, Vec<TypeSelection>> = Default::default();
 
     for selection in selections {
-        // RescriptRelay note: Reverted this here https://github.com/facebook/relay/commit/0ec3577438399a05a0280fa19b5817496dd2686d
+        // Melange Relay note: Reverted this here https://github.com/facebook/relay/commit/0ec3577438399a05a0280fa19b5817496dd2686d
         let enclosing_concrete_type = selection.get_enclosing_concrete_type();
         if enclosing_concrete_type == concrete_type {
             base_fields.push(selection);

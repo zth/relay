@@ -374,7 +374,6 @@ impl ProjectConfig {
                 }
                 TypegenLanguage::TypeScript => format!("{}.graphql.ts", definition_name),
                 TypegenLanguage::OCaml => format!("{}_graphql.ml", definition_name),
-                TypegenLanguage::ReScript => format!("{}_graphql.res", definition_name),
             }
         };
         self.create_path_for_artifact(source_file, filename)

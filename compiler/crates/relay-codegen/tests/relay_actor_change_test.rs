@@ -9,12 +9,19 @@
 
 mod relay_actor_change;
 
-use relay_actor_change::transform_fixture;
 use fixture_tests::test_fixture;
+use relay_actor_change::transform_fixture;
 
 #[test]
 fn relay_actor_change_simple_query() {
     let input = include_str!("relay_actor_change/fixtures/relay_actor_change-simple-query.graphql");
-    let expected = include_str!("relay_actor_change/fixtures/relay_actor_change-simple-query.expected");
-    test_fixture(transform_fixture, "relay_actor_change-simple-query.graphql", "relay_actor_change/fixtures/relay_actor_change-simple-query.expected", input, expected);
+    let expected =
+        include_str!("relay_actor_change/fixtures/relay_actor_change-simple-query.expected");
+    test_fixture(
+        transform_fixture,
+        "relay_actor_change-simple-query.graphql",
+        "relay_actor_change/fixtures/relay_actor_change-simple-query.expected",
+        input,
+        expected,
+    );
 }

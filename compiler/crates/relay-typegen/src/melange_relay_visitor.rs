@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{ScalarName, DirectiveName};
+use common::{DirectiveName, ScalarName};
 use fnv::FnvBuildHasher;
 use graphql_ir::{
     Argument, ConstantValue, Directive, Field, FragmentDefinition, OperationDefinition, Selection,
@@ -15,16 +15,15 @@ use indexmap::IndexMap;
 use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
 use relay_config::CustomScalarType;
-use schema::{SDLSchema, Schema, Type};
 use relay_config::TypegenLanguage;
+use schema::{SDLSchema, Schema, Type};
 
-use crate::rescript_utils;
 use crate::ocaml_utils;
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 pub type CustomScalarsMap = FnvIndexMap<ScalarName, CustomScalarType>;
 
 #[derive(Debug)]
-pub struct RescriptRelayConnectionConfig {
+pub struct MelangeRelayConnectionConfig {
     pub key: String,
     pub at_object_path: Vec<String>,
     pub field_name: String,
@@ -34,37 +33,37 @@ pub struct RescriptRelayConnectionConfig {
 }
 
 #[derive(Debug, PartialEq, Eq)]
-pub enum RescriptRelayFragmentDirective {
+pub enum MelangeRelayFragmentDirective {
     IgnoreUnused,
 }
 
 #[derive(Debug, PartialEq, Eq)]
-pub enum RescriptRelayFieldDirective {
+pub enum MelangeRelayFieldDirective {
     AllowUnsafeEnum,
 }
 
 #[derive(Debug, PartialEq, Eq)]
-pub enum RescriptRelayOperationDirective {
+pub enum MelangeRelayOperationDirective {
     NullableVariables,
 }
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct FieldDirectiveContainer {
     pub at_object_path: Vec<String>,
-    pub directive: RescriptRelayFieldDirective,
+    pub directive: MelangeRelayFieldDirective,
 }
 
 #[derive(Debug)]
-pub struct RescriptRelayOperationMetaData {
+pub struct MelangeRelayOperationMetaData {
     pub language: TypegenLanguage,
-    pub connection_config: Option<RescriptRelayConnectionConfig>,
+    pub connection_config: Option<MelangeRelayConnectionConfig>,
     pub variables_with_connection_data_ids: Vec<String>,
     pub custom_scalars: CustomScalarsMap,
     // All custom scalar raw typenames that aren't modules
     pub custom_scalars_raw_typenames: Vec<String>,
-    pub fragment_directives: Vec<RescriptRelayFragmentDirective>,
+    pub fragment_directives: Vec<MelangeRelayFragmentDirective>,
     pub field_directives: Vec<FieldDirectiveContainer>,
-    pub operation_directives: Vec<RescriptRelayOperationDirective>,
+    pub operation_directives: Vec<MelangeRelayOperationDirective>,
 }
 
 lazy_static! {
@@ -73,11 +72,11 @@ lazy_static! {
     static ref DELETE_EDGE: StringKey = "deleteEdge".intern();
     static ref PREPEND_EDGE: StringKey = "prependEdge".intern();
     static ref PREPEND_NODE: StringKey = "prependNode".intern();
-    static ref FRAGMENT_DIRECTIVE_IGNORE_UNUSED: StringKey = "rescriptRelayIgnoreUnused".intern();
+    static ref FRAGMENT_DIRECTIVE_IGNORE_UNUSED: StringKey = "melangeRelayIgnoreUnused".intern();
     static ref FIELD_DIRECTIVE_ALLOW_UNSAFE_ENUM: StringKey =
-        "rescriptRelayAllowUnsafeEnum".intern();
+        "melangeRelayAllowUnsafeEnum".intern();
     static ref OPERATION_DIRECTIVE_NULLABLE_VARIABLES: StringKey =
-        "rescriptRelayNullableVariables".intern();
+        "melangeRelayNullableVariables".intern();
 }
 
 fn find_connections_arguments(directive: Option<&Directive>) -> Vec<String> {
@@ -110,7 +109,7 @@ fn make_path(current_path: &Vec<String>, new_element: String) -> Vec<String> {
 fn visit_selections<'a>(
     selections: &Vec<Selection>,
     schema: &'a SDLSchema,
-    operation_meta_data: &mut RescriptRelayOperationMetaData,
+    operation_meta_data: &mut MelangeRelayOperationMetaData,
     variable_definitions: &Vec<VariableDefinition>,
     custom_scalars: &CustomScalarsMap,
     current_path: Vec<String>,
@@ -138,7 +137,7 @@ fn visit_selections<'a>(
                     operation_meta_data
                         .field_directives
                         .push(FieldDirectiveContainer {
-                            directive: RescriptRelayFieldDirective::AllowUnsafeEnum,
+                            directive: MelangeRelayFieldDirective::AllowUnsafeEnum,
                             at_object_path,
                         })
                 }
@@ -198,26 +197,15 @@ fn visit_selections<'a>(
                         .map(|arg| arg.to_owned())
                         .collect::<Vec<Argument>>();
 
-                    operation_meta_data.connection_config = Some(RescriptRelayConnectionConfig {
-                        connection_id_maker_fn: match operation_meta_data.language {
-                            TypegenLanguage::OCaml => ocaml_utils::get_connection_key_maker(
-                                0,
-                                &relevant_arguments,
-                                &variable_definitions,
-                                &key,
-                                &schema,
-                                &custom_scalars,
-                                ),
-                            TypegenLanguage::ReScript => rescript_utils::get_connection_key_maker(
-                                0,
-                                &relevant_arguments,
-                                &variable_definitions,
-                                &key,
-                                &schema,
-                                &custom_scalars,
-                                ),
-                            lang => panic!("Unexpected language {} in ReScript visitor", lang.to_string())
-                        },
+                    operation_meta_data.connection_config = Some(MelangeRelayConnectionConfig {
+                        connection_id_maker_fn: ocaml_utils::get_connection_key_maker(
+                            0,
+                            &relevant_arguments,
+                            &variable_definitions,
+                            &key,
+                            &schema,
+                            &custom_scalars,
+                        ),
                         key,
                         at_object_path: current_path.clone(),
                         field_name: field.alias_or_name(schema).to_string(),
@@ -299,32 +287,26 @@ pub fn find_assets_in_fragment<'a>(
     fragment: &FragmentDefinition,
     schema: &'a SDLSchema,
     custom_scalars: CustomScalarsMap,
-) -> RescriptRelayOperationMetaData {
-    let rescript_relay_directives: Vec<RescriptRelayFragmentDirective> = fragment
+) -> MelangeRelayOperationMetaData {
+    let melange_relay_directives: Vec<MelangeRelayFragmentDirective> = fragment
         .directives
         .iter()
         .filter_map(|directive| {
             if directive.name.item.0 == *FRAGMENT_DIRECTIVE_IGNORE_UNUSED {
-                Some(RescriptRelayFragmentDirective::IgnoreUnused)
+                Some(MelangeRelayFragmentDirective::IgnoreUnused)
             } else {
                 None
             }
         })
         .collect();
 
-    let mut operation_meta_data = RescriptRelayOperationMetaData {
-        language: language,
+    let mut operation_meta_data = MelangeRelayOperationMetaData {
+        language,
         connection_config: None,
         custom_scalars: custom_scalars.clone(),
-        custom_scalars_raw_typenames: match language {
-            TypegenLanguage::OCaml =>
-                ocaml_utils::get_custom_scalar_raw_typenames(&custom_scalars),
-            TypegenLanguage::ReScript =>
-                rescript_utils::get_custom_scalar_raw_typenames(&custom_scalars),
-            lang => panic!("Unexpected language {} in ReScript visitor", lang.to_string())
-        },
+        custom_scalars_raw_typenames: ocaml_utils::get_custom_scalar_raw_typenames(&custom_scalars),
         field_directives: vec![],
-        fragment_directives: rescript_relay_directives,
+        fragment_directives: melange_relay_directives,
         variables_with_connection_data_ids: vec![],
         operation_directives: vec![],
     };
@@ -356,34 +338,28 @@ pub fn find_assets_in_operation<'a>(
     operation: &OperationDefinition,
     schema: &'a SDLSchema,
     custom_scalars: CustomScalarsMap,
-) -> RescriptRelayOperationMetaData {
-    let rescript_relay_directives: Vec<RescriptRelayOperationDirective> = operation
+) -> MelangeRelayOperationMetaData {
+    let melange_relay_directives: Vec<MelangeRelayOperationDirective> = operation
         .directives
         .iter()
         .filter_map(|directive| {
             if directive.name.item == DirectiveName(*OPERATION_DIRECTIVE_NULLABLE_VARIABLES) {
-                Some(RescriptRelayOperationDirective::NullableVariables)
+                Some(MelangeRelayOperationDirective::NullableVariables)
             } else {
                 None
             }
         })
         .collect();
 
-    let mut operation_meta_data = RescriptRelayOperationMetaData {
-        language: language,
+    let mut operation_meta_data = MelangeRelayOperationMetaData {
+        language,
         connection_config: None,
         custom_scalars: custom_scalars.clone(),
-        custom_scalars_raw_typenames: match language {
-            TypegenLanguage::OCaml =>
-                ocaml_utils::get_custom_scalar_raw_typenames(&custom_scalars),
-            TypegenLanguage::ReScript =>
-                rescript_utils::get_custom_scalar_raw_typenames(&custom_scalars),
-            lang => panic!("Unexpected language {} in ReScript visitor", lang.to_string())
-        },
+        custom_scalars_raw_typenames: ocaml_utils::get_custom_scalar_raw_typenames(&custom_scalars),
         field_directives: vec![],
         fragment_directives: vec![],
         variables_with_connection_data_ids: vec![],
-        operation_directives: rescript_relay_directives,
+        operation_directives: melange_relay_directives,
     };
 
     let variable_definitions = vec![];

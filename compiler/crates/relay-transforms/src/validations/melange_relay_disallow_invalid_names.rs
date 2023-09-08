@@ -6,19 +6,19 @@ use graphql_ir::{
 use intern::string_key::{Intern, StringKey};
 use schema::Schema;
 
-/// This disallows selecting/naming variables a bunch of keywords in ReScript.
+/// This disallows selecting/naming variables a bunch of keywords in OCaml.
 /// Also disallows uppercased fields.
-pub fn rescript_relay_disallow_invalid_names(program: &Program) -> DiagnosticsResult<()> {
-    let mut validator = RescriptRelayTransformDisallowInvalidNames::new(program);
+pub fn melange_relay_disallow_invalid_names(program: &Program) -> DiagnosticsResult<()> {
+    let mut validator = MelangeRelayTransformDisallowInvalidNames::new(program);
     validator.validate_program(program)
 }
 
-struct RescriptRelayTransformDisallowInvalidNames<'program> {
+struct MelangeRelayTransformDisallowInvalidNames<'program> {
     program: &'program Program,
     reserved_names: Vec<StringKey>,
 }
 
-impl<'program> RescriptRelayTransformDisallowInvalidNames<'program> {
+impl<'program> MelangeRelayTransformDisallowInvalidNames<'program> {
     fn new(program: &'program Program) -> Self {
         Self {
             program,
@@ -67,8 +67,8 @@ impl<'program> RescriptRelayTransformDisallowInvalidNames<'program> {
     }
 }
 
-impl Validator for RescriptRelayTransformDisallowInvalidNames<'_> {
-    const NAME: &'static str = "RescriptRelayTransformDisallowInvalidNames";
+impl Validator for MelangeRelayTransformDisallowInvalidNames<'_> {
+    const NAME: &'static str = "MelangeRelayTransformDisallowInvalidNames";
     const VALIDATE_ARGUMENTS: bool = false;
     const VALIDATE_DIRECTIVES: bool = false;
 
@@ -151,7 +151,7 @@ fn validate_identifier(
     if first_letter_untouched.is_alphabetic() && first_letter_as_uppercase == first_letter_untouched
     {
         validation_errors.push(Diagnostic::error(
-            ValidationMessage::RescriptRelayDisallowCapitalizedNames,
+            ValidationMessage::MelangeRelayDisallowCapitalizedNames,
             location,
         ));
 
@@ -180,7 +180,7 @@ fn validate_identifier_once(
 ) -> DiagnosticsResult<()> {
     if identifier == reserved_name {
         Err(vec![Diagnostic::error(
-            ValidationMessage::RescriptRelayDisallowSelectionName(reserved_name),
+            ValidationMessage::MelangeRelayDisallowSelectionName(reserved_name),
             location,
         )])
     } else {

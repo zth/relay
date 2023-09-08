@@ -279,27 +279,27 @@ matches the parent selection.
 directive @alias(as: String) on FRAGMENT_SPREAD | INLINE_FRAGMENT
 
 """
-(RescriptRelay only)
+(Melange Relay only)
 
-Tells the RescriptRelay CLI that it's fine to ignore unused fields in this fragment.
+Tells the Melange Relay CLI that it's fine to ignore unused fields in this fragment.
 """
-directive @rescriptRelayIgnoreUnused on FRAGMENT_DEFINITION
+directive @melangeRelayIgnoreUnused on FRAGMENT_DEFINITION
 
 """
-(RescriptRelay only)
+(Melange Relay only)
 
 Turns off safety features if this is an enum.
 """
-directive @rescriptRelayAllowUnsafeEnum on FIELD
+directive @melangeRelayAllowUnsafeEnum on FIELD
 
 """
-(RescriptRelay only)
+(Melange Relay only)
 
 Make relevant variables nullable in this operation. Useful when you need to pass
-the value `null` as a variable, and `undefined` (`None` in ReScript) doesn't cut
+the value `null` as a variable, and `undefined` (`None` in OCaml) doesn't cut
 it.
 """
-directive @rescriptRelayNullableVariables on QUERY | MUTATION | SUBSCRIPTION
+directive @melangeRelayNullableVariables on QUERY | MUTATION | SUBSCRIPTION
 
 """
 (Relay Only)

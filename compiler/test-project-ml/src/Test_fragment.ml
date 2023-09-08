@@ -93,7 +93,7 @@ module FragmentWithRequiredUnionPlural = [%relay{|
 |}]
 
 module IgnoreUnusedFragment = [%relay{|
-    fragment TestFragment_ignoreUnused on User @rescriptRelayIgnoreUnused {
+    fragment TestFragment_ignoreUnused on User @melangeRelayIgnoreUnused {
       firstName
       lastName
       onlineStatus
@@ -104,6 +104,6 @@ module AllowUnsafeEnumFragment = [%relay{|
     fragment TestFragment_allowUnsafeEnum on User  {
       firstName
       lastName
-      onlineStatus @rescriptRelayAllowUnsafeEnum
+      onlineStatus @melangeRelayAllowUnsafeEnum
 }
 |}]

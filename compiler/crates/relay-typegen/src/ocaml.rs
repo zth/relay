@@ -5,26 +5,50 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::rescript_utils::get_module_name_from_file_path;
+use common::ocaml_utils::get_module_name_from_file_path;
 use fnv::{FnvHashMap, FnvHashSet};
-use graphql_ir::{OperationDefinition};
+use graphql_ir::{FragmentDefinition, OperationDefinition};
 use graphql_syntax::OperationKind;
 use itertools::Itertools;
 use lazy_static::__Deref;
 use log::{debug, warn};
 
-use crate::rescript_ast::*;
-use crate::rescript::{
-    DefinitionType,
-    TopLevelFragmentType,
-    RelayResolverInfo
-};
-use crate::rescript_relay_visitor::{
-    RescriptRelayFragmentDirective, RescriptRelayOperationMetaData, RescriptRelayOperationDirective,
+use crate::melange_ast::*;
+use crate::melange_relay_visitor::{
+    MelangeRelayFragmentDirective, MelangeRelayOperationDirective, MelangeRelayOperationMetaData,
 };
 use crate::ocaml_utils::*;
 use crate::writer::{KeyValuePairProp, Prop, Writer, AST};
 use std::fmt::{Result, Write};
+
+// Fragments in Relay can be on either an abstract type (union/interface) or on
+// a concrete type (object). It can also be plural, meaning it's an array. This
+// enum allows us to keep track of what the current fragment we're looking at
+// is, and output types accordingly.
+#[derive(Debug)]
+pub enum TopLevelFragmentType {
+    Object(Object),
+    Union(Union),
+    ArrayWithObject(Object),
+    ArrayWithUnion(Union),
+}
+
+// The current operation type definition type, as given to us by the Relay
+// compiler.
+#[derive(Debug)]
+pub enum DefinitionType {
+    Fragment(FragmentDefinition),
+    // (typegen definition, normalization operation)
+    Operation((OperationDefinition, OperationDefinition)),
+}
+
+// We need to keep track of this information in order to figure out where to
+// import the Relay Resolver types from.
+#[derive(Debug)]
+pub struct RelayResolverInfo {
+    pub local_resolver_name: String,
+    pub resolver_module: String,
+}
 
 #[derive(Debug)]
 pub struct OCamlPrinter {
@@ -70,8 +94,8 @@ pub struct OCamlPrinter {
     // instructions.
     pub conversion_instructions: Vec<InstructionContainer>,
 
-    // This holds meta data for this current operation, which we extract in "rescript_relay_visitor".
-    pub operation_meta_data: RescriptRelayOperationMetaData,
+    // This holds meta data for this current operation, which we extract in "melange_relay_visitor".
+    pub operation_meta_data: MelangeRelayOperationMetaData,
 
     // Holds a list of seen Relay Resolvers, that we can use in the type gen to
     // piece together how the resolver types are imported.
@@ -102,7 +126,7 @@ fn ast_to_prop_value(
     let is_nullable = nullable || optional;
 
     // Ensure that the key is safe, meaning it's not an illegal identifier in
-    // ReScript. If it is, we'll need to map it via the @as decorator when we
+    // OCaml. If it is, we'll need to map it via the @as decorator when we
     // print the types.
     let (safe_key, original_key) = get_safe_key(key);
 
@@ -110,7 +134,7 @@ fn ast_to_prop_value(
     // mutations/subscriptions which is passed into `connections` of a
     // store updater directive (like @appendNode, @deleteEdge, etc).
     // Anytime we encounter that, we turn that array<string> into
-    // array<RescriptRelay.dataId>, because that's what it actually is
+    // array<MelangeRelay.dataId>, because that's what it actually is
     // in its underlying form, a data id. So, this little weird thing
     // handles that.
     if context == &Context::Variables
@@ -341,10 +365,10 @@ fn ast_to_prop_value(
                     new_at_path.push(key.to_string());
 
                     // Add a conversion instruction if this is a custom type
-                    // that's mapped as a ReScript module (meaning it's supposed
-                    // to be autoconverted by RescriptRelay).
-                    match classify_rescript_value_string(&identifier) {
-                        RescriptCustomTypeValue::Module => {
+                    // that's mapped as a OCaml module (meaning it's supposed
+                    // to be autoconverted by MelangeRelay).
+                    match classify_ocaml_value_string(&identifier) {
+                        MelangeCustomTypeValue::Module => {
                             state.conversion_instructions.push(InstructionContainer {
                                 context: context.clone(),
                                 at_path: new_at_path,
@@ -353,7 +377,7 @@ fn ast_to_prop_value(
                                 ),
                             })
                         }
-                        RescriptCustomTypeValue::Type => {
+                        MelangeCustomTypeValue::Type => {
                             if state
                                 .operation_meta_data
                                 .custom_scalars_raw_typenames
@@ -362,7 +386,9 @@ fn ast_to_prop_value(
                                 state.conversion_instructions.push(InstructionContainer {
                                     context: context.clone(),
                                     at_path: new_at_path,
-                                    instruction: ConverterInstructions::BlockTraversal(found_in_array),
+                                    instruction: ConverterInstructions::BlockTraversal(
+                                        found_in_array,
+                                    ),
                                 });
                             }
                         }
@@ -533,8 +559,8 @@ fn get_object_props(
                 match &key[..] {
                     "__id" => {
                         // Anything named `__id` is an internal Relay store id, which we
-                        // have our own type for in RescriptRelay
-                        // (RescriptRelay.dataId). So, we can safely assume that
+                        // have our own type for in MelangeRelay
+                        // (MelangeRelay.dataId). So, we can safely assume that
                         // anything named __id should be a dataId.
                         Some(PropValue {
                             key: String::from("__id"),
@@ -548,7 +574,7 @@ fn get_object_props(
                         // `$fragmentSpreads` is what the Relay compiler outputs
                         // as a prop containing all of the fragment spreads an
                         // object has on it. We call that `fragmentRefs` in
-                        // RescriptRelay, so rename to that and print
+                        // MelangeRelay, so rename to that and print
                         // accordingly.
 
                         // Add a conversion instruction for this path
@@ -640,9 +666,9 @@ fn get_object_prop_type_as_string(
         &PropType::UnionReference(union_record_name) => union_record_name.to_string(),
         &PropType::RelayResolver(resolver_module) => format!("{}.t", resolver_module),
         &PropType::RawIdentifier(raw_identifier) => {
-            match classify_rescript_value_string(&raw_identifier) {
-                RescriptCustomTypeValue::Type => raw_identifier.to_string(),
-                RescriptCustomTypeValue::Module => format!("{}.t", raw_identifier),
+            match classify_ocaml_value_string(&raw_identifier) {
+                MelangeCustomTypeValue::Type => raw_identifier.to_string(),
+                MelangeCustomTypeValue::Module => format!("{}.t", raw_identifier),
             }
         }
         &PropType::Scalar(scalar_value) => match scalar_value {
@@ -652,14 +678,13 @@ fn get_object_prop_type_as_string(
             &ScalarValues::String => String::from("string"),
         },
         &PropType::Array((nullable, inner_list_type)) => {
-            let mut str = String::from(
-                get_object_prop_type_as_string(
-                    state,
-                    inner_list_type.as_ref(),
-                    &context,
-                    indentation,
-                    field_path_name
-                ));
+            let mut str = String::from(get_object_prop_type_as_string(
+                state,
+                inner_list_type.as_ref(),
+                &context,
+                indentation,
+                field_path_name,
+            ));
 
             if nullable.to_owned() {
                 write!(str, " option").unwrap();
@@ -1053,7 +1078,6 @@ fn write_converter_map(
     name: &String,
     direction: ConversionDirection,
 ) -> Result {
-
     write_indentation(str, indentation).unwrap();
     write!(str, "let {}ConverterMap = ", name).unwrap();
 
@@ -1107,9 +1131,9 @@ fn write_converter_map(
                     str,
                     "Js.Dict.set o \"{}\" (Obj.magic {} : unit);",
                     custom_field_name,
-                    match classify_rescript_value_string(&custom_field_name) {
-                        RescriptCustomTypeValue::Type => custom_field_name.to_string(),
-                        RescriptCustomTypeValue::Module => format!(
+                    match classify_ocaml_value_string(&custom_field_name) {
+                        MelangeCustomTypeValue::Type => custom_field_name.to_string(),
+                        MelangeCustomTypeValue::Module => format!(
                             "{}.{}",
                             custom_field_name,
                             match direction {
@@ -1136,7 +1160,7 @@ fn write_converter_map(
 }
 
 // This writes "internal assets", which primarily is converters for going
-// between JS and ReScript runtime value representations. It's a total mess
+// between JS and OCaml runtime value representations. It's a total mess
 // right now and needs to be refactored, but I'll leave it like this for the
 // initial iteration of moving the typegen from OCaml to Rust.
 fn write_internal_assets(
@@ -1211,17 +1235,17 @@ fn write_internal_assets(
     writeln!(str, "]").unwrap();
 
     // Converters are either unions (that needs to be wrapped/unwrapped), or
-    // custom scalars _that are ReScript modules_, and therefore should be
+    // custom scalars _that are OCaml modules_, and therefore should be
     // autoconverted.
     let converters: Vec<&InstructionContainer> = target_conversion_instructions
         .into_iter()
         .filter(|instruction_container| {
             match &instruction_container.instruction {
                 ConverterInstructions::ConvertCustomField(field_name) => {
-                    // Try and infer what type of ReScript value this is
-                    match classify_rescript_value_string(&field_name) {
-                        RescriptCustomTypeValue::Type => false,
-                        RescriptCustomTypeValue::Module => true,
+                    // Try and infer what type of OCaml value this is
+                    match classify_ocaml_value_string(&field_name) {
+                        MelangeCustomTypeValue::Type => false,
+                        MelangeCustomTypeValue::Module => true,
                     }
                 }
                 ConverterInstructions::ConvertUnion(_) => true,
@@ -1261,7 +1285,7 @@ fn write_internal_assets(
 
 fn write_union_converters(str: &mut String, indentation: usize, union: &Union) -> Result {
     // Print the unwrap fn first. This is what turns the "raw" value coming from
-    // Relay into a ReScript union.
+    // Relay into a OCaml union.
     write_indentation(str, indentation).unwrap();
     writeln!(
         str,
@@ -1303,7 +1327,7 @@ fn write_union_converters(str: &mut String, indentation: usize, union: &Union) -
 
     write_indentation(str, indentation).unwrap();
 
-    // This prints the wrap function, which turns the ReScript union back into
+    // This prints the wrap function, which turns the OCaml union back into
     // its "raw" format.
     write_indentation(str, indentation).unwrap();
     writeln!(str, "let wrap_{}: [", union.record_name).unwrap();
@@ -1331,7 +1355,11 @@ fn write_union_converters(str: &mut String, indentation: usize, union: &Union) -
     }
 
     write_indentation(str, indentation + 1).unwrap();
-    writeln!(str, "| `UnselectedUnionMember v -> [%mel.obj {{ __typename = v }}]").unwrap();
+    writeln!(
+        str,
+        "| `UnselectedUnionMember v -> [%mel.obj {{ __typename = v }}]"
+    )
+    .unwrap();
 
     write_indentation(str, indentation).unwrap();
 
@@ -1346,7 +1374,7 @@ enum ObjectPrintMode {
 
 enum NullabilityMode {
     Option,
-    Nullable
+    Nullable,
 }
 
 fn write_record_type_start(
@@ -1355,8 +1383,7 @@ fn write_record_type_start(
     name: &String,
 ) -> Result {
     match print_mode {
-        ObjectPrintMode::Standalone |
-        ObjectPrintMode::StartOfRecursiveChain => {
+        ObjectPrintMode::Standalone | ObjectPrintMode::StartOfRecursiveChain => {
             write!(str, "type {} = ", name).unwrap();
         }
         ObjectPrintMode::PartOfRecursiveChain => {
@@ -1377,7 +1404,13 @@ fn write_object_definition(
     context: &Context,
     is_refetch_var: bool,
 ) -> Result {
-    let nullability = match (state.operation_meta_data.operation_directives.contains(&RescriptRelayOperationDirective::NullableVariables), context) {
+    let nullability = match (
+        state
+            .operation_meta_data
+            .operation_directives
+            .contains(&MelangeRelayOperationDirective::NullableVariables),
+        context,
+    ) {
         (true, &Context::Variables | &Context::RootObject(_)) => NullabilityMode::Nullable,
         _ => NullabilityMode::Option,
     };
@@ -1469,7 +1502,7 @@ fn write_object_definition(
                         true,
                         match nullability {
                             NullabilityMode::Option => false,
-                            NullabilityMode::Nullable => true
+                            NullabilityMode::Nullable => true,
                         }
                     )
                 ),
@@ -1486,11 +1519,11 @@ fn write_object_definition(
             },
             match (&nullability, prop.nullable) {
                 (NullabilityMode::Nullable, true) => " ",
-                _ => ""
+                _ => "",
             },
             // We suppress dead code warnings for a set of keys that we know
             // don't affect overfetching, and are used internally by
-            // RescriptRelay, but end up in the types anyway because of
+            // MelangeRelay, but end up in the types anyway because of
             // *reasons*.
             {
                 let should_ignore_all_unused = state
@@ -1498,7 +1531,7 @@ fn write_object_definition(
                     .fragment_directives
                     .iter()
                     .find(|directive| {
-                        directive.to_owned() == &RescriptRelayFragmentDirective::IgnoreUnused
+                        directive.to_owned() == &MelangeRelayFragmentDirective::IgnoreUnused
                     })
                     .is_some();
                 match (should_ignore_all_unused, &prop.key[..]) {
@@ -1508,7 +1541,7 @@ fn write_object_definition(
             },
             // If original_key is set, that means that the key here has been
             // transformed (as it was probably an illegal identifier in
-            // ReScript). When that happens, we print the @as decorator to deal
+            // OCaml). When that happens, we print the @as decorator to deal
             // with the illegal identifier, while not having to rename the
             // underlying key itself.
             match &prop.original_key {
@@ -1798,8 +1831,7 @@ fn write_get_connection_nodes_function(
                             local_indentation += 1;
                             if edges_nullable {
                                 write_indentation(str, local_indentation).unwrap();
-                                writeln!(str, "|. Belt.Array.keepMap(function ")
-                                    .unwrap();
+                                writeln!(str, "|. Belt.Array.keepMap(function ").unwrap();
 
                                 write_indentation(&mut ending_str, local_indentation).unwrap();
                                 writeln!(ending_str, ")").unwrap();
@@ -1842,7 +1874,7 @@ fn write_get_connection_nodes_function(
 }
 
 fn warn_about_unimplemented_feature(definition_type: &DefinitionType, context: String) {
-    warn!("'{}' (context: '{}') produced a type that RescriptRelay does not understand. Please open an issue on the repo https://github.com/zth/rescript-relay and describe what you were doing as this happened.", match &definition_type {
+    warn!("'{}' (context: '{}') produced a type that MelangeRelay does not understand. Please open an issue on the repo https://github.com/anmonteiro/melange-relay and describe what you were doing as this happened.", match &definition_type {
         DefinitionType::Fragment(fragment_definition) => fragment_definition.name.item.0,
         DefinitionType::Operation((operation_definition, _)) => operation_definition.name.item.0
     }, context);
@@ -1861,7 +1893,7 @@ impl Writer for OCamlPrinter {
     // This is what does the actual printing of types. It does that by working
     // its way through the state produced by "write_export_type", which turns
     // the AST the Relay compiler feeds us into a state we can use to generate
-    // the ReScript types we need.
+    // the OCaml types we need.
     fn into_string(self: Box<Self>) -> String {
         let mut generated_types = String::new();
         let mut indentation: usize = 0;
@@ -1886,7 +1918,17 @@ impl Writer for OCamlPrinter {
                     writeln!(
                         generated_types,
                         "type {} = RelaySchemaAssets_graphql.input_{}{}",
-                        input_object.record_name, input_obj_name, if self.operation_meta_data.operation_directives.contains(&RescriptRelayOperationDirective::NullableVariables) { "_nullable" } else {""}
+                        input_object.record_name,
+                        input_obj_name,
+                        if self
+                            .operation_meta_data
+                            .operation_directives
+                            .contains(&MelangeRelayOperationDirective::NullableVariables)
+                        {
+                            "_nullable"
+                        } else {
+                            ""
+                        }
                     )
                     .unwrap();
                 }
@@ -2022,9 +2064,9 @@ impl Writer for OCamlPrinter {
             //
             // Because of how the typings work, we'll bind `rawResponse` to the
             // actual `response` if it's not requested. Doing this means the
-            // rest of the RescriptRelay code can always refer to rawResponse
+            // rest of the MelangeRelay code can always refer to rawResponse
             // for certain things, even if the rawResponse has been produced or
-            // not. This is necessary since the general RescriptRelay code won't
+            // not. This is necessary since the general MelangeRelay code won't
             // know whether the rawResponse type is there or not, since it's
             // conditional and not always there.
             match &self.raw_response {
@@ -2188,7 +2230,11 @@ impl Writer for OCamlPrinter {
                     String::from("variables"),
                     false,
                     ConversionDirection::Wrap,
-                    if self.operation_meta_data.operation_directives.contains(&RescriptRelayOperationDirective::NullableVariables) {
+                    if self
+                        .operation_meta_data
+                        .operation_directives
+                        .contains(&MelangeRelayOperationDirective::NullableVariables)
+                    {
                         NullableType::Null
                     } else {
                         NullableType::Undefined
@@ -2202,11 +2248,11 @@ impl Writer for OCamlPrinter {
         // The rest of the internal assets is a bit of a mess. Will fix
         // eventually. But, essentially, this part is about printing assets for
         // converting back and forth between response/rawResponse etc. We
-        // convert _to_ ReScript values whenever we want to use the values in
-        // ReScript (like when rendering React), and _from_ ReScript to regular
+        // convert _to_ OCaml values whenever we want to use the values in
+        // OCaml (like when rendering React), and _from_ OCaml to regular
         // JS when we for example pass variables as we load queries, produce
         // optimistic responses, or similar. In short, any time a value goes
-        // back into Relay from ReScript.
+        // back into Relay from OCaml.
         match (&self.response, &self.typegen_definition) {
             (Some(_), DefinitionType::Operation((op, _))) => {
                 match &op.kind {
@@ -2303,7 +2349,7 @@ impl Writer for OCamlPrinter {
         writeln!(generated_types, "end").unwrap();
 
         // This prints assets for helping to unwrap Relay fragments in a type
-        // safe way via ReScript.
+        // safe way via OCaml.
         match &self.typegen_definition {
             DefinitionType::Fragment(fragment_definition) => {
                 let plural = is_plural(fragment_definition);
@@ -2430,7 +2476,7 @@ impl Writer for OCamlPrinter {
 
         // This prints a bunch of object maker helpers for input objects, and
         // variables. In a future, these should probably not be emitted by
-        // default, but rather behind a dedicated RescriptRelay directive or
+        // default, but rather behind a dedicated MelangeRelay directive or
         // similar.
         self.input_objects.iter().for_each(|input_object| {
             write_object_maker(
@@ -2570,7 +2616,7 @@ impl Writer for OCamlPrinter {
 
                             if provided_variable_needs_conversion(&key, &self.provided_variables) {
                                 // This fantastically weird piece of generated
-                                // code works around a weird bug (?) in ReScript
+                                // code works around a weird bug (?) in OCaml
                                 // where underscores (which the internal Relay
                                 // provided variable keys are full of) will
                                 // discard parts of the string, meaning what's
@@ -2621,7 +2667,7 @@ impl Writer for OCamlPrinter {
     // This here is fed anything that the Relay compiler wants to "export"
     // typewise from the current artifact. We take the AST fed here, make out
     // what it represents, and then construct our own state for this artifact,
-    // that holds everything we need to print ReScript types.
+    // that holds everything we need to print OCaml types.
     fn write_export_type(&mut self, name: &str, value: &AST) -> Result {
         // The Relay compiler emits all actual data types (the response for
         // operations, the raw response if requested, the fragment data for
@@ -2797,7 +2843,7 @@ impl Writer for OCamlPrinter {
             // The Relay compiler outputs a type named after the operation, that
             // just links to variables/responses/fragment definitions. This
             // short circuits and returns early if we encounter a type like
-            // that, since we have no use for it on the ReScript side.
+            // that, since we have no use for it on the OCaml side.
             match &self.typegen_definition {
                 DefinitionType::Operation((op, _)) => {
                     if &name == &op.name.item.to_string().as_str() {
@@ -2834,7 +2880,7 @@ impl Writer for OCamlPrinter {
                                 // members to enums, as a way of telling you
                                 // that "this might change in the future, so
                                 // account for that". We handle that via the
-                                // type system in ReScript instead, so no need
+                                // type system in OCaml instead, so no need
                                 // to keep that member here.
                                 if enum_value.to_string().as_str() != "%future added value" {
                                     Some(enum_value.to_string())
@@ -2994,7 +3040,7 @@ impl Writer for OCamlPrinter {
     ) -> Result {
         let target_name = match import_as {
             Some(name) => name,
-            None => name
+            None => name,
         };
         if target_name.ends_with("ResolverType") {
             self.relay_resolvers.push(RelayResolverInfo {
@@ -3008,7 +3054,7 @@ impl Writer for OCamlPrinter {
 
 impl OCamlPrinter {
     pub fn new(
-        operation_meta_data: RescriptRelayOperationMetaData,
+        operation_meta_data: MelangeRelayOperationMetaData,
         typegen_definition: DefinitionType,
     ) -> Self {
         Self {
@@ -3028,4 +3074,3 @@ impl OCamlPrinter {
         }
     }
 }
-

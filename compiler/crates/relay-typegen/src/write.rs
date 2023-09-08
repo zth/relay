@@ -820,9 +820,7 @@ fn write_abstract_validator_function(
 
     let (open_comment, close_comment) = match language {
         TypegenLanguage::Flow | TypegenLanguage::JavaScript => ("/*", "*/"),
-        TypegenLanguage::TypeScript |
-        TypegenLanguage::OCaml |
-        TypegenLanguage::ReScript => ("", ""),
+        TypegenLanguage::TypeScript | TypegenLanguage::OCaml => ("", ""),
     };
 
     write!(
@@ -912,9 +910,7 @@ fn write_concrete_validator_function(
     let (open_comment, close_comment) = match typegen_context.project_config.typegen_config.language
     {
         TypegenLanguage::Flow | TypegenLanguage::JavaScript => ("/*", "*/"),
-        TypegenLanguage::TypeScript |
-        TypegenLanguage::OCaml |
-        TypegenLanguage::ReScript => ("", ""),
+        TypegenLanguage::TypeScript | TypegenLanguage::OCaml => ("", ""),
     };
 
     write!(

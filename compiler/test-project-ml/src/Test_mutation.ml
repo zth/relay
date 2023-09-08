@@ -104,7 +104,7 @@ module MutationWithMultipleTargets = [%relay{|
 |}]
 
 module MutationWithRecursiveInputsNullable = [%relay{|
-    mutation TestMutationWithRecursiveInputsNullableMutation($input: InputA) @rescriptRelayNullableVariables {
+    mutation TestMutationWithRecursiveInputsNullableMutation($input: InputA) @melangeRelayNullableVariables {
       recursiveInput(input: $input) {
         recursionIsCool
 }
@@ -112,7 +112,7 @@ module MutationWithRecursiveInputsNullable = [%relay{|
 |}]
 
 module MutationTestNullability = [%relay{|
-  mutation TestMutationNullabilityMutation($onlineStatus: OnlineStatus!, $datetime: Datetime, $recursive: SomeInput) @rescriptRelayNullableVariables {
+  mutation TestMutationNullabilityMutation($onlineStatus: OnlineStatus!, $datetime: Datetime, $recursive: SomeInput) @melangeRelayNullableVariables {
     setOnlineStatus(onlineStatus: $onlineStatus) {
       user {
         friendsConnection(

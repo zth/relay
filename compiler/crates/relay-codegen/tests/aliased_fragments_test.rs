@@ -14,21 +14,42 @@ use fixture_tests::test_fixture;
 
 #[test]
 fn aliased_fragment_on_abstract_type() {
-    let input = include_str!("aliased_fragments/fixtures/aliased_fragment_on_abstract_type.graphql");
-    let expected = include_str!("aliased_fragments/fixtures/aliased_fragment_on_abstract_type.expected");
-    test_fixture(transform_fixture, "aliased_fragment_on_abstract_type.graphql", "aliased_fragments/fixtures/aliased_fragment_on_abstract_type.expected", input, expected);
+    let input =
+        include_str!("aliased_fragments/fixtures/aliased_fragment_on_abstract_type.graphql");
+    let expected =
+        include_str!("aliased_fragments/fixtures/aliased_fragment_on_abstract_type.expected");
+    test_fixture(
+        transform_fixture,
+        "aliased_fragment_on_abstract_type.graphql",
+        "aliased_fragments/fixtures/aliased_fragment_on_abstract_type.expected",
+        input,
+        expected,
+    );
 }
 
 #[test]
 fn aliased_fragment_spread() {
     let input = include_str!("aliased_fragments/fixtures/aliased_fragment_spread.graphql");
     let expected = include_str!("aliased_fragments/fixtures/aliased_fragment_spread.expected");
-    test_fixture(transform_fixture, "aliased_fragment_spread.graphql", "aliased_fragments/fixtures/aliased_fragment_spread.expected", input, expected);
+    test_fixture(
+        transform_fixture,
+        "aliased_fragment_spread.graphql",
+        "aliased_fragments/fixtures/aliased_fragment_spread.expected",
+        input,
+        expected,
+    );
 }
 
 #[test]
 fn aliased_inline_fragment_spread() {
     let input = include_str!("aliased_fragments/fixtures/aliased_inline_fragment_spread.graphql");
-    let expected = include_str!("aliased_fragments/fixtures/aliased_inline_fragment_spread.expected");
-    test_fixture(transform_fixture, "aliased_inline_fragment_spread.graphql", "aliased_fragments/fixtures/aliased_inline_fragment_spread.expected", input, expected);
+    let expected =
+        include_str!("aliased_fragments/fixtures/aliased_inline_fragment_spread.expected");
+    test_fixture(
+        transform_fixture,
+        "aliased_inline_fragment_spread.graphql",
+        "aliased_fragments/fixtures/aliased_inline_fragment_spread.expected",
+        input,
+        expected,
+    );
 }

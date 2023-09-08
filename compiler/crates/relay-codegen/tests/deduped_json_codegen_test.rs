@@ -16,19 +16,38 @@ use fixture_tests::test_fixture;
 fn kitchen_sink() {
     let input = include_str!("deduped_json_codegen/fixtures/kitchen-sink.graphql");
     let expected = include_str!("deduped_json_codegen/fixtures/kitchen-sink.expected");
-    test_fixture(transform_fixture, "kitchen-sink.graphql", "deduped_json_codegen/fixtures/kitchen-sink.expected", input, expected);
+    test_fixture(
+        transform_fixture,
+        "kitchen-sink.graphql",
+        "deduped_json_codegen/fixtures/kitchen-sink.expected",
+        input,
+        expected,
+    );
 }
 
 #[test]
 fn stable_literals() {
     let input = include_str!("deduped_json_codegen/fixtures/stable-literals.graphql");
     let expected = include_str!("deduped_json_codegen/fixtures/stable-literals.expected");
-    test_fixture(transform_fixture, "stable-literals.graphql", "deduped_json_codegen/fixtures/stable-literals.expected", input, expected);
+    test_fixture(
+        transform_fixture,
+        "stable-literals.graphql",
+        "deduped_json_codegen/fixtures/stable-literals.expected",
+        input,
+        expected,
+    );
 }
 
 #[test]
 fn stable_literals_duplicates() {
     let input = include_str!("deduped_json_codegen/fixtures/stable-literals-duplicates.graphql");
-    let expected = include_str!("deduped_json_codegen/fixtures/stable-literals-duplicates.expected");
-    test_fixture(transform_fixture, "stable-literals-duplicates.graphql", "deduped_json_codegen/fixtures/stable-literals-duplicates.expected", input, expected);
+    let expected =
+        include_str!("deduped_json_codegen/fixtures/stable-literals-duplicates.expected");
+    test_fixture(
+        transform_fixture,
+        "stable-literals-duplicates.graphql",
+        "deduped_json_codegen/fixtures/stable-literals-duplicates.expected",
+        input,
+        expected,
+    );
 }

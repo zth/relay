@@ -68,8 +68,8 @@ type relayOperationNode
 type operationType = relayOperationNode Melange_relay.fragmentNode
 
 
-[%%private let makeNode rescript_graphql_node_TestPaginationInNodeRefetchQuery: operationType = 
-  ignore rescript_graphql_node_TestPaginationInNodeRefetchQuery;
+[%%private let makeNode ocaml_graphql_node_TestPaginationInNodeRefetchQuery: operationType = 
+  ignore ocaml_graphql_node_TestPaginationInNodeRefetchQuery;
   [%raw {json|(function(){
 var v0 = [
   "friendsConnection"
@@ -121,7 +121,7 @@ return {
       "fragmentPathInResult": [
         "node"
       ],
-      "operation": rescript_graphql_node_TestPaginationInNodeRefetchQuery,
+      "operation": ocaml_graphql_node_TestPaginationInNodeRefetchQuery,
       "identifierInfo": {
         "identifierField": "id",
         "identifierQueryVariableName": "id"

@@ -7,7 +7,6 @@
 
 mod content;
 mod content_section;
-mod rescript_relay_utils;
 mod ocaml_relay_utils;
 
 use std::sync::Arc;
@@ -25,7 +24,7 @@ use schema::SDLSchema;
 use crate::config::Config;
 use crate::config::ProjectConfig;
 
-use self::content::{generate_fragment_rescript, generate_operation_rescript};
+use self::content::{generate_fragment_ocaml, generate_operation_ocaml};
 
 #[derive(Clone)]
 pub enum ArtifactContent {
@@ -80,7 +79,7 @@ impl ArtifactContent {
                 source_hash,
                 text,
                 id_and_text_hash,
-            } => generate_operation_rescript(
+            } => generate_operation_ocaml(
                 config,
                 project_config,
                 printer,
@@ -132,7 +131,7 @@ impl ArtifactContent {
                 reader_fragment,
                 typegen_fragment,
                 source_hash,
-            } => generate_fragment_rescript(
+            } => generate_fragment_ocaml(
                 config,
                 project_config,
                 printer,

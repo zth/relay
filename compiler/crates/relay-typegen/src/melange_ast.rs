@@ -40,8 +40,8 @@ pub enum PropType {
 
 #[derive(Debug)]
 pub struct PropValue {
-    // This key is safe for ReScript use, meaning it has been transformed
-    // already if it was an illegal name in ReScript. If it was indeed
+    // This key is safe for OCaml use, meaning it has been transformed
+    // already if it was an illegal name in OCaml. If it was indeed
     // transformed, the original name is located in `original_name`.
     pub key: String,
 
@@ -75,9 +75,9 @@ pub struct FullEnum {
     pub values: Vec<String>,
 }
 
-// Because the runtime representation does not fully match of ReScript and what
+// Because the runtime representation does not fully match of OCaml and what
 // Relay gives us, we need to convert back and forth between what Relay gives us
-// and what ReScript expects. This primarily means converting raw unions to
+// and what OCaml expects. This primarily means converting raw unions to
 // polymorphic variants, etc. For that, we have "conversion instructions". We
 // keep track of what conversions are needed anywhere in what Relay gives us,
 // and apply them accordingly.

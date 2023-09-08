@@ -16,10 +16,9 @@ pub mod build_schema;
 mod generate_artifacts;
 pub mod generate_extra_artifacts;
 mod log_program_stats;
+pub mod ocaml_generate_extra_files;
 mod persist_operations;
 mod project_asts;
-pub mod rescript_generate_extra_files;
-pub mod ocaml_generate_extra_files;
 mod source_control;
 mod validate;
 
@@ -306,7 +305,6 @@ fn is_relay_file_path(language: &TypegenLanguage, path: &PathBuf) -> bool {
     match (path.to_str(), &language) {
         (None, _) => false,
         (Some(path), TypegenLanguage::OCaml) => path.ends_with("_graphql.ml"),
-        (Some(path), TypegenLanguage::ReScript) => path.ends_with("_graphql.res"),
         (Some(path), TypegenLanguage::Flow | TypegenLanguage::JavaScript) => {
             path.ends_with(".graphql.js")
         }

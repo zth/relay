@@ -113,8 +113,8 @@ type relayOperationNode
 type operationType = relayOperationNode Melange_relay.fragmentNode
 
 
-[%%private let makeNode rescript_graphql_node_TestPaginationUnionRefetchQuery: operationType = 
-  ignore rescript_graphql_node_TestPaginationUnionRefetchQuery;
+[%%private let makeNode ocaml_graphql_node_TestPaginationUnionRefetchQuery: operationType = 
+  ignore ocaml_graphql_node_TestPaginationUnionRefetchQuery;
   [%raw {json|(function(){
 var v0 = [
   "members"
@@ -169,7 +169,7 @@ return {
         "path": (v0/*: any*/)
       },
       "fragmentPathInResult": [],
-      "operation": rescript_graphql_node_TestPaginationUnionRefetchQuery
+      "operation": ocaml_graphql_node_TestPaginationUnionRefetchQuery
     }
   },
   "name": "TestPaginationUnion_query",

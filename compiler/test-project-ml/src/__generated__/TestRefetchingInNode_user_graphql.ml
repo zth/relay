@@ -50,8 +50,8 @@ type relayOperationNode
 type operationType = relayOperationNode Melange_relay.fragmentNode
 
 
-[%%private let makeNode rescript_graphql_node_TestRefetchingInNodeRefetchQuery: operationType = 
-  ignore rescript_graphql_node_TestRefetchingInNodeRefetchQuery;
+[%%private let makeNode ocaml_graphql_node_TestRefetchingInNodeRefetchQuery: operationType = 
+  ignore ocaml_graphql_node_TestRefetchingInNodeRefetchQuery;
   [%raw {json|{
   "argumentDefinitions": [
     {
@@ -75,7 +75,7 @@ type operationType = relayOperationNode Melange_relay.fragmentNode
       "fragmentPathInResult": [
         "node"
       ],
-      "operation": rescript_graphql_node_TestRefetchingInNodeRefetchQuery,
+      "operation": ocaml_graphql_node_TestRefetchingInNodeRefetchQuery,
       "identifierInfo": {
         "identifierField": "id",
         "identifierQueryVariableName": "id"

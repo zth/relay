@@ -17,10 +17,8 @@ use relay_config::TypegenLanguage;
 
 use crate::flow::FlowPrinter;
 use crate::javascript::JavaScriptPrinter;
-use crate::rescript;
-use crate::rescript::DefinitionType;
-use crate::rescript_utils;
 use crate::ocaml;
+use crate::ocaml::DefinitionType;
 use crate::ocaml_utils;
 use crate::typescript::TypeScriptPrinter;
 use crate::TypegenContext;
@@ -444,15 +442,7 @@ pub(crate) fn new_writer_from_config(
 ) -> Box<dyn Writer> {
     match config.language {
         TypegenLanguage::OCaml => Box::new(ocaml::OCamlPrinter::new(
-            ocaml_utils::get_rescript_relay_meta_data(
-                &typegen_opts.schema,
-                &typegen_definition,
-                &config,
-            ),
-            typegen_definition,
-        )),
-        TypegenLanguage::ReScript => Box::new(rescript::ReScriptPrinter::new(
-            rescript_utils::get_rescript_relay_meta_data(
+            ocaml_utils::get_melange_relay_meta_data(
                 &typegen_opts.schema,
                 &typegen_definition,
                 &config,

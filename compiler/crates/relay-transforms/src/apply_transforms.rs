@@ -284,11 +284,11 @@ fn apply_reader_transforms(
         hash_supported_argument(&program)
     })?;
 
-    program = log_event.time("rescript_relay_generate_typename", || {
-        rescript_relay_generate_typename(&program)
+    program = log_event.time("melange_relay_generate_typename", || {
+        melange_relay_generate_typename(&program)
     });
-    program = log_event.time("rescript_relay_remove_custom_directives", || {
-        rescript_relay_remove_custom_directives(&program)
+    program = log_event.time("melange_relay_remove_custom_directives", || {
+        melange_relay_remove_custom_directives(&program)
     });
     program = apply_after_custom_transforms(
         &program,
@@ -353,8 +353,8 @@ fn apply_operation_transforms(
         )
     })?;
 
-    program = log_event.time("rescript_relay_generate_typename", || {
-        rescript_relay_generate_typename(&program)
+    program = log_event.time("melange_relay_generate_typename", || {
+        melange_relay_generate_typename(&program)
     });
 
     program = log_event.time("generate_live_query_metadata", || {
@@ -463,11 +463,11 @@ fn apply_normalization_transforms(
         print_stats("generate_typename", &program);
     }
 
-    program = log_event.time("rescript_relay_generate_typename", || {
-        rescript_relay_generate_typename(&program)
+    program = log_event.time("melange_relay_generate_typename", || {
+        melange_relay_generate_typename(&program)
     });
     if let Some(print_stats) = maybe_print_stats {
-        print_stats("rescript_relay_generate_typename", &program);
+        print_stats("melange_relay_generate_typename", &program);
     }
 
     log_event.time("flatten", || flatten(&mut program, true, false))?;
@@ -551,8 +551,8 @@ fn apply_operation_text_transforms(
     program = log_event.time("skip_unreachable_node_strict", || {
         skip_unreachable_node_strict(&program)
     })?;
-    program = log_event.time("rescript_relay_generate_typename", || {
-        rescript_relay_generate_typename(&program)
+    program = log_event.time("melange_relay_generate_typename", || {
+        melange_relay_generate_typename(&program)
     });
     program = log_event.time("skip_null_arguments_transform", || {
         skip_null_arguments_transform(&program)
@@ -689,14 +689,14 @@ fn apply_typegen_transforms(
         relay_actor_change_transform(&program, &project_config.feature_flags.actor_change_support)
     })?;
 
-    // RescriptRelay Note: This ensures that `__typename` is selected in the
+    // Melange Relay Note: This ensures that `__typename` is selected in the
     // Flow type generation of all abstract types, without the user needing to
     // explicitly select it. This can be removed when we do _actual_ typegen
     // here in Rust at some point. But, as long as our typegen operates on the
     // generated Flow types, __typename needs to be present in them for the
     // typegen to understand about unions/interfaces properly.
-    program = log_event.time("rescript_relay_generate_typename", || {
-        rescript_relay_generate_typename(&program)
+    program = log_event.time("melange_relay_generate_typename", || {
+        melange_relay_generate_typename(&program)
     });
     program = apply_after_custom_transforms(
         &program,
