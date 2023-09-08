@@ -23,7 +23,6 @@ use fnv::FnvHashSet;
 use graphql_ir::OperationDefinition;
 use graphql_ir::Program;
 use indexmap::IndexMap;
-use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use js_config_loader::LoaderSource;
 use log::warn;
@@ -38,6 +37,7 @@ pub use relay_config::LocalPersistConfig;
 use relay_config::ModuleImportConfig;
 pub use relay_config::PersistConfig;
 pub use relay_config::ProjectConfig;
+use relay_config::ProjectName;
 pub use relay_config::RemotePersistConfig;
 use relay_config::SchemaConfig;
 pub use relay_config::SchemaLocation;
@@ -57,9 +57,9 @@ use crate::build_project::artifact_writer::ArtifactFileWriter;
 use crate::build_project::artifact_writer::ArtifactWriter;
 use crate::build_project::generate_extra_artifacts::GenerateExtraArtifactsFn;
 use crate::build_project::ocaml_generate_extra_files::ocaml_generate_extra_artifacts;
+use crate::build_project::get_artifacts_file_hash_map::GetArtifactsFileHashMapFn;
 use crate::build_project::AdditionalValidations;
 use crate::compiler_state::CompilerState;
-use crate::compiler_state::ProjectName;
 use crate::compiler_state::ProjectSet;
 use crate::errors::ConfigValidationError;
 use crate::errors::Error;
@@ -113,6 +113,8 @@ pub struct Config {
 
     /// Path to which to write the output of the compilation
     pub artifact_writer: Box<dyn ArtifactWriter + Send + Sync>,
+    // Function to get the file hash for an artifact file.
+    pub get_artifacts_file_hash_map: Option<GetArtifactsFileHashMapFn>,
 
     /// Compile all files. Persist ids are still re-used unless
     /// `Config::repersist_operations` is also set.
@@ -414,6 +416,7 @@ Example file:
             load_saved_state_file: None,
             generate_extra_artifacts,
             generate_virtual_id_file_name: None,
+            get_artifacts_file_hash_map: None,
             saved_state_config: config_file.saved_state_config,
             saved_state_loader: None,
             saved_state_version: hex::encode(hash.finalize()),
@@ -672,7 +675,7 @@ struct MultiProjectConfigFile {
 #[serde(deny_unknown_fields, rename_all = "camelCase", default)]
 pub struct SingleProjectConfigFile {
     #[serde(skip)]
-    pub project_name: StringKey,
+    pub project_name: ProjectName,
 
     /// Path to schema.graphql
     pub schema: PathBuf,
@@ -750,7 +753,7 @@ pub struct SingleProjectConfigFile {
 impl Default for SingleProjectConfigFile {
     fn default() -> Self {
         Self {
-            project_name: "default".intern(),
+            project_name: ProjectName::default(),
             schema: Default::default(),
             src: Default::default(),
             artifact_directory: Default::default(),
