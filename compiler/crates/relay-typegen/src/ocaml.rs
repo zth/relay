@@ -2941,7 +2941,7 @@ impl Writer for OCamlPrinter {
         ""
     }
 
-    fn write_type_assertion(&mut self, name: &str, ast: &AST) -> Result {
+    fn write_local_type(&mut self, name: &str, ast: &AST) -> Result {
         // Handle provided variables. This below pulls put what we need from the
         // AST Relay gives us for provided variables. It's a bit convoluted, but
         // essentially extracts the provided variable key name, and its return

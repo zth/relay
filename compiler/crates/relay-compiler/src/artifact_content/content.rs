@@ -14,10 +14,13 @@ use common::NamedItem;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::OperationDefinition;
+use intern::Lookup;
 use relay_codegen::build_request_params;
 use relay_codegen::Printer;
 use relay_codegen::QueryID;
 use relay_codegen::TopLevelStatements;
+use relay_codegen::TopLevelStatement;
+use relay_codegen::CODEGEN_CONSTANTS;
 use relay_transforms::is_operation_preloadable;
 use relay_transforms::RelayDataDrivenDependencyMetadata;
 use relay_transforms::ASSIGNABLE_DIRECTIVE;
@@ -110,7 +113,6 @@ pub fn generate_updatable_query(
                 schema,
                 project_config,
                 fragment_locations,
-                None, // TODO: Add/investigrate support for provided variables in updatable queries
             )
         )?;
     }
@@ -265,8 +267,6 @@ pub fn generate_operation(
     )?;
 
     if !skip_types {
-        let maybe_provided_variables =
-            printer.print_provided_variables(schema, normalization_operation);
         write!(
             section,
             "{}",
@@ -276,7 +276,6 @@ pub fn generate_operation(
                 schema,
                 project_config,
                 fragment_locations,
-                maybe_provided_variables,
             )
         )?;
     }
@@ -287,8 +286,27 @@ pub fn generate_operation(
     content_sections.push(ContentSection::Generic(section));
     // -- End Types Section --
 
+    // -- Begin Top Level Statements Section --
+    let mut section = GenericSection::default();
     let mut top_level_statements = Default::default();
-    // -- Begin Query Node Section --
+    if let Some(provided_variables) =
+        printer.print_provided_variables(schema, normalization_operation, &mut top_level_statements)
+    {
+        let mut provided_variable_text = String::new();
+        write_variable_value_with_type(
+            &project_config.typegen_config.language,
+            &mut provided_variable_text,
+            CODEGEN_CONSTANTS.provided_variables_definition.lookup(),
+            relay_typegen::PROVIDED_VARIABLE_TYPE,
+            &provided_variables,
+        )
+        .unwrap();
+        top_level_statements.insert(
+            CODEGEN_CONSTANTS.provided_variables_definition.to_string(),
+            TopLevelStatement::VariableDefinition(provided_variable_text),
+        );
+    }
+
     let request = printer.print_request(
         schema,
         normalization_operation,
@@ -297,12 +315,11 @@ pub fn generate_operation(
         &mut top_level_statements,
     );
 
-    // -- Begin Top Level Statements Section --
-    let mut section: GenericSection = GenericSection::default();
     write!(section, "{}", &top_level_statements)?;
     content_sections.push(ContentSection::Generic(section));
     // -- End Top Level Statements Section --
 
+    // -- Begin Query Node Section --
     let mut section = GenericSection::default();
     write_variable_value_with_type(
         &project_config.typegen_config.language,
@@ -1009,7 +1026,6 @@ pub fn generate_operation_ocaml(
             schema,
             project_config,
             fragment_locations,
-            None
         )
     )
     .unwrap();
@@ -1043,17 +1059,17 @@ pub fn generate_operation_ocaml(
     // what we want. Printing of the actual types and values involved in
     // provided variables is handled inside of the OCaml typegen printer.
     let provided_variables = find_provided_variables(&normalization_operation);
-    // if provided_variables.is_some() {
-        // // This needs to be inserted even though we're not actually printing
-        // // `top_level_statements`. The compiler checks for the presence of the
-        // // `symbol` added below, and changes the provided variables output to
-        // // what we want. Sketchy I know, but that's why it's here even though it
-        // // doesn't seem to do anything.
-        // top_level_statements.insert(
-            // CODEGEN_CONSTANTS.provided_variables_definition.to_string(),
-            // TopLevelStatement::VariableDefinition(String::from("")),
-        // );
-    // }
+    if provided_variables.is_some() {
+        // This needs to be inserted even though we're not actually printing
+        // `top_level_statements`. The compiler checks for the presence of the
+        // `symbol` added below, and changes the provided variables output to
+        // what we want. Sketchy I know, but that's why it's here even though it
+        // doesn't seem to do anything.
+        top_level_statements.insert(
+            CODEGEN_CONSTANTS.provided_variables_definition.to_string(),
+            TopLevelStatement::VariableDefinition(String::from("")),
+        );
+    }
 
     // Print node type
     match project_config.typegen_config.language {
