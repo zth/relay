@@ -2427,7 +2427,14 @@ impl Writer for OCamlPrinter {
                 // connection that's either in a nested object somewhere, or
                 // directly on the fragment.
                 match (&self.fragment, connection_config.at_object_path.len()) {
-                    (Some((_, TopLevelFragmentType::Object(fragment))), 1) => {
+                    (
+                        Some((
+                            _,
+                            TopLevelFragmentType::Object(fragment)
+                            | TopLevelFragmentType::ArrayWithObject(fragment),
+                        )),
+                        1,
+                    ) => {
                         // Only one element means it's on the fragment, since
                         // @connection only appears on fragments, and the prefix
                         // "fragment" will be here in the path.
@@ -2440,10 +2447,7 @@ impl Writer for OCamlPrinter {
                         )
                         .unwrap()
                     }
-                    (
-                        Some((_, TopLevelFragmentType::Object(_) | TopLevelFragmentType::Union(_))),
-                        _,
-                    ) => {
+                    (Some(_), _) => {
                         // More elements means this is an object somewhere else
                         // in the response. So, we'll need to find it.
                         match find_object_with_record_name(

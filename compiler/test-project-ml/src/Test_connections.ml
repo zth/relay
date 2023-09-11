@@ -21,6 +21,30 @@ module Fragment1 = [%relay{|
     }
     |}]
 
+module Fragment = [%relay {|
+  fragment TestConnectionsPlural_user on User
+    @relay(plural: true)
+    @argumentDefinitions(
+      onlineStatuses: { type: "[OnlineStatus!]", defaultValue: [Idle] }
+      count: { type: "Int", defaultValue: 2 }
+      cursor: { type: "String", defaultValue: "" }
+      beforeDate: { type: "Datetime!" }
+    ) {
+      friendsConnection(
+        statuses: $onlineStatuses
+      first: $count
+      after: $cursor
+      beforeDate: $beforeDate
+    ) @connection(key: "TestConnections_user_friendsConnection") {
+      edges {
+        node {
+          id
+      }
+        }
+      }
+    }
+    |}]
+
 module Fragment2 = [%relay{|
   fragment TestConnectionsWithFilters_user on User
     @argumentDefinitions(
@@ -143,3 +167,33 @@ module Fragment5 = [%relay{|
         }
       }
     |}]
+
+module Fragment = [%relay {|
+  fragment TestConnectionsUnionPlural_user on Query
+    @relay(plural: true)
+    @argumentDefinitions(
+      onlineStatuses: { type: "[OnlineStatus!]", defaultValue: [Idle] }
+      count: { type: "Int", defaultValue: 2 }
+      cursor: { type: "String", defaultValue: "" }
+      beforeDate: { type: "Datetime!" }
+      someInput: { type: "SomeInput" }
+    ) {
+      member(id: "123") {
+        ... on User {
+          friendsConnection(
+            statuses: $onlineStatuses
+          first: $count
+          after: $cursor
+          beforeDate: $beforeDate
+          objTests: [{int: 123}, {str: "Hello"}, $someInput]
+      ) @connection(key: "TestConnections_user_friendsConnection") {
+        edges {
+          node {
+            id
+          }
+          }
+        }
+      }
+        }
+      }
+|}]
