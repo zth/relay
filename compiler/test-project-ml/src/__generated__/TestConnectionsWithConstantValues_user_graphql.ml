@@ -50,7 +50,7 @@ let connectionKey = "TestConnectionsWithonstantValues_user_friendsConnection"
   let flt = flt |. Js.Null.toOption in
   let datetime2 = match datetime2 with | None -> None | Some v -> Some (SomeModule.Datetime.serialize v) in
   let datetime3 = Some (SomeModule.Datetime.serialize datetime3) in
-  let args = [%mel.obj {statuses= [Melange_relay_internal.Arg(Some(`Idle)); Melange_relay_internal.Arg(onlineStatus)]; beforeDate= beforeDate; objTest= [%mel.obj {str = Some("123"); bool = Some(false); float = Some(12.2); int = Some(64); datetime = datetime; recursive = [%mel.obj {str = Some("234"); bool = bool; float = flt; int = Some(Js.null); datetime = datetime2; recursive = [%mel.obj {bool = bool; datetime = datetime3}]}]}]}] in
+  let args = [%mel.obj {statuses= [Melange_relay.Internal.Arg(Some(`Idle)); Melange_relay.Internal.Arg(onlineStatus)]; beforeDate= beforeDate; objTest= [%mel.obj {str = Some("123"); bool = Some(false); float = Some(12.2); int = Some(64); datetime = datetime; recursive = [%mel.obj {str = Some("234"); bool = bool; float = flt; int = Some(Js.null); datetime = datetime2; recursive = [%mel.obj {bool = bool; datetime = datetime3}]}]}]}] in
   internal_makeConnectionId connectionParentDataId args
 module Utils = struct
   [@@@ocaml.warning "-33"]

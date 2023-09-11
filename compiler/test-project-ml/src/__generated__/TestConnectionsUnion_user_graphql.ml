@@ -68,7 +68,7 @@ let connectionKey = "TestConnections_user_friendsConnection"
 ]let makeConnectionId (connectionParentDataId: Melange_relay.dataId) ?(onlineStatuses: [`Online | `Idle | `Offline] array=[| `Idle |]) ~(beforeDate: SomeModule.Datetime.t) ?(someInput: RelaySchemaAssets_graphql.input_SomeInput option) () =
   let onlineStatuses = Some onlineStatuses in
   let beforeDate = Some (SomeModule.Datetime.serialize beforeDate) in
-  let args = [%mel.obj {statuses= onlineStatuses; beforeDate= beforeDate; objTests= [Melange_relay_internal.Arg(Some([%mel.obj {int = Some(123)}])); Melange_relay_internal.Arg(Some([%mel.obj {str = Some("Hello")}])); Melange_relay_internal.Arg(someInput)]}] in
+  let args = [%mel.obj {statuses= onlineStatuses; beforeDate= beforeDate; objTests= [Melange_relay.Internal.Arg(Some([%mel.obj {int = Some(123)}])); Melange_relay.Internal.Arg(Some([%mel.obj {str = Some("Hello")}])); Melange_relay.Internal.Arg(someInput)]}] in
   internal_makeConnectionId connectionParentDataId args
 module Utils = struct
   [@@@ocaml.warning "-33"]
