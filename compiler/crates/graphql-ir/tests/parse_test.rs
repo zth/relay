@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9dade3d0ff881e265617477148740319>>
+ * @generated SignedSource<<cae03fccd5b86d0bc871c94d655304f1>>
  */
 
 mod parse;
@@ -12,103 +12,53 @@ mod parse;
 use fixture_tests::test_fixture;
 use parse::transform_fixture;
 
-#[test]
-fn argument_complex_object_invalid() {
+#[tokio::test]
+async fn argument_complex_object_invalid() {
     let input = include_str!("parse/fixtures/argument-complex-object.invalid.graphql");
     let expected = include_str!("parse/fixtures/argument-complex-object.invalid.expected");
-    test_fixture(
-        transform_fixture,
-        "argument-complex-object.invalid.graphql",
-        "parse/fixtures/argument-complex-object.invalid.expected",
-        input,
-        expected,
-    );
+    test_fixture(transform_fixture, "argument-complex-object.invalid.graphql", "parse/fixtures/argument-complex-object.invalid.expected", input, expected).await;
 }
 
-#[test]
-fn argument_definitions() {
+#[tokio::test]
+async fn argument_definitions() {
     let input = include_str!("parse/fixtures/argument_definitions.graphql");
     let expected = include_str!("parse/fixtures/argument_definitions.expected");
-    test_fixture(
-        transform_fixture,
-        "argument_definitions.graphql",
-        "parse/fixtures/argument_definitions.expected",
-        input,
-        expected,
-    );
+    test_fixture(transform_fixture, "argument_definitions.graphql", "parse/fixtures/argument_definitions.expected", input, expected).await;
 }
 
-#[test]
-fn argument_definitions_directives_invalid_directive_arg_invalid() {
-    let input = include_str!(
-        "parse/fixtures/argument_definitions_directives_invalid_directive_arg.invalid.graphql"
-    );
-    let expected = include_str!(
-        "parse/fixtures/argument_definitions_directives_invalid_directive_arg.invalid.expected"
-    );
-    test_fixture(
-        transform_fixture,
-        "argument_definitions_directives_invalid_directive_arg.invalid.graphql",
-        "parse/fixtures/argument_definitions_directives_invalid_directive_arg.invalid.expected",
-        input,
-        expected,
-    );
+#[tokio::test]
+async fn argument_definitions_directives_invalid_directive_arg_invalid() {
+    let input = include_str!("parse/fixtures/argument_definitions_directives_invalid_directive_arg.invalid.graphql");
+    let expected = include_str!("parse/fixtures/argument_definitions_directives_invalid_directive_arg.invalid.expected");
+    test_fixture(transform_fixture, "argument_definitions_directives_invalid_directive_arg.invalid.graphql", "parse/fixtures/argument_definitions_directives_invalid_directive_arg.invalid.expected", input, expected).await;
 }
 
-#[test]
-fn argument_definitions_directives_invalid_locations_invalid() {
-    let input = include_str!(
-        "parse/fixtures/argument_definitions_directives_invalid_locations.invalid.graphql"
-    );
-    let expected = include_str!(
-        "parse/fixtures/argument_definitions_directives_invalid_locations.invalid.expected"
-    );
-    test_fixture(
-        transform_fixture,
-        "argument_definitions_directives_invalid_locations.invalid.graphql",
-        "parse/fixtures/argument_definitions_directives_invalid_locations.invalid.expected",
-        input,
-        expected,
-    );
+#[tokio::test]
+async fn argument_definitions_directives_invalid_locations_invalid() {
+    let input = include_str!("parse/fixtures/argument_definitions_directives_invalid_locations.invalid.graphql");
+    let expected = include_str!("parse/fixtures/argument_definitions_directives_invalid_locations.invalid.expected");
+    test_fixture(transform_fixture, "argument_definitions_directives_invalid_locations.invalid.graphql", "parse/fixtures/argument_definitions_directives_invalid_locations.invalid.expected", input, expected).await;
 }
 
-#[test]
-fn argument_definitions_directives_invalid_syntax_invalid() {
-    let input = include_str!(
-        "parse/fixtures/argument_definitions_directives_invalid_syntax.invalid.graphql"
-    );
-    let expected = include_str!(
-        "parse/fixtures/argument_definitions_directives_invalid_syntax.invalid.expected"
-    );
-    test_fixture(
-        transform_fixture,
-        "argument_definitions_directives_invalid_syntax.invalid.graphql",
-        "parse/fixtures/argument_definitions_directives_invalid_syntax.invalid.expected",
-        input,
-        expected,
-    );
+#[tokio::test]
+async fn argument_definitions_directives_invalid_syntax_invalid() {
+    let input = include_str!("parse/fixtures/argument_definitions_directives_invalid_syntax.invalid.graphql");
+    let expected = include_str!("parse/fixtures/argument_definitions_directives_invalid_syntax.invalid.expected");
+    test_fixture(transform_fixture, "argument_definitions_directives_invalid_syntax.invalid.graphql", "parse/fixtures/argument_definitions_directives_invalid_syntax.invalid.expected", input, expected).await;
 }
 
-#[test]
-fn argument_definitions_directives_invalid_type_invalid() {
-    let input =
-        include_str!("parse/fixtures/argument_definitions_directives_invalid_type.invalid.graphql");
-    let expected = include_str!(
-        "parse/fixtures/argument_definitions_directives_invalid_type.invalid.expected"
-    );
-    test_fixture(
-        transform_fixture,
-        "argument_definitions_directives_invalid_type.invalid.graphql",
-        "parse/fixtures/argument_definitions_directives_invalid_type.invalid.expected",
-        input,
-        expected,
-    );
+#[tokio::test]
+async fn argument_definitions_directives_invalid_type_invalid() {
+    let input = include_str!("parse/fixtures/argument_definitions_directives_invalid_type.invalid.graphql");
+    let expected = include_str!("parse/fixtures/argument_definitions_directives_invalid_type.invalid.expected");
+    test_fixture(transform_fixture, "argument_definitions_directives_invalid_type.invalid.graphql", "parse/fixtures/argument_definitions_directives_invalid_type.invalid.expected", input, expected).await;
 }
 
-#[test]
-fn argument_definitions_typo_invalid() {
+#[tokio::test]
+async fn argument_definitions_typo_invalid() {
     let input = include_str!("parse/fixtures/argument_definitions_typo.invalid.graphql");
     let expected = include_str!("parse/fixtures/argument_definitions_typo.invalid.expected");
+<<<<<<< HEAD
     test_fixture(
         transform_fixture,
         "argument_definitions_typo.invalid.graphql",
@@ -131,11 +81,22 @@ fn complex_object_with_invalid_constant_fields_invalid() {
         input,
         expected,
     );
+=======
+    test_fixture(transform_fixture, "argument_definitions_typo.invalid.graphql", "parse/fixtures/argument_definitions_typo.invalid.expected", input, expected).await;
 }
 
-#[test]
-fn complex_object_with_invalid_fields_invalid() {
+#[tokio::test]
+async fn complex_object_with_invalid_constant_fields_invalid() {
+    let input = include_str!("parse/fixtures/complex-object-with-invalid-constant-fields.invalid.graphql");
+    let expected = include_str!("parse/fixtures/complex-object-with-invalid-constant-fields.invalid.expected");
+    test_fixture(transform_fixture, "complex-object-with-invalid-constant-fields.invalid.graphql", "parse/fixtures/complex-object-with-invalid-constant-fields.invalid.expected", input, expected).await;
+>>>>>>> facebook/main
+}
+
+#[tokio::test]
+async fn complex_object_with_invalid_fields_invalid() {
     let input = include_str!("parse/fixtures/complex-object-with-invalid-fields.invalid.graphql");
+<<<<<<< HEAD
     let expected =
         include_str!("parse/fixtures/complex-object-with-invalid-fields.invalid.expected");
     test_fixture(
@@ -145,11 +106,16 @@ fn complex_object_with_invalid_fields_invalid() {
         input,
         expected,
     );
+=======
+    let expected = include_str!("parse/fixtures/complex-object-with-invalid-fields.invalid.expected");
+    test_fixture(transform_fixture, "complex-object-with-invalid-fields.invalid.graphql", "parse/fixtures/complex-object-with-invalid-fields.invalid.expected", input, expected).await;
+>>>>>>> facebook/main
 }
 
-#[test]
-fn complex_object_with_missing_fields_invalid() {
+#[tokio::test]
+async fn complex_object_with_missing_fields_invalid() {
     let input = include_str!("parse/fixtures/complex-object-with-missing-fields.invalid.graphql");
+<<<<<<< HEAD
     let expected =
         include_str!("parse/fixtures/complex-object-with-missing-fields.invalid.expected");
     test_fixture(
@@ -159,12 +125,17 @@ fn complex_object_with_missing_fields_invalid() {
         input,
         expected,
     );
+=======
+    let expected = include_str!("parse/fixtures/complex-object-with-missing-fields.invalid.expected");
+    test_fixture(transform_fixture, "complex-object-with-missing-fields.invalid.graphql", "parse/fixtures/complex-object-with-missing-fields.invalid.expected", input, expected).await;
+>>>>>>> facebook/main
 }
 
-#[test]
-fn directive_generic() {
+#[tokio::test]
+async fn directive_generic() {
     let input = include_str!("parse/fixtures/directive-generic.graphql");
     let expected = include_str!("parse/fixtures/directive-generic.expected");
+<<<<<<< HEAD
     test_fixture(
         transform_fixture,
         "directive-generic.graphql",
@@ -172,12 +143,16 @@ fn directive_generic() {
         input,
         expected,
     );
+=======
+    test_fixture(transform_fixture, "directive-generic.graphql", "parse/fixtures/directive-generic.expected", input, expected).await;
+>>>>>>> facebook/main
 }
 
-#[test]
-fn directive_include() {
+#[tokio::test]
+async fn directive_include() {
     let input = include_str!("parse/fixtures/directive-include.graphql");
     let expected = include_str!("parse/fixtures/directive-include.expected");
+<<<<<<< HEAD
     test_fixture(
         transform_fixture,
         "directive-include.graphql",
@@ -185,12 +160,16 @@ fn directive_include() {
         input,
         expected,
     );
+=======
+    test_fixture(transform_fixture, "directive-include.graphql", "parse/fixtures/directive-include.expected", input, expected).await;
+>>>>>>> facebook/main
 }
 
-#[test]
-fn directive_match_on_fragment_invalid() {
+#[tokio::test]
+async fn directive_match_on_fragment_invalid() {
     let input = include_str!("parse/fixtures/directive-match-on-fragment.invalid.graphql");
     let expected = include_str!("parse/fixtures/directive-match-on-fragment.invalid.expected");
+<<<<<<< HEAD
     test_fixture(
         transform_fixture,
         "directive-match-on-fragment.invalid.graphql",
@@ -198,11 +177,15 @@ fn directive_match_on_fragment_invalid() {
         input,
         expected,
     );
+=======
+    test_fixture(transform_fixture, "directive-match-on-fragment.invalid.graphql", "parse/fixtures/directive-match-on-fragment.invalid.expected", input, expected).await;
+>>>>>>> facebook/main
 }
 
-#[test]
-fn directive_missing_required_argument_invalid() {
+#[tokio::test]
+async fn directive_missing_required_argument_invalid() {
     let input = include_str!("parse/fixtures/directive_missing_required_argument.invalid.graphql");
+<<<<<<< HEAD
     let expected =
         include_str!("parse/fixtures/directive_missing_required_argument.invalid.expected");
     test_fixture(
@@ -212,12 +195,17 @@ fn directive_missing_required_argument_invalid() {
         input,
         expected,
     );
+=======
+    let expected = include_str!("parse/fixtures/directive_missing_required_argument.invalid.expected");
+    test_fixture(transform_fixture, "directive_missing_required_argument.invalid.graphql", "parse/fixtures/directive_missing_required_argument.invalid.expected", input, expected).await;
+>>>>>>> facebook/main
 }
 
-#[test]
-fn directive_module_match_on_query_invalid() {
+#[tokio::test]
+async fn directive_module_match_on_query_invalid() {
     let input = include_str!("parse/fixtures/directive-module-match-on-query.invalid.graphql");
     let expected = include_str!("parse/fixtures/directive-module-match-on-query.invalid.expected");
+<<<<<<< HEAD
     test_fixture(
         transform_fixture,
         "directive-module-match-on-query.invalid.graphql",
@@ -225,12 +213,16 @@ fn directive_module_match_on_query_invalid() {
         input,
         expected,
     );
+=======
+    test_fixture(transform_fixture, "directive-module-match-on-query.invalid.graphql", "parse/fixtures/directive-module-match-on-query.invalid.expected", input, expected).await;
+>>>>>>> facebook/main
 }
 
-#[test]
-fn directive_module_on_field_invalid() {
+#[tokio::test]
+async fn directive_module_on_field_invalid() {
     let input = include_str!("parse/fixtures/directive-module-on-field.invalid.graphql");
     let expected = include_str!("parse/fixtures/directive-module-on-field.invalid.expected");
+<<<<<<< HEAD
     test_fixture(
         transform_fixture,
         "directive-module-on-field.invalid.graphql",
@@ -238,12 +230,16 @@ fn directive_module_on_field_invalid() {
         input,
         expected,
     );
+=======
+    test_fixture(transform_fixture, "directive-module-on-field.invalid.graphql", "parse/fixtures/directive-module-on-field.invalid.expected", input, expected).await;
+>>>>>>> facebook/main
 }
 
-#[test]
-fn directive_unknown_argument_invalid() {
+#[tokio::test]
+async fn directive_unknown_argument_invalid() {
     let input = include_str!("parse/fixtures/directive-unknown-argument.invalid.graphql");
     let expected = include_str!("parse/fixtures/directive-unknown-argument.invalid.expected");
+<<<<<<< HEAD
     test_fixture(
         transform_fixture,
         "directive-unknown-argument.invalid.graphql",
@@ -251,12 +247,16 @@ fn directive_unknown_argument_invalid() {
         input,
         expected,
     );
+=======
+    test_fixture(transform_fixture, "directive-unknown-argument.invalid.graphql", "parse/fixtures/directive-unknown-argument.invalid.expected", input, expected).await;
+>>>>>>> facebook/main
 }
 
-#[test]
-fn directive_wrong_argument_type_invalid() {
+#[tokio::test]
+async fn directive_wrong_argument_type_invalid() {
     let input = include_str!("parse/fixtures/directive_wrong_argument_type.invalid.graphql");
     let expected = include_str!("parse/fixtures/directive_wrong_argument_type.invalid.expected");
+<<<<<<< HEAD
     test_fixture(
         transform_fixture,
         "directive_wrong_argument_type.invalid.graphql",
@@ -264,12 +264,16 @@ fn directive_wrong_argument_type_invalid() {
         input,
         expected,
     );
+=======
+    test_fixture(transform_fixture, "directive_wrong_argument_type.invalid.graphql", "parse/fixtures/directive_wrong_argument_type.invalid.expected", input, expected).await;
+>>>>>>> facebook/main
 }
 
-#[test]
-fn duplicate_arguments_invalid() {
+#[tokio::test]
+async fn duplicate_arguments_invalid() {
     let input = include_str!("parse/fixtures/duplicate_arguments.invalid.graphql");
     let expected = include_str!("parse/fixtures/duplicate_arguments.invalid.expected");
+<<<<<<< HEAD
     test_fixture(
         transform_fixture,
         "duplicate_arguments.invalid.graphql",
@@ -277,12 +281,16 @@ fn duplicate_arguments_invalid() {
         input,
         expected,
     );
+=======
+    test_fixture(transform_fixture, "duplicate_arguments.invalid.graphql", "parse/fixtures/duplicate_arguments.invalid.expected", input, expected).await;
+>>>>>>> facebook/main
 }
 
-#[test]
-fn duplicate_variables_invalid() {
+#[tokio::test]
+async fn duplicate_variables_invalid() {
     let input = include_str!("parse/fixtures/duplicate_variables_invalid.graphql");
     let expected = include_str!("parse/fixtures/duplicate_variables_invalid.expected");
+<<<<<<< HEAD
     test_fixture(
         transform_fixture,
         "duplicate_variables_invalid.graphql",
@@ -290,12 +298,16 @@ fn duplicate_variables_invalid() {
         input,
         expected,
     );
+=======
+    test_fixture(transform_fixture, "duplicate_variables_invalid.graphql", "parse/fixtures/duplicate_variables_invalid.expected", input, expected).await;
+>>>>>>> facebook/main
 }
 
-#[test]
-fn enum_values() {
+#[tokio::test]
+async fn enum_values() {
     let input = include_str!("parse/fixtures/enum-values.graphql");
     let expected = include_str!("parse/fixtures/enum-values.expected");
+<<<<<<< HEAD
     test_fixture(
         transform_fixture,
         "enum-values.graphql",
@@ -303,12 +315,16 @@ fn enum_values() {
         input,
         expected,
     );
+=======
+    test_fixture(transform_fixture, "enum-values.graphql", "parse/fixtures/enum-values.expected", input, expected).await;
+>>>>>>> facebook/main
 }
 
-#[test]
-fn enum_values_invalid() {
+#[tokio::test]
+async fn enum_values_invalid() {
     let input = include_str!("parse/fixtures/enum-values.invalid.graphql");
     let expected = include_str!("parse/fixtures/enum-values.invalid.expected");
+<<<<<<< HEAD
     test_fixture(
         transform_fixture,
         "enum-values.invalid.graphql",
@@ -316,12 +332,16 @@ fn enum_values_invalid() {
         input,
         expected,
     );
+=======
+    test_fixture(transform_fixture, "enum-values.invalid.graphql", "parse/fixtures/enum-values.invalid.expected", input, expected).await;
+>>>>>>> facebook/main
 }
 
-#[test]
-fn fetch_token_with_arguments_invalid() {
+#[tokio::test]
+async fn fetch_token_with_arguments_invalid() {
     let input = include_str!("parse/fixtures/fetch_token_with_arguments.invalid.graphql");
     let expected = include_str!("parse/fixtures/fetch_token_with_arguments.invalid.expected");
+<<<<<<< HEAD
     test_fixture(
         transform_fixture,
         "fetch_token_with_arguments.invalid.graphql",
@@ -329,12 +349,16 @@ fn fetch_token_with_arguments_invalid() {
         input,
         expected,
     );
+=======
+    test_fixture(transform_fixture, "fetch_token_with_arguments.invalid.graphql", "parse/fixtures/fetch_token_with_arguments.invalid.expected", input, expected).await;
+>>>>>>> facebook/main
 }
 
-#[test]
-fn field_argument_missing_required_invalid() {
+#[tokio::test]
+async fn field_argument_missing_required_invalid() {
     let input = include_str!("parse/fixtures/field_argument_missing_required.invalid.graphql");
     let expected = include_str!("parse/fixtures/field_argument_missing_required.invalid.expected");
+<<<<<<< HEAD
     test_fixture(
         transform_fixture,
         "field_argument_missing_required.invalid.graphql",
@@ -342,12 +366,16 @@ fn field_argument_missing_required_invalid() {
         input,
         expected,
     );
+=======
+    test_fixture(transform_fixture, "field_argument_missing_required.invalid.graphql", "parse/fixtures/field_argument_missing_required.invalid.expected", input, expected).await;
+>>>>>>> facebook/main
 }
 
-#[test]
-fn field_argument_unknown_invalid() {
+#[tokio::test]
+async fn field_argument_unknown_invalid() {
     let input = include_str!("parse/fixtures/field_argument_unknown.invalid.graphql");
     let expected = include_str!("parse/fixtures/field_argument_unknown.invalid.expected");
+<<<<<<< HEAD
     test_fixture(
         transform_fixture,
         "field_argument_unknown.invalid.graphql",
@@ -355,12 +383,16 @@ fn field_argument_unknown_invalid() {
         input,
         expected,
     );
+=======
+    test_fixture(transform_fixture, "field_argument_unknown.invalid.graphql", "parse/fixtures/field_argument_unknown.invalid.expected", input, expected).await;
+>>>>>>> facebook/main
 }
 
-#[test]
-fn field_argument_wrong_type_invalid() {
+#[tokio::test]
+async fn field_argument_wrong_type_invalid() {
     let input = include_str!("parse/fixtures/field_argument_wrong_type.invalid.graphql");
     let expected = include_str!("parse/fixtures/field_argument_wrong_type.invalid.expected");
+<<<<<<< HEAD
     test_fixture(
         transform_fixture,
         "field_argument_wrong_type.invalid.graphql",
@@ -368,12 +400,16 @@ fn field_argument_wrong_type_invalid() {
         input,
         expected,
     );
+=======
+    test_fixture(transform_fixture, "field_argument_wrong_type.invalid.graphql", "parse/fixtures/field_argument_wrong_type.invalid.expected", input, expected).await;
+>>>>>>> facebook/main
 }
 
-#[test]
-fn field_arguments() {
+#[tokio::test]
+async fn field_arguments() {
     let input = include_str!("parse/fixtures/field-arguments.graphql");
     let expected = include_str!("parse/fixtures/field-arguments.expected");
+<<<<<<< HEAD
     test_fixture(
         transform_fixture,
         "field-arguments.graphql",
@@ -381,12 +417,16 @@ fn field_arguments() {
         input,
         expected,
     );
+=======
+    test_fixture(transform_fixture, "field-arguments.graphql", "parse/fixtures/field-arguments.expected", input, expected).await;
+>>>>>>> facebook/main
 }
 
-#[test]
-fn fixme_fat_interface_on_union() {
+#[tokio::test]
+async fn fixme_fat_interface_on_union() {
     let input = include_str!("parse/fixtures/fixme_fat_interface_on_union.graphql");
     let expected = include_str!("parse/fixtures/fixme_fat_interface_on_union.expected");
+<<<<<<< HEAD
     test_fixture(
         transform_fixture,
         "fixme_fat_interface_on_union.graphql",
@@ -394,12 +434,16 @@ fn fixme_fat_interface_on_union() {
         input,
         expected,
     );
+=======
+    test_fixture(transform_fixture, "fixme_fat_interface_on_union.graphql", "parse/fixtures/fixme_fat_interface_on_union.expected", input, expected).await;
+>>>>>>> facebook/main
 }
 
-#[test]
-fn fixme_fat_interface_on_union_invalid() {
+#[tokio::test]
+async fn fixme_fat_interface_on_union_invalid() {
     let input = include_str!("parse/fixtures/fixme_fat_interface_on_union.invalid.graphql");
     let expected = include_str!("parse/fixtures/fixme_fat_interface_on_union.invalid.expected");
+<<<<<<< HEAD
     test_fixture(
         transform_fixture,
         "fixme_fat_interface_on_union.invalid.graphql",
@@ -407,12 +451,16 @@ fn fixme_fat_interface_on_union_invalid() {
         input,
         expected,
     );
+=======
+    test_fixture(transform_fixture, "fixme_fat_interface_on_union.invalid.graphql", "parse/fixtures/fixme_fat_interface_on_union.invalid.expected", input, expected).await;
+>>>>>>> facebook/main
 }
 
-#[test]
-fn fragment_spread_on_wrong_type_invalid() {
+#[tokio::test]
+async fn fragment_spread_on_wrong_type_invalid() {
     let input = include_str!("parse/fixtures/fragment-spread-on-wrong-type.invalid.graphql");
     let expected = include_str!("parse/fixtures/fragment-spread-on-wrong-type.invalid.expected");
+<<<<<<< HEAD
     test_fixture(
         transform_fixture,
         "fragment-spread-on-wrong-type.invalid.graphql",
@@ -435,12 +483,23 @@ fn fragment_spread_within_wrong_parent_type_invalid() {
         input,
         expected,
     );
+=======
+    test_fixture(transform_fixture, "fragment-spread-on-wrong-type.invalid.graphql", "parse/fixtures/fragment-spread-on-wrong-type.invalid.expected", input, expected).await;
 }
 
-#[test]
-fn fragment_with_argument_type_invalid() {
+#[tokio::test]
+async fn fragment_spread_within_wrong_parent_type_invalid() {
+    let input = include_str!("parse/fixtures/fragment-spread-within-wrong-parent-type.invalid.graphql");
+    let expected = include_str!("parse/fixtures/fragment-spread-within-wrong-parent-type.invalid.expected");
+    test_fixture(transform_fixture, "fragment-spread-within-wrong-parent-type.invalid.graphql", "parse/fixtures/fragment-spread-within-wrong-parent-type.invalid.expected", input, expected).await;
+>>>>>>> facebook/main
+}
+
+#[tokio::test]
+async fn fragment_with_argument_type_invalid() {
     let input = include_str!("parse/fixtures/fragment-with-argument-type.invalid.graphql");
     let expected = include_str!("parse/fixtures/fragment-with-argument-type.invalid.expected");
+<<<<<<< HEAD
     test_fixture(
         transform_fixture,
         "fragment-with-argument-type.invalid.graphql",
@@ -463,12 +522,23 @@ fn fragment_with_argument_type_syntax_error_invalid() {
         input,
         expected,
     );
+=======
+    test_fixture(transform_fixture, "fragment-with-argument-type.invalid.graphql", "parse/fixtures/fragment-with-argument-type.invalid.expected", input, expected).await;
 }
 
-#[test]
-fn fragment_with_arguments() {
+#[tokio::test]
+async fn fragment_with_argument_type_syntax_error_invalid() {
+    let input = include_str!("parse/fixtures/fragment-with-argument-type-syntax-error.invalid.graphql");
+    let expected = include_str!("parse/fixtures/fragment-with-argument-type-syntax-error.invalid.expected");
+    test_fixture(transform_fixture, "fragment-with-argument-type-syntax-error.invalid.graphql", "parse/fixtures/fragment-with-argument-type-syntax-error.invalid.expected", input, expected).await;
+>>>>>>> facebook/main
+}
+
+#[tokio::test]
+async fn fragment_with_arguments() {
     let input = include_str!("parse/fixtures/fragment-with-arguments.graphql");
     let expected = include_str!("parse/fixtures/fragment-with-arguments.expected");
+<<<<<<< HEAD
     test_fixture(
         transform_fixture,
         "fragment-with-arguments.graphql",
@@ -476,12 +546,16 @@ fn fragment_with_arguments() {
         input,
         expected,
     );
+=======
+    test_fixture(transform_fixture, "fragment-with-arguments.graphql", "parse/fixtures/fragment-with-arguments.expected", input, expected).await;
+>>>>>>> facebook/main
 }
 
-#[test]
-fn fragment_with_arguments_defaulting() {
+#[tokio::test]
+async fn fragment_with_arguments_defaulting() {
     let input = include_str!("parse/fixtures/fragment_with_arguments_defaulting.graphql");
     let expected = include_str!("parse/fixtures/fragment_with_arguments_defaulting.expected");
+<<<<<<< HEAD
     test_fixture(
         transform_fixture,
         "fragment_with_arguments_defaulting.graphql",
@@ -489,11 +563,15 @@ fn fragment_with_arguments_defaulting() {
         input,
         expected,
     );
+=======
+    test_fixture(transform_fixture, "fragment_with_arguments_defaulting.graphql", "parse/fixtures/fragment_with_arguments_defaulting.expected", input, expected).await;
+>>>>>>> facebook/main
 }
 
-#[test]
-fn fragment_with_arguments_duplicate_invalid() {
+#[tokio::test]
+async fn fragment_with_arguments_duplicate_invalid() {
     let input = include_str!("parse/fixtures/fragment-with-arguments-duplicate.invalid.graphql");
+<<<<<<< HEAD
     let expected =
         include_str!("parse/fixtures/fragment-with-arguments-duplicate.invalid.expected");
     test_fixture(
@@ -520,11 +598,23 @@ fn fragment_with_arguments_incorrect_nullability_invalid() {
         input,
         expected,
     );
+=======
+    let expected = include_str!("parse/fixtures/fragment-with-arguments-duplicate.invalid.expected");
+    test_fixture(transform_fixture, "fragment-with-arguments-duplicate.invalid.graphql", "parse/fixtures/fragment-with-arguments-duplicate.invalid.expected", input, expected).await;
 }
 
-#[test]
-fn fragment_with_arguments_invalid_type_invalid() {
+#[tokio::test]
+async fn fragment_with_arguments_incorrect_nullability_invalid() {
+    let input = include_str!("parse/fixtures/fragment_with_arguments_incorrect_nullability.invalid.graphql");
+    let expected = include_str!("parse/fixtures/fragment_with_arguments_incorrect_nullability.invalid.expected");
+    test_fixture(transform_fixture, "fragment_with_arguments_incorrect_nullability.invalid.graphql", "parse/fixtures/fragment_with_arguments_incorrect_nullability.invalid.expected", input, expected).await;
+>>>>>>> facebook/main
+}
+
+#[tokio::test]
+async fn fragment_with_arguments_invalid_type_invalid() {
     let input = include_str!("parse/fixtures/fragment-with-arguments-invalid-type.invalid.graphql");
+<<<<<<< HEAD
     let expected =
         include_str!("parse/fixtures/fragment-with-arguments-invalid-type.invalid.expected");
     test_fixture(
@@ -534,12 +624,17 @@ fn fragment_with_arguments_invalid_type_invalid() {
         input,
         expected,
     );
+=======
+    let expected = include_str!("parse/fixtures/fragment-with-arguments-invalid-type.invalid.expected");
+    test_fixture(transform_fixture, "fragment-with-arguments-invalid-type.invalid.graphql", "parse/fixtures/fragment-with-arguments-invalid-type.invalid.expected", input, expected).await;
+>>>>>>> facebook/main
 }
 
-#[test]
-fn fragment_with_arguments_syntax() {
+#[tokio::test]
+async fn fragment_with_arguments_syntax() {
     let input = include_str!("parse/fixtures/fragment-with-arguments-syntax.graphql");
     let expected = include_str!("parse/fixtures/fragment-with-arguments-syntax.expected");
+<<<<<<< HEAD
     test_fixture(
         transform_fixture,
         "fragment-with-arguments-syntax.graphql",
@@ -579,12 +674,30 @@ fn fragment_with_both_variable_definition_and_directive_invalid() {
         input,
         expected,
     );
+=======
+    test_fixture(transform_fixture, "fragment-with-arguments-syntax.graphql", "parse/fixtures/fragment-with-arguments-syntax.expected", input, expected).await;
 }
 
-#[test]
-fn fragment_with_literal_arguments() {
+#[tokio::test]
+async fn fragment_with_both_arguments_and_directive_invalid() {
+    let input = include_str!("parse/fixtures/fragment-with-both-arguments-and-directive.invalid.graphql");
+    let expected = include_str!("parse/fixtures/fragment-with-both-arguments-and-directive.invalid.expected");
+    test_fixture(transform_fixture, "fragment-with-both-arguments-and-directive.invalid.graphql", "parse/fixtures/fragment-with-both-arguments-and-directive.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn fragment_with_both_variable_definition_and_directive_invalid() {
+    let input = include_str!("parse/fixtures/fragment-with-both-variable-definition-and-directive.invalid.graphql");
+    let expected = include_str!("parse/fixtures/fragment-with-both-variable-definition-and-directive.invalid.expected");
+    test_fixture(transform_fixture, "fragment-with-both-variable-definition-and-directive.invalid.graphql", "parse/fixtures/fragment-with-both-variable-definition-and-directive.invalid.expected", input, expected).await;
+>>>>>>> facebook/main
+}
+
+#[tokio::test]
+async fn fragment_with_literal_arguments() {
     let input = include_str!("parse/fixtures/fragment-with-literal-arguments.graphql");
     let expected = include_str!("parse/fixtures/fragment-with-literal-arguments.expected");
+<<<<<<< HEAD
     test_fixture(
         transform_fixture,
         "fragment-with-literal-arguments.graphql",
@@ -592,12 +705,16 @@ fn fragment_with_literal_arguments() {
         input,
         expected,
     );
+=======
+    test_fixture(transform_fixture, "fragment-with-literal-arguments.graphql", "parse/fixtures/fragment-with-literal-arguments.expected", input, expected).await;
+>>>>>>> facebook/main
 }
 
-#[test]
-fn fragment_with_literal_enum_arguments() {
+#[tokio::test]
+async fn fragment_with_literal_enum_arguments() {
     let input = include_str!("parse/fixtures/fragment-with-literal-enum-arguments.graphql");
     let expected = include_str!("parse/fixtures/fragment-with-literal-enum-arguments.expected");
+<<<<<<< HEAD
     test_fixture(
         transform_fixture,
         "fragment-with-literal-enum-arguments.graphql",
@@ -620,18 +737,29 @@ fn fragment_with_literal_enum_arguments_into_enum_list() {
         input,
         expected,
     );
+=======
+    test_fixture(transform_fixture, "fragment-with-literal-enum-arguments.graphql", "parse/fixtures/fragment-with-literal-enum-arguments.expected", input, expected).await;
 }
 
-#[test]
-fn fragment_with_literal_enum_arguments_into_enum_list_indirect_invalid() {
+#[tokio::test]
+async fn fragment_with_literal_enum_arguments_into_enum_list() {
+    let input = include_str!("parse/fixtures/fragment-with-literal-enum-arguments-into-enum-list.graphql");
+    let expected = include_str!("parse/fixtures/fragment-with-literal-enum-arguments-into-enum-list.expected");
+    test_fixture(transform_fixture, "fragment-with-literal-enum-arguments-into-enum-list.graphql", "parse/fixtures/fragment-with-literal-enum-arguments-into-enum-list.expected", input, expected).await;
+>>>>>>> facebook/main
+}
+
+#[tokio::test]
+async fn fragment_with_literal_enum_arguments_into_enum_list_indirect_invalid() {
     let input = include_str!("parse/fixtures/fragment-with-literal-enum-arguments-into-enum-list-indirect.invalid.graphql");
     let expected = include_str!("parse/fixtures/fragment-with-literal-enum-arguments-into-enum-list-indirect.invalid.expected");
-    test_fixture(transform_fixture, "fragment-with-literal-enum-arguments-into-enum-list-indirect.invalid.graphql", "parse/fixtures/fragment-with-literal-enum-arguments-into-enum-list-indirect.invalid.expected", input, expected);
+    test_fixture(transform_fixture, "fragment-with-literal-enum-arguments-into-enum-list-indirect.invalid.graphql", "parse/fixtures/fragment-with-literal-enum-arguments-into-enum-list-indirect.invalid.expected", input, expected).await;
 }
 
-#[test]
-fn fragment_with_literal_enum_list_arguments() {
+#[tokio::test]
+async fn fragment_with_literal_enum_list_arguments() {
     let input = include_str!("parse/fixtures/fragment-with-literal-enum-list-arguments.graphql");
+<<<<<<< HEAD
     let expected =
         include_str!("parse/fixtures/fragment-with-literal-enum-list-arguments.expected");
     test_fixture(
@@ -641,12 +769,17 @@ fn fragment_with_literal_enum_list_arguments() {
         input,
         expected,
     );
+=======
+    let expected = include_str!("parse/fixtures/fragment-with-literal-enum-list-arguments.expected");
+    test_fixture(transform_fixture, "fragment-with-literal-enum-list-arguments.graphql", "parse/fixtures/fragment-with-literal-enum-list-arguments.expected", input, expected).await;
+>>>>>>> facebook/main
 }
 
-#[test]
-fn fragment_with_literal_object_arguments() {
+#[tokio::test]
+async fn fragment_with_literal_object_arguments() {
     let input = include_str!("parse/fixtures/fragment-with-literal-object-arguments.graphql");
     let expected = include_str!("parse/fixtures/fragment-with-literal-object-arguments.expected");
+<<<<<<< HEAD
     test_fixture(
         transform_fixture,
         "fragment-with-literal-object-arguments.graphql",
@@ -654,11 +787,15 @@ fn fragment_with_literal_object_arguments() {
         input,
         expected,
     );
+=======
+    test_fixture(transform_fixture, "fragment-with-literal-object-arguments.graphql", "parse/fixtures/fragment-with-literal-object-arguments.expected", input, expected).await;
+>>>>>>> facebook/main
 }
 
-#[test]
-fn fragment_with_literal_object_list_arguments() {
+#[tokio::test]
+async fn fragment_with_literal_object_list_arguments() {
     let input = include_str!("parse/fixtures/fragment-with-literal-object-list-arguments.graphql");
+<<<<<<< HEAD
     let expected =
         include_str!("parse/fixtures/fragment-with-literal-object-list-arguments.expected");
     test_fixture(
@@ -715,11 +852,37 @@ fn fragment_with_unnecessary_unchecked_arguments_invalid() {
         input,
         expected,
     );
+=======
+    let expected = include_str!("parse/fixtures/fragment-with-literal-object-list-arguments.expected");
+    test_fixture(transform_fixture, "fragment-with-literal-object-list-arguments.graphql", "parse/fixtures/fragment-with-literal-object-list-arguments.expected", input, expected).await;
 }
 
-#[test]
-fn fragment_with_variable_definitions_syntax() {
+#[tokio::test]
+async fn fragment_with_undefined_literal_arguments_invalid() {
+    let input = include_str!("parse/fixtures/fragment-with-undefined-literal-arguments.invalid.graphql");
+    let expected = include_str!("parse/fixtures/fragment-with-undefined-literal-arguments.invalid.expected");
+    test_fixture(transform_fixture, "fragment-with-undefined-literal-arguments.invalid.graphql", "parse/fixtures/fragment-with-undefined-literal-arguments.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn fragment_with_undefined_variable_arguments_invalid() {
+    let input = include_str!("parse/fixtures/fragment-with-undefined-variable-arguments.invalid.graphql");
+    let expected = include_str!("parse/fixtures/fragment-with-undefined-variable-arguments.invalid.expected");
+    test_fixture(transform_fixture, "fragment-with-undefined-variable-arguments.invalid.graphql", "parse/fixtures/fragment-with-undefined-variable-arguments.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn fragment_with_unnecessary_unchecked_arguments_invalid() {
+    let input = include_str!("parse/fixtures/fragment-with-unnecessary-unchecked-arguments.invalid.graphql");
+    let expected = include_str!("parse/fixtures/fragment-with-unnecessary-unchecked-arguments.invalid.expected");
+    test_fixture(transform_fixture, "fragment-with-unnecessary-unchecked-arguments.invalid.graphql", "parse/fixtures/fragment-with-unnecessary-unchecked-arguments.invalid.expected", input, expected).await;
+>>>>>>> facebook/main
+}
+
+#[tokio::test]
+async fn fragment_with_variable_definitions_syntax() {
     let input = include_str!("parse/fixtures/fragment-with-variable-definitions-syntax.graphql");
+<<<<<<< HEAD
     let expected =
         include_str!("parse/fixtures/fragment-with-variable-definitions-syntax.expected");
     test_fixture(
@@ -746,12 +909,24 @@ fn fragment_with_variable_definitions_syntax_and_argdefs_invalid() {
         input,
         expected,
     );
+=======
+    let expected = include_str!("parse/fixtures/fragment-with-variable-definitions-syntax.expected");
+    test_fixture(transform_fixture, "fragment-with-variable-definitions-syntax.graphql", "parse/fixtures/fragment-with-variable-definitions-syntax.expected", input, expected).await;
 }
 
-#[test]
-fn inline_fragment_on_wrong_type_invalid() {
+#[tokio::test]
+async fn fragment_with_variable_definitions_syntax_and_argdefs_invalid() {
+    let input = include_str!("parse/fixtures/fragment-with-variable-definitions-syntax-and-argdefs.invalid.graphql");
+    let expected = include_str!("parse/fixtures/fragment-with-variable-definitions-syntax-and-argdefs.invalid.expected");
+    test_fixture(transform_fixture, "fragment-with-variable-definitions-syntax-and-argdefs.invalid.graphql", "parse/fixtures/fragment-with-variable-definitions-syntax-and-argdefs.invalid.expected", input, expected).await;
+>>>>>>> facebook/main
+}
+
+#[tokio::test]
+async fn inline_fragment_on_wrong_type_invalid() {
     let input = include_str!("parse/fixtures/inline-fragment-on-wrong-type.invalid.graphql");
     let expected = include_str!("parse/fixtures/inline-fragment-on-wrong-type.invalid.expected");
+<<<<<<< HEAD
     test_fixture(
         transform_fixture,
         "inline-fragment-on-wrong-type.invalid.graphql",
@@ -759,12 +934,16 @@ fn inline_fragment_on_wrong_type_invalid() {
         input,
         expected,
     );
+=======
+    test_fixture(transform_fixture, "inline-fragment-on-wrong-type.invalid.graphql", "parse/fixtures/inline-fragment-on-wrong-type.invalid.expected", input, expected).await;
+>>>>>>> facebook/main
 }
 
-#[test]
-fn inline_fragment_with_invalid_type() {
+#[tokio::test]
+async fn inline_fragment_with_invalid_type() {
     let input = include_str!("parse/fixtures/inline-fragment-with-invalid-type.graphql");
     let expected = include_str!("parse/fixtures/inline-fragment-with-invalid-type.expected");
+<<<<<<< HEAD
     test_fixture(
         transform_fixture,
         "inline-fragment-with-invalid-type.graphql",
@@ -779,17 +958,26 @@ fn inline_fragment_within_invalid_inline_fragment_grandparent_invalid() {
     let input = include_str!(
         "parse/fixtures/inline-fragment-within-invalid-inline-fragment-grandparent.invalid.graphql"
     );
-    let expected = include_str!("parse/fixtures/inline-fragment-within-invalid-inline-fragment-grandparent.invalid.expected");
-    test_fixture(transform_fixture, "inline-fragment-within-invalid-inline-fragment-grandparent.invalid.graphql", "parse/fixtures/inline-fragment-within-invalid-inline-fragment-grandparent.invalid.expected", input, expected);
+=======
+    test_fixture(transform_fixture, "inline-fragment-with-invalid-type.graphql", "parse/fixtures/inline-fragment-with-invalid-type.expected", input, expected).await;
 }
 
-#[test]
-fn inline_fragment_within_linked_field_and_wrong_inline_fragment_invalid() {
+#[tokio::test]
+async fn inline_fragment_within_invalid_inline_fragment_grandparent_invalid() {
+    let input = include_str!("parse/fixtures/inline-fragment-within-invalid-inline-fragment-grandparent.invalid.graphql");
+>>>>>>> facebook/main
+    let expected = include_str!("parse/fixtures/inline-fragment-within-invalid-inline-fragment-grandparent.invalid.expected");
+    test_fixture(transform_fixture, "inline-fragment-within-invalid-inline-fragment-grandparent.invalid.graphql", "parse/fixtures/inline-fragment-within-invalid-inline-fragment-grandparent.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn inline_fragment_within_linked_field_and_wrong_inline_fragment_invalid() {
     let input = include_str!("parse/fixtures/inline-fragment-within-linked-field-and-wrong-inline-fragment.invalid.graphql");
     let expected = include_str!("parse/fixtures/inline-fragment-within-linked-field-and-wrong-inline-fragment.invalid.expected");
-    test_fixture(transform_fixture, "inline-fragment-within-linked-field-and-wrong-inline-fragment.invalid.graphql", "parse/fixtures/inline-fragment-within-linked-field-and-wrong-inline-fragment.invalid.expected", input, expected);
+    test_fixture(transform_fixture, "inline-fragment-within-linked-field-and-wrong-inline-fragment.invalid.graphql", "parse/fixtures/inline-fragment-within-linked-field-and-wrong-inline-fragment.invalid.expected", input, expected).await;
 }
 
+<<<<<<< HEAD
 #[test]
 fn inline_fragment_within_wrong_parent_type_invalid() {
     let input =
@@ -803,12 +991,20 @@ fn inline_fragment_within_wrong_parent_type_invalid() {
         input,
         expected,
     );
+=======
+#[tokio::test]
+async fn inline_fragment_within_wrong_parent_type_invalid() {
+    let input = include_str!("parse/fixtures/inline-fragment-within-wrong-parent-type.invalid.graphql");
+    let expected = include_str!("parse/fixtures/inline-fragment-within-wrong-parent-type.invalid.expected");
+    test_fixture(transform_fixture, "inline-fragment-within-wrong-parent-type.invalid.graphql", "parse/fixtures/inline-fragment-within-wrong-parent-type.invalid.expected", input, expected).await;
+>>>>>>> facebook/main
 }
 
-#[test]
-fn inline_untyped_fragment() {
+#[tokio::test]
+async fn inline_untyped_fragment() {
     let input = include_str!("parse/fixtures/inline-untyped-fragment.graphql");
     let expected = include_str!("parse/fixtures/inline-untyped-fragment.expected");
+<<<<<<< HEAD
     test_fixture(
         transform_fixture,
         "inline-untyped-fragment.graphql",
@@ -816,12 +1012,16 @@ fn inline_untyped_fragment() {
         input,
         expected,
     );
+=======
+    test_fixture(transform_fixture, "inline-untyped-fragment.graphql", "parse/fixtures/inline-untyped-fragment.expected", input, expected).await;
+>>>>>>> facebook/main
 }
 
-#[test]
-fn invalid_argument_type_invalid() {
+#[tokio::test]
+async fn invalid_argument_type_invalid() {
     let input = include_str!("parse/fixtures/invalid-argument-type.invalid.graphql");
     let expected = include_str!("parse/fixtures/invalid-argument-type.invalid.expected");
+<<<<<<< HEAD
     test_fixture(
         transform_fixture,
         "invalid-argument-type.invalid.graphql",
@@ -829,12 +1029,16 @@ fn invalid_argument_type_invalid() {
         input,
         expected,
     );
+=======
+    test_fixture(transform_fixture, "invalid-argument-type.invalid.graphql", "parse/fixtures/invalid-argument-type.invalid.expected", input, expected).await;
+>>>>>>> facebook/main
 }
 
-#[test]
-fn linked_field_with_no_selection_invalid() {
+#[tokio::test]
+async fn linked_field_with_no_selection_invalid() {
     let input = include_str!("parse/fixtures/linked-field-with-no-selection.invalid.graphql");
     let expected = include_str!("parse/fixtures/linked-field-with-no-selection.invalid.expected");
+<<<<<<< HEAD
     test_fixture(
         transform_fixture,
         "linked-field-with-no-selection.invalid.graphql",
@@ -842,12 +1046,16 @@ fn linked_field_with_no_selection_invalid() {
         input,
         expected,
     );
+=======
+    test_fixture(transform_fixture, "linked-field-with-no-selection.invalid.graphql", "parse/fixtures/linked-field-with-no-selection.invalid.expected", input, expected).await;
+>>>>>>> facebook/main
 }
 
-#[test]
-fn linked_handle_field() {
+#[tokio::test]
+async fn linked_handle_field() {
     let input = include_str!("parse/fixtures/linked-handle-field.graphql");
     let expected = include_str!("parse/fixtures/linked-handle-field.expected");
+<<<<<<< HEAD
     test_fixture(
         transform_fixture,
         "linked-handle-field.graphql",
@@ -855,12 +1063,16 @@ fn linked_handle_field() {
         input,
         expected,
     );
+=======
+    test_fixture(transform_fixture, "linked-handle-field.graphql", "parse/fixtures/linked-handle-field.expected", input, expected).await;
+>>>>>>> facebook/main
 }
 
-#[test]
-fn linked_handle_field_with_filters() {
+#[tokio::test]
+async fn linked_handle_field_with_filters() {
     let input = include_str!("parse/fixtures/linked-handle-field-with-filters.graphql");
     let expected = include_str!("parse/fixtures/linked-handle-field-with-filters.expected");
+<<<<<<< HEAD
     test_fixture(
         transform_fixture,
         "linked-handle-field-with-filters.graphql",
@@ -868,12 +1080,16 @@ fn linked_handle_field_with_filters() {
         input,
         expected,
     );
+=======
+    test_fixture(transform_fixture, "linked-handle-field-with-filters.graphql", "parse/fixtures/linked-handle-field-with-filters.expected", input, expected).await;
+>>>>>>> facebook/main
 }
 
-#[test]
-fn linked_handle_field_with_key() {
+#[tokio::test]
+async fn linked_handle_field_with_key() {
     let input = include_str!("parse/fixtures/linked-handle-field-with-key.graphql");
     let expected = include_str!("parse/fixtures/linked-handle-field-with-key.expected");
+<<<<<<< HEAD
     test_fixture(
         transform_fixture,
         "linked-handle-field-with-key.graphql",
@@ -881,12 +1097,16 @@ fn linked_handle_field_with_key() {
         input,
         expected,
     );
+=======
+    test_fixture(transform_fixture, "linked-handle-field-with-key.graphql", "parse/fixtures/linked-handle-field-with-key.expected", input, expected).await;
+>>>>>>> facebook/main
 }
 
-#[test]
-fn linked_handle_filter() {
+#[tokio::test]
+async fn linked_handle_filter() {
     let input = include_str!("parse/fixtures/linked-handle-filter.graphql");
     let expected = include_str!("parse/fixtures/linked-handle-filter.expected");
+<<<<<<< HEAD
     test_fixture(
         transform_fixture,
         "linked-handle-filter.graphql",
@@ -894,12 +1114,16 @@ fn linked_handle_filter() {
         input,
         expected,
     );
+=======
+    test_fixture(transform_fixture, "linked-handle-filter.graphql", "parse/fixtures/linked-handle-filter.expected", input, expected).await;
+>>>>>>> facebook/main
 }
 
-#[test]
-fn list_argument() {
+#[tokio::test]
+async fn list_argument() {
     let input = include_str!("parse/fixtures/list-argument.graphql");
     let expected = include_str!("parse/fixtures/list-argument.expected");
+<<<<<<< HEAD
     test_fixture(
         transform_fixture,
         "list-argument.graphql",
@@ -907,12 +1131,16 @@ fn list_argument() {
         input,
         expected,
     );
+=======
+    test_fixture(transform_fixture, "list-argument.graphql", "parse/fixtures/list-argument.expected", input, expected).await;
+>>>>>>> facebook/main
 }
 
-#[test]
-fn list_argument_complex_object() {
+#[tokio::test]
+async fn list_argument_complex_object() {
     let input = include_str!("parse/fixtures/list-argument-complex-object.graphql");
     let expected = include_str!("parse/fixtures/list-argument-complex-object.expected");
+<<<<<<< HEAD
     test_fixture(
         transform_fixture,
         "list-argument-complex-object.graphql",
@@ -920,12 +1148,16 @@ fn list_argument_complex_object() {
         input,
         expected,
     );
+=======
+    test_fixture(transform_fixture, "list-argument-complex-object.graphql", "parse/fixtures/list-argument-complex-object.expected", input, expected).await;
+>>>>>>> facebook/main
 }
 
-#[test]
-fn list_of_enums() {
+#[tokio::test]
+async fn list_of_enums() {
     let input = include_str!("parse/fixtures/list-of-enums.graphql");
     let expected = include_str!("parse/fixtures/list-of-enums.expected");
+<<<<<<< HEAD
     test_fixture(
         transform_fixture,
         "list-of-enums.graphql",
@@ -933,12 +1165,16 @@ fn list_of_enums() {
         input,
         expected,
     );
+=======
+    test_fixture(transform_fixture, "list-of-enums.graphql", "parse/fixtures/list-of-enums.expected", input, expected).await;
+>>>>>>> facebook/main
 }
 
-#[test]
-fn literal_list_argument() {
+#[tokio::test]
+async fn literal_list_argument() {
     let input = include_str!("parse/fixtures/literal-list-argument.graphql");
     let expected = include_str!("parse/fixtures/literal-list-argument.expected");
+<<<<<<< HEAD
     test_fixture(
         transform_fixture,
         "literal-list-argument.graphql",
@@ -946,12 +1182,16 @@ fn literal_list_argument() {
         input,
         expected,
     );
+=======
+    test_fixture(transform_fixture, "literal-list-argument.graphql", "parse/fixtures/literal-list-argument.expected", input, expected).await;
+>>>>>>> facebook/main
 }
 
-#[test]
-fn literal_list_argument_invalid() {
+#[tokio::test]
+async fn literal_list_argument_invalid() {
     let input = include_str!("parse/fixtures/literal-list-argument.invalid.graphql");
     let expected = include_str!("parse/fixtures/literal-list-argument.invalid.expected");
+<<<<<<< HEAD
     test_fixture(
         transform_fixture,
         "literal-list-argument.invalid.graphql",
@@ -959,12 +1199,16 @@ fn literal_list_argument_invalid() {
         input,
         expected,
     );
+=======
+    test_fixture(transform_fixture, "literal-list-argument.invalid.graphql", "parse/fixtures/literal-list-argument.invalid.expected", input, expected).await;
+>>>>>>> facebook/main
 }
 
-#[test]
-fn literal_object_argument() {
+#[tokio::test]
+async fn literal_object_argument() {
     let input = include_str!("parse/fixtures/literal-object-argument.graphql");
     let expected = include_str!("parse/fixtures/literal-object-argument.expected");
+<<<<<<< HEAD
     test_fixture(
         transform_fixture,
         "literal-object-argument.graphql",
@@ -972,12 +1216,16 @@ fn literal_object_argument() {
         input,
         expected,
     );
+=======
+    test_fixture(transform_fixture, "literal-object-argument.graphql", "parse/fixtures/literal-object-argument.expected", input, expected).await;
+>>>>>>> facebook/main
 }
 
-#[test]
-fn literal_object_argument_invalid() {
+#[tokio::test]
+async fn literal_object_argument_invalid() {
     let input = include_str!("parse/fixtures/literal-object-argument.invalid.graphql");
     let expected = include_str!("parse/fixtures/literal-object-argument.invalid.expected");
+<<<<<<< HEAD
     test_fixture(
         transform_fixture,
         "literal-object-argument.invalid.graphql",
@@ -985,12 +1233,16 @@ fn literal_object_argument_invalid() {
         input,
         expected,
     );
+=======
+    test_fixture(transform_fixture, "literal-object-argument.invalid.graphql", "parse/fixtures/literal-object-argument.invalid.expected", input, expected).await;
+>>>>>>> facebook/main
 }
 
-#[test]
-fn null_values() {
+#[tokio::test]
+async fn null_values() {
     let input = include_str!("parse/fixtures/null-values.graphql");
     let expected = include_str!("parse/fixtures/null-values.expected");
+<<<<<<< HEAD
     test_fixture(
         transform_fixture,
         "null-values.graphql",
@@ -998,12 +1250,16 @@ fn null_values() {
         input,
         expected,
     );
+=======
+    test_fixture(transform_fixture, "null-values.graphql", "parse/fixtures/null-values.expected", input, expected).await;
+>>>>>>> facebook/main
 }
 
-#[test]
-fn null_values_invalid() {
+#[tokio::test]
+async fn null_values_invalid() {
     let input = include_str!("parse/fixtures/null-values.invalid.graphql");
     let expected = include_str!("parse/fixtures/null-values.invalid.expected");
+<<<<<<< HEAD
     test_fixture(
         transform_fixture,
         "null-values.invalid.graphql",
@@ -1011,12 +1267,16 @@ fn null_values_invalid() {
         input,
         expected,
     );
+=======
+    test_fixture(transform_fixture, "null-values.invalid.graphql", "parse/fixtures/null-values.invalid.expected", input, expected).await;
+>>>>>>> facebook/main
 }
 
-#[test]
-fn object_argument() {
+#[tokio::test]
+async fn object_argument() {
     let input = include_str!("parse/fixtures/object-argument.graphql");
     let expected = include_str!("parse/fixtures/object-argument.expected");
+<<<<<<< HEAD
     test_fixture(
         transform_fixture,
         "object-argument.graphql",
@@ -1024,12 +1284,16 @@ fn object_argument() {
         input,
         expected,
     );
+=======
+    test_fixture(transform_fixture, "object-argument.graphql", "parse/fixtures/object-argument.expected", input, expected).await;
+>>>>>>> facebook/main
 }
 
-#[test]
-fn query_with_argument_invalid() {
+#[tokio::test]
+async fn query_with_argument_invalid() {
     let input = include_str!("parse/fixtures/query-with-argument.invalid.graphql");
     let expected = include_str!("parse/fixtures/query-with-argument.invalid.expected");
+<<<<<<< HEAD
     test_fixture(
         transform_fixture,
         "query-with-argument.invalid.graphql",
@@ -1037,12 +1301,16 @@ fn query_with_argument_invalid() {
         input,
         expected,
     );
+=======
+    test_fixture(transform_fixture, "query-with-argument.invalid.graphql", "parse/fixtures/query-with-argument.invalid.expected", input, expected).await;
+>>>>>>> facebook/main
 }
 
-#[test]
-fn scalar_field_with_selection() {
+#[tokio::test]
+async fn scalar_field_with_selection() {
     let input = include_str!("parse/fixtures/scalar-field-with-selection.graphql");
     let expected = include_str!("parse/fixtures/scalar-field-with-selection.expected");
+<<<<<<< HEAD
     test_fixture(
         transform_fixture,
         "scalar-field-with-selection.graphql",
@@ -1050,12 +1318,16 @@ fn scalar_field_with_selection() {
         input,
         expected,
     );
+=======
+    test_fixture(transform_fixture, "scalar-field-with-selection.graphql", "parse/fixtures/scalar-field-with-selection.expected", input, expected).await;
+>>>>>>> facebook/main
 }
 
-#[test]
-fn scalar_handle_field() {
+#[tokio::test]
+async fn scalar_handle_field() {
     let input = include_str!("parse/fixtures/scalar-handle-field.graphql");
     let expected = include_str!("parse/fixtures/scalar-handle-field.expected");
+<<<<<<< HEAD
     test_fixture(
         transform_fixture,
         "scalar-handle-field.graphql",
@@ -1063,12 +1335,16 @@ fn scalar_handle_field() {
         input,
         expected,
     );
+=======
+    test_fixture(transform_fixture, "scalar-handle-field.graphql", "parse/fixtures/scalar-handle-field.expected", input, expected).await;
+>>>>>>> facebook/main
 }
 
-#[test]
-fn simple_fragment() {
+#[tokio::test]
+async fn simple_fragment() {
     let input = include_str!("parse/fixtures/simple-fragment.graphql");
     let expected = include_str!("parse/fixtures/simple-fragment.expected");
+<<<<<<< HEAD
     test_fixture(
         transform_fixture,
         "simple-fragment.graphql",
@@ -1076,12 +1352,16 @@ fn simple_fragment() {
         input,
         expected,
     );
+=======
+    test_fixture(transform_fixture, "simple-fragment.graphql", "parse/fixtures/simple-fragment.expected", input, expected).await;
+>>>>>>> facebook/main
 }
 
-#[test]
-fn simple_query() {
+#[tokio::test]
+async fn simple_query() {
     let input = include_str!("parse/fixtures/simple-query.graphql");
     let expected = include_str!("parse/fixtures/simple-query.expected");
+<<<<<<< HEAD
     test_fixture(
         transform_fixture,
         "simple-query.graphql",
@@ -1104,12 +1384,23 @@ fn subscription_with_multiple_selections_invalid() {
         input,
         expected,
     );
+=======
+    test_fixture(transform_fixture, "simple-query.graphql", "parse/fixtures/simple-query.expected", input, expected).await;
 }
 
-#[test]
-fn typename_with_arguments_invalid() {
+#[tokio::test]
+async fn subscription_with_multiple_selections_invalid() {
+    let input = include_str!("parse/fixtures/subscription-with-multiple-selections.invalid.graphql");
+    let expected = include_str!("parse/fixtures/subscription-with-multiple-selections.invalid.expected");
+    test_fixture(transform_fixture, "subscription-with-multiple-selections.invalid.graphql", "parse/fixtures/subscription-with-multiple-selections.invalid.expected", input, expected).await;
+>>>>>>> facebook/main
+}
+
+#[tokio::test]
+async fn typename_with_arguments_invalid() {
     let input = include_str!("parse/fixtures/typename_with_arguments.invalid.graphql");
     let expected = include_str!("parse/fixtures/typename_with_arguments.invalid.expected");
+<<<<<<< HEAD
     test_fixture(
         transform_fixture,
         "typename_with_arguments.invalid.graphql",
@@ -1117,12 +1408,16 @@ fn typename_with_arguments_invalid() {
         input,
         expected,
     );
+=======
+    test_fixture(transform_fixture, "typename_with_arguments.invalid.graphql", "parse/fixtures/typename_with_arguments.invalid.expected", input, expected).await;
+>>>>>>> facebook/main
 }
 
-#[test]
-fn undefined_fragment_but_close_invalid() {
+#[tokio::test]
+async fn undefined_fragment_but_close_invalid() {
     let input = include_str!("parse/fixtures/undefined-fragment-but-close.invalid.graphql");
     let expected = include_str!("parse/fixtures/undefined-fragment-but-close.invalid.expected");
+<<<<<<< HEAD
     test_fixture(
         transform_fixture,
         "undefined-fragment-but-close.invalid.graphql",
@@ -1130,12 +1425,16 @@ fn undefined_fragment_but_close_invalid() {
         input,
         expected,
     );
+=======
+    test_fixture(transform_fixture, "undefined-fragment-but-close.invalid.graphql", "parse/fixtures/undefined-fragment-but-close.invalid.expected", input, expected).await;
+>>>>>>> facebook/main
 }
 
-#[test]
-fn undefined_fragment_invalid() {
+#[tokio::test]
+async fn undefined_fragment_invalid() {
     let input = include_str!("parse/fixtures/undefined-fragment.invalid.graphql");
     let expected = include_str!("parse/fixtures/undefined-fragment.invalid.expected");
+<<<<<<< HEAD
     test_fixture(
         transform_fixture,
         "undefined-fragment.invalid.graphql",
@@ -1143,12 +1442,16 @@ fn undefined_fragment_invalid() {
         input,
         expected,
     );
+=======
+    test_fixture(transform_fixture, "undefined-fragment.invalid.graphql", "parse/fixtures/undefined-fragment.invalid.expected", input, expected).await;
+>>>>>>> facebook/main
 }
 
-#[test]
-fn undefined_type_invalid() {
+#[tokio::test]
+async fn undefined_type_invalid() {
     let input = include_str!("parse/fixtures/undefined-type.invalid.graphql");
     let expected = include_str!("parse/fixtures/undefined-type.invalid.expected");
+<<<<<<< HEAD
     test_fixture(
         transform_fixture,
         "undefined-type.invalid.graphql",
@@ -1156,12 +1459,16 @@ fn undefined_type_invalid() {
         input,
         expected,
     );
+=======
+    test_fixture(transform_fixture, "undefined-type.invalid.graphql", "parse/fixtures/undefined-type.invalid.expected", input, expected).await;
+>>>>>>> facebook/main
 }
 
-#[test]
-fn unknown_field_invalid() {
+#[tokio::test]
+async fn unknown_field_invalid() {
     let input = include_str!("parse/fixtures/unknown_field.invalid.graphql");
     let expected = include_str!("parse/fixtures/unknown_field.invalid.expected");
+<<<<<<< HEAD
     test_fixture(
         transform_fixture,
         "unknown_field.invalid.graphql",
@@ -1169,12 +1476,16 @@ fn unknown_field_invalid() {
         input,
         expected,
     );
+=======
+    test_fixture(transform_fixture, "unknown_field.invalid.graphql", "parse/fixtures/unknown_field.invalid.expected", input, expected).await;
+>>>>>>> facebook/main
 }
 
-#[test]
-fn unknown_fragment_type_invalid() {
+#[tokio::test]
+async fn unknown_fragment_type_invalid() {
     let input = include_str!("parse/fixtures/unknown-fragment-type.invalid.graphql");
     let expected = include_str!("parse/fixtures/unknown-fragment-type.invalid.expected");
+<<<<<<< HEAD
     test_fixture(
         transform_fixture,
         "unknown-fragment-type.invalid.graphql",
@@ -1182,11 +1493,15 @@ fn unknown_fragment_type_invalid() {
         input,
         expected,
     );
+=======
+    test_fixture(transform_fixture, "unknown-fragment-type.invalid.graphql", "parse/fixtures/unknown-fragment-type.invalid.expected", input, expected).await;
+>>>>>>> facebook/main
 }
 
-#[test]
-fn unknown_fragment_type_suggestions_invalid() {
+#[tokio::test]
+async fn unknown_fragment_type_suggestions_invalid() {
     let input = include_str!("parse/fixtures/unknown-fragment-type-suggestions.invalid.graphql");
+<<<<<<< HEAD
     let expected =
         include_str!("parse/fixtures/unknown-fragment-type-suggestions.invalid.expected");
     test_fixture(
@@ -1196,4 +1511,8 @@ fn unknown_fragment_type_suggestions_invalid() {
         input,
         expected,
     );
+=======
+    let expected = include_str!("parse/fixtures/unknown-fragment-type-suggestions.invalid.expected");
+    test_fixture(transform_fixture, "unknown-fragment-type-suggestions.invalid.graphql", "parse/fixtures/unknown-fragment-type-suggestions.invalid.expected", input, expected).await;
+>>>>>>> facebook/main
 }

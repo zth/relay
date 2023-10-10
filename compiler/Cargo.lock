@@ -458,6 +458,8 @@ dependencies = [
  "relay-transforms",
  "rustc-hash",
  "schema",
+ "serde",
+ "tokio",
 ]
 
 [[package]]
@@ -499,6 +501,7 @@ dependencies = [
  "intern",
  "serde",
  "thiserror",
+ "tokio",
 ]
 
 [[package]]
@@ -571,6 +574,7 @@ dependencies = [
  "docblock-syntax",
  "fixture-tests",
  "graphql-syntax",
+ "tokio",
 ]
 
 [[package]]
@@ -590,8 +594,8 @@ dependencies = [
  "colored",
  "diff",
  "lazy_static",
- "parking_lot",
  "signedsource",
+ "tokio",
 ]
 
 [[package]]
@@ -790,6 +794,7 @@ dependencies = [
  "schema",
  "serde",
  "thiserror",
+ "tokio",
 ]
 
 [[package]]
@@ -809,6 +814,7 @@ dependencies = [
  "relay-test-schema",
  "schema",
  "thiserror",
+ "tokio",
 ]
 
 [[package]]
@@ -822,6 +828,7 @@ dependencies = [
  "logos",
  "serde",
  "thiserror",
+ "tokio",
 ]
 
 [[package]]
@@ -850,6 +857,7 @@ dependencies = [
  "relay-test-schema",
  "relay-transforms",
  "schema",
+ "tokio",
 ]
 
 [[package]]
@@ -1687,6 +1695,7 @@ dependencies = [
  "relay-test-schema",
  "relay-transforms",
  "schema",
+ "tokio",
 ]
 
 [[package]]
@@ -1806,6 +1815,7 @@ dependencies = [
  "relay-test-schema",
  "schema",
  "thiserror",
+ "tokio",
 ]
 
 [[package]]
@@ -1898,6 +1908,7 @@ dependencies = [
  "rustc-hash",
  "schema",
  "thiserror",
+ "tokio",
 ]
 
 [[package]]
@@ -1921,6 +1932,7 @@ dependencies = [
  "relay-test-schema",
  "relay-transforms",
  "schema",
+ "tokio",
 ]
 
 [[package]]
@@ -2008,6 +2020,7 @@ dependencies = [
  "schema-flatbuffer",
  "strsim 0.10.0",
  "thiserror",
+ "tokio",
 ]
 
 [[package]]
@@ -2047,6 +2060,7 @@ dependencies = [
  "intern",
  "itertools",
  "schema",
+ "tokio",
 ]
 
 [[package]]
@@ -2064,6 +2078,7 @@ dependencies = [
  "schema",
  "schema-print",
  "thiserror",
+ "tokio",
 ]
 
 [[package]]
