@@ -1554,6 +1554,7 @@ fn make_prop(
                             TypegenLanguage::TypeScript => {
                                 AST::RawType(intern!("null | undefined"))
                             }
+                            | TypegenLanguage::OCaml => panic!("language: OCaml doesn't print to typescript")
                         }
                     }
                 } else {

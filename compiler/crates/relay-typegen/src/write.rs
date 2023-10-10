@@ -838,6 +838,7 @@ fn write_abstract_validator_function(
         TypegenLanguage::TypeScript => {
             write!(writer, "value ")?;
         }
+        | TypegenLanguage::OCaml => panic!("language: OCaml doesn't print to typescript")
     }
 
     write!(writer, ": false;\n}}")?;
@@ -938,6 +939,7 @@ fn write_concrete_validator_function(
         TypegenLanguage::TypeScript => {
             write!(writer, "value ")?;
         }
+        | TypegenLanguage::OCaml => panic!("language: OCaml doesn't print to typescript")
     }
 
     write!(writer, ": false;\n}}")?;
