@@ -87,7 +87,7 @@ module Utils = {
 
 
   @live @obj external make_inputB: (
-    ~_constraint: bool=?,
+    @as("constraint") ~_constraint: bool=?,
     ~time: SomeModule.Datetime.t=?,
     ~usingA: inputA=?,
     unit

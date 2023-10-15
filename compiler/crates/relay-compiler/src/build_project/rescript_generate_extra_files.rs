@@ -169,7 +169,11 @@ pub(crate) fn rescript_generate_extra_artifacts(
 
             writeln!(
                 content,
-                "  ~{}: {}{},",
+                "  {}~{}: {}{},",
+                (match maybe_original_key {
+                    Some(ref original_key) => format!("@as(\"{}\") ",  original_key),
+                    None => "".to_string(),
+                }),
                 (match maybe_original_key {
                     Some(original_key) => format!("_{}", original_key),
                     None => key,

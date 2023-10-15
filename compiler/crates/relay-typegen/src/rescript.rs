@@ -757,7 +757,11 @@ fn write_object_maker(
             write_indentation(str, indentation + 1).unwrap();
             write!(
                 str,
-                "~{}: {}",
+                "{}~{}: {}",
+                (match &prop_value.original_key {
+                    Some(original_key) => format!("@as(\"{}\") ",  original_key),
+                    None => "".to_string(),
+                }),
                 prop_name,
                 get_object_prop_type_as_string(
                     &state,
