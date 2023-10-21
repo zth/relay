@@ -2115,10 +2115,10 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             },
         });
 
-        if let Some(provided_variables) = self.build_operation_provided_variables(operation) {
+        if let Some(_provided_variables) = self.build_operation_provided_variables(operation) {
             params_object.push(ObjectEntry {
                 key: CODEGEN_CONSTANTS.provided_variables,
-                value: Primitive::Key(provided_variables),
+                value: Primitive::Variable("providedVariablesDefinition".intern()),
             });
         }
 

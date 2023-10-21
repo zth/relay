@@ -2722,13 +2722,13 @@ impl Writer for ReScriptPrinter {
         ""
     }
 
-    fn write_local_type(&mut self, name: &str, ast: &AST) -> Result {
+    fn write_type_assertion(&mut self, name: &str, ast: &AST) -> Result {
         // Handle provided variables. This below pulls put what we need from the
         // AST Relay gives us for provided variables. It's a bit convoluted, but
         // essentially extracts the provided variable key name, and its return
         // type. We need those for printing the type + values for provided
         // variables.
-        if name == "ProvidedVariablesType" {
+        if name.contains("__relay_internal__pv__") {
             match &ast {
                 AST::ExactObject(props) => {
                     let mut provided_variables = vec![];

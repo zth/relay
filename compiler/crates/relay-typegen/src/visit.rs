@@ -1551,7 +1551,7 @@ fn make_prop(
                             TypegenLanguage::Flow | TypegenLanguage::JavaScript => {
                                 AST::RawType(intern!("null | void"))
                             }
-                            TypegenLanguage::TypeScript => {
+                            TypegenLanguage::TypeScript | TypegenLanguage::ReScript => {
                                 AST::RawType(intern!("null | undefined"))
                             }
                         }

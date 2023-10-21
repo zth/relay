@@ -53,6 +53,7 @@ use rayon::slice::ParallelSlice;
 use relay_codegen::Printer;
 use relay_config::TypegenLanguage;
 use relay_config::ProjectName;
+use relay_config::TypegenLanguage;
 use relay_transforms::apply_transforms;
 use relay_transforms::CustomTransformsConfig;
 use relay_transforms::Programs;

@@ -27,10 +27,10 @@ use relay_typegen::generate_fragment_type_exports_section;
 use relay_typegen::generate_named_validator_export;
 use relay_typegen::generate_operation_type_exports_section;
 use relay_typegen::generate_split_operation_type_exports_section;
-use relay_typegen::rescript_utils::find_provided_variables;
 use relay_typegen::FragmentLocations;
 use relay_typegen::TypegenConfig;
 use relay_typegen::TypegenLanguage;
+use relay_typegen::rescript_utils::find_provided_variables;
 use schema::SDLSchema;
 use signedsource::SIGNING_TOKEN;
 
@@ -942,11 +942,20 @@ pub fn generate_operation_rescript(
     fragment_locations: &FragmentLocations,
 ) -> Result<Vec<u8>, FmtError> {
     let mut request_parameters = build_request_params(normalization_operation);
+    
     if id_and_text_hash.is_some() {
         request_parameters.id = id_and_text_hash;
+        if project_config
+            .persist
+            .as_ref()
+            .map_or(false, |config| config.include_query_text())
+        {
+            request_parameters.text = text.clone();
+        }
     } else {
         request_parameters.text = text.clone();
-    };
+    }
+
     let operation_fragment = FragmentDefinition {
         name: reader_operation.name.map(|x| FragmentDefinitionName(x.0)),
         variable_definitions: reader_operation.variable_definitions.clone(),
@@ -997,23 +1006,27 @@ pub fn generate_operation_rescript(
 
     let mut section = GenericSection::default();
 
-    writeln!(
+    
+    let maybe_provided_variables =
+        printer.print_provided_variables(schema, normalization_operation);
+    write!(
         section,
         "{}",
-        relay_typegen::generate_operation_type_exports_section(
+        generate_operation_type_exports_section(
             typegen_operation,
             normalization_operation,
             schema,
             project_config,
             fragment_locations,
+            maybe_provided_variables,
         )
-    )
-    .unwrap();
+    )?;
+    
 
     // Print operation node types
     writeln!(
         section,
-        "type relayOperationNode\ntype operationType = RescriptRelay.{}Node<relayOperationNode>\n\n",
+        "\ntype relayOperationNode\ntype operationType = RescriptRelay.{}Node<relayOperationNode>\n\n",
         match typegen_operation.kind {
             graphql_syntax::OperationKind::Query => {
                 "query"
@@ -1028,23 +1041,12 @@ pub fn generate_operation_rescript(
     )
     .unwrap();
 
-    let mut top_level_statements: TopLevelStatements = Default::default();
+    let mut top_level_statements: relay_codegen::TopLevelStatements = Default::default();
 
     // Provided variables. This just adds some metadata to make Relay output
     // what we want. Printing of the actual types and values involved in
     // provided variables is handled inside of the ReScript typegen printer.
     let provided_variables = find_provided_variables(&normalization_operation);
-    if provided_variables.is_some() {
-        // This needs to be inserted even though we're not actually printing
-        // `top_level_statements`. The compiler checks for the presence of the
-        // `symbol` added below, and changes the provided variables output to
-        // what we want. Sketchy I know, but that's why it's here even though it
-        // doesn't seem to do anything.
-        top_level_statements.insert(
-            CODEGEN_CONSTANTS.provided_variables_definition.to_string(),
-            TopLevelStatement::VariableDefinition(String::from("")),
-        );
-    }
 
     // Print node type
     writeln!(
