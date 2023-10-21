@@ -13,12 +13,19 @@ use indexmap::IndexMap;
 use intern::string_key::StringKey;
 use serde::Deserialize;
 use serde::Serialize;
+use strum::EnumIter;
 use strum::IntoEnumIterator;
-use strum_macros::EnumIter;
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 
 #[derive(
-    EnumIter, strum_macros::ToString, Debug, Copy, Clone, Serialize, Deserialize, PartialEq,
+    EnumIter,
+    strum::Display,
+    Debug,
+    Copy,
+    Clone,
+    Serialize,
+    Deserialize,
+    PartialEq
 )]
 #[serde(deny_unknown_fields, rename_all = "lowercase")]
 pub enum TypegenLanguage {

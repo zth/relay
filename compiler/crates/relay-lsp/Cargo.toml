@@ -6,9 +6,6 @@ authors = ["Facebook"]
 edition = "2021"
 license = "MIT"
 
-[[bin]]
-name = "relay-lsp"
-path = "src/main.rs"
 [[test]]
 name = "hover"
 path = "tests/hover_test.rs"
@@ -43,10 +40,9 @@ resolution-path = { path = "../resolution-path" }
 schema = { path = "../schema" }
 schema-documentation = { path = "../schema-documentation" }
 schema-print = { path = "../schema-print" }
-structopt = "0.3.23"
-serde = { version = "1.0.136", features = ["derive", "rc"] }
-serde_json = { version = "1.0.79", features = ["float_roundtrip", "unbounded_depth"] }
-tokio = { version = "1.25.0", features = ["full", "test-util", "tracing"] }
+serde = { version = "1.0.176", features = ["derive", "rc"] }
+serde_json = { version = "1.0.100", features = ["float_roundtrip", "unbounded_depth"] }
+tokio = { version = "1.29.1", features = ["full", "test-util", "tracing"] }
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }

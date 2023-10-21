@@ -57,7 +57,9 @@ use crate::build_project::artifact_writer::ArtifactFileWriter;
 use crate::build_project::artifact_writer::ArtifactWriter;
 use crate::build_project::generate_extra_artifacts::GenerateExtraArtifactsFn;
 use crate::build_project::rescript_generate_extra_files::rescript_generate_extra_artifacts;
+use crate::build_project::get_artifacts_file_hash_map::GetArtifactsFileHashMapFn;
 use crate::build_project::AdditionalValidations;
+use crate::compiler_state::CompilerState;
 use crate::compiler_state::ProjectName;
 use crate::compiler_state::ProjectSet;
 use crate::errors::ConfigValidationError;
@@ -77,6 +79,9 @@ type PostArtifactsWriter = Box<
 
 type OperationPersisterCreator =
     Box<dyn Fn(&ProjectConfig) -> Option<Box<dyn OperationPersister + Send + Sync>> + Send + Sync>;
+
+type UpdateCompilerStateFromSavedState =
+    Option<Box<dyn Fn(&mut CompilerState, &Config) + Send + Sync>>;
 
 /// The full compiler config. This is a combination of:
 /// - the configuration file
@@ -109,6 +114,8 @@ pub struct Config {
 
     /// Path to which to write the output of the compilation
     pub artifact_writer: Box<dyn ArtifactWriter + Send + Sync>,
+    // Function to get the file hash for an artifact file.
+    pub get_artifacts_file_hash_map: Option<GetArtifactsFileHashMapFn>,
 
     /// Compile all files. Persist ids are still re-used unless
     /// `Config::repersist_operations` is also set.
@@ -150,6 +157,9 @@ pub struct Config {
     /// The async function is called before the compiler connects to the file
     /// source.
     pub initialize_resources: Option<Box<dyn Fn() + Send + Sync>>,
+
+    /// Runs in `try_saved_state` when the compiler state is initialized from saved state.
+    pub update_compiler_state_from_saved_state: UpdateCompilerStateFromSavedState,
 }
 
 pub enum FileSourceKind {
@@ -399,6 +409,7 @@ Example file:
             load_saved_state_file: None,
             generate_extra_artifacts: Some(Box::new(rescript_generate_extra_artifacts)),
             generate_virtual_id_file_name: None,
+            get_artifacts_file_hash_map: None,
             saved_state_config: config_file.saved_state_config,
             saved_state_loader: None,
             saved_state_version: hex::encode(hash.finalize()),
@@ -412,6 +423,7 @@ Example file:
             custom_transforms: None,
             export_persisted_query_ids_to_file: None,
             initialize_resources: None,
+            update_compiler_state_from_saved_state: None,
         };
 
         let mut validation_errors = Vec::new();

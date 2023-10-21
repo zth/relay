@@ -281,11 +281,7 @@ class RelayReader {
     return this._variables[name];
   }
 
-  _maybeReportUnexpectedNull(
-    fieldPath: string,
-    action: 'LOG' | 'THROW',
-    _record: Record,
-  ) {
+  _maybeReportUnexpectedNull(fieldPath: string, action: 'LOG' | 'THROW') {
     if (this._missingRequiredFields?.action === 'THROW') {
       // Chained @required directives may cause a parent `@required(action:
       // THROW)` field to become null, so the first missing field we
@@ -332,7 +328,7 @@ class RelayReader {
           if (fieldValue == null) {
             const {action} = selection;
             if (action !== 'NONE') {
-              this._maybeReportUnexpectedNull(selection.path, action, record);
+              this._maybeReportUnexpectedNull(selection.path, action);
             }
             // We are going to throw, or our parent is going to get nulled out.
             // Either way, sibling values are going to be ignored, so we can
@@ -581,26 +577,16 @@ class RelayReader {
             field,
             this._variables,
             key,
-            this._fragmentName,
           );
-          return {
-            resolverResult,
-            snapshot: snapshot,
-            error: resolverError,
-          };
+          return {resolverResult, snapshot, error: resolverError};
         });
       } else {
         const [resolverResult, resolverError] = getResolverValue(
           field,
           this._variables,
           null,
-          this._fragmentName,
         );
-        return {
-          resolverResult,
-          snapshot: undefined,
-          error: resolverError,
-        };
+        return {resolverResult, snapshot: undefined, error: resolverError};
       }
     };
 
@@ -619,6 +605,31 @@ class RelayReader {
       getDataForResolverFragment,
     );
 
+    this._propogateResolverMetadata(
+      field.path,
+      cachedSnapshot,
+      resolverError,
+      seenRecord,
+      suspenseID,
+      updatedDataIDs,
+    );
+
+    const applicationName = field.alias ?? field.name;
+    data[applicationName] = result;
+    return result;
+  }
+
+  // Reading a resolver field can uncover missing data, errors, suspense,
+  // additional seen records and updated dataIDs. All of these facts must be
+  // represented in the snapshot we return for this fragment.
+  _propogateResolverMetadata(
+    fieldPath: string,
+    cachedSnapshot: ?Snapshot,
+    resolverError: ?Error,
+    seenRecord: ?DataID,
+    suspenseID: ?DataID,
+    updatedDataIDs: ?DataIDSet,
+  ) {
     // The resolver's root fragment (if there is one) may be missing data, have
     // errors, or be in a suspended state. Here we propagate those cases
     // upwards to mimic the behavior of having traversed into that fragment directly.
@@ -650,7 +661,10 @@ class RelayReader {
     // the errors can be attached to this read's snapshot. This allows the error
     // to be logged.
     if (resolverError) {
-      this._resolverErrors.push(resolverError);
+      this._resolverErrors.push({
+        field: {path: fieldPath, owner: this._fragmentName},
+        error: resolverError,
+      });
     }
 
     // The resolver itself creates a record in the store. We record that we've
@@ -668,7 +682,7 @@ class RelayReader {
     if (suspenseID != null) {
       this._isMissingData = true;
       this._missingLiveResolverFields.push({
-        path: `${this._fragmentName}.${field.path}`,
+        path: `${this._fragmentName}.${fieldPath}`,
         liveStateID: suspenseID,
       });
     }
@@ -677,10 +691,6 @@ class RelayReader {
         this._updatedDataIDs.add(recordID);
       }
     }
-
-    const applicationName = field.alias ?? field.name;
-    data[applicationName] = result;
-    return result;
   }
 
   _readClientEdge(
@@ -835,9 +845,9 @@ class RelayReader {
     const fragmentRef = {};
     this._createFragmentPointer(
       field.fragmentSpread,
-      {
+      RelayModernRecord.fromObject({
         __id: dataID,
-      },
+      }),
       fragmentRef,
     );
     data[applicationName] = {
@@ -981,7 +991,7 @@ class RelayReader {
       record,
       fieldData,
     );
-    return fieldData;
+    return RelayModernRecord.fromObject(fieldData);
   }
 
   // Has three possible return values:
@@ -1179,8 +1189,7 @@ function getResolverValue(
   field: ReaderRelayResolver | ReaderRelayLiveResolver,
   variables: Variables,
   fragmentKey: mixed,
-  ownerName: string,
-) {
+): [mixed, ?Error] {
   // Support for languages that work (best) with ES6 modules, such as TypeScript.
   const resolverFunction =
     typeof field.resolverModule === 'function'
@@ -1205,12 +1214,7 @@ function getResolverValue(
     if (e === RESOLVER_FRAGMENT_MISSING_DATA_SENTINEL) {
       resolverResult = undefined;
     } else {
-      // `field.path` is typed as nullable while we rollout compiler changes.
-      const path = field.path ?? '[UNKNOWN]';
-      resolverError = {
-        field: {path, owner: ownerName},
-        error: e,
-      };
+      resolverError = e;
     }
   }
   return [resolverResult, resolverError];
