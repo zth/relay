@@ -4,7 +4,7 @@
 module Types = {
   @@warning("-30")
 
-  type rawResponse_setOnlineStatus_user_memberOf = 
+  @tag("__typename") type rawResponse_setOnlineStatus_user_memberOf = 
     | Group(
       {
         @live __typename: [ | #Group],
@@ -18,6 +18,13 @@ module Types = {
         @live __typename: [ | #User],
         __isNode: [ | #User],
         firstName: string,
+        @live id: string,
+      }
+    )
+    | @as("person") Person(
+      {
+        @live __typename: [ | #person],
+        __isNode: [ | #person],
         @live id: string,
       }
     )
@@ -58,7 +65,7 @@ module Types = {
 }
 
 @live
-let unwrap_rawResponse_setOnlineStatus_user_memberOf: Types.rawResponse_setOnlineStatus_user_memberOf => Types.rawResponse_setOnlineStatus_user_memberOf = RescriptRelay_Internal.unwrapUnion
+let unwrap_rawResponse_setOnlineStatus_user_memberOf: Types.rawResponse_setOnlineStatus_user_memberOf => Types.rawResponse_setOnlineStatus_user_memberOf = RescriptRelay_Internal.unwrapUnion(_, ["Group", "User", "person"])
 @live
 let wrap_rawResponse_setOnlineStatus_user_memberOf: Types.rawResponse_setOnlineStatus_user_memberOf => Types.rawResponse_setOnlineStatus_user_memberOf = RescriptRelay_Internal.wrapUnion
 module Internal = {
@@ -187,7 +194,10 @@ v3 = {
   "kind": "ScalarField",
   "name": "firstName",
   "storageKey": null
-};
+},
+v4 = [
+  (v2/*: any*/)
+];
 return {
   "fragment": {
     "argumentDefinitions": (v0/*: any*/),
@@ -303,11 +313,15 @@ return {
                   },
                   {
                     "kind": "InlineFragment",
-                    "selections": [
-                      (v2/*: any*/)
-                    ],
+                    "selections": (v4/*: any*/),
                     "type": "Node",
                     "abstractKey": "__isNode"
+                  },
+                  {
+                    "kind": "InlineFragment",
+                    "selections": (v4/*: any*/),
+                    "type": "person",
+                    "abstractKey": null
                   }
                 ],
                 "storageKey": null
@@ -321,12 +335,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "322a5bb9a0514feff61365f595c40d31",
+    "cacheID": "4aa5abd1bc2391d152e1a14df472ec70",
     "id": null,
     "metadata": {},
     "name": "TestMutationWithOnlyFragmentSetOnlineStatusMutation",
     "operationKind": "mutation",
-    "text": "mutation TestMutationWithOnlyFragmentSetOnlineStatusMutation(\n  $onlineStatus: OnlineStatus!\n) {\n  setOnlineStatus(onlineStatus: $onlineStatus) {\n    user {\n      ...TestMutation_user\n      id\n    }\n  }\n}\n\nfragment TestMutation_user on User {\n  id\n  firstName\n  lastName\n  onlineStatus\n  memberOf {\n    __typename\n    ... on User {\n      firstName\n    }\n    ... on Group {\n      name\n    }\n    ... on Node {\n      __isNode: __typename\n      __typename\n      id\n    }\n  }\n}\n"
+    "text": "mutation TestMutationWithOnlyFragmentSetOnlineStatusMutation(\n  $onlineStatus: OnlineStatus!\n) {\n  setOnlineStatus(onlineStatus: $onlineStatus) {\n    user {\n      ...TestMutation_user\n      id\n    }\n  }\n}\n\nfragment TestMutation_user on User {\n  id\n  firstName\n  lastName\n  onlineStatus\n  memberOf {\n    __typename\n    ... on User {\n      firstName\n    }\n    ... on Group {\n      name\n    }\n    ... on Node {\n      __isNode: __typename\n      __typename\n      id\n    }\n    ... on person {\n      id\n    }\n  }\n}\n"
   }
 };
 })() `)

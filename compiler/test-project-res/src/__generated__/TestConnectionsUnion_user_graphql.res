@@ -13,7 +13,7 @@ module Types = {
   and fragment_member_User_friendsConnection = {
     edges: option<array<option<fragment_member_User_friendsConnection_edges>>>,
   }
-  and fragment_member = 
+  @tag("__typename") and fragment_member = 
     | User(
       {
         @live __typename: [ | #User],
@@ -28,7 +28,7 @@ module Types = {
 }
 
 @live
-let unwrap_fragment_member: Types.fragment_member => Types.fragment_member = RescriptRelay_Internal.unwrapUnion
+let unwrap_fragment_member: Types.fragment_member => Types.fragment_member = RescriptRelay_Internal.unwrapUnion(_, ["User"])
 @live
 let wrap_fragment_member: Types.fragment_member => Types.fragment_member = RescriptRelay_Internal.wrapUnion
 module Internal = {

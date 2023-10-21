@@ -4,7 +4,7 @@
 module Types = {
   @@warning("-30")
 
-  type response_node = 
+  @tag("__typename") type response_node = 
     | User(
       {
         @live __typename: [ | #User],
@@ -26,7 +26,7 @@ module Types = {
 }
 
 @live
-let unwrap_response_node: Types.response_node => Types.response_node = RescriptRelay_Internal.unwrapUnion
+let unwrap_response_node: Types.response_node => Types.response_node = RescriptRelay_Internal.unwrapUnion(_, ["User"])
 @live
 let wrap_response_node: Types.response_node => Types.response_node = RescriptRelay_Internal.wrapUnion
 module Internal = {

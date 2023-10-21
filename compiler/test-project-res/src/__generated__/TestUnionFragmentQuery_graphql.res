@@ -94,7 +94,16 @@ v1 = {
   "kind": "ScalarField",
   "name": "__typename",
   "storageKey": null
-};
+},
+v2 = [
+  {
+    "alias": null,
+    "args": null,
+    "kind": "ScalarField",
+    "name": "id",
+    "storageKey": null
+  }
+];
 return {
   "fragment": {
     "argumentDefinitions": [],
@@ -184,17 +193,15 @@ return {
           },
           {
             "kind": "InlineFragment",
-            "selections": [
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "id",
-                "storageKey": null
-              }
-            ],
+            "selections": (v2/*: any*/),
             "type": "Node",
             "abstractKey": "__isNode"
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": (v2/*: any*/),
+            "type": "person",
+            "abstractKey": null
           }
         ],
         "storageKey": "member(id:\"123\")"
@@ -202,12 +209,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "21ff5bfa26571b6c0dd392207d7bf454",
+    "cacheID": "f4462e9c871a4b720d7db10ea7dff55d",
     "id": null,
     "metadata": {},
     "name": "TestUnionFragmentQuery",
     "operationKind": "query",
-    "text": "query TestUnionFragmentQuery {\n  member(id: \"123\") {\n    __typename\n    ...TestUnionFragment_member\n    ...TestUnionFragment_plural_member\n    ... on Node {\n      __isNode: __typename\n      __typename\n      id\n    }\n  }\n}\n\nfragment TestUnionFragmentUser_user on User {\n  firstName\n  onlineStatus\n}\n\nfragment TestUnionFragment_member on Member {\n  __isMember: __typename\n  __typename\n  ... on User {\n    firstName\n    onlineStatus\n    ...TestUnionFragmentUser_user\n  }\n  ... on Group {\n    name\n  }\n}\n\nfragment TestUnionFragment_plural_member on Member {\n  __isMember: __typename\n  __typename\n  ... on User {\n    firstName\n    onlineStatus\n    ...TestUnionFragmentUser_user\n  }\n  ... on Group {\n    name\n  }\n}\n"
+    "text": "query TestUnionFragmentQuery {\n  member(id: \"123\") {\n    __typename\n    ...TestUnionFragment_member\n    ...TestUnionFragment_plural_member\n    ... on Node {\n      __isNode: __typename\n      __typename\n      id\n    }\n    ... on person {\n      id\n    }\n  }\n}\n\nfragment TestUnionFragmentUser_user on User {\n  firstName\n  onlineStatus\n}\n\nfragment TestUnionFragment_member on Member {\n  __isMember: __typename\n  __typename\n  ... on User {\n    firstName\n    onlineStatus\n    ...TestUnionFragmentUser_user\n  }\n  ... on Group {\n    name\n  }\n}\n\nfragment TestUnionFragment_plural_member on Member {\n  __isMember: __typename\n  __typename\n  ... on User {\n    firstName\n    onlineStatus\n    ...TestUnionFragmentUser_user\n  }\n  ... on Group {\n    name\n  }\n}\n"
   }
 };
 })() `)

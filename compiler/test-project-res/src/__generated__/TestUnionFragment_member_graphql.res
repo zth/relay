@@ -4,7 +4,7 @@
 module Types = {
   @@warning("-30")
 
-  type fragment = 
+  @tag("__typename") type fragment = 
     | Group(
       {
         @live __typename: [ | #Group],
@@ -24,7 +24,7 @@ module Types = {
 }
 
 @live
-let unwrap_fragment: Types.fragment => Types.fragment = RescriptRelay_Internal.unwrapUnion
+let unwrap_fragment: Types.fragment => Types.fragment = RescriptRelay_Internal.unwrapUnion(_, ["Group", "User"])
 @live
 let wrap_fragment: Types.fragment => Types.fragment = RescriptRelay_Internal.wrapUnion
 module Internal = {

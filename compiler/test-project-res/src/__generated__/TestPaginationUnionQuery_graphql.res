@@ -19,7 +19,6 @@ module Types = {
   }
   @live let makeRefetchVariables = (
     ~groupId=?,
-    ()
   ): refetchVariables => {
     groupId: groupId
   }
@@ -132,6 +131,9 @@ v5 = [
     "name": "first",
     "value": 1
   }
+],
+v6 = [
+  (v3/*: any*/)
 ];
 return {
   "fragment": {
@@ -267,11 +269,15 @@ return {
                   },
                   {
                     "kind": "InlineFragment",
-                    "selections": [
-                      (v3/*: any*/)
-                    ],
+                    "selections": (v6/*: any*/),
                     "type": "Node",
                     "abstractKey": "__isNode"
+                  },
+                  {
+                    "kind": "InlineFragment",
+                    "selections": (v6/*: any*/),
+                    "type": "person",
+                    "abstractKey": null
                   }
                 ],
                 "storageKey": null
@@ -329,12 +335,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "6b445dc55b0afc5f84e817a3301891f3",
+    "cacheID": "c3f9c2484293dcdeaa1ee4047cc07e97",
     "id": null,
     "metadata": {},
     "name": "TestPaginationUnionQuery",
     "operationKind": "query",
-    "text": "query TestPaginationUnionQuery(\n  $groupId: ID!\n) {\n  ...TestPaginationUnion_query_3nceos\n}\n\nfragment TestPaginationUnion_query_3nceos on Query {\n  members(groupId: $groupId, first: 2, after: \"\") {\n    edges {\n      node {\n        __typename\n        ... on User {\n          id\n          ...TestPaginationUnion_user\n        }\n        ... on Group {\n          id\n          name\n          adminsConnection(first: 1) {\n            edges {\n              node {\n                id\n                firstName\n              }\n            }\n          }\n        }\n        ... on Node {\n          __isNode: __typename\n          __typename\n          id\n        }\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n}\n\nfragment TestPaginationUnion_user on User {\n  firstName\n  friendsConnection(first: 1) {\n    totalCount\n  }\n}\n"
+    "text": "query TestPaginationUnionQuery(\n  $groupId: ID!\n) {\n  ...TestPaginationUnion_query_3nceos\n}\n\nfragment TestPaginationUnion_query_3nceos on Query {\n  members(groupId: $groupId, first: 2, after: \"\") {\n    edges {\n      node {\n        __typename\n        ... on User {\n          id\n          ...TestPaginationUnion_user\n        }\n        ... on Group {\n          id\n          name\n          adminsConnection(first: 1) {\n            edges {\n              node {\n                id\n                firstName\n              }\n            }\n          }\n        }\n        ... on Node {\n          __isNode: __typename\n          __typename\n          id\n        }\n        ... on person {\n          id\n        }\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n}\n\nfragment TestPaginationUnion_user on User {\n  firstName\n  friendsConnection(first: 1) {\n    totalCount\n  }\n}\n"
   }
 };
 })() `)

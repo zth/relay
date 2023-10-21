@@ -657,9 +657,6 @@ fn write_object_maker_for_refetch_variables(
         writeln!(str, "~{}=?,", prop_value.key).unwrap();
     });
 
-    write_indentation(str, indentation + 1).unwrap();
-    writeln!(str, "()").unwrap();
-
     write_indentation(str, indentation).unwrap();
     writeln!(str, "): {} => {{", "refetchVariables").unwrap();
 
@@ -759,15 +756,21 @@ fn write_enum_util_functions(str: &mut String, indentation: usize, full_enum: &F
 fn write_union_definition_body(state: &Box<ReScriptPrinter>, str: &mut String, indentation: usize, union: &Union, context: &Context,) -> Result {
     for member in &union.members {
         write_indentation(str, indentation + 1).unwrap();
+        let name_capitalized = capitalize_string(&member.typename);
         write!(
             str,
-            "| {}(\n",
-            member.typename.to_string()
+            "| {}{}(\n",
+            if &name_capitalized != &member.typename {
+                format!("@as(\"{}\") ", member.typename.to_string())
+            } else {
+                String::from("")
+            },
+            name_capitalized
         )
         .unwrap();
 
         write_indentation(str, indentation + 2).unwrap();
-        write_object_definition_body(state, str, indentation + 2, &member.object, &context, false).unwrap();
+        write_object_definition_body(state, str, indentation + 2, &member.object, &context, false, false).unwrap();
         write_indentation(str, indentation + 1).unwrap();
         writeln!(str, ")").unwrap();
     }
@@ -794,6 +797,7 @@ fn write_union_definition(
     };
 
     write_indentation(str, indentation).unwrap();
+    write!(str, "@tag(\"__typename\") ").unwrap();
     write_record_type_start(str, &print_mode, &name).unwrap();
     writeln!(str, "").unwrap();
     write_union_definition_body(state, str, indentation, &union, &context).unwrap();
@@ -1166,8 +1170,10 @@ fn write_union_converters(str: &mut String, indentation: usize, union: &Union) -
     write_indentation(str, indentation).unwrap();
     writeln!(
         str,
-        "let unwrap_{}: Types.{} => Types.{} = RescriptRelay_Internal.unwrapUnion",
-        union.record_name, union.record_name, union.record_name
+        "let unwrap_{}: Types.{} => Types.{} = RescriptRelay_Internal.unwrapUnion(_, [{}])",
+        union.record_name, union.record_name, union.record_name, union.members.iter().map(|member| {
+            format!("\"{}\"", &member.typename)
+        }).join(", ")
     )
     .unwrap();
 
@@ -1192,6 +1198,7 @@ enum ObjectPrintMode {
     PartOfRecursiveChain,
 }
 
+#[derive(PartialEq)]
 enum NullabilityMode {
     Option,
     Nullable
@@ -1224,6 +1231,7 @@ fn write_object_definition_body(
     object: &Object,
     context: &Context,
     is_refetch_var: bool,
+    output_as_optional_fields: bool
 ) -> Result {
     let nullability = match (state.operation_meta_data.operation_directives.contains(&RescriptRelayOperationDirective::NullableVariables), context) {
         (true, &Context::Variables | &Context::RootObject(_)) => NullabilityMode::Nullable,
@@ -1278,10 +1286,17 @@ fn write_object_definition_body(
                 Some(original_key) => format!("@as(\"{}\") ", original_key),
             },
             prop.key,
-            match (&nullability, prop.nullable) {
-                (NullabilityMode::Nullable, true) => "?",
-                _ => ""
+            if output_as_optional_fields && prop.nullable {
+                "?"
+            } else {
+                match (&nullability, prop.nullable) {
+                    (NullabilityMode::Nullable, true) => "?",
+                    _ => ""
+                }
             },
+            // This messy part decides how to print the actual value. We have quite a few variants 
+            // here (option, Nullable.t, plain, plain depending on optional fields, etc) so I've 
+            // opted to have some logic here I feel is clear, but maybe not the most efficient.
             match (prop.nullable, is_refetch_var) {
                 (true, true) => format!(
                     "option<option<{}>>",
@@ -1295,20 +1310,30 @@ fn write_object_definition_body(
                 ),
                 (true, false) | (false, true) => format!(
                     "{}",
-                    print_opt(
-                        &get_object_prop_type_as_string(
+                    if output_as_optional_fields && prop.nullable && nullability == NullabilityMode::Option {
+                        get_object_prop_type_as_string(
                             state,
                             &prop.prop_type,
                             &context,
                             indentation,
                             &field_path_name
-                        ),
-                        true, 
-                        match nullability {
-                            NullabilityMode::Option => false,
-                            NullabilityMode::Nullable => true
-                        }
-                    )
+                        )
+                    } else {
+                        print_opt(
+                            &get_object_prop_type_as_string(
+                                state,
+                                &prop.prop_type,
+                                &context,
+                                indentation,
+                                &field_path_name
+                            ),
+                            true, 
+                            match nullability {
+                                NullabilityMode::Option => false,
+                                NullabilityMode::Nullable => true
+                            }
+                        )
+                    }
                 ),
                 (false, false) => format!(
                     "{}",
@@ -1340,6 +1365,7 @@ fn write_object_definition(
     override_name: Option<String>,
     context: &Context,
     is_refetch_var: bool,
+    output_as_optional_fields: bool
 ) -> Result {
     let is_generated_operation = match &state.typegen_definition {
         DefinitionType::Operation((
@@ -1382,7 +1408,7 @@ fn write_object_definition(
         writeln!(str, "unit").unwrap();
         return Ok(());
     } else {
-        write_object_definition_body(state, str, indentation, &object, &context, is_refetch_var)
+        write_object_definition_body(state, str, indentation, &object, &context, is_refetch_var, output_as_optional_fields)
     }
 }
 
@@ -1406,6 +1432,7 @@ fn write_fragment_definition(
                     Some(String::from("fragment_t")),
                     &context,
                     false,
+                    false
                 )
                 .unwrap();
 
@@ -1421,6 +1448,7 @@ fn write_fragment_definition(
                     None,
                     &context,
                     false,
+                    false
                 )
                 .unwrap();
             }
@@ -1435,6 +1463,7 @@ fn write_fragment_definition(
                 Some(String::from("fragment_t")),
                 &context,
                 false,
+                false
             )
             .unwrap();
             write_indentation(str, indentation).unwrap();
@@ -1795,6 +1824,7 @@ impl Writer for ReScriptPrinter {
                         _ => &Context::NotRelevant,
                     },
                     false,
+                    false
                 )
                 .unwrap()
             });
@@ -1841,6 +1871,7 @@ impl Writer for ReScriptPrinter {
                     None,
                     &context,
                     false,
+                    false
                 )
                 .unwrap()
             });
@@ -1870,6 +1901,7 @@ impl Writer for ReScriptPrinter {
                     Some(String::from("response_t")),
                     &Context::Response,
                     false,
+                    false
                 )
                 .unwrap();
                 write_indentation(&mut generated_types, indentation).unwrap();
@@ -1884,6 +1916,7 @@ impl Writer for ReScriptPrinter {
                     None,
                     &Context::Response,
                     false,
+                    false
                 )
                 .unwrap();
             }
@@ -1911,6 +1944,7 @@ impl Writer for ReScriptPrinter {
                     None,
                     &Context::RawResponse,
                     false,
+                    false
                 )
                 .unwrap(),
                 None => {
@@ -1942,6 +1976,7 @@ impl Writer for ReScriptPrinter {
                 None,
                 &Context::Variables,
                 false,
+                true
             )
             .unwrap();
 
@@ -1988,6 +2023,7 @@ impl Writer for ReScriptPrinter {
                         Some(String::from("refetchVariables")),
                         &Context::Variables,
                         true,
+                        false
                     )
                     .unwrap();
 

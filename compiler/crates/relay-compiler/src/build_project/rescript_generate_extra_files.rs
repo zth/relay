@@ -88,17 +88,21 @@ pub(crate) fn rescript_generate_extra_artifacts(
 
             writeln!(
                 content,
-                "  {}{}: {},",
+                "  {}{}{}: {},",
                 (match maybe_original_key {
                     Some(original_key) => format!("@as(\"{}\") ", original_key),
                     None => String::from(""),
                 }),
                 key,
+                match &field.type_ {
+                    &TypeReference::NonNull(_) => "",
+                    _ => "?",
+                },
                 print_type_reference(
                     &field.type_,
                     &schema,
                     &project_config.typegen_config.custom_scalar_types,
-                    true,
+                    false,
                     false,
                     false
                 )

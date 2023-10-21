@@ -4,7 +4,7 @@
 module Types = {
   @@warning("-30")
 
-  type response_members_edges_node_Group_members = 
+  @tag("__typename") type response_members_edges_node_Group_members = 
     | Group(
       {
         @live __typename: [ | #Group],
@@ -23,7 +23,7 @@ module Types = {
     )
     | @as("__unselected") UnselectedUnionMember(string)
 
-  type response_members_edges_node = 
+  @tag("__typename") type response_members_edges_node = 
     | Group(
       {
         @live __typename: [ | #Group],
@@ -39,6 +39,13 @@ module Types = {
         firstName: string,
         @live id: string,
         onlineStatus: option<RelaySchemaAssets_graphql.enum_OnlineStatus>,
+      }
+    )
+    | @as("person") Person(
+      {
+        @live __typename: [ | #person],
+        @live id: string,
+        name: string,
       }
     )
     | @as("__unselected") UnselectedUnionMember(string)
@@ -62,11 +69,11 @@ module Types = {
 }
 
 @live
-let unwrap_response_members_edges_node_Group_members: Types.response_members_edges_node_Group_members => Types.response_members_edges_node_Group_members = RescriptRelay_Internal.unwrapUnion
+let unwrap_response_members_edges_node_Group_members: Types.response_members_edges_node_Group_members => Types.response_members_edges_node_Group_members = RescriptRelay_Internal.unwrapUnion(_, ["Group", "User"])
 @live
 let wrap_response_members_edges_node_Group_members: Types.response_members_edges_node_Group_members => Types.response_members_edges_node_Group_members = RescriptRelay_Internal.wrapUnion
 @live
-let unwrap_response_members_edges_node: Types.response_members_edges_node => Types.response_members_edges_node = RescriptRelay_Internal.unwrapUnion
+let unwrap_response_members_edges_node: Types.response_members_edges_node => Types.response_members_edges_node = RescriptRelay_Internal.unwrapUnion(_, ["Group", "User", "person"])
 @live
 let wrap_response_members_edges_node: Types.response_members_edges_node => Types.response_members_edges_node = RescriptRelay_Internal.wrapUnion
 module Internal = {
@@ -173,6 +180,22 @@ v2 = {
   "storageKey": null
 },
 v3 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "name",
+  "storageKey": null
+},
+v4 = {
+  "kind": "InlineFragment",
+  "selections": [
+    (v2/*: any*/),
+    (v3/*: any*/)
+  ],
+  "type": "person",
+  "abstractKey": null
+},
+v5 = {
   "kind": "InlineFragment",
   "selections": [
     (v2/*: any*/),
@@ -194,35 +217,29 @@ v3 = {
   "type": "User",
   "abstractKey": null
 },
-v4 = {
-  "alias": null,
-  "args": null,
-  "kind": "ScalarField",
-  "name": "name",
-  "storageKey": null
-},
-v5 = {
+v6 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
   "name": "avatarUrl",
   "storageKey": null
 },
-v6 = {
+v7 = {
   "kind": "InlineFragment",
   "selections": [
     (v2/*: any*/),
-    (v4/*: any*/),
-    (v5/*: any*/)
+    (v3/*: any*/),
+    (v6/*: any*/)
   ],
   "type": "Group",
   "abstractKey": null
 },
-v7 = {
+v8 = [
+  (v2/*: any*/)
+],
+v9 = {
   "kind": "InlineFragment",
-  "selections": [
-    (v2/*: any*/)
-  ],
+  "selections": (v8/*: any*/),
   "type": "Node",
   "abstractKey": "__isNode"
 };
@@ -258,13 +275,14 @@ return {
                 "plural": false,
                 "selections": [
                   (v1/*: any*/),
-                  (v3/*: any*/),
+                  (v4/*: any*/),
+                  (v5/*: any*/),
                   {
                     "kind": "InlineFragment",
                     "selections": [
                       (v2/*: any*/),
-                      (v4/*: any*/),
-                      (v5/*: any*/),
+                      (v3/*: any*/),
+                      (v6/*: any*/),
                       {
                         "alias": null,
                         "args": null,
@@ -274,8 +292,8 @@ return {
                         "plural": true,
                         "selections": [
                           (v1/*: any*/),
-                          (v3/*: any*/),
-                          (v6/*: any*/)
+                          (v5/*: any*/),
+                          (v7/*: any*/)
                         ],
                         "storageKey": null
                       }
@@ -327,13 +345,14 @@ return {
                 "plural": false,
                 "selections": [
                   (v1/*: any*/),
-                  (v3/*: any*/),
+                  (v4/*: any*/),
+                  (v5/*: any*/),
                   {
                     "kind": "InlineFragment",
                     "selections": [
                       (v2/*: any*/),
-                      (v4/*: any*/),
-                      (v5/*: any*/),
+                      (v3/*: any*/),
+                      (v6/*: any*/),
                       {
                         "alias": null,
                         "args": null,
@@ -343,9 +362,15 @@ return {
                         "plural": true,
                         "selections": [
                           (v1/*: any*/),
-                          (v3/*: any*/),
-                          (v6/*: any*/),
-                          (v7/*: any*/)
+                          (v5/*: any*/),
+                          (v7/*: any*/),
+                          (v9/*: any*/),
+                          {
+                            "kind": "InlineFragment",
+                            "selections": (v8/*: any*/),
+                            "type": "person",
+                            "abstractKey": null
+                          }
                         ],
                         "storageKey": null
                       }
@@ -353,7 +378,7 @@ return {
                     "type": "Group",
                     "abstractKey": null
                   },
-                  (v7/*: any*/)
+                  (v9/*: any*/)
                 ],
                 "storageKey": null
               }
@@ -366,12 +391,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "7796bda6800b2da0ffac4f5a3b38b745",
+    "cacheID": "1d5dd9d1f2ca0b03bfc5038802fc6402",
     "id": null,
     "metadata": {},
     "name": "TestUnionsQuery",
     "operationKind": "query",
-    "text": "query TestUnionsQuery {\n  members(groupId: \"123\") {\n    edges {\n      node {\n        __typename\n        ... on User {\n          id\n          firstName\n          onlineStatus\n        }\n        ... on Group {\n          id\n          name\n          avatarUrl\n          members {\n            __typename\n            ... on User {\n              id\n              firstName\n              onlineStatus\n            }\n            ... on Group {\n              id\n              name\n              avatarUrl\n            }\n            ... on Node {\n              __isNode: __typename\n              __typename\n              id\n            }\n          }\n        }\n        ... on Node {\n          __isNode: __typename\n          __typename\n          id\n        }\n      }\n    }\n  }\n}\n"
+    "text": "query TestUnionsQuery {\n  members(groupId: \"123\") {\n    edges {\n      node {\n        __typename\n        ... on person {\n          id\n          name\n        }\n        ... on User {\n          id\n          firstName\n          onlineStatus\n        }\n        ... on Group {\n          id\n          name\n          avatarUrl\n          members {\n            __typename\n            ... on User {\n              id\n              firstName\n              onlineStatus\n            }\n            ... on Group {\n              id\n              name\n              avatarUrl\n            }\n            ... on Node {\n              __isNode: __typename\n              __typename\n              id\n            }\n            ... on person {\n              id\n            }\n          }\n        }\n        ... on Node {\n          __isNode: __typename\n          __typename\n          id\n        }\n      }\n    }\n  }\n}\n"
   }
 };
 })() `)

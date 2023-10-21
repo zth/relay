@@ -14,7 +14,7 @@ module Types = {
   and fragment_members_edges_node_Group_adminsConnection = {
     edges: option<array<option<fragment_members_edges_node_Group_adminsConnection_edges>>>,
   }
-  and fragment_members_edges_node = 
+  @tag("__typename") and fragment_members_edges_node = 
     | Group(
       {
         @live __typename: [ | #Group],
@@ -44,7 +44,7 @@ module Types = {
 }
 
 @live
-let unwrap_fragment_members_edges_node: Types.fragment_members_edges_node => Types.fragment_members_edges_node = RescriptRelay_Internal.unwrapUnion
+let unwrap_fragment_members_edges_node: Types.fragment_members_edges_node => Types.fragment_members_edges_node = RescriptRelay_Internal.unwrapUnion(_, ["Group", "User"])
 @live
 let wrap_fragment_members_edges_node: Types.fragment_members_edges_node => Types.fragment_members_edges_node = RescriptRelay_Internal.wrapUnion
 module Internal = {

@@ -4,7 +4,7 @@
 module Types = {
   @@warning("-30")
 
-  type response_node = 
+  @tag("__typename") type response_node = 
     | User(
       {
         @live __typename: [ | #User],
@@ -15,7 +15,7 @@ module Types = {
     )
     | @as("__unselected") UnselectedUnionMember(string)
 
-  type rawResponse_node = 
+  @tag("__typename") type rawResponse_node = 
     | User(
       {
         @live __typename: [ | #User],
@@ -44,7 +44,6 @@ module Types = {
   }
   @live let makeRefetchVariables = (
     ~id=?,
-    ()
   ): refetchVariables => {
     id: id
   }
@@ -52,11 +51,11 @@ module Types = {
 }
 
 @live
-let unwrap_response_node: Types.response_node => Types.response_node = RescriptRelay_Internal.unwrapUnion
+let unwrap_response_node: Types.response_node => Types.response_node = RescriptRelay_Internal.unwrapUnion(_, ["User"])
 @live
 let wrap_response_node: Types.response_node => Types.response_node = RescriptRelay_Internal.wrapUnion
 @live
-let unwrap_rawResponse_node: Types.rawResponse_node => Types.rawResponse_node = RescriptRelay_Internal.unwrapUnion
+let unwrap_rawResponse_node: Types.rawResponse_node => Types.rawResponse_node = RescriptRelay_Internal.unwrapUnion(_, ["User"])
 @live
 let wrap_rawResponse_node: Types.rawResponse_node => Types.rawResponse_node = RescriptRelay_Internal.wrapUnion
 module Internal = {
