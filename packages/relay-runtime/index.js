@@ -83,7 +83,10 @@ export type {
   RangeOperation,
 } from './mutations/RelayDeclarativeMutationConfig';
 export type {OptimisticMutationConfig} from './mutations/applyOptimisticMutation';
-export type {MutationConfig} from './mutations/commitMutation';
+export type {
+  MutationConfig,
+  CommitMutationConfig,
+} from './mutations/commitMutation';
 export type {
   ExecuteFunction,
   FetchFunction,
@@ -137,6 +140,7 @@ export type {
   OptimisticUpdateFunction,
   PluralReaderSelector,
   Props,
+  RecordSourceJSON,
   PublishQueue,
   ReaderSelector,
   ReadOnlyRecordProxy,
@@ -224,6 +228,7 @@ export type {
 export type {Local3DPayload} from './util/createPayloadFor3DField';
 export type {Direction} from './util/getPaginationVariables';
 export type {RequestIdentifier} from './util/getRequestIdentifier';
+export type {ResolverFunction} from './util/ReaderNode';
 
 // As early as possible, check for the existence of the JavaScript globals which
 // Relay Runtime relies upon, and produce a clear message if they do not exist.

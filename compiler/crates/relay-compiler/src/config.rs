@@ -23,7 +23,6 @@ use fnv::FnvHashSet;
 use graphql_ir::OperationDefinition;
 use graphql_ir::Program;
 use indexmap::IndexMap;
-use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use js_config_loader::LoaderSource;
 use log::warn;
@@ -38,6 +37,7 @@ pub use relay_config::LocalPersistConfig;
 use relay_config::ModuleImportConfig;
 pub use relay_config::PersistConfig;
 pub use relay_config::ProjectConfig;
+use relay_config::ProjectName;
 pub use relay_config::RemotePersistConfig;
 use relay_config::SchemaConfig;
 pub use relay_config::SchemaLocation;
@@ -60,7 +60,6 @@ use crate::build_project::rescript_generate_extra_files::rescript_generate_extra
 use crate::build_project::get_artifacts_file_hash_map::GetArtifactsFileHashMapFn;
 use crate::build_project::AdditionalValidations;
 use crate::compiler_state::CompilerState;
-use crate::compiler_state::ProjectName;
 use crate::compiler_state::ProjectSet;
 use crate::errors::ConfigValidationError;
 use crate::errors::Error;
@@ -668,7 +667,7 @@ struct MultiProjectConfigFile {
 #[serde(deny_unknown_fields, rename_all = "camelCase", default)]
 pub struct SingleProjectConfigFile {
     #[serde(skip)]
-    pub project_name: StringKey,
+    pub project_name: ProjectName,
 
     /// Path to schema.graphql
     pub schema: PathBuf,
@@ -741,12 +740,18 @@ pub struct SingleProjectConfigFile {
 
     #[serde(default)]
     pub feature_flags: Option<FeatureFlags>,
+
+    /// Keep the previous compiler behavior by outputting an union
+    /// of the raw type and null, and not the **correct** behavior
+    /// of an union with the raw type, null and undefined.
+    #[serde(default)]
+    pub typescript_exclude_undefined_from_nullable_union: bool,
 }
 
 impl Default for SingleProjectConfigFile {
     fn default() -> Self {
         Self {
-            project_name: "default".intern(),
+            project_name: ProjectName::default(),
             schema: Default::default(),
             src: Default::default(),
             artifact_directory: Default::default(),
@@ -765,6 +770,7 @@ impl Default for SingleProjectConfigFile {
             js_module_format: JsModuleFormat::Haste,
             typegen_phase: None,
             feature_flags: None,
+            typescript_exclude_undefined_from_nullable_union: false,
             module_import_config: Default::default(),
         }
     }
@@ -886,6 +892,8 @@ impl SingleProjectConfigFile {
                     no_future_proof_enums: self.no_future_proof_enums,
                     ..Default::default()
                 },
+                typescript_exclude_undefined_from_nullable_union: self
+                    .typescript_exclude_undefined_from_nullable_union,
                 ..Default::default()
             },
             js_module_format: self.js_module_format,

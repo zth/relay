@@ -1547,7 +1547,14 @@ fn make_prop(
                     if linked_field.node_type.is_list() {
                         AST::RawType(intern!("[]"))
                     } else {
-                        AST::RawType(intern!("null | void"))
+                        match typegen_context.project_config.typegen_config.language {
+                            TypegenLanguage::Flow | TypegenLanguage::JavaScript => {
+                                AST::RawType(intern!("null | void"))
+                            }
+                            TypegenLanguage::TypeScript => {
+                                AST::RawType(intern!("null | undefined"))
+                            }
+                        }
                     }
                 } else {
                     let setter_parameter = AST::Union(
@@ -1568,10 +1575,10 @@ fn make_prop(
                                              read_only: true,
                                              optional: false,
                                          });
-                                         let assignable_fragment_spread_ref= Prop::KeyValuePair(KeyValuePairProp {
+                                         let assignable_fragment_spread_ref = Prop::KeyValuePair(KeyValuePairProp {
                                              key: *KEY_FRAGMENT_SPREADS,
-                                             value: AST::FragmentReferenceType(
-                                                 fragment_spread.fragment_name.0,
+                                             value: AST::FragmentReference(
+                                                 SortedStringKeyList::new(vec![fragment_spread.fragment_name.0]),
                                              ),
                                              read_only: true,
                                              optional: false,

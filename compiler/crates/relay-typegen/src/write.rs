@@ -68,7 +68,6 @@ use crate::KEY_FRAGMENT_TYPE;
 use crate::KEY_RAW_RESPONSE;
 use crate::KEY_TYPENAME;
 use crate::KEY_UPDATABLE_FRAGMENT_SPREADS;
-use crate::PROVIDED_VARIABLE_TYPE;
 use crate::RAW_RESPONSE_TYPE_DIRECTIVE_NAME;
 use crate::REACT_RELAY_MULTI_ACTOR;
 use crate::VALIDATOR_EXPORT_NAME;
@@ -80,6 +79,7 @@ pub(crate) fn write_operation_type_exports_section(
     typegen_operation: &OperationDefinition,
     normalization_operation: &OperationDefinition,
     writer: &mut Box<dyn Writer>,
+    maybe_provided_variables_object: Option<String>,
 ) -> FmtResult {
     let mut encountered_enums = Default::default();
     let mut encountered_fragments = Default::default();
@@ -164,11 +164,11 @@ pub(crate) fn write_operation_type_exports_section(
     write_import_actor_change_point(actor_change_status, writer)?;
     runtime_imports.write_runtime_imports(writer)?;
     write_fragment_imports(typegen_context, None, encountered_fragments, writer)?;
-    write_relay_resolver_imports(typegen_context, imported_resolvers, writer)?;
+    write_relay_resolver_imports(imported_resolvers, writer)?;
     write_split_raw_response_type_imports(typegen_context, imported_raw_response_types, writer)?;
 
     let mut input_object_types = IndexMap::default();
-    let provided_variables_object = generate_provided_variables_type(
+    let expected_provided_variables_type = generate_provided_variables_type(
         typegen_context,
         normalization_operation,
         &mut input_object_types,
@@ -215,8 +215,17 @@ pub(crate) fn write_operation_type_exports_section(
         &query_wrapper_type.into(),
     )?;
 
-    if let Some(provided_variables) = provided_variables_object {
-        writer.write_local_type(PROVIDED_VARIABLE_TYPE, &provided_variables)?;
+    if let Some(provided_variables_type) = expected_provided_variables_type {
+        let actual_provided_variables_object = maybe_provided_variables_object.unwrap_or_else(|| {
+            panic!("Expected the provided variables object. If you see this error, it most likley a bug in the compiler.");
+    });
+
+        // Assert that expected type of provided variables matches
+        // the flow/typescript types of functions with providers.
+        writer.write_type_assertion(
+            actual_provided_variables_object.as_str(),
+            &provided_variables_type,
+        )?;
     }
 
     Ok(())
@@ -414,7 +423,7 @@ pub(crate) fn write_fragment_type_exports_section(
     write_custom_scalar_imports(custom_scalars, writer)?;
 
     runtime_imports.write_runtime_imports(writer)?;
-    write_relay_resolver_imports(typegen_context, imported_resolvers, writer)?;
+    write_relay_resolver_imports(imported_resolvers, writer)?;
 
     let refetchable_metadata = RefetchableMetadata::find(&fragment_definition.directives);
     let fragment_type_name = format!("{}$fragmentType", fragment_name);
@@ -539,19 +548,9 @@ fn write_import_actor_change_point(
 }
 
 fn write_relay_resolver_imports(
-    typegen_context: &'_ TypegenContext<'_>,
     mut imported_resolvers: ImportedResolvers,
     writer: &mut Box<dyn Writer>,
 ) -> FmtResult {
-    // We don't need to import resolver modules in the type-generation
-    // they should be imported in the codegen.
-    if matches!(
-        typegen_context.project_config.typegen_config.language,
-        TypegenLanguage::TypeScript
-    ) {
-        return Ok(());
-    }
-
     imported_resolvers.0.sort_keys();
     for resolver in imported_resolvers.0.values() {
         match resolver.resolver_name {
@@ -834,13 +833,23 @@ fn write_abstract_validator_function(
     writer.write(&return_type)?;
     write!(
         writer,
-        "{} {{\n  return value.{} != null ? (value{}: ",
+        "{} {{\n  return value.{} != null ? ",
         &close_comment,
         abstract_fragment_spread_marker.lookup(),
-        open_comment
     )?;
-    writer.write(&AST::Any)?;
-    write!(writer, "{}) : false;\n}}", &close_comment)?;
+
+    match language {
+        TypegenLanguage::Flow | TypegenLanguage::JavaScript => {
+            write!(writer, "(value{}: ", &open_comment)?;
+            writer.write(&AST::Any)?;
+            write!(writer, "{}) ", &close_comment)?;
+        }
+        TypegenLanguage::TypeScript => {
+            write!(writer, "value ")?;
+        }
+    }
+
+    write!(writer, ": false;\n}}")?;
 
     Ok(())
 }
@@ -907,8 +916,8 @@ fn write_concrete_validator_function(
         AST::RawType(intern!("false")),
     ]));
 
-    let (open_comment, close_comment) = match typegen_context.project_config.typegen_config.language
-    {
+    let typegen_language = typegen_context.project_config.typegen_config.language;
+    let (open_comment, close_comment) = match typegen_language {
         TypegenLanguage::Flow | TypegenLanguage::JavaScript => ("/*", "*/"),
         TypegenLanguage::TypeScript | TypegenLanguage::ReScript => ("", ""),
     };
@@ -923,14 +932,24 @@ fn write_concrete_validator_function(
     writer.write(&return_type)?;
     write!(
         writer,
-        "{} {{\n  return value.{} === '{}' ? (value{}: ",
+        "{} {{\n  return value.{} === '{}' ? ",
         &close_comment,
         KEY_TYPENAME.lookup(),
-        concrete_typename.lookup(),
-        open_comment
+        concrete_typename.lookup()
     )?;
-    writer.write(&AST::Any)?;
-    write!(writer, "{}) : false;\n}}", &close_comment)?;
+
+    match typegen_language {
+        TypegenLanguage::Flow | TypegenLanguage::JavaScript => {
+            write!(writer, "(value{}: ", &open_comment)?;
+            writer.write(&AST::Any)?;
+            write!(writer, "{}) ", &close_comment)?;
+        }
+        TypegenLanguage::TypeScript => {
+            write!(writer, "value ")?;
+        }
+    }
+
+    write!(writer, ": false;\n}}")?;
 
     Ok(())
 }

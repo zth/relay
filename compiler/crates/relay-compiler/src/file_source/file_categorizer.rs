@@ -18,12 +18,12 @@ use common::sync::ParallelIterator;
 use fnv::FnvHashSet;
 use log::warn;
 use rayon::iter::IntoParallelRefIterator;
+use relay_config::ProjectName;
 use relay_typegen::TypegenLanguage;
 
 use super::file_filter::FileFilter;
 use super::File;
 use super::FileGroup;
-use crate::compiler_state::ProjectName;
 use crate::compiler_state::ProjectSet;
 use crate::config::Config;
 use crate::config::SchemaLocation;
@@ -423,7 +423,7 @@ mod tests {
                 .categorize(&PathBuf::from("src/js/a.js"))
                 .unwrap(),
             FileGroup::Source {
-                project_set: ProjectSet::of("public".intern()),
+                project_set: ProjectSet::of("public".intern().into()),
             },
         );
         assert_eq!(
@@ -431,7 +431,7 @@ mod tests {
                 .categorize(&PathBuf::from("src/js/nested/b.js"))
                 .unwrap(),
             FileGroup::Source {
-                project_set: ProjectSet::of("public".intern()),
+                project_set: ProjectSet::of("public".intern().into()),
             },
         );
         assert_eq!(
@@ -439,7 +439,7 @@ mod tests {
                 .categorize(&PathBuf::from("src/js/internal/nested/c.js"))
                 .unwrap(),
             FileGroup::Source {
-                project_set: ProjectSet::of("internal".intern()),
+                project_set: ProjectSet::of("internal".intern().into()),
             },
         );
         assert_eq!(
@@ -451,7 +451,7 @@ mod tests {
                 .categorize(&PathBuf::from("src/custom/custom-generated/c.js"))
                 .unwrap(),
             FileGroup::Source {
-                project_set: ProjectSet::of("with_custom_generated_dir".intern()),
+                project_set: ProjectSet::of("with_custom_generated_dir".intern().into()),
             },
         );
         assert_eq!(
@@ -459,7 +459,7 @@ mod tests {
                 .categorize(&PathBuf::from("src/js/internal/nested/__generated__/c.js"))
                 .unwrap(),
             FileGroup::Generated {
-                project_name: "internal".intern()
+                project_name: "internal".intern().into()
             },
         );
         assert_eq!(
@@ -467,7 +467,7 @@ mod tests {
                 .categorize(&PathBuf::from("graphql/custom-generated/c.js"))
                 .unwrap(),
             FileGroup::Generated {
-                project_name: "with_custom_generated_dir".intern()
+                project_name: "with_custom_generated_dir".intern().into()
             },
         );
         assert_eq!(
@@ -475,7 +475,7 @@ mod tests {
                 .categorize(&PathBuf::from("graphql/public.graphql"))
                 .unwrap(),
             FileGroup::Schema {
-                project_set: ProjectSet::of("public".intern())
+                project_set: ProjectSet::of("public".intern().into())
             },
         );
         assert_eq!(
@@ -483,7 +483,7 @@ mod tests {
                 .categorize(&PathBuf::from("graphql/__generated__/internal.graphql"))
                 .unwrap(),
             FileGroup::Schema {
-                project_set: ProjectSet::of("internal".intern())
+                project_set: ProjectSet::of("internal".intern().into())
             },
         );
         assert_eq!(
@@ -491,7 +491,7 @@ mod tests {
                 .categorize(&PathBuf::from("src/typescript/a.ts"))
                 .unwrap(),
             FileGroup::Source {
-                project_set: ProjectSet::of("typescript".intern()),
+                project_set: ProjectSet::of("typescript".intern().into()),
             },
         );
     }
@@ -545,7 +545,7 @@ mod tests {
         assert_eq!(
             categorizer.categorize(&PathBuf::from("src/custom_overlapping/__generated__/c.js")),
             Err(Cow::Borrowed(
-                "Overlapping input sources are incompatible with relative generated directories. Got file in a relative generated directory with source set ProjectSet([\"with_custom_generated_dir\", \"overlapping_generated_dir\"])."
+                "Overlapping input sources are incompatible with relative generated directories. Got file in a relative generated directory with source set ProjectSet([Named(\"with_custom_generated_dir\"), Named(\"overlapping_generated_dir\")])."
             )),
         );
     }

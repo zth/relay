@@ -37,13 +37,14 @@ use relay_compiler::validate;
 use relay_compiler::ConfigFileProject;
 use relay_compiler::ProjectConfig;
 use relay_config::NonNodeIdFieldsConfig;
+use relay_config::ProjectName;
 use relay_config::SchemaConfig;
 use relay_test_schema::get_test_schema;
 use relay_test_schema::get_test_schema_with_extensions;
 use relay_transforms::apply_transforms;
 use relay_transforms::DIRECTIVE_SPLIT_OPERATION;
 
-pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let source_location = SourceLocationKey::standalone(fixture.file_name);
 
     if fixture.content.contains("%TODO%") {
@@ -113,10 +114,16 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         compact_query_text: FeatureFlag::Disabled,
         emit_normalization_nodes_for_client_edges: true,
         relay_resolver_enable_output_type: FeatureFlag::Disabled,
+        relay_resolver_enable_interface_output_type: FeatureFlag::Disabled,
+        enable_resolver_normalization_ast: fixture
+            .content
+            .contains("# enable_resolver_normalization_ast"),
+        enable_schema_resolvers: false,
+        relay_resolvers_enable_strict_resolver_flavors: FeatureFlag::Disabled,
     };
 
     let default_project_config = ProjectConfig {
-        name: "test".intern(),
+        name: ProjectName::default(),
         feature_flags: Arc::new(feature_flags),
         js_module_format: JsModuleFormat::Haste,
         schema_config: SchemaConfig {

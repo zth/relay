@@ -11,6 +11,7 @@
 
 'use strict';
 
+import type {ResolverModule} from './ReaderNode';
 import type {ConcreteRequest} from './RelayConcreteNode';
 import type {JSResourceReference} from 'JSResourceReference';
 
@@ -78,6 +79,7 @@ export type NormalizationClientExtension = {
 
 export type NormalizationField =
   | NormalizationResolverField
+  | NormalizationLiveResolverField
   | NormalizationScalarField
   | NormalizationLinkedField;
 
@@ -163,19 +165,35 @@ export type NormalizationScalarField = {
   +storageKey?: ?string,
 };
 
+export type ResolverModuleReference = {
+  +fieldType: string,
+  +resolverFunctionName: string,
+};
+
 export type NormalizationResolverField = {
   +kind: 'RelayResolver',
   +name: string,
   +args: ?$ReadOnlyArray<NormalizationArgument>,
-  +fragment: ?NormalizationInlineFragment,
+  +fragment?: ?NormalizationInlineFragment,
   +storageKey: ?string,
   +isOutputType: boolean,
+  +resolverModule?: ResolverModule | ResolverModuleReference,
+};
+
+export type NormalizationLiveResolverField = {
+  +kind: 'RelayLiveResolver',
+  +name: string,
+  +args: ?$ReadOnlyArray<NormalizationArgument>,
+  +fragment?: ?NormalizationInlineFragment,
+  +storageKey: ?string,
+  +isOutputType: boolean,
+  +resolverModule?: ResolverModule | ResolverModuleReference,
 };
 
 export type NormalizationClientEdgeToClientObject = {
   +kind: 'ClientEdgeToClientObject',
   +linkedField: NormalizationLinkedField,
-  +backingField: NormalizationResolverField,
+  +backingField: NormalizationResolverField | NormalizationLiveResolverField,
 };
 
 export type NormalizationClientComponent = {

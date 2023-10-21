@@ -14,7 +14,6 @@ use common::NamedItem;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::OperationDefinition;
-use intern::Lookup;
 use relay_codegen::build_request_params;
 use relay_codegen::Printer;
 use relay_codegen::QueryID;
@@ -113,6 +112,7 @@ pub fn generate_updatable_query(
                 schema,
                 project_config,
                 fragment_locations,
+                None, // TODO: Add/investigrate support for provided variables in updatable queries
             )
         )?;
     }
@@ -267,6 +267,8 @@ pub fn generate_operation(
     )?;
 
     if !skip_types {
+        let maybe_provided_variables =
+            printer.print_provided_variables(schema, normalization_operation);
         write!(
             section,
             "{}",
@@ -276,6 +278,7 @@ pub fn generate_operation(
                 schema,
                 project_config,
                 fragment_locations,
+                maybe_provided_variables,
             )
         )?;
     }
@@ -286,27 +289,8 @@ pub fn generate_operation(
     content_sections.push(ContentSection::Generic(section));
     // -- End Types Section --
 
-    // -- Begin Top Level Statements Section --
-    let mut section = GenericSection::default();
     let mut top_level_statements = Default::default();
-    if let Some(provided_variables) =
-        printer.print_provided_variables(schema, normalization_operation, &mut top_level_statements)
-    {
-        let mut provided_variable_text = String::new();
-        write_variable_value_with_type(
-            &project_config.typegen_config.language,
-            &mut provided_variable_text,
-            CODEGEN_CONSTANTS.provided_variables_definition.lookup(),
-            relay_typegen::PROVIDED_VARIABLE_TYPE,
-            &provided_variables,
-        )
-        .unwrap();
-        top_level_statements.insert(
-            CODEGEN_CONSTANTS.provided_variables_definition.to_string(),
-            TopLevelStatement::VariableDefinition(provided_variable_text),
-        );
-    }
-
+    // -- Begin Query Node Section --
     let request = printer.print_request(
         schema,
         normalization_operation,
@@ -315,11 +299,12 @@ pub fn generate_operation(
         &mut top_level_statements,
     );
 
+    // -- Begin Top Level Statements Section --
+    let mut section: GenericSection = GenericSection::default();
     write!(section, "{}", &top_level_statements)?;
     content_sections.push(ContentSection::Generic(section));
     // -- End Top Level Statements Section --
 
-    // -- Begin Query Node Section --
     let mut section = GenericSection::default();
     write_variable_value_with_type(
         &project_config.typegen_config.language,
@@ -525,6 +510,7 @@ pub fn generate_fragment(
             project_config,
             schema,
             typegen_fragment,
+            source_hash,
             skip_types,
             fragment_locations,
         )
@@ -675,6 +661,7 @@ fn generate_assignable_fragment(
     project_config: &ProjectConfig,
     schema: &SDLSchema,
     typegen_fragment: &FragmentDefinition,
+    source_hash: Option<&String>,
     skip_types: bool,
     fragment_locations: &FragmentLocations,
 ) -> Result<Vec<u8>, FmtError> {
@@ -725,12 +712,43 @@ fn generate_assignable_fragment(
     content_sections.push(ContentSection::Generic(section));
     // -- End Types Section --
 
+    // -- Begin Fragment Node Section --
+    let mut section = GenericSection::default();
+    write_variable_value_with_type(
+        &project_config.typegen_config.language,
+        &mut section,
+        "node",
+        "any",
+        "{}",
+    )?;
+    content_sections.push(ContentSection::Generic(section));
+    // -- End Fragment Node Section --
+
+    // -- Begin Fragment Node Hash Section --
+    if let Some(source_hash) = source_hash {
+        let mut section = GenericSection::default();
+        write_source_hash(
+            config,
+            &project_config.typegen_config.language,
+            &mut section,
+            source_hash,
+        )?;
+        content_sections.push(ContentSection::Generic(section));
+    }
+    // -- End Fragment Node Hash Section --
+
+    // -- Begin Fragment Node Export Section --
+    let mut section = GenericSection::default();
+    write_export_generated_node(&project_config.typegen_config, &mut section, "node", None)?;
+    content_sections.push(ContentSection::Generic(section));
+    // -- End Fragment Node Export Section --
+
     // -- Begin Export Section --
     let mut section = GenericSection::default();
     // Assignable fragments should never be passed to useFragment, and thus, we
     // don't need to emit a reader fragment.
     // Instead, we only need a named validator export, i.e.
-    // module.exports.validator = ...
+    // module.exports.validate = ...
     let named_validator_export = generate_named_validator_export(
         typegen_fragment,
         schema,
@@ -815,7 +833,7 @@ fn write_import_type_from(
     }
 }
 
-fn write_export_generated_node(
+pub fn write_export_generated_node(
     typegen_config: &TypegenConfig,
     section: &mut dyn Write,
     variable_node: &str,
@@ -841,7 +859,7 @@ fn write_export_generated_node(
     }
 }
 
-fn generate_docblock_section(
+pub fn generate_docblock_section(
     config: &Config,
     project_config: &ProjectConfig,
     extra_annotations: Vec<String>,
