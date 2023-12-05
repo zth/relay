@@ -47,6 +47,10 @@ enum OnlineStatus {
   offline
 }
 
+enum SingleValueEnum {
+  IAmAlone
+}
+
 interface HasName {
   name: String!
 }

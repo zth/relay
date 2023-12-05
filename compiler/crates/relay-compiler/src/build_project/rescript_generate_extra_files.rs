@@ -48,7 +48,12 @@ pub(crate) fn rescript_generate_extra_artifacts(
         }
         writeln!(
             content,
-            "@live @unboxed\ntype enum_{}_input = ",
+            "@live{}\ntype enum_{}_input = ",
+            if e.values.len() > 1 {
+                " @unboxed"
+            } else {
+                ""
+            },
             e.name.item
         )
         .unwrap();

@@ -17,6 +17,17 @@ type enum_OnlineStatus_input =
 
 
 @live @unboxed
+type enum_SingleValueEnum = 
+  | IAmAlone
+  | FutureAddedValue(string)
+
+
+@live
+type enum_SingleValueEnum_input = 
+  | IAmAlone
+
+
+@live @unboxed
 type enum_RequiredFieldAction = 
   | NONE
   | LOG
