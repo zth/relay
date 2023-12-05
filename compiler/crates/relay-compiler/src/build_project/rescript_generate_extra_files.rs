@@ -104,7 +104,9 @@ pub(crate) fn rescript_generate_extra_artifacts(
                     &project_config.typegen_config.custom_scalar_types,
                     false,
                     false,
-                    false
+                    false,
+                    true
+                    
                 )
             )
             .unwrap();
@@ -156,6 +158,7 @@ pub(crate) fn rescript_generate_extra_artifacts(
                     &project_config.typegen_config.custom_scalar_types,
                     true,
                     false,
+                    true,
                     true
                 )
             )

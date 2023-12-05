@@ -429,6 +429,7 @@ pub fn print_type_reference(
     nullable: bool,
     prefix_with_schema_module: bool,
     output_as_js_nullable: bool,
+    enum_as_inputs: bool,
 ) -> String {
     match typ {
         TypeReference::Named(named_type) => print_opt(
@@ -436,13 +437,14 @@ pub fn print_type_reference(
                 Type::Enum(id) => {
                     let enum_ = schema.enum_(*id);
                     format!(
-                        "{}enum_{}",
+                        "{}enum_{}{}",
                         if prefix_with_schema_module {
                             "RelaySchemaAssets_graphql."
                         } else {
                             ""
                         },
                         enum_.name.item,
+                        if enum_as_inputs { "_input" } else { "" }
                     )
                 }
                 Type::InputObject(id) => {
@@ -503,7 +505,8 @@ pub fn print_type_reference(
                 &custom_scalar_types,
                 false,
                 prefix_with_schema_module,
-                output_as_js_nullable
+                output_as_js_nullable,
+                enum_as_inputs
             )
         ),
         TypeReference::List(typ) => print_opt(
@@ -515,7 +518,8 @@ pub fn print_type_reference(
                     &custom_scalar_types,
                     true,
                     prefix_with_schema_module,
-                    output_as_js_nullable
+                    output_as_js_nullable,
+                    enum_as_inputs
                 )
             ),
             nullable,
@@ -716,6 +720,7 @@ pub fn get_connection_key_maker(
                                 &custom_scalar_types,
                                 true,
                                 true,
+                                false,
                                 false
                             )
                         )
@@ -727,6 +732,7 @@ pub fn get_connection_key_maker(
                             true,
                             true,
                             false,
+                            false
                         )
                     },
                     match (&default_value, &variable.type_) {
