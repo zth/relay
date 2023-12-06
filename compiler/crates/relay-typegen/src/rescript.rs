@@ -759,7 +759,7 @@ fn write_union_definition_body(state: &Box<ReScriptPrinter>, str: &mut String, i
         let name_capitalized = capitalize_string(&member.typename);
         write!(
             str,
-            "| {}{}(\n",
+            "| @live {}{}(\n",
             if &name_capitalized != &member.typename {
                 format!("@as(\"{}\") ", member.typename.to_string())
             } else {
@@ -776,7 +776,7 @@ fn write_union_definition_body(state: &Box<ReScriptPrinter>, str: &mut String, i
     }
 
     write_indentation(str, indentation + 1).unwrap();
-    writeln!(str, "| @as(\"__unselected\") UnselectedUnionMember(string)").unwrap();
+    writeln!(str, "| @live @as(\"__unselected\") UnselectedUnionMember(string)").unwrap();
     writeln!(str, "").unwrap();
 
     Ok(())
