@@ -76,105 +76,175 @@ pub(crate) fn rescript_generate_extra_artifacts(
             writeln!(content, "/** {} */", desc).unwrap();
         }
 
-        writeln!(
-            content,
-            "{} input_{} = {{",
-            if has_written_initial_input_obj {
-                "\n@live\nand"
-            } else {
-                "@live\ntype rec"
-            },
-            input_obj.name.item
-        )
-        .unwrap();
+        let is_input_union = input_obj.directives.iter().find(|directive| {
+            directive.name.0.eq(&"oneOf".intern())
+        }).is_some();
 
-        input_obj.fields.iter().for_each(|field| {
-            let (key, maybe_original_key) = get_safe_key(&field.name.to_string());
-
+        if is_input_union {
+            // The non-nullable version
             writeln!(
                 content,
-                "  {}{}{}: {},",
-                (match maybe_original_key {
-                    Some(original_key) => format!("@as(\"{}\") ", original_key),
-                    None => String::from(""),
-                }),
-                key,
-                match &field.type_ {
-                    &TypeReference::NonNull(_) => "",
-                    _ => "?",
+                "{} input_{} = ",
+                if has_written_initial_input_obj {
+                    "\n@live\n@tag(\"__$inputUnion\")\nand"
+                } else {
+                    "@live\n@tag(\"__$inputUnion\")\ntype rec"
                 },
-                print_type_reference(
-                    &field.type_,
-                    &schema,
-                    &project_config.typegen_config.custom_scalar_types,
-                    false,
-                    false,
-                    false,
-                    true
-                    
-                )
+                input_obj.name.item
             )
             .unwrap();
-        });
 
-        writeln!(content, "}}").unwrap();
+            input_obj.fields.iter().for_each(|field| {
+                writeln!(
+                    content, 
+                    "| @as(\"{}\") {}({})", 
+                    field.name.0, 
+                    capitalize_string(&field.name.0.to_string()),
+                    print_type_reference(
+                        &field.type_,
+                        &schema,
+                        &project_config.typegen_config.custom_scalar_types,
+                        false,
+                        false,
+                        false,
+                        true
+                    )
+                ).unwrap();
+            });
 
-        if has_written_initial_input_obj == false {
-            has_written_initial_input_obj = true;
-        }
+            // And the nullable version
+            writeln!(
+                content,
+                "{} input_{}_nullable = ",
+                if has_written_initial_input_obj {
+                    "\n@live\n@tag(\"__$inputUnion\")\nand"
+                } else {
+                    "@live\n@tag(\"__$inputUnion\")\ntype rec"
+                },
+                input_obj.name.item
+            )
+            .unwrap();
 
-        // Write the nullable type
-        if let Some(desc) = input_obj.description {
-            writeln!(content, "/** {} */", desc).unwrap();
-        }
+            input_obj.fields.iter().for_each(|field| {
+                writeln!(
+                    content, 
+                    "| @as(\"{}\") {}({})", 
+                    field.name.0, 
+                    capitalize_string(&field.name.0.to_string()),
+                    print_type_reference(
+                        &field.type_,
+                        &schema,
+                        &project_config.typegen_config.custom_scalar_types,
+                        false,
+                        false,
+                        true,
+                        true
+                    )
+                ).unwrap();
+            });
 
-        writeln!(
-            content,
-            "{} input_{}_nullable = {{",
-            if has_written_initial_input_obj {
-                "\n@live\nand"
-            } else {
-                "@live\ntype rec"
-            },
-            input_obj.name.item
-        )
-        .unwrap();
-
-        input_obj.fields.iter().for_each(|field| {
-            let (key, maybe_original_key) = get_safe_key(&field.name.to_string());
-
-            let is_nullable = match &field.type_ {
-                TypeReference::NonNull(_) => false,
-                _ => true,
-            };
+        } else {       
 
             writeln!(
                 content,
-                "  {}{}{}: {},",
-                (match maybe_original_key {
-                    Some(original_key) => format!("@as(\"{}\") ", original_key),
-                    None => String::from(""),
-                }),
-                key,
-                if is_nullable { "?" } else { "" },
-                print_type_reference(
-                    &field.type_,
-                    &schema,
-                    &project_config.typegen_config.custom_scalar_types,
-                    true,
-                    false,
-                    true,
-                    true
-                )
+                "{} input_{} = {{",
+                if has_written_initial_input_obj {
+                    "\n@live\nand"
+                } else {
+                    "@live\ntype rec"
+                },
+                input_obj.name.item
             )
             .unwrap();
-        });
 
-        writeln!(content, "}}").unwrap();
+            input_obj.fields.iter().for_each(|field| {
+                let (key, maybe_original_key) = get_safe_key(&field.name.to_string());
 
-        if has_written_initial_input_obj == false {
-            has_written_initial_input_obj = true;
-        }
+                writeln!(
+                    content,
+                    "  {}{}{}: {},",
+                    (match maybe_original_key {
+                        Some(original_key) => format!("@as(\"{}\") ", original_key),
+                        None => String::from(""),
+                    }),
+                    key,
+                    match &field.type_ {
+                        &TypeReference::NonNull(_) => "",
+                        _ => "?",
+                    },
+                    print_type_reference(
+                        &field.type_,
+                        &schema,
+                        &project_config.typegen_config.custom_scalar_types,
+                        false,
+                        false,
+                        false,
+                        true
+                        
+                    )
+                )
+                .unwrap();
+            });
+
+            writeln!(content, "}}").unwrap();
+
+            if has_written_initial_input_obj == false {
+                has_written_initial_input_obj = true;
+            }
+
+            // Write the nullable type
+            if let Some(desc) = input_obj.description {
+                writeln!(content, "/** {} */", desc).unwrap();
+            }
+
+            writeln!(
+                content,
+                "{} input_{}_nullable = {{",
+                if has_written_initial_input_obj {
+                    "\n@live\nand"
+                } else {
+                    "@live\ntype rec"
+                },
+                input_obj.name.item
+            )
+            .unwrap();
+
+            input_obj.fields.iter().for_each(|field| {
+                let (key, maybe_original_key) = get_safe_key(&field.name.to_string());
+
+                let is_nullable = match &field.type_ {
+                    TypeReference::NonNull(_) => false,
+                    _ => true,
+                };
+
+                writeln!(
+                    content,
+                    "  {}{}{}: {},",
+                    (match maybe_original_key {
+                        Some(original_key) => format!("@as(\"{}\") ", original_key),
+                        None => String::from(""),
+                    }),
+                    key,
+                    if is_nullable { "?" } else { "" },
+                    print_type_reference(
+                        &field.type_,
+                        &schema,
+                        &project_config.typegen_config.custom_scalar_types,
+                        true,
+                        false,
+                        true,
+                        true
+                    )
+                )
+                .unwrap();
+            });
+
+            writeln!(content, "}}").unwrap();
+
+            if has_written_initial_input_obj == false {
+                has_written_initial_input_obj = true;
+            }
+    }
     });
 
     vec![Artifact {
