@@ -2066,6 +2066,22 @@ impl Writer for ReScriptPrinter {
                 write_union_converters(&mut generated_types, indentation, &union).unwrap()
             });
 
+            match &self.typegen_definition {
+                DefinitionType::Operation((operation_definition, _)) => match operation_definition.kind
+                {
+                    OperationKind::Query => {
+                        write_indentation(&mut generated_types, indentation).unwrap();
+                        writeln!(generated_types, "").unwrap();
+                        write_indentation(&mut generated_types, indentation).unwrap();
+                        writeln!(generated_types, "type queryRef").unwrap();
+                        write_indentation(&mut generated_types, indentation).unwrap();
+                        writeln!(generated_types, "").unwrap();
+                    }
+                    OperationKind::Mutation | OperationKind::Subscription => (),
+                },
+                _ => ()
+            }
+
         // Print internal module. This module holds a bunch of things needed for
         // conversions etc, but that we want to keep in its own module. Mostly
         // just to reiterate that things found in here are indeed internal, and
@@ -2218,6 +2234,19 @@ impl Writer for ReScriptPrinter {
             _ => (),
         };
 
+        match &self.typegen_definition {
+            DefinitionType::Operation((op, _)) => {
+                match &op.kind {
+                    OperationKind::Query => {
+                        writeln!(generated_types, "  type rawPreloadToken<'response> = {{source: Js.Nullable.t<RescriptRelay.Observable.t<'response>>}}").unwrap();
+                        writeln!(generated_types, "  external tokenToRaw: queryRef => rawPreloadToken<Types.response> = \"%identity\"").unwrap();
+                    }
+                    _ => (),
+                }
+            }
+            _ => (),
+        };
+
         indentation -= 1;
         write_indentation(&mut generated_types, indentation).unwrap();
         writeln!(generated_types, "}}").unwrap();
@@ -2244,18 +2273,7 @@ impl Writer for ReScriptPrinter {
                 )
                 .unwrap();
             }
-            DefinitionType::Operation((operation_definition, _)) => match operation_definition.kind
-            {
-                OperationKind::Query => {
-                    write_indentation(&mut generated_types, indentation).unwrap();
-                    writeln!(generated_types, "").unwrap();
-                    write_indentation(&mut generated_types, indentation).unwrap();
-                    writeln!(generated_types, "type queryRef").unwrap();
-                    write_indentation(&mut generated_types, indentation).unwrap();
-                    writeln!(generated_types, "").unwrap();
-                }
-                OperationKind::Mutation | OperationKind::Subscription => (),
-            },
+            _ => ()
         }
 
         // Let's write some connection helpers! These are emitted anytime
