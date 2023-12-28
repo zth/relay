@@ -1243,3 +1243,97 @@ fn write_data_driven_dependency_annotation(
     }
     Ok(())
 }
+
+pub fn generate_preloadable_query_parameters(
+    config: &Config,
+    project_config: &ProjectConfig,
+    printer: &mut Printer<'_>,
+    schema: &SDLSchema,
+    normalization_operation: &OperationDefinition,
+    query_id: &QueryID,
+) -> Result<Vec<u8>, FmtError> {
+    let mut request_parameters = build_request_params(normalization_operation);
+    let cloned_query_id = Some(query_id.clone());
+    request_parameters.id = &cloned_query_id;
+
+    let mut content_sections = ContentSections::default();
+
+    // -- Begin Docblock Section --
+    let v = match query_id {
+        QueryID::Persisted { text_hash, .. } => vec![format!("@relayHash {}", text_hash)],
+        _ => vec![],
+    };
+    content_sections.push(ContentSection::Docblock(generate_docblock_section(
+        config,
+        project_config,
+        v,
+    )?));
+    // -- End Docblock Section --
+
+    // -- Begin Metadata Annotations Section --
+    let mut section = CommentAnnotationsSection::default();
+    if let Some(QueryID::Persisted { id, .. }) = &request_parameters.id {
+        writeln!(section, "@relayRequestID {}", id)?;
+    }
+    content_sections.push(ContentSection::CommentAnnotations(section));
+    // -- End Metadata Annotations Section --
+
+    match super::rescript_relay_utils::rescript_get_source_loc_text(
+        &normalization_operation.name.location.source_location(),
+    ) {
+        None => (),
+        Some(source_loc_str) => {
+            let mut section = GenericSection::default();
+            writeln!(section, "{}", source_loc_str).unwrap();
+            write!(
+                section,
+                "{}",
+                super::rescript_relay_utils::rescript_get_comments_for_generated()
+            )
+            .unwrap();
+            content_sections.push(ContentSection::Generic(section))
+        }
+    };
+
+    let mut section = GenericSection::default();
+    writeln!(section, "module Types = {{ include {}_graphql.Types }}", normalization_operation.name.item.0)?;
+
+    writeln!(section, "type queryRef").unwrap();
+
+    // Print operation node types
+    writeln!(
+        section,
+        "\ntype relayOperationNode\ntype operationType = RescriptRelay.queryNode<relayOperationNode>\n\n",
+    )
+    .unwrap();
+
+    // Print node type
+    writeln!(
+        section,
+        "{}",
+        super::rescript_relay_utils::rescript_make_operation_type_and_node_text(
+            &printer.print_preloadable_request(
+                schema,
+                request_parameters,
+                normalization_operation,
+                &mut Default::default(),
+            ),
+            false
+        )
+    )
+    .unwrap();
+
+    writeln!(section, "include RescriptRelay.MakeLoadQuery({{
+        type variables = Types.variables
+        type loadedQueryRef = queryRef
+        type response = Types.response
+        type node = relayOperationNode
+        let query = node
+        let convertVariables = Internal.convertVariables
+    }});").unwrap();
+
+    content_sections.push(ContentSection::Generic(section));
+
+
+    content_sections.into_signed_bytes()
+}

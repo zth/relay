@@ -4,6 +4,7 @@ use common::SourceLocationKey;
 use graphql_ir::reexport::Intern;
 use relay_config::ProjectConfig;
 use relay_transforms::Programs;
+use relay_transforms::is_operation_preloadable;
 use relay_typegen::rescript_utils::capitalize_string;
 use relay_typegen::rescript_utils::get_safe_key;
 use relay_typegen::rescript_utils::print_type_reference;
@@ -12,6 +13,8 @@ use schema::Schema;
 use schema::TypeReference;
 
 use crate::Artifact;
+use crate::ArtifactContent;
+use crate::build_project::generate_preloadable_query_parameters_artifact;
 use crate::config::Config;
 
 pub(crate) fn rescript_generate_extra_artifacts(
@@ -19,8 +22,34 @@ pub(crate) fn rescript_generate_extra_artifacts(
     project_config: &ProjectConfig,
     schema: &SDLSchema,
     _programs: &Programs,
-    _artifacts: &[Artifact],
+    artifacts: &[Artifact],
 ) -> Vec<Artifact> {
+    // Preloaded operations
+    let mut extra_artifacts: Vec<Artifact> = artifacts
+    .iter()
+    .map(|artifact| match &artifact.content {
+        ArtifactContent::Operation {
+            normalization_operation,
+            id_and_text_hash,
+            ..
+        } => {
+            if !is_operation_preloadable(&normalization_operation) {
+                return None;
+            }
+
+            Some(generate_preloadable_query_parameters_artifact(
+                project_config,
+                normalization_operation,
+                id_and_text_hash,
+                artifact.artifact_source_keys.clone(),
+                artifact.source_file,
+            ))
+        }
+        _ => None,
+    })
+    .filter_map(|artifact| artifact)
+    .collect();
+
     let dummy_source_file = SourceLocationKey::Generated;
 
     let mut content = String::from("/* @generated */\n@@warning(\"-30\")\n\n");
@@ -247,12 +276,16 @@ pub(crate) fn rescript_generate_extra_artifacts(
     }
     });
 
-    vec![Artifact {
+    let schema_assets_artifact = Artifact {
         artifact_source_keys: vec![],
         path: project_config.path_for_artifact(dummy_source_file, "RelaySchemaAssets".intern()),
         source_file: dummy_source_file,
         content: crate::ArtifactContent::Generic {
             content: content.as_bytes().to_vec(),
         },
-    }]
+    };
+
+    extra_artifacts.push(schema_assets_artifact);
+
+    extra_artifacts
 }
