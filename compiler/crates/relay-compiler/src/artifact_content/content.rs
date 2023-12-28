@@ -11,9 +11,11 @@ use std::fmt::Write;
 use std::sync::Arc;
 
 use common::NamedItem;
+use common::rescript_utils::get_load_query_code;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::OperationDefinition;
+use intern::string_key::Intern;
 use relay_codegen::build_request_params;
 use relay_codegen::Printer;
 use relay_codegen::QueryID;
@@ -1067,21 +1069,9 @@ pub fn generate_operation_rescript(
         section,
         "{}",
         match typegen_operation.kind {
-            graphql_syntax::OperationKind::Query => {
-                // TODO: Replace functor at some point
-                "include RescriptRelay.MakeLoadQuery({
-    type variables = Types.variables
-    type loadedQueryRef = queryRef
-    type response = Types.response
-    type node = relayOperationNode
-    let query = node
-    let convertVariables = Internal.convertVariables
-});"
-            }
+            graphql_syntax::OperationKind::Query => get_load_query_code(),
             graphql_syntax::OperationKind::Mutation
-            | graphql_syntax::OperationKind::Subscription => {
-                ""
-            }
+            | graphql_syntax::OperationKind::Subscription => "".intern()
         }
     )
     .unwrap();
