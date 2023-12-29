@@ -119,59 +119,56 @@ module Utils = {
     onlineStatus_decode(Obj.magic(str))
   }
 }
-module ProvidedVariables = {
-  type providedVariable<'t> = { providedVariable: unit => 't, get: unit => 't }
-  type providedVariablesType = {
-    __relay_internal__pv__TestProvidedVariablesBool: providedVariable<bool>,
-    __relay_internal__pv__TestProvidedVariablesDatetime: providedVariable<option<SomeModule.Datetime.t>>,
-    __relay_internal__pv__TestProvidedVariablesDatetimes: providedVariable<option<array<SomeModule.Datetime.t>>>,
-    __relay_internal__pv__TestProvidedVariablesFloat: providedVariable<float>,
-    __relay_internal__pv__TestProvidedVariablesID: providedVariable<option<string>>,
-    __relay_internal__pv__TestProvidedVariablesInputB: providedVariable<RelaySchemaAssets_graphql.input_InputB>,
-    __relay_internal__pv__TestProvidedVariablesInt: providedVariable<option<int>>,
-    __relay_internal__pv__TestProvidedVariablesSomeInput: providedVariable<RelaySchemaAssets_graphql.input_SomeInput>,
-    __relay_internal__pv__TestProvidedVariablesStr: providedVariable<string>,
-  }
-  let providedVariablesDefinition: providedVariablesType = {
-    __relay_internal__pv__TestProvidedVariablesSomeInput: {
-      providedVariable: TestProvidedVariables.SomeInput.get,
-      get: () => Internal.convertVariables(Js.Dict.fromArray([("__relay_internal__pv__TestProvidedVariablesSomeInput", TestProvidedVariables.SomeInput.get())]))->Js.Dict.unsafeGet("__relay_internal__pv__TestProvidedVariablesSomeInput"),
-    },
-    __relay_internal__pv__TestProvidedVariablesInputB: {
-      providedVariable: TestProvidedVariables.InputB.get,
-      get: () => Internal.convertVariables(Js.Dict.fromArray([("__relay_internal__pv__TestProvidedVariablesInputB", TestProvidedVariables.InputB.get())]))->Js.Dict.unsafeGet("__relay_internal__pv__TestProvidedVariablesInputB"),
-    },
-    __relay_internal__pv__TestProvidedVariablesBool: {
-      providedVariable: TestProvidedVariables.Bool.get,
-      get: TestProvidedVariables.Bool.get,
-    },
-    __relay_internal__pv__TestProvidedVariablesStr: {
-      providedVariable: TestProvidedVariables.Str.get,
-      get: TestProvidedVariables.Str.get,
-    },
-    __relay_internal__pv__TestProvidedVariablesFloat: {
-      providedVariable: TestProvidedVariables.Float.get,
-      get: TestProvidedVariables.Float.get,
-    },
-    __relay_internal__pv__TestProvidedVariablesInt: {
-      providedVariable: TestProvidedVariables.Int.get,
-      get: TestProvidedVariables.Int.get,
-    },
-    __relay_internal__pv__TestProvidedVariablesID: {
-      providedVariable: TestProvidedVariables.ID.get,
-      get: TestProvidedVariables.ID.get,
-    },
-    __relay_internal__pv__TestProvidedVariablesDatetime: {
-      providedVariable: TestProvidedVariables.Datetime.get,
-      get: () => Internal.convertVariables(Js.Dict.fromArray([("__relay_internal__pv__TestProvidedVariablesDatetime", TestProvidedVariables.Datetime.get())]))->Js.Dict.unsafeGet("__relay_internal__pv__TestProvidedVariablesDatetime"),
-    },
-    __relay_internal__pv__TestProvidedVariablesDatetimes: {
-      providedVariable: TestProvidedVariables.Datetimes.get,
-      get: () => Internal.convertVariables(Js.Dict.fromArray([("__relay_internal__pv__TestProvidedVariablesDatetimes", TestProvidedVariables.Datetimes.get())]))->Js.Dict.unsafeGet("__relay_internal__pv__TestProvidedVariablesDatetimes"),
-    },
-  }
+type providedVariable<'t> = { providedVariable: unit => 't, get: unit => 't }
+type providedVariablesType = {
+  __relay_internal__pv__TestProvidedVariablesBool: providedVariable<bool>,
+  __relay_internal__pv__TestProvidedVariablesDatetime: providedVariable<option<SomeModule.Datetime.t>>,
+  __relay_internal__pv__TestProvidedVariablesDatetimes: providedVariable<option<array<SomeModule.Datetime.t>>>,
+  __relay_internal__pv__TestProvidedVariablesFloat: providedVariable<float>,
+  __relay_internal__pv__TestProvidedVariablesID: providedVariable<option<string>>,
+  __relay_internal__pv__TestProvidedVariablesInputB: providedVariable<RelaySchemaAssets_graphql.input_InputB>,
+  __relay_internal__pv__TestProvidedVariablesInt: providedVariable<option<int>>,
+  __relay_internal__pv__TestProvidedVariablesSomeInput: providedVariable<RelaySchemaAssets_graphql.input_SomeInput>,
+  __relay_internal__pv__TestProvidedVariablesStr: providedVariable<string>,
 }
-let providedVariablesDefinition = ProvidedVariables.providedVariablesDefinition
+let providedVariablesDefinition: providedVariablesType = {
+  __relay_internal__pv__TestProvidedVariablesSomeInput: {
+    providedVariable: TestProvidedVariables.SomeInput.get,
+    get: () => Internal.convertVariables(Js.Dict.fromArray([("__relay_internal__pv__TestProvidedVariablesSomeInput", TestProvidedVariables.SomeInput.get())]))->Js.Dict.unsafeGet("__relay_internal__pv__TestProvidedVariablesSomeInput"),
+  },
+  __relay_internal__pv__TestProvidedVariablesInputB: {
+    providedVariable: TestProvidedVariables.InputB.get,
+    get: () => Internal.convertVariables(Js.Dict.fromArray([("__relay_internal__pv__TestProvidedVariablesInputB", TestProvidedVariables.InputB.get())]))->Js.Dict.unsafeGet("__relay_internal__pv__TestProvidedVariablesInputB"),
+  },
+  __relay_internal__pv__TestProvidedVariablesBool: {
+    providedVariable: TestProvidedVariables.Bool.get,
+    get: TestProvidedVariables.Bool.get,
+  },
+  __relay_internal__pv__TestProvidedVariablesStr: {
+    providedVariable: TestProvidedVariables.Str.get,
+    get: TestProvidedVariables.Str.get,
+  },
+  __relay_internal__pv__TestProvidedVariablesFloat: {
+    providedVariable: TestProvidedVariables.Float.get,
+    get: TestProvidedVariables.Float.get,
+  },
+  __relay_internal__pv__TestProvidedVariablesInt: {
+    providedVariable: TestProvidedVariables.Int.get,
+    get: TestProvidedVariables.Int.get,
+  },
+  __relay_internal__pv__TestProvidedVariablesID: {
+    providedVariable: TestProvidedVariables.ID.get,
+    get: TestProvidedVariables.ID.get,
+  },
+  __relay_internal__pv__TestProvidedVariablesDatetime: {
+    providedVariable: TestProvidedVariables.Datetime.get,
+    get: () => Internal.convertVariables(Js.Dict.fromArray([("__relay_internal__pv__TestProvidedVariablesDatetime", TestProvidedVariables.Datetime.get())]))->Js.Dict.unsafeGet("__relay_internal__pv__TestProvidedVariablesDatetime"),
+  },
+  __relay_internal__pv__TestProvidedVariablesDatetimes: {
+    providedVariable: TestProvidedVariables.Datetimes.get,
+    get: () => Internal.convertVariables(Js.Dict.fromArray([("__relay_internal__pv__TestProvidedVariablesDatetimes", TestProvidedVariables.Datetimes.get())]))->Js.Dict.unsafeGet("__relay_internal__pv__TestProvidedVariablesDatetimes"),
+  },
+}
 
 type relayOperationNode
 type operationType = RescriptRelay.queryNode<relayOperationNode>

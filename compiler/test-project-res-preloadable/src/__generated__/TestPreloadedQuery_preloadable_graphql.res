@@ -24,8 +24,6 @@ module Internal = {
     variablesConverterMap,
     Js.undefined
   )
-  type rawPreloadToken<'response> = {source: Js.Nullable.t<RescriptRelay.Observable.t<'response>>}
-  external tokenToRaw: queryRef => rawPreloadToken<Types.response> = "%identity"
 }
 module Utils = {
   @@warning("-33")

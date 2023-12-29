@@ -2262,8 +2262,9 @@ impl Writer for ReScriptPrinter {
             _ => (),
         };
 
-        match &self.typegen_definition {
-            DefinitionType::Operation((op, _)) => {
+        match (&preloadable_mode, &self.typegen_definition) {
+            (&PreloadableMode::ThinFile, _) => (),
+            (_, DefinitionType::Operation((op, _))) => {
                 match &op.kind {
                     OperationKind::Query => {
                         writeln!(generated_types, "  type rawPreloadToken<'response> = {{source: Js.Nullable.t<RescriptRelay.Observable.t<'response>>}}").unwrap();
