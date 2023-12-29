@@ -33,7 +33,7 @@ pub fn get_load_fn_code() -> StringKey {
   )".intern()
 }
 
-pub fn get_load_query_code() -> StringKey {
+pub fn get_load_query_code(include_load_fn: bool) -> StringKey {
     format!("{}
   
 let queryRefToObservable = token => {{
@@ -50,5 +50,10 @@ let queryRefToPromise = token => {{
       let _: subscription = o->subscribe(makeObserver(~complete=() => resolve(Ok())))
     }}
   }})
-}}", get_load_fn_code()).intern()
+}}", 
+if include_load_fn {
+  get_load_fn_code()
+} else {
+  "".intern()
+}).intern()
 }

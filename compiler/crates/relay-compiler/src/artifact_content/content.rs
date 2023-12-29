@@ -1073,7 +1073,7 @@ pub fn generate_operation_rescript(
         section,
         "{}",
         match typegen_operation.kind {
-            graphql_syntax::OperationKind::Query => get_load_query_code(),
+            graphql_syntax::OperationKind::Query => get_load_query_code(!is_operation_preloadable(normalization_operation)),
             graphql_syntax::OperationKind::Mutation
             | graphql_syntax::OperationKind::Subscription => "".intern()
         }
