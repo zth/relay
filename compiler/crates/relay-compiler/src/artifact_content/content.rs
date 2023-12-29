@@ -1080,7 +1080,7 @@ pub fn generate_operation_rescript(
     // Write below types
     if is_operation_preloadable(normalization_operation) && id_and_text_hash.is_some() {
         writeln!(section, "type operationId\ntype operationTypeParams = {{id: operationId}}\n@get external getOperationTypeParams: operationType => operationTypeParams = \"params\"",).unwrap();
-        writeln!(section, "@module(\"relay-runtime\") @scope(\"PreloadableQueryRegistry\") external setPreloadQuery: (operationType, operationId) => unit = \"set\"").unwrap();
+        writeln!(section, "@module(\"relay-runtime\") @scope(\"PreloadableQueryRegistry\") external setPreloadQuery: (operationId, operationType) => unit = \"set\"").unwrap();
         writeln!(
             section,
             "getOperationTypeParams(node).id->setPreloadQuery(node)"

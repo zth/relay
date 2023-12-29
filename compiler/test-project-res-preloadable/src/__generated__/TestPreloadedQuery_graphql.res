@@ -257,5 +257,5 @@ let queryRefToPromise = token => {
 type operationId
 type operationTypeParams = {id: operationId}
 @get external getOperationTypeParams: operationType => operationTypeParams = "params"
-@module("relay-runtime") @scope("PreloadableQueryRegistry") external setPreloadQuery: (operationType, operationId) => unit = "set"
+@module("relay-runtime") @scope("PreloadableQueryRegistry") external setPreloadQuery: (operationId, operationType) => unit = "set"
 getOperationTypeParams(node).id->setPreloadQuery(node)
