@@ -237,6 +237,7 @@ fn generate_normalization_artifact(
 
 pub fn generate_preloadable_query_parameters_artifact(
     project_config: &ProjectConfig,
+    typegen: &Arc<OperationDefinition>,
     normalization: &Arc<OperationDefinition>,
     id_and_text_hash: &Option<QueryID>,
     source_keys: Vec<ArtifactSourceKey>,
@@ -253,6 +254,7 @@ pub fn generate_preloadable_query_parameters_artifact(
         path: project_config.path_for_artifact(source_file, artifact_name.intern()),
         content: ArtifactContent::PreloadableQueryParameters {
             normalization_operation: Arc::clone(normalization),
+            typegen_operation: Arc::clone(typegen),
             query_id,
         },
         source_file,

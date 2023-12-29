@@ -50,23 +50,20 @@ let wrap_response_member: Types.response_member => Types.response_member = Rescr
 type queryRef
 
 module Internal = {
-  module Variables = {
-    @live
-    let variablesConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
-      json`{"__root":{"beforeDate":{"c":"SomeModule.Datetime"}}}`
-    )
-    @live
-    let variablesConverterMap = {
-      "SomeModule.Datetime": SomeModule.Datetime.serialize,
-    }
-    @live
-    let convertVariables = v => v->RescriptRelay.convertObj(
-      variablesConverter,
-      variablesConverterMap,
-      Js.undefined
-    )
+  @live
+  let variablesConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
+    json`{"__root":{"beforeDate":{"c":"SomeModule.Datetime"}}}`
+  )
+  @live
+  let variablesConverterMap = {
+    "SomeModule.Datetime": SomeModule.Datetime.serialize,
   }
-  let convertVariables = Variables.convertVariables
+  @live
+  let convertVariables = v => v->RescriptRelay.convertObj(
+    variablesConverter,
+    variablesConverterMap,
+    Js.undefined
+  )
   @live
   type wrapResponseRaw
   @live

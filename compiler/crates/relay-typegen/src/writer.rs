@@ -448,6 +448,7 @@ pub(crate) fn new_writer_from_config(
                 &config,
             ),
             typegen_definition,
+            typegen_opts.is_preloadable_thin_file,
         )),
         TypegenLanguage::JavaScript => Box::new(JavaScriptPrinter::default()),
         TypegenLanguage::Flow => Box::new(FlowPrinter::new()),

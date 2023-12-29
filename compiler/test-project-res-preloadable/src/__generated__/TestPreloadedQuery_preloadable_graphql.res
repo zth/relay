@@ -1,16 +1,36 @@
 /* @sourceLoc Test_preloadedQuery.res */
 /* @generated */
 %%raw("/* @generated */")
-module Types = {
-  type variables = TestPreloadedQuery_graphql.Types.variables
-}
-module Internal = {
-  module Variables = {
-    include TestPreloadedQuery_graphql.Internal.Variables
-  }
-  let convertVariables = Variables.convertVariables
-}
 type queryRef = TestPreloadedQuery_graphql.queryRef
+module Types = {
+  @@warning("-30")
+
+  @live
+  type variables = {
+    status?: RelaySchemaAssets_graphql.enum_OnlineStatus_input,
+  }
+}
+
+module Internal = {
+  @live
+  let variablesConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
+    json`{}`
+  )
+  @live
+  let variablesConverterMap = ()
+  @live
+  let convertVariables = v => v->RescriptRelay.convertObj(
+    variablesConverter,
+    variablesConverterMap,
+    Js.undefined
+  )
+  type rawPreloadToken<'response> = {source: Js.Nullable.t<RescriptRelay.Observable.t<'response>>}
+  external tokenToRaw: queryRef => rawPreloadToken<Types.response> = "%identity"
+}
+module Utils = {
+  @@warning("-33")
+  open Types
+}
 
 type relayOperationNode
 type operationType = RescriptRelay.queryNode<relayOperationNode>

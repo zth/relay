@@ -256,6 +256,7 @@ pub fn parse_to_types_impl(
                 &project_config,
                 &fragment_locations,
                 print_provided_variables(&schema, normalization_operation, &project_config),
+                None,
             )
         }))
         .collect::<Vec<_>>()

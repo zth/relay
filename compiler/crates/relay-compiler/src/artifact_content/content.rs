@@ -113,6 +113,7 @@ pub fn generate_updatable_query(
                 project_config,
                 fragment_locations,
                 None, // TODO: Add/investigrate support for provided variables in updatable queries
+                None,
             )
         )?;
     }
@@ -279,6 +280,7 @@ pub fn generate_operation(
                 project_config,
                 fragment_locations,
                 maybe_provided_variables,
+                None
             )
         )?;
     }
@@ -1019,6 +1021,7 @@ pub fn generate_operation_rescript(
             project_config,
             fragment_locations,
             maybe_provided_variables,
+            Some(false)
         )
     )?;
     
@@ -1237,11 +1240,13 @@ fn write_data_driven_dependency_annotation(
 
 pub fn generate_preloadable_query_parameters_rescript(
     _config: &Config,
-    _project_config: &ProjectConfig,
+    project_config: &ProjectConfig,
     printer: &mut Printer<'_>,
     schema: &SDLSchema,
     normalization_operation: &OperationDefinition,
+    typegen_operation: &OperationDefinition,
     query_id: &QueryID,
+    fragment_locations: &FragmentLocations
 ) -> Result<Vec<u8>, FmtError> {
     let mut request_parameters = build_request_params(normalization_operation);
     let cloned_query_id = Some(query_id.clone());
@@ -1270,15 +1275,25 @@ pub fn generate_preloadable_query_parameters_rescript(
 
     let mut section = GenericSection::default();
     let name = normalization_operation.name.item.0;
-    writeln!(section, "module Types = {{\n  type variables = {}_graphql.Types.variables\n}}", name)?;
-
-    writeln!(section, "module Internal = {{\n  module Variables = {{\n    include {}_graphql.Internal.Variables\n  }}\n  let convertVariables = Variables.convertVariables\n}}", name).unwrap();
-
-    if has_provided_variables {
-      writeln!(section, "module ProvidedVariables = {{\n  include {}_graphql.ProvidedVariables\n  }}\nlet providedVariablesDefinition = ProvidedVariables.providedVariablesDefinition", name).unwrap();
-    }
 
     writeln!(section, "type queryRef = {}_graphql.queryRef", name).unwrap();
+
+    let maybe_provided_variables =
+        printer.print_provided_variables(schema, normalization_operation);
+
+    write!(
+        section,
+        "{}",
+        generate_operation_type_exports_section(
+            typegen_operation,
+            normalization_operation,
+            schema,
+            project_config,
+            fragment_locations,
+            maybe_provided_variables,
+            Some(true),
+        )
+    )?;
 
     // Print operation node types
     writeln!(

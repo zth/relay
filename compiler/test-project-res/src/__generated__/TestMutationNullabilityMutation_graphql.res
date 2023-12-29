@@ -32,23 +32,20 @@ module Types = {
 }
 
 module Internal = {
-  module Variables = {
-    @live
-    let variablesConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
-      json`{"someInput":{"recursive":{"r":"someInput"},"datetime":{"c":"SomeModule.Datetime"}},"__root":{"recursive":{"r":"someInput"},"datetime":{"c":"SomeModule.Datetime"}}}`
-    )
-    @live
-    let variablesConverterMap = {
-      "SomeModule.Datetime": SomeModule.Datetime.serialize,
-    }
-    @live
-    let convertVariables = v => v->RescriptRelay.convertObj(
-      variablesConverter,
-      variablesConverterMap,
-      Js.null
-    )
+  @live
+  let variablesConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
+    json`{"someInput":{"recursive":{"r":"someInput"},"datetime":{"c":"SomeModule.Datetime"}},"__root":{"recursive":{"r":"someInput"},"datetime":{"c":"SomeModule.Datetime"}}}`
+  )
+  @live
+  let variablesConverterMap = {
+    "SomeModule.Datetime": SomeModule.Datetime.serialize,
   }
-  let convertVariables = Variables.convertVariables
+  @live
+  let convertVariables = v => v->RescriptRelay.convertObj(
+    variablesConverter,
+    variablesConverterMap,
+    Js.null
+  )
   @live
   type wrapResponseRaw
   @live
