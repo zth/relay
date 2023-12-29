@@ -11,6 +11,7 @@ use std::fmt::Write;
 use std::sync::Arc;
 
 use common::NamedItem;
+use common::rescript_utils::get_load_fn_code;
 use common::rescript_utils::get_load_query_code;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentDefinitionName;
@@ -1234,9 +1235,9 @@ fn write_data_driven_dependency_annotation(
     Ok(())
 }
 
-pub fn generate_preloadable_query_parameters(
-    config: &Config,
-    project_config: &ProjectConfig,
+pub fn generate_preloadable_query_parameters_rescript(
+    _config: &Config,
+    _project_config: &ProjectConfig,
     printer: &mut Printer<'_>,
     schema: &SDLSchema,
     normalization_operation: &OperationDefinition,
@@ -1246,27 +1247,9 @@ pub fn generate_preloadable_query_parameters(
     let cloned_query_id = Some(query_id.clone());
     request_parameters.id = &cloned_query_id;
 
+    let has_provided_variables = find_provided_variables(&normalization_operation).is_some();
+
     let mut content_sections = ContentSections::default();
-
-    // -- Begin Docblock Section --
-    let v = match query_id {
-        QueryID::Persisted { text_hash, .. } => vec![format!("@relayHash {}", text_hash)],
-        _ => vec![],
-    };
-    content_sections.push(ContentSection::Docblock(generate_docblock_section(
-        config,
-        project_config,
-        v,
-    )?));
-    // -- End Docblock Section --
-
-    // -- Begin Metadata Annotations Section --
-    let mut section = CommentAnnotationsSection::default();
-    if let Some(QueryID::Persisted { id, .. }) = &request_parameters.id {
-        writeln!(section, "@relayRequestID {}", id)?;
-    }
-    content_sections.push(ContentSection::CommentAnnotations(section));
-    // -- End Metadata Annotations Section --
 
     match super::rescript_relay_utils::rescript_get_source_loc_text(
         &normalization_operation.name.location.source_location(),
@@ -1286,9 +1269,16 @@ pub fn generate_preloadable_query_parameters(
     };
 
     let mut section = GenericSection::default();
-    writeln!(section, "module Types = {{ include {}_graphql.Types }}", normalization_operation.name.item.0)?;
+    let name = normalization_operation.name.item.0;
+    writeln!(section, "module Types = {{\n  type variables = {}_graphql.Types.variables\n}}", name)?;
 
-    writeln!(section, "type queryRef").unwrap();
+    writeln!(section, "module Internal = {{\n  module Variables = {{\n    include {}_graphql.Internal.Variables\n  }}\n  let convertVariables = Variables.convertVariables\n}}", name).unwrap();
+
+    if has_provided_variables {
+      writeln!(section, "module ProvidedVariables = {{\n  include {}_graphql.ProvidedVariables\n  }}\nlet providedVariablesDefinition = ProvidedVariables.providedVariablesDefinition", name).unwrap();
+    }
+
+    writeln!(section, "type queryRef = {}_graphql.queryRef", name).unwrap();
 
     // Print operation node types
     writeln!(
@@ -1308,22 +1298,15 @@ pub fn generate_preloadable_query_parameters(
                 normalization_operation,
                 &mut Default::default(),
             ),
-            false
+            has_provided_variables
         )
     )
     .unwrap();
 
-    writeln!(section, "include RescriptRelay.MakeLoadQuery({{
-        type variables = Types.variables
-        type loadedQueryRef = queryRef
-        type response = Types.response
-        type node = relayOperationNode
-        let query = node
-        let convertVariables = Internal.convertVariables
-    }});").unwrap();
+    writeln!(section, "{}", get_load_fn_code()).unwrap();
 
     content_sections.push(ContentSection::Generic(section));
 
 
-    content_sections.into_signed_bytes()
+    content_sections.into_bytes()
 }

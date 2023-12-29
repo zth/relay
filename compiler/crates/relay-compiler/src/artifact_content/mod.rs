@@ -21,7 +21,7 @@ use relay_codegen::QueryID;
 use relay_typegen::FragmentLocations;
 use schema::SDLSchema;
 
-use self::content::generate_preloadable_query_parameters;
+use self::content::generate_preloadable_query_parameters_rescript;
 use crate::config::Config;
 use crate::config::ProjectConfig;
 
@@ -118,7 +118,7 @@ impl ArtifactContent {
             ArtifactContent::PreloadableQueryParameters {
                 normalization_operation,
                 query_id,
-            } => generate_preloadable_query_parameters(
+            } => generate_preloadable_query_parameters_rescript(
                 config,
                 project_config,
                 printer,

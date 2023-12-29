@@ -1,7 +1,7 @@
-/* @sourceLoc Test_query.res */
+/* @sourceLoc Test_preloadedQuery.res */
 /* @generated */
 %%raw("/* @generated */")
-// @relayRequestID 123064f3c998fd5b717ca05be99d7ee1
+// @relayRequestID 64e1bd5c44a860103e5980b544f5e454
 
 module Types = {
   @@warning("-30")
@@ -42,18 +42,21 @@ module Types = {
 type queryRef
 
 module Internal = {
-  @live
-  let variablesConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
-    json`{}`
-  )
-  @live
-  let variablesConverterMap = ()
-  @live
-  let convertVariables = v => v->RescriptRelay.convertObj(
-    variablesConverter,
-    variablesConverterMap,
-    Js.undefined
-  )
+  module Variables = {
+    @live
+    let variablesConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
+      json`{}`
+    )
+    @live
+    let variablesConverterMap = ()
+    @live
+    let convertVariables = v => v->RescriptRelay.convertObj(
+      variablesConverter,
+      variablesConverterMap,
+      Js.undefined
+    )
+  }
+  let convertVariables = Variables.convertVariables
   @live
   type wrapResponseRaw
   @live
@@ -190,7 +193,7 @@ return {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Fragment",
     "metadata": null,
-    "name": "TestQuery",
+    "name": "TestPreloadedQuery",
     "selections": (v1/*: any*/),
     "type": "Query",
     "abstractKey": null
@@ -199,13 +202,13 @@ return {
   "operation": {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Operation",
-    "name": "TestQuery",
+    "name": "TestPreloadedQuery",
     "selections": (v1/*: any*/)
   },
   "params": {
-    "id": "123064f3c998fd5b717ca05be99d7ee1",
+    "id": "64e1bd5c44a860103e5980b544f5e454",
     "metadata": {},
-    "name": "TestQuery",
+    "name": "TestPreloadedQuery",
     "operationKind": "query",
     "text": null
   }
@@ -218,8 +221,13 @@ let load: (
   ~fetchPolicy: RescriptRelay.fetchPolicy=?,
   ~fetchKey: string=?,
   ~networkCacheConfig: RescriptRelay.cacheConfig=?,
-) => queryRef = 
-(~environment, ~variables, ~fetchPolicy=?, ~fetchKey=?, ~networkCacheConfig=?) =>
+) => queryRef = (
+  ~environment,
+  ~variables,
+  ~fetchPolicy=?,
+  ~fetchKey=?,
+  ~networkCacheConfig=?,
+) =>
   RescriptRelay.loadQuery(
     environment,
     node,

@@ -2109,6 +2109,9 @@ impl Writer for ReScriptPrinter {
 
         match &self.variables {
             Some(_) => {
+                write_indentation(&mut generated_types, indentation).unwrap();
+                writeln!(generated_types, "module Variables = {{").unwrap();
+                indentation += 1;
                 write_internal_assets(
                     &mut generated_types,
                     indentation,
@@ -2124,6 +2127,11 @@ impl Writer for ReScriptPrinter {
                     },
                 )
                 .unwrap();
+                indentation -= 1;
+                write_indentation(&mut generated_types, indentation).unwrap();
+                writeln!(generated_types, "}}").unwrap();   
+                write_indentation(&mut generated_types, indentation).unwrap();
+                writeln!(generated_types, "let convertVariables = Variables.convertVariables").unwrap(); 
             }
             None => (),
         };
@@ -2383,6 +2391,8 @@ impl Writer for ReScriptPrinter {
                 if let Some(provided_variables_from_operation) =
                     find_provided_variables(&normalization_operation)
                 {
+                    writeln!(generated_types, "module ProvidedVariables = {{").unwrap();
+                    indentation += 1;
                     // Write the type
                     write_indentation(&mut generated_types, indentation).unwrap();
                     writeln!(
@@ -2486,6 +2496,11 @@ impl Writer for ReScriptPrinter {
                     indentation -= 1;
                     write_indentation(&mut generated_types, indentation).unwrap();
                     writeln!(generated_types, "}}").unwrap();
+                    indentation -= 1;
+                    write_indentation(&mut generated_types, indentation).unwrap();
+                    writeln!(generated_types, "}}").unwrap();
+                    write_indentation(&mut generated_types, indentation).unwrap();
+                    writeln!(generated_types, "let providedVariablesDefinition = ProvidedVariables.providedVariablesDefinition").unwrap();
                 }
             }
             _ => (),

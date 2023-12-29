@@ -246,7 +246,7 @@ pub fn generate_preloadable_query_parameters_artifact(
         .clone()
         .expect("Expected operation artifact to have an `id`. Ensure a `persistConfig` is setup for the current project.");
 
-    let artifact_name = normalization.name.item.0.to_string() + "__parameters";
+    let artifact_name = normalization.name.item.0.to_string() + "_preloadable";
 
     Artifact {
         artifact_source_keys: source_keys,
