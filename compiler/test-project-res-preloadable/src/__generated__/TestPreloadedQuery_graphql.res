@@ -1,6 +1,8 @@
-/* @sourceLoc Test_query.res */
+/* @sourceLoc Test_preloadedQuery.res */
 /* @generated */
 %%raw("/* @generated */")
+// @relayRequestID 64e1bd5c44a860103e5980b544f5e454
+
 module Types = {
   @@warning("-30")
 
@@ -188,7 +190,7 @@ return {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Fragment",
     "metadata": null,
-    "name": "TestQuery",
+    "name": "TestPreloadedQuery",
     "selections": (v1/*: any*/),
     "type": "Query",
     "abstractKey": null
@@ -197,43 +199,20 @@ return {
   "operation": {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Operation",
-    "name": "TestQuery",
+    "name": "TestPreloadedQuery",
     "selections": (v1/*: any*/)
   },
   "params": {
-    "cacheID": "123064f3c998fd5b717ca05be99d7ee1",
-    "id": null,
+    "id": "64e1bd5c44a860103e5980b544f5e454",
     "metadata": {},
-    "name": "TestQuery",
+    "name": "TestPreloadedQuery",
     "operationKind": "query",
-    "text": "query TestQuery(\n  $status: OnlineStatus\n) {\n  users(status: $status) {\n    edges {\n      node {\n        id\n        firstName\n        onlineStatus\n      }\n    }\n  }\n}\n"
+    "text": null
   }
 };
 })() `)
 
-let load: (
-  ~environment: RescriptRelay.Environment.t,
-  ~variables: Types.variables,
-  ~fetchPolicy: RescriptRelay.fetchPolicy=?,
-  ~fetchKey: string=?,
-  ~networkCacheConfig: RescriptRelay.cacheConfig=?,
-) => queryRef = (
-  ~environment,
-  ~variables,
-  ~fetchPolicy=?,
-  ~fetchKey=?,
-  ~networkCacheConfig=?,
-) =>
-  RescriptRelay.loadQuery(
-    environment,
-    node,
-    variables->Internal.convertVariables,
-    {
-      fetchKey,
-      fetchPolicy,
-      networkCacheConfig,
-    },
-  )
+
   
 let queryRefToObservable = token => {
   let raw = token->Internal.tokenToRaw
@@ -250,3 +229,8 @@ let queryRefToPromise = token => {
     }
   })
 }
+type operationId
+type operationTypeParams = {id: operationId}
+@get external getOperationTypeParams: operationType => operationTypeParams = "params"
+@module("relay-runtime") @scope("PreloadableQueryRegistry") external setPreloadQuery: (operationId, operationType) => unit = "set"
+getOperationTypeParams(node).id->setPreloadQuery(node)

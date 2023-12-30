@@ -11,6 +11,7 @@ use std::fmt::Write;
 use std::sync::Arc;
 
 use common::NamedItem;
+use common::rescript_utils::get_load_fn_code;
 use common::rescript_utils::get_load_query_code;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentDefinitionName;
@@ -112,6 +113,7 @@ pub fn generate_updatable_query(
                 project_config,
                 fragment_locations,
                 None, // TODO: Add/investigrate support for provided variables in updatable queries
+                None,
             )
         )?;
     }
@@ -278,6 +280,7 @@ pub fn generate_operation(
                 project_config,
                 fragment_locations,
                 maybe_provided_variables,
+                None
             )
         )?;
     }
@@ -1018,6 +1021,7 @@ pub fn generate_operation_rescript(
             project_config,
             fragment_locations,
             maybe_provided_variables,
+            Some(false)
         )
     )?;
     
@@ -1069,7 +1073,7 @@ pub fn generate_operation_rescript(
         section,
         "{}",
         match typegen_operation.kind {
-            graphql_syntax::OperationKind::Query => get_load_query_code(),
+            graphql_syntax::OperationKind::Query => get_load_query_code(!is_operation_preloadable(normalization_operation)),
             graphql_syntax::OperationKind::Mutation
             | graphql_syntax::OperationKind::Subscription => "".intern()
         }
@@ -1079,7 +1083,7 @@ pub fn generate_operation_rescript(
     // Write below types
     if is_operation_preloadable(normalization_operation) && id_and_text_hash.is_some() {
         writeln!(section, "type operationId\ntype operationTypeParams = {{id: operationId}}\n@get external getOperationTypeParams: operationType => operationTypeParams = \"params\"",).unwrap();
-        writeln!(section, "@module(\"relay-runtime\") @scope(\"PreloadableQueryRegistry\") external setPreloadQuery: (operationType, operationId) => unit = \"set\"").unwrap();
+        writeln!(section, "@module(\"relay-runtime\") @scope(\"PreloadableQueryRegistry\") external setPreloadQuery: (operationId, operationType) => unit = \"set\"").unwrap();
         writeln!(
             section,
             "getOperationTypeParams(node).id->setPreloadQuery(node)"
@@ -1232,4 +1236,92 @@ fn write_data_driven_dependency_annotation(
         writeln!(section, "@indirectDataDrivenDependency {} {}", key, value)?;
     }
     Ok(())
+}
+
+pub fn generate_preloadable_query_parameters_rescript(
+    _config: &Config,
+    project_config: &ProjectConfig,
+    printer: &mut Printer<'_>,
+    schema: &SDLSchema,
+    normalization_operation: &OperationDefinition,
+    typegen_operation: &OperationDefinition,
+    query_id: &QueryID,
+    fragment_locations: &FragmentLocations
+) -> Result<Vec<u8>, FmtError> {
+    let mut request_parameters = build_request_params(normalization_operation);
+    let cloned_query_id = Some(query_id.clone());
+    request_parameters.id = &cloned_query_id;
+
+    let has_provided_variables = find_provided_variables(&normalization_operation).is_some();
+
+    let mut content_sections = ContentSections::default();
+
+    match super::rescript_relay_utils::rescript_get_source_loc_text(
+        &normalization_operation.name.location.source_location(),
+    ) {
+        None => (),
+        Some(source_loc_str) => {
+            let mut section = GenericSection::default();
+            writeln!(section, "{}", source_loc_str).unwrap();
+            write!(
+                section,
+                "{}",
+                super::rescript_relay_utils::rescript_get_comments_for_generated()
+            )
+            .unwrap();
+            content_sections.push(ContentSection::Generic(section))
+        }
+    };
+
+    let mut section = GenericSection::default();
+    let name = normalization_operation.name.item.0;
+
+    writeln!(section, "type queryRef = {}_graphql.queryRef", name).unwrap();
+
+    let maybe_provided_variables =
+        printer.print_provided_variables(schema, normalization_operation);
+
+    write!(
+        section,
+        "{}",
+        generate_operation_type_exports_section(
+            typegen_operation,
+            normalization_operation,
+            schema,
+            project_config,
+            fragment_locations,
+            maybe_provided_variables,
+            Some(true),
+        )
+    )?;
+
+    // Print operation node types
+    writeln!(
+        section,
+        "\ntype relayOperationNode\ntype operationType = RescriptRelay.queryNode<relayOperationNode>\n\n",
+    )
+    .unwrap();
+
+    // Print node type
+    writeln!(
+        section,
+        "{}",
+        super::rescript_relay_utils::rescript_make_operation_type_and_node_text(
+            &printer.print_preloadable_request(
+                schema,
+                request_parameters,
+                normalization_operation,
+                &mut Default::default(),
+            ),
+            has_provided_variables
+        )
+    )
+    .unwrap();
+
+    writeln!(section, "{}", get_load_fn_code()).unwrap();
+
+    content_sections.push(ContentSection::Generic(section));
+
+
+    content_sections.into_bytes()
 }

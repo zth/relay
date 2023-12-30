@@ -1,6 +1,8 @@
-/* @sourceLoc Test_providedVariables.res */
+/* @sourceLoc Test_preloadedQuery.res */
 /* @generated */
 %%raw("/* @generated */")
+// @relayRequestID e2103af665a0e792e8f00f56ebb0c3e4
+
 module Types = {
   @@warning("-30")
 
@@ -8,18 +10,39 @@ module Types = {
   @live type inputB = RelaySchemaAssets_graphql.input_InputB
   @live type inputA = RelaySchemaAssets_graphql.input_InputA
   type rec response_loggedInUser = {
-    fragmentRefs: RescriptRelay.fragmentRefs<[ | #TestProvidedVariables_user]>,
+    fragmentRefs: RescriptRelay.fragmentRefs<[ | #TestPreloadedQuery_user]>,
+  }
+  and response_users_edges_node = {
+    firstName: string,
+    @live id: string,
+    onlineStatus: option<RelaySchemaAssets_graphql.enum_OnlineStatus>,
+  }
+  and response_users_edges = {
+    node: option<response_users_edges_node>,
+  }
+  and response_users = {
+    edges: option<array<option<response_users_edges>>>,
   }
   type response = {
     loggedInUser: response_loggedInUser,
+    users: option<response_users>,
   }
   @live
   type rawResponse = response
   @live
-  type variables = unit
+  type variables = {
+    status?: RelaySchemaAssets_graphql.enum_OnlineStatus_input,
+  }
   @live
-  type refetchVariables = unit
-  @live let makeRefetchVariables = () => ()
+  type refetchVariables = {
+    status: option<option<RelaySchemaAssets_graphql.enum_OnlineStatus_input>>,
+  }
+  @live let makeRefetchVariables = (
+    ~status=?,
+  ): refetchVariables => {
+    status: status
+  }
+
 }
 
 
@@ -80,6 +103,21 @@ module Internal = {
 module Utils = {
   @@warning("-33")
   open Types
+  @live
+  external onlineStatus_toString: RelaySchemaAssets_graphql.enum_OnlineStatus => string = "%identity"
+  @live
+  external onlineStatus_input_toString: RelaySchemaAssets_graphql.enum_OnlineStatus_input => string = "%identity"
+  @live
+  let onlineStatus_decode = (enum: RelaySchemaAssets_graphql.enum_OnlineStatus): option<RelaySchemaAssets_graphql.enum_OnlineStatus_input> => {
+    switch enum {
+      | FutureAddedValue(_) => None
+      | valid => Some(Obj.magic(valid))
+    }
+  }
+  @live
+  let onlineStatus_fromString = (str: string): option<RelaySchemaAssets_graphql.enum_OnlineStatus_input> => {
+    onlineStatus_decode(Obj.magic(str))
+  }
 }
 type providedVariable<'t> = { providedVariable: unit => 't, get: unit => 't }
 type providedVariablesType = {
@@ -138,12 +176,82 @@ type operationType = RescriptRelay.queryNode<relayOperationNode>
 
 %%private(let makeNode = (providedVariablesDefinition): operationType => {
   ignore(providedVariablesDefinition)
-  %raw(json`{
+  %raw(json`(function(){
+var v0 = {
+  "defaultValue": null,
+  "kind": "LocalArgument",
+  "name": "status"
+},
+v1 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "id",
+  "storageKey": null
+},
+v2 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "firstName",
+  "storageKey": null
+},
+v3 = {
+  "alias": null,
+  "args": [
+    {
+      "kind": "Variable",
+      "name": "status",
+      "variableName": "status"
+    }
+  ],
+  "concreteType": "UserConnection",
+  "kind": "LinkedField",
+  "name": "users",
+  "plural": false,
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "UserEdge",
+      "kind": "LinkedField",
+      "name": "edges",
+      "plural": true,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "concreteType": "User",
+          "kind": "LinkedField",
+          "name": "node",
+          "plural": false,
+          "selections": [
+            (v1/*: any*/),
+            (v2/*: any*/),
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "onlineStatus",
+              "storageKey": null
+            }
+          ],
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "storageKey": null
+};
+return {
   "fragment": {
-    "argumentDefinitions": [],
+    "argumentDefinitions": [
+      (v0/*: any*/)
+    ],
     "kind": "Fragment",
     "metadata": null,
-    "name": "TestProvidedVariablesQuery",
+    "name": "TestPreloadedQueryWithProvidedVariablesQuery",
     "selections": [
       {
         "alias": null,
@@ -156,11 +264,12 @@ type operationType = RescriptRelay.queryNode<relayOperationNode>
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "TestProvidedVariables_user"
+            "name": "TestPreloadedQuery_user"
           }
         ],
         "storageKey": null
-      }
+      },
+      (v3/*: any*/)
     ],
     "type": "Query",
     "abstractKey": null
@@ -168,6 +277,7 @@ type operationType = RescriptRelay.queryNode<relayOperationNode>
   "kind": "Request",
   "operation": {
     "argumentDefinitions": [
+      (v0/*: any*/),
       {
         "defaultValue": null,
         "kind": "LocalArgument",
@@ -215,7 +325,7 @@ type operationType = RescriptRelay.queryNode<relayOperationNode>
       }
     ],
     "kind": "Operation",
-    "name": "TestProvidedVariablesQuery",
+    "name": "TestPreloadedQueryWithProvidedVariablesQuery",
     "selections": [
       {
         "alias": null,
@@ -225,13 +335,7 @@ type operationType = RescriptRelay.queryNode<relayOperationNode>
         "name": "loggedInUser",
         "plural": false,
         "selections": [
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "firstName",
-            "storageKey": null
-          },
+          (v2/*: any*/),
           {
             "alias": null,
             "args": [
@@ -285,54 +389,27 @@ type operationType = RescriptRelay.queryNode<relayOperationNode>
             "name": "onlineStatus",
             "storageKey": null
           },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "id",
-            "storageKey": null
-          }
+          (v1/*: any*/)
         ],
         "storageKey": null
-      }
+      },
+      (v3/*: any*/)
     ]
   },
   "params": {
-    "cacheID": "e126b7abfa263019306c87047185b1ff",
-    "id": null,
+    "id": "e2103af665a0e792e8f00f56ebb0c3e4",
     "metadata": {},
-    "name": "TestProvidedVariablesQuery",
+    "name": "TestPreloadedQueryWithProvidedVariablesQuery",
     "operationKind": "query",
-    "text": "query TestProvidedVariablesQuery(\n  $__relay_internal__pv__TestProvidedVariablesSomeInput: SomeInput!\n  $__relay_internal__pv__TestProvidedVariablesInputB: InputB!\n  $__relay_internal__pv__TestProvidedVariablesBool: Boolean!\n  $__relay_internal__pv__TestProvidedVariablesStr: String!\n  $__relay_internal__pv__TestProvidedVariablesFloat: Float!\n  $__relay_internal__pv__TestProvidedVariablesInt: Int\n  $__relay_internal__pv__TestProvidedVariablesID: ID\n  $__relay_internal__pv__TestProvidedVariablesDatetime: Datetime\n  $__relay_internal__pv__TestProvidedVariablesDatetimes: [Datetime!]\n) {\n  loggedInUser {\n    ...TestProvidedVariables_user\n    id\n  }\n}\n\nfragment TestProvidedVariables_user on User {\n  firstName\n  onlineStatus(someInput: $__relay_internal__pv__TestProvidedVariablesSomeInput, inputB: $__relay_internal__pv__TestProvidedVariablesInputB, bool: $__relay_internal__pv__TestProvidedVariablesBool, str: $__relay_internal__pv__TestProvidedVariablesStr, float: $__relay_internal__pv__TestProvidedVariablesFloat, int: $__relay_internal__pv__TestProvidedVariablesInt, id: $__relay_internal__pv__TestProvidedVariablesID, dateTime: $__relay_internal__pv__TestProvidedVariablesDatetime, dateTimes: $__relay_internal__pv__TestProvidedVariablesDatetimes)\n}\n",
+    "text": null,
     "providedVariables": providedVariablesDefinition
   }
-}`)
+};
+})()`)
 })
 let node: operationType = makeNode(providedVariablesDefinition)
 
-let load: (
-  ~environment: RescriptRelay.Environment.t,
-  ~variables: Types.variables,
-  ~fetchPolicy: RescriptRelay.fetchPolicy=?,
-  ~fetchKey: string=?,
-  ~networkCacheConfig: RescriptRelay.cacheConfig=?,
-) => queryRef = (
-  ~environment,
-  ~variables,
-  ~fetchPolicy=?,
-  ~fetchKey=?,
-  ~networkCacheConfig=?,
-) =>
-  RescriptRelay.loadQuery(
-    environment,
-    node,
-    variables->Internal.convertVariables,
-    {
-      fetchKey,
-      fetchPolicy,
-      networkCacheConfig,
-    },
-  )
+
   
 let queryRefToObservable = token => {
   let raw = token->Internal.tokenToRaw
@@ -349,3 +426,8 @@ let queryRefToPromise = token => {
     }
   })
 }
+type operationId
+type operationTypeParams = {id: operationId}
+@get external getOperationTypeParams: operationType => operationTypeParams = "params"
+@module("relay-runtime") @scope("PreloadableQueryRegistry") external setPreloadQuery: (operationId, operationType) => unit = "set"
+getOperationTypeParams(node).id->setPreloadQuery(node)

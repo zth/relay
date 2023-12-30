@@ -135,6 +135,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
             &project_config,
             &fragment_locations,
             print_provided_variables(&schema, op, &project_config),
+            None,
         )
     });
 
