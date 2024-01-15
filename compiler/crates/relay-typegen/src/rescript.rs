@@ -1618,12 +1618,12 @@ fn write_get_connection_nodes_function(
         {
             match find_object_with_record_name(&edges_obj_type_name, state) {
                 None => {
-                    warn!("Could not find edges object.")
+                    warn!("Could not find edges object from connection: {}", connection_field_name)
                 }
                 Some(edges_object) => {
                     // Find the node
                     match find_prop_at_key(&edges_object, &String::from("node")) {
-                        None => warn!("Could not find node"),
+                        None => warn!("Could not find node from connection {}", connection_field_name),
                         Some(prop_value) => {
                             let (node_nullable, node_type_name) =
                                 match &prop_value.prop_type.as_ref() {
