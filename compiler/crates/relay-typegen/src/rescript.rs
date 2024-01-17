@@ -316,6 +316,7 @@ fn ast_to_prop_value(
                                 at_path: new_at_path,
                                 instruction: ConverterInstructions::ConvertCustomField(
                                     identifier.to_string(),
+                                    found_in_array
                                 ),
                             })
                         }
@@ -992,7 +993,7 @@ fn write_converter_map(
                 )
                 .unwrap();
             }
-            ConverterInstructions::ConvertCustomField(custom_field_name) => {
+            ConverterInstructions::ConvertCustomField(custom_field_name, _) => {
                 if !has_instructions {
                     has_instructions = true;
                     writeln!(str, "{{").unwrap();
@@ -1121,7 +1122,7 @@ fn write_internal_assets(
         .into_iter()
         .filter(|instruction_container| {
             match &instruction_container.instruction {
-                ConverterInstructions::ConvertCustomField(field_name) => {
+                ConverterInstructions::ConvertCustomField(field_name, _) => {
                     // Try and infer what type of ReScript value this is
                     match classify_rescript_value_string(&field_name) {
                         RescriptCustomTypeValue::Type => false,
@@ -2843,6 +2844,7 @@ impl Writer for ReScriptPrinter {
                                         self,
                                         &Context::NotRelevant,
                                         &mut needs_conversion,
+                                        false
                                     ),
                                     needs_conversion: needs_conversion.clone(),
                                 });
@@ -2869,7 +2871,7 @@ impl Writer for ReScriptPrinter {
                                             ),
                                         });
                                     }
-                                    Some(AstToStringNeedsConversion::CustomScalar(scalar_name)) => {
+                                    Some(AstToStringNeedsConversion::CustomScalar(scalar_name, found_in_array)) => {
                                         self.conversion_instructions.push(InstructionContainer {
                                             context: Context::Variables,
                                             at_path: vec![
@@ -2878,6 +2880,7 @@ impl Writer for ReScriptPrinter {
                                             ],
                                             instruction: ConverterInstructions::ConvertCustomField(
                                                 scalar_name.clone(),
+                                                found_in_array.clone()
                                             ),
                                         });
                                     }

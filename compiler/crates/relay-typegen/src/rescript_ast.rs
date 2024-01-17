@@ -90,7 +90,7 @@ pub struct FullEnum {
 #[derive(Debug, Clone)]
 pub enum ConverterInstructions {
     ConvertUnion(String),
-    ConvertCustomField(String),
+    ConvertCustomField(String, bool),
     HasFragments,
     BlockTraversal(bool),
     RootObject(String), // TODO: Rename
@@ -131,7 +131,7 @@ pub enum NullableType {
 #[derive(Debug, Clone)]
 pub enum AstToStringNeedsConversion {
     InputObject(String),
-    CustomScalar(String),
+    CustomScalar(String, bool),
 }
 
 #[derive(Debug, Clone)]
