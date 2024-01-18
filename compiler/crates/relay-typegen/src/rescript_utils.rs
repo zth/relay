@@ -997,6 +997,7 @@ pub fn ast_to_string<'a>(
     state: &'a mut ReScriptPrinter,
     context: &Context,
     needs_conversion: &mut Option<AstToStringNeedsConversion>,
+    found_in_array: bool,
 ) -> String {
     match &ast {
         AST::Boolean => String::from("bool"),
@@ -1006,12 +1007,12 @@ pub fn ast_to_string<'a>(
         }
         AST::ReadOnlyArray(inner_type) => format!(
             "array<{}>",
-            ast_to_string(inner_type.as_ref(), state, &context, needs_conversion)
+            ast_to_string(inner_type.as_ref(), state, &context, needs_conversion, true)
         ),
-        AST::NonNullable(ast) => ast_to_string(ast, state, &context, needs_conversion),
+        AST::NonNullable(ast) => ast_to_string(ast, state, &context, needs_conversion, false),
         AST::Nullable(ast) => format!(
             "option<{}>",
-            ast_to_string(ast, state, &context, needs_conversion)
+            ast_to_string(ast, state, &context, needs_conversion, false)
         ),
         AST::RawType(identifier) | AST::Identifier(identifier) => {
             match classify_identifier(state, identifier, &context) {
@@ -1028,7 +1029,7 @@ pub fn ast_to_string<'a>(
                     match classify_rescript_value_string(&identifier) {
                         RescriptCustomTypeValue::Module => {
                             *needs_conversion =
-                                Some(AstToStringNeedsConversion::CustomScalar(identifier.clone()));
+                                Some(AstToStringNeedsConversion::CustomScalar(identifier.clone(), found_in_array));
                             format!("{}.t", identifier)
                         }
                         RescriptCustomTypeValue::Type => identifier.to_string(),

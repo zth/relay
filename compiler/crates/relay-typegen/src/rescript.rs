@@ -2844,6 +2844,7 @@ impl Writer for ReScriptPrinter {
                                         self,
                                         &Context::NotRelevant,
                                         &mut needs_conversion,
+                                        false
                                     ),
                                     needs_conversion: needs_conversion.clone(),
                                 });
@@ -2870,7 +2871,7 @@ impl Writer for ReScriptPrinter {
                                             ),
                                         });
                                     }
-                                    Some(AstToStringNeedsConversion::CustomScalar(scalar_name)) => {
+                                    Some(AstToStringNeedsConversion::CustomScalar(scalar_name, found_in_array)) => {
                                         self.conversion_instructions.push(InstructionContainer {
                                             context: Context::Variables,
                                             at_path: vec![
@@ -2879,7 +2880,7 @@ impl Writer for ReScriptPrinter {
                                             ],
                                             instruction: ConverterInstructions::ConvertCustomField(
                                                 scalar_name.clone(),
-                                                false // TODO: Does this need to be aware of arrays?
+                                                found_in_array.clone()
                                             ),
                                         });
                                     }
