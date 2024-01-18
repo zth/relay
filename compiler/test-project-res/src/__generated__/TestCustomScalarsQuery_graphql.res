@@ -7,6 +7,9 @@ module Types = {
   type rec response_member_User = {
     @live __typename: [ | #User],
     createdAt: SomeModule.Datetime.t,
+    datetimes: option<array<option<SomeModule.Datetime.t>>>,
+    onlineStatus: option<RelaySchemaAssets_graphql.enum_OnlineStatus>,
+    onlineStatus2: option<RelaySchemaAssets_graphql.enum_OnlineStatus>,
   }
   and response_member = [
     | #User(response_member_User)
@@ -18,7 +21,10 @@ module Types = {
   }
   and response_loggedInUser = {
     createdAt: SomeModule.Datetime.t,
+    datetimes: option<array<option<SomeModule.Datetime.t>>>,
     friends: array<response_loggedInUser_friends>,
+    onlineStatus: option<RelaySchemaAssets_graphql.enum_OnlineStatus>,
+    onlineStatus2: option<RelaySchemaAssets_graphql.enum_OnlineStatus>,
   }
   type response = {
     loggedInUser: response_loggedInUser,
@@ -29,16 +35,20 @@ module Types = {
   @live
   type variables = {
     beforeDate: option<SomeModule.Datetime.t>,
+    datetimes: option<array<SomeModule.Datetime.t>>,
   }
   @live
   type refetchVariables = {
     beforeDate: option<option<SomeModule.Datetime.t>>,
+    datetimes: option<option<array<SomeModule.Datetime.t>>>,
   }
   @live let makeRefetchVariables = (
     ~beforeDate=?,
+    ~datetimes=?,
     ()
   ): refetchVariables => {
-    beforeDate: beforeDate
+    beforeDate: beforeDate,
+    datetimes: datetimes
   }
 
 }
@@ -63,7 +73,7 @@ let wrap_response_member: [
 module Internal = {
   @live
   let variablesConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
-    json`{"__root":{"beforeDate":{"c":"SomeModule.Datetime"}}}`
+    json`{"__root":{"datetimes":{"ca":"SomeModule.Datetime"},"beforeDate":{"c":"SomeModule.Datetime"}}}`
   )
   @live
   let variablesConverterMap = {
@@ -79,7 +89,7 @@ module Internal = {
   type wrapResponseRaw
   @live
   let wrapResponseConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
-    json`{"__root":{"member_User_createdAt":{"c":"SomeModule.Datetime"},"member":{"u":"response_member"},"loggedInUser_friends_createdAt":{"c":"SomeModule.Datetime"},"loggedInUser_createdAt":{"c":"SomeModule.Datetime"}}}`
+    json`{"__root":{"member_User_datetimes":{"ca":"SomeModule.Datetime"},"member_User_createdAt":{"c":"SomeModule.Datetime"},"member":{"u":"response_member"},"loggedInUser_friends_createdAt":{"c":"SomeModule.Datetime"},"loggedInUser_datetimes":{"ca":"SomeModule.Datetime"},"loggedInUser_createdAt":{"c":"SomeModule.Datetime"}}}`
   )
   @live
   let wrapResponseConverterMap = {
@@ -96,7 +106,7 @@ module Internal = {
   type responseRaw
   @live
   let responseConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
-    json`{"__root":{"member_User_createdAt":{"c":"SomeModule.Datetime"},"member":{"u":"response_member"},"loggedInUser_friends_createdAt":{"c":"SomeModule.Datetime"},"loggedInUser_createdAt":{"c":"SomeModule.Datetime"}}}`
+    json`{"__root":{"member_User_datetimes":{"ca":"SomeModule.Datetime"},"member_User_createdAt":{"c":"SomeModule.Datetime"},"member":{"u":"response_member"},"loggedInUser_friends_createdAt":{"c":"SomeModule.Datetime"},"loggedInUser_datetimes":{"ca":"SomeModule.Datetime"},"loggedInUser_createdAt":{"c":"SomeModule.Datetime"}}}`
   )
   @live
   let responseConverterMap = {
@@ -122,8 +132,24 @@ type queryRef
 module Utils = {
   @@ocaml.warning("-33")
   open Types
+  @live
+  external onlineStatus_toString: RelaySchemaAssets_graphql.enum_OnlineStatus => string = "%identity"
+  @live
+  external onlineStatus_input_toString: RelaySchemaAssets_graphql.enum_OnlineStatus_input => string = "%identity"
+  @live
+  let onlineStatus_decode = (enum: RelaySchemaAssets_graphql.enum_OnlineStatus): option<RelaySchemaAssets_graphql.enum_OnlineStatus_input> => {
+    switch enum {
+      | #...RelaySchemaAssets_graphql.enum_OnlineStatus_input as valid => Some(valid)
+      | _ => None
+    }
+  }
+  @live
+  let onlineStatus_fromString = (str: string): option<RelaySchemaAssets_graphql.enum_OnlineStatus_input> => {
+    onlineStatus_decode(Obj.magic(str))
+  }
   @live @obj external makeVariables: (
     ~beforeDate: SomeModule.Datetime.t=?,
+    ~datetimes: array<SomeModule.Datetime.t>=?,
     unit
   ) => variables = ""
 
@@ -140,6 +166,11 @@ var v0 = [
     "defaultValue": null,
     "kind": "LocalArgument",
     "name": "beforeDate"
+  },
+  {
+    "defaultValue": null,
+    "kind": "LocalArgument",
+    "name": "datetimes"
   }
 ],
 v1 = {
@@ -156,30 +187,67 @@ v2 = [
     "variableName": "beforeDate"
   }
 ],
-v3 = [
-  (v1/*: any*/)
-],
-v4 = [
+v3 = {
+  "alias": null,
+  "args": [
+    {
+      "kind": "Literal",
+      "name": "dateTimes",
+      "value": [
+        "2024-01-17T00:00:00.000Z"
+      ]
+    }
+  ],
+  "kind": "ScalarField",
+  "name": "onlineStatus",
+  "storageKey": "onlineStatus(dateTimes:[\"2024-01-17T00:00:00.000Z\"])"
+},
+v4 = {
+  "alias": "onlineStatus2",
+  "args": [
+    {
+      "kind": "Variable",
+      "name": "dateTimes",
+      "variableName": "datetimes"
+    }
+  ],
+  "kind": "ScalarField",
+  "name": "onlineStatus",
+  "storageKey": null
+},
+v5 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "datetimes",
+  "storageKey": null
+},
+v6 = [
   {
     "kind": "Literal",
     "name": "id",
     "value": "user-1"
   }
 ],
-v5 = {
+v7 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
   "name": "__typename",
   "storageKey": null
 },
-v6 = {
+v8 = {
   "kind": "InlineFragment",
-  "selections": (v3/*: any*/),
+  "selections": [
+    (v1/*: any*/),
+    (v3/*: any*/),
+    (v4/*: any*/),
+    (v5/*: any*/)
+  ],
   "type": "User",
   "abstractKey": null
 },
-v7 = {
+v9 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
@@ -209,22 +277,27 @@ return {
             "kind": "LinkedField",
             "name": "friends",
             "plural": true,
-            "selections": (v3/*: any*/),
+            "selections": [
+              (v1/*: any*/)
+            ],
             "storageKey": null
-          }
+          },
+          (v3/*: any*/),
+          (v4/*: any*/),
+          (v5/*: any*/)
         ],
         "storageKey": null
       },
       {
         "alias": null,
-        "args": (v4/*: any*/),
+        "args": (v6/*: any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "member",
         "plural": false,
         "selections": [
-          (v5/*: any*/),
-          (v6/*: any*/)
+          (v7/*: any*/),
+          (v8/*: any*/)
         ],
         "storageKey": "member(id:\"user-1\")"
       }
@@ -256,28 +329,31 @@ return {
             "plural": true,
             "selections": [
               (v1/*: any*/),
-              (v7/*: any*/)
+              (v9/*: any*/)
             ],
             "storageKey": null
           },
-          (v7/*: any*/)
+          (v3/*: any*/),
+          (v4/*: any*/),
+          (v5/*: any*/),
+          (v9/*: any*/)
         ],
         "storageKey": null
       },
       {
         "alias": null,
-        "args": (v4/*: any*/),
+        "args": (v6/*: any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "member",
         "plural": false,
         "selections": [
-          (v5/*: any*/),
-          (v6/*: any*/),
+          (v7/*: any*/),
+          (v8/*: any*/),
           {
             "kind": "InlineFragment",
             "selections": [
-              (v7/*: any*/)
+              (v9/*: any*/)
             ],
             "type": "Node",
             "abstractKey": "__isNode"
@@ -288,12 +364,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "43f7703aae48d15853367c45e13db4eb",
+    "cacheID": "8b5300555c66b30ce2d4cf8c838f99a6",
     "id": null,
     "metadata": {},
     "name": "TestCustomScalarsQuery",
     "operationKind": "query",
-    "text": "query TestCustomScalarsQuery(\n  $beforeDate: Datetime\n) {\n  loggedInUser {\n    createdAt\n    friends(beforeDate: $beforeDate) {\n      createdAt\n      id\n    }\n    id\n  }\n  member(id: \"user-1\") {\n    __typename\n    ... on User {\n      createdAt\n    }\n    ... on Node {\n      __isNode: __typename\n      __typename\n      id\n    }\n  }\n}\n"
+    "text": "query TestCustomScalarsQuery(\n  $beforeDate: Datetime\n  $datetimes: [Datetime!]\n) {\n  loggedInUser {\n    createdAt\n    friends(beforeDate: $beforeDate) {\n      createdAt\n      id\n    }\n    onlineStatus(dateTimes: [\"2024-01-17T00:00:00.000Z\"])\n    onlineStatus2: onlineStatus(dateTimes: $datetimes)\n    datetimes\n    id\n  }\n  member(id: \"user-1\") {\n    __typename\n    ... on User {\n      createdAt\n      onlineStatus(dateTimes: [\"2024-01-17T00:00:00.000Z\"])\n      onlineStatus2: onlineStatus(dateTimes: $datetimes)\n      datetimes\n    }\n    ... on Node {\n      __isNode: __typename\n      __typename\n      id\n    }\n  }\n}\n"
   }
 };
 })() `)

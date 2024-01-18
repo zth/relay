@@ -127,7 +127,7 @@ pub enum NullableType {
 #[derive(Debug, Clone)]
 pub enum AstToStringNeedsConversion {
     InputObject(String),
-    CustomScalar(String),
+    CustomScalar(String, bool),
 }
 
 #[derive(Debug, Clone)]
