@@ -407,16 +407,29 @@ pub fn print_constant_value(
                 arguments
                     .iter()
                     .map(|arg| {
-                        format!(
-                            "\"{}\": {}",
-                            arg.name.item,
-                            print_constant_value(
-                                &arg.value.item,
-                                print_as_optional,
-                                wrap_in_arg,
-                                is_in_args_body
+                        if wrap_in_arg {
+                            format!(
+                                "\"{}\": {}",
+                                arg.name.item,
+                                print_constant_value(
+                                    &arg.value.item,
+                                    print_as_optional,
+                                    wrap_in_arg,
+                                    is_in_args_body
+                                )
                             )
-                        )
+                        } else {
+                            format!(
+                                "{}: {}",
+                                arg.name.item,
+                                print_constant_value(
+                                    &arg.value.item,
+                                    print_as_optional,
+                                    wrap_in_arg,
+                                    is_in_args_body
+                                )
+                            )
+                        }
                     })
                     .join(", "),
             ),
@@ -735,27 +748,15 @@ pub fn get_connection_key_maker(
                             true,
                             true,
                             false,
-                            false
+                            false,
                         )
                     },
                     match (&default_value, &variable.type_) {
                         (Some(default_value), _) => format!(
                             "={}",
                             match dig_type_ref(&variable.type_) {
-                                // Input objects are records (nominal) in
-                                // ReScript, and thus the type system, but
-                                // GraphQL allows them to be specified as
-                                // structural objects that does not have to
-                                // define all fields. This creates a problem at
-                                // the type system level, where the default
-                                // value can't be type checked. But, we don't
-                                // _need_ to type check it, because it's only
-                                // relevant if the user does not supply its own
-                                // value for the input type. So, we can safely
-                                // cast the default constant value with
-                                // Obj.magic here.
                                 Type::InputObject(_) => format!(
-                                    "Obj.magic({})",
+                                    "{}",
                                     print_constant_value(&default_value.item, false, false, false)
                                 ),
                                 _ => print_constant_value(&default_value.item, false, false, false),
@@ -1028,8 +1029,10 @@ pub fn ast_to_string<'a>(
                 ClassifiedIdentifier::RawIdentifier(identifier) => {
                     match classify_rescript_value_string(&identifier) {
                         RescriptCustomTypeValue::Module => {
-                            *needs_conversion =
-                                Some(AstToStringNeedsConversion::CustomScalar(identifier.clone(), found_in_array));
+                            *needs_conversion = Some(AstToStringNeedsConversion::CustomScalar(
+                                identifier.clone(),
+                                found_in_array,
+                            ));
                             format!("{}.t", identifier)
                         }
                         RescriptCustomTypeValue::Type => identifier.to_string(),
