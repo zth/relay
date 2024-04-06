@@ -637,7 +637,7 @@ fn get_object_prop_type_as_string(
         &PropType::Array((nullable, inner_list_type)) => {
             let mut str = String::from("array<");
 
-            if nullable.to_owned() == true {
+            if *nullable == true {
                 write!(str, "option<").unwrap();
             }
 
@@ -654,7 +654,7 @@ fn get_object_prop_type_as_string(
             )
             .unwrap();
 
-            if nullable.to_owned() == true {
+            if *nullable == true {
                 write!(str, ">").unwrap();
             }
 
@@ -1328,7 +1328,7 @@ fn write_object_definition_body(
                     .fragment_directives
                     .iter()
                     .find(|directive| {
-                        directive.to_owned() == &RescriptRelayFragmentDirective::IgnoreUnused
+                        *directive == &RescriptRelayFragmentDirective::IgnoreUnused
                     })
                     .is_some();
                 match (should_ignore_all_unused, &prop.key[..]) {
@@ -1345,7 +1345,7 @@ fn write_object_definition_body(
                 None => String::from(""),
                 Some(original_key) => format!("@as(\"{}\") ", original_key),
             },
-            match (state.operation_meta_data.is_updatable_fragment, *prop.prop_type.to_owned(), &*prop.key) {
+            match (state.operation_meta_data.is_updatable_fragment, &*prop.prop_type, &*prop.key) {
                 (_, _, "__typename" | "__id") => "",
                 (true, PropType::RawIdentifier(_) | PropType::Scalar(_)| PropType::StringLiteral(_) | PropType::Array(_) | PropType::Enum(_), _) => "mutable ",
                 _ => ""
@@ -1647,7 +1647,7 @@ fn find_edges<'a>(object_with_edges: &'a Object) -> Option<(bool, bool, String)>
                     match &edges_prop.as_ref() {
                         PropType::RecordReference(edges_record_name) => Some((
                             prop.nullable,
-                            edges_nullable.to_owned(),
+                            *edges_nullable,
                             edges_record_name.to_string(),
                         )),
                         _ => None,
@@ -1960,7 +1960,7 @@ impl Writer for ReScriptPrinter {
                         indentation,
                         &fragment,
                         &Context::Fragment,
-                        nullable.to_owned(),
+                        *nullable,
                     )
                     .unwrap()
                 }
