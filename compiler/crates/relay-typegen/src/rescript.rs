@@ -516,9 +516,15 @@ fn get_object_props(
                         })
                     }
                     "$updatableFragmentSpreads" => {
+                        state.conversion_instructions.push(InstructionContainer {
+                            context: context.clone(),
+                            at_path: current_path.clone(),
+                            instruction: ConverterInstructions::HasFragments,
+                        });
+                        
                         Some(PropValue {
                             key: String::from("updatableFragmentRefs"),
-                            original_key: None,
+                            original_key: Some(String::from("fragmentRefs")),
                             comment: None,
                             nullable: false,
                             prop_type: Box::new(PropType::UpdatableFragmentSpreads(
