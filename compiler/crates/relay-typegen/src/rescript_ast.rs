@@ -29,6 +29,7 @@ pub enum PropType {
     Enum(String),
     Array((bool, Box<PropType>)),
     FragmentSpreads(Vec<String>),
+    UpdatableFragmentSpreads(Vec<String>),
     InputObjectReference(String),
     RecordReference(String),
     UnionReference(String),

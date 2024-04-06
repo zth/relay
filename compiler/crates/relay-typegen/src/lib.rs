@@ -11,7 +11,7 @@
 
 mod flow;
 mod javascript;
-mod rescript;
+pub mod rescript;
 mod rescript_ast;
 mod rescript_relay_visitor;
 pub mod rescript_utils;

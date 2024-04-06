@@ -23,6 +23,7 @@ use relay_codegen::QueryID;
 use relay_transforms::is_operation_preloadable;
 use relay_transforms::RelayDataDrivenDependencyMetadata;
 use relay_transforms::ASSIGNABLE_DIRECTIVE;
+use relay_transforms::UPDATABLE_DIRECTIVE;
 use relay_typegen::generate_fragment_type_exports_section;
 use relay_typegen::generate_named_validator_export;
 use relay_typegen::generate_operation_type_exports_section;
@@ -1063,7 +1064,8 @@ pub fn generate_operation_rescript(
                 request_parameters,
                 &mut top_level_statements
             ),
-            provided_variables.is_some()
+            provided_variables.is_some(),
+            false
         )
     )
     .unwrap();
@@ -1156,10 +1158,17 @@ pub fn generate_read_only_fragment_rescript(
         )
     )?;
 
+    let is_updatable_fragment = reader_fragment.directives.named(*UPDATABLE_DIRECTIVE).is_some();
+
     // Print the operation type
     writeln!(
         section,
-        "type relayOperationNode\ntype operationType = RescriptRelay.{}Node<relayOperationNode>\n\n",
+        "{}type operationType = RescriptRelay.{}Node<relayOperationNode>\n\n",
+        if is_updatable_fragment {
+            ""
+        } else {
+            "type relayOperationNode\n"
+        },
         "fragment"
     )
     .unwrap();
@@ -1172,7 +1181,8 @@ pub fn generate_read_only_fragment_rescript(
         "{}",
         super::rescript_relay_utils::rescript_make_operation_type_and_node_text(
             &printer.print_fragment(schema, reader_fragment, &mut import_statements),
-            false
+            false,
+            is_updatable_fragment
         )
     )
     .unwrap();
@@ -1313,7 +1323,8 @@ pub fn generate_preloadable_query_parameters_rescript(
                 normalization_operation,
                 &mut Default::default(),
             ),
-            has_provided_variables
+            has_provided_variables,
+            false
         )
     )
     .unwrap();

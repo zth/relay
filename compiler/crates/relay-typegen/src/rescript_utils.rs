@@ -26,6 +26,7 @@ use schema::Type;
 use schema::TypeReference;
 
 use crate::rescript::DefinitionType;
+use crate::rescript::NullabilityMode;
 use crate::rescript::ReScriptPrinter;
 use crate::rescript_ast::AstToStringNeedsConversion;
 use crate::rescript_ast::Context;
@@ -272,6 +273,7 @@ const DISALLOWED_IDENTIFIERS: &'static [&'static str] = &[
     "t",
     "fragmentRef",
     "fragmentRefs",
+    "updatableFragmentRefs",
     "fragmentRefSelector",
     "operationType",
 ];
@@ -341,12 +343,13 @@ fn print_wrapped_in_some(str: &String, print_as_optional: bool) -> String {
     }
 }
 
-pub fn print_opt(str: &String, optional: bool, output_as_js_nullable: bool) -> String {
+pub fn print_opt(str: &String, optional: bool, nullability_mode: &NullabilityMode) -> String {
     if optional {
-        if output_as_js_nullable {
-            format!("Js.Null.t<{}>", str)
-        } else {
-            format!("option<{}>", str)
+        match &nullability_mode {
+            NullabilityMode::Option => format!("option<{}>", str),
+            NullabilityMode::Nullable => format!("Js.Null.t<{}>", str),
+            NullabilityMode::NullAndUndefined => format!("Js.Nullable.t<{}>", str),
+
         }
     } else {
         format!("{}", str)
@@ -444,7 +447,7 @@ pub fn print_type_reference(
     custom_scalar_types: &CustomScalarsMap,
     nullable: bool,
     prefix_with_schema_module: bool,
-    output_as_js_nullable: bool,
+    nullability_mode: &NullabilityMode,
     enum_as_inputs: bool,
 ) -> String {
     match typ {
@@ -473,10 +476,9 @@ pub fn print_type_reference(
                             ""
                         },
                         obj.name.item,
-                        if output_as_js_nullable {
-                            "_nullable"
-                        } else {
-                            ""
+                        match &nullability_mode {
+                            NullabilityMode::Nullable => "_nullable",
+                            _ => ""
                         }
                     )
                 }
@@ -511,7 +513,7 @@ pub fn print_type_reference(
                 _ => String::from("RescriptRelay.any"),
             },
             nullable,
-            output_as_js_nullable,
+            &nullability_mode,
         ),
         TypeReference::NonNull(typ) => format!(
             "{}",
@@ -521,7 +523,7 @@ pub fn print_type_reference(
                 &custom_scalar_types,
                 false,
                 prefix_with_schema_module,
-                output_as_js_nullable,
+                &nullability_mode,
                 enum_as_inputs
             )
         ),
@@ -534,12 +536,12 @@ pub fn print_type_reference(
                     &custom_scalar_types,
                     true,
                     prefix_with_schema_module,
-                    output_as_js_nullable,
+                    &nullability_mode,
                     enum_as_inputs
                 )
             ),
             nullable,
-            output_as_js_nullable,
+            &nullability_mode,
         ),
     }
 }
@@ -736,7 +738,7 @@ pub fn get_connection_key_maker(
                                 &custom_scalar_types,
                                 true,
                                 true,
-                                false,
+                                &NullabilityMode::Option,
                                 false
                             )
                         )
@@ -747,7 +749,7 @@ pub fn get_connection_key_maker(
                             &custom_scalar_types,
                             true,
                             true,
-                            false,
+                            &NullabilityMode::Option,
                             false,
                         )
                     },

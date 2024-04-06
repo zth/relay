@@ -5,6 +5,7 @@ use graphql_ir::reexport::Intern;
 use relay_config::ProjectConfig;
 use relay_transforms::Programs;
 use relay_transforms::is_operation_preloadable;
+use relay_typegen::rescript::NullabilityMode;
 use relay_typegen::rescript_utils::capitalize_string;
 use relay_typegen::rescript_utils::get_safe_key;
 use relay_typegen::rescript_utils::print_type_reference;
@@ -137,7 +138,7 @@ pub(crate) fn rescript_generate_extra_artifacts(
                         &project_config.typegen_config.custom_scalar_types,
                         false,
                         false,
-                        false,
+                        &NullabilityMode::Option,
                         true
                     )
                 ).unwrap();
@@ -168,7 +169,7 @@ pub(crate) fn rescript_generate_extra_artifacts(
                         &project_config.typegen_config.custom_scalar_types,
                         false,
                         false,
-                        true,
+                        &NullabilityMode::Nullable,
                         true
                     )
                 ).unwrap();
@@ -209,7 +210,7 @@ pub(crate) fn rescript_generate_extra_artifacts(
                         &project_config.typegen_config.custom_scalar_types,
                         false,
                         false,
-                        false,
+                        &NullabilityMode::Option,
                         true
                         
                     )
@@ -263,7 +264,7 @@ pub(crate) fn rescript_generate_extra_artifacts(
                         &project_config.typegen_config.custom_scalar_types,
                         true,
                         false,
-                        true,
+                        &NullabilityMode::Nullable,
                         true
                     )
                 )

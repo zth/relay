@@ -515,6 +515,17 @@ fn get_object_props(
                             )),
                         })
                     }
+                    "$updatableFragmentSpreads" => {
+                        Some(PropValue {
+                            key: String::from("updatableFragmentRefs"),
+                            original_key: None,
+                            comment: None,
+                            nullable: false,
+                            prop_type: Box::new(PropType::UpdatableFragmentSpreads(
+                                extract_fragments_from_fragment_spread(&key_value_pair.value),
+                            )),
+                        })
+                    }
                     _ => {
                         if key.as_str().starts_with("$") {
                             // Internal Relay types typically come prefixed with
@@ -625,6 +636,15 @@ fn get_object_prop_type_as_string(
         }
         &PropType::FragmentSpreads(fragment_names) => {
             let mut str = String::from("RescriptRelay.fragmentRefs<[");
+            fragment_names
+                .iter()
+                .for_each(|fragment_name| write!(str, " | #{}", fragment_name).unwrap());
+
+            write!(str, "]>").unwrap();
+            str
+        }
+        &PropType::UpdatableFragmentSpreads(fragment_names) => {
+            let mut str = String::from("RescriptRelay.updatableFragmentRefs<[");
             fragment_names
                 .iter()
                 .for_each(|fragment_name| write!(str, " | #{}", fragment_name).unwrap());
@@ -1201,10 +1221,11 @@ enum ObjectPrintMode {
     PartOfRecursiveChain,
 }
 
-#[derive(PartialEq)]
-enum NullabilityMode {
+#[derive(PartialEq, Debug)]
+pub enum NullabilityMode {
     Option,
-    Nullable
+    Nullable,
+    NullAndUndefined
 }
 
 fn write_record_type_start(
@@ -1236,8 +1257,9 @@ fn write_object_definition_body(
     is_refetch_var: bool,
     output_as_optional_fields: bool
 ) -> Result {
-    let nullability = match (state.operation_meta_data.operation_directives.contains(&RescriptRelayOperationDirective::NullableVariables), context) {
-        (true, &Context::Variables | &Context::RootObject(_)) => NullabilityMode::Nullable,
+    let nullability = match (state.operation_meta_data.operation_directives.contains(&RescriptRelayOperationDirective::NullableVariables), context, state.operation_meta_data.is_updatable_fragment) {
+        (true, &Context::Variables | &Context::RootObject(_), _) => NullabilityMode::Nullable,
+        (_, _, true) => NullabilityMode::NullAndUndefined,
         _ => NullabilityMode::Option,
     };
     
@@ -1260,7 +1282,7 @@ fn write_object_definition_body(
         write_indentation(str, in_object_indentation).unwrap();
         writeln!(
             str,
-            "{}{}{}{}: {},",
+            "{}{}{}{}{}: {},",
             // We suppress dead code warnings for a set of keys that we know
             // don't affect overfetching, and are used internally by
             // RescriptRelay, but end up in the types anyway because of
@@ -1288,12 +1310,17 @@ fn write_object_definition_body(
                 None => String::from(""),
                 Some(original_key) => format!("@as(\"{}\") ", original_key),
             },
+            if state.operation_meta_data.is_updatable_fragment { 
+                "mutable " 
+            } else {
+                ""
+            },
             prop.key,
             if output_as_optional_fields && prop.nullable {
                 "?"
             } else {
-                match (&nullability, prop.nullable) {
-                    (NullabilityMode::Nullable, true) => "?",
+                match (&nullability, prop.nullable, state.operation_meta_data.is_updatable_fragment) {
+                    (NullabilityMode::Nullable, true, false) => "?",
                     _ => ""
                 }
             },
@@ -1331,10 +1358,7 @@ fn write_object_definition_body(
                                 &field_path_name
                             ),
                             true, 
-                            match nullability {
-                                NullabilityMode::Option => false,
-                                NullabilityMode::Nullable => true
-                            }
+                            &nullability
                         )
                     }
                 ),
@@ -2119,17 +2143,19 @@ impl Writer for ReScriptPrinter {
 
         match &self.fragment {
             Some(_) => {
-                write_internal_assets(
-                    &mut generated_types,
-                    indentation,
-                    &self,
-                    Context::Fragment,
-                    String::from("fragment"),
-                    true,
-                    ConversionDirection::Unwrap,
-                    NullableType::Undefined,
-                )
-                .unwrap();
+                if !self.operation_meta_data.is_updatable_fragment {
+                    write_internal_assets(
+                        &mut generated_types,
+                        indentation,
+                        &self,
+                        Context::Fragment,
+                        String::from("fragment"),
+                        true,
+                        ConversionDirection::Unwrap,
+                        NullableType::Undefined,
+                    )
+                    .unwrap();
+                }
             }
             None => (),
         };
@@ -2285,23 +2311,32 @@ impl Writer for ReScriptPrinter {
         // safe way via ReScript.
         match &self.typegen_definition {
             DefinitionType::Fragment(fragment_definition) => {
-                let plural = is_plural(fragment_definition);
+                if self.operation_meta_data.is_updatable_fragment {
+                    write_indentation(&mut generated_types, indentation).unwrap();
+                    writeln!(
+                        generated_types,
+                        "\n\ntype relayOperationNode\n\ntype updatableData = {{updatableData: Types.fragment}}\n\n@send external readUpdatableFragment: (RescriptRelay.RecordSourceSelectorProxy.t, ~node: RescriptRelay.fragmentNode<relayOperationNode>, ~fragmentRefs: RescriptRelay.updatableFragmentRefs<[> | #{}]>) => updatableData = \"readUpdatableFragment\"", fragment_definition.name.item
+                    )
+                    .unwrap();
+                } else {
+                    let plural = is_plural(fragment_definition);
 
-                write_indentation(&mut generated_types, indentation).unwrap();
-                writeln!(
-                    generated_types,
-                    "\ntype t\ntype fragmentRef\nexternal getFragmentRef:"
-                )
-                .unwrap();
-                write_indentation(&mut generated_types, indentation + 1).unwrap();
-                writeln!(
-                    generated_types,
-                    "{}RescriptRelay.fragmentRefs<[> | #{}]>{} => fragmentRef = \"%identity\"\n",
-                    if plural { "array<" } else { "" },
-                    fragment_definition.name.item,
-                    if plural { ">" } else { "" }
-                )
-                .unwrap();
+                    write_indentation(&mut generated_types, indentation).unwrap();
+                    writeln!(
+                        generated_types,
+                        "\ntype t\ntype fragmentRef\nexternal getFragmentRef:"
+                    )
+                    .unwrap();
+                    write_indentation(&mut generated_types, indentation + 1).unwrap();
+                    writeln!(
+                        generated_types,
+                        "{}RescriptRelay.fragmentRefs<[> | #{}]>{} => fragmentRef = \"%identity\"\n",
+                        if plural { "array<" } else { "" },
+                        fragment_definition.name.item,
+                        if plural { ">" } else { "" }
+                    )
+                    .unwrap();
+                }
             }
             _ => ()
         }
