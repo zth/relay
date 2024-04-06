@@ -5,7 +5,7 @@ module Types = {
   @@warning("-30")
 
   type rec fragment_loggedInUser = {
-    updatableFragmentRefs: RescriptRelay.updatableFragmentRefs<[ | #TestUpdatableFragments_updatableUser]>,
+    @as("fragmentRefs") updatableFragmentRefs: RescriptRelay.updatableFragmentRefs<[ | #TestUpdatableFragments_updatableUser]>,
     firstName: string,
     lastName: string,
   }
@@ -19,7 +19,7 @@ module Internal = {
   type fragmentRaw
   @live
   let fragmentConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
-    json`{}`
+    json`{"__root":{"loggedInUser":{"f":""}}}`
   )
   @live
   let fragmentConverterMap = ()

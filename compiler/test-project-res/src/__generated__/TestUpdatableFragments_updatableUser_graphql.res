@@ -5,6 +5,8 @@ module Types = {
   @@warning("-30")
 
   type fragment = {
+    /** This is the raw, not parsed value of the custom scalar `SomeModule.Datetime.t`. In updatable fragments you need to convert to and from the custom scalar manually as you read and make updates to it. */
+    mutable createdAt: Js.Json.t,
     mutable isOnline: Js.Nullable.t<bool>,
   }
 }
@@ -37,6 +39,13 @@ let node: operationType = %raw(json` {
       "args": null,
       "kind": "ScalarField",
       "name": "isOnline",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "createdAt",
       "storageKey": null
     }
   ],

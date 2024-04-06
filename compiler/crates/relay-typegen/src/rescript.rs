@@ -305,6 +305,7 @@ fn ast_to_prop_value(
                 ClassifiedIdentifier::RawIdentifier(identifier) => {
                     let mut new_at_path = current_path.clone();
                     new_at_path.push(key.to_string());
+                    let mut is_custom_scalar_that_needs_conversion = false;
 
                     // Add a conversion instruction if this is a custom type
                     // that's mapped as a ReScript module (meaning it's supposed
@@ -318,7 +319,8 @@ fn ast_to_prop_value(
                                     identifier.to_string(),
                                     found_in_array
                                 ),
-                            })
+                            });
+                            is_custom_scalar_that_needs_conversion = true;
                         }
                         RescriptCustomTypeValue::Type => {
                             if state
@@ -338,9 +340,19 @@ fn ast_to_prop_value(
                     Some(PropValue {
                         key: safe_key,
                         original_key,
-                        comment: None,
+                        comment: 
+                            if state.operation_meta_data.is_updatable_fragment && is_custom_scalar_that_needs_conversion {
+                                Some(format!("This is the raw, not parsed value of the custom scalar `{}.t`. In updatable fragments you need to convert to and from the custom scalar manually as you read and make updates to it.", identifier))
+                            } else {
+                                None
+                            },
                         nullable: is_nullable,
-                        prop_type: Box::new(PropType::RawIdentifier(identifier)),
+                        prop_type: Box::new(PropType::RawIdentifier(
+                            if state.operation_meta_data.is_updatable_fragment && is_custom_scalar_that_needs_conversion {
+                                String::from("Js.Json.t") 
+                            } else {
+                                identifier
+                            })),
                     })
                 }
             };
@@ -521,7 +533,7 @@ fn get_object_props(
                             at_path: current_path.clone(),
                             instruction: ConverterInstructions::HasFragments,
                         });
-                        
+
                         Some(PropValue {
                             key: String::from("updatableFragmentRefs"),
                             original_key: Some(String::from("fragmentRefs")),
@@ -1288,7 +1300,12 @@ fn write_object_definition_body(
         write_indentation(str, in_object_indentation).unwrap();
         writeln!(
             str,
-            "{}{}{}{}{}: {},",
+            "{}{}{}{}{}{}: {},",
+            if let Some(comment) = &prop.comment {
+                format!("/** {} */\n{}", comment, &"  ".repeat(in_object_indentation))
+            } else {
+                String::from("")
+            },
             // We suppress dead code warnings for a set of keys that we know
             // don't affect overfetching, and are used internally by
             // RescriptRelay, but end up in the types anyway because of

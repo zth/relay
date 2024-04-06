@@ -1,6 +1,7 @@
 module UpdatableFragment = %relay(`
   fragment TestUpdatableFragments_updatableUser on User @updatable {
     isOnline
+    createdAt
   }
 `)
 
