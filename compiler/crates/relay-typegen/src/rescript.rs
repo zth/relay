@@ -482,9 +482,19 @@ fn get_object_props(
     props
         .iter()
         .filter_map(|prop| match &prop {
-            &Prop::Spread(_) | &Prop::GetterSetterPair(_) => {
-                // Handle when we understand what this actually is
-                None
+            &Prop::Spread(_) => None,
+            &Prop::GetterSetterPair(getter_setter_pair) => {                
+                let key = getter_setter_pair.key.to_string();
+                ast_to_prop_value(
+                    state,
+                    current_path.clone(),
+                    &getter_setter_pair.getter_return_value,
+                    &key,
+                    false,
+                    found_in_union,
+                    false,
+                    context,
+                )
             }
             &Prop::KeyValuePair(key_value_pair) => {
                 let key = key_value_pair.key.to_string();
@@ -816,9 +826,11 @@ fn write_union_definition_body(state: &Box<ReScriptPrinter>, str: &mut String, i
         writeln!(str, ")").unwrap();
     }
 
-    write_indentation(str, indentation + 1).unwrap();
-    writeln!(str, "| @live @as(\"__unselected\") UnselectedUnionMember(string)").unwrap();
-    writeln!(str, "").unwrap();
+    if !state.operation_meta_data.is_updatable_fragment {
+        write_indentation(str, indentation + 1).unwrap();
+        writeln!(str, "| @live @as(\"__unselected\") UnselectedUnionMember(string)").unwrap();
+        writeln!(str, "").unwrap();
+    }
 
     Ok(())
 }
@@ -1333,10 +1345,10 @@ fn write_object_definition_body(
                 None => String::from(""),
                 Some(original_key) => format!("@as(\"{}\") ", original_key),
             },
-            if state.operation_meta_data.is_updatable_fragment { 
-                "mutable " 
-            } else {
-                ""
+            match (state.operation_meta_data.is_updatable_fragment, *prop.prop_type.to_owned(), &*prop.key) {
+                (_, _, "__typename" | "__id") => "",
+                (true, PropType::RawIdentifier(_) | PropType::Scalar(_)| PropType::StringLiteral(_) | PropType::Array(_) | PropType::Enum(_), _) => "mutable ",
+                _ => ""
             },
             prop.key,
             if output_as_optional_fields && prop.nullable {
@@ -2130,6 +2142,7 @@ impl Writer for ReScriptPrinter {
             &PreloadableMode::ThinFile => (),
             _ => {
         
+            if !self.operation_meta_data.is_updatable_fragment {
                 // Print union converters
                 self.unions
                     .iter()
@@ -2137,6 +2150,7 @@ impl Writer for ReScriptPrinter {
                     .for_each(|union| {
                         write_union_converters(&mut generated_types, indentation, &union).unwrap()
                     });
+                }
 
                 match &self.typegen_definition {
                     DefinitionType::Operation((operation_definition, _)) => match operation_definition.kind
@@ -2453,12 +2467,14 @@ impl Writer for ReScriptPrinter {
         match &preloadable_mode {
             PreloadableMode::ThinFile => (),
             _ => {   
-                self.enums
-                    .iter()
-                    .unique_by(|full_enum| &full_enum.name)
-                    .for_each(|full_enum| {
-                        write_enum_util_functions(&mut generated_types, indentation, &full_enum).unwrap()
-                    });
+                if !self.operation_meta_data.is_updatable_fragment {
+                    self.enums
+                        .iter()
+                        .unique_by(|full_enum| &full_enum.name)
+                        .for_each(|full_enum| {
+                            write_enum_util_functions(&mut generated_types, indentation, &full_enum).unwrap()
+                        });
+                    }
                 }
             }
 
