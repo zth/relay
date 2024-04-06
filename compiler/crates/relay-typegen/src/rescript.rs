@@ -546,7 +546,7 @@ fn get_object_props(
 
                         Some(PropValue {
                             key: String::from("updatableFragmentRefs"),
-                            original_key: Some(String::from("fragmentRefs")),
+                            original_key: None,
                             comment: None,
                             nullable: false,
                             prop_type: Box::new(PropType::UpdatableFragmentSpreads(
