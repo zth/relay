@@ -153,7 +153,7 @@ pub fn rescript_make_operation_type_and_node_text(
 
     // Hook up updatable query reader
     if is_updatable_query {
-        writeln!(str, "\n\nlet readUpdatableQuery = (store, variables) => store->readUpdatableQuery(~node, ~variables=Internal.convertVariables(variables))").unwrap();
+        writeln!(str, "\n\nlet readUpdatableQuery = (store, variables: Types.variables) => store->readUpdatableQuery(~node, ~variables=Internal.convertVariables(variables))").unwrap();
     }
 
     str

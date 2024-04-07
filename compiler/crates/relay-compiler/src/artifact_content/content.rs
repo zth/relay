@@ -1381,8 +1381,6 @@ pub fn generate_updatable_query_rescript(
     };
 
     let mut section = GenericSection::default();
-    let mut top_level_statements: relay_codegen::TopLevelStatements = Default::default();
-    let request_parameters = build_request_params(reader_operation);
 
     write!(
         section,
@@ -1410,13 +1408,7 @@ pub fn generate_updatable_query_rescript(
         section,
         "{}",
         super::rescript_relay_utils::rescript_make_operation_type_and_node_text(
-            &printer.print_request(
-                schema,
-                reader_operation,
-                &operation_fragment,
-                request_parameters,
-                &mut top_level_statements
-            ),
+            printer.print_updatable_query(schema, &operation_fragment).as_str(),
             false,
             false,
             true
