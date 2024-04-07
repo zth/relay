@@ -341,14 +341,14 @@ fn ast_to_prop_value(
                         key: safe_key,
                         original_key,
                         comment: 
-                            if state.operation_meta_data.is_updatable_fragment && is_custom_scalar_that_needs_conversion {
+                            if state.operation_meta_data.is_updatable && is_custom_scalar_that_needs_conversion {
                                 Some(format!("This is the raw, not parsed value of the custom scalar `{}.t`. In updatable fragments you need to convert to and from the custom scalar manually as you read and make updates to it.", identifier))
                             } else {
                                 None
                             },
                         nullable: is_nullable,
                         prop_type: Box::new(PropType::RawIdentifier(
-                            if state.operation_meta_data.is_updatable_fragment && is_custom_scalar_that_needs_conversion {
+                            if state.operation_meta_data.is_updatable && is_custom_scalar_that_needs_conversion {
                                 String::from("Js.Json.t") 
                             } else {
                                 identifier
@@ -826,7 +826,7 @@ fn write_union_definition_body(state: &Box<ReScriptPrinter>, str: &mut String, i
         writeln!(str, ")").unwrap();
     }
 
-    if !state.operation_meta_data.is_updatable_fragment {
+    if !state.operation_meta_data.is_updatable {
         write_indentation(str, indentation + 1).unwrap();
         writeln!(str, "| @live @as(\"__unselected\") UnselectedUnionMember(string)").unwrap();
         writeln!(str, "").unwrap();
@@ -1287,7 +1287,7 @@ fn write_object_definition_body(
     is_refetch_var: bool,
     output_as_optional_fields: bool
 ) -> Result {
-    let nullability = match (state.operation_meta_data.operation_directives.contains(&RescriptRelayOperationDirective::NullableVariables), context, state.operation_meta_data.is_updatable_fragment) {
+    let nullability = match (state.operation_meta_data.operation_directives.contains(&RescriptRelayOperationDirective::NullableVariables), context, state.operation_meta_data.is_updatable) {
         (true, &Context::Variables | &Context::RootObject(_), _) => NullabilityMode::Nullable,
         (_, _, true) => NullabilityMode::NullAndUndefined,
         _ => NullabilityMode::Option,
@@ -1345,16 +1345,16 @@ fn write_object_definition_body(
                 None => String::from(""),
                 Some(original_key) => format!("@as(\"{}\") ", original_key),
             },
-            match (state.operation_meta_data.is_updatable_fragment, &*prop.prop_type, &*prop.key) {
-                (_, _, "__typename" | "__id") => "",
-                (true, PropType::RawIdentifier(_) | PropType::Scalar(_)| PropType::StringLiteral(_) | PropType::Array(_) | PropType::Enum(_), _) => "mutable ",
+            match (state.operation_meta_data.is_updatable, &*prop.prop_type, &*prop.key, &context) {
+                (_, _, "__typename" | "__id", _) | (_, _, _, &Context::Variables) => "",
+                (true, PropType::RawIdentifier(_) | PropType::Scalar(_)| PropType::StringLiteral(_) | PropType::Array(_) | PropType::Enum(_), _, _) => "mutable ",
                 _ => ""
             },
             prop.key,
             if output_as_optional_fields && prop.nullable {
                 "?"
             } else {
-                match (&nullability, prop.nullable, state.operation_meta_data.is_updatable_fragment) {
+                match (&nullability, prop.nullable, state.operation_meta_data.is_updatable) {
                     (NullabilityMode::Nullable, true, false) => "?",
                     _ => ""
                 }
@@ -2024,19 +2024,21 @@ impl Writer for ReScriptPrinter {
                         )
                         .unwrap(),
                         None => {
-                            write_suppress_dead_code_warning_annotation(&mut generated_types, indentation)
-                                .unwrap();
-                            write_indentation(&mut generated_types, indentation).unwrap();
-                            writeln!(
-                                generated_types,
-                                "type rawResponse = {}",
-                                // We point to the full, non nullable type if response
-                                // was nullable, as it might be nullable only because of
-                                // @required, and we don't care about that when using
-                                // the raw response.
-                                if *nullable { "response_t" } else { "response" }
-                            )
-                            .unwrap()
+                            if !self.operation_meta_data.is_updatable {
+                                write_suppress_dead_code_warning_annotation(&mut generated_types, indentation)
+                                    .unwrap();
+                                write_indentation(&mut generated_types, indentation).unwrap();
+                                writeln!(
+                                    generated_types,
+                                    "type rawResponse = {}",
+                                    // We point to the full, non nullable type if response
+                                    // was nullable, as it might be nullable only because of
+                                    // @required, and we don't care about that when using
+                                    // the raw response.
+                                    if *nullable { "response_t" } else { "response" }
+                                )
+                                .unwrap()
+                            }
                         }
                     }
                 }
@@ -2061,14 +2063,14 @@ impl Writer for ReScriptPrinter {
 
             // And, if we're in a query, print the refetch variables assets as
             // well.
-            match (&self.typegen_definition, &preloadable_mode) {
+            match (&self.typegen_definition, &preloadable_mode, self.operation_meta_data.is_updatable) {
                 (&DefinitionType::Operation((
                     OperationDefinition {
                         kind: OperationKind::Query,
                         ..
                     },
                     _,
-                )), PreloadableMode::FullFile | PreloadableMode::Off) => {
+                )), PreloadableMode::FullFile | PreloadableMode::Off, false) => {
                     // Refetch variables are the regular variables, but with all
                     // top level fields forced to be optional. Note: This is not
                     // 100% and we'll need to revisit this at a later point in
@@ -2142,7 +2144,7 @@ impl Writer for ReScriptPrinter {
             &PreloadableMode::ThinFile => (),
             _ => {
         
-            if !self.operation_meta_data.is_updatable_fragment {
+            if !self.operation_meta_data.is_updatable {
                 // Print union converters
                 self.unions
                     .iter()
@@ -2180,7 +2182,7 @@ impl Writer for ReScriptPrinter {
 
         match &self.fragment {
             Some(_) => {
-                if !self.operation_meta_data.is_updatable_fragment {
+                if !self.operation_meta_data.is_updatable {
                     write_internal_assets(
                         &mut generated_types,
                         indentation,
@@ -2231,32 +2233,36 @@ impl Writer for ReScriptPrinter {
             (_, Some(_), DefinitionType::Operation((op, _))) => {
                 match &op.kind {
                     OperationKind::Query | OperationKind::Mutation => {
-                        write_internal_assets(
-                            &mut generated_types,
-                            indentation,
-                            &self,
-                            Context::Response,
-                            String::from("wrapResponse"),
-                            true,
-                            ConversionDirection::Wrap,
-                            NullableType::Null,
-                        )
-                        .unwrap();
+                        if !self.operation_meta_data.is_updatable {
+                            write_internal_assets(
+                                &mut generated_types,
+                                indentation,
+                                &self,
+                                Context::Response,
+                                String::from("wrapResponse"),
+                                true,
+                                ConversionDirection::Wrap,
+                                NullableType::Null,
+                            )
+                            .unwrap();
+                        }
                     }
                     OperationKind::Subscription => (),
                 }
 
-                write_internal_assets(
-                    &mut generated_types,
-                    indentation,
-                    &self,
-                    Context::Response,
-                    String::from("response"),
-                    true,
-                    ConversionDirection::Unwrap,
-                    NullableType::Undefined,
-                )
-                .unwrap();
+                if !self.operation_meta_data.is_updatable {
+                    write_internal_assets(
+                        &mut generated_types,
+                        indentation,
+                        &self,
+                        Context::Response,
+                        String::from("response"),
+                        true,
+                        ConversionDirection::Unwrap,
+                        NullableType::Undefined,
+                    )
+                    .unwrap();
+                }
             }
             _ => (),
         };
@@ -2266,62 +2272,70 @@ impl Writer for ReScriptPrinter {
             (_, Some(_), Some(_), DefinitionType::Operation((op, _))) => {
                 match &op.kind {
                     OperationKind::Query | OperationKind::Mutation => {
-                        write_internal_assets(
-                            &mut generated_types,
-                            indentation,
-                            &self,
-                            Context::RawResponse,
-                            String::from("wrapRawResponse"),
-                            true,
-                            ConversionDirection::Wrap,
-                            NullableType::Null,
-                        )
-                        .unwrap();
+                        if !self.operation_meta_data.is_updatable {
+                            write_internal_assets(
+                                &mut generated_types,
+                                indentation,
+                                &self,
+                                Context::RawResponse,
+                                String::from("wrapRawResponse"),
+                                true,
+                                ConversionDirection::Wrap,
+                                NullableType::Null,
+                            )
+                            .unwrap();
+                        }
                     }
                     OperationKind::Subscription => (),
                 }
 
-                write_internal_assets(
-                    &mut generated_types,
-                    indentation,
-                    &self,
-                    Context::RawResponse,
-                    String::from("rawResponse"),
-                    true,
-                    ConversionDirection::Unwrap,
-                    NullableType::Undefined,
-                )
-                .unwrap();
+                if !self.operation_meta_data.is_updatable {
+                    write_internal_assets(
+                        &mut generated_types,
+                        indentation,
+                        &self,
+                        Context::RawResponse,
+                        String::from("rawResponse"),
+                        true,
+                        ConversionDirection::Unwrap,
+                        NullableType::Undefined,
+                    )
+                    .unwrap();
+                }
             }
             (_, Some(_), None, DefinitionType::Operation((op, _))) => {
                 match &op.kind {
                     OperationKind::Query | OperationKind::Mutation => {
-                        write_indentation(&mut generated_types, indentation).unwrap();
-                        writeln!(generated_types, "type wrapRawResponseRaw = wrapResponseRaw")
-                            .unwrap();
+                        if !self.operation_meta_data.is_updatable {
+                            write_indentation(&mut generated_types, indentation).unwrap();
+                            writeln!(generated_types, "type wrapRawResponseRaw = wrapResponseRaw")
+                                .unwrap();
 
-                        write_suppress_dead_code_warning_annotation(
-                            &mut generated_types,
-                            indentation,
-                        )
-                        .unwrap();
-                        write_indentation(&mut generated_types, indentation).unwrap();
-                        writeln!(
-                            generated_types,
-                            "let convertWrapRawResponse = convertWrapResponse"
-                        )
-                        .unwrap();
+                            write_suppress_dead_code_warning_annotation(
+                                &mut generated_types,
+                                indentation,
+                            )
+                            .unwrap();
+                            write_indentation(&mut generated_types, indentation).unwrap();
+                            writeln!(
+                                generated_types,
+                                "let convertWrapRawResponse = convertWrapResponse"
+                            )
+                            .unwrap();
+                        }
                     }
                     OperationKind::Subscription => (),
                 }
 
-                write_indentation(&mut generated_types, indentation).unwrap();
-                writeln!(generated_types, "type rawResponseRaw = responseRaw").unwrap();
+                if !self.operation_meta_data.is_updatable {
+                    write_indentation(&mut generated_types, indentation).unwrap();
+                    writeln!(generated_types, "type rawResponseRaw = responseRaw").unwrap();
 
-                write_suppress_dead_code_warning_annotation(&mut generated_types, indentation)
-                    .unwrap();
-                write_indentation(&mut generated_types, indentation).unwrap();
-                writeln!(generated_types, "let convertRawResponse = convertResponse").unwrap();
+                    write_suppress_dead_code_warning_annotation(&mut generated_types, indentation)
+                        .unwrap();
+                    write_indentation(&mut generated_types, indentation).unwrap();
+                    writeln!(generated_types, "let convertRawResponse = convertResponse").unwrap();
+                }
             }
             _ => (),
         };
@@ -2331,8 +2345,10 @@ impl Writer for ReScriptPrinter {
             (_, DefinitionType::Operation((op, _))) => {
                 match &op.kind {
                     OperationKind::Query => {
-                        writeln!(generated_types, "  type rawPreloadToken<'response> = {{source: Js.Nullable.t<RescriptRelay.Observable.t<'response>>}}").unwrap();
-                        writeln!(generated_types, "  external tokenToRaw: queryRef => rawPreloadToken<Types.response> = \"%identity\"").unwrap();
+                        if !self.operation_meta_data.is_updatable {
+                            writeln!(generated_types, "  type rawPreloadToken<'response> = {{source: Js.Nullable.t<RescriptRelay.Observable.t<'response>>}}").unwrap();
+                            writeln!(generated_types, "  external tokenToRaw: queryRef => rawPreloadToken<Types.response> = \"%identity\"").unwrap();
+                        }
                     }
                     _ => (),
                 }
@@ -2348,7 +2364,7 @@ impl Writer for ReScriptPrinter {
         // safe way via ReScript.
         match &self.typegen_definition {
             DefinitionType::Fragment(fragment_definition) => {
-                if self.operation_meta_data.is_updatable_fragment {
+                if self.operation_meta_data.is_updatable {
                     write_indentation(&mut generated_types, indentation).unwrap();
                     writeln!(
                         generated_types,
@@ -2375,7 +2391,15 @@ impl Writer for ReScriptPrinter {
                     .unwrap();
                 }
             }
-            _ => ()
+            DefinitionType::Operation(_) => 
+            if self.operation_meta_data.is_updatable {
+                write_indentation(&mut generated_types, indentation).unwrap();
+                writeln!(
+                    generated_types,
+                    "\n\ntype relayOperationNode\n\ntype updatableData = {{updatableData: Types.response}}\n\n@send external readUpdatableQuery: (RescriptRelay.RecordSourceSelectorProxy.t, ~node: RescriptRelay.queryNode<relayOperationNode>, ~variables: Types.variables) => updatableData = \"readUpdatableQuery\""
+                )
+                .unwrap()
+            }
         }
 
         // Let's write some connection helpers! These are emitted anytime
@@ -2467,7 +2491,7 @@ impl Writer for ReScriptPrinter {
         match &preloadable_mode {
             PreloadableMode::ThinFile => (),
             _ => {   
-                if !self.operation_meta_data.is_updatable_fragment {
+                if !self.operation_meta_data.is_updatable {
                     self.enums
                         .iter()
                         .unique_by(|full_enum| &full_enum.name)

@@ -5,7 +5,7 @@ module Types = {
   @@warning("-30")
 
   type rec fragment_loggedInUser = {
-    @as("fragmentRefs") updatableFragmentRefs: RescriptRelay.updatableFragmentRefs<[ | #TestUpdatableFragments_updatableUser]>,
+    updatableFragmentRefs: RescriptRelay.updatableFragmentRefs<[ | #TestUpdatableFragments_updatableUser]>,
     firstName: string,
     lastName: string,
   }

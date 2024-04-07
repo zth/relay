@@ -48,7 +48,8 @@ pub fn rescript_find_code_import_references(concrete_text: &str) -> Vec<ImportTy
 pub fn rescript_make_operation_type_and_node_text(
     concrete_text: &str,
     has_provided_variables: bool,
-    is_updatable_fragment: bool
+    is_updatable_fragment: bool,
+    is_updatable_query: bool,
 ) -> String {
     lazy_static! {
         static ref PREFIX_GRAPHQL_IMPORT: String = String::from("rescript_graphql_node_");
@@ -148,6 +149,11 @@ pub fn rescript_make_operation_type_and_node_text(
     // Hook up updatable fragment reader
     if is_updatable_fragment {
         writeln!(str, "\n\nlet readUpdatableFragment = (store, fragmentRefs) => store->readUpdatableFragment(~node, ~fragmentRefs)").unwrap();
+    }
+
+    // Hook up updatable query reader
+    if is_updatable_query {
+        writeln!(str, "\n\nlet readUpdatableQuery = (store, variables) => store->readUpdatableQuery(~node, ~variables=Internal.convertVariables(variables))").unwrap();
     }
 
     str
