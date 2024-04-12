@@ -1287,9 +1287,18 @@ fn write_object_definition_body(
     is_refetch_var: bool,
     output_as_optional_fields: bool
 ) -> Result {
+    // This isn't toggleable yet, but a preparation for if we want to have a directive
+    // that makes an updatable fragment or operation safer, by making almost everything
+    // in it nullable.
+    let use_safe_updatable = false;
+
     let nullability = match (state.operation_meta_data.operation_directives.contains(&RescriptRelayOperationDirective::NullableVariables), context, state.operation_meta_data.is_updatable) {
         (true, &Context::Variables | &Context::RootObject(_), _) => NullabilityMode::Nullable,
-        (_, _, true) => NullabilityMode::Nullable,
+        (_, _, true) => if use_safe_updatable {
+            NullabilityMode::Nullable
+        } else {
+            NullabilityMode::NullAndUndefined
+        },
         _ => NullabilityMode::Option,
     };
     
@@ -1364,7 +1373,7 @@ fn write_object_definition_body(
                 ""
             },
             prop.key,
-            if state.operation_meta_data.is_updatable && can_apply_updatable_optionality {
+            if state.operation_meta_data.is_updatable && can_apply_updatable_optionality && use_safe_updatable {
                 if prop_that_always_exists {
                     ""
                 } else {
@@ -1374,8 +1383,8 @@ fn write_object_definition_body(
                 if output_as_optional_fields && prop.nullable {
                     "?"
                 } else {
-                    match (&nullability, prop.nullable) {
-                        (NullabilityMode::Nullable, true) => "?",
+                    match (&nullability, prop.nullable, state.operation_meta_data.is_updatable) {
+                        (NullabilityMode::Nullable, true, false) => "?",
                         _ => ""
                     }
                 }

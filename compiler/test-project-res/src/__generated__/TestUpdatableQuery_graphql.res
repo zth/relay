@@ -5,10 +5,10 @@ module Types = {
   @@warning("-30")
 
   type rec response_user = {
-    mutable firstName?: string,
+    mutable firstName: string,
   }
   type response = {
-    user?: Js.Null.t<response_user>,
+    user: Js.Nullable.t<response_user>,
   }
   @live
   type variables = {
