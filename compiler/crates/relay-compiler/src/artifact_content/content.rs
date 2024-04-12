@@ -1211,8 +1211,7 @@ pub fn generate_fragment_rescript(
         .named(*ASSIGNABLE_DIRECTIVE)
         .is_some();
     if is_assignable_fragment {
-        // TODO
-        // generate_assignable_fragment(config, project_config, schema, typegen_fragment, skip_types)
+        log::warn!("Assignable fragments are not yet supported in RescriptRelay.");
         Ok(vec![])
     } else {
         generate_read_only_fragment_rescript(
