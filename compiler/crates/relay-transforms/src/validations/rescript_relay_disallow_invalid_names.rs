@@ -60,6 +60,7 @@ impl<'program> RescriptRelayTransformDisallowInvalidNames<'program> {
                 "t".intern(),
                 "fragmentRef".intern(),
                 "fragmentRefs".intern(),
+                "updatableFragmentRefs".intern(),
                 "fragmentRefSelector".intern(),
                 "operationType".intern(),
             ],

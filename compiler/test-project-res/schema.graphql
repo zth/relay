@@ -88,7 +88,9 @@ type User implements Node {
     objTests: [SomeInput]
   ): UserConnection!
   memberOf: [Member]
+  memberOfSingular: Member
   datetimes: [Datetime]
+  bestFriend: User
 }
 
 type Group implements Node & HasName {
@@ -199,6 +201,7 @@ type Query {
   ): UserConnection
   searchPesticie(input: PesticideListSearchInput!): String
   customScalarArray(asArray: [Datetime!]!): String
+  user(id: ID!): User
 }
 
 type Mutation {

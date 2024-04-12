@@ -23,6 +23,7 @@ use relay_codegen::QueryID;
 use relay_transforms::is_operation_preloadable;
 use relay_transforms::RelayDataDrivenDependencyMetadata;
 use relay_transforms::ASSIGNABLE_DIRECTIVE;
+use relay_transforms::UPDATABLE_DIRECTIVE;
 use relay_typegen::generate_fragment_type_exports_section;
 use relay_typegen::generate_named_validator_export;
 use relay_typegen::generate_operation_type_exports_section;
@@ -1063,7 +1064,9 @@ pub fn generate_operation_rescript(
                 request_parameters,
                 &mut top_level_statements
             ),
-            provided_variables.is_some()
+            provided_variables.is_some(),
+            false,
+            false
         )
     )
     .unwrap();
@@ -1156,10 +1159,17 @@ pub fn generate_read_only_fragment_rescript(
         )
     )?;
 
+    let is_updatable_fragment = reader_fragment.directives.named(*UPDATABLE_DIRECTIVE).is_some();
+
     // Print the operation type
     writeln!(
         section,
-        "type relayOperationNode\ntype operationType = RescriptRelay.{}Node<relayOperationNode>\n\n",
+        "{}type operationType = RescriptRelay.{}Node<relayOperationNode>\n\n",
+        if is_updatable_fragment {
+            ""
+        } else {
+            "type relayOperationNode\n"
+        },
         "fragment"
     )
     .unwrap();
@@ -1172,6 +1182,8 @@ pub fn generate_read_only_fragment_rescript(
         "{}",
         super::rescript_relay_utils::rescript_make_operation_type_and_node_text(
             &printer.print_fragment(schema, reader_fragment, &mut import_statements),
+            false,
+            is_updatable_fragment,
             false
         )
     )
@@ -1199,8 +1211,7 @@ pub fn generate_fragment_rescript(
         .named(*ASSIGNABLE_DIRECTIVE)
         .is_some();
     if is_assignable_fragment {
-        // TODO
-        // generate_assignable_fragment(config, project_config, schema, typegen_fragment, skip_types)
+        log::warn!("Assignable fragments are not yet supported in RescriptRelay.");
         Ok(vec![])
     } else {
         generate_read_only_fragment_rescript(
@@ -1313,7 +1324,9 @@ pub fn generate_preloadable_query_parameters_rescript(
                 normalization_operation,
                 &mut Default::default(),
             ),
-            has_provided_variables
+            has_provided_variables,
+            false,
+            false
         )
     )
     .unwrap();
@@ -1322,6 +1335,88 @@ pub fn generate_preloadable_query_parameters_rescript(
 
     content_sections.push(ContentSection::Generic(section));
 
+
+    content_sections.into_bytes()
+}
+
+#[allow(clippy::too_many_arguments, dead_code)]
+pub fn generate_updatable_query_rescript(
+    _config: &Config,
+    project_config: &ProjectConfig,
+    printer: &mut Printer<'_>,
+    schema: &SDLSchema,
+    reader_operation: &OperationDefinition,
+    typegen_operation: &OperationDefinition,
+    _source_hash: String,
+    _skip_types: bool,
+    fragment_locations: &FragmentLocations,
+) -> Result<Vec<u8>, FmtError> {
+    let operation_fragment = FragmentDefinition {
+        name: reader_operation.name.map(|x| FragmentDefinitionName(x.0)),
+        variable_definitions: reader_operation.variable_definitions.clone(),
+        selections: reader_operation.selections.clone(),
+        used_global_variables: Default::default(),
+        directives: reader_operation.directives.clone(),
+        type_condition: reader_operation.type_,
+    };
+
+    let mut content_sections = ContentSections::default();
+
+    match super::rescript_relay_utils::rescript_get_source_loc_text(
+        &reader_operation.name.location.source_location(),
+    ) {
+        None => (),
+        Some(source_loc_str) => {
+            let mut section = GenericSection::default();
+            writeln!(section, "{}", source_loc_str).unwrap();
+            write!(
+                section,
+                "{}",
+                super::rescript_relay_utils::rescript_get_comments_for_generated()
+            )
+            .unwrap();
+            content_sections.push(ContentSection::Generic(section))
+        }
+    };
+
+    let mut section = GenericSection::default();
+
+    write!(
+        section,
+        "{}",
+        generate_operation_type_exports_section(
+            typegen_operation,
+            reader_operation,
+            schema,
+            project_config,
+            fragment_locations,
+            None, // TODO: Add/investigrate support for provided variables in updatable queries
+            None,
+        )
+    )?;
+
+    // Print the operation type
+    writeln!(
+        section,
+        "type operationType = RescriptRelay.queryNode<relayOperationNode>\n\n",        
+    )
+    .unwrap();
+
+    // Print node type
+    writeln!(
+        section,
+        "{}",
+        super::rescript_relay_utils::rescript_make_operation_type_and_node_text(
+            printer.print_updatable_query(schema, &operation_fragment).as_str(),
+            false,
+            false,
+            true
+        )
+    )
+    .unwrap();
+
+    content_sections.push(ContentSection::Generic(section));
+    // -- End Export Query Node Section --
 
     content_sections.into_bytes()
 }

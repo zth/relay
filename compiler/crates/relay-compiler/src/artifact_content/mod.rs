@@ -13,7 +13,6 @@ use std::sync::Arc;
 
 use common::SourceLocationKey;
 use content::generate_split_operation;
-use content::generate_updatable_query;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::OperationDefinition;
 use relay_codegen::Printer;
@@ -22,6 +21,7 @@ use relay_typegen::FragmentLocations;
 use schema::SDLSchema;
 
 use self::content::generate_preloadable_query_parameters_rescript;
+use self::content::generate_updatable_query_rescript;
 use crate::config::Config;
 use crate::config::ProjectConfig;
 
@@ -104,7 +104,7 @@ impl ArtifactContent {
                 reader_operation,
                 typegen_operation,
                 source_hash,
-            } => generate_updatable_query(
+            } => generate_updatable_query_rescript(
                 config,
                 project_config,
                 printer,
