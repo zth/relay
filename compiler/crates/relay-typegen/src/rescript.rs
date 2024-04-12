@@ -1289,7 +1289,7 @@ fn write_object_definition_body(
 ) -> Result {
     let nullability = match (state.operation_meta_data.operation_directives.contains(&RescriptRelayOperationDirective::NullableVariables), context, state.operation_meta_data.is_updatable) {
         (true, &Context::Variables | &Context::RootObject(_), _) => NullabilityMode::Nullable,
-        (_, _, true) => NullabilityMode::NullAndUndefined,
+        (_, _, true) => NullabilityMode::Nullable,
         _ => NullabilityMode::Option,
     };
     
@@ -1308,6 +1308,19 @@ fn write_object_definition_body(
 
         let mut field_path_name = object.at_path.clone();
         field_path_name.push(prop.key.to_owned());
+
+        let prop_that_always_exists = &*prop.key == "__typename" || &*prop.key == "__id" || &*prop.key == "fragmentRefs";
+
+        let write_as_mutable = match (state.operation_meta_data.is_updatable, &*prop.prop_type, prop_that_always_exists, &context) {
+            (_, _, true, _) | (_, _, _, &Context::Variables) => false,
+            (true, PropType::RawIdentifier(_) | PropType::Scalar(_)| PropType::StringLiteral(_) | PropType::Array(_) | PropType::Enum(_), _, _) => true,
+            _ => false
+        };
+
+        let can_apply_updatable_optionality = match &context {
+            Context::Fragment | Context::Response => true,
+            _ => false
+        };
 
         write_indentation(str, in_object_indentation).unwrap();
         writeln!(
@@ -1345,18 +1358,26 @@ fn write_object_definition_body(
                 None => String::from(""),
                 Some(original_key) => format!("@as(\"{}\") ", original_key),
             },
-            match (state.operation_meta_data.is_updatable, &*prop.prop_type, &*prop.key, &context) {
-                (_, _, "__typename" | "__id", _) | (_, _, _, &Context::Variables) => "",
-                (true, PropType::RawIdentifier(_) | PropType::Scalar(_)| PropType::StringLiteral(_) | PropType::Array(_) | PropType::Enum(_), _, _) => "mutable ",
-                _ => ""
+            if write_as_mutable {
+                "mutable "
+            } else {
+                ""
             },
             prop.key,
-            if output_as_optional_fields && prop.nullable {
-                "?"
+            if state.operation_meta_data.is_updatable && can_apply_updatable_optionality {
+                if prop_that_always_exists {
+                    ""
+                } else {
+                    "?"
+                }
             } else {
-                match (&nullability, prop.nullable, state.operation_meta_data.is_updatable) {
-                    (NullabilityMode::Nullable, true, false) => "?",
-                    _ => ""
+                if output_as_optional_fields && prop.nullable {
+                    "?"
+                } else {
+                    match (&nullability, prop.nullable) {
+                        (NullabilityMode::Nullable, true) => "?",
+                        _ => ""
+                    }
                 }
             },
             // This messy part decides how to print the actual value. We have quite a few variants 
