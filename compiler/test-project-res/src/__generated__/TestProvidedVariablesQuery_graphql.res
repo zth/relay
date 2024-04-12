@@ -81,8 +81,8 @@ module Utils = {
   @@warning("-33")
   open Types
 }
-type providedVariable<'t> = { providedVariable: unit => 't, get: unit => 't }
-type providedVariablesType = {
+@live type providedVariable<'t> = { providedVariable: unit => 't, get: unit => 't }
+@live type providedVariablesType = {
   __relay_internal__pv__TestProvidedVariablesBool: providedVariable<bool>,
   __relay_internal__pv__TestProvidedVariablesDatetime: providedVariable<option<SomeModule.Datetime.t>>,
   __relay_internal__pv__TestProvidedVariablesDatetimes: providedVariable<option<array<SomeModule.Datetime.t>>>,
@@ -93,7 +93,7 @@ type providedVariablesType = {
   __relay_internal__pv__TestProvidedVariablesSomeInput: providedVariable<RelaySchemaAssets_graphql.input_SomeInput>,
   __relay_internal__pv__TestProvidedVariablesStr: providedVariable<string>,
 }
-let providedVariablesDefinition: providedVariablesType = {
+@live let providedVariablesDefinition: providedVariablesType = {
   __relay_internal__pv__TestProvidedVariablesSomeInput: {
     providedVariable: TestProvidedVariables.SomeInput.get,
     get: () => Internal.convertVariables(Js.Dict.fromArray([("__relay_internal__pv__TestProvidedVariablesSomeInput", TestProvidedVariables.SomeInput.get())]))->Js.Dict.unsafeGet("__relay_internal__pv__TestProvidedVariablesSomeInput"),

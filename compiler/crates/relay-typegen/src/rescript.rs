@@ -2550,12 +2550,12 @@ impl Writer for ReScriptPrinter {
                     write_indentation(&mut generated_types, indentation).unwrap();
                     writeln!(
                         generated_types,
-                        "type providedVariable<'t> = {{ providedVariable: unit => 't, get: unit => 't }}"
+                        "@live type providedVariable<'t> = {{ providedVariable: unit => 't, get: unit => 't }}"
                     )
                     .unwrap();
 
                     write_indentation(&mut generated_types, indentation).unwrap();
-                    writeln!(generated_types, "type providedVariablesType = {{").unwrap();
+                    writeln!(generated_types, "@live type providedVariablesType = {{").unwrap();
                     indentation += 1;
 
                     provided_variables.iter().for_each(
@@ -2580,7 +2580,7 @@ impl Writer for ReScriptPrinter {
                     write_indentation(&mut generated_types, indentation).unwrap();
                     writeln!(
                         generated_types,
-                        "let providedVariablesDefinition: providedVariablesType = {{"
+                        "@live let providedVariablesDefinition: providedVariablesType = {{"
                     )
                     .unwrap();
                     indentation += 1;
