@@ -130,8 +130,8 @@ pub(crate) fn rescript_generate_extra_artifacts(
                 writeln!(
                     content, 
                     "| @as(\"{}\") {}({})", 
-                    field.name.0, 
-                    capitalize_string(&field.name.0.to_string()),
+                    field.name.item, 
+                    capitalize_string(&field.name.item.to_string()),
                     print_type_reference(
                         &field.type_,
                         &schema,
@@ -161,8 +161,8 @@ pub(crate) fn rescript_generate_extra_artifacts(
                 writeln!(
                     content, 
                     "| @as(\"{}\") {}({})", 
-                    field.name.0, 
-                    capitalize_string(&field.name.0.to_string()),
+                    field.name.item, 
+                    capitalize_string(&field.name.item.to_string()),
                     print_type_reference(
                         &field.type_,
                         &schema,
@@ -190,7 +190,7 @@ pub(crate) fn rescript_generate_extra_artifacts(
             .unwrap();
 
             input_obj.fields.iter().for_each(|field| {
-                let (key, maybe_original_key) = get_safe_key(&field.name.to_string());
+                let (key, maybe_original_key) = get_safe_key(&field.name.item.to_string());
 
                 writeln!(
                     content,
@@ -242,7 +242,7 @@ pub(crate) fn rescript_generate_extra_artifacts(
             .unwrap();
 
             input_obj.fields.iter().for_each(|field| {
-                let (key, maybe_original_key) = get_safe_key(&field.name.to_string());
+                let (key, maybe_original_key) = get_safe_key(&field.name.item.to_string());
 
                 let is_nullable = match &field.type_ {
                     TypeReference::NonNull(_) => false,

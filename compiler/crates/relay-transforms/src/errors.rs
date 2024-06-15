@@ -130,12 +130,23 @@ pub enum ValidationMessage {
     ClientEdgeToClientInterface,
 
     #[error(
+        "The client edge pointing to the interface `{interface_name}` with implementing object, `{type_name}`, is missing its corresponding model resolver. The concrete type `{type_name}` and its resolver fields should be defined with the newer dot notation resolver syntax. See https://relay.dev/docs/guides/relay-resolvers/."
+    )]
+    ClientEdgeToClientInterfaceImplementingObjectMissingModelResolver {
+        interface_name: InterfaceName,
+        type_name: ObjectName,
+    },
+
+    #[error(
         "Client Edges that reference client-defined union types are not currently supported in Relay."
     )]
     ClientEdgeToClientUnion,
 
     #[error("Invalid directive combination. @alias may not be combined with other directives.")]
     FragmentAliasIncompatibleDirective,
+
+    #[error("Unexpected directive @catch. @catch is not yet implemented.")]
+    CatchDirectiveNotImplemented,
 
     #[error("Unexpected directive @alias. @alias is not currently enabled in this location.")]
     FragmentAliasDirectiveDisabled,

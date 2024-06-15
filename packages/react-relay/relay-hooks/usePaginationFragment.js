@@ -22,7 +22,6 @@ import type {
   Variables,
 } from 'relay-runtime';
 
-const HooksImplementation = require('./HooksImplementation');
 const useLoadMoreFunction = require('./useLoadMoreFunction');
 const useRefetchableFragmentInternal = require('./useRefetchableFragmentInternal');
 const useRelayEnvironment = require('./useRelayEnvironment');
@@ -81,7 +80,7 @@ export type UsePaginationFragmentType = <
   parentFragmentRef: TKey,
 ) => ReturnType<TVariables, TData, TKey>;
 
-function usePaginationFragmentImpl<
+hook usePaginationFragment<
   TFragmentType: FragmentType,
   TVariables: Variables,
   TData,
@@ -145,6 +144,7 @@ function usePaginationFragmentImpl<
 
   if (__DEV__) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
+    // $FlowFixMe[react-rule-hook]
     useDebugValue({
       fragment: fragmentNode.name,
       data: fragmentData,
@@ -167,7 +167,7 @@ function usePaginationFragmentImpl<
   };
 }
 
-function useLoadMore<TVariables: Variables>(
+hook useLoadMore<TVariables: Variables>(
   args: $Diff<
     UseLoadMoreFunctionArgs,
     {
@@ -204,28 +204,6 @@ function useLoadMore<TVariables: Variables>(
     onReset: handleReset,
   });
   return [loadMore, hasMore, isLoadingMore, disposeFetch];
-}
-
-function usePaginationFragment<
-  TFragmentType: FragmentType,
-  TVariables: Variables,
-  TData,
-  TKey: ?{+$fragmentSpreads: TFragmentType, ...},
->(
-  fragmentInput: RefetchableFragment<TFragmentType, TData, TVariables>,
-  parentFragmentRef: TKey,
-): ReturnType<TVariables, TData, TKey> {
-  const impl = HooksImplementation.get();
-  if (impl) {
-    // $FlowExpectedError[incompatible-return] Flow cannot prove that two conditional type satisfy each other
-    return impl.usePaginationFragment<TFragmentType, TVariables, TData, TKey>(
-      fragmentInput,
-      parentFragmentRef,
-    );
-  } else {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    return usePaginationFragmentImpl(fragmentInput, parentFragmentRef);
-  }
 }
 
 module.exports = usePaginationFragment;

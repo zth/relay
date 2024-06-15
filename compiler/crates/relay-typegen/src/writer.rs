@@ -380,6 +380,7 @@ pub trait Writer: Write {
 
     fn write_export_fragment_type(&mut self, name: &str) -> FmtResult;
 
+    #[allow(dead_code)]
     fn write_export_fragment_types(
         &mut self,
         fragment_type_name_1: &str,
@@ -387,6 +388,27 @@ pub trait Writer: Write {
     ) -> FmtResult;
 
     fn write_any_type_definition(&mut self, name: &str) -> FmtResult;
+}
+
+pub(crate) fn new_writer_from_config(
+    config: &TypegenConfig,
+    typegen_opts: &TypegenContext<'_>,
+    typegen_definition: DefinitionType
+) -> Box<dyn Writer> {
+    match config.language {
+        TypegenLanguage::ReScript => Box::new(rescript::ReScriptPrinter::new(
+            rescript_utils::get_rescript_relay_meta_data(
+                &typegen_opts.schema,
+                &typegen_definition,
+                &config,
+            ),
+            typegen_definition,
+            typegen_opts.is_preloadable_thin_file,
+        )),
+        TypegenLanguage::JavaScript => Box::<JavaScriptPrinter>::default(),
+        TypegenLanguage::Flow => Box::new(FlowPrinter::new()),
+        TypegenLanguage::TypeScript => Box::new(TypeScriptPrinter::new(config)),
+    }
 }
 
 #[cfg(test)]
@@ -432,26 +454,5 @@ mod tests {
                 StringLiteral(*FUTURE_ENUM_VALUE),
             ]
         )
-    }
-}
-
-pub(crate) fn new_writer_from_config(
-    config: &TypegenConfig,
-    typegen_opts: &TypegenContext<'_>,
-    typegen_definition: DefinitionType,
-) -> Box<dyn Writer> {
-    match config.language {
-        TypegenLanguage::ReScript => Box::new(rescript::ReScriptPrinter::new(
-            rescript_utils::get_rescript_relay_meta_data(
-                &typegen_opts.schema,
-                &typegen_definition,
-                &config,
-            ),
-            typegen_definition,
-            typegen_opts.is_preloadable_thin_file,
-        )),
-        TypegenLanguage::JavaScript => Box::new(JavaScriptPrinter::default()),
-        TypegenLanguage::Flow => Box::new(FlowPrinter::new()),
-        TypegenLanguage::TypeScript => Box::new(TypeScriptPrinter::new(config)),
     }
 }

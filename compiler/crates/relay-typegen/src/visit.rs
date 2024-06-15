@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::collections::HashSet;
 use std::hash::Hash;
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -16,7 +17,10 @@ use ::intern::Lookup;
 use common::ArgumentName;
 use common::DirectiveName;
 use common::NamedItem;
+use docblock_shared::FRAGMENT_KEY_ARGUMENT_NAME;
 use docblock_shared::KEY_RESOLVER_ID_FIELD;
+use docblock_shared::RELAY_RESOLVER_DIRECTIVE_NAME;
+use docblock_shared::RELAY_RESOLVER_MODEL_INSTANCE_FIELD;
 use docblock_shared::RESOLVER_VALUE_SCALAR_NAME;
 use graphql_ir::Condition;
 use graphql_ir::Directive;
@@ -30,9 +34,11 @@ use graphql_ir::Selection;
 use indexmap::map::Entry;
 use indexmap::IndexMap;
 use indexmap::IndexSet;
+use itertools::Itertools;
 use relay_config::CustomScalarType;
 use relay_config::CustomScalarTypeImport;
 use relay_config::TypegenLanguage;
+use relay_schema::definitions::ResolverType;
 use relay_schema::CUSTOM_SCALAR_DIRECTIVE_NAME;
 use relay_schema::EXPORT_NAME_CUSTOM_SCALAR_ARGUMENT_NAME;
 use relay_schema::PATH_CUSTOM_SCALAR_ARGUMENT_NAME;
@@ -52,6 +58,7 @@ use relay_transforms::RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN;
 use relay_transforms::UPDATABLE_DIRECTIVE_FOR_TYPEGEN;
 use schema::EnumID;
 use schema::Field;
+use schema::ObjectID;
 use schema::SDLSchema;
 use schema::ScalarID;
 use schema::Schema;
@@ -154,11 +161,11 @@ pub(crate) fn visit_selections(
                 enclosing_linked_field_concrete_type,
             ),
             Selection::LinkedField(linked_field) => {
-                let linked_field_type = field_type(
-                    typegen_context.schema.field(linked_field.definition.item),
-                    typegen_context,
-                )
-                .inner();
+                let linked_field_type = typegen_context
+                    .schema
+                    .field(linked_field.definition.item)
+                    .type_
+                    .inner();
                 let nested_enclosing_linked_field_concrete_type =
                     if linked_field_type.is_abstract_type() {
                         None
@@ -328,37 +335,36 @@ fn generate_resolver_type(
     let inner_ast = match &resolver_metadata.output_type_info {
         ResolverOutputTypeInfo::ScalarField => {
             if is_relay_resolver_type(typegen_context, schema_field) {
-                AST::Mixed
+                match schema_field.type_.is_non_null() {
+                    true => AST::NonNullable(Box::new(AST::Mixed)),
+                    false => AST::Mixed,
+                }
             } else {
-                let type_ = &field_type(schema_field, typegen_context).inner();
+                let type_ = &schema_field.type_.inner();
                 expect_scalar_type(typegen_context, encountered_enums, custom_scalars, type_)
             }
         }
         ResolverOutputTypeInfo::Composite(normalization_info) => {
-            imported_raw_response_types.0.insert(
-                normalization_info.normalization_operation.item.0,
-                Some(normalization_info.normalization_operation.location),
-            );
-
             if let Some(field_id) = normalization_info.weak_object_instance_field {
-                let type_ =
-                    &field_type(typegen_context.schema.field(field_id), typegen_context).inner();
+                let type_ = &typegen_context.schema.field(field_id).type_.inner();
                 expect_scalar_type(typegen_context, encountered_enums, custom_scalars, type_)
             } else {
+                imported_raw_response_types.0.insert(
+                    normalization_info.normalization_operation.item.0,
+                    Some(normalization_info.normalization_operation.location),
+                );
                 AST::RawType(normalization_info.normalization_operation.item.0)
             }
         }
         ResolverOutputTypeInfo::EdgeTo => create_edge_to_return_type_ast(
-            &field_type(schema_field, typegen_context).inner(),
+            &schema_field.type_.inner(),
             typegen_context.schema,
             runtime_imports,
         ),
         ResolverOutputTypeInfo::Legacy => AST::Mixed,
     };
 
-    let ast = transform_type_reference_into_ast(&field_type(schema_field, typegen_context), |_| {
-        inner_ast
-    });
+    let ast = transform_type_reference_into_ast(&schema_field.type_, |_| inner_ast);
 
     let return_type = if matches!(
         typegen_context.project_config.typegen_config.language,
@@ -383,6 +389,56 @@ fn generate_resolver_type(
     })
 }
 
+fn add_fragment_name_to_encountered_fragments(
+    fragment_name: FragmentDefinitionName,
+    encountered_fragments: &mut EncounteredFragments,
+) {
+    encountered_fragments
+        .0
+        .insert(EncounteredFragment::Data(fragment_name));
+}
+
+fn get_fragment_data_type(fragment_name: StringKey) -> Box<AST> {
+    Box::new(AST::RawType(format!("{}$data", fragment_name).intern()))
+}
+
+fn add_model_argument_for_interface_resolver(
+    resolver_arguments: &mut Vec<KeyValuePairProp>,
+    encountered_fragments: &mut EncounteredFragments,
+    implementing_objects: HashSet<ObjectID>,
+    typegen_context: &TypegenContext<'_>,
+) {
+    let mut model_types_for_type_assertion = vec![];
+    for object_id in implementing_objects.iter().sorted() {
+        if !Type::Object(*object_id).is_terse_resolver_object(typegen_context.schema) {
+            continue;
+        }
+        let type_name = typegen_context.schema.object(*object_id).name.item.0;
+        let fragment_name = typegen_context
+            .project_config
+            .name
+            .generate_name_for_object_and_field(type_name, *RELAY_RESOLVER_MODEL_INSTANCE_FIELD)
+            .intern();
+        add_fragment_name_to_encountered_fragments(
+            FragmentDefinitionName(fragment_name),
+            encountered_fragments,
+        );
+        model_types_for_type_assertion.push(AST::PropertyType {
+            type_: get_fragment_data_type(fragment_name),
+            property_name: *RELAY_RESOLVER_MODEL_INSTANCE_FIELD,
+        });
+    }
+    if !model_types_for_type_assertion.is_empty() {
+        let interface_union_type = AST::Union(SortedASTList::new(model_types_for_type_assertion));
+        resolver_arguments.push(KeyValuePairProp {
+            key: "model".intern(),
+            optional: false,
+            read_only: false,
+            value: interface_union_type,
+        });
+    }
+}
+
 #[allow(clippy::too_many_arguments)]
 fn get_resolver_arguments(
     fragment_name: Option<FragmentDefinitionName>,
@@ -395,22 +451,42 @@ fn get_resolver_arguments(
     schema_field: &Field,
 ) -> Vec<KeyValuePairProp> {
     let mut resolver_arguments = vec![];
+    if let Some(Type::Interface(interface_id)) = schema_field.parent_type {
+        let interface = typegen_context.schema.interface(interface_id);
+        let implementing_objects =
+            interface.recursively_implementing_objects(typegen_context.schema);
+        let resolver_directive = schema_field
+            .directives
+            .named(*RELAY_RESOLVER_DIRECTIVE_NAME)
+            .unwrap();
+        // Add model argument if @rootFragment is not set on the resolver field
+        if !resolver_directive
+            .arguments
+            .iter()
+            .any(|arg| arg.name.0 == FRAGMENT_KEY_ARGUMENT_NAME.0)
+        {
+            add_model_argument_for_interface_resolver(
+                &mut resolver_arguments,
+                encountered_fragments,
+                implementing_objects,
+                typegen_context,
+            )
+        }
+    }
     if let Some(fragment_name) = fragment_name {
         if let Some((fragment_name, injection_mode)) =
             resolver_metadata.fragment_data_injection_mode
         {
             match injection_mode {
                 FragmentDataInjectionMode::Field { name, .. } => {
-                    encountered_fragments
-                        .0
-                        .insert(EncounteredFragment::Data(fragment_name.item));
-
+                    add_fragment_name_to_encountered_fragments(
+                        fragment_name.item,
+                        encountered_fragments,
+                    );
                     resolver_arguments.push(KeyValuePairProp {
                         key: name,
                         value: AST::PropertyType {
-                            type_: Box::new(AST::RawType(
-                                format!("{}$data", fragment_name.item).intern(),
-                            )),
+                            type_: get_fragment_data_type(fragment_name.item.0),
                             property_name: name,
                         },
                         read_only: false,
@@ -434,7 +510,7 @@ fn get_resolver_arguments(
     let mut args = vec![];
     for field_argument in schema_field.arguments.iter() {
         args.push(Prop::KeyValuePair(KeyValuePairProp {
-            key: field_argument.name.0,
+            key: field_argument.name.item.0,
             optional: false,
             read_only: false,
             value: transform_input_type(
@@ -548,12 +624,11 @@ fn relay_resolver_field_type(
         };
 
     if let Some(field) = maybe_scalar_field {
-        let type_ = field_type(field, typegen_context);
-        let inner_value = transform_type_reference_into_ast(&type_, |type_| {
+        let inner_value = transform_type_reference_into_ast(&field.type_, |type_| {
             expect_scalar_type(typegen_context, encountered_enums, custom_scalars, type_)
         });
         if required {
-            if type_.is_non_null() {
+            if field.type_.is_non_null() {
                 inner_value
             } else {
                 AST::NonNullable(Box::new(inner_value))
@@ -562,13 +637,15 @@ fn relay_resolver_field_type(
             inner_value
         }
     } else {
+        let field = resolver_metadata.field(typegen_context.schema);
+
         let inner_value = AST::ReturnTypeOfFunctionWithName(local_resolver_name);
         let inner_value = if live {
             AST::ReturnTypeOfMethodCall(Box::new(inner_value), intern!("read"))
         } else {
             inner_value
         };
-        if required {
+        if required || field.type_.is_non_null() {
             AST::NonNullable(Box::new(inner_value))
         } else {
             AST::Nullable(Box::new(inner_value))
@@ -974,10 +1051,7 @@ fn gen_visit_linked_field(
     };
     let selections = visit_selections_fn(&linked_field.selections);
 
-    let node_type = apply_required_directive_nullability(
-        &field_type(field, typegen_context),
-        &linked_field.directives,
-    );
+    let node_type = apply_required_directive_nullability(&field.type_, &linked_field.directives);
 
     type_selections.push(TypeSelection::LinkedField(TypeSelectionLinkedField {
         field_name_or_alias: key,
@@ -1003,10 +1077,7 @@ fn visit_scalar_field(
     } else {
         schema_name
     };
-    let field_type = apply_required_directive_nullability(
-        &field_type(field, typegen_context),
-        &scalar_field.directives,
-    );
+    let field_type = apply_required_directive_nullability(&field.type_, &scalar_field.directives);
     let special_field = ScalarFieldSpecialSchemaField::from_schema_name(
         schema_name,
         &typegen_context.project_config.schema_config,
@@ -1135,7 +1206,7 @@ fn selections_to_babel(
         if let Some(concrete_type) = selection.get_enclosing_concrete_type() {
             by_concrete_type
                 .entry(concrete_type)
-                .or_insert_with(Vec::new)
+                .or_default()
                 .push(selection);
         } else {
             let key = selection.get_string_key();
@@ -1265,6 +1336,7 @@ fn get_merged_object_with_optional_fields(
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 fn get_discriminated_union_ast(
     by_concrete_type: IndexMap<Type, Vec<TypeSelection>>,
     base_fields: &IndexMap<StringKey, TypeSelection>,
@@ -1383,7 +1455,7 @@ pub(crate) fn raw_response_selections_to_babel(
         } else if let Some(concrete_type) = enclosing_concrete_type {
             by_concrete_type
                 .entry(concrete_type)
-                .or_insert_with(Vec::new)
+                .or_default()
                 .push(selection);
         } else {
             base_fields.push(selection);
@@ -1815,10 +1887,12 @@ fn transform_graphql_scalar_type(
         let path = directive
             .arguments
             .named(ArgumentName(*PATH_CUSTOM_SCALAR_ARGUMENT_NAME))
-            .expect(&format!(
-                "Expected @{} directive to have a path argument",
-                *CUSTOM_SCALAR_DIRECTIVE_NAME
-            ))
+            .unwrap_or_else(|| {
+                panic!(
+                    "Expected @{} directive to have a path argument",
+                    *CUSTOM_SCALAR_DIRECTIVE_NAME
+                )
+            })
             .expect_string_literal();
 
         let import_path = typegen_context.project_config.js_module_import_identifier(
@@ -1831,10 +1905,12 @@ fn transform_graphql_scalar_type(
         let export_name = directive
             .arguments
             .named(ArgumentName(*EXPORT_NAME_CUSTOM_SCALAR_ARGUMENT_NAME))
-            .expect(&format!(
-                "Expected @{} directive to have an export_name argument",
-                *CUSTOM_SCALAR_DIRECTIVE_NAME
-            ))
+            .unwrap_or_else(|| {
+                panic!(
+                    "Expected @{} directive to have an export_name argument",
+                    *CUSTOM_SCALAR_DIRECTIVE_NAME
+                )
+            })
             .expect_string_literal();
         custom_scalars.insert((export_name, PathBuf::from(import_path.lookup())));
         return AST::RawType(export_name);
@@ -1946,11 +2022,11 @@ pub(crate) fn raw_response_visit_selections(
                 // raw response type is generally used to construct payloads for apis which do not
                 // allow the user to provide additional field level error data, we must ensure that
                 // only semantically valid values are allowed in the raw response type.
-                let linked_field_type = field_type(
-                    typegen_context.schema.field(linked_field.definition.item),
-                    typegen_context,
-                )
-                .inner();
+                let linked_field_type = typegen_context
+                    .schema
+                    .field(linked_field.definition.item)
+                    .type_
+                    .inner();
                 let nested_enclosing_linked_field_concrete_type =
                     if linked_field_type.is_abstract_type() {
                         None
@@ -2036,14 +2112,14 @@ fn transform_non_nullable_input_type(
                             .iter()
                             .map(|field| {
                                 Prop::KeyValuePair(KeyValuePairProp {
-                                    key: field.name.0,
+                                    key: field.name.item.0,
                                     read_only: false,
                                     optional: !field.type_.is_non_null()
                                         || typegen_context
                                             .project_config
                                             .typegen_config
                                             .optional_input_fields
-                                            .contains(&field.name.0)
+                                            .contains(&field.name.item.0)
                                         || field.default_value.is_some(),
                                     value: transform_input_type(
                                         typegen_context,
@@ -2228,7 +2304,7 @@ fn merge_selection_maps(
     should_set_conditional: bool,
 ) {
     for (key, value) in b {
-        let item = a.remove(&key);
+        let item = a.swap_remove(&key);
         a.insert(key, merge_selection(item, value, should_set_conditional));
     }
 }
@@ -2433,19 +2509,5 @@ fn return_ast_in_object_case(
         }
         Type::InputObject(_) => panic!("Unexpected input type"),
         Type::Interface(_) | Type::Object(_) | Type::Union(_) => ast_in_object_case,
-    }
-}
-
-/// Returns the type of the field, potentially wrapping the field or list items in a non-null type
-/// to reflect the semantic nullability of the field if that feature is enabled.
-fn field_type(field: &Field, typegen_options: &'_ TypegenContext<'_>) -> TypeReference<Type> {
-    if typegen_options
-        .project_config
-        .typegen_config
-        .experimental_emit_semantic_nullability_types
-    {
-        field.semantic_type()
-    } else {
-        field.type_.clone()
     }
 }

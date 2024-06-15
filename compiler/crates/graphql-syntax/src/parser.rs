@@ -22,7 +22,7 @@ use crate::syntax_error::SyntaxError;
 
 type ParseResult<T> = Result<T, ()>;
 
-#[derive(Default, PartialEq)]
+#[derive(Default, Clone, Copy, PartialEq)]
 pub enum FragmentArgumentSyntaxKind {
     #[default]
     None,
@@ -30,7 +30,7 @@ pub enum FragmentArgumentSyntaxKind {
     SpreadArgumentsAndFragmentVariableDefinitions,
 }
 
-#[derive(Default)]
+#[derive(Default, Clone, Copy)]
 pub struct ParserFeatures {
     /// Whether and how to enable the experimental fragment variables definitions syntax
     pub fragment_argument_capability: FragmentArgumentSyntaxKind,
@@ -209,6 +209,15 @@ impl<'a> Parser<'a> {
         }
     }
 
+    pub fn parse_type_system_definition(mut self) -> DiagnosticsResult<TypeSystemDefinition> {
+        let type_system_definition = self.parse_type_system_definition_impl();
+        if self.errors.is_empty() {
+            Ok(type_system_definition.unwrap())
+        } else {
+            Err(self.errors)
+        }
+    }
+
     fn parse_eof(mut self) -> DiagnosticsResult<()> {
         self.parse_kind(TokenKind::EndOfFile)
             .map(|_| ())
@@ -244,7 +253,7 @@ impl<'a> Parser<'a> {
         let start = self.index();
         let definitions = self.parse_list(
             |s| s.peek_type_system_definition(),
-            |s| s.parse_type_system_definition(),
+            |s| s.parse_type_system_definition_impl(),
         )?;
         let end = self.index();
         let span = Span::new(start, end);
@@ -283,7 +292,7 @@ impl<'a> Parser<'a> {
             | (TokenKind::Identifier, "input")
             | (TokenKind::Identifier, "directive")
             | (TokenKind::Identifier, "extend") => Ok(Definition::TypeSystemDefinition(
-                self.parse_type_system_definition()?,
+                self.parse_type_system_definition_impl()?,
             )),
             _ => {
                 let error = Diagnostic::error(
@@ -345,7 +354,7 @@ impl<'a> Parser<'a> {
     /// Definition :
     /// [] ExecutableDefinition
     /// [x]  TypeSystemDefinition
-    /// []  TypeSystemExtension
+    /// [x]  TypeSystemExtension
     fn peek_type_system_definition(&self) -> bool {
         let token = self.peek();
         match token.kind {
@@ -369,8 +378,8 @@ impl<'a> Parser<'a> {
     /// Definition :
     /// [] ExecutableDefinition
     /// [x]  TypeSystemDefinition
-    /// []  TypeSystemExtension
-    fn parse_type_system_definition(&mut self) -> ParseResult<TypeSystemDefinition> {
+    /// [x]  TypeSystemExtension
+    fn parse_type_system_definition_impl(&mut self) -> ParseResult<TypeSystemDefinition> {
         let description = self.parse_optional_description();
         let hack_source = self.parse_optional_hack_source();
         let token = self.peek();
@@ -429,7 +438,7 @@ impl<'a> Parser<'a> {
      *   - EnumTypeExtension
      *   - InputObjectTypeDefinition
      */
-    pub fn parse_type_system_extension(&mut self) -> ParseResult<TypeSystemDefinition> {
+    fn parse_type_system_extension(&mut self) -> ParseResult<TypeSystemDefinition> {
         self.parse_keyword("extend")?;
         let token = self.parse_kind(TokenKind::Identifier)?;
         match self.source(&token) {
@@ -469,6 +478,7 @@ impl<'a> Parser<'a> {
      * SchemaDefinition : schema Directives? { OperationTypeDefinition+ }
      */
     fn parse_schema_definition(&mut self) -> ParseResult<SchemaDefinition> {
+        let start = self.index();
         self.parse_keyword("schema")?;
         let directives = self.parse_constant_directives()?;
         let operation_types = self.parse_delimited_nonempty_list(
@@ -476,9 +486,12 @@ impl<'a> Parser<'a> {
             TokenKind::CloseBrace,
             Self::parse_operation_type_definition,
         )?;
+        let end = self.index();
+        let span = Span::new(start, end);
         Ok(SchemaDefinition {
             directives,
             operation_types,
+            span,
         })
     }
 
@@ -489,15 +502,19 @@ impl<'a> Parser<'a> {
      */
     fn parse_schema_extension(&mut self) -> ParseResult<SchemaExtension> {
         // `extend schema` was already parsed
+        let start = self.index();
         let directives = self.parse_constant_directives()?;
         let operation_types = self.parse_optional_delimited_nonempty_list(
             TokenKind::OpenBrace,
             TokenKind::CloseBrace,
             Self::parse_operation_type_definition,
         )?;
+        let end = self.index();
+        let span = Span::new(start, end);
         Ok(SchemaExtension {
             directives,
             operation_types,
+            span,
         })
     }
 
@@ -505,10 +522,17 @@ impl<'a> Parser<'a> {
      * OperationTypeDefinition : OperationType : NamedType
      */
     fn parse_operation_type_definition(&mut self) -> ParseResult<OperationTypeDefinition> {
+        let start = self.index();
         let operation = self.parse_operation_type()?;
         self.parse_kind(TokenKind::Colon)?;
         let type_ = self.parse_identifier()?;
-        Ok(OperationTypeDefinition { operation, type_ })
+        let end = self.index();
+        let span = Span::new(start, end);
+        Ok(OperationTypeDefinition {
+            operation,
+            type_,
+            span,
+        })
     }
 
     /**
@@ -535,30 +559,38 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_object_type_definition(&mut self) -> ParseResult<ObjectTypeDefinition> {
+        let start = self.index();
         self.parse_keyword("type")?;
         let name = self.parse_identifier()?;
         let interfaces = self.parse_implements_interfaces()?;
         let directives = self.parse_constant_directives()?;
         let fields = self.parse_fields_definition()?;
+        let end = self.index();
+        let span = Span::new(start, end);
         Ok(ObjectTypeDefinition {
             name,
             interfaces,
             directives,
             fields,
+            span,
         })
     }
 
     fn parse_interface_type_definition(&mut self) -> ParseResult<InterfaceTypeDefinition> {
+        let start = self.index();
         self.parse_keyword("interface")?;
         let name = self.parse_identifier()?;
         let interfaces = self.parse_implements_interfaces()?;
         let directives = self.parse_constant_directives()?;
         let fields = self.parse_fields_definition()?;
+        let end = self.index();
+        let span = Span::new(start, end);
         Ok(InterfaceTypeDefinition {
             name,
             interfaces,
             directives,
             fields,
+            span,
         })
     }
 
@@ -567,14 +599,18 @@ impl<'a> Parser<'a> {
      *   - Description? union Name Directives? UnionMemberTypes?
      */
     fn parse_union_type_definition(&mut self) -> ParseResult<UnionTypeDefinition> {
+        let start = self.index();
         self.parse_keyword("union")?;
         let name = self.parse_identifier()?;
         let directives = self.parse_constant_directives()?;
         let members = self.parse_union_member_types()?;
+        let end = self.index();
+        let span = Span::new(start, end);
         Ok(UnionTypeDefinition {
             name,
             directives,
             members,
+            span,
         })
     }
 
@@ -585,13 +621,17 @@ impl<'a> Parser<'a> {
      */
     fn parse_union_type_extension(&mut self) -> ParseResult<UnionTypeExtension> {
         // `extend union` was parsed before
+        let start = self.index();
         let name = self.parse_identifier()?;
         let directives = self.parse_constant_directives()?;
         let members = self.parse_union_member_types()?;
+        let end = self.index();
+        let span = Span::new(start, end);
         Ok(UnionTypeExtension {
             name,
             directives,
             members,
+            span,
         })
     }
 
@@ -617,14 +657,18 @@ impl<'a> Parser<'a> {
      *   - Description? enum Name Directives? EnumValuesDefinition?
      */
     fn parse_enum_type_definition(&mut self) -> ParseResult<EnumTypeDefinition> {
+        let start = self.index();
         self.parse_keyword("enum")?;
         let name = self.parse_identifier()?;
         let directives = self.parse_constant_directives()?;
         let values = self.parse_enum_values_definition()?;
+        let end = self.index();
+        let span = Span::new(start, end);
         Ok(EnumTypeDefinition {
             name,
             directives,
             values,
+            span,
         })
     }
 
@@ -635,13 +679,17 @@ impl<'a> Parser<'a> {
      */
     fn parse_enum_type_extension(&mut self) -> ParseResult<EnumTypeExtension> {
         // `extend enum` was already parsed
+        let start = self.index();
         let name = self.parse_identifier()?;
         let directives = self.parse_constant_directives()?;
         let values = self.parse_enum_values_definition()?;
+        let end = self.index();
+        let span = Span::new(start, end);
         Ok(EnumTypeExtension {
             name,
             directives,
             values,
+            span,
         })
     }
 
@@ -662,10 +710,17 @@ impl<'a> Parser<'a> {
      * EnumValue : Name
      */
     fn parse_enum_value_definition(&mut self) -> ParseResult<EnumValueDefinition> {
+        let start = self.index();
         self.parse_optional_description();
         let name = self.parse_identifier()?;
         let directives = self.parse_constant_directives()?;
-        Ok(EnumValueDefinition { name, directives })
+        let end = self.index();
+        let span = Span::new(start, end);
+        Ok(EnumValueDefinition {
+            name,
+            directives,
+            span,
+        })
     }
 
     /**
@@ -676,6 +731,7 @@ impl<'a> Parser<'a> {
      */
     fn parse_object_type_extension(&mut self) -> ParseResult<ObjectTypeExtension> {
         // `extend type` was parsed before
+        let start = self.index();
         let name = self.parse_identifier()?;
         let interfaces = self.parse_implements_interfaces()?;
         let directives = self.parse_constant_directives()?;
@@ -687,11 +743,14 @@ impl<'a> Parser<'a> {
             ));
             return Err(());
         }
+        let end = self.index();
+        let span = Span::new(start, end);
         Ok(ObjectTypeExtension {
             name,
             interfaces,
             directives,
             fields,
+            span,
         })
     }
 
@@ -703,6 +762,7 @@ impl<'a> Parser<'a> {
      */
     fn parse_interface_type_extension(&mut self) -> ParseResult<InterfaceTypeExtension> {
         // `extend interface` was parsed before
+        let start = self.index();
         let name = self.parse_identifier()?;
         let interfaces = self.parse_implements_interfaces()?;
         let directives = self.parse_constant_directives()?;
@@ -714,11 +774,14 @@ impl<'a> Parser<'a> {
             ));
             return Err(());
         }
+        let end = self.index();
+        let span = Span::new(start, end);
         Ok(InterfaceTypeExtension {
             name,
             interfaces,
             directives,
             fields,
+            span,
         })
     }
 
@@ -726,10 +789,17 @@ impl<'a> Parser<'a> {
      * ScalarTypeDefinition : Description? scalar Name Directives?
      */
     fn parse_scalar_type_definition(&mut self) -> ParseResult<ScalarTypeDefinition> {
+        let start = self.index();
         self.parse_keyword("scalar")?;
         let name = self.parse_identifier()?;
         let directives = self.parse_constant_directives()?;
-        Ok(ScalarTypeDefinition { name, directives })
+        let end = self.index();
+        let span = Span::new(start, end);
+        Ok(ScalarTypeDefinition {
+            name,
+            directives,
+            span,
+        })
     }
 
     /**
@@ -738,9 +808,16 @@ impl<'a> Parser<'a> {
      */
     fn parse_scalar_type_extension(&mut self) -> ParseResult<ScalarTypeExtension> {
         // `extend scalar` was parsed before
+        let start = self.index();
         let name = self.parse_identifier()?;
         let directives = self.parse_constant_directives()?;
-        Ok(ScalarTypeExtension { name, directives })
+        let end = self.index();
+        let span = Span::new(start, end);
+        Ok(ScalarTypeExtension {
+            name,
+            directives,
+            span,
+        })
     }
 
     /**
@@ -748,14 +825,18 @@ impl<'a> Parser<'a> {
      *   - Description? input Name Directives? InputFieldsDefinition?
      */
     fn parse_input_object_type_definition(&mut self) -> ParseResult<InputObjectTypeDefinition> {
+        let start = self.index();
         self.parse_keyword("input")?;
         let name = self.parse_identifier()?;
         let directives = self.parse_constant_directives()?;
         let fields = self.parse_input_fields_definition()?;
+        let end = self.index();
+        let span = Span::new(start, end);
         Ok(InputObjectTypeDefinition {
             name,
             directives,
             fields,
+            span,
         })
     }
 
@@ -766,13 +847,17 @@ impl<'a> Parser<'a> {
      */
     fn parse_input_object_type_extension(&mut self) -> ParseResult<InputObjectTypeExtension> {
         // `extend input` was parsed already here
+        let start = self.index();
         let name = self.parse_identifier()?;
         let directives = self.parse_constant_directives()?;
         let fields = self.parse_input_fields_definition()?;
+        let end = self.index();
+        let span = Span::new(start, end);
         Ok(InputObjectTypeExtension {
             name,
             directives,
             fields,
+            span,
         })
     }
 
@@ -796,6 +881,7 @@ impl<'a> Parser<'a> {
         description: Option<StringNode>,
         hack_source: Option<StringNode>,
     ) -> ParseResult<DirectiveDefinition> {
+        let start = self.index();
         self.parse_keyword("directive")?;
         self.parse_kind(TokenKind::At)?;
         let name = self.parse_identifier()?;
@@ -807,6 +893,8 @@ impl<'a> Parser<'a> {
         }
         self.parse_keyword("on")?;
         let locations = self.parse_directive_locations()?;
+        let end = self.index();
+        let span = Span::new(start, end);
         Ok(DirectiveDefinition {
             name,
             arguments,
@@ -814,6 +902,7 @@ impl<'a> Parser<'a> {
             locations,
             description,
             hack_source,
+            span,
         })
     }
 
@@ -950,6 +1039,7 @@ impl<'a> Parser<'a> {
      *   - Description? Name ArgumentsDefinition? : Type Directives?
      */
     fn parse_field_definition_impl(&mut self) -> ParseResult<FieldDefinition> {
+        let start = self.index();
         let description = self.parse_optional_description();
         let hack_source = self.parse_optional_hack_source();
         let name = self.parse_identifier()?;
@@ -957,6 +1047,8 @@ impl<'a> Parser<'a> {
         self.parse_kind(TokenKind::Colon)?;
         let type_ = self.parse_type_annotation()?;
         let directives = self.parse_constant_directives()?;
+        let end = self.index();
+        let span = Span::new(start, end);
         Ok(FieldDefinition {
             name,
             type_,
@@ -964,6 +1056,7 @@ impl<'a> Parser<'a> {
             directives,
             description,
             hack_source,
+            span,
         })
     }
 
@@ -989,21 +1082,25 @@ impl<'a> Parser<'a> {
      *   - Description? Name : Type DefaultValue? Directives?
      */
     fn parse_input_value_def(&mut self) -> ParseResult<InputValueDefinition> {
+        let start = self.index();
         self.parse_optional_description();
         let name = self.parse_identifier()?;
         self.parse_kind(TokenKind::Colon)?;
         let type_ = self.parse_type_annotation()?;
-        let default_value = if self.parse_optional_kind(TokenKind::Equals).is_some() {
-            Some(self.parse_constant_value()?)
+        let default_value = if self.peek_token_kind() == TokenKind::Equals {
+            Some(self.parse_default_value()?)
         } else {
             None
         };
         let directives = self.parse_constant_directives()?;
+        let end = self.index();
+        let span = Span::new(start, end);
         Ok(InputValueDefinition {
             name,
             type_,
             default_value,
             directives,
+            span,
         })
     }
 
@@ -1445,7 +1542,7 @@ impl<'a> Parser<'a> {
                             ));
                             let name = Identifier {
                                 span: node.token.span,
-                                token: node.token.clone(),
+                                token: node.token,
                                 value: node.value,
                             };
                             last_arg.span.end = last_arg.colon.span.end;
@@ -1958,7 +2055,7 @@ impl<'a> Parser<'a> {
             let token = self.empty_token();
             return Ok(List {
                 span: token.span,
-                start: token.clone(),
+                start: token,
                 items: vec![],
                 end: token,
             });

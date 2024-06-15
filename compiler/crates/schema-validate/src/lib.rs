@@ -55,8 +55,12 @@ lazy_static! {
     static ref TYPE_NAME_REGEX: Regex = Regex::new(r"^[_a-zA-Z][_a-zA-Z0-9]*$").unwrap();
 }
 
-pub fn validate(schema: &SDLSchema) -> ValidationContext<'_> {
-    let mut validation_context = ValidationContext::new(schema);
+pub struct SchemaValidationOptions {
+    pub allow_introspection_names: bool,
+}
+
+pub fn validate(schema: &SDLSchema, options: SchemaValidationOptions) -> ValidationContext<'_> {
+    let mut validation_context = ValidationContext::new(schema, options);
     validation_context.validate();
     validation_context
 }
@@ -80,13 +84,15 @@ impl ValidationContextType {
 
 pub struct ValidationContext<'schema> {
     pub schema: &'schema SDLSchema,
+    pub options: SchemaValidationOptions,
     pub errors: FnvHashMap<ValidationContextType, Vec<SchemaValidationError>>,
 }
 
 impl<'schema> ValidationContext<'schema> {
-    pub fn new(schema: &'schema SDLSchema) -> Self {
+    pub fn new(schema: &'schema SDLSchema, options: SchemaValidationOptions) -> Self {
         Self {
             schema,
+            options,
             errors: FnvHashMap::default(),
         }
     }
@@ -121,21 +127,24 @@ impl<'schema> ValidationContext<'schema> {
 
     fn validate_directives(&mut self) {
         for directive in self.schema.get_directives() {
-            let context = ValidationContextType::DirectiveNode(directive.name.0);
-            self.validate_name(directive.name.0, context);
+            let context = ValidationContextType::DirectiveNode(directive.name.item.0);
+            self.validate_name(directive.name.item.0, context);
             let mut arg_names = FnvHashSet::default();
             for argument in directive.arguments.iter() {
-                self.validate_name(argument.name.0, context);
+                self.validate_name(argument.name.item.0, context);
 
                 // Ensure unique arguments per directive.
-                if arg_names.contains(&argument.name) {
+                if arg_names.contains(&argument.name.item) {
                     self.report_error(
-                        SchemaValidationError::DuplicateArgument(argument.name, directive.name.0),
+                        SchemaValidationError::DuplicateArgument(
+                            argument.name.item,
+                            directive.name.item.0,
+                        ),
                         context,
                     );
                     continue;
                 }
-                arg_names.insert(argument.name);
+                arg_names.insert(argument.name.item);
             }
         }
     }
@@ -221,18 +230,21 @@ impl<'schema> ValidationContext<'schema> {
             let mut arg_names = FnvHashSet::default();
             for argument in field.arguments.iter() {
                 // Ensure they are named correctly.
-                self.validate_name(argument.name.0, context);
+                self.validate_name(argument.name.item.0, context);
 
                 // Ensure they are unique per field.
                 // Ensure unique arguments per directive.
-                if arg_names.contains(&argument.name) {
+                if arg_names.contains(&argument.name.item) {
                     self.report_error(
-                        SchemaValidationError::DuplicateArgument(argument.name, field.name.item),
+                        SchemaValidationError::DuplicateArgument(
+                            argument.name.item,
+                            field.name.item,
+                        ),
                         context,
                     );
                     continue;
                 }
-                arg_names.insert(argument.name);
+                arg_names.insert(argument.name.item);
 
                 // Ensure the type is an input type
                 if !is_input_type(&argument.type_) {
@@ -240,7 +252,7 @@ impl<'schema> ValidationContext<'schema> {
                         SchemaValidationError::InvalidArgumentType(
                             type_name,
                             field.name.item,
-                            argument.name,
+                            argument.name.item,
                             argument.type_.clone(),
                         ),
                         context,
@@ -301,15 +313,15 @@ impl<'schema> ValidationContext<'schema> {
         // Ensure the arguments are valid
         for field in input_object.fields.iter() {
             // Ensure they are named correctly.
-            self.validate_name(field.name.0, context);
+            self.validate_name(field.name.item.0, context);
 
             // Ensure the type is an input type
             if !is_input_type(&field.type_) {
                 self.report_error(
                     SchemaValidationError::InvalidArgumentType(
                         input_object.name.item.0,
-                        field.name.0,
-                        field.name,
+                        field.name.item.0,
+                        field.name.item,
                         field.type_.clone(),
                     ),
                     context,
@@ -387,7 +399,7 @@ impl<'schema> ValidationContext<'schema> {
                 let object_argument = object_field
                     .arguments
                     .iter()
-                    .find(|arg| arg.name == interface_argument.name);
+                    .find(|arg| arg.name.item == interface_argument.name.item);
 
                 // Assert interface field arg exists on object field.
                 if object_argument.is_none() {
@@ -395,7 +407,7 @@ impl<'schema> ValidationContext<'schema> {
                         SchemaValidationError::InterfaceFieldArgumentNotProvided(
                             interface.name.item,
                             field_name,
-                            interface_argument.name,
+                            interface_argument.name.item,
                             typename,
                         ),
                         context,
@@ -412,7 +424,7 @@ impl<'schema> ValidationContext<'schema> {
                         SchemaValidationError::NotEqualType(
                             interface.name.item,
                             field_name,
-                            interface_argument.name,
+                            interface_argument.name.item,
                             self.schema.get_type_name(interface_argument.type_.inner()),
                             typename,
                             self.schema.get_type_name(object_argument.type_.inner()),
@@ -425,14 +437,16 @@ impl<'schema> ValidationContext<'schema> {
 
             // Assert additional arguments must not be required.
             for object_argument in object_field.arguments.iter() {
-                if !interface_field.arguments.contains(object_argument.name.0)
+                if !interface_field
+                    .arguments
+                    .contains(object_argument.name.item.0)
                     && object_argument.type_.is_non_null()
                 {
                     self.report_error(
                         SchemaValidationError::MissingRequiredArgument(
                             typename,
                             field_name,
-                            object_argument.name,
+                            object_argument.name.item,
                             interface.name.item,
                         ),
                         context,
@@ -497,13 +511,17 @@ impl<'schema> ValidationContext<'schema> {
 
     fn validate_name(&mut self, name: StringKey, context: ValidationContextType) {
         let name = name.lookup();
-        let mut chars = name.chars();
-        if name.len() > 1 && chars.next() == Some('_') && chars.next() == Some('_') {
-            self.report_error(
-                SchemaValidationError::InvalidNamePrefix(name.to_string()),
-                context,
-            );
+
+        if !self.options.allow_introspection_names {
+            let mut chars = name.chars();
+            if name.len() > 1 && chars.next() == Some('_') && chars.next() == Some('_') {
+                self.report_error(
+                    SchemaValidationError::InvalidNamePrefix(name.to_string()),
+                    context,
+                );
+            }
         }
+
         if !TYPE_NAME_REGEX.is_match(name) {
             self.report_error(
                 SchemaValidationError::InvalidName(name.to_string()),

@@ -11,6 +11,7 @@
 #![deny(rust_2018_idioms)]
 #![deny(clippy::all)]
 
+pub mod definitions;
 use std::iter::once;
 
 use ::intern::string_key::StringKey;
@@ -35,7 +36,10 @@ lazy_static! {
     pub static ref EXPORT_NAME_CUSTOM_SCALAR_ARGUMENT_NAME: StringKey = intern!("export_name");
 }
 
-pub fn build_schema_with_extensions<T: AsRef<str>, U: AsRef<str>>(
+pub fn build_schema_with_extensions<
+    T: AsRef<str> + std::marker::Sync,
+    U: AsRef<str> + std::marker::Sync,
+>(
     server_sdls: &[(T, SourceLocationKey)],
     extension_sdls: &[(U, SourceLocationKey)],
 ) -> DiagnosticsResult<SDLSchema> {
@@ -56,7 +60,7 @@ pub fn build_schema_with_extensions<T: AsRef<str>, U: AsRef<str>>(
         if let Some(directive) = schema.get_directive_mut(*directive_name) {
             let mut next_args: Vec<_> = directive.arguments.iter().cloned().collect();
             for arg in next_args.iter_mut() {
-                if arg.name == *LABEL {
+                if arg.name.item == *LABEL {
                     if let TypeReference::NonNull(of) = &arg.type_ {
                         arg.type_ = *of.clone()
                     };

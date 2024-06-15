@@ -171,6 +171,7 @@ export type ResolverReference = {
 };
 
 export type ResolverInfo = {
+  +isNullable: boolean,
   +resolverFunction: ResolverFunction,
   +rootFragment?: ?NormalizationSplitOperation,
 };
@@ -183,9 +184,9 @@ type ResolverData =
 export type NormalizationResolverField = {
   +kind: 'RelayResolver',
   +name: string,
-  +args: ?$ReadOnlyArray<NormalizationArgument>,
+  +args?: ?$ReadOnlyArray<NormalizationArgument>,
   +fragment?: ?NormalizationInlineFragment,
-  +storageKey: ?string,
+  +storageKey?: ?string,
   +isOutputType: boolean,
   ...ResolverData,
 };
@@ -193,9 +194,9 @@ export type NormalizationResolverField = {
 export type NormalizationLiveResolverField = {
   +kind: 'RelayLiveResolver',
   +name: string,
-  +args: ?$ReadOnlyArray<NormalizationArgument>,
+  +args?: ?$ReadOnlyArray<NormalizationArgument>,
   +fragment?: ?NormalizationInlineFragment,
-  +storageKey: ?string,
+  +storageKey?: ?string,
   +isOutputType: boolean,
   ...ResolverData,
 };
@@ -236,7 +237,7 @@ export type NormalizationSplitOperation = {
   +argumentDefinitions?: $ReadOnlyArray<NormalizationLocalArgumentDefinition>,
   +kind: 'SplitOperation',
   +name: string,
-  +metadata: ?{+[key: string]: mixed, ...},
+  +metadata?: ?{+[key: string]: mixed, ...},
   +selections: $ReadOnlyArray<NormalizationSelection>,
 };
 
