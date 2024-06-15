@@ -13,7 +13,7 @@
 
 import type {ActorIdentifier} from '../multi-actor-environment/ActorIdentifier';
 import type {DataID} from '../util/RelayRuntimeTypes';
-import type {RelayFieldError} from './RelayErrorTrie';
+import type {TRelayFieldError} from './RelayErrorTrie';
 
 const deepFreeze = require('../util/deepFreeze');
 const {generateClientObjectClientID, isClientID} = require('./ClientID');
@@ -37,7 +37,7 @@ const warning = require('warning');
 
 type StorageKey = Exclude<string, typeof ERRORS_KEY>;
 
-type RelayFieldErrors = {[StorageKey]: $ReadOnlyArray<RelayFieldError>};
+type RelayFieldErrors = {[StorageKey]: $ReadOnlyArray<TRelayFieldError>};
 
 export type RecordJSON = {
   /**
@@ -191,7 +191,7 @@ function getType(record: Record): string {
 function getErrors(
   record: Record,
   storageKey: StorageKey,
-): $ReadOnlyArray<RelayFieldError> | void {
+): $ReadOnlyArray<TRelayFieldError> | void {
   return record[ERRORS_KEY]?.[storageKey];
 }
 
@@ -259,6 +259,20 @@ function getLinkedRecordID(record: Record, storageKey: StorageKey): ?DataID {
 /**
  * @public
  *
+ * Checks if a field has a reference to another record.
+ */
+function hasLinkedRecordID(record: Record, storageKey: StorageKey): boolean {
+  const maybeLink = record[storageKey];
+  if (maybeLink == null) {
+    return false;
+  }
+  const link = maybeLink;
+  return typeof link === 'object' && link && typeof link[REF_KEY] === 'string';
+}
+
+/**
+ * @public
+ *
  * Get the value of a field as a list of references to other records. Throws if
  * the field has a different type.
  */
@@ -284,6 +298,23 @@ function getLinkedRecordIDs(
   );
   // assume items of the array are ids
   return (links[REFS_KEY]: any);
+}
+
+/**
+ * @public
+ *
+ * Checks if a field have references to other records.
+ */
+function hasLinkedRecordIDs(record: Record, storageKey: StorageKey): boolean {
+  const links = record[storageKey];
+  if (links == null) {
+    return false;
+  }
+  return (
+    typeof links === 'object' &&
+    Array.isArray(links[REFS_KEY]) &&
+    links[REFS_KEY].every(link => typeof link === 'string')
+  );
 }
 
 /**
@@ -457,7 +488,7 @@ function freeze(record: Record): void {
 function setErrors(
   record: Record,
   storageKey: StorageKey,
-  errors?: $ReadOnlyArray<RelayFieldError>,
+  errors?: $ReadOnlyArray<TRelayFieldError>,
 ): void {
   if (__DEV__) {
     warning(
@@ -677,6 +708,8 @@ module.exports = {
   getType,
   getValue,
   hasValue,
+  hasLinkedRecordID,
+  hasLinkedRecordIDs,
   merge,
   setErrors,
   setValue,

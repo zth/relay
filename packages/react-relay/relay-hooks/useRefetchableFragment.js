@@ -11,7 +11,7 @@
 
 'use strict';
 
-import type {Options} from './useRefetchableFragmentNode';
+import type {Options} from './useRefetchableFragmentInternal';
 import type {
   Disposable,
   FragmentType,
@@ -20,7 +20,7 @@ import type {
 } from 'relay-runtime';
 
 const HooksImplementation = require('./HooksImplementation');
-const useRefetchableFragmentNode = require('./useRefetchableFragmentNode');
+const useRefetchableFragmentInternal = require('./useRefetchableFragmentInternal');
 const useStaticFragmentNodeWarning = require('./useStaticFragmentNodeWarning');
 const {useDebugValue} = require('react');
 const {getFragment} = require('relay-runtime');
@@ -65,7 +65,7 @@ export type UseRefetchableFragmentType = <
   key: TKey,
 ) => ReturnType<TVariables, TData, TKey>;
 
-function useRefetchableFragment_LEGACY<
+function useRefetchableFragmentImpl<
   TFragmentType: FragmentType,
   TVariables: Variables,
   TData,
@@ -79,24 +79,16 @@ function useRefetchableFragment_LEGACY<
     fragmentNode,
     'first argument of useRefetchableFragment()',
   );
-  const {fragmentData, refetch} = useRefetchableFragmentNode<
-    {
-      response: TData,
-      variables: TVariables,
-    },
-    {
-      +$data: mixed,
-      ...
-    },
+  const {fragmentData, refetch} = useRefetchableFragmentInternal<
+    {variables: TVariables, response: TData},
+    {data?: TData},
   >(fragmentNode, fragmentRef, 'useRefetchableFragment()');
   if (__DEV__) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useDebugValue({fragment: fragmentNode.name, data: fragmentData});
   }
-
   // $FlowFixMe[incompatible-return]
   // $FlowFixMe[prop-missing]
-  // $FlowFixMe[incompatible-variance]
   return [fragmentData, refetch];
 }
 
@@ -118,7 +110,7 @@ function useRefetchableFragment<
     );
   } else {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    return useRefetchableFragment_LEGACY(fragmentInput, parentFragmentRef);
+    return useRefetchableFragmentImpl(fragmentInput, parentFragmentRef);
   }
 }
 

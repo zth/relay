@@ -12,9 +12,9 @@
 'use strict';
 
 import type {LoadMoreFn, UseLoadMoreFunctionArgs} from './useLoadMoreFunction';
-import type {RefetchFn} from './useRefetchableFragment';
-import type {Options} from './useRefetchableFragmentNode';
+import type {Options} from './useRefetchableFragmentInternal';
 import type {
+  Disposable,
   FragmentType,
   GraphQLResponse,
   Observer,
@@ -24,7 +24,8 @@ import type {
 
 const HooksImplementation = require('./HooksImplementation');
 const useLoadMoreFunction = require('./useLoadMoreFunction');
-const useRefetchableFragmentNode = require('./useRefetchableFragmentNode');
+const useRefetchableFragmentInternal = require('./useRefetchableFragmentInternal');
+const useRelayEnvironment = require('./useRelayEnvironment');
 const useStaticFragmentNodeWarning = require('./useStaticFragmentNodeWarning');
 const {useCallback, useDebugValue, useState} = require('react');
 const {
@@ -32,6 +33,40 @@ const {
   getFragmentIdentifier,
   getPaginationMetadata,
 } = require('relay-runtime');
+
+type RefetchVariables<TVariables, TKey: ?{+$fragmentSpreads: mixed, ...}> =
+  // NOTE: This type ensures that the type of the returned variables is either:
+  //   - nullable if the provided ref type is nullable
+  //   - non-nullable if the provided ref type is non-nullable
+  [+key: TKey] extends [+key: {+$fragmentSpreads: mixed, ...}]
+    ? Partial<TVariables>
+    : TVariables;
+
+type RefetchFnBase<TVars, TOptions> = (
+  vars: TVars,
+  options?: TOptions,
+) => Disposable;
+
+type RefetchFn<TVariables, TKey, TOptions = Options> = RefetchFnBase<
+  RefetchVariables<TVariables, TKey>,
+  TOptions,
+>;
+
+export type ReturnType<TVariables, TData, TKey> = {
+  // NOTE: This type ensures that the type of the returned data is either:
+  //   - nullable if the provided ref type is nullable
+  //   - non-nullable if the provided ref type is non-nullable
+  data: [+key: TKey] extends [+key: {+$fragmentSpreads: mixed, ...}]
+    ? TData
+    : ?TData,
+  loadNext: LoadMoreFn<TVariables>,
+  loadPrevious: LoadMoreFn<TVariables>,
+  hasNext: boolean,
+  hasPrevious: boolean,
+  isLoadingNext: boolean,
+  isLoadingPrevious: boolean,
+  refetch: RefetchFn<TVariables, TKey>,
+};
 
 // This separate type export is only needed as long as we are injecting
 // a separate hooks implementation in ./HooksImplementation -- it can
@@ -46,7 +81,7 @@ export type UsePaginationFragmentType = <
   parentFragmentRef: TKey,
 ) => ReturnType<TVariables, TData, TKey>;
 
-function usePaginationFragment_LEGACY<
+function usePaginationFragmentImpl<
   TFragmentType: FragmentType,
   TVariables: Variables,
   TData,
@@ -65,9 +100,9 @@ function usePaginationFragment_LEGACY<
   const {connectionPathInFragmentData, paginationRequest, paginationMetadata} =
     getPaginationMetadata(fragmentNode, componentDisplayName);
 
-  const {fragmentData, fragmentRef, refetch} = useRefetchableFragmentNode<
-    $FlowFixMe,
-    $FlowFixMe,
+  const {fragmentData, fragmentRef, refetch} = useRefetchableFragmentInternal<
+    {variables: TVariables, response: TData},
+    {data?: TData},
   >(fragmentNode, parentFragmentRef, componentDisplayName);
   const fragmentIdentifier = getFragmentIdentifier(fragmentNode, fragmentRef);
 
@@ -99,7 +134,7 @@ function usePaginationFragment_LEGACY<
       paginationRequest,
     });
 
-  const refetchPagination: RefetchFn<TVariables, TKey> = useCallback(
+  const refetchPagination = useCallback(
     (variables: TVariables, options: void | Options) => {
       disposeFetchNext();
       disposeFetchPrevious();
@@ -120,7 +155,8 @@ function usePaginationFragment_LEGACY<
     });
   }
   return {
-    data: (fragmentData: $FlowFixMe),
+    // $FlowFixMe[incompatible-return]
+    data: fragmentData,
     loadNext,
     loadPrevious,
     hasNext,
@@ -141,7 +177,21 @@ function useLoadMore<TVariables: Variables>(
     },
   >,
 ): [LoadMoreFn<TVariables>, boolean, boolean, () => void] {
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const environment = useRelayEnvironment();
+  const [isLoadingMore, reallySetIsLoadingMore] = useState(false);
+  // Schedule this update since it must be observed by components at the same
+  // batch as when hasNext changes. hasNext is read from the store and store
+  // updates are scheduled, so this must be scheduled too.
+  const setIsLoadingMore = (value: boolean) => {
+    const schedule = environment.getScheduler()?.schedule;
+    if (schedule) {
+      schedule(() => {
+        reallySetIsLoadingMore(value);
+      });
+    } else {
+      reallySetIsLoadingMore(value);
+    }
+  };
   const observer = {
     start: () => setIsLoadingMore(true),
     complete: () => setIsLoadingMore(false),
@@ -155,22 +205,6 @@ function useLoadMore<TVariables: Variables>(
   });
   return [loadMore, hasMore, isLoadingMore, disposeFetch];
 }
-
-export type ReturnType<TVariables, TData, TKey> = {
-  // NOTE: This type ensures that the type of the returned data is either:
-  //   - nullable if the provided ref type is nullable
-  //   - non-nullable if the provided ref type is non-nullable
-  data: [+key: TKey] extends [+key: {+$fragmentSpreads: mixed, ...}]
-    ? TData
-    : ?TData,
-  loadNext: LoadMoreFn<TVariables>,
-  loadPrevious: LoadMoreFn<TVariables>,
-  hasNext: boolean,
-  hasPrevious: boolean,
-  isLoadingNext: boolean,
-  isLoadingPrevious: boolean,
-  refetch: RefetchFn<TVariables, TKey>,
-};
 
 function usePaginationFragment<
   TFragmentType: FragmentType,
@@ -190,7 +224,7 @@ function usePaginationFragment<
     );
   } else {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    return usePaginationFragment_LEGACY(fragmentInput, parentFragmentRef);
+    return usePaginationFragmentImpl(fragmentInput, parentFragmentRef);
   }
 }
 

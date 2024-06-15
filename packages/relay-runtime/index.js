@@ -35,6 +35,7 @@ const {
 const createFragmentSpecResolver = require('./store/createFragmentSpecResolver');
 const createRelayContext = require('./store/createRelayContext');
 const {
+  isSuspenseSentinel,
   suspenseSentinel,
 } = require('./store/experimental-live-resolvers/LiveResolverSuspenseSentinel');
 const isRelayModernEnvironment = require('./store/isRelayModernEnvironment');
@@ -157,7 +158,7 @@ export type {
   RecordSourceSelectorProxy,
   RelayContext,
   RequestDescriptor,
-  RequiredFieldLogger,
+  RelayFieldLogger,
   SelectorData,
   SelectorStoreUpdater,
   SingularReaderSelector,
@@ -203,6 +204,7 @@ export type {
   ReaderRequiredField,
   ReaderScalarField,
   ReaderSelection,
+  RefetchableIdentifierInfo,
   RequiredFieldAction,
 } from './util/ReaderNode';
 export type {
@@ -304,6 +306,7 @@ module.exports = {
   graphql: GraphQLTag.graphql,
   isFragment: GraphQLTag.isFragment,
   isInlineDataFragment: GraphQLTag.isInlineDataFragment,
+  isSuspenseSentinel,
   suspenseSentinel,
   isRequest: GraphQLTag.isRequest,
   readInlineData,

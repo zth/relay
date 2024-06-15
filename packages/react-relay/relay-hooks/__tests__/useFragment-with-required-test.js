@@ -10,12 +10,13 @@
  */
 
 'use strict';
-import type {MutableRecordSource} from 'relay-runtime/store/RelayStoreTypes';
-import type {RequiredFieldLoggerEvent} from 'relay-runtime/store/RelayStoreTypes';
 
-const useFragmentOriginal_EXPERIMENTAL = require('../experimental/useFragment_EXPERIMENTAL');
+import type {MutableRecordSource} from 'relay-runtime/store/RelayStoreTypes';
+import type {RelayFieldLoggerEvent} from 'relay-runtime/store/RelayStoreTypes';
+
+const useFragment_LEGACY = require('../legacy/useFragment');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
-const useFragmentOriginal_LEGACY = require('../useFragment');
+const useFragment = require('../useFragment');
 const useLazyLoadQuery = require('../useLazyLoadQuery');
 const React = require('react');
 const TestRenderer = require('react-test-renderer');
@@ -33,8 +34,8 @@ disallowWarnings();
 disallowConsoleErrors();
 
 describe.each([
-  ['Experimental', useFragmentOriginal_EXPERIMENTAL],
-  ['Legacy', useFragmentOriginal_LEGACY],
+  ['New', useFragment],
+  ['Legacy', useFragment_LEGACY],
 ])('useFragment (%s)', (_hookName, useFragmentOriginal) => {
   test('@required(action: LOG) gets logged even if no data is "missing"', () => {
     function InnerTestComponent({id}: {id: string}) {
@@ -77,15 +78,15 @@ describe.each([
         </RelayEnvironmentProvider>
       );
     }
-    const requiredFieldLogger = jest.fn<
-      $FlowFixMe | [RequiredFieldLoggerEvent],
+    const relayFieldLogger = jest.fn<
+      $FlowFixMe | [RelayFieldLoggerEvent],
       void,
     >();
     function createEnvironment(source: MutableRecordSource) {
       return new RelayModernEnvironment({
         network: RelayNetwork.create(jest.fn()),
         store: new LiveResolverStore(source),
-        requiredFieldLogger,
+        relayFieldLogger,
       });
     }
 
@@ -108,7 +109,7 @@ describe.each([
     );
 
     // Validate that the missing required field was logged.
-    expect(requiredFieldLogger.mock.calls).toEqual([
+    expect(relayFieldLogger.mock.calls).toEqual([
       [
         {
           fieldPath: 'name',

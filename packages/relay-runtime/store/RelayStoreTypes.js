@@ -10,7 +10,6 @@
  */
 
 'use strict';
-
 import type {
   ActorIdentifier,
   IActorEnvironment,
@@ -50,6 +49,7 @@ import type {
   UpdatableQuery,
   Variables,
 } from '../util/RelayRuntimeTypes';
+import type {TRelayFieldError} from './RelayErrorTrie';
 import type {
   Record as RelayModernRecord,
   RecordJSON,
@@ -116,10 +116,17 @@ type FieldLocation = {
   owner: string,
 };
 
+type ErrorFieldLocation = {
+  ...FieldLocation,
+  error: TRelayFieldError,
+};
+
 export type MissingRequiredFields = $ReadOnly<
   | {action: 'THROW', field: FieldLocation}
   | {action: 'LOG', fields: Array<FieldLocation>},
 >;
+
+export type ErrorResponseFields = Array<ErrorFieldLocation>;
 
 export type ClientEdgeTraversalInfo = {
   +readerClientEdge: ReaderClientEdgeToServerObject,
@@ -158,6 +165,7 @@ export type Snapshot = {
   +selector: SingularReaderSelector,
   +missingRequiredFields: ?MissingRequiredFields,
   +relayResolverErrors: RelayResolverErrors,
+  +errorResponseFields: ?ErrorResponseFields,
 };
 
 /**
@@ -949,7 +957,7 @@ export interface IEnvironment {
    * Called by Relay when it encounters a missing field that has been annotated
    * with `@required(action: LOG)`.
    */
-  requiredFieldLogger: RequiredFieldLogger;
+  relayFieldLogger: RelayFieldLogger;
 }
 
 /**
@@ -1183,7 +1191,7 @@ export type MissingFieldHandler =
       ) => ?Array<?DataID>,
     };
 
-export type RequiredFieldLoggerEvent =
+export type RelayFieldLoggerEvent =
   | {
       +kind: 'missing_field.log',
       +owner: string,
@@ -1199,12 +1207,19 @@ export type RequiredFieldLoggerEvent =
       +owner: string,
       +fieldPath: string,
       +error: Error,
+    }
+  | {
+      +kind: 'relay_field_payload.error',
+      +owner: string,
+      +fieldPath: string,
+      +error: TRelayFieldError,
     };
+
 /**
  * A handler for events related to @required fields. Currently reports missing
  * fields with either `action: LOG` or `action: THROW`.
  */
-export type RequiredFieldLogger = (event: RequiredFieldLoggerEvent) => void;
+export type RelayFieldLogger = (event: RelayFieldLoggerEvent) => void;
 
 /**
  * The results of normalizing a query.

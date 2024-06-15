@@ -120,6 +120,7 @@ type Mutation {
   commentDelete(input: CommentDeleteInput): CommentDeleteResponsePayload
   commentsDelete(input: CommentsDeleteInput): CommentsDeleteResponsePayload
   feedbackLike(input: FeedbackLikeInput): FeedbackLikeResponsePayload
+  feedbackUnLike(input: FeedbackUnLikeInput): FeedbackUnLikeResponsePayload
   feedbackLikeStrict(
     input: FeedbackLikeInputStrict!
   ): FeedbackLikeResponsePayload
@@ -186,6 +187,11 @@ input CommentsDeleteInput {
 
 input FeedbackLikeInput {
   feedbackId: ID
+}
+
+input FeedbackUnLikeInput {
+  feedbackId: ID
+  silent: Boolean! = false
 }
 
 input FeedbackLikeInputStrict {
@@ -449,6 +455,10 @@ type Feedback implements Node {
 }
 
 type FeedbackLikeResponsePayload {
+  feedback: Feedback
+}
+
+type FeedbackUnLikeResponsePayload {
   feedback: Feedback
 }
 
@@ -1180,4 +1190,18 @@ type Settings {
 
 type WithWrongViewer {
   actor_key: Viewer
+}
+
+extend type Query {
+  opera: Opera
+}
+
+type Opera {
+  composer: User @semanticNonNull
+  cast: [Portrayal] @semanticNonNull(levels: [0, 1])
+}
+
+type Portrayal {
+  singer: User @semanticNonNull
+  character: String @semanticNonNull
 }
