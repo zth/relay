@@ -22,10 +22,8 @@ const {
   RelayEnvironmentProvider,
   useClientQuery,
   useFragment: useFragment_LEGACY,
-  useLazyLoadQuery: useLazyLoadQuery_LEGACY,
 } = require('react-relay');
-const useFragment_REACT_CACHE = require('react-relay/relay-hooks/react-cache/useFragment_REACT_CACHE');
-const useLazyLoadQuery_REACT_CACHE = require('react-relay/relay-hooks/react-cache/useLazyLoadQuery_REACT_CACHE');
+const useFragment_EXPERIMENTAL = require('react-relay/relay-hooks/experimental/useFragment_EXPERIMENTAL');
 const TestRenderer = require('react-test-renderer');
 const {RelayFeatureFlags} = require('relay-runtime');
 const RelayNetwork = require('relay-runtime/network/RelayNetwork');
@@ -36,6 +34,11 @@ const {
   completeTodo,
   resetStore,
 } = require('relay-runtime/store/__tests__/resolvers/ExampleTodoStore');
+const {
+  chargeBattery,
+  resetModels,
+  setIsHuman,
+} = require('relay-runtime/store/__tests__/resolvers/MutableModel');
 const LiveResolverStore = require('relay-runtime/store/experimental-live-resolvers/LiveResolverStore.js');
 const RelayModernEnvironment = require('relay-runtime/store/RelayModernEnvironment');
 const RelayRecordSource = require('relay-runtime/store/RelayRecordSource');
@@ -55,6 +58,7 @@ function logFn(event: LogEvent): void {
 beforeEach(() => {
   RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
   RelayFeatureFlags.ENABLE_CLIENT_EDGES = true;
+  RelayFeatureFlags.ENABLE_SHALLOW_FREEZE_RESOLVER_VALUES = true;
   logEvents = [];
   resetStore(logFn);
 });
@@ -62,6 +66,7 @@ beforeEach(() => {
 afterEach(() => {
   RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
   RelayFeatureFlags.ENABLE_CLIENT_EDGES = false;
+  RelayFeatureFlags.ENABLE_SHALLOW_FREEZE_RESOLVER_VALUES = false;
 });
 
 function createEnvironment() {
@@ -89,20 +94,11 @@ function EnvironmentWrapper({
 }
 
 describe.each([
-  ['React Cache', useLazyLoadQuery_REACT_CACHE, useFragment_REACT_CACHE],
-  ['Legacy', useLazyLoadQuery_LEGACY, useFragment_LEGACY],
-])('Hook implementation: %s', (_hookName, useLazyLoadQuery, useFragment) => {
-  const usingReactCache = useLazyLoadQuery === useLazyLoadQuery_REACT_CACHE;
-  // Our open-source build is still on React 17, so we need to skip these tests there:
-  if (usingReactCache) {
-    // $FlowExpectedError[prop-missing] Cache not yet part of Flow types
-    if (React.unstable_getCacheForType === undefined) {
-      return;
-    }
-  }
+  ['Experimental', useFragment_EXPERIMENTAL],
+  ['Legacy', useFragment_LEGACY],
+])('Hook implementation: %s', (_hookName, useFragment) => {
   let environment;
   beforeEach(() => {
-    RelayFeatureFlags.USE_REACT_CACHE = usingReactCache;
     environment = createEnvironment();
   });
 
@@ -337,6 +333,7 @@ describe.each([
         ? 'NULL!'
         : 'NOT NULL!';
     }
+    addTodo('Test todo');
 
     const renderer = TestRenderer.create(
       <EnvironmentWrapper environment={environment}>
@@ -503,6 +500,82 @@ describe.each([
         __typename: 'ClientTypeImplementingClientInterface',
         description: 'It was a magical place',
       },
+    });
+  });
+
+  const getMutableEntityQuery = graphql`
+    query RelayResolverModelTestGetMutableEntityQuery {
+      mutable_entity
+    }
+  `;
+  test('should not mutate complex resolver values', () => {
+    resetModels();
+    // Do not deep freeze
+    jest.mock('relay-runtime/util/deepFreeze');
+
+    TestRenderer.act(() => {
+      setIsHuman(true);
+    });
+
+    function GetMutableEntity() {
+      const data = useClientQuery(getMutableEntityQuery, {});
+      if (data.mutable_entity == null) {
+        return null;
+      }
+      return `${data.mutable_entity.type}:${data.mutable_entity.props.battery}`;
+    }
+    const renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <GetMutableEntity />
+      </EnvironmentWrapper>,
+    );
+    expect(renderer.toJSON()).toEqual('human:0');
+
+    TestRenderer.act(() => {
+      setIsHuman(false);
+      jest.runAllImmediates();
+    });
+    expect(renderer.toJSON()).toEqual('robot:0');
+
+    TestRenderer.act(() => {
+      chargeBattery();
+      setIsHuman(true);
+      jest.runAllImmediates();
+    });
+    expect(renderer.toJSON()).toEqual('human:0');
+
+    TestRenderer.act(() => {
+      renderer.unmount();
+    });
+    jest.unmock('relay-runtime/util/deepFreeze');
+  });
+
+  test('should not freeze complex resolver values', () => {
+    resetModels();
+    TestRenderer.act(() => {
+      setIsHuman(false);
+    });
+    function GetMutableEntity() {
+      const data = useClientQuery(getMutableEntityQuery, {});
+      if (data.mutable_entity == null) {
+        return null;
+      }
+      return `${data.mutable_entity.type}:${data.mutable_entity.props.battery}`;
+    }
+
+    const renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <GetMutableEntity />
+      </EnvironmentWrapper>,
+    );
+    expect(renderer.toJSON()).toEqual('robot:0');
+
+    expect(() => {
+      chargeBattery();
+    }).not.toThrow();
+
+    TestRenderer.act(() => {
+      renderer.unmount();
     });
   });
 });

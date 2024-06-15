@@ -281,7 +281,7 @@ pub(crate) fn rescript_generate_extra_artifacts(
 
     let schema_assets_artifact = Artifact {
         artifact_source_keys: vec![],
-        path: project_config.path_for_artifact(dummy_source_file, "RelaySchemaAssets".intern()),
+        path: project_config.create_path_for_artifact(dummy_source_file, String::from("RelaySchemaAssets_graphql.res")),
         source_file: dummy_source_file,
         content: crate::ArtifactContent::Generic {
             content: content.as_bytes().to_vec(),

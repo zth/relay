@@ -15,10 +15,10 @@ use graphql_ir::FragmentDefinition;
 use graphql_ir::OperationDefinition;
 use graphql_text_printer::OperationPrinter;
 use graphql_text_printer::PrinterOptions;
-use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use intern::Lookup;
 use relay_codegen::QueryID;
+use relay_config::ResolversSchemaModuleConfig;
 use relay_transforms::ArtifactSourceKeyData;
 use relay_transforms::ClientEdgeGeneratedQueryMetadataDirective;
 use relay_transforms::Programs;
@@ -26,9 +26,11 @@ use relay_transforms::RawResponseGenerationMode;
 use relay_transforms::RefetchableDerivedFromMetadata;
 use relay_transforms::SplitOperationMetadata;
 use relay_transforms::UPDATABLE_DIRECTIVE;
+use schema::SDLSchema;
 
 pub use super::artifact_content::ArtifactContent;
 use super::build_ir::SourceHashes;
+use super::resolvers_schema_module::generate_resolvers_schema_module;
 use crate::artifact_map::ArtifactSourceKey;
 use crate::config::Config;
 use crate::config::ProjectConfig;
@@ -46,8 +48,9 @@ pub struct Artifact {
 }
 
 pub fn generate_artifacts(
-    _config: &Config,
+    config: &Config,
     project_config: &ProjectConfig,
+    schema: &SDLSchema,
     programs: &Programs,
     source_hashes: Arc<SourceHashes>,
 ) -> Vec<Artifact> {
@@ -85,7 +88,7 @@ pub fn generate_artifacts(
                     return Artifact {
                         artifact_source_keys,
                         path: project_config
-                            .path_for_artifact(source_file, normalization.name.item.0),
+                            .artifact_path_for_definition(normalization.name),
                         content: ArtifactContent::SplitOperation {
                             normalization_operation: Arc::clone(normalization),
                             typegen_operation,
@@ -98,10 +101,6 @@ pub fn generate_artifacts(
                     RefetchableDerivedFromMetadata::find(&normalization.directives)
                 {
                     let source_name = derived_from_metadata.0;
-                    let source_fragment = programs
-                        .source
-                        .fragment(source_name)
-                        .expect("Expected the source document for the SplitOperation to exist.");
                     let source_hash = source_hashes.get(&source_name.into()).cloned().unwrap();
 
                     return generate_normalization_artifact(
@@ -110,16 +109,11 @@ pub fn generate_artifacts(
                         project_config,
                         &operations,
                         source_hash,
-                        source_fragment.name.location.source_location(),
                     )
                 } else if let Some(client_edges_directive) =
                     ClientEdgeGeneratedQueryMetadataDirective::find(&normalization.directives)
                 {
                     let source_name = client_edges_directive.source_name.item;
-                    let source_file = client_edges_directive
-                        .source_name
-                        .location
-                        .source_location();
                     let source_hash = source_hashes.get(&source_name).cloned().unwrap();
                     return generate_normalization_artifact(
                         &mut operation_printer,
@@ -127,7 +121,6 @@ pub fn generate_artifacts(
                         project_config,
                         &operations,
                         source_hash,
-                        source_file,
                     )
                 } else {
                     let source_hash = source_hashes
@@ -140,7 +133,6 @@ pub fn generate_artifacts(
                         project_config,
                         &operations,
                         source_hash,
-                        normalization.name.location.source_location(),
                     )
                 }
             } else if let Some(reader) = operations.reader {
@@ -160,7 +152,6 @@ pub fn generate_artifacts(
                         project_config,
                         &operations,
                         source_hash,
-                        reader.name.location.source_location(),
                     )
                 }
             }
@@ -201,6 +192,15 @@ pub fn generate_artifacts(
                 artifact_source_keys,
             )
         }))
+        .chain(
+            match project_config.resolvers_schema_module {
+                Some(ResolversSchemaModuleConfig { ref path }) =>
+                vec![
+                    generate_resolvers_schema_module(config, project_config, schema, path.clone()).unwrap()
+                ],
+                _ => vec![],
+            }
+        )
         .collect();
 }
 
@@ -210,7 +210,6 @@ fn generate_normalization_artifact(
     project_config: &ProjectConfig,
     operations: &OperationGroup<'_>,
     source_hash: String,
-    source_file: SourceLocationKey,
 ) -> Artifact {
     let text = operations
         .operation_text
@@ -222,7 +221,7 @@ fn generate_normalization_artifact(
 
     Artifact {
         artifact_source_keys: vec![artifact_source],
-        path: project_config.path_for_artifact(source_file, normalization.name.item.0),
+        path: project_config.artifact_path_for_definition(normalization.name),
         content: ArtifactContent::Operation {
             normalization_operation: Arc::clone(normalization),
             reader_operation: operations.expect_reader(),
@@ -251,7 +250,7 @@ pub fn generate_preloadable_query_parameters_artifact(
 
     Artifact {
         artifact_source_keys: source_keys,
-        path: project_config.path_for_artifact(source_file, artifact_name.intern()),
+        path: project_config.create_path_for_artifact(source_file, artifact_name),
         content: ArtifactContent::PreloadableQueryParameters {
             normalization_operation: Arc::clone(normalization),
             typegen_operation: Arc::clone(typegen),
@@ -266,7 +265,6 @@ fn generate_updatable_query_artifact(
     project_config: &ProjectConfig,
     operations: &OperationGroup<'_>,
     source_hash: String,
-    source_file: SourceLocationKey,
 ) -> Artifact {
     let reader = operations
         .reader
@@ -274,7 +272,7 @@ fn generate_updatable_query_artifact(
 
     Artifact {
         artifact_source_keys: vec![artifact_source],
-        path: project_config.path_for_artifact(source_file, reader.name.item.0),
+        path: project_config.artifact_path_for_definition(reader.name),
         content: ArtifactContent::UpdatableQuery {
             reader_operation: operations.expect_reader(),
             typegen_operation: operations.expect_typegen(),
@@ -298,8 +296,7 @@ fn generate_reader_artifact(
         .expect("a type fragment should be generated for this fragment");
     Artifact {
         artifact_source_keys,
-        path: project_config
-            .path_for_artifact(reader_fragment.name.location.source_location(), name.0),
+        path: project_config.artifact_path_for_definition(reader_fragment.name),
         content: ArtifactContent::Fragment {
             reader_fragment: Arc::clone(reader_fragment),
             typegen_fragment: Arc::clone(typegen_fragment),

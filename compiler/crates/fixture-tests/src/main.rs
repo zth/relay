@@ -26,8 +26,10 @@ struct Options {
     /// from which a test file will be generated
     #[clap(name = "DIR")]
     dirs: Vec<PathBuf>,
-}
 
+    #[clap(long)]
+    customized_header: Option<String>,
+}
 #[derive(Debug)]
 struct TestCase {
     name: String,
@@ -97,7 +99,7 @@ fn main() {
 async fn {0}() {{
     let input = include_str!("{1}/fixtures/{2}");
     let expected = include_str!("{1}/fixtures/{3}");
-    test_fixture(transform_fixture, "{2}", "{1}/fixtures/{3}", input, expected).await;
+    test_fixture(transform_fixture, file!(), "{2}", "{1}/fixtures/{3}", input, expected).await;
 }}"#,
                     test_case.name,
                     &test_name,
@@ -149,6 +151,12 @@ async fn {0}() {{
  */
 ",
                 signing_token = SIGNING_TOKEN,
+            )
+        } else if let Some(customized_header) = &opt.customized_header {
+            format!(
+                "// {signing_token}\n// {customized_header}\n",
+                signing_token = SIGNING_TOKEN,
+                customized_header = customized_header
             )
         } else {
             format!(

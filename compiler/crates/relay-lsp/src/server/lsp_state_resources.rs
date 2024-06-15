@@ -390,14 +390,21 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             .source_programs
             .contains_key(&project_config.name.into())
             && compiler_state.has_processed_changes()
-            && !compiler_state
-                .has_breaking_schema_change(project_config.name, &project_config.schema_config)
+            && !compiler_state.has_breaking_schema_change(
+                log_event,
+                project_config.name,
+                &project_config.schema_config,
+            )
             && if let Some(base) = project_config.base {
-                !compiler_state.has_breaking_schema_change(base, &project_config.schema_config)
+                !compiler_state.has_breaking_schema_change(
+                    log_event,
+                    base,
+                    &project_config.schema_config,
+                )
             } else {
                 true
             };
-
+        log_event.bool("is_incremental_build", is_incremental_build);
         let (base_program, _) = build_raw_program(
             project_config,
             project_asts,
@@ -426,12 +433,10 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                         .iter()
                         .filter_map(|artifact_source| match artifact_source {
                             ArtifactSourceKey::ExecutableDefinition(name) => Some(*name),
-                            // For the resolver case, we don't really need to track removed resolver definitions
-                            // here, as the documents for resolves are not accessible for the user
-                            // in the LSP program. We only care about unused fragments/operations
-                            // that are editable by the user.
-                            // We also don't write artifacts from LSP so it is safe to skip these here.
-                            ArtifactSourceKey::ResolverHash(_) => None,
+                            ArtifactSourceKey::Schema() | ArtifactSourceKey::ResolverHash(_) => {
+                                // In the LSP program, we only care about tracking user-editable ExecutableDefinitions
+                                None
+                            }
                         })
                         .collect::<Vec<_>>()
                 });

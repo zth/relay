@@ -11,6 +11,7 @@ use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::DirectiveName;
+use common::FeatureFlags;
 use common::InterfaceName;
 use common::Location;
 use common::Named;
@@ -29,6 +30,7 @@ use docblock_shared::KEY_RESOLVER_ID_FIELD;
 use docblock_shared::LIVE_ARGUMENT_NAME;
 use docblock_shared::RELAY_RESOLVER_DIRECTIVE_NAME;
 use docblock_shared::RELAY_RESOLVER_MODEL_DIRECTIVE_NAME;
+use docblock_shared::RELAY_RESOLVER_MODEL_INSTANCE_FIELD;
 use docblock_shared::RELAY_RESOLVER_SOURCE_HASH;
 use docblock_shared::RELAY_RESOLVER_SOURCE_HASH_VALUE;
 use docblock_shared::RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE;
@@ -83,13 +85,12 @@ lazy_static! {
     static ref DEPRECATED_RESOLVER_DIRECTIVE_NAME: DirectiveName =
         DirectiveName("deprecated".intern());
     static ref DEPRECATED_REASON_ARGUMENT_NAME: ArgumentName = ArgumentName("reason".intern());
-    static ref RESOLVER_MODEL_INSTANCE_FIELD_NAME: StringKey = "__relay_model_instance".intern();
     static ref MODEL_CUSTOM_SCALAR_TYPE_SUFFIX: StringKey = "Model".intern();
 }
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum DocblockIr {
-    RelayResolver(RelayResolverIr),
+    LegacyVerboseResolver(LegacyVerboseResolverIr),
     TerseRelayResolver(TerseRelayResolverIr),
     StrongObjectResolver(StrongObjectIr),
     WeakObjectType(WeakObjectIr),
@@ -98,7 +99,7 @@ pub enum DocblockIr {
 impl DocblockIr {
     pub(crate) fn get_variant_name(&self) -> &'static str {
         match self {
-            DocblockIr::RelayResolver(_) => "legacy resolver declaration",
+            DocblockIr::LegacyVerboseResolver(_) => "legacy resolver declaration",
             DocblockIr::TerseRelayResolver(_) => "terse resolver declaration",
             DocblockIr::StrongObjectResolver(_) => "strong object type declaration",
             DocblockIr::WeakObjectType(_) => "weak object type declaration",
@@ -120,9 +121,10 @@ impl DocblockIr {
         project_name: ProjectName,
         schema: &SDLSchema,
         schema_config: &SchemaConfig,
+        feature_flags: &FeatureFlags,
     ) -> DiagnosticsResult<String> {
         Ok(self
-            .to_graphql_schema_ast(project_name, schema, schema_config)?
+            .to_graphql_schema_ast(project_name, schema, schema_config, feature_flags)?
             .definitions
             .iter()
             .map(|definition| format!("{}", definition))
@@ -130,11 +132,21 @@ impl DocblockIr {
             .join("\n\n"))
     }
 
+    pub fn location(&self) -> Location {
+        match self {
+            DocblockIr::LegacyVerboseResolver(relay_resolver) => relay_resolver.location(),
+            DocblockIr::TerseRelayResolver(relay_resolver) => relay_resolver.location(),
+            DocblockIr::StrongObjectResolver(strong_object) => strong_object.location(),
+            DocblockIr::WeakObjectType(weak_object) => weak_object.location(),
+        }
+    }
+
     pub fn to_graphql_schema_ast(
         self,
         project_name: ProjectName,
         schema: &SDLSchema,
         schema_config: &SchemaConfig,
+        feature_flags: &FeatureFlags,
     ) -> DiagnosticsResult<SchemaDocument> {
         let project_config = ResolverProjectConfig {
             project_name,
@@ -142,8 +154,10 @@ impl DocblockIr {
             schema_config,
         };
 
-        match self {
-            DocblockIr::RelayResolver(relay_resolver) => {
+        let location = self.location();
+
+        let schema_doc = match self {
+            DocblockIr::LegacyVerboseResolver(relay_resolver) => {
                 relay_resolver.to_graphql_schema_ast(project_config)
             }
             DocblockIr::TerseRelayResolver(relay_resolver) => {
@@ -155,9 +169,103 @@ impl DocblockIr {
             DocblockIr::WeakObjectType(weak_object) => {
                 weak_object.to_graphql_schema_ast(project_config)
             }
+        }?;
+
+        for definition in &schema_doc.definitions {
+            ensure_valid_resolver_field_definition(
+                definition,
+                schema,
+                location,
+                feature_flags.enable_relay_resolver_mutations,
+            )?;
+        }
+        Ok(schema_doc)
+    }
+}
+
+fn ensure_valid_resolver_field_definition(
+    definition: &TypeSystemDefinition,
+    schema: &SDLSchema,
+    ast_location: Location,
+    mutation_resolvers_enabled: bool,
+) -> DiagnosticsResult<()> {
+    validate_mutation_resolvers(definition, schema, ast_location, mutation_resolvers_enabled)?;
+    DiagnosticsResult::Ok(())
+}
+
+fn validate_mutation_resolvers(
+    definition: &TypeSystemDefinition,
+    schema: &SDLSchema,
+    ast_location: Location,
+    mutation_resolvers_enabled: bool,
+) -> DiagnosticsResult<()> {
+    if let Some(mutation_type) = schema.mutation_type() {
+        match definition {
+            TypeSystemDefinition::ObjectTypeExtension(ObjectTypeExtension {
+                name: extended_type_name,
+                fields,
+                ..
+            }) => {
+                if let Some(extended_type) = schema.get_type(extended_type_name.value) {
+                    if extended_type == mutation_type {
+                        if !mutation_resolvers_enabled {
+                            return DiagnosticsResult::Err(vec![Diagnostic::error(
+                                SchemaValidationErrorMessages::DisallowedMutationResolvers {
+                                    mutation_type_name: extended_type_name.value.to_string(),
+                                },
+                                ast_location,
+                            )]);
+                        }
+                        if let Some(resolver_field) = get_relay_resolver_field(fields) {
+                            let field_type = &resolver_field.type_;
+                            if !is_valid_mutation_resolver_return_type(schema, field_type) {
+                                return DiagnosticsResult::Err(vec![Diagnostic::error(
+                                    SchemaValidationErrorMessages::MutationResolverNonScalarReturn {
+                                        resolver_field_name: resolver_field.name.value.to_string(),
+                                        actual_return_type: field_type.to_string(),
+                                    },
+                                    ast_location,
+                                )]);
+                            }
+                        }
+                    }
+                }
+            }
+            _ => (),
+        }
+    }
+
+    DiagnosticsResult::Ok(())
+}
+
+fn get_relay_resolver_field(fields: &Option<List<FieldDefinition>>) -> Option<&FieldDefinition> {
+    fields.as_ref().map(|list| &list.items).and_then(|fields| {
+        fields.iter().find(|f| {
+            f.directives
+                .named(RELAY_RESOLVER_DIRECTIVE_NAME.0)
+                .is_some()
+        })
+    })
+}
+
+fn is_valid_mutation_resolver_return_type(schema: &SDLSchema, type_: &TypeAnnotation) -> bool {
+    match type_ {
+        TypeAnnotation::Named(named_type) => {
+            if let Some(actual_type) = schema.get_type(named_type.name.value) {
+                actual_type.is_scalar() || actual_type.is_enum()
+            } else {
+                false
+            }
+        }
+        TypeAnnotation::List(_) => false,
+        TypeAnnotation::NonNull(non_null_type) => {
+            // note: this should be unreachable since we already disallow relay resolvers to return non-nullable types
+            // - implement this anyway in case that changes in the future
+            return is_valid_mutation_resolver_return_type(schema, &non_null_type.as_ref().type_);
         }
     }
 }
+
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub enum IrField {
     PopulatedIrField(PopulatedIrField),
@@ -227,6 +335,15 @@ impl TryFrom<IrField> for UnpopulatedIrField {
 pub enum On {
     Type(PopulatedIrField),
     Interface(PopulatedIrField),
+}
+
+impl On {
+    pub fn type_name(&self) -> StringKey {
+        match self {
+            On::Type(field) => field.value.item,
+            On::Interface(field) => field.value.item,
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -745,7 +862,7 @@ impl ResolverTypeDefinitionIr for TerseRelayResolverIr {
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct RelayResolverIr {
+pub struct LegacyVerboseResolverIr {
     pub field: FieldDefinitionStub,
     pub on: On,
     pub root_fragment: Option<WithLocation<FragmentDefinitionName>>,
@@ -759,7 +876,7 @@ pub struct RelayResolverIr {
     pub source_hash: ResolverSourceHash,
 }
 
-impl ResolverIr for RelayResolverIr {
+impl ResolverIr for LegacyVerboseResolverIr {
     fn definitions(
         self,
         project_config: ResolverProjectConfig<'_, '_>,
@@ -897,7 +1014,7 @@ impl ResolverIr for RelayResolverIr {
     }
 }
 
-impl ResolverTypeDefinitionIr for RelayResolverIr {
+impl ResolverTypeDefinitionIr for LegacyVerboseResolverIr {
     fn field_name(&self) -> &Identifier {
         &self.field.name
     }
@@ -1401,13 +1518,13 @@ fn get_root_fragment_for_object(
                 project_name
                     .generate_name_for_object_and_field(
                         object.unwrap().name.item.0,
-                        *RESOLVER_MODEL_INSTANCE_FIELD_NAME,
+                        *RELAY_RESOLVER_MODEL_INSTANCE_FIELD,
                     )
                     .intern(),
             )),
             generated: true,
             inject_fragment_data: Some(FragmentDataInjectionMode::Field(
-                *RESOLVER_MODEL_INSTANCE_FIELD_NAME,
+                *RELAY_RESOLVER_MODEL_INSTANCE_FIELD,
             )),
         })
     } else {
@@ -1439,7 +1556,7 @@ fn generate_model_instance_field(
     });
 
     FieldDefinition {
-        name: string_key_as_identifier(*RESOLVER_MODEL_INSTANCE_FIELD_NAME),
+        name: string_key_as_identifier(*RELAY_RESOLVER_MODEL_INSTANCE_FIELD),
         type_: TypeAnnotation::NonNull(Box::new(NonNullTypeAnnotation {
             span,
             type_: TypeAnnotation::Named(NamedTypeAnnotation {

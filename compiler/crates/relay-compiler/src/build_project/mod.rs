@@ -20,6 +20,7 @@ mod log_program_stats;
 mod persist_operations;
 mod project_asts;
 pub mod rescript_generate_extra_files;
+mod resolvers_schema_module;
 mod source_control;
 mod validate;
 
@@ -187,13 +188,21 @@ pub fn build_programs(
 ) -> Result<BuildProgramsOutput, BuildProjectFailure> {
     let project_name = project_config.name;
     let is_incremental_build = compiler_state.has_processed_changes()
-        && !compiler_state.has_breaking_schema_change(project_name, &project_config.schema_config)
+        && !compiler_state.has_breaking_schema_change(
+            log_event,
+            project_name,
+            &project_config.schema_config,
+        )
         && if let Some(base) = project_config.base {
-            !compiler_state.has_breaking_schema_change(base, &project_config.schema_config)
+            !compiler_state.has_breaking_schema_change(
+                log_event,
+                base,
+                &project_config.schema_config,
+            )
         } else {
             true
         };
-
+    log_event.bool("is_incremental_build", is_incremental_build);
     let (program, source_hashes) = build_raw_program(
         project_config,
         project_asts,
@@ -286,6 +295,7 @@ pub fn build_project(
     let artifacts = generate_artifacts(
         config,
         project_config,
+        &schema,
         &programs,
         Arc::clone(&source_hashes),
     );
@@ -395,7 +405,13 @@ pub async fn commit_project(
     };
 
     let artifacts_file_hash_map = match &config.get_artifacts_file_hash_map {
-        Some(get_fn) => get_fn(&artifacts).await,
+        Some(get_fn) => {
+            let get_artifacts_file_hash_map_timer =
+                log_event.start("get_artifacts_file_hash_map_time");
+            let res = get_fn(&artifacts).await;
+            log_event.stop(get_artifacts_file_hash_map_timer);
+            res
+        }
         _ => None,
     };
 

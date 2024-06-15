@@ -82,11 +82,19 @@ fn parse_source(
             enable_strict_resolver_flavors: &project_config
                 .feature_flags
                 .relay_resolvers_enable_strict_resolver_flavors,
+            allow_legacy_verbose_syntax: &project_config
+                .feature_flags
+                .relay_resolvers_allow_legacy_verbose_syntax,
         },
     )?;
     maybe_ir
         .map(|ir| {
-            ir.to_graphql_schema_ast(project_config.name, schema, &project_config.schema_config)
+            ir.to_graphql_schema_ast(
+                project_config.name,
+                schema,
+                &project_config.schema_config,
+                &project_config.feature_flags,
+            )
         })
         .transpose()
 }

@@ -114,11 +114,42 @@ pub(crate) enum MaskStatus {
     Masked,
 }
 
+pub fn generate_fragment_type_exports_section_from_extra_artifact(
+    fragment_definition: &FragmentDefinition,
+    schema: &SDLSchema,
+    project_config: &ProjectConfig,
+    fragment_locations: &FragmentLocations,
+) -> String {
+    generate_fragment_type_exports_section_impl(
+        fragment_definition,
+        schema,
+        project_config,
+        fragment_locations,
+        true,
+    )
+}
+
 pub fn generate_fragment_type_exports_section(
     fragment_definition: &FragmentDefinition,
     schema: &SDLSchema,
     project_config: &ProjectConfig,
     fragment_locations: &FragmentLocations,
+) -> String {
+    generate_fragment_type_exports_section_impl(
+        fragment_definition,
+        schema,
+        project_config,
+        fragment_locations,
+        false,
+    )
+}
+
+fn generate_fragment_type_exports_section_impl(
+    fragment_definition: &FragmentDefinition,
+    schema: &SDLSchema,
+    project_config: &ProjectConfig,
+    fragment_locations: &FragmentLocations,
+    is_extra_artifact_branch_module: bool,
 ) -> String {
     let typegen_context = TypegenContext::new(
         schema,
@@ -131,6 +162,7 @@ pub fn generate_fragment_type_exports_section(
         fragment_locations,
         false,
         None,
+        is_extra_artifact_branch_module
     );
     let mut writer = new_writer_from_config(
         &project_config.typegen_config,
@@ -159,6 +191,7 @@ pub fn generate_named_validator_export(
         fragment_locations,
         false,
         None,
+        false
     );
     let mut writer = new_writer_from_config(
         &project_config.typegen_config,
@@ -201,6 +234,7 @@ pub fn generate_operation_type_exports_section(
         fragment_locations,
         false,
         is_preloadable_thin_file,
+        false
     );
     let mut writer = new_writer_from_config(
         &project_config.typegen_config,
@@ -243,6 +277,7 @@ pub fn generate_split_operation_type_exports_section(
         fragment_locations,
         no_optional_fields_in_raw_response_type,
         None,
+        false
     );
     let mut writer = new_writer_from_config(
         &project_config.typegen_config,
@@ -275,6 +310,8 @@ struct TypegenContext<'a> {
     // All keys in raw response should be required
     no_optional_fields_in_raw_response_type: bool,
     is_preloadable_thin_file: Option<bool>, // option/bool abuse, but want to make minimal changes
+    // Some extra artifacts require special type generation
+    is_extra_artifact_branch_module: bool,
 }
 
 impl<'a> TypegenContext<'a> {
@@ -286,6 +323,7 @@ impl<'a> TypegenContext<'a> {
         fragment_locations: &'a FragmentLocations,
         no_optional_fields_in_raw_response_type: bool,
         is_preloadable_thin_file: Option<bool>,
+        is_extra_artifact_branch_module: bool,
     ) -> Self {
         Self {
             schema,
@@ -296,6 +334,7 @@ impl<'a> TypegenContext<'a> {
             definition_source_location,
             no_optional_fields_in_raw_response_type,
             is_preloadable_thin_file,
+            is_extra_artifact_branch_module,
         }
     }
 }

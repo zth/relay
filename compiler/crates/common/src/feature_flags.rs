@@ -69,13 +69,21 @@ pub struct FeatureFlags {
     #[serde(default)]
     pub enable_resolver_normalization_ast: bool,
 
-    /// Fully build the schema resolvers artifact
-    #[serde(default)]
-    pub enable_schema_resolvers: bool,
-
     /// Enforce strict flavors for relay resolvers and disallow mixing flavors
     #[serde(default)]
     pub relay_resolvers_enable_strict_resolver_flavors: FeatureFlag,
+
+    /// Allow legacy verbose resolver syntax
+    #[serde(default)]
+    pub relay_resolvers_allow_legacy_verbose_syntax: FeatureFlag,
+
+    /// Allow relay resolvers to extend the Mutation type
+    #[serde(default)]
+    pub enable_relay_resolver_mutations: bool,
+
+    /// Perform strict validations when custom scalar types are used
+    #[serde(default)]
+    pub enable_strict_custom_scalars: bool,
 }
 
 #[derive(Debug, Deserialize, Clone, Serialize)]

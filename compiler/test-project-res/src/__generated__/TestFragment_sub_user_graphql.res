@@ -5,7 +5,7 @@ module Types = {
   @@warning("-30")
 
   type fragment = {
-    greeting: option<TestRelayResolver.t>,
+    greeting: option<string>,
     lastName: string,
   }
 }

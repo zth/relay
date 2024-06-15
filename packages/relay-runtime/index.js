@@ -34,7 +34,11 @@ const {
 } = require('./store/ClientID');
 const createFragmentSpecResolver = require('./store/createFragmentSpecResolver');
 const createRelayContext = require('./store/createRelayContext');
+const {
+  suspenseSentinel,
+} = require('./store/experimental-live-resolvers/LiveResolverSuspenseSentinel');
 const isRelayModernEnvironment = require('./store/isRelayModernEnvironment');
+const normalizeResponse = require('./store/normalizeResponse');
 const readInlineData = require('./store/readInlineData');
 const RelayConcreteVariables = require('./store/RelayConcreteVariables');
 const RelayModernEnvironment = require('./store/RelayModernEnvironment');
@@ -105,6 +109,8 @@ export type {
 export type {
   ObservableFromValue,
   Observer,
+  Sink,
+  Source,
   Subscribable,
   Subscription,
 } from './network/RelayObservable';
@@ -131,6 +137,7 @@ export type {
   MutableRecordSource,
   MutationParameters,
   NormalizationSelector,
+  NormalizeResponseFunction,
   OperationAvailability,
   OperationDescriptor,
   OperationLoader,
@@ -158,6 +165,7 @@ export type {
   StoreUpdater,
   UpdatableData,
   TaskScheduler,
+  LiveState,
 } from './store/RelayStoreTypes';
 export type {
   GraphQLSubscriptionConfig,
@@ -296,6 +304,7 @@ module.exports = {
   graphql: GraphQLTag.graphql,
   isFragment: GraphQLTag.isFragment,
   isInlineDataFragment: GraphQLTag.isInlineDataFragment,
+  suspenseSentinel,
   isRequest: GraphQLTag.isRequest,
   readInlineData,
 
@@ -367,6 +376,7 @@ module.exports = {
     getPromiseForActiveRequest: fetchQueryInternal.getPromiseForActiveRequest,
     getObservableForActiveRequest:
       fetchQueryInternal.getObservableForActiveRequest,
+    normalizeResponse: normalizeResponse,
     withProvidedVariables: withProvidedVariables,
   },
 };

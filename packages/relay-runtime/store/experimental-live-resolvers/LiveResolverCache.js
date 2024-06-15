@@ -32,10 +32,12 @@ import type {
   ResolverCache,
 } from '../ResolverCache';
 import type LiveResolverStore from './LiveResolverStore';
-import type {LiveState} from './LiveResolverStore';
+import type {LiveState} from 'relay-runtime';
 
 const recycleNodesInto = require('../../util/recycleNodesInto');
 const {RELAY_LIVE_RESOLVER} = require('../../util/RelayConcreteNode');
+const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
+const shallowFreeze = require('../../util/shallowFreeze');
 const {generateClientID, generateClientObjectClientID} = require('../ClientID');
 const RelayModernRecord = require('../RelayModernRecord');
 const {createNormalizationSelector} = require('../RelayModernSelector');
@@ -620,12 +622,18 @@ class LiveResolverCache implements ResolverCache {
         nextOutputTypeRecordIDs,
       );
 
+      if (RelayFeatureFlags.ENABLE_SHALLOW_FREEZE_RESOLVER_VALUES) {
+        shallowFreeze(resolverValue);
+      }
       RelayModernRecord.setValue(
         resolverRecord,
         RELAY_RESOLVER_VALUE_KEY,
         resolverValue,
       );
     } else {
+      if (RelayFeatureFlags.ENABLE_SHALLOW_FREEZE_RESOLVER_VALUES) {
+        shallowFreeze(value);
+      }
       // For "classic" resolvers (or if the value is nullish), we are just setting their
       // value as is.
       RelayModernRecord.setValue(
@@ -895,4 +903,5 @@ function getConcreteTypename(
 module.exports = {
   LiveResolverCache,
   getUpdatedDataIDs,
+  RELAY_RESOLVER_LIVE_STATE_SUBSCRIPTION_KEY,
 };
