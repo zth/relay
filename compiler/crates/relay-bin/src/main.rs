@@ -296,6 +296,8 @@ async fn handle_compiler_command(command: CompileCommand) -> Result<(), Error> {
         );
     }
 
+    // config.generate_extra_artifacts = Some(Box::new(default_generate_extra_artifacts_fn));
+
     let compiler = Compiler::new(Arc::new(config), Arc::new(ConsoleLogger));
 
     if command.watch {

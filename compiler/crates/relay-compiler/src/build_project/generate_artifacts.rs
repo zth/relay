@@ -26,13 +26,10 @@ use relay_transforms::RawResponseGenerationMode;
 use relay_transforms::RefetchableDerivedFromMetadata;
 use relay_transforms::SplitOperationMetadata;
 use relay_transforms::UPDATABLE_DIRECTIVE;
-use schema::SDLSchema;
 
 pub use super::artifact_content::ArtifactContent;
 use super::build_ir::SourceHashes;
-use super::resolvers_schema_module::generate_resolvers_schema_module;
 use crate::artifact_map::ArtifactSourceKey;
-use crate::config::Config;
 use crate::config::ProjectConfig;
 
 /// Represents a generated output artifact.
@@ -48,9 +45,7 @@ pub struct Artifact {
 }
 
 pub fn generate_artifacts(
-    config: &Config,
     project_config: &ProjectConfig,
-    schema: &SDLSchema,
     programs: &Programs,
     source_hashes: Arc<SourceHashes>,
 ) -> Vec<Artifact> {
@@ -196,7 +191,7 @@ pub fn generate_artifacts(
             match project_config.resolvers_schema_module {
                 Some(ResolversSchemaModuleConfig { ref path }) =>
                 vec![
-                    generate_resolvers_schema_module(config, project_config, schema, path.clone()).unwrap()
+                    generate_resolvers_schema_module_artifact(path.clone())
                 ],
                 _ => vec![],
             }
@@ -236,8 +231,8 @@ fn generate_normalization_artifact(
 
 pub fn generate_preloadable_query_parameters_artifact(
     project_config: &ProjectConfig,
-    typegen: &Arc<OperationDefinition>,
     normalization: &Arc<OperationDefinition>,
+    typegen: &Arc<OperationDefinition>,
     id_and_text_hash: &Option<QueryID>,
     source_keys: Vec<ArtifactSourceKey>,
     source_file: SourceLocationKey,
@@ -388,4 +383,13 @@ fn group_operations(programs: &Programs) -> FnvHashMap<StringKey, OperationGroup
     }
 
     grouped_operations
+}
+
+fn generate_resolvers_schema_module_artifact(path: PathBuf) -> Artifact {
+    Artifact {
+        artifact_source_keys: vec![ArtifactSourceKey::Schema()],
+        path,
+        content: ArtifactContent::ResolversSchema,
+        source_file: SourceLocationKey::generated(),
+    }
 }

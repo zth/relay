@@ -31,6 +31,7 @@ use rayon::prelude::*;
 use regex::Regex;
 use relay_config::CustomScalarType;
 use relay_config::DiagnosticReportConfig;
+pub use relay_config::ExtraArtifactsConfig;
 use relay_config::FlowTypegenConfig;
 use relay_config::JsModuleFormat;
 pub use relay_config::LocalPersistConfig;
@@ -151,7 +152,8 @@ pub struct Config {
     /// and after each major transformation step (common, operations, etc)
     /// in the `apply_transforms(...)`.
     pub custom_transforms: Option<CustomTransformsConfig>,
-
+    pub custom_override_schema_determinator:
+        Option<Box<dyn Fn(&OperationDefinition) -> Option<String> + Send + Sync>>,
     pub export_persisted_query_ids_to_file: Option<PathBuf>,
 
     /// The async function is called before the compiler connects to the file
@@ -358,6 +360,8 @@ Example file:
                     base: config_file_project.base,
                     enabled: true,
                     schema_extensions: config_file_project.schema_extensions,
+                    extra_artifacts_config: None,
+                    extra: config_file_project.extra,
                     output: config_file_project.output,
                     extra_artifacts_output: config_file_project.extra_artifacts_output,
                     shard_output: config_file_project.shard_output,
@@ -367,20 +371,18 @@ Example file:
                     typegen_config: config_file_project.typegen_config,
                     persist: config_file_project.persist,
                     variable_names_comment: config_file_project.variable_names_comment,
-                    extra: config_file_project.extra,
                     test_path_regex,
                     feature_flags: Arc::new(
                         config_file_project
                             .feature_flags
                             .unwrap_or_else(|| config_file_feature_flags.clone()),
                     ),
-                    filename_for_artifact: None,
-                    skip_types_for_artifact: None,
                     rollout: config_file_project.rollout,
                     js_module_format: config_file_project.js_module_format,
                     module_import_config: config_file_project.module_import_config,
                     diagnostic_report_config: config_file_project.diagnostic_report_config,
                     resolvers_schema_module: config_file_project.resolvers_schema_module,
+                    codegen_command: config_file_project.codegen_command,
                 };
                 Ok((project_name, project_config))
             })
@@ -422,6 +424,7 @@ Example file:
             is_dev_variable_name: config_file.is_dev_variable_name,
             file_source_config: FileSourceKind::Watchman,
             custom_transforms: None,
+            custom_override_schema_determinator: None,
             export_persisted_query_ids_to_file: None,
             initialize_resources: None,
             update_compiler_state_from_saved_state: None,
@@ -681,11 +684,11 @@ pub struct SingleProjectConfigFile {
     /// the babel plugin needs `artifactDirectory` set as well.
     pub artifact_directory: Option<PathBuf>,
 
-    /// [DEPRECATED] This is deprecated field, we're not using it in the V13.
+    /// \[DEPRECATED\] This is deprecated field, we're not using it in the V13.
     /// Adding to the config, to show the warning, and not a parse error.
     pub include: Vec<String>,
 
-    /// [DEPRECATED] This is deprecated field, we're not using it in the V13.
+    /// \[DEPRECATED\] This is deprecated field, we're not using it in the V13.
     /// Adding to the config, to show the warning, and not a parse error.
     pub extensions: Vec<String>,
 
@@ -1049,6 +1052,9 @@ pub struct ConfigFileProject {
 
     #[serde(default)]
     pub resolvers_schema_module: Option<ResolversSchemaModuleConfig>,
+
+    #[serde(default)]
+    pub codegen_command: Option<String>,
 }
 
 pub type PersistId = String;

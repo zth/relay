@@ -20,7 +20,6 @@ mod log_program_stats;
 mod persist_operations;
 mod project_asts;
 pub mod rescript_generate_extra_files;
-mod resolvers_schema_module;
 mod source_control;
 mod validate;
 
@@ -42,8 +41,8 @@ use fnv::FnvBuildHasher;
 use fnv::FnvHashMap;
 use fnv::FnvHashSet;
 pub use generate_artifacts::generate_artifacts;
-pub use generate_artifacts::Artifact;
 pub use generate_artifacts::generate_preloadable_query_parameters_artifact;
+pub use generate_artifacts::Artifact;
 pub use generate_artifacts::ArtifactContent;
 use graphql_ir::FragmentDefinitionNameSet;
 use graphql_ir::Program;
@@ -292,13 +291,7 @@ pub fn build_project(
 
     // Generate artifacts by collecting information from the `Programs`.
     let artifacts_timer = log_event.start("generate_artifacts_time");
-    let artifacts = generate_artifacts(
-        config,
-        project_config,
-        &schema,
-        &programs,
-        Arc::clone(&source_hashes),
-    );
+    let artifacts = generate_artifacts(project_config, &programs, Arc::clone(&source_hashes));
     log_event.stop(artifacts_timer);
 
     log_event.number(

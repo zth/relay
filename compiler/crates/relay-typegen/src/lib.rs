@@ -50,8 +50,6 @@ static LOCAL_3D_PAYLOAD: &str = "Local3DPayload";
 static ACTOR_CHANGE_POINT: &str = "ActorChangePoint";
 static VALIDATOR_EXPORT_NAME: &str = "validate";
 static LIVE_RESOLVERS_LIVE_STATE: &str = "LiveState";
-static LIVE_RESOLVERS_EXPERIMENTAL_STORE_PATH: &str =
-    "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
 
 lazy_static! {
     static ref KEY_CLIENTID: StringKey = "__id".intern();
@@ -160,9 +158,11 @@ fn generate_fragment_type_exports_section_impl(
             .is_some(),
         fragment_definition.name.map(|x| x.0),
         fragment_locations,
-        false,
         None,
-        is_extra_artifact_branch_module
+        TypegenOptions {
+            no_optional_fields_in_raw_response_type: false,
+            is_extra_artifact_branch_module,
+        },
     );
     let mut writer = new_writer_from_config(
         &project_config.typegen_config,
@@ -189,14 +189,17 @@ pub fn generate_named_validator_export(
             .is_some(),
         fragment_definition.name.map(|x| x.0),
         fragment_locations,
-        false,
         None,
-        false
+        TypegenOptions {
+            no_optional_fields_in_raw_response_type: false,
+            is_extra_artifact_branch_module: false,
+        }
     );
     let mut writer = new_writer_from_config(
         &project_config.typegen_config,
         &typegen_context,
         rescript::DefinitionType::Fragment(fragment_definition.clone()),
+        
     );
     write_validator_function(&typegen_context, fragment_definition, &mut writer).unwrap();
     let validator_function_body = writer.into_string();
@@ -232,9 +235,11 @@ pub fn generate_operation_type_exports_section(
             typegen_operation.name.item.0,
         ),
         fragment_locations,
-        false,
         is_preloadable_thin_file,
-        false
+        TypegenOptions {
+            no_optional_fields_in_raw_response_type: false,
+            is_extra_artifact_branch_module: false,
+        },
     );
     let mut writer = new_writer_from_config(
         &project_config.typegen_config,
@@ -242,7 +247,7 @@ pub fn generate_operation_type_exports_section(
         rescript::DefinitionType::Operation((
             typegen_operation.clone(),
             normalization_operation.clone(),
-        )),
+        ))
     );
     write_operation_type_exports_section(
         &typegen_context,
@@ -275,9 +280,11 @@ pub fn generate_split_operation_type_exports_section(
             typegen_operation.name.item.0,
         ),
         fragment_locations,
-        no_optional_fields_in_raw_response_type,
         None,
-        false
+        TypegenOptions {
+            no_optional_fields_in_raw_response_type,
+            is_extra_artifact_branch_module: false,
+        },
     );
     let mut writer = new_writer_from_config(
         &project_config.typegen_config,
@@ -285,7 +292,7 @@ pub fn generate_split_operation_type_exports_section(
         rescript::DefinitionType::Operation((
             typegen_operation.clone(),
             normalization_operation.clone(),
-        )),
+        ))
     );
 
     write_split_operation_type_exports_section(
@@ -307,11 +314,8 @@ struct TypegenContext<'a> {
     has_unified_output: bool,
     generating_updatable_types: bool,
     definition_source_location: WithLocation<StringKey>,
-    // All keys in raw response should be required
-    no_optional_fields_in_raw_response_type: bool,
     is_preloadable_thin_file: Option<bool>, // option/bool abuse, but want to make minimal changes
-    // Some extra artifacts require special type generation
-    is_extra_artifact_branch_module: bool,
+    typegen_options: TypegenOptions,
 }
 
 impl<'a> TypegenContext<'a> {
@@ -321,9 +325,8 @@ impl<'a> TypegenContext<'a> {
         generating_updatable_types: bool,
         definition_source_location: WithLocation<StringKey>,
         fragment_locations: &'a FragmentLocations,
-        no_optional_fields_in_raw_response_type: bool,
         is_preloadable_thin_file: Option<bool>,
-        is_extra_artifact_branch_module: bool,
+        typegen_options: TypegenOptions,
     ) -> Self {
         Self {
             schema,
@@ -332,9 +335,15 @@ impl<'a> TypegenContext<'a> {
             has_unified_output: project_config.output.is_some(),
             generating_updatable_types,
             definition_source_location,
-            no_optional_fields_in_raw_response_type,
             is_preloadable_thin_file,
-            is_extra_artifact_branch_module,
+            typegen_options,
         }
     }
+}
+
+struct TypegenOptions {
+    // All keys in raw response should be required
+    no_optional_fields_in_raw_response_type: bool,
+    // Some extra artifacts require special type generation
+    is_extra_artifact_branch_module: bool,
 }
