@@ -792,5 +792,8 @@ fn write_artifacts<F: Fn() -> bool + Sync + Send>(
 }
 
 fn is_relay_file(path: &PathBuf) -> bool {
-    path.ends_with("_graphql.res")
+    match path.file_name() {
+        Some(file_name) => file_name.to_str().unwrap_or("").ends_with("_graphql.res"),
+        None => false
+    }
 }
