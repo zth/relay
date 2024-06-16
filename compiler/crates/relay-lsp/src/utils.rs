@@ -7,7 +7,6 @@
 
 use std::path::PathBuf;
 
-use common::FeatureFlag;
 use common::SourceLocationKey;
 use common::Span;
 use common::TextSource;
@@ -16,6 +15,7 @@ use docblock_syntax::parse_docblock;
 use extract_graphql::JavaScriptSourceFeature;
 use graphql_syntax::parse_executable_with_error_recovery_and_parser_features;
 use graphql_syntax::ExecutableDefinition;
+use graphql_syntax::GraphQLSource;
 use graphql_syntax::ParserFeatures;
 use intern::string_key::StringKey;
 use log::debug;
@@ -53,16 +53,19 @@ pub fn extract_executable_definitions_from_text_document(
         // the source has no graphql documents.
         .ok_or(LSPRuntimeError::ExpectedError)?;
 
+    let path = text_document_uri.path();
+
     let definitions = source_features
         .iter()
-        .filter_map(|feature| match feature {
+        .enumerate()
+        .filter_map(|(i, feature)| match feature {
             JavaScriptSourceFeature::Docblock(_) => None,
-            JavaScriptSourceFeature::GraphQL(graphql_source) => Some(graphql_source),
+            JavaScriptSourceFeature::GraphQL(graphql_source) => Some((i, graphql_source)),
         })
-        .flat_map(|graphql_source| {
+        .flat_map(|(i, graphql_source)| {
             let document = parse_executable_with_error_recovery_and_parser_features(
                 &graphql_source.text_source().text,
-                SourceLocationKey::standalone(text_document_uri.as_ref()),
+                SourceLocationKey::embedded(path, i),
                 parser_features,
             )
             .item;
@@ -117,14 +120,31 @@ pub fn get_project_name_from_file_group(file_group: &FileGroup) -> Result<String
 /// request, only if the request occurs within a GraphQL document or Docblock.
 pub fn extract_feature_from_text(
     project_config: &ProjectConfig,
-    source_feature_cache: &DashMap<Url, Vec<JavaScriptSourceFeature>>,
+    js_source_feature_cache: &DashMap<Url, Vec<JavaScriptSourceFeature>>,
+    schema_source_cache: &DashMap<Url, GraphQLSource>,
     text_document_position: &TextDocumentPositionParams,
     index_offset: usize,
 ) -> LSPRuntimeResult<(Feature, Span)> {
     let uri = &text_document_position.text_document.uri;
     let position = text_document_position.position;
 
-    let source_features = source_feature_cache
+    if let Some(schema_source) = schema_source_cache.get(uri) {
+        let source_location_key = SourceLocationKey::standalone(uri.as_ref());
+        let schema_document = graphql_syntax::parse_schema_document(
+            &schema_source.text_source().text,
+            source_location_key,
+        )
+        .map_err(|_| LSPRuntimeError::ExpectedError)?;
+
+        let position_span = position_to_span(&position, schema_source.text_source(), index_offset)
+            .ok_or_else(|| {
+                LSPRuntimeError::UnexpectedError("Failed to map positions to spans".to_string())
+            })?;
+
+        return Ok((Feature::SchemaDocument(schema_document), position_span));
+    }
+
+    let source_features = js_source_feature_cache
         .get(uri)
         .ok_or(LSPRuntimeError::ExpectedError)?;
 
@@ -168,25 +188,27 @@ pub fn extract_feature_from_text(
             // since the change event fires before completion.
             debug!("position_span: {:?}", position_span);
 
-            Ok((Feature::GraphQLDocument(document), position_span))
+            Ok((Feature::ExecutableDocument(document), position_span))
         }
         JavaScriptSourceFeature::Docblock(docblock_source) => {
-            let executable_definitions_in_file = extract_executable_definitions_from_text_document(
-                uri,
-                source_feature_cache,
-                parser_features,
-            )?;
-
             let text_source = &docblock_source.text_source();
             let text = &text_source.text;
+            if text.contains("relay:enable-new-relay-resolver") {
+                return Err(LSPRuntimeError::ExpectedError);
+            }
+
+            let executable_definitions_in_file = extract_executable_definitions_from_text_document(
+                uri,
+                js_source_feature_cache,
+                parser_features,
+            )?;
             let docblock_ir = parse_docblock(text, source_location_key)
                 .and_then(|ast| {
                     parse_docblock_ast(
-                        project_config.name,
+                        &project_config.name,
                         &ast,
                         Some(&executable_definitions_in_file),
-                        ParseOptions {
-                            allow_legacy_verbose_syntax: &FeatureFlag::Disabled,
+                        &ParseOptions {
                             enable_interface_output_type: &project_config
                                 .feature_flags
                                 .relay_resolver_enable_interface_output_type,

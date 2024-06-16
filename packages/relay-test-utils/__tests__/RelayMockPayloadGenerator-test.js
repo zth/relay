@@ -16,7 +16,7 @@ import type {Query, Variables} from 'relay-runtime';
 
 const RelayMockPayloadGenerator = require('../RelayMockPayloadGenerator');
 const {createOperationDescriptor, graphql} = require('relay-runtime');
-const {FIXTURE_TAG} = require('relay-test-utils-internal/node');
+const {FIXTURE_TAG} = require('relay-test-utils-internal');
 
 function testGeneratedData<TVariables: Variables, TData, TRawResponse>(
   query: Query<TVariables, TData, TRawResponse>,
@@ -1742,8 +1742,25 @@ test('Query with @no_inline fragment spread with variable argument', () => {
 
 test('generate mock for deferred fragments', () => {
   graphql`
+    fragment RelayMockPayloadGeneratorTest61SubFragment on User {
+      id
+      name
+    }
+  `;
+
+  graphql`
     fragment RelayMockPayloadGeneratorTest61Fragment on User {
       name
+      ... on User {
+        id
+        friends {
+          edges {
+            node {
+              ...RelayMockPayloadGeneratorTest61SubFragment @defer
+            }
+          }
+        }
+      }
     }
   `;
   testGeneratedData(
@@ -1755,7 +1772,13 @@ test('generate mock for deferred fragments', () => {
         }
       }
     `,
-    null,
+    {
+      FriendsConnection() {
+        return {
+          edges: Array(5).fill(),
+        };
+      },
+    },
     {generateDeferredPayload: true},
   );
 });
@@ -1889,5 +1912,46 @@ test('generate mock for streamed fragments with if condition false', () => {
     `,
     null,
     {generateDeferredPayload: true},
+  );
+});
+
+test('should generate data for @match with PlainUserNameRenderer_name and use defaults from mock resolvers', () => {
+  graphql`
+    fragment RelayMockPayloadGeneratorTest67Fragment on User {
+      id
+      nameRenderer {
+        ...RelayMockPayloadGeneratorTest67PlainUserNameRenderer_name
+          @module(name: "PlainUserNameRenderer.react")
+      }
+    }
+  `;
+  graphql`
+    fragment RelayMockPayloadGeneratorTest67PlainUserNameRenderer_name on PlainUserNameRenderer {
+      plaintext
+      data {
+        text
+      }
+    }
+  `;
+
+  testGeneratedData(
+    graphql`
+      query RelayMockPayloadGeneratorTest67Query @relay_test_operation {
+        node(id: "my-id") {
+          ...RelayMockPayloadGeneratorTest67Fragment
+        }
+      }
+    `,
+    {
+      UserNameRenderer() {
+        return {
+          __typename: 'PlainUserNameRenderer',
+          __module_operation: require('./__generated__/RelayMockPayloadGeneratorTest67PlainUserNameRenderer_name$normalization.graphql'),
+          data: {
+            text: 'hello world',
+          },
+        };
+      },
+    },
   );
 });

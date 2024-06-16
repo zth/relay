@@ -44,6 +44,7 @@ export type ReaderFragment = {
   +abstractKey?: ?string,
   +metadata?: ?{
     +connection?: $ReadOnlyArray<ConnectionMetadata>,
+    +throwOnFieldError?: boolean,
     +hasClientEdges?: boolean,
     +mask?: boolean,
     +plural?: boolean,
@@ -140,7 +141,7 @@ export type ReaderRootArgument = {
 export type ReaderInlineFragment = {
   +kind: 'InlineFragment',
   +selections: $ReadOnlyArray<ReaderSelection>,
-  +type: string,
+  +type: ?string,
   +abstractKey?: ?string,
 };
 

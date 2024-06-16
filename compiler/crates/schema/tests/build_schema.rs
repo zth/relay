@@ -15,7 +15,6 @@ use graphql_cli::DiagnosticPrinter;
 use schema::build_schema_from_flat_buffer;
 use schema::build_schema_with_extensions;
 use schema::serialize_as_flatbuffer;
-use schema::transform_semantic_non_null::transform_semantic_non_null;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
@@ -25,9 +24,10 @@ const SCHEMA_SEPARATOR: &str = "%extensions%";
 pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts: Vec<_> = fixture.content.split(SCHEMA_SEPARATOR).collect();
     let result = match parts.as_slice() {
-        [base] => {
-            build_schema_with_extensions::<_, &str>(&[(base, SourceLocationKey::generated())], &[])
-        }
+        [base] => build_schema_with_extensions::<_, &str>(
+            &[(base, SourceLocationKey::standalone(fixture.file_name))],
+            &[],
+        ),
         [base, extensions] => {
             // prepend a comment so the correct line + column number is reported for client extension
             // (since we source base and client schemas from one file)
@@ -35,7 +35,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
             assert!(nchars_base > 0);
             let prepended_extension = format!("{}\n{}", "#".repeat(nchars_base - 1), extensions);
             build_schema_with_extensions(
-                &[(base, SourceLocationKey::generated())],
+                &[(base, SourceLocationKey::standalone(fixture.file_name))],
                 &[(
                     prepended_extension,
                     SourceLocationKey::standalone(fixture.file_name),
@@ -46,16 +46,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
     };
 
     result
-        .map(|mut schema| {
-            if fixture
-                .content
-                .contains("# relay:experimental_emit_semantic_nullability_types")
-            {
-                transform_semantic_non_null(&mut schema)
-                    .expect("Failed to transform semanticNonNull in schema");
-            }
-            print_schema_and_flat_buffer_schema(schema)
-        })
+        .map(print_schema_and_flat_buffer_schema)
         .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))
 }
 

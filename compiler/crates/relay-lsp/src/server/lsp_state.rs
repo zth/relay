@@ -8,7 +8,8 @@
 use std::path::PathBuf;
 use std::sync::Arc;
 
-use common::FeatureFlag;
+use common::DiagnosticsResult;
+use common::Location;
 use common::PerfLogger;
 use common::SourceLocationKey;
 use common::Span;
@@ -27,6 +28,7 @@ use graphql_ir::RelayMode;
 use graphql_syntax::parse_executable_with_error_recovery_and_parser_features;
 use graphql_syntax::ExecutableDefinition;
 use graphql_syntax::ExecutableDocument;
+use graphql_syntax::GraphQLSource;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use log::debug;
@@ -53,6 +55,7 @@ use super::task_queue::TaskScheduler;
 use crate::diagnostic_reporter::DiagnosticReporter;
 use crate::docblock_resolution_info::create_docblock_resolution_info;
 use crate::graphql_tools::get_query_text;
+use crate::location::transform_relay_location_to_lsp_location_with_cache;
 use crate::lsp_runtime_error::LSPRuntimeResult;
 use crate::node_resolution_info::create_node_resolution_info;
 use crate::utils::extract_executable_definitions_from_text_document;
@@ -128,7 +131,7 @@ pub trait GlobalState {
 
     fn document_opened(&self, url: &Url, text: &str) -> LSPRuntimeResult<()>;
 
-    fn document_changed(&self, url: &Url, full_text: &str) -> LSPRuntimeResult<()>;
+    fn document_changed(&self, url: &Url, text: &str) -> LSPRuntimeResult<()>;
 
     fn document_closed(&self, url: &Url) -> LSPRuntimeResult<()>;
 
@@ -136,6 +139,17 @@ pub trait GlobalState {
     /// we may need to know who's our current consumer.
     /// This is mostly for hover handler (where we render markup)
     fn get_content_consumer_type(&self) -> ContentConsumerType;
+
+    /// Transform Relay location to LSP location. This involves converting
+    /// character offsets to line/column numbers which means we need access to
+    /// the text of the file.
+    ///
+    /// This variant should be used when the Relay location was derived from an
+    /// open file which might not have been written to disk.
+    fn transform_relay_location_in_editor_to_lsp_location(
+        &self,
+        location: Location,
+    ) -> LSPRuntimeResult<lsp_types::Location>;
 }
 
 /// This structure contains all available resources that we may use in the Relay LSP message/notification
@@ -153,7 +167,8 @@ pub struct LSPState<
     pub(crate) schemas: Schemas,
     schema_documentation_loader: Option<Box<dyn SchemaDocumentationLoader<TSchemaDocumentation>>>,
     pub(crate) source_programs: SourcePrograms,
-    synced_javascript_features: DashMap<Url, Vec<JavaScriptSourceFeature>>,
+    synced_javascript_sources: DashMap<Url, Vec<JavaScriptSourceFeature>>,
+    synced_schema_sources: DashMap<Url, GraphQLSource>,
     pub(crate) perf_logger: Arc<TPerfLogger>,
     pub(crate) diagnostic_reporter: Arc<DiagnosticReporter>,
     pub(crate) notify_lsp_state_resources: Arc<Notify>,
@@ -196,7 +211,8 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             schemas: Arc::new(DashMap::with_hasher(FnvBuildHasher::default())),
             schema_documentation_loader,
             source_programs: Arc::new(DashMap::with_hasher(FnvBuildHasher::default())),
-            synced_javascript_features: Default::default(),
+            synced_javascript_sources: Default::default(),
+            synced_schema_sources: Default::default(),
         };
 
         // Preload schema documentation - this will warm-up schema documentation cache in the LSP Extra Data providers
@@ -207,13 +223,13 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         lsp_state
     }
 
-    fn insert_synced_sources(&self, url: &Url, sources: Vec<JavaScriptSourceFeature>) {
-        self.synced_javascript_features.insert(url.clone(), sources);
+    fn insert_synced_js_sources(&self, url: &Url, sources: Vec<JavaScriptSourceFeature>) {
+        self.synced_javascript_sources.insert(url.clone(), sources);
     }
 
-    fn validate_synced_sources(&self, url: &Url) -> LSPRuntimeResult<()> {
+    fn validate_synced_js_sources(&self, url: &Url) -> LSPRuntimeResult<()> {
         let mut diagnostics = vec![];
-        let javascript_features = self.synced_javascript_features.get(url).ok_or_else(|| {
+        let javascript_features = self.synced_javascript_sources.get(url).ok_or_else(|| {
             LSPRuntimeError::UnexpectedError(format!("Expected GraphQL sources for URL {}", url))
         })?;
         let project_name = self.extract_project_name_from_url(url)?;
@@ -231,10 +247,9 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         let mut docblock_sources = vec![];
 
         for (index, feature) in javascript_features.iter().enumerate() {
-            let source_location_key = SourceLocationKey::embedded(url.as_ref(), index);
-
             match feature {
                 JavaScriptSourceFeature::GraphQL(graphql_source) => {
+                    let source_location_key = SourceLocationKey::embedded(url.as_ref(), index);
                     let result = parse_executable_with_error_recovery_and_parser_features(
                         &graphql_source.text_source().text,
                         source_location_key,
@@ -256,22 +271,13 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                         }
                         Ok(warnings)
                     };
-                    let compiler_diagnostics = match build_ir_with_extra_features(
-                        &schema,
-                        &result.item.definitions,
-                        &BuilderOptions {
-                            allow_undefined_fragment_spreads: true,
-                            fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
-                            relay_mode: Some(RelayMode),
-                            default_anonymous_operation_name: None,
-                            allow_custom_scalar_literals: true, // for compatibility
-                        },
-                    )
-                    .and_then(get_errors_or_warnings)
-                    {
-                        Ok(warnings) => warnings,
-                        Err(errors) => errors,
-                    };
+                    let compiler_diagnostics =
+                        match build_ir_for_lsp(&schema, &result.item.definitions)
+                            .and_then(get_errors_or_warnings)
+                        {
+                            Ok(warnings) => warnings,
+                            Err(errors) => errors,
+                        };
 
                     diagnostics.extend(compiler_diagnostics.iter().map(|diagnostic| {
                         self.diagnostic_reporter
@@ -292,11 +298,10 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             let text = &text_source.text;
             let result = parse_docblock(text, source_location_key).and_then(|ast| {
                 parse_docblock_ast(
-                    project_config.name,
+                    &project_config.name,
                     &ast,
                     Some(&executable_definitions),
-                    ParseOptions {
-                        allow_legacy_verbose_syntax: &FeatureFlag::Disabled,
+                    &ParseOptions {
                         enable_interface_output_type: &project_config
                             .feature_flags
                             .relay_resolver_enable_interface_output_type,
@@ -334,21 +339,24 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         self.task_scheduler.schedule(super::Task::LSPState(task));
     }
 
-    fn process_synced_sources(
-        &self,
-        uri: &Url,
-        sources: Vec<JavaScriptSourceFeature>,
-    ) -> LSPRuntimeResult<()> {
-        self.insert_synced_sources(uri, sources);
+    fn process_synced_js_sources(&self, uri: &Url, sources: Vec<JavaScriptSourceFeature>) {
+        self.insert_synced_js_sources(uri, sources);
         self.schedule_task(Task::ValidateSyncedSource(uri.clone()));
-
-        Ok(())
     }
 
-    fn remove_synced_sources(&self, url: &Url) {
-        self.synced_javascript_features.remove(url);
+    fn remove_synced_js_sources(&self, url: &Url) {
+        self.synced_javascript_sources.remove(url);
         self.diagnostic_reporter
             .clear_quick_diagnostics_for_url(url);
+    }
+
+    fn insert_synced_schema_source(&self, url: &Url, graphql_source: GraphQLSource) {
+        self.synced_schema_sources
+            .insert(url.clone(), graphql_source);
+    }
+
+    fn remove_synced_schema_source(&self, url: &Url) {
+        self.synced_schema_sources.remove(url);
     }
 
     fn initialize_lsp_state_resources(&self, project_name: StringKey) {
@@ -410,17 +418,21 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             1,
         )?;
 
-        let info = match feature {
-            Feature::GraphQLDocument(executable_document) => FeatureResolutionInfo::GraphqlNode(
-                create_node_resolution_info(executable_document, position_span)?,
-            ),
-            Feature::DocblockIr(docblock_ir) => FeatureResolutionInfo::DocblockNode(DocblockNode {
-                resolution_info: create_docblock_resolution_info(&docblock_ir, position_span)
-                    .ok_or(LSPRuntimeError::ExpectedError)?,
-                ir: docblock_ir,
-            }),
-        };
-        Ok(info)
+        match feature {
+            Feature::ExecutableDocument(executable_document) => {
+                Ok(FeatureResolutionInfo::GraphqlNode(
+                    create_node_resolution_info(executable_document, position_span)?,
+                ))
+            }
+            Feature::DocblockIr(docblock_ir) => {
+                Ok(FeatureResolutionInfo::DocblockNode(DocblockNode {
+                    resolution_info: create_docblock_resolution_info(&docblock_ir, position_span)
+                        .ok_or(LSPRuntimeError::ExpectedError)?,
+                    ir: docblock_ir,
+                }))
+            }
+            Feature::SchemaDocument(_) => Err(LSPRuntimeError::ExpectedError),
+        }
     }
 
     /// Return a parsed executable document for this LSP request, only if the request occurs
@@ -432,8 +444,9 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
     ) -> LSPRuntimeResult<(ExecutableDocument, Span)> {
         let (feature, span) = self.extract_feature_from_text(position, index_offset)?;
         match feature {
-            Feature::GraphQLDocument(document) => Ok((document, span)),
+            Feature::ExecutableDocument(document) => Ok((document, span)),
             Feature::DocblockIr(_) => Err(LSPRuntimeError::ExpectedError),
+            Feature::SchemaDocument(_) => Err(LSPRuntimeError::ExpectedError),
         }
     }
 
@@ -451,7 +464,8 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
         extract_feature_from_text(
             project_config,
-            &self.synced_javascript_features,
+            &self.synced_javascript_sources,
+            &self.synced_schema_sources,
             position,
             index_offset,
         )
@@ -496,7 +510,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
         extract_executable_definitions_from_text_document(
             text_document_uri,
-            &self.synced_javascript_features,
+            &self.synced_javascript_sources,
             get_parser_features(project_config),
         )
     }
@@ -524,47 +538,91 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         })?;
 
         match file_group {
-            FileGroup::Schema { project_set: _ } => {
+            FileGroup::Schema { project_set: _ } | FileGroup::Extension { project_set: _ } => {
                 self.initialize_lsp_state_resources(project_name);
-                Ok(())
-            }
-            FileGroup::Extension { project_set: _ } => {
-                self.initialize_lsp_state_resources(project_name);
+                self.insert_synced_schema_source(uri, GraphQLSource::new(text, 0, 0));
+
                 Ok(())
             }
             FileGroup::Source { project_set: _ } => {
-                let embedded_sources = extract_graphql::extract(text);
-
-                if embedded_sources.is_empty() {
-                    Ok(())
-                } else {
-                    self.initialize_lsp_state_resources(project_name);
-                    self.process_synced_sources(uri, embedded_sources)
+                let mut embedded_sources = extract_graphql::extract(text);
+                if text.contains("relay:enable-new-relay-resolver") {
+                    embedded_sources
+                        .retain(|source| !matches!(source, JavaScriptSourceFeature::Docblock(_)));
                 }
+
+                if !embedded_sources.is_empty() {
+                    self.initialize_lsp_state_resources(project_name);
+                    self.process_synced_js_sources(uri, embedded_sources);
+                }
+
+                Ok(())
             }
             _ => Err(LSPRuntimeError::ExpectedError),
         }
     }
 
-    fn document_changed(&self, uri: &Url, full_text: &str) -> LSPRuntimeResult<()> {
-        // First we check to see if this document has any GraphQL documents.
-        let embedded_sources = extract_graphql::extract(full_text);
-        if embedded_sources.is_empty() {
-            self.remove_synced_sources(uri);
-            Ok(())
-        } else {
-            self.process_synced_sources(uri, embedded_sources)
+    fn document_changed(&self, uri: &Url, text: &str) -> LSPRuntimeResult<()> {
+        let file_group = get_file_group_from_uri(&self.file_categorizer, uri, &self.root_dir)?;
+
+        match file_group {
+            FileGroup::Schema { project_set: _ } | FileGroup::Extension { project_set: _ } => {
+                self.insert_synced_schema_source(uri, GraphQLSource::new(text, 0, 0));
+
+                Ok(())
+            }
+            FileGroup::Source { project_set: _ } => {
+                let embedded_sources = extract_graphql::extract(text);
+                if embedded_sources.is_empty() {
+                    self.remove_synced_js_sources(uri);
+                } else {
+                    self.process_synced_js_sources(uri, embedded_sources);
+                }
+
+                Ok(())
+            }
+            _ => Err(LSPRuntimeError::ExpectedError),
         }
     }
 
     fn document_closed(&self, uri: &Url) -> LSPRuntimeResult<()> {
-        self.remove_synced_sources(uri);
+        self.remove_synced_schema_source(uri);
+        self.remove_synced_js_sources(uri);
         Ok(())
     }
 
     fn get_content_consumer_type(&self) -> ContentConsumerType {
         ContentConsumerType::Relay
     }
+
+    fn transform_relay_location_in_editor_to_lsp_location(
+        &self,
+        location: Location,
+    ) -> LSPRuntimeResult<lsp_types::Location> {
+        transform_relay_location_to_lsp_location_with_cache(
+            &self.root_dir(),
+            location,
+            Some(&self.synced_javascript_sources),
+            Some(&self.synced_schema_sources),
+        )
+    }
+}
+
+pub fn build_ir_for_lsp(
+    schema: &SDLSchema,
+    definitions: &[ExecutableDefinition],
+) -> DiagnosticsResult<Vec<graphql_ir::ExecutableDefinition>> {
+    build_ir_with_extra_features(
+        schema,
+        definitions,
+        &BuilderOptions {
+            allow_undefined_fragment_spreads: true,
+            fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
+            relay_mode: Some(RelayMode),
+            default_anonymous_operation_name: None,
+            allow_custom_scalar_literals: true, // for compatibility
+        },
+    )
 }
 
 #[derive(Debug)]
@@ -582,10 +640,10 @@ pub(crate) fn handle_lsp_state_tasks<
 ) {
     match task {
         Task::ValidateSyncedSource(url) => {
-            state.validate_synced_sources(&url).ok();
+            state.validate_synced_js_sources(&url).ok();
         }
         Task::ValidateSyncedSources => {
-            for item in &state.synced_javascript_features {
+            for item in &state.synced_javascript_sources {
                 state.schedule_task(Task::ValidateSyncedSource(item.key().clone()));
             }
         }

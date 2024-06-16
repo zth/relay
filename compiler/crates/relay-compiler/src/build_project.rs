@@ -68,7 +68,7 @@ use rustc_hash::FxHashSet;
 use schema::SDLSchema;
 use schema_diff::check::IncrementalBuildSchemaChange;
 use schema_diff::check::SchemaChangeSafety;
-pub use source_control::add_to_mercurial;
+pub use source_control::source_control_for_root;
 pub use validate::validate;
 pub use validate::AdditionalValidations;
 
@@ -505,7 +505,8 @@ fn merge_programs(onto: &mut Programs, from: Programs) {
 }
 
 fn merge_program(onto: &mut Program, from: Arc<Program>) {
-    let from = Arc::unwrap_or_clone(from);
+    // Note: this it the inner implementation of the unstable "unwrap_or_clone"
+    let from = Arc::try_unwrap(from).unwrap_or_else(|arc| (*arc).clone());
     onto.fragments.extend(from.fragments);
     onto.operations.extend(from.operations);
 }
@@ -755,7 +756,7 @@ fn write_artifacts<F: Fn() -> bool + Sync + Send>(
     fragment_locations: &FragmentLocations,
     artifacts_file_hash_map: &Option<FxHashMap<String, Option<String>>>,
 ) -> Result<(), BuildProjectFailure> {
-    artifacts.par_chunks(8192).try_for_each_init(
+    artifacts.par_chunks(8).try_for_each_init(
         || Printer::with_dedupe(project_config),
         |printer, artifacts| {
             for artifact in artifacts {

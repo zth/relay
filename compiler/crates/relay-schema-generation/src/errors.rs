@@ -12,7 +12,6 @@ use crate::JSImportType;
 
 #[derive(
     Clone,
-    Copy,
     Debug,
     Error,
     Eq,
@@ -24,17 +23,17 @@ use crate::JSImportType;
 )]
 pub enum SchemaGenerationError {
     #[error(
-        "Can't find type import for `{name}`, expected the type to be imported from another module"
+        "Can't find flow type definition for `{name}`. Expected the type to be imported from another module, or exported from the current module"
     )]
-    ExpectedFlowImportForType { name: StringKey },
+    ExpectedFlowDefinitionForType { name: StringKey },
     #[error("Expected import source to be a string literal")]
     ExpectedStringLiteralSource,
     #[error("Generic types not supported")]
     GenericNotSupported,
-    #[error("Plural types not supported")]
-    PluralNotSupported,
     #[error("Object types not supported")]
     ObjectNotSupported,
+    #[error("{name} is not supported")]
+    UnsupportedType { name: &'static str },
     #[error("Type aliases in Relay resolvers are expected to be object types")]
     ExpectedTypeAliasToBeObject,
     #[error("Expected object definition to include fields")]
@@ -55,4 +54,31 @@ pub enum SchemaGenerationError {
         export_type: JSImportType,
         module_name: StringKey,
     },
+    #[error("Not yet implemented")]
+    TODO,
+
+    #[error("Expected the function name to exist")]
+    MissingFunctionName,
+    #[error("Expected the function return type to exist")]
+    MissingReturnType,
+    #[error("Expected to have at least one function parameter")]
+    MissingFunctionParam,
+    #[error("Expected Relay Resolver function param to include type annotation")]
+    MissingParamType,
+    #[error("Cannot use a LiveState that is also optional")]
+    NoOptionalLiveType,
+    #[error("Unsupported generic: `{name}`")]
+    UnSupportedGeneric { name: StringKey },
+    #[error(
+        "Expected resolver arguments to be in the second function argument and in format of `args: {{field1: value1, field2: value2}}`"
+    )]
+    IncorrectArgumentsDefinition,
+    #[error(
+        "Multiple docblock descriptions found for this @RelayResolver. Please only include one description (a comment in the docblock uninterrupted by a resolver \"@<field>\")"
+    )]
+    MultipleDocblockDescriptions,
+    #[error(
+        "A nullable strong type is provided, please make the type non-nullable. The type can't be nullable in the runtime."
+    )]
+    UnexpectedNullableStrongType,
 }

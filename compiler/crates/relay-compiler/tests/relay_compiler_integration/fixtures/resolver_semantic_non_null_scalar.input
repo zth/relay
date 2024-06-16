@@ -3,7 +3,7 @@
  * @RelayResolver User.foo: String @semanticNonNull
  * @rootFragment UserFooFragment
  */
-graphql`fragment UserFooFragment on User {
+graphql`fragment UserFooFragment on User @throwOnFieldError {
   bar
 }`
 
@@ -29,4 +29,7 @@ graphql`fragment UserFooFragment on User {
 }
 
 //- schema.graphql
+type Query {
+  greeting: String
+}
 type User { name: String }

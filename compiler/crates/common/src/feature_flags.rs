@@ -56,6 +56,11 @@ pub struct FeatureFlags {
     #[serde(default)]
     pub enable_fragment_aliases: FeatureFlag,
 
+    /// Enforce that you must add `@alias` to a fragment if it may not match,
+    /// due to type mismatch or `@skip`/`@include`
+    #[serde(default)]
+    pub enforce_fragment_alias_where_ambiguous: FeatureFlag,
+
     /// Print queries in compact form
     #[serde(default)]
     pub compact_query_text: FeatureFlag,
@@ -104,10 +109,24 @@ pub struct FeatureFlags {
     #[serde(default)]
     pub allow_resolver_non_nullable_return_type: FeatureFlag,
 
-    /// Enable validating the composite schema (server, client schema
+    /// Disable validating the composite schema (server, client schema
     /// extensions, Relay Resolvers) after its built.
     #[serde(default)]
-    pub enable_experimental_schema_validation: bool,
+    pub disable_schema_validation: bool,
+
+    /// Disallow the `@required` directive on fields that are already non-null
+    /// in the schema.
+    #[serde(default)]
+    pub disallow_required_on_non_null_fields: bool,
+
+    /// Feature flag to prefer `fetch_MyType()` generatior over `node()` query generator
+    /// in @refetchable transform
+    #[serde(default)]
+    pub prefer_fetchable_in_refetch_queries: bool,
+
+    /// Disable validation of the `edgeTypeName` argument on `@prependNode` and `@appendNode`.
+    #[serde(default)]
+    pub disable_edge_type_name_validation_on_declerative_connection_directives: FeatureFlag,
 }
 
 fn default_as_true() -> bool {

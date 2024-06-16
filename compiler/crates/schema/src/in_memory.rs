@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::collections::hash_map::Entry;
 use std::collections::BTreeMap;
 use std::collections::HashMap;
 
@@ -25,6 +26,8 @@ use graphql_syntax::*;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use intern::Lookup;
+use rayon::iter::IntoParallelRefIterator;
+use rayon::iter::ParallelIterator;
 
 use crate::definitions::Argument;
 use crate::definitions::Directive;
@@ -193,6 +196,9 @@ impl Schema for InMemorySchema {
             if name == self.strongid_field_name {
                 return Some(self.strongid_field);
             }
+            if name == self.is_fulfilled_field_name {
+                return Some(self.is_fulfilled_field);
+            }
         }
 
         let fields = match parent_type {
@@ -329,6 +335,10 @@ impl InMemorySchema {
 
     pub fn get_type_map(&self) -> impl Iterator<Item = (&StringKey, &Type)> {
         self.type_map.iter()
+    }
+
+    pub fn get_type_map_par_iter(&self) -> impl ParallelIterator<Item = (&StringKey, &Type)> {
+        self.type_map.par_iter()
     }
 
     pub fn get_directives(&self) -> impl Iterator<Item = &Directive> {
@@ -717,14 +727,24 @@ impl InMemorySchema {
         schema_documents: Vec<(Vec<&'a TypeSystemDefinition>, Location)>,
         client_schema_documents: Vec<(Vec<&'a TypeSystemDefinition>, Location)>,
     ) -> DiagnosticsResult<Self> {
-        let schema_definitions: Vec<&TypeSystemDefinition> = schema_documents
+        let schema_definitions: Vec<(&TypeSystemDefinition, Location)> = schema_documents
             .iter()
-            .flat_map(|document| document.0.to_vec())
+            .flat_map(|document| {
+                document
+                    .0
+                    .iter()
+                    .map(|definition| (*definition, document.1))
+            })
             .collect();
 
-        let client_definitions: Vec<&TypeSystemDefinition> = client_schema_documents
+        let client_definitions: Vec<(&TypeSystemDefinition, Location)> = client_schema_documents
             .iter()
-            .flat_map(|document| document.0.to_vec())
+            .flat_map(|document| {
+                document
+                    .0
+                    .iter()
+                    .map(|definition| (*definition, document.1))
+            })
             .collect();
 
         // Step 1: build the type_map from type names to type keys
@@ -739,7 +759,21 @@ impl InMemorySchema {
         let mut field_count = 0;
         let mut directive_count = 0;
 
-        for definition in schema_definitions.iter().chain(&client_definitions) {
+        let mut duplicate_definitions: Vec<(Type, Location)> = Vec::new();
+
+        for (definition, location) in schema_definitions.iter().chain(&client_definitions) {
+            let mut insert_into_type_map = |name: StringKey, type_: Type| {
+                match type_map.entry(name) {
+                    Entry::Occupied(existing_entry) => {
+                        duplicate_definitions
+                            .push((*existing_entry.get(), location.with_span(definition.span())));
+                    }
+                    Entry::Vacant(vacant) => {
+                        vacant.insert(type_);
+                    }
+                };
+            };
+
             match definition {
                 TypeSystemDefinition::SchemaDefinition { .. } => {}
                 TypeSystemDefinition::DirectiveDefinition { .. } => {
@@ -750,7 +784,7 @@ impl InMemorySchema {
                     fields,
                     ..
                 }) => {
-                    type_map.insert(name.value, Type::Object(ObjectID(next_object_id)));
+                    insert_into_type_map(name.value, Type::Object(ObjectID(next_object_id)));
                     field_count += len_of_option_list(fields);
                     next_object_id += 1;
                 }
@@ -759,31 +793,35 @@ impl InMemorySchema {
                     fields,
                     ..
                 }) => {
-                    type_map.insert(name.value, Type::Interface(InterfaceID(next_interface_id)));
+                    insert_into_type_map(
+                        name.value,
+                        Type::Interface(InterfaceID(next_interface_id)),
+                    );
                     field_count += len_of_option_list(fields);
                     next_interface_id += 1;
                 }
                 TypeSystemDefinition::UnionTypeDefinition(UnionTypeDefinition { name, .. }) => {
-                    type_map.insert(name.value, Type::Union(UnionID(next_union_id)));
+                    insert_into_type_map(name.value, Type::Union(UnionID(next_union_id)));
                     next_union_id += 1;
                 }
                 TypeSystemDefinition::InputObjectTypeDefinition(InputObjectTypeDefinition {
                     name,
                     ..
                 }) => {
-                    type_map.insert(
+                    insert_into_type_map(
                         name.value,
                         Type::InputObject(InputObjectID(next_input_object_id)),
                     );
                     next_input_object_id += 1;
                 }
                 TypeSystemDefinition::EnumTypeDefinition(EnumTypeDefinition { name, .. }) => {
-                    type_map.insert(name.value, Type::Enum(EnumID(next_enum_id)));
+                    insert_into_type_map(name.value, Type::Enum(EnumID(next_enum_id)));
                     next_enum_id += 1;
                 }
                 TypeSystemDefinition::ScalarTypeDefinition(ScalarTypeDefinition {
                     name, ..
                 }) => {
+                    // We allow duplicate scalar definitions
                     type_map.insert(name.value, Type::Scalar(ScalarID(next_scalar_id)));
                     next_scalar_id += 1;
                 }
@@ -861,6 +899,20 @@ impl InMemorySchema {
             for definition in document.0.iter() {
                 schema.add_definition(definition, &document.1.source_location(), true)?;
             }
+        }
+
+        if !duplicate_definitions.is_empty() {
+            return Err(duplicate_definitions
+                .into_iter()
+                .map(|(type_, location)| {
+                    let name = schema.get_type_name(type_);
+                    let previous_location = schema.get_type_location(type_);
+                    Diagnostic::error(SchemaError::DuplicateType(name), location).annotate(
+                        format!("`{}` was previously defined here:", name),
+                        previous_location,
+                    )
+                })
+                .collect());
         }
 
         for document in schema_documents
@@ -1166,7 +1218,7 @@ impl InMemorySchema {
                             if let Some(prev_query_type) = self.query_type {
                                 return Err(vec![Diagnostic::error(
                                     SchemaError::DuplicateOperationDefinition(
-                                        *operation,
+                                        operation.to_string(),
                                         type_.value,
                                         expect_object_type_name(&self.type_map, prev_query_type),
                                     ),
@@ -1180,7 +1232,7 @@ impl InMemorySchema {
                             if let Some(prev_mutation_type) = self.mutation_type {
                                 return Err(vec![Diagnostic::error(
                                     SchemaError::DuplicateOperationDefinition(
-                                        *operation,
+                                        operation.to_string(),
                                         type_.value,
                                         expect_object_type_name(&self.type_map, prev_mutation_type),
                                     ),
@@ -1194,7 +1246,7 @@ impl InMemorySchema {
                             if let Some(prev_subscription_type) = self.subscription_type {
                                 return Err(vec![Diagnostic::error(
                                     SchemaError::DuplicateOperationDefinition(
-                                        *operation,
+                                        operation.to_string(),
                                         type_.value,
                                         expect_object_type_name(
                                             &self.type_map,
@@ -1576,9 +1628,10 @@ impl InMemorySchema {
     fn build_object_id(&mut self, name: StringKey) -> DiagnosticsResult<ObjectID> {
         match self.type_map.get(&name) {
             Some(Type::Object(id)) => Ok(*id),
-            Some(non_object_type) => {
-                todo_add_location(SchemaError::ExpectedObjectReference(name, *non_object_type))
-            }
+            Some(non_object_type) => todo_add_location(SchemaError::ExpectedObjectReference(
+                name,
+                non_object_type.get_variant_name().to_string(),
+            )),
             None => todo_add_location(SchemaError::UndefinedType(name)),
         }
     }
@@ -1590,10 +1643,19 @@ impl InMemorySchema {
     ) -> DiagnosticsResult<InterfaceID> {
         match self.type_map.get(&name.value) {
             Some(Type::Interface(id)) => Ok(*id),
-            Some(non_interface_type) => Err(vec![Diagnostic::error(
-                SchemaError::ExpectedInterfaceReference(name.value, *non_interface_type),
-                Location::new(*location_key, name.span),
-            )]),
+            Some(non_interface_type) => Err(vec![
+                Diagnostic::error(
+                    SchemaError::ExpectedInterfaceReference(
+                        name.value,
+                        non_interface_type.get_variant_name().to_string(),
+                    ),
+                    Location::new(*location_key, name.span),
+                )
+                .annotate(
+                    "the other type is defined here",
+                    self.get_type_location(*non_interface_type),
+                ),
+            ]),
             None => Err(vec![Diagnostic::error(
                 SchemaError::UndefinedType(name.value),
                 Location::new(*location_key, name.span),
@@ -1798,6 +1860,17 @@ impl InMemorySchema {
                 }
             })
             .collect()
+    }
+
+    fn get_type_location(&self, type_: Type) -> Location {
+        match type_ {
+            Type::InputObject(id) => self.input_objects[id.as_usize()].name.location,
+            Type::Enum(id) => self.enums[id.as_usize()].name.location,
+            Type::Interface(id) => self.interfaces[id.as_usize()].name.location,
+            Type::Object(id) => self.objects[id.as_usize()].name.location,
+            Type::Scalar(id) => self.scalars[id.as_usize()].name.location,
+            Type::Union(id) => self.unions[id.as_usize()].name.location,
+        }
     }
 }
 

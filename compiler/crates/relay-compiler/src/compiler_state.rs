@@ -27,6 +27,7 @@ use dashmap::DashSet;
 use fnv::FnvBuildHasher;
 use fnv::FnvHashMap;
 use fnv::FnvHashSet;
+use log::debug;
 use rayon::prelude::*;
 use relay_config::ProjectName;
 use relay_config::SchemaConfig;
@@ -206,20 +207,22 @@ impl<V: Source + Clone> IncrementalSources<V> {
     }
 
     pub fn get_all_non_empty(&self) -> Vec<(&PathBuf, &V)> {
-        let mut sources: Vec<_> =
-            if self.pending.is_empty() {
-                self.processed
-                    .iter()
-                    .filter(|(_, value)| !value.is_empty())
-                    .collect()
-            } else {
-                self.pending
-                    .iter()
-                    .chain(self.processed.iter().filter(|(key, value)| {
-                        !self.pending.contains_key(*key) && !value.is_empty()
-                    }))
-                    .collect()
-            };
+        let mut sources: Vec<_> = if self.pending.is_empty() {
+            self.processed
+                .iter()
+                .filter(|(_, value)| !value.is_empty())
+                .collect()
+        } else {
+            self.pending
+                .iter()
+                .chain(
+                    self.processed
+                        .iter()
+                        .filter(|(key, _)| !self.pending.contains_key(*key)),
+                )
+                .filter(|(_, value)| !value.is_empty())
+                .collect()
+        };
         sources.sort_by_key(|file_content| file_content.0);
         sources
     }
@@ -662,13 +665,35 @@ impl CompilerState {
     }
 
     pub fn serialize_to_file(&self, path: &PathBuf) -> Result<()> {
+        let zstd_level: i32 = env::var("RELAY_SAVED_STATE_ZSTD_LEVEL").map_or_else(
+            |_| 12,
+            |level| {
+                level.parse::<i32>().expect(
+                    "Expected RELAY_SAVED_STATE_ZSTD_LEVEL environment variable to be a number.",
+                )
+            },
+        );
+
         let writer = FsFile::create(path)
-            .and_then(|writer| ZstdEncoder::new(writer, 12))
+            .and_then(|writer| {
+                let mut encoder = ZstdEncoder::new(writer, zstd_level)?;
+                match u32::try_from(std::thread::available_parallelism()?.get()) {
+                    Ok(threads) => {
+                        debug!("Using {} zstd threads", threads);
+                        encoder.multithread(threads).ok();
+                    }
+                    Err(_) => {
+                        debug!("Using single-threaded zstd");
+                    }
+                }
+                Ok(encoder)
+            })
             .map_err(|err| Error::WriteFileError {
                 file: path.clone(),
                 source: err,
             })?
             .auto_finish();
+
         let writer =
             BufWriter::with_capacity(ZstdEncoder::<FsFile>::recommended_input_size(), writer);
         bincode::serialize_into(writer, self).map_err(|err| Error::SerializationError {
@@ -689,13 +714,14 @@ impl CompilerState {
             reader,
         );
 
-        let memory_limit: u64 = env::var("RELAY_SAVED_STATE_MEMORY_LIMIT")
-            .map(|limit| {
+        let memory_limit: u64 = env::var("RELAY_SAVED_STATE_MEMORY_LIMIT").map_or_else(
+            |_| 10_u64.pow(10), /* 10GB */
+            |limit| {
                 limit.parse::<u64>().expect(
                     "Expected RELAY_SAVED_STATE_MEMORY_LIMIT environment variable to be a number.",
                 )
-            })
-            .unwrap_or_else(|_| 10_u64.pow(10) /* 10GB */);
+            },
+        );
 
         bincode::DefaultOptions::new()
             .with_fixint_encoding()

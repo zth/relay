@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<aa23230d800989291dcd6027f2fd8c63>>
+ * @generated SignedSource<<748d236bdfe163a6942c2efcf0cafcab>>
  */
 
 mod relay_compiler_integration;
@@ -48,6 +48,13 @@ async fn client_mutation_resolver_invalid_nonscalar() {
 }
 
 #[tokio::test]
+async fn client_schema_extension_interface_uses_resolver_type() {
+    let input = include_str!("relay_compiler_integration/fixtures/client_schema_extension_interface_uses_resolver_type.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/client_schema_extension_interface_uses_resolver_type.expected");
+    test_fixture(transform_fixture, file!(), "client_schema_extension_interface_uses_resolver_type.input", "relay_compiler_integration/fixtures/client_schema_extension_interface_uses_resolver_type.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn custom_scalar_variable_default_arg_invalid() {
     let input = include_str!("relay_compiler_integration/fixtures/custom_scalar_variable_default_arg.invalid.input");
     let expected = include_str!("relay_compiler_integration/fixtures/custom_scalar_variable_default_arg.invalid.expected");
@@ -59,6 +66,20 @@ async fn custom_scalar_variable_default_arg_non_strict() {
     let input = include_str!("relay_compiler_integration/fixtures/custom_scalar_variable_default_arg_non_strict.input");
     let expected = include_str!("relay_compiler_integration/fixtures/custom_scalar_variable_default_arg_non_strict.expected");
     test_fixture(transform_fixture, file!(), "custom_scalar_variable_default_arg_non_strict.input", "relay_compiler_integration/fixtures/custom_scalar_variable_default_arg_non_strict.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn error_handling_fragment() {
+    let input = include_str!("relay_compiler_integration/fixtures/error_handling_fragment.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/error_handling_fragment.expected");
+    test_fixture(transform_fixture, file!(), "error_handling_fragment.input", "relay_compiler_integration/fixtures/error_handling_fragment.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn error_handling_query() {
+    let input = include_str!("relay_compiler_integration/fixtures/error_handling_query.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/error_handling_query.expected");
+    test_fixture(transform_fixture, file!(), "error_handling_query.input", "relay_compiler_integration/fixtures/error_handling_query.expected", input, expected).await;
 }
 
 #[tokio::test]
@@ -115,6 +136,13 @@ async fn resolver_on_interface() {
     let input = include_str!("relay_compiler_integration/fixtures/resolver_on_interface.input");
     let expected = include_str!("relay_compiler_integration/fixtures/resolver_on_interface.expected");
     test_fixture(transform_fixture, file!(), "resolver_on_interface.input", "relay_compiler_integration/fixtures/resolver_on_interface.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolver_on_interface_does_not_pass_schema_validation_invalid() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolver_on_interface_does_not_pass_schema_validation.invalid.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolver_on_interface_does_not_pass_schema_validation.invalid.expected");
+    test_fixture(transform_fixture, file!(), "resolver_on_interface_does_not_pass_schema_validation.invalid.input", "relay_compiler_integration/fixtures/resolver_on_interface_does_not_pass_schema_validation.invalid.expected", input, expected).await;
 }
 
 #[tokio::test]
@@ -202,6 +230,13 @@ async fn resolver_returns_interface_of_live_and_non_live_strong_model_type() {
 }
 
 #[tokio::test]
+async fn resolver_returns_union() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolver_returns_union.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolver_returns_union.expected");
+    test_fixture(transform_fixture, file!(), "resolver_returns_union.input", "relay_compiler_integration/fixtures/resolver_returns_union.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn resolver_semantic_non_null_custom_scalar() {
     let input = include_str!("relay_compiler_integration/fixtures/resolver_semantic_non_null_custom_scalar.input");
     let expected = include_str!("relay_compiler_integration/fixtures/resolver_semantic_non_null_custom_scalar.expected");
@@ -234,6 +269,13 @@ async fn resolver_semantic_non_null_relayresolvervalue() {
     let input = include_str!("relay_compiler_integration/fixtures/resolver_semantic_non_null_relayresolvervalue.input");
     let expected = include_str!("relay_compiler_integration/fixtures/resolver_semantic_non_null_relayresolvervalue.expected");
     test_fixture(transform_fixture, file!(), "resolver_semantic_non_null_relayresolvervalue.input", "relay_compiler_integration/fixtures/resolver_semantic_non_null_relayresolvervalue.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolver_semantic_non_null_relayresolvervalue_disabled() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolver_semantic_non_null_relayresolvervalue_disabled.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolver_semantic_non_null_relayresolvervalue_disabled.expected");
+    test_fixture(transform_fixture, file!(), "resolver_semantic_non_null_relayresolvervalue_disabled.input", "relay_compiler_integration/fixtures/resolver_semantic_non_null_relayresolvervalue_disabled.expected", input, expected).await;
 }
 
 #[tokio::test]

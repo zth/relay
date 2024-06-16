@@ -20,12 +20,13 @@ use lsp_types::request::Request;
 use lsp_types::Location as LSPLocation;
 use relay_docblock::DocblockIr;
 use relay_docblock::On;
+use relay_docblock::ResolverFieldDocblockIr;
 use schema::Schema;
 
 use crate::docblock_resolution_info::DocblockResolutionInfo;
 use crate::find_field_usages::find_field_locations;
 use crate::find_field_usages::get_usages;
-use crate::location::transform_relay_location_to_lsp_location;
+use crate::location::transform_relay_location_on_disk_to_lsp_location;
 use crate::lsp_runtime_error::LSPRuntimeError;
 use crate::lsp_runtime_error::LSPRuntimeResult;
 use crate::node_resolution_info::NodeKind;
@@ -45,7 +46,7 @@ fn get_references_response(
                         ReferenceFinder::get_references_to_fragment(program, fragment.name.value)
                             .into_iter()
                             .map(|location| {
-                                transform_relay_location_to_lsp_location(root_dir, location)
+                                transform_relay_location_on_disk_to_lsp_location(root_dir, location)
                             })
                             .collect::<Result<Vec<_>, LSPRuntimeError>>()?;
 
@@ -65,7 +66,10 @@ fn get_references_response(
                         get_usages(program, &program.schema, type_name, field_name)?
                             .into_iter()
                             .map(|(_, ir_location)| {
-                                transform_relay_location_to_lsp_location(root_dir, ir_location)
+                                transform_relay_location_on_disk_to_lsp_location(
+                                    root_dir,
+                                    ir_location,
+                                )
                             })
                             .collect::<Result<Vec<_>, LSPRuntimeError>>()?;
                     Ok(lsp_locations)
@@ -76,17 +80,17 @@ fn get_references_response(
         FeatureResolutionInfo::DocblockNode(docblock_node) => {
             if let DocblockResolutionInfo::FieldName(field_name) = docblock_node.resolution_info {
                 let type_name = match docblock_node.ir {
-                    DocblockIr::LegacyVerboseResolver(relay_resolver) => match relay_resolver.on {
+                    DocblockIr::Field(ResolverFieldDocblockIr::LegacyVerboseResolver(
+                        relay_resolver,
+                    )) => match relay_resolver.on {
                         On::Type(type_) => type_.value.item,
                         On::Interface(interface) => interface.value.item,
                     },
-                    DocblockIr::TerseRelayResolver(terse_resolver) => terse_resolver.type_.item,
-                    DocblockIr::StrongObjectResolver(_) => {
-                        // TODO: Implement support for strong object.
-                        return Err(LSPRuntimeError::ExpectedError);
-                    }
-                    DocblockIr::WeakObjectType(_) => {
-                        // TODO: Implement support for weak object.
+                    DocblockIr::Field(ResolverFieldDocblockIr::TerseRelayResolver(
+                        terse_resolver,
+                    )) => terse_resolver.type_.item,
+                    DocblockIr::Type(_) => {
+                        // TODO: Implement support for types.
                         return Err(LSPRuntimeError::ExpectedError);
                     }
                 };
@@ -94,7 +98,9 @@ fn get_references_response(
                 let references = find_field_locations(program, field_name, type_name)
                     .ok_or(LSPRuntimeError::ExpectedError)?
                     .into_iter()
-                    .map(|location| transform_relay_location_to_lsp_location(root_dir, location))
+                    .map(|location| {
+                        transform_relay_location_on_disk_to_lsp_location(root_dir, location)
+                    })
                     .collect::<Result<Vec<_>, LSPRuntimeError>>()?;
 
                 Ok(references)

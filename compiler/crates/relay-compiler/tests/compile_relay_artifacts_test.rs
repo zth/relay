@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<032e96a9d849133e090c3591b21964db>>
+ * @generated SignedSource<<a462cf5b6b402f99514438fe2a6c56fe>>
  */
 
 mod compile_relay_artifacts;
@@ -146,6 +146,27 @@ async fn append_node_literal_edge_type_name() {
 }
 
 #[tokio::test]
+async fn append_node_literal_edge_type_name_invalid() {
+    let input = include_str!("compile_relay_artifacts/fixtures/append-node-literal-edge-type-name-invalid.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/append-node-literal-edge-type-name-invalid.expected");
+    test_fixture(transform_fixture, file!(), "append-node-literal-edge-type-name-invalid.graphql", "compile_relay_artifacts/fixtures/append-node-literal-edge-type-name-invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn append_node_literal_edge_type_name_not_object_type() {
+    let input = include_str!("compile_relay_artifacts/fixtures/append-node-literal-edge-type-name-not-object-type.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/append-node-literal-edge-type-name-not-object-type.expected");
+    test_fixture(transform_fixture, file!(), "append-node-literal-edge-type-name-not-object-type.graphql", "compile_relay_artifacts/fixtures/append-node-literal-edge-type-name-not-object-type.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn append_node_literal_edge_type_name_variable() {
+    let input = include_str!("compile_relay_artifacts/fixtures/append-node-literal-edge-type-name-variable.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/append-node-literal-edge-type-name-variable.expected");
+    test_fixture(transform_fixture, file!(), "append-node-literal-edge-type-name-variable.graphql", "compile_relay_artifacts/fixtures/append-node-literal-edge-type-name-variable.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn auto_filled_argument_on_defer() {
     let input = include_str!("compile_relay_artifacts/fixtures/auto-filled-argument-on-defer.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/auto-filled-argument-on-defer.expected");
@@ -157,6 +178,13 @@ async fn auto_filled_argument_on_match() {
     let input = include_str!("compile_relay_artifacts/fixtures/auto-filled-argument-on-match.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/auto-filled-argument-on-match.expected");
     test_fixture(transform_fixture, file!(), "auto-filled-argument-on-match.graphql", "compile_relay_artifacts/fixtures/auto-filled-argument-on-match.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn circular_fragment() {
+    let input = include_str!("compile_relay_artifacts/fixtures/circular-fragment.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/circular-fragment.expected");
+    test_fixture(transform_fixture, file!(), "circular-fragment.graphql", "compile_relay_artifacts/fixtures/circular-fragment.expected", input, expected).await;
 }
 
 #[tokio::test]
@@ -1112,6 +1140,27 @@ async fn refetchable_fragment_directives_invalid() {
 }
 
 #[tokio::test]
+async fn refetchable_fragment_on_node_and_fetchable() {
+    let input = include_str!("compile_relay_artifacts/fixtures/refetchable-fragment-on-node-and-fetchable.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/refetchable-fragment-on-node-and-fetchable.expected");
+    test_fixture(transform_fixture, file!(), "refetchable-fragment-on-node-and-fetchable.graphql", "compile_relay_artifacts/fixtures/refetchable-fragment-on-node-and-fetchable.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn refetchable_fragment_on_node_and_fetchable_arg() {
+    let input = include_str!("compile_relay_artifacts/fixtures/refetchable-fragment-on-node-and-fetchable-arg.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/refetchable-fragment-on-node-and-fetchable-arg.expected");
+    test_fixture(transform_fixture, file!(), "refetchable-fragment-on-node-and-fetchable-arg.graphql", "compile_relay_artifacts/fixtures/refetchable-fragment-on-node-and-fetchable-arg.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn refetchable_fragment_on_node_and_fetchable_no_flag() {
+    let input = include_str!("compile_relay_artifacts/fixtures/refetchable-fragment-on-node-and-fetchable-no-flag.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/refetchable-fragment-on-node-and-fetchable-no-flag.expected");
+    test_fixture(transform_fixture, file!(), "refetchable-fragment-on-node-and-fetchable-no-flag.graphql", "compile_relay_artifacts/fixtures/refetchable-fragment-on-node-and-fetchable-no-flag.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn refetchable_fragment_on_node_with_missing_id() {
     let input = include_str!("compile_relay_artifacts/fixtures/refetchable-fragment-on-node-with-missing-id.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/refetchable-fragment-on-node-with-missing-id.expected");
@@ -1445,6 +1494,13 @@ async fn required_bubbles_to_client_edge() {
     let input = include_str!("compile_relay_artifacts/fixtures/required-bubbles-to-client-edge.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/required-bubbles-to-client-edge.expected");
     test_fixture(transform_fixture, file!(), "required-bubbles-to-client-edge.graphql", "compile_relay_artifacts/fixtures/required-bubbles-to-client-edge.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn required_bubbles_to_inline_aliased_fragment() {
+    let input = include_str!("compile_relay_artifacts/fixtures/required-bubbles-to-inline-aliased-fragment.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/required-bubbles-to-inline-aliased-fragment.expected");
+    test_fixture(transform_fixture, file!(), "required-bubbles-to-inline-aliased-fragment.graphql", "compile_relay_artifacts/fixtures/required-bubbles-to-inline-aliased-fragment.expected", input, expected).await;
 }
 
 #[tokio::test]

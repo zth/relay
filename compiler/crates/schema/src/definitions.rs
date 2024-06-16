@@ -12,11 +12,14 @@ use std::fmt;
 use std::hash::Hash;
 use std::slice::Iter;
 
+use ::intern::string_key::Intern;
+use ::intern::string_key::StringKey;
 use common::ArgumentName;
 use common::DirectiveName;
 use common::EnumName;
 use common::InputObjectName;
 use common::InterfaceName;
+use common::Location;
 use common::Named;
 use common::NamedItem;
 use common::ObjectName;
@@ -26,8 +29,7 @@ use common::WithLocation;
 use graphql_syntax::ConstantValue;
 use graphql_syntax::DirectiveLocation;
 pub use interface::*;
-use intern::string_key::Intern;
-use intern::string_key::StringKey;
+use intern::intern;
 use lazy_static::lazy_static;
 
 use crate::Schema;
@@ -35,6 +37,9 @@ use crate::Schema;
 lazy_static! {
     static ref DIRECTIVE_DEPRECATED: DirectiveName = DirectiveName("deprecated".intern());
     static ref ARGUMENT_REASON: ArgumentName = ArgumentName("reason".intern());
+    static ref SEMANTIC_NON_NULL_DIRECTIVE: DirectiveName =
+        DirectiveName("semanticNonNull".intern());
+    static ref LEVELS_ARGUMENT: ArgumentName = ArgumentName("levels".intern());
 }
 
 pub(crate) type TypeMap = HashMap<StringKey, Type>;
@@ -466,6 +471,36 @@ impl Field {
                     .and_then(|reason| reason.value.get_string_literal()),
             })
     }
+
+    /// Returns semantic type of a field with the `@semanticNonNull` directive, i.e. its non-null type
+    /// for the purposes of type generation.
+    ///
+    /// The `@semanticNonNull` directive is used to annotate fields that are only null when an error occurs. This
+    /// differs from the GraphQL spec's non-null syntax which is used to denote fields that are never null; if such
+    /// a field were going to become null due to an error, the error would bubble up to the next nullable field/object in the query.
+    /// @semanticNonNull fields do not bubble up errors, instead becoming null in the error case but in no other case.
+    /// See also: https://specs.apollo.dev/nullability/v0.3/#@semanticNonNull
+    pub fn semantic_type(&self) -> TypeReference<Type> {
+        match self.directives.named(*SEMANTIC_NON_NULL_DIRECTIVE) {
+            Some(directive) => {
+                match directive
+                    .arguments
+                    .named(*LEVELS_ARGUMENT)
+                    .map(|levels| levels.expect_int_list())
+                {
+                    Some(levels) => {
+                        let mut type_ = self.type_.clone();
+                        for level in levels {
+                            type_ = type_.with_non_null_level(level);
+                        }
+                        type_
+                    }
+                    None => self.type_.non_null(),
+                }
+            }
+            None => self.type_.clone(),
+        }
+    }
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
@@ -592,27 +627,44 @@ impl IntoIterator for ArgumentDefinitions {
 }
 
 pub trait TypeWithFields {
+    fn type_kind(&self) -> StringKey;
     fn fields(&self) -> &Vec<FieldID>;
     fn interfaces(&self) -> &Vec<InterfaceID>;
+    fn location(&self) -> &Location;
 }
 
 impl TypeWithFields for Interface {
+    fn type_kind(&self) -> StringKey {
+        intern!("interface")
+    }
+
     fn fields(&self) -> &Vec<FieldID> {
         &self.fields
     }
 
     fn interfaces(&self) -> &Vec<InterfaceID> {
         &self.interfaces
+    }
+
+    fn location(&self) -> &Location {
+        &self.name.location
     }
 }
 
 impl TypeWithFields for Object {
+    fn type_kind(&self) -> StringKey {
+        intern!("type")
+    }
     fn fields(&self) -> &Vec<FieldID> {
         &self.fields
     }
 
     fn interfaces(&self) -> &Vec<InterfaceID> {
         &self.interfaces
+    }
+
+    fn location(&self) -> &Location {
+        &self.name.location
     }
 }
 
