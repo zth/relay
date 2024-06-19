@@ -113,7 +113,7 @@ pub enum FragmentDataInjectionMode {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-struct RelayResolverFieldMetadata {
+pub struct RelayResolverFieldMetadata {
     field_parent_type: StringKey,
     import_path: StringKey,
     import_name: Option<StringKey>,
@@ -610,7 +610,7 @@ pub struct ResolverInfo {
     fragment_data_injection_mode: Option<FragmentDataInjectionMode>,
     pub import_path: StringKey,
     pub import_name: Option<StringKey>,
-    live: bool,
+    pub live: bool,
     has_output_type: bool,
 }
 

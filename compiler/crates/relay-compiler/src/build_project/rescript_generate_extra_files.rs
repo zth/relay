@@ -1,14 +1,18 @@
 use std::fmt::Write;
-
 use common::SourceLocationKey;
+use docblock_shared::RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE;
 use graphql_ir::reexport::Intern;
 use relay_config::ProjectConfig;
+use relay_transforms::relay_resolvers::get_resolver_info;
+use common::NamedItem;
 use relay_transforms::Programs;
 use relay_transforms::is_operation_preloadable;
+use relay_transforms::RESOLVER_BELONGS_TO_BASE_SCHEMA_DIRECTIVE;
 use relay_typegen::rescript::NullabilityMode;
 use relay_typegen::rescript_utils::capitalize_string;
 use relay_typegen::rescript_utils::get_safe_key;
 use relay_typegen::rescript_utils::print_type_reference;
+use relay_typegen::rescript_utils::uncapitalize_string;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::TypeReference;
@@ -53,6 +57,7 @@ pub(crate) fn rescript_generate_extra_artifacts(
     .filter_map(|artifact| artifact)
     .collect();
 
+    // Schema assets file
     let dummy_source_file = SourceLocationKey::Generated;
 
     let mut content = String::from("/* @generated */\n@@warning(\"-30\")\n\n");
@@ -289,6 +294,102 @@ pub(crate) fn rescript_generate_extra_artifacts(
     };
 
     extra_artifacts.push(schema_assets_artifact);
+
+    // Relay Resolvers
+    for object in schema.get_objects() {
+        let mut has_resolvers = false;
+        let mut c = String::from("/* @generated */\n@@warning(\"-30\")\n\n");
+
+        for field in object.fields.iter().map(|field_id| schema.field(*field_id)) {
+            if let Some(Ok(resolver_info)) = get_resolver_info(schema, field, field.name.location)
+            {
+                if field
+                    .directives
+                    .named(*RESOLVER_BELONGS_TO_BASE_SCHEMA_DIRECTIVE)
+                    .is_some() || field.name.item.to_string().starts_with("__relay_")
+                {
+                    continue;
+                }
+
+                has_resolvers = true;
+
+                if !&field.arguments.is_empty() {
+                    // Write args type
+                    write!(c, "type {}ResolverArgs = {{\n", uncapitalize_string(&field.name.item.to_string())).unwrap();
+                    field.arguments.iter().for_each(|argument| {
+                        let (key, maybe_original_key) = get_safe_key(&argument.name.item.to_string());
+        
+                        writeln!(
+                            c,
+                            "  {}{}: {},",
+                            (match maybe_original_key {
+                                Some(original_key) => format!("@as(\"{}\") ", original_key),
+                                None => String::from(""),
+                            }),
+                            key,
+                            print_type_reference(
+                                &argument.type_,
+                                &schema,
+                                &project_config.typegen_config.custom_scalar_types,
+                                true,
+                                false,
+                                &NullabilityMode::Option,
+                                true
+                            )
+                        )
+                        .unwrap();
+                    });
+                    write!(c, "}}\n").unwrap();
+                }
+
+                write!(c, "type {}Resolver = (", uncapitalize_string(&field.name.item.to_string())).unwrap();
+
+                // Case when the field is on a client extension type
+                if object.is_extension {
+                    write!(c, "Relay{}Model.t, ", &object.name.item.to_string()).unwrap();
+                    
+                    // Case @weak object
+                    let _is_weak_object = object.directives.named(*RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE).is_some();
+                }
+
+                if !&field.arguments.is_empty() {
+                    write!(c, "{}ResolverArgs", uncapitalize_string(&field.name.item.to_string())).unwrap();
+                }
+
+                let is_live = resolver_info.live;
+                let return_type = print_type_reference(
+                    &field.type_,
+                    &schema,
+                    &project_config.typegen_config.custom_scalar_types,
+                    true,
+                    false,
+                    &NullabilityMode::Option,
+                    true
+                );
+                write!(
+                    c, ") => {}\n\n", 
+                    if is_live {
+                        format!("RescriptRelay.liveState<{}>", return_type)
+                    } else {
+                        return_type
+                    }
+                ).unwrap();
+            }
+        }
+
+        if has_resolvers {
+            let relay_resolvers_assets_artifact = Artifact {
+                artifact_source_keys: vec![],
+                path: project_config.create_path_for_artifact(dummy_source_file, format!("{}_relayResolvers_graphql.res", object.name.item.0)),
+                source_file: dummy_source_file,
+                content: crate::ArtifactContent::Generic {
+                    content: c.as_bytes().to_vec(),
+                },
+            };
+        
+            extra_artifacts.push(relay_resolvers_assets_artifact);
+        }
+    }
 
     extra_artifacts
 }

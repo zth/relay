@@ -407,6 +407,10 @@ fn ast_to_prop_value(
             // These are ignored for now, but might be supported in the future.
             None
         }
+        AST::AssertFunctionType(a) => {
+            log::info!("fn type: {:#?}", a);
+            None
+        },
         _ => None,
     }
 }

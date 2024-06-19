@@ -16,6 +16,7 @@ module Types = {
     edges: option<array<option<response_users_edges>>>,
   }
   type response = {
+    time: option<string>,
     users: option<response_users>,
   }
   @live
@@ -113,7 +114,9 @@ type relayOperationNode
 type operationType = RescriptRelay.queryNode<relayOperationNode>
 
 
-let node: operationType = %raw(json` (function(){
+%%private(let makeNode = (rescript_module_TestRelayResolverMulti): operationType => {
+  ignore(rescript_module_TestRelayResolverMulti)
+  %raw(json`(function(){
 var v0 = [
   {
     "defaultValue": null,
@@ -121,75 +124,89 @@ var v0 = [
     "name": "status"
   }
 ],
-v1 = [
-  {
-    "alias": null,
-    "args": [
-      {
-        "kind": "Variable",
-        "name": "status",
-        "variableName": "status"
-      }
-    ],
-    "concreteType": "UserConnection",
-    "kind": "LinkedField",
-    "name": "users",
-    "plural": false,
-    "selections": [
-      {
-        "alias": null,
-        "args": null,
-        "concreteType": "UserEdge",
-        "kind": "LinkedField",
-        "name": "edges",
-        "plural": true,
-        "selections": [
-          {
-            "alias": null,
-            "args": null,
-            "concreteType": "User",
-            "kind": "LinkedField",
-            "name": "node",
-            "plural": false,
-            "selections": [
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "id",
-                "storageKey": null
-              },
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "firstName",
-                "storageKey": null
-              },
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "onlineStatus",
-                "storageKey": null
-              }
-            ],
-            "storageKey": null
-          }
-        ],
-        "storageKey": null
-      }
-    ],
-    "storageKey": null
-  }
-];
+v1 = {
+  "alias": null,
+  "args": [
+    {
+      "kind": "Variable",
+      "name": "status",
+      "variableName": "status"
+    }
+  ],
+  "concreteType": "UserConnection",
+  "kind": "LinkedField",
+  "name": "users",
+  "plural": false,
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "UserEdge",
+      "kind": "LinkedField",
+      "name": "edges",
+      "plural": true,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "concreteType": "User",
+          "kind": "LinkedField",
+          "name": "node",
+          "plural": false,
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "id",
+              "storageKey": null
+            },
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "firstName",
+              "storageKey": null
+            },
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "onlineStatus",
+              "storageKey": null
+            }
+          ],
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "storageKey": null
+};
 return {
   "fragment": {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "TestQuery",
-    "selections": (v1/*: any*/),
+    "selections": [
+      (v1/*: any*/),
+      {
+        "kind": "ClientExtension",
+        "selections": [
+          {
+            "alias": null,
+            "args": [],
+            "fragment": null,
+            "kind": "RelayResolver",
+            "name": "time",
+            "resolverModule": rescript_module_TestRelayResolverMulti,
+            "path": "time"
+          }
+        ]
+      }
+    ],
     "type": "Query",
     "abstractKey": null
   },
@@ -198,7 +215,22 @@ return {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Operation",
     "name": "TestQuery",
-    "selections": (v1/*: any*/)
+    "selections": [
+      (v1/*: any*/),
+      {
+        "kind": "ClientExtension",
+        "selections": [
+          {
+            "name": "time",
+            "args": null,
+            "fragment": null,
+            "kind": "RelayResolver",
+            "storageKey": null,
+            "isOutputType": true
+          }
+        ]
+      }
+    ]
   },
   "params": {
     "cacheID": "123064f3c998fd5b717ca05be99d7ee1",
@@ -209,7 +241,9 @@ return {
     "text": "query TestQuery(\n  $status: OnlineStatus\n) {\n  users(status: $status) {\n    edges {\n      node {\n        id\n        firstName\n        onlineStatus\n      }\n    }\n  }\n}\n"
   }
 };
-})() `)
+})()`)
+})
+let node: operationType = makeNode(TestRelayResolverMulti.default)
 
 @live let load: (
   ~environment: RescriptRelay.Environment.t,
