@@ -648,7 +648,12 @@ impl<'b> JSONPrinter<'b> {
                     write!(f, "{}", path)
                 }
                 ModuleImportName::Named { name, .. } => {
-                    write!(f, "{}.{}", path, name)
+                    if name.to_string() == String::from("resolverDataInjector") {
+                        write!(f, "{}", name)
+                    } else {
+                        write!(f, "{}.{}", path, name)
+                    }
+                    
                 }
             }
         }
@@ -676,9 +681,9 @@ impl<'b> JSONPrinter<'b> {
         write!(f, "(")?;
         self.write_js_dependency(
             f,
-            ModuleImportName::Default(format!("{}_graphql", graphql_module_name).intern()),
+            ModuleImportName::Default(format!("rescript_graphql_node_{}", graphql_module_name).intern()),
             Cow::Owned(format!(
-                "{}.graphql",
+                "rescript_graphql_node_{}",
                 get_module_path(self.js_module_format, graphql_module_path)
             )),
         )?;
@@ -686,7 +691,7 @@ impl<'b> JSONPrinter<'b> {
         self.write_js_dependency(
             f,
             js_module.import_name.clone(),
-            get_module_path(self.js_module_format, js_module.path),
+            Cow::Owned(format!("rescript_module_{}", get_module_path(self.js_module_format, js_module.path))),
         )?;
         if let Some((field_name, is_required_field)) = injected_field_name_details {
             write!(f, ", '{}'", field_name)?;

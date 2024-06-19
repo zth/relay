@@ -38,7 +38,11 @@ type relayOperationNode
 type operationType = RescriptRelay.fragmentNode<relayOperationNode>
 
 
-let node: operationType = %raw(json` {
+%%private(let makeNode = (rescript_graphql_node_LocalUser__id, resolverDataInjector, rescript_module_TestRelayResolverMulti_LocalUser): operationType => {
+  ignore(rescript_graphql_node_LocalUser__id)
+  ignore(resolverDataInjector)
+  ignore(rescript_module_TestRelayResolverMulti_LocalUser)
+  %raw(json`{
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
@@ -54,11 +58,13 @@ let node: operationType = %raw(json` {
       },
       "kind": "RelayResolver",
       "name": "__relay_model_instance",
-      "resolverModule": relay-runtime/experimental.resolverDataInjector(LocalUser__id.graphql, TestRelayResolverMulti.LocalUser, 'id', true),
+      "resolverModule": resolverDataInjector(rescript_graphql_node_LocalUser__id, rescript_module_TestRelayResolverMulti_LocalUser, 'id', true),
       "path": "__relay_model_instance"
     }
   ],
   "type": "LocalUser",
   "abstractKey": null
-} `)
+}`)
+})
+let node: operationType = makeNode(LocalUser__id_graphql.node, RescriptRelay.resolverDataInjector, TestRelayResolverMulti.localUser)
 

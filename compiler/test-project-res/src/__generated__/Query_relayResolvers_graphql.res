@@ -6,3 +6,5 @@ type timeResolverArgs = {
 }
 type timeResolver = (timeResolverArgs) => option<string>
 
+type localUserResolver = () => option<RescriptRelay.dataIdObject>
+
