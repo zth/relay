@@ -559,9 +559,9 @@ fn get_object_props(
                         })
                     }
                     _ => {
-                        if key.as_str().starts_with("$") {
+                        if key.as_str().starts_with("$") || key.as_str().starts_with("__relay_") {
                             // Internal Relay types typically come prefixed with
-                            // "&". Ignore those unless we have an explicit
+                            // "&" or "__relay_". Ignore those unless we have an explicit
                             // strategy to handle them.
                             debug!("Internal prop found: {}", key);
                             None

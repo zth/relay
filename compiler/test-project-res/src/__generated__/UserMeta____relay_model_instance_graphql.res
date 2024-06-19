@@ -4,9 +4,7 @@
 module Types = {
   @@warning("-30")
 
-  type fragment = {
-    __relay_model_instance: UserMeta.t,
-  }
+  type fragment = unit
 }
 
 module Internal = {
@@ -14,12 +12,10 @@ module Internal = {
   type fragmentRaw
   @live
   let fragmentConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
-    json`{"__root":{"__relay_model_instance":{"c":"UserMeta"}}}`
+    json`{}`
   )
   @live
-  let fragmentConverterMap = {
-    "UserMeta": UserMeta.parse,
-  }
+  let fragmentConverterMap = ()
   @live
   let convertFragment = v => v->RescriptRelay.convertObj(
     fragmentConverter,
