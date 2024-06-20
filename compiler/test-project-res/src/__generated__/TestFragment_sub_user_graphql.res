@@ -41,7 +41,9 @@ type relayOperationNode
 type operationType = RescriptRelay.fragmentNode<relayOperationNode>
 
 
-let node: operationType = %raw(json` {
+%%private(let makeNode = (rescript_module_TestRelayResolver): operationType => {
+  ignore(rescript_module_TestRelayResolver)
+  %raw(json`{
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
@@ -70,5 +72,7 @@ let node: operationType = %raw(json` {
   ],
   "type": "User",
   "abstractKey": null
-} `)
+}`)
+})
+let node: operationType = makeNode(TestRelayResolver.default)
 

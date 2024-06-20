@@ -85,12 +85,13 @@ type relayOperationNode
 type operationType = RescriptRelay.queryNode<relayOperationNode>
 
 
-%%private(let makeNode = (rescript_graphql_node_LocalUser__id, rescript_graphql_node_LocalUser____relay_model_instance, rescript_graphql_node_UserMeta____relay_model_instance, resolverDataInjector, rescript_module_TestRelayResolverMulti_LocalUser, rescript_module_TestRelayResolverMulti_name, rescript_module_TestRelayResolverMulti_meta, rescript_module_TestRelayResolverMulti_online): operationType => {
+%%private(let makeNode = (rescript_graphql_node_LocalUser__id, rescript_graphql_node_LocalUser____relay_model_instance, rescript_graphql_node_UserMeta____relay_model_instance, resolverDataInjector, rescript_module_TestRelayResolverMulti_LocalUser, rescript_module_TestRelayResolverMulti, rescript_module_TestRelayResolverMulti_name, rescript_module_TestRelayResolverMulti_meta, rescript_module_TestRelayResolverMulti_online): operationType => {
   ignore(rescript_graphql_node_LocalUser__id)
   ignore(rescript_graphql_node_LocalUser____relay_model_instance)
   ignore(rescript_graphql_node_UserMeta____relay_model_instance)
   ignore(resolverDataInjector)
   ignore(rescript_module_TestRelayResolverMulti_LocalUser)
+  ignore(rescript_module_TestRelayResolverMulti)
   ignore(rescript_module_TestRelayResolverMulti_name)
   ignore(rescript_module_TestRelayResolverMulti_meta)
   ignore(rescript_module_TestRelayResolverMulti_online)
@@ -331,7 +332,7 @@ return {
 };
 })()`)
 })
-let node: operationType = makeNode(LocalUser__id_graphql.node, LocalUser____relay_model_instance_graphql.node, UserMeta____relay_model_instance_graphql.node, RescriptRelay.resolverDataInjector, TestRelayResolverMulti.localUser, TestRelayResolverMulti.name, TestRelayResolverMulti.meta, TestRelayResolverMulti.online)
+let node: operationType = makeNode(LocalUser__id_graphql.node, LocalUser____relay_model_instance_graphql.node, UserMeta____relay_model_instance_graphql.node, RescriptRelay.resolverDataInjector, TestRelayResolverMulti.localUser, TestRelayResolverMulti.default, TestRelayResolverMulti.name, TestRelayResolverMulti.meta, TestRelayResolverMulti.online)
 
 @live let load: (
   ~environment: RescriptRelay.Environment.t,

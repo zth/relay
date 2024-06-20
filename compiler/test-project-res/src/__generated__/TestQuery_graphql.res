@@ -114,7 +114,9 @@ type relayOperationNode
 type operationType = RescriptRelay.queryNode<relayOperationNode>
 
 
-let node: operationType = %raw(json` (function(){
+%%private(let makeNode = (rescript_module_TestRelayResolverMulti): operationType => {
+  ignore(rescript_module_TestRelayResolverMulti)
+  %raw(json`(function(){
 var v0 = [
   {
     "defaultValue": null,
@@ -239,7 +241,9 @@ return {
     "text": "query TestQuery(\n  $status: OnlineStatus\n) {\n  users(status: $status) {\n    edges {\n      node {\n        id\n        firstName\n        onlineStatus\n      }\n    }\n  }\n}\n"
   }
 };
-})() `)
+})()`)
+})
+let node: operationType = makeNode(TestRelayResolverMulti.default)
 
 @live let load: (
   ~environment: RescriptRelay.Environment.t,

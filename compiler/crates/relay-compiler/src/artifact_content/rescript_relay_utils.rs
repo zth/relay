@@ -21,7 +21,7 @@ pub fn rescript_find_code_import_references(concrete_text: &str) -> Vec<ImportTy
             end: String::from("rescript_graphql_node_").len()
         };
         static ref RE_MODULE_IMPORT: Regex =
-            Regex::new(r"rescript_module_([A-Za-z0-9_]*)\.([A-Za-z0-9_]*)").unwrap();
+            Regex::new(r"rescript_module_([A-Za-z0-9_]*)(?:\.([A-Za-z0-9_]*))?").unwrap();
         static ref PREFIX_RANGE_MODULE_IMPORT: RangeTo<usize> = RangeTo {
             end: String::from("rescript_module_").len()
         };
