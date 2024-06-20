@@ -41,8 +41,9 @@ type relayOperationNode
 type operationType = RescriptRelay.fragmentNode<relayOperationNode>
 
 
-%%private(let makeNode = (rescript_module_TestRelayResolver): operationType => {
-  ignore(rescript_module_TestRelayResolver)
+%%private(let makeNode = (resolverDataInjector, rescript_module_TestRelayResolver_greeting): operationType => {
+  ignore(resolverDataInjector)
+  ignore(rescript_module_TestRelayResolver_greeting)
   %raw(json`{
   "argumentDefinitions": [],
   "kind": "Fragment",
@@ -66,7 +67,7 @@ type operationType = RescriptRelay.fragmentNode<relayOperationNode>
       },
       "kind": "RelayResolver",
       "name": "greeting",
-      "resolverModule": rescript_module_TestRelayResolver,
+      "resolverModule": rescript_module_TestRelayResolver_greeting,
       "path": "greeting"
     }
   ],
@@ -74,5 +75,5 @@ type operationType = RescriptRelay.fragmentNode<relayOperationNode>
   "abstractKey": null
 }`)
 })
-let node: operationType = makeNode(TestRelayResolver.default)
+let node: operationType = makeNode(RescriptRelay.resolverDataInjector, TestRelayResolver.greeting)
 

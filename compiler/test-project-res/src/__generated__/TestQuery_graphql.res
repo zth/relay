@@ -114,8 +114,9 @@ type relayOperationNode
 type operationType = RescriptRelay.queryNode<relayOperationNode>
 
 
-%%private(let makeNode = (rescript_module_TestRelayResolverMulti): operationType => {
-  ignore(rescript_module_TestRelayResolverMulti)
+%%private(let makeNode = (resolverDataInjector, rescript_module_TestRelayResolverMulti_time): operationType => {
+  ignore(resolverDataInjector)
+  ignore(rescript_module_TestRelayResolverMulti_time)
   %raw(json`(function(){
 var v0 = [
   {
@@ -201,7 +202,7 @@ return {
             "fragment": null,
             "kind": "RelayResolver",
             "name": "time",
-            "resolverModule": rescript_module_TestRelayResolverMulti,
+            "resolverModule": rescript_module_TestRelayResolverMulti_time,
             "path": "time"
           }
         ]
@@ -243,7 +244,7 @@ return {
 };
 })()`)
 })
-let node: operationType = makeNode(TestRelayResolverMulti.default)
+let node: operationType = makeNode(RescriptRelay.resolverDataInjector, TestRelayResolverMulti.time)
 
 @live let load: (
   ~environment: RescriptRelay.Environment.t,

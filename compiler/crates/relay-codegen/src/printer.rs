@@ -542,22 +542,28 @@ impl<'b> JSONPrinter<'b> {
                     )),
                 )
             }
-            Primitive::JSModuleDependency(JSModuleDependency { path, import_name: _ }) => self
-                .write_js_dependency(
-                    f,
-                    ModuleImportName::Default(format!(
-                        "rescript_module_{}",
-                        common::rescript_utils::get_module_name_from_file_path(
-                            &path.to_string().as_str()
-                        )
-                    ).intern()),
-                    Cow::Owned(format!(
-                        "rescript_module_{}",
-                        common::rescript_utils::get_module_name_from_file_path(
-                            &path.to_string().as_str()
-                        )
-                    )),
-                ),
+            Primitive::JSModuleDependency(JSModuleDependency { path, import_name }) => {
+                let write_js_dependency = self
+                            .write_js_dependency(
+                                f,
+                                match import_name {
+                                    ModuleImportName::Default(_) => ModuleImportName::Default(format!(
+                                        "rescript_module_{}",
+                                        common::rescript_utils::get_module_name_from_file_path(
+                                            &path.to_string().as_str()
+                                        )
+                                    ).intern()),
+                                    o => o.clone()
+                                },
+                                Cow::Owned(format!(
+                                    "rescript_module_{}",
+                                    common::rescript_utils::get_module_name_from_file_path(
+                                        &path.to_string().as_str()
+                                    )
+                                )),
+                            );
+                write_js_dependency
+            },
             Primitive::ResolverModuleReference(ResolverModuleReference {
                 field_type,
                 resolver_function_name,
