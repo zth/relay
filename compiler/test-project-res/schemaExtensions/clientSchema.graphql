@@ -1,0 +1,15 @@
+type LocalThing {
+    name: String!
+}
+
+union LocalUnion = LocalThing
+
+enum LocalOnlineStatus {
+    IsOnline,
+    IsOffline
+}
+
+extend type Query {
+    localOnlineStatus: LocalOnlineStatus
+    localUnion: LocalUnion
+}

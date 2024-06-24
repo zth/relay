@@ -253,10 +253,11 @@ fn ast_to_prop_value(
             let mut new_at_path = current_path.clone();
             new_at_path.push(key.to_string());         
 
-            let union_members = extract_union_members(state, &new_at_path, members, context);
+            let (union_members, include_catch_all) = extract_union_members(state, &new_at_path, members, context);
 
             let union_record_name = path_to_name(&new_at_path);
             let union = Union {
+                include_catch_all,
                 at_path: new_at_path.clone(),
                 record_name: union_record_name.to_string(),
                 comment: None,
@@ -407,8 +408,7 @@ fn ast_to_prop_value(
             // These are ignored for now, but might be supported in the future.
             None
         }
-        AST::AssertFunctionType(a) => {
-            log::info!("fn type: {:#?}", a);
+        AST::AssertFunctionType(_) => {
             None
         },
         _ => None,
@@ -420,7 +420,8 @@ fn extract_union_members(
     current_path: &Vec<String>,
     members: &Vec<AST>,
     context: &Context,
-) -> Vec<UnionMember> {
+) -> (Vec<UnionMember>, bool) {
+    let mut has_catch_all = false;
     let union_members: Vec<UnionMember> = members
         .iter()
         .filter_map(|member| match member {
@@ -434,6 +435,10 @@ fn extract_union_members(
                         match (&key_value_pair.key.to_string()[..], &key_value_pair.value) {
                             ("__typename", AST::StringLiteral(typename)) => {
                                 Some(typename.to_string())
+                            },
+                            ("__typename", AST::OtherTypename) => {
+                                has_catch_all = true;
+                                None
                             }
                             _ => None,
                         }
@@ -473,7 +478,7 @@ fn extract_union_members(
         })
         .collect();
 
-    union_members
+    (union_members, has_catch_all)
 }
 
 fn get_object_props(
@@ -830,7 +835,9 @@ fn write_union_definition_body(state: &Box<ReScriptPrinter>, str: &mut String, i
         writeln!(str, ")").unwrap();
     }
 
-    if !state.operation_meta_data.is_updatable {
+    if state.operation_meta_data.is_updatable /*|| union.include_catch_all == false TODO: Fix at some point*/ {
+        ()
+    } else {
         write_indentation(str, indentation + 1).unwrap();
         writeln!(str, "| @live @as(\"__unselected\") UnselectedUnionMember(string)").unwrap();
         writeln!(str, "").unwrap();
@@ -2733,9 +2740,10 @@ impl Writer for ReScriptPrinter {
 
                     let current_path = vec![root_name_from_context(&context)];
                     let record_name = path_to_name(&current_path);
-                    let union_members =
+                    let (union_members, include_catch_all) =
                         extract_union_members(self, &current_path, members_raw, &context);
                     let fragment_union_type = Union {
+                        include_catch_all,
                         at_path: current_path.clone(),
                         comment: None,
                         record_name: record_name.to_string(),
@@ -2757,9 +2765,10 @@ impl Writer for ReScriptPrinter {
 
                     let current_path = vec![root_name_from_context(&context)];
                     let record_name = path_to_name(&current_path);
-                    let union_members =
+                    let (union_members, include_catch_all) =
                         extract_union_members(self, &current_path, members_raw, &context);
                     let fragment_union_type = Union {
+                        include_catch_all,
                         at_path: current_path.clone(),
                         comment: None,
                         record_name: record_name.to_string(),

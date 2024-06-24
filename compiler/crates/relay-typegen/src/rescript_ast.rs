@@ -7,6 +7,7 @@ pub struct UnionMember {
 
 #[derive(Debug)]
 pub struct Union {
+    pub include_catch_all: bool,
     pub record_name: String,
     pub comment: Option<String>,
     pub members: Vec<UnionMember>,
