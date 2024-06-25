@@ -372,7 +372,7 @@ pub(crate) fn rescript_generate_extra_artifacts(
                     &field.type_,
                     &schema,
                     &project_config.typegen_config.custom_scalar_types,
-                    true,
+                false,
                     false,
                     &NullabilityMode::Option,
                     true

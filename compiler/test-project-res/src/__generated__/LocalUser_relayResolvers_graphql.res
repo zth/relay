@@ -1,14 +1,14 @@
 /* @generated */
 @@warning("-30")
 
-type nameResolver = (RelayLocalUserModel.t, ) => option<string>
+type nameResolver = (RelayLocalUserModel.t, ) => string
 
 type bestFriendResolverArgs = {
   from: option<Timestamp.t>,
 }
-type bestFriendResolver = (RelayLocalUserModel.t, bestFriendResolverArgs) => option<RescriptRelay.dataIdObject>
+type bestFriendResolver = (RelayLocalUserModel.t, bestFriendResolverArgs) => RescriptRelay.dataIdObject
 
-type favoriteColorsResolver = (RelayLocalUserModel.t, ) => option<array<string>>
+type favoriteColorsResolver = (RelayLocalUserModel.t, ) => array<string>
 
-type metaResolver = (RelayLocalUserModel.t, ) => option<RelayUserMetaModel.t>
+type metaResolver = (RelayLocalUserModel.t, ) => RelayUserMetaModel.t
 
