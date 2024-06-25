@@ -4,6 +4,7 @@ use std::ops::Add;
 
 use common::ScalarName;
 use common::WithLocation;
+use docblock_shared::RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE;
 use graphql_ir::reexport::Intern;
 use graphql_ir::reexport::StringKey;
 use graphql_ir::Argument;
@@ -510,6 +511,20 @@ pub fn print_type_reference(
                         }
                     }
                 ),
+                Type::Object(id) => {
+                    let object = schema.object(*id);
+                    let weak = object.directives.iter().find(|d| {
+                        d.name == *RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE
+                    }).is_some();
+
+                    if weak {
+                        format!("Relay{}Model.t", object.name.item)
+                    } else if object.is_extension {
+                        format!("RescriptRelay.dataIdObject")
+                    } else {
+                        format!("RescriptRelay.dataId")
+                    }
+                },
                 _ => String::from("RescriptRelay.any"),
             },
             nullable,

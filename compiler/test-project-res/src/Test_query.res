@@ -1,5 +1,6 @@
 module Query = %relay(`
   query TestQuery($status: OnlineStatus) {
+    time
     users(status: $status) {
       edges {
         node {

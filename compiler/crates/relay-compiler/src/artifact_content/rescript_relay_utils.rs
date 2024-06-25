@@ -1,13 +1,16 @@
 use common::SourceLocationKey;
+use intern::string_key::Intern;
 use lazy_static::lazy_static;
 use regex::Regex;
+use relay_typegen::rescript_utils::uncapitalize_string;
 use std::{fmt::Write, ops::RangeTo};
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum ImportType {
     GraphQLNode(String),
-    ModuleImport(String),
+    ModuleImport(String, Option<String>),
     ProvidedVariables,
+    ResolverDataInjector
 }
 
 pub fn rescript_find_code_import_references(concrete_text: &str) -> Vec<ImportType> {
@@ -18,7 +21,7 @@ pub fn rescript_find_code_import_references(concrete_text: &str) -> Vec<ImportTy
             end: String::from("rescript_graphql_node_").len()
         };
         static ref RE_MODULE_IMPORT: Regex =
-            Regex::new(r"rescript_module_([A-Za-z0-9_]*)").unwrap();
+            Regex::new(r"rescript_module_([A-Za-z0-9_]*)(?:\.([A-Za-z0-9_]*))?").unwrap();
         static ref PREFIX_RANGE_MODULE_IMPORT: RangeTo<usize> = RangeTo {
             end: String::from("rescript_module_").len()
         };
@@ -31,7 +34,10 @@ pub fn rescript_find_code_import_references(concrete_text: &str) -> Vec<ImportTy
         .for_each(|graphql_module_name| {
             let mut full_matched_name: String = graphql_module_name.as_str().parse().ok().unwrap();
             String::replace_range(&mut full_matched_name, *PREFIX_RANGE_GRAPHQL_NODE, "");
-            results.push(ImportType::GraphQLNode(full_matched_name));
+            let graphql_node = ImportType::GraphQLNode(full_matched_name);
+            if !results.contains(&graphql_node) {
+                results.push(graphql_node);
+            }
         });
 
     RE_MODULE_IMPORT
@@ -39,7 +45,20 @@ pub fn rescript_find_code_import_references(concrete_text: &str) -> Vec<ImportTy
         .for_each(|module_import_name| {
             let mut full_matched_name: String = module_import_name.as_str().parse().ok().unwrap();
             String::replace_range(&mut full_matched_name, *PREFIX_RANGE_MODULE_IMPORT, "");
-            results.push(ImportType::ModuleImport(full_matched_name))
+            let matched_name: Vec<&str> = full_matched_name.split(".").collect();
+            let module_name = matched_name.get(0).unwrap();
+            let path = match matched_name.get(1) {
+                Some(path) => Some(path.to_string()),
+                None => None
+            };
+            if path.is_some() && !results.contains(&ImportType::ResolverDataInjector) {
+                results.push(ImportType::ResolverDataInjector)
+            }
+            let module_import = ImportType::ModuleImport(module_name.to_string(), path);
+            if !results.contains(&module_import) {
+                results.push(module_import)
+            }
+
         });
 
     results
@@ -59,6 +78,17 @@ pub fn rescript_make_operation_type_and_node_text(
     let mut str = String::new();
 
     let mut referenced_imports = rescript_find_code_import_references(&concrete_text);
+    let mut replaced_text = concrete_text.to_string();
+    for imp in &referenced_imports {
+        match imp {
+            ImportType::ModuleImport(module_name, Some(path)) => {
+                let replace_this = format!("{}.{}", module_name, path);
+                let with_this = format!("{}_{}", module_name, path);
+                replaced_text = replaced_text.replace(&replace_this, &with_this);
+            },
+            _ => ()
+        }
+    }
 
     if has_provided_variables {
         referenced_imports.push(ImportType::ProvidedVariables)
@@ -68,7 +98,7 @@ pub fn rescript_make_operation_type_and_node_text(
         writeln!(
             str,
             "let node: operationType = %raw(json` {} `)",
-            &concrete_text
+            &replaced_text
         )
         .unwrap()
     } else {
@@ -82,13 +112,22 @@ pub fn rescript_make_operation_type_and_node_text(
                     "{}{}",
                     match &import_type {
                         &ImportType::GraphQLNode(_) => "rescript_graphql_node_",
-                        &ImportType::ModuleImport(_) => "rescript_module_",
+                        &ImportType::ModuleImport(_, _) => "rescript_module_",
                         &ImportType::ProvidedVariables => "providedVariablesDefinition",
+                        &ImportType::ResolverDataInjector => "resolverDataInjector"
                     },
                     match &import_type {
-                        &ImportType::GraphQLNode(module_name) => module_name,
-                        &ImportType::ModuleImport(module_name) => module_name,
-                        &ImportType::ProvidedVariables => "",
+                        &ImportType::GraphQLNode(module_name) => module_name.to_owned(),
+                        &ImportType::ModuleImport(module_name, path) => {
+                            match &path {
+                                Some(path) => {
+                                    let d = format!("{}_{}", module_name, path);
+                                    d
+                                },
+                                None => module_name.to_owned()
+                            }
+                        },
+                        &ImportType::ProvidedVariables | &ImportType::ResolverDataInjector => "".to_owned(),
                     }
                 ))
                 .collect::<Vec<String>>()
@@ -106,13 +145,22 @@ pub fn rescript_make_operation_type_and_node_text(
                     "  ignore({}{})",
                     match &import_type {
                         &ImportType::GraphQLNode(_) => "rescript_graphql_node_",
-                        &ImportType::ModuleImport(_) => "rescript_module_",
+                        &ImportType::ModuleImport(_, _) => "rescript_module_",
                         &ImportType::ProvidedVariables => "providedVariablesDefinition",
+                        &ImportType::ResolverDataInjector => "resolverDataInjector",
                     },
                     match &import_type {
-                        &ImportType::GraphQLNode(module_name) => module_name,
-                        &ImportType::ModuleImport(module_name) => module_name,
-                        &ImportType::ProvidedVariables => "",
+                        &ImportType::GraphQLNode(module_name) => module_name.to_owned(),
+                        &ImportType::ModuleImport(module_name, path) => {
+                            match &path {
+                                Some(path) => {
+                                    let d = format!("{}_{}", module_name, path);
+                                    d
+                                },
+                                None => module_name.to_owned()
+                            }
+                        },
+                        &ImportType::ProvidedVariables | &ImportType::ResolverDataInjector => "".to_owned(),
                     }
                 ))
                 .collect::<Vec<String>>()
@@ -121,7 +169,7 @@ pub fn rescript_make_operation_type_and_node_text(
         .unwrap();
 
         // Print artifact and close fn
-        writeln!(str, "  %raw(json`{}`)\n}})", &concrete_text).unwrap();
+        writeln!(str, "  %raw(json`{}`)\n}})", &replaced_text).unwrap();
 
         // Write node via makeNode and pass all referenced variables
         writeln!(
@@ -134,10 +182,15 @@ pub fn rescript_make_operation_type_and_node_text(
                     match &import_type {
                         &ImportType::GraphQLNode(module_name) =>
                             format!("{}_graphql.node", module_name),
-                        &ImportType::ModuleImport(module_name) =>
-                            format!("{}.default", module_name),
+                        &ImportType::ModuleImport(module_name, path) =>
+                            format!("{}.{}", module_name, match &path {
+                                Some(path) => uncapitalize_string(path).intern(),
+                                None => "default".intern()
+                            }),
                         &ImportType::ProvidedVariables =>
                             String::from("providedVariablesDefinition"),
+                        &ImportType::ResolverDataInjector =>
+                            String::from("RescriptRelay.resolverDataInjector"),
                     },
                 ))
                 .collect::<Vec<String>>()
@@ -187,7 +240,7 @@ mod tests {
         assert_eq!(
             vec![
                 ImportType::GraphQLNode(String::from("ComponentRefetchQuery")),
-                ImportType::ModuleImport(String::from("TestRelayResolver"))
+                ImportType::ModuleImport(String::from("TestRelayResolver"), None)
             ],
             rescript_find_code_import_references(
                 r#"{

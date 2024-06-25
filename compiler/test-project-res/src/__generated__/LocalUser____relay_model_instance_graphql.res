@@ -1,13 +1,10 @@
-/* @sourceLoc Test_fragment.res */
+/* @sourceLoc TestRelayResolverMulti.res */
 /* @generated */
 %%raw("/* @generated */")
 module Types = {
   @@warning("-30")
 
-  type fragment = {
-    greeting: option<string>,
-    lastName: string,
-  }
+  type fragment = unit
 }
 
 module Internal = {
@@ -30,7 +27,7 @@ module Internal = {
 type t
 type fragmentRef
 external getFragmentRef:
-  RescriptRelay.fragmentRefs<[> | #TestFragment_sub_user]> => fragmentRef = "%identity"
+  RescriptRelay.fragmentRefs<[> | #LocalUser____relay_model_instance]> => fragmentRef = "%identity"
 
 module Utils = {
   @@warning("-33")
@@ -41,39 +38,33 @@ type relayOperationNode
 type operationType = RescriptRelay.fragmentNode<relayOperationNode>
 
 
-%%private(let makeNode = (resolverDataInjector, rescript_module_TestRelayResolver_greeting): operationType => {
+%%private(let makeNode = (rescript_graphql_node_LocalUser__id, resolverDataInjector, rescript_module_TestRelayResolverMulti_LocalUser): operationType => {
+  ignore(rescript_graphql_node_LocalUser__id)
   ignore(resolverDataInjector)
-  ignore(rescript_module_TestRelayResolver_greeting)
+  ignore(rescript_module_TestRelayResolverMulti_LocalUser)
   %raw(json`{
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "TestFragment_sub_user",
+  "name": "LocalUser____relay_model_instance",
   "selections": [
-    {
-      "alias": null,
-      "args": null,
-      "kind": "ScalarField",
-      "name": "lastName",
-      "storageKey": null
-    },
     {
       "alias": null,
       "args": null,
       "fragment": {
         "args": null,
         "kind": "FragmentSpread",
-        "name": "TestRelayResolver"
+        "name": "LocalUser__id"
       },
       "kind": "RelayResolver",
-      "name": "greeting",
-      "resolverModule": rescript_module_TestRelayResolver_greeting,
-      "path": "greeting"
+      "name": "__relay_model_instance",
+      "resolverModule": resolverDataInjector(rescript_graphql_node_LocalUser__id, rescript_module_TestRelayResolverMulti_LocalUser, 'id', true),
+      "path": "__relay_model_instance"
     }
   ],
-  "type": "User",
+  "type": "LocalUser",
   "abstractKey": null
 }`)
 })
-let node: operationType = makeNode(RescriptRelay.resolverDataInjector, TestRelayResolver.greeting)
+let node: operationType = makeNode(LocalUser__id_graphql.node, RescriptRelay.resolverDataInjector, TestRelayResolverMulti.localUser)
 
