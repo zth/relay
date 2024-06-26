@@ -10,10 +10,12 @@ use std::fmt::Result as FmtResult;
 use std::fmt::Write;
 use std::ops::Deref;
 
+use fnv::FnvHashSet;
 use intern::string_key::StringKey;
 use intern::Lookup;
 use relay_config::TypegenConfig;
 use relay_config::TypegenLanguage;
+use schema::Schema;
 
 use crate::flow::FlowPrinter;
 use crate::javascript::JavaScriptPrinter;
@@ -396,15 +398,26 @@ pub(crate) fn new_writer_from_config(
     typegen_definition: DefinitionType
 ) -> Box<dyn Writer> {
     match config.language {
-        TypegenLanguage::ReScript => Box::new(rescript::ReScriptPrinter::new(
+        TypegenLanguage::ReScript => {
+            let mut client_extension_enums = FnvHashSet::default();
+
+            typegen_opts.schema.enums().for_each(|e| {
+                if e.is_extension {
+                    client_extension_enums.insert(e.name.item.0.to_string());
+                }
+            });
+
+            Box::new(rescript::ReScriptPrinter::new(
             rescript_utils::get_rescript_relay_meta_data(
-                &typegen_opts.schema,
-                &typegen_definition,
-                &config,
-            ),
-            typegen_definition,
-            typegen_opts.is_preloadable_thin_file,
-        )),
+                    &typegen_opts.schema,
+                    &typegen_definition,
+                    &config,
+                ),
+                typegen_definition,
+                typegen_opts.is_preloadable_thin_file,
+                client_extension_enums,
+            ))
+        },
         TypegenLanguage::JavaScript => Box::<JavaScriptPrinter>::default(),
         TypegenLanguage::Flow => Box::new(FlowPrinter::new()),
         TypegenLanguage::TypeScript => Box::new(TypeScriptPrinter::new(config)),

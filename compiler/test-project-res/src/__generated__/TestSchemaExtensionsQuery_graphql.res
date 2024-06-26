@@ -14,7 +14,7 @@ module Types = {
     | @live @as("__unselected") UnselectedUnionMember(string)
 
   type response = {
-    localOnlineStatus: option<RelaySchemaAssets_graphql.enum_LocalOnlineStatus>,
+    localOnlineStatus: option<RelaySchemaAssets_graphql.enum_LocalOnlineStatus_input>,
     localUnion: option<response_localUnion>,
   }
   @live

@@ -100,6 +100,9 @@ pub struct ReScriptPrinter {
     // piece together how the resolver types are imported.
     pub relay_resolvers: Vec<RelayResolverInfo>,
 
+    // Names of all enums that are client extensions
+    pub client_extension_enums: FnvHashSet<String>,
+
     // Whether we have provided variables.
     pub provided_variables: Option<Vec<ProvidedVariable>>,
 
@@ -608,22 +611,26 @@ fn get_object_prop_type_as_string(
                 })
                 .is_some();
 
-            match (has_allow_unsafe_enum_directive, &context) {
-                (true, _)
-                | (false, Context::Variables | Context::RawResponse | Context::RootObject(_)) => {
-                    match state
-                        .enums
-                        .iter()
-                        .find(|full_enum| full_enum.name == enum_name.to_string())
-                    {
-                        None => {
-                            warn!("Did not find enum");
-                            String::from("invalid_enum")
+            if state.client_extension_enums.contains(enum_name) {
+                format!("RelaySchemaAssets_graphql.enum_{}_input", enum_name)
+            } else {
+                match (has_allow_unsafe_enum_directive, &context) {
+                    (true, _)
+                    | (false, Context::Variables | Context::RawResponse | Context::RootObject(_)) => {
+                        match state
+                            .enums
+                            .iter()
+                            .find(|full_enum| full_enum.name == enum_name.to_string())
+                        {
+                            None => {
+                                warn!("Did not find enum");
+                                String::from("invalid_enum")
+                            }
+                            Some(full_enum) => format!("RelaySchemaAssets_graphql.enum_{}_input", full_enum.name),
                         }
-                        Some(full_enum) => format!("RelaySchemaAssets_graphql.enum_{}_input", full_enum.name),
-                    }
+                    },
+                    _ => format!("RelaySchemaAssets_graphql.enum_{}", enum_name),
                 }
-                _ => format!("RelaySchemaAssets_graphql.enum_{}", enum_name),
             }
         }
         &PropType::StringLiteral(literal) => format!("[ | #{}]", literal),
@@ -3070,6 +3077,7 @@ impl ReScriptPrinter {
         operation_meta_data: RescriptRelayOperationMetaData,
         typegen_definition: DefinitionType,
         is_preloadable_thin_file: Option<bool>,
+        client_extension_enums: FnvHashSet<String>
     ) -> Self {
         Self {
             enums: vec![],
@@ -3085,7 +3093,8 @@ impl ReScriptPrinter {
             operation_meta_data,
             relay_resolvers: vec![],
             provided_variables: None,
-            is_preloadable_thin_file
+            is_preloadable_thin_file,
+            client_extension_enums
         }
     }
 }

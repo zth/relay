@@ -464,7 +464,7 @@ pub fn print_type_reference(
                             ""
                         },
                         enum_.name.item,
-                        if enum_as_inputs { "_input" } else { "" }
+                        if enum_as_inputs || enum_.is_extension  { "_input" } else { "" }
                     )
                 }
                 Type::InputObject(id) => {
