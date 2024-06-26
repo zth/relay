@@ -347,7 +347,7 @@ pub(crate) fn rescript_generate_extra_artifacts(
 
                 match resolver_info.fragment_name {
                     Some(fragment_name) => if !fragment_name.0.to_string().contains("__relay_") {
-                        write!(c, "RescriptRelay.fragmentRefs<[#{}]>, ", fragment_name).unwrap()
+                        write!(c, "RescriptRelay.resolverFragmentRefs<[#{}]>, ", fragment_name).unwrap()
                     } else {
                         ()
                     },
