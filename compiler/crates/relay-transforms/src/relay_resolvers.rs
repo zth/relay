@@ -606,7 +606,7 @@ impl Transformer for RelayResolverFieldTransform<'_> {
 
 #[derive(Debug)]
 pub struct ResolverInfo {
-    fragment_name: Option<FragmentDefinitionName>,
+    pub fragment_name: Option<FragmentDefinitionName>,
     fragment_data_injection_mode: Option<FragmentDataInjectionMode>,
     pub import_path: StringKey,
     pub import_name: Option<StringKey>,

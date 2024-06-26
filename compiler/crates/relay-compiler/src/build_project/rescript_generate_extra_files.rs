@@ -345,6 +345,15 @@ pub(crate) fn rescript_generate_extra_artifacts(
 
                 write!(c, "type {}Resolver = (", uncapitalize_string(&field.name.item.to_string())).unwrap();
 
+                match resolver_info.fragment_name {
+                    Some(fragment_name) => if !fragment_name.0.to_string().contains("__relay_") {
+                        write!(c, "RescriptRelay.fragmentRefs<[> | #{}]>, ", fragment_name).unwrap()
+                    } else {
+                        ()
+                    },
+                    None => ()
+                };
+
                 // Case when the field is on a client extension type
                 if object.is_extension {
                     write!(c, "Relay{}Model.t, ", &object.name.item.to_string()).unwrap();

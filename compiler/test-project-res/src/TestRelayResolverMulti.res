@@ -81,3 +81,18 @@ let localUser = (): option<RescriptRelay.dataIdObject> => {
     id: "local-user-1"->RescriptRelay.makeDataId,
   })
 }
+
+module Fragment = %relay(`
+  fragment TestRelayResolverMultiFancyGreeting on User @argumentDefinitions(includeFull2: {type: "Boolean", defaultValue: false}) {
+    firstName @include(if: $includeFull2)
+  }
+`)
+
+/**
+ * @RelayResolver User.fancyGreeting(includeFull: Boolean): String
+ * @rootFragment TestRelayResolverMultiFancyGreeting
+ */
+let fancyGreeting = (greeting, args) => {
+  let user = Fragment.read(greeting)
+  user.firstName
+}
