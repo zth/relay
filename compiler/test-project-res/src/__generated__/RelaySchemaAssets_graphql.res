@@ -31,29 +31,42 @@ type enum_SingleValueEnum_input =
 type enum_LocalOnlineStatus = 
   | IsOnline
   | IsOffline
+  | FutureAddedValue(string)
 
 
-@live
-type enum_LocalOnlineStatus_input = enum_LocalOnlineStatus
+@live @unboxed
+type enum_LocalOnlineStatus_input = 
+  | IsOnline
+  | IsOffline
+
 
 @live @unboxed
 type enum_RequiredFieldAction = 
   | NONE
   | LOG
   | THROW
+  | FutureAddedValue(string)
 
 
-@live
-type enum_RequiredFieldAction_input = enum_RequiredFieldAction
+@live @unboxed
+type enum_RequiredFieldAction_input = 
+  | NONE
+  | LOG
+  | THROW
+
 
 @live @unboxed
 type enum_CatchFieldTo = 
   | NULL
   | RESULT
+  | FutureAddedValue(string)
 
 
-@live
-type enum_CatchFieldTo_input = enum_CatchFieldTo
+@live @unboxed
+type enum_CatchFieldTo_input = 
+  | NULL
+  | RESULT
+
 
 @live
 type rec input_InputA = {

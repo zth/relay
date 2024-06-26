@@ -77,43 +77,33 @@ pub(crate) fn rescript_generate_extra_artifacts(
                 writeln!(content, "  | @as(\"{}\") {}", v.value, capitalized).unwrap();
             }
         });
-        // Future added value protection is not needed for client fields.
-        if !e.is_extension {
-            writeln!(content, "  | FutureAddedValue(string)").unwrap();
-        }
+        writeln!(content, "  | FutureAddedValue(string)").unwrap();
         writeln!(content, "\n").unwrap();
 
         if let Some(desc) = e.description {
             writeln!(content, "/** {} */", desc).unwrap();
         }
-        if e.is_extension {
-            writeln!(
-                content,
-                "@live\ntype enum_{}_input = enum_{}\n", e.name.item, e.name.item
-            )
-            .unwrap();
-        } else {
-            writeln!(
-                content,
-                "@live{}\ntype enum_{}_input = ",
-                if e.values.len() > 1 {
-                    " @unboxed"
-                } else {
-                    ""
-                },
-                e.name.item
-            )
-            .unwrap();
-            e.values.iter().for_each(|v| {
-                let capitalized = capitalize_string(&v.value.to_string()).intern();
-                if capitalized == v.value {
-                    writeln!(content, "  | {}", v.value).unwrap();
-                } else {
-                    writeln!(content, "  | @as(\"{}\") {}", v.value, capitalized).unwrap();
-                }
-            });
-            writeln!(content, "\n").unwrap();
-        }
+        
+        writeln!(
+            content,
+            "@live{}\ntype enum_{}_input = ",
+            if e.values.len() > 1 {
+                " @unboxed"
+            } else {
+                ""
+            },
+            e.name.item
+        )
+        .unwrap();
+        e.values.iter().for_each(|v| {
+            let capitalized = capitalize_string(&v.value.to_string()).intern();
+            if capitalized == v.value {
+                writeln!(content, "  | {}", v.value).unwrap();
+            } else {
+                writeln!(content, "  | @as(\"{}\") {}", v.value, capitalized).unwrap();
+            }
+        });
+        writeln!(content, "\n").unwrap();
     });
 
     // Write the input object types
