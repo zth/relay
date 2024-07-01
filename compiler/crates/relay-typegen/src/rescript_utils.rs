@@ -236,6 +236,14 @@ pub fn get_rescript_relay_meta_data(
     }
 }
 
+pub fn is_first_char_uppercase(s: &String) -> bool {
+    if let Some(first_char) = s.chars().next() {
+        return first_char.is_uppercase();
+    } else {
+        return false;
+    }
+}
+
 const DISALLOWED_IDENTIFIERS: &'static [&'static str] = &[
     "and",
     "as",
@@ -284,10 +292,19 @@ pub fn is_legal_key(key: &String) -> bool {
 }
 
 pub fn get_safe_key(original_key: &String) -> (String, Option<String>) {
-    if is_legal_key(&original_key) {
-        (format!("{}_", original_key), Some(original_key.to_string()))
+    if is_first_char_uppercase(&original_key) {
+        let uncapitalized = uncapitalize_string(&original_key);
+        if is_legal_key(&uncapitalized) {
+            (format!("{}_", uncapitalized), Some(original_key.to_string()))
+        } else {
+            (uncapitalized, Some(original_key.to_string()))
+        }
     } else {
-        (original_key.to_string(), None)
+        if is_legal_key(&original_key) {
+            (format!("{}_", original_key), Some(original_key.to_string()))
+        } else {
+            (original_key.to_string(), None)
+        }
     }
 }
 

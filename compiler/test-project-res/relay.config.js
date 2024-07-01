@@ -7,7 +7,10 @@ module.exports = {
     Timestamp: "Timestamp.t"
   },
   featureFlags: {
-    enable_relay_resolver_transform: true
+    enable_relay_resolver_transform: true,
+    enable_fragment_aliases: {
+      kind: "enabled"
+    }
   },
   schemaExtensions: ["./schemaExtensions"]
 };
