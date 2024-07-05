@@ -1,22 +1,15 @@
-/* @sourceLoc Test_codesplit.res */
+/* @sourceLoc Test_preloadedQuery.res */
 /* @generated */
 %%raw("/* @generated */")
+// @relayRequestID 258078f3456869cbf67a1f1aca9549a1
+
 module Types = {
   @@warning("-30")
 
-  type rec response_member_Group_GroupAvatar_group = {
-    fragmentRefs: RescriptRelay.fragmentRefs<[ | #GroupAvatar_group]>,
-  }
-  and response_member_User_UserAvatar_user = {
+  type rec response_member_User_UserAvatar_user = {
     fragmentRefs: RescriptRelay.fragmentRefs<[ | #UserAvatar_user]>,
   }
   @tag("__typename") and response_member = 
-    | @live Group(
-      {
-        @live __typename: [ | #Group],
-        @as("GroupAvatar_group") groupAvatar_group: option<response_member_Group_GroupAvatar_group>,
-      }
-    )
     | @live User(
       {
         @live __typename: [ | #User],
@@ -38,7 +31,7 @@ module Types = {
 }
 
 @live
-let unwrap_response_member: Types.response_member => Types.response_member = RescriptRelay_Internal.unwrapUnion(_, ["Group", "User"])
+let unwrap_response_member: Types.response_member => Types.response_member = RescriptRelay_Internal.unwrapUnion(_, ["User"])
 @live
 let wrap_response_member: Types.response_member => Types.response_member = RescriptRelay_Internal.wrapUnion
 
@@ -61,7 +54,7 @@ module Internal = {
   type wrapResponseRaw
   @live
   let wrapResponseConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
-    json`{"__root":{"member_User_UserAvatar_user":{"f":""},"member_Group_GroupAvatar_group":{"f":""},"member":{"u":"response_member"}}}`
+    json`{"__root":{"member_User_UserAvatar_user":{"f":""},"member":{"u":"response_member"}}}`
   )
   @live
   let wrapResponseConverterMap = {
@@ -77,7 +70,7 @@ module Internal = {
   type responseRaw
   @live
   let responseConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
-    json`{"__root":{"member_User_UserAvatar_user":{"f":""},"member_Group_GroupAvatar_group":{"f":""},"member":{"u":"response_member"}}}`
+    json`{"__root":{"member_User_UserAvatar_user":{"f":""},"member":{"u":"response_member"}}}`
   )
   @live
   let responseConverterMap = {
@@ -107,9 +100,6 @@ module CodesplitComponents = {
   module UserAvatar = {
     let make = React.lazy_(() => Js.import(UserAvatar.make))
   }
-  module GroupAvatar = {
-    let make = React.lazy_(() => Js.import(GroupAvatar.make))
-  }
 }
 
 
@@ -122,7 +112,7 @@ var v0 = [
   {
     "kind": "Literal",
     "name": "id",
-    "value": "123"
+    "value": "1"
   }
 ],
 v1 = {
@@ -146,7 +136,7 @@ return {
     "argumentDefinitions": [],
     "kind": "Fragment",
     "metadata": null,
-    "name": "TestCodesplitQuery",
+    "name": "TestPreloadedQueryWithCodesplitQuery",
     "selections": [
       {
         "alias": null,
@@ -174,27 +164,9 @@ return {
             ],
             "type": "User",
             "abstractKey": null
-          },
-          {
-            "kind": "InlineFragment",
-            "selections": [
-              {
-                "fragment": {
-                  "args": null,
-                  "kind": "FragmentSpread",
-                  "name": "GroupAvatar_group"
-                },
-                "kind": "AliasedFragmentSpread",
-                "name": "GroupAvatar_group",
-                "type": "Group",
-                "abstractKey": null
-              }
-            ],
-            "type": "Group",
-            "abstractKey": null
           }
         ],
-        "storageKey": "member(id:\"123\")"
+        "storageKey": "member(id:\"1\")"
       }
     ],
     "type": "Query",
@@ -204,7 +176,7 @@ return {
   "operation": {
     "argumentDefinitions": [],
     "kind": "Operation",
-    "name": "TestCodesplitQuery",
+    "name": "TestPreloadedQueryWithCodesplitQuery",
     "selections": [
       {
         "alias": null,
@@ -245,20 +217,6 @@ return {
           },
           {
             "kind": "InlineFragment",
-            "selections": [
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "name",
-                "storageKey": null
-              }
-            ],
-            "type": "Group",
-            "abstractKey": null
-          },
-          {
-            "kind": "InlineFragment",
             "selections": (v2/*: any*/),
             "type": "Node",
             "abstractKey": "__isNode"
@@ -270,48 +228,24 @@ return {
             "abstractKey": null
           }
         ],
-        "storageKey": "member(id:\"123\")"
+        "storageKey": "member(id:\"1\")"
       }
     ]
   },
   "params": {
-    "cacheID": "0b0d5d985acc77e43cce13bdbc44f331",
-    "id": null,
+    "id": "258078f3456869cbf67a1f1aca9549a1",
     "metadata": {},
-    "name": "TestCodesplitQuery",
+    "name": "TestPreloadedQueryWithCodesplitQuery",
     "operationKind": "query",
-    "text": "query TestCodesplitQuery {\n  member(id: \"123\") {\n    __typename\n    ... on User {\n      ...UserAvatar_user\n    }\n    ... on Group {\n      ...GroupAvatar_group\n    }\n    ... on Node {\n      __isNode: __typename\n      __typename\n      id\n    }\n    ... on person {\n      id\n    }\n  }\n}\n\nfragment GroupAvatar_group on Group {\n  name\n}\n\nfragment UserAvatar_user on User {\n  avatarUrl\n  ...UserName_user\n}\n\nfragment UserName_user on User {\n  firstName\n  lastName\n}\n"
+    "text": null
   }
 };
 })() `)
 
 let node = RescriptRelay_Internal.applyCodesplitMetadata(node, [
   ("member.$$u$$User", () => {Js.import(UserName.make)->ignore}), 
-  ("member.$$u$$Group", () => {Js.import(GroupAvatar.make)->ignore}), 
 ])
-@live let load: (
-  ~environment: RescriptRelay.Environment.t,
-  ~variables: Types.variables,
-  ~fetchPolicy: RescriptRelay.fetchPolicy=?,
-  ~fetchKey: string=?,
-  ~networkCacheConfig: RescriptRelay.cacheConfig=?,
-) => queryRef = (
-  ~environment,
-  ~variables,
-  ~fetchPolicy=?,
-  ~fetchKey=?,
-  ~networkCacheConfig=?,
-) =>
-  RescriptRelay.loadQuery(
-    environment,
-    node,
-    variables->Internal.convertVariables,
-    {
-      fetchKey,
-      fetchPolicy,
-      networkCacheConfig,
-    },
-  )
+
 
 @live
 let queryRefToObservable = token => {
@@ -330,3 +264,8 @@ let queryRefToPromise = token => {
     }
   })
 }
+type operationId
+type operationTypeParams = {id: operationId}
+@get external getOperationTypeParams: operationType => operationTypeParams = "params"
+@module("relay-runtime") @scope("PreloadableQueryRegistry") external setPreloadQuery: (operationId, operationType) => unit = "set"
+getOperationTypeParams(node).id->setPreloadQuery(node)

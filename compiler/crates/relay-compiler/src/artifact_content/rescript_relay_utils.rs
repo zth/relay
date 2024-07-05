@@ -1,9 +1,15 @@
-use common::SourceLocationKey;
+use common::{DirectiveName, SourceLocationKey};
+use graphql_ir::{FragmentDefinitionName, OperationDefinition, Selection};
+use graphql_ir::Field;
 use intern::string_key::Intern;
 use lazy_static::lazy_static;
 use regex::Regex;
-use relay_typegen::rescript_utils::uncapitalize_string;
-use std::{fmt::Write, ops::RangeTo};
+use relay_typegen::{rescript_utils::{capitalize_string, uncapitalize_string}, FragmentLocations};
+use schema::{SDLSchema, Schema, Type};
+use std::{fmt::Write, ops::RangeTo, path::Path};
+use common::NamedItem;
+
+use super::content_section::GenericSection;
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum ImportType {
@@ -230,6 +236,199 @@ pub fn rescript_get_source_loc_text(source_file: &SourceLocationKey) -> Option<S
 
 pub fn rescript_get_comments_for_generated() -> String {
     String::from("/* @generated */\n%%raw(\"/* @generated */\")")
+}
+
+fn make_path(current_path: &Vec<String>, new_element: String) -> Vec<String> {
+    [current_path.clone(), vec![new_element]].concat()
+}
+
+fn visit_selections_for_codesplits<'a>(
+    selections: &Vec<Selection>,
+    schema: &'a SDLSchema,
+    current_path: Vec<String>,
+    codesplits: &mut Vec<(Vec<String>, Vec<String>)>,
+    fragment_locations: &FragmentLocations,
+) -> () {
+    selections.iter().for_each(|f| match &f {
+        Selection::ScalarField(_field) => (),
+        Selection::LinkedField(field) => {
+            visit_selections_for_codesplits(
+                &field.selections,
+                &schema,
+                make_path(&current_path, field.alias_or_name(schema).to_string()),
+                codesplits,
+                fragment_locations
+            );
+        }
+        Selection::InlineFragment(inline_fragment) => {
+            let type_name = match &inline_fragment.type_condition {
+                Some(Type::Object(id)) => Some(schema.object(*id).name.item.0),
+                Some(Type::Interface(id)) => Some(schema.interface(*id).name.item.0),
+                Some(Type::Union(id)) => Some(schema.union(*id).name.item.0),
+                _ => None,
+            };
+
+            match type_name {
+                None => (),
+                Some(type_name) => {
+                    let next_path = make_path(&current_path, format!("$$u$${}", type_name.to_string()));
+                    if inline_fragment.directives.named(DirectiveName("autoCodesplit".intern())).is_some() {
+                        let mut fragment_names = vec![];
+
+                        inline_fragment.directives.iter().for_each(|d| {
+                            if d.name.item.0 == "autoCodesplit".intern() {
+                                let path_to_file = fragment_locations.0.get(&FragmentDefinitionName(d.arguments.get(0).unwrap().value.item.expect_string_literal())).unwrap().source_location().path();
+                                let filename = Path::new(path_to_file).file_stem().unwrap().to_str().unwrap().to_string();
+                                fragment_names.push(capitalize_string(&filename));
+                            }
+                        });
+
+                        codesplits.push((next_path.clone(), fragment_names))
+                    }
+
+                       visit_selections_for_codesplits(
+                        &inline_fragment.selections,
+                        &schema,
+                        next_path,
+                        codesplits,
+                        fragment_locations
+                    )
+                }
+            }
+        }
+        Selection::Condition(condition) => {
+            visit_selections_for_codesplits(
+                &condition.selections,
+                &schema,
+                current_path.clone(),
+                codesplits,
+                fragment_locations
+            );
+        }
+        Selection::FragmentSpread(_fragment_spread) => {
+            ()
+        },
+    });
+}
+
+pub fn find_codesplits_in_operation<'a>(
+    operation: &OperationDefinition,
+    schema: &'a SDLSchema,
+    fragment_locations: &FragmentLocations,
+) -> Vec<(Vec<String>, Vec<String>)> {
+    let mut codesplits = vec![];
+    visit_selections_for_codesplits(
+        &operation.selections,
+        &schema,
+        vec![],
+        &mut codesplits,
+        &fragment_locations
+    );
+
+    codesplits
+}
+
+fn visit_selections_for_codesplit_components<'a>(
+    selections: &Vec<Selection>,
+    schema: &'a SDLSchema,
+    codesplits: &mut Vec<String>,
+    fragment_locations: &FragmentLocations,
+) -> () {
+    selections.iter().for_each(|f| match &f {
+        Selection::ScalarField(_field) => (),
+        Selection::LinkedField(field) => {
+            visit_selections_for_codesplit_components(
+                &field.selections,
+                &schema,
+                codesplits,
+                fragment_locations
+            );
+        }
+        Selection::InlineFragment(inline_fragment) => {
+            visit_selections_for_codesplit_components(
+                &inline_fragment.selections,
+                &schema,
+                codesplits,
+                fragment_locations
+            )
+        }
+        Selection::Condition(condition) => {
+            visit_selections_for_codesplit_components(
+                &condition.selections,
+                &schema,
+                codesplits,
+                fragment_locations
+            );
+        }
+        Selection::FragmentSpread(fragment_spread) => {
+            if fragment_spread.directives.named(DirectiveName("autoCodesplit".intern())).is_some() {
+                let path_to_file = fragment_locations.0.get(&FragmentDefinitionName(fragment_spread.fragment.item.0)).unwrap().source_location().path();
+                let filename = Path::new(path_to_file).file_stem().unwrap().to_str().unwrap().to_string();
+                codesplits.push(capitalize_string(&filename));
+            }
+        },
+    });
+}
+
+pub fn find_codesplit_components_in_operation<'a>(
+    selections: &Vec<Selection>,
+    schema: &'a SDLSchema,
+    fragment_locations: &FragmentLocations,
+) -> Vec<String> {
+    let mut codesplits = vec![];
+    visit_selections_for_codesplit_components(
+        &selections,
+        &schema,
+        &mut codesplits,
+        &fragment_locations
+    );
+
+    codesplits
+}
+
+pub fn write_codesplit_components(codesplit_components: Vec<String>, section: &mut GenericSection) {
+    if codesplit_components.len() > 0 {
+        writeln!(
+            section,
+            "\nmodule CodesplitComponents = {{",
+        ).unwrap();
+        codesplit_components.iter().for_each(|c| {
+            writeln!(
+                section,
+                "  module {} = {{\n    let make = React.lazy_(() => Js.import({}.make))\n  }}",
+                c, c
+            ).unwrap();
+        });
+        writeln!(
+            section,
+            "}}\n",
+        ).unwrap();
+    }
+}
+
+pub fn write_codesplits_node_modifier(codesplits: Vec<(Vec<String>, Vec<String>)>, section: &mut GenericSection) {
+    if codesplits.len() > 0 {
+        writeln!(
+            section,
+            "let node = RescriptRelay_Internal.applyCodesplitMetadata(node, ["
+        ).unwrap();
+
+        codesplits.iter().for_each(|(path, modules)| {
+            writeln!(
+                section,
+                "  (\"{}\", () => {{{}}}), ",
+                path.join("."),
+                modules.iter().map(|m| {
+                    format!("Js.import({}.make)->ignore", m)
+                }).collect::<Vec<String>>().join("; ")
+            ).unwrap();
+        });
+
+        writeln!(
+            section,
+            "])"
+        ).unwrap();
+    }
 }
 
 #[cfg(test)]
