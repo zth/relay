@@ -37,6 +37,7 @@ pub enum ArtifactContent {
         source_hash: String,
         text: Option<String>,
         id_and_text_hash: Option<QueryID>,
+        test: bool
     },
     UpdatableQuery {
         reader_operation: Arc<OperationDefinition>,
@@ -89,6 +90,7 @@ impl ArtifactContent {
                 source_hash,
                 text,
                 id_and_text_hash,
+                ..
             } => generate_operation_rescript(
                 config,
                 project_config,

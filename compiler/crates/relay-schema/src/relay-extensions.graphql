@@ -337,6 +337,13 @@ it.
 directive @rescriptRelayNullableVariables on QUERY | MUTATION | SUBSCRIPTION
 
 """
+(RescriptRelay only)
+
+Auto codesplits.
+"""
+directive @autoCodesplit on FRAGMENT_SPREAD
+
+"""
 (Relay Only)
 
 This directive allows users to opt out of validation which enforces that @alias

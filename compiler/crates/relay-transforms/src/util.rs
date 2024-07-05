@@ -157,12 +157,12 @@ pub fn generate_abstract_type_refinement_key(schema: &SDLSchema, type_: Type) ->
 }
 
 pub fn get_normalization_operation_name(name: StringKey) -> String {
-    format!("{}$normalization", name)
+    format!("{}_normalization", name)
 }
 
 pub fn get_fragment_filename(fragment_name: FragmentDefinitionName) -> StringKey {
     format!(
-        "{}.graphql",
+        "{}_graphql",
         get_normalization_operation_name(fragment_name.0)
     )
     .intern()

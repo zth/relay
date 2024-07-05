@@ -17,3 +17,13 @@ module FragmentContainer = %relay(`
     ...TestAliasedFragments_two @alias
   }
 `)
+
+module FragmentContainer = %relay(`
+  fragment TestAliasedFragments_required on User {
+    firstName
+    ... @alias(as: "requiredFields") {
+      avatarUrl @required(action: NONE)
+      isOnline @required(action: NONE)
+    }
+  }
+`)

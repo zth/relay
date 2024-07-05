@@ -250,6 +250,10 @@ fn apply_reader_transforms(
         None,
     )?;
 
+    program = log_event.time("rescript_relay_inline_auto_codesplit", || {
+        rescript_relay_inline_auto_codesplit(&program)
+    });
+
     program = log_event.time("fragment_alias_directive", || {
         fragment_alias_directive(
             &program,
@@ -311,6 +315,9 @@ fn apply_reader_transforms(
         remove_base_fragments(&program, &base_fragment_names)
     });
 
+    // TODO: Transform to spread all autoCodesplits to every node that matches on parent type
+    // After that, hopefully remove the flatten changes
+
     log_event.time("flatten", || flatten(&mut program, true, false))?;
     program = log_event.time("skip_redundant_nodes", || {
         skip_redundant_nodes(
@@ -327,9 +334,6 @@ fn apply_reader_transforms(
 
     program = log_event.time("rescript_relay_generate_typename", || {
         rescript_relay_generate_typename(&program)
-    });
-    program = log_event.time("rescript_relay_remove_custom_directives", || {
-        rescript_relay_remove_custom_directives(&program)
     });
     program = apply_after_custom_transforms(
         &program,
@@ -369,6 +373,10 @@ fn apply_operation_transforms(
 
     program = log_event.time("skip_updatable_queries", || {
         skip_updatable_queries(&program)
+    });
+
+    program = log_event.time("rescript_relay_inline_auto_codesplit", || {
+        rescript_relay_inline_auto_codesplit(&program)
     });
 
     program = log_event.time("client_edges", || {
@@ -458,6 +466,10 @@ fn apply_normalization_transforms(
         &log_event,
         maybe_print_stats,
     )?;
+
+    program = log_event.time("rescript_relay_inline_auto_codesplit", || {
+        rescript_relay_inline_auto_codesplit(&program)
+    });
 
     program = log_event.time("apply_fragment_arguments", || {
         apply_fragment_arguments(
@@ -583,6 +595,10 @@ fn apply_operation_text_transforms(
         None,
     )?;
 
+    program = log_event.time("rescript_relay_inline_auto_codesplit", || {
+        rescript_relay_inline_auto_codesplit(&program)
+    });
+
     program = log_event.time("apply_fragment_arguments", || {
         apply_fragment_arguments(
             &program,
@@ -685,6 +701,10 @@ fn apply_typegen_transforms(
         &log_event,
         None,
     )?;
+
+    program = log_event.time("rescript_relay_inline_auto_codesplit", || {
+        rescript_relay_inline_auto_codesplit(&program)
+    });
 
     program = log_event.time("fragment_alias_directive", || {
         fragment_alias_directive(

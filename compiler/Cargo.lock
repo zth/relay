@@ -1916,6 +1916,7 @@ dependencies = [
  "intern",
  "itertools 0.11.0",
  "lazy_static",
+ "log",
  "parking_lot",
  "regex",
  "relay-config",

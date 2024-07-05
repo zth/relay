@@ -224,6 +224,7 @@ fn generate_normalization_artifact(
             source_hash,
             text,
             id_and_text_hash: None,
+            test: false
         },
         source_file: normalization.name.location.source_location(),
     }
