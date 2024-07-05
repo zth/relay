@@ -228,10 +228,9 @@ pub fn get_rescript_relay_meta_data(
             &schema,
             typegen_config.custom_scalar_types.clone(),
         ),
-        DefinitionType::Operation((definition, normalization_operation)) => {
+        DefinitionType::Operation((definition, _)) => {
             find_assets_in_operation(
                 &definition,
-                &normalization_operation,
                 &schema,
                 typegen_config.custom_scalar_types.clone(),
             )

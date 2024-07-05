@@ -64,7 +64,6 @@ pub struct RescriptRelayOperationMetaData {
     pub field_directives: Vec<FieldDirectiveContainer>,
     pub operation_directives: Vec<RescriptRelayOperationDirective>,
     pub is_updatable: bool,
-    pub codesplits: Vec<(Vec<String>, Vec<String>)>,
 }
 
 lazy_static! {
@@ -78,8 +77,6 @@ lazy_static! {
         "rescriptRelayAllowUnsafeEnum".intern();
     static ref OPERATION_DIRECTIVE_NULLABLE_VARIABLES: StringKey =
         "rescriptRelayNullableVariables".intern();
-    static ref FIELD_DIRECTIVE_AUTO_CODESPLIT: StringKey =
-        "autoCodesplit".intern();
 }
 
 fn find_connections_arguments(directive: Option<&Directive>) -> Vec<String> {
@@ -147,14 +144,6 @@ fn visit_selections<'a>(
             });
         }
         Selection::LinkedField(field) => {
-            if field.directives.named(DirectiveName(*FIELD_DIRECTIVE_AUTO_CODESPLIT)).is_some() {
-                field.selections.iter().for_each(|s| {
-                    match &s {
-                        &Selection::FragmentSpread(_fragment_spread) => (),
-                        _ => ()
-                    }
-                });
-            };
             // Find connection info
             if let Some(connection_directive) = field
                 .directives
@@ -293,68 +282,6 @@ fn visit_selections<'a>(
     });
 }
 
-fn visit_selections_for_codesplits<'a>(
-    selections: &Vec<Selection>,
-    schema: &'a SDLSchema,
-    current_path: Vec<String>,
-    codesplits: &mut Vec<(Vec<String>, Vec<String>)>
-) -> () {
-    selections.iter().for_each(|f| match &f {
-        Selection::ScalarField(_field) => (),
-        Selection::LinkedField(field) => {
-            visit_selections_for_codesplits(
-                &field.selections,
-                &schema,
-                make_path(&current_path, field.alias_or_name(schema).to_string()),
-                codesplits
-            );
-        }
-        Selection::InlineFragment(inline_fragment) => {
-            let type_name = match &inline_fragment.type_condition {
-                Some(Type::Object(id)) => Some(schema.object(*id).name.item.0),
-                Some(Type::Interface(id)) => Some(schema.interface(*id).name.item.0),
-                Some(Type::Union(id)) => Some(schema.union(*id).name.item.0),
-                _ => None,
-            };
-
-            match type_name {
-                None => (),
-                Some(type_name) => {
-                    if inline_fragment.directives.named(DirectiveName(*FIELD_DIRECTIVE_AUTO_CODESPLIT)).is_some() {
-                        let mut fragment_names = vec![];
-
-                        inline_fragment.directives.iter().for_each(|d| {
-                            if d.name.item.0 == *FIELD_DIRECTIVE_AUTO_CODESPLIT {
-                                fragment_names.push(d.arguments.get(0).unwrap().value.item.expect_string_literal().to_string());
-                            }
-                        });
-
-                        codesplits.push((make_path(&current_path, type_name.to_string()), fragment_names))
-                    }
-
-                       visit_selections_for_codesplits(
-                        &inline_fragment.selections,
-                        &schema,
-                        make_path(&current_path, type_name.to_string()),
-                        codesplits
-                    )
-                }
-            }
-        }
-        Selection::Condition(condition) => {
-            visit_selections_for_codesplits(
-                &condition.selections,
-                &schema,
-                current_path.clone(),
-                codesplits
-            );
-        }
-        Selection::FragmentSpread(_fragment_spread) => {
-            ()
-        },
-    });
-}
-
 pub fn find_assets_in_fragment<'a>(
     fragment: &FragmentDefinition,
     schema: &'a SDLSchema,
@@ -381,7 +308,6 @@ pub fn find_assets_in_fragment<'a>(
         variables_with_connection_data_ids: vec![],
         operation_directives: vec![],
         is_updatable: fragment.directives.named(*UPDATABLE_DIRECTIVE).is_some(),
-        codesplits: vec![],
     };
 
     let variable_definitions = if fragment.variable_definitions.len() > 0 {
@@ -408,7 +334,6 @@ pub fn find_assets_in_fragment<'a>(
 
 pub fn find_assets_in_operation<'a>(
     operation: &OperationDefinition,
-    normalization_operation: &OperationDefinition,
     schema: &'a SDLSchema,
     custom_scalars: CustomScalarsMap,
 ) -> RescriptRelayOperationMetaData {
@@ -433,7 +358,6 @@ pub fn find_assets_in_operation<'a>(
         variables_with_connection_data_ids: vec![],
         operation_directives: rescript_relay_directives,
         is_updatable: operation.directives.named(*UPDATABLE_DIRECTIVE).is_some(),
-        codesplits: find_codesplits_in_operation(&normalization_operation, &schema),
     };
 
     let variable_definitions = vec![];
@@ -448,19 +372,4 @@ pub fn find_assets_in_operation<'a>(
     );
 
     operation_meta_data
-}
-
-pub fn find_codesplits_in_operation<'a>(
-    operation: &OperationDefinition,
-    schema: &'a SDLSchema,
-) -> Vec<(Vec<String>, Vec<String>)> {
-    let mut codesplits = vec![];
-    visit_selections_for_codesplits(
-        &operation.selections,
-        &schema,
-        vec![],
-        &mut codesplits
-    );
-
-    codesplits
 }

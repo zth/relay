@@ -2,7 +2,6 @@ scalar Datetime
 scalar IntString
 scalar Timestamp
 scalar UnmappedScalar
-scalar JSDependency
 
 input InputA {
   time: Datetime!
@@ -57,7 +56,6 @@ interface HasName {
 }
 
 type User implements Node {
-  js(module: String!, id: String): JSDependency
   id: ID!
   firstName: String!
   lastName: String!
@@ -97,7 +95,6 @@ type User implements Node {
 
 type Group implements Node & HasName {
   id: ID!
-  js(module: String!, id: String): JSDependency
   name: String!
   avatarUrl: String
   members: [Member]
@@ -186,7 +183,7 @@ type RecursiveInputPayload {
 type Query {
   node(id: ID!): Node
   loggedInUser: User!
-  member(id: ID!, supported: [String]): Member
+  member(id: ID!): Member
   members(
     groupId: ID!
     onlineStatuses: [OnlineStatus]

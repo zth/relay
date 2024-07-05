@@ -108,7 +108,6 @@ pub(crate) enum EncounteredFragment {
 /// reference it in another generated artifact.
 /// This is used in non-haste setups that do not have a single
 /// directory for generated artifacts.
-#[derive(Debug)]
 pub struct FragmentLocations(pub FnvHashMap<FragmentDefinitionName, Location>);
 
 impl FragmentLocations {
