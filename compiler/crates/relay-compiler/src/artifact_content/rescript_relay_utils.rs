@@ -282,7 +282,13 @@ fn visit_selections_for_codesplits<'a>(
                     )
                 },
                 Some(type_name) => {
-                    let next_path = make_path(&current_path, format!("$$u$${}", type_name.to_string()));
+                    let prefix = match &inline_fragment.type_condition {
+                        Some(Type::Interface(_)) => "$$i$$",
+                        _ => "$$u$$"
+                    };
+
+                    let next_path = make_path(&current_path, format!("{}{}", prefix, type_name.to_string()));
+
                     extract_auto_codesplits(&inline_fragment.directives, fragment_locations, codesplits, &next_path);
 
                     visit_selections_for_codesplits(
@@ -321,9 +327,15 @@ fn extract_auto_codesplits(
 
         directives.iter().for_each(|d| {
             if d.name.item.0 == "autoCodesplit".intern() {
-                let path_to_file = fragment_locations.0.get(&FragmentDefinitionName(d.arguments.get(0).unwrap().value.item.expect_string_literal())).unwrap().source_location().path();
-                let filename = Path::new(path_to_file).file_stem().unwrap().to_str().unwrap().to_string();
-                fragment_names.push(capitalize_string(&filename));
+                let argument = d.arguments.get(0);
+                if argument.is_none() {
+                    log::debug!("was none: {:#?} -> {:#?}", next_path, directives)
+                } else {
+                    let path_to_file = fragment_locations.0.get(&FragmentDefinitionName(argument.unwrap().value.item.expect_string_literal())).unwrap().source_location().path();
+                    let filename = Path::new(path_to_file).file_stem().unwrap().to_str().unwrap().to_string();
+                    fragment_names.push(capitalize_string(&filename));
+                }
+                
             }
         });
 

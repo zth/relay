@@ -10,9 +10,10 @@ use std::sync::Arc;
 use common::{ArgumentName, Location};
 use itertools::Itertools;
 use lazy_static::lazy_static;
+use schema::Schema;
 
 use graphql_ir::{
-    reexport::{Intern, StringKey}, Argument, Directive, FragmentDefinition, FragmentSpread, InlineFragment, LinkedField, OperationDefinition, Program, ScalarField, Selection, Transformed, Transformer
+    reexport::{Intern, StringKey}, Argument, ConstantValue, Directive, FragmentSpread, LinkedField, Program, Selection, Transformed, Transformer, Value
 };
 
 pub fn rescript_relay_inline_auto_codesplit(program: &Program) -> Program {
@@ -44,30 +45,13 @@ impl<'s> Transformer for RescriptRelayInlineAutoCodesplitTransform<'s> {
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = true;
 
-    fn transform_operation(
-        &mut self,
-        operation: &OperationDefinition,
-    ) -> Transformed<OperationDefinition> {
-        self.default_transform_operation(operation)
-    }
-
-    fn transform_fragment(
-        &mut self,
-        fragment: &FragmentDefinition,
-    ) -> Transformed<FragmentDefinition> {
-        self.default_transform_fragment(fragment)
-    }
-
-    fn transform_inline_fragment(&mut self, fragment: &InlineFragment) -> Transformed<Selection> {
-        self.default_transform_inline_fragment(fragment)
-    }
-
-    fn transform_scalar_field(&mut self, field: &ScalarField) -> Transformed<Selection> {
-        self.default_transform_scalar_field(field)
-    }
-
-    // Inline child fragment spread auto codesplit directives of linked fields on the linked field itself
+    // Inline child fragment spread auto codesplit directives of linked fields on the linked field itself.
+    // Only relevant for fields that are objects, interfaces/unions are handled elsewhere.
     fn transform_linked_field(&mut self, field: &LinkedField) -> Transformed<Selection> {
+        if !self.program.schema.field(field.definition.item).type_.inner().is_object() {
+            return self.default_transform_linked_field(field)
+        }
+
         let mut directives = vec![];
 
         field.selections.iter().for_each(|s| {
@@ -77,7 +61,7 @@ impl<'s> Transformer for RescriptRelayInlineAutoCodesplitTransform<'s> {
                         let mut arguments = auto_codesplit_directive.arguments.clone();
                         arguments.push(Argument {
                             name: common::WithLocation { location: Location::generated(), item: ArgumentName("fragmentName".intern()) },
-                            value: common::WithLocation { location: Location::generated(), item: graphql_ir::Value::Constant(graphql_ir::ConstantValue::String(spread.fragment.item.0)) }
+                            value: common::WithLocation { location: Location::generated(), item: Value::Constant(ConstantValue::String(spread.fragment.item.0)) }
                         });
                         let directive = Directive {
                             arguments,
@@ -95,8 +79,11 @@ impl<'s> Transformer for RescriptRelayInlineAutoCodesplitTransform<'s> {
                 directives.push(d.clone());
             });
 
+            let selections = self.transform_selections(&field.selections);
+
             Transformed::Replace(Selection::LinkedField(Arc::new(LinkedField {
                 directives,
+                selections: selections.replace_or_else(|| field.selections.clone()),
                 ..field.clone()
             })))
         } else {

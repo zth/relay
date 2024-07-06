@@ -10,6 +10,7 @@ module Query = %relay(`
       ... on Group {
         ...GroupAvatar_group @autoCodesplit @alias
       }
+      ...UserNode_node @autoCodesplit @alias
     }
   }
 `)

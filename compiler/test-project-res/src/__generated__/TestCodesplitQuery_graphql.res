@@ -4,34 +4,28 @@
 module Types = {
   @@warning("-30")
 
-  type rec response_member_Group_GroupAvatar_group = {
+  type rec response_member_GroupAvatar_group = {
     fragmentRefs: RescriptRelay.fragmentRefs<[ | #GroupAvatar_group]>,
   }
-  and response_member_User_UserAvatar_user = {
+  and response_member_UserAvatar_user = {
     fragmentRefs: RescriptRelay.fragmentRefs<[ | #UserAvatar_user]>,
   }
-  and response_member_User_description_RichContent_content = {
+  and response_member_UserNode_node = {
+    fragmentRefs: RescriptRelay.fragmentRefs<[ | #UserNode_node]>,
+  }
+  and response_member_description_RichContent_content = {
     fragmentRefs: RescriptRelay.fragmentRefs<[ | #RichContent_content]>,
   }
-  and response_member_User_description = {
-    @as("RichContent_content") richContent_content: response_member_User_description_RichContent_content,
+  and response_member_description = {
+    @as("RichContent_content") richContent_content: response_member_description_RichContent_content,
   }
-  @tag("__typename") and response_member = 
-    | @live Group(
-      {
-        @live __typename: [ | #Group],
-        @as("GroupAvatar_group") groupAvatar_group: option<response_member_Group_GroupAvatar_group>,
-      }
-    )
-    | @live User(
-      {
-        @live __typename: [ | #User],
-        @as("UserAvatar_user") userAvatar_user: option<response_member_User_UserAvatar_user>,
-        description: option<response_member_User_description>,
-      }
-    )
-    | @live @as("__unselected") UnselectedUnionMember(string)
-
+  and response_member = {
+    @live __typename: string,
+    @as("GroupAvatar_group") groupAvatar_group: option<response_member_GroupAvatar_group>,
+    @as("UserAvatar_user") userAvatar_user: option<response_member_UserAvatar_user>,
+    @as("UserNode_node") userNode_node: option<response_member_UserNode_node>,
+    description: option<response_member_description>,
+  }
   type response = {
     member: option<response_member>,
   }
@@ -44,10 +38,6 @@ module Types = {
   @live let makeRefetchVariables = () => ()
 }
 
-@live
-let unwrap_response_member: Types.response_member => Types.response_member = RescriptRelay_Internal.unwrapUnion(_, ["Group", "User"])
-@live
-let wrap_response_member: Types.response_member => Types.response_member = RescriptRelay_Internal.wrapUnion
 
 type queryRef
 
@@ -68,12 +58,10 @@ module Internal = {
   type wrapResponseRaw
   @live
   let wrapResponseConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
-    json`{"__root":{"member_User_description_RichContent_content":{"f":""},"member_User_UserAvatar_user":{"f":""},"member_Group_GroupAvatar_group":{"f":""},"member":{"u":"response_member"}}}`
+    json`{"__root":{"member_description_RichContent_content":{"f":""},"member_UserNode_node":{"f":""},"member_UserAvatar_user":{"f":""},"member_GroupAvatar_group":{"f":""}}}`
   )
   @live
-  let wrapResponseConverterMap = {
-    "response_member": wrap_response_member,
-  }
+  let wrapResponseConverterMap = ()
   @live
   let convertWrapResponse = v => v->RescriptRelay.convertObj(
     wrapResponseConverter,
@@ -84,12 +72,10 @@ module Internal = {
   type responseRaw
   @live
   let responseConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
-    json`{"__root":{"member_User_description_RichContent_content":{"f":""},"member_User_UserAvatar_user":{"f":""},"member_Group_GroupAvatar_group":{"f":""},"member":{"u":"response_member"}}}`
+    json`{"__root":{"member_description_RichContent_content":{"f":""},"member_UserNode_node":{"f":""},"member_UserAvatar_user":{"f":""},"member_GroupAvatar_group":{"f":""}}}`
   )
   @live
-  let responseConverterMap = {
-    "response_member": unwrap_response_member,
-  }
+  let responseConverterMap = ()
   @live
   let convertResponse = v => v->RescriptRelay.convertObj(
     responseConverter,
@@ -119,6 +105,9 @@ module CodesplitComponents = {
   }
   module GroupAvatar = {
     let make = React.lazy_(() => Js.import(GroupAvatar.make))
+  }
+  module UserNode = {
+    let make = React.lazy_(() => Js.import(UserNode.make))
   }
 }
 
@@ -150,7 +139,13 @@ v2 = [
     "name": "id",
     "storageKey": null
   }
-];
+],
+v3 = {
+  "kind": "InlineFragment",
+  "selections": (v2/*: any*/),
+  "type": "Node",
+  "abstractKey": "__isNode"
+};
 return {
   "fragment": {
     "argumentDefinitions": [],
@@ -224,6 +219,17 @@ return {
             ],
             "type": "Group",
             "abstractKey": null
+          },
+          {
+            "fragment": {
+              "args": null,
+              "kind": "FragmentSpread",
+              "name": "UserNode_node"
+            },
+            "kind": "AliasedFragmentSpread",
+            "name": "UserNode_node",
+            "type": "Node",
+            "abstractKey": "__isNode"
           }
         ],
         "storageKey": "member(id:\"123\")"
@@ -307,12 +313,8 @@ return {
             "type": "Group",
             "abstractKey": null
           },
-          {
-            "kind": "InlineFragment",
-            "selections": (v2/*: any*/),
-            "type": "Node",
-            "abstractKey": "__isNode"
-          },
+          (v3/*: any*/),
+          (v3/*: any*/),
           {
             "kind": "InlineFragment",
             "selections": (v2/*: any*/),
@@ -325,19 +327,21 @@ return {
     ]
   },
   "params": {
-    "cacheID": "8d020a37332d84aeeb0a33c6b779c8a6",
+    "cacheID": "32a7a55f13bf72c10405e7e1e3779462",
     "id": null,
     "metadata": {},
     "name": "TestCodesplitQuery",
     "operationKind": "query",
-    "text": "query TestCodesplitQuery {\n  member(id: \"123\") {\n    __typename\n    ... on User {\n      ...UserAvatar_user\n      description {\n        ...RichContent_content\n      }\n    }\n    ... on Group {\n      ...GroupAvatar_group\n    }\n    ... on Node {\n      __isNode: __typename\n      __typename\n      id\n    }\n    ... on person {\n      id\n    }\n  }\n}\n\nfragment GroupAvatar_group on Group {\n  name\n}\n\nfragment RichContent_content on RichContent {\n  content\n}\n\nfragment UserAvatar_user on User {\n  avatarUrl\n  ...UserName_user\n}\n\nfragment UserName_user on User {\n  firstName\n  lastName\n}\n"
+    "text": "query TestCodesplitQuery {\n  member(id: \"123\") {\n    __typename\n    ... on User {\n      ...UserAvatar_user\n      description {\n        ...RichContent_content\n      }\n    }\n    ... on Group {\n      ...GroupAvatar_group\n    }\n    ...UserNode_node\n    ... on Node {\n      __isNode: __typename\n      __typename\n      id\n    }\n    ... on person {\n      id\n    }\n  }\n}\n\nfragment GroupAvatar_group on Group {\n  name\n}\n\nfragment RichContent_content on RichContent {\n  content\n}\n\nfragment UserAvatar_user on User {\n  avatarUrl\n  ...UserName_user\n}\n\nfragment UserName_user on User {\n  firstName\n  lastName\n}\n\nfragment UserNode_node on Node {\n  __isNode: __typename\n  __typename\n  id\n}\n"
   }
 };
 })() `)
 
 let node = RescriptRelay_Internal.applyCodesplitMetadata(node, [
   ("member.$$u$$User", () => {Js.import(UserAvatar.make)->ignore; Js.import(UserName.make)->ignore}), 
+  ("member.$$u$$User.description", () => {Js.import(RichContent.make)->ignore}), 
   ("member.$$u$$Group", () => {Js.import(GroupAvatar.make)->ignore}), 
+  ("member.$$i$$Node", () => {Js.import(UserNode.make)->ignore}), 
 ])
 @live let load: (
   ~environment: RescriptRelay.Environment.t,
