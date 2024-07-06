@@ -73,7 +73,7 @@ fn extract_directives_from_nested_spreads(fragment: &InlineFragment, directives:
     fragment.selections.iter().for_each(|s| {
         match &s {
             Selection::InlineFragment(inline_fragment) => {
-                if inline_fragment.type_condition == fragment.type_condition {
+                if inline_fragment.type_condition.is_some() && inline_fragment.type_condition == fragment.type_condition {
                     if let Some(auto_codesplit_directive) = inline_fragment.directives.named(DirectiveName(*FRAGMENT_SPREAD_AUTO_CODESPLIT)) {
                         directives.push(auto_codesplit_directive.clone());
                     }
