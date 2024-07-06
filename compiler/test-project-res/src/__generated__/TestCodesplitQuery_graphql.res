@@ -286,7 +286,7 @@ return {
 })() `)
 
 let node = RescriptRelay_Internal.applyCodesplitMetadata(node, [
-  ("member.$$u$$User", () => {Js.import(UserName.make)->ignore}), 
+  ("member.$$u$$User", () => {Js.import(UserAvatar.make)->ignore; Js.import(UserName.make)->ignore}), 
   ("member.$$u$$Group", () => {Js.import(GroupAvatar.make)->ignore}), 
 ])
 @live let load: (

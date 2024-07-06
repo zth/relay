@@ -10,7 +10,6 @@ use std::sync::Arc;
 use common::sync::*;
 use common::Diagnostic;
 use common::DiagnosticsResult;
-use common::DirectiveName;
 use common::NamedItem;
 use common::PointerAddress;
 use fnv::FnvHashMap;
@@ -26,7 +25,6 @@ use graphql_ir::OperationDefinition;
 use graphql_ir::Program;
 use graphql_ir::Selection;
 use graphql_ir::TransformedValue;
-use intern::string_key::Intern;
 use parking_lot::Mutex;
 use parking_lot::RwLock;
 use schema::SDLSchema;
@@ -126,8 +124,7 @@ impl FlattenTransform {
         &self,
         operation: &mut Arc<OperationDefinition>,
     ) -> DiagnosticsResult<()> {
-        let mut extra_directives = vec![];
-        let next_selections = self.transform_selections(&operation.selections, operation.type_, &mut extra_directives)?;
+        let next_selections = self.transform_selections(&operation.selections, operation.type_)?;
         if let TransformedValue::Replace(next_selections) = next_selections {
             Arc::make_mut(operation).selections = next_selections
         };
@@ -135,9 +132,8 @@ impl FlattenTransform {
     }
 
     fn transform_fragment(&self, fragment: &mut Arc<FragmentDefinition>) -> DiagnosticsResult<()> {
-        let mut extra_directives = vec![];
         let next_selections =
-            self.transform_selections(&fragment.selections, fragment.type_condition, &mut extra_directives)?;
+            self.transform_selections(&fragment.selections, fragment.type_condition)?;
         if let TransformedValue::Replace(next_selections) = next_selections {
             Arc::make_mut(fragment).selections = next_selections
         };
@@ -148,7 +144,6 @@ impl FlattenTransform {
         &self,
         selections: &[Selection],
         parent_type: Type,
-        mut extra_directives: &mut Vec<Directive>
     ) -> DiagnosticsResult<TransformedValue<Vec<Selection>>> {
         let mut next_selections = Vec::new();
         let mut has_changes = false;
@@ -186,7 +181,6 @@ impl FlattenTransform {
                 selections
             },
             parent_type,
-            &mut extra_directives,
         ) || has_changes;
 
         Ok(if has_changes {
@@ -208,14 +202,13 @@ impl FlattenTransform {
                 return Ok(prev.clone());
             }
         }
-        let mut extra_directives = vec![];
         let type_ = self
             .schema
             .field(linked_field.definition.item)
             .type_
             .inner();
         let result = self
-            .transform_selections(&linked_field.selections, type_, &mut extra_directives)?
+            .transform_selections(&linked_field.selections, type_)?
             .map(|next_selections| {
                 Arc::new(LinkedField {
                     alias: linked_field.alias,
@@ -253,14 +246,12 @@ impl FlattenTransform {
             Some(type_condition) => type_condition,
             None => parent_type,
         };
-        let mut extra_directives = vec![];
         let result = self
-            .transform_selections(&fragment.selections, next_parent_type, &mut extra_directives)?
+            .transform_selections(&fragment.selections, next_parent_type)?
             .map(|next_selections| {
-                fragment.directives.iter().for_each(|d| extra_directives.push(d.clone()));
                 Arc::new(InlineFragment {
                     type_condition: fragment.type_condition,
-                    directives: extra_directives,
+                    directives: fragment.directives.clone(),
                     selections: next_selections,
                     spread_location: fragment.spread_location,
                 })
@@ -281,7 +272,6 @@ impl FlattenTransform {
         selection: &Selection,
         parent_type: Type,
     ) -> DiagnosticsResult<TransformedValue<Selection>> {
-        let mut extra_directives = vec![];
         Ok(match selection {
             Selection::InlineFragment(node) => self
                 .transform_inline_fragment(node, parent_type)?
@@ -290,7 +280,7 @@ impl FlattenTransform {
                 .transform_linked_field(node)?
                 .map(Selection::LinkedField),
             Selection::Condition(node) => self
-                .transform_selections(&node.selections, parent_type, &mut extra_directives)?
+                .transform_selections(&node.selections, parent_type)?
                 .map(|next_selections| {
                     Selection::Condition(Arc::new(Condition {
                         value: node.value.clone(),
@@ -308,24 +298,17 @@ impl FlattenTransform {
         flattened_selections: &mut Vec<Selection>,
         selections: &[Selection],
         parent_type: Type,
-        extra_directives: &mut Vec<Directive>,
     ) -> bool {
         let mut has_changes = false;
-
         for selection in selections {
             if let Selection::InlineFragment(inline_fragment) = selection {
                 if should_flatten_inline_fragment(inline_fragment, parent_type, self.is_for_codegen)
                 {
                     has_changes = true;
-                    if let Some(auto_codesplit_directive) = inline_fragment.directives.named(DirectiveName("autoCodesplit".intern())) {
-                        extra_directives.push(auto_codesplit_directive.clone());
-                    }
-
                     self.flatten_selections(
                         flattened_selections,
                         &inline_fragment.selections,
                         parent_type,
-                        extra_directives,
                     );
                     continue;
                 }
@@ -364,7 +347,6 @@ impl FlattenTransform {
                                 &mut flattened_node_mut.selections,
                                 &node.selections,
                                 type_condition,
-                                extra_directives,
                             );
                         }
                         Selection::LinkedField(flattened_node) => {
@@ -392,7 +374,6 @@ impl FlattenTransform {
                                 &mut flattened_node_mut.selections,
                                 &node.selections,
                                 type_,
-                                extra_directives,
                             );
                         }
                         Selection::Condition(flattened_node) => {
@@ -406,7 +387,6 @@ impl FlattenTransform {
                                 &mut flattened_node_mut.selections,
                                 &node.selections,
                                 parent_type,
-                                extra_directives,
                             );
                         }
                         Selection::ScalarField(flattened_node) => {
