@@ -58,16 +58,50 @@ impl<'s> Transformer for RescriptRelayInlineAutoCodesplitTransform<'s> {
         self.default_transform_fragment(fragment)
     }
 
-    fn transform_linked_field(&mut self, field: &LinkedField) -> Transformed<Selection> {
-        self.default_transform_linked_field(field)
-    }
-
     fn transform_inline_fragment(&mut self, fragment: &InlineFragment) -> Transformed<Selection> {
         self.default_transform_inline_fragment(fragment)
     }
 
     fn transform_scalar_field(&mut self, field: &ScalarField) -> Transformed<Selection> {
         self.default_transform_scalar_field(field)
+    }
+
+    // Inline child fragment spread auto codesplit directives of linked fields on the linked field itself
+    fn transform_linked_field(&mut self, field: &LinkedField) -> Transformed<Selection> {
+        let mut directives = vec![];
+
+        field.selections.iter().for_each(|s| {
+            match s {
+                Selection::FragmentSpread(spread) => {
+                    if let Some(auto_codesplit_directive) = spread.directives.iter().find(|d| d.name.item.0 == *FRAGMENT_SPREAD_AUTO_CODESPLIT) {
+                        let mut arguments = auto_codesplit_directive.arguments.clone();
+                        arguments.push(Argument {
+                            name: common::WithLocation { location: Location::generated(), item: ArgumentName("fragmentName".intern()) },
+                            value: common::WithLocation { location: Location::generated(), item: graphql_ir::Value::Constant(graphql_ir::ConstantValue::String(spread.fragment.item.0)) }
+                        });
+                        let directive = Directive {
+                            arguments,
+                            ..auto_codesplit_directive.clone()
+                        };
+                        directives.push(directive);
+                    }
+                },
+                _ => ()
+            }
+        });
+
+        if directives.len() > 0 {
+            field.directives.iter().for_each(|d| {
+                directives.push(d.clone());
+            });
+
+            Transformed::Replace(Selection::LinkedField(Arc::new(LinkedField {
+                directives,
+                ..field.clone()
+            })))
+        } else {
+            self.default_transform_linked_field(field)
+        }
     }
 
     fn transform_fragment_spread(&mut self, spread: &FragmentSpread) -> Transformed<Selection> {

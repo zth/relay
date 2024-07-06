@@ -10,6 +10,12 @@ module Types = {
   and response_member_User_UserAvatar_user = {
     fragmentRefs: RescriptRelay.fragmentRefs<[ | #UserAvatar_user]>,
   }
+  and response_member_User_description_RichContent_content = {
+    fragmentRefs: RescriptRelay.fragmentRefs<[ | #RichContent_content]>,
+  }
+  and response_member_User_description = {
+    @as("RichContent_content") richContent_content: response_member_User_description_RichContent_content,
+  }
   @tag("__typename") and response_member = 
     | @live Group(
       {
@@ -21,6 +27,7 @@ module Types = {
       {
         @live __typename: [ | #User],
         @as("UserAvatar_user") userAvatar_user: option<response_member_User_UserAvatar_user>,
+        description: option<response_member_User_description>,
       }
     )
     | @live @as("__unselected") UnselectedUnionMember(string)
@@ -61,7 +68,7 @@ module Internal = {
   type wrapResponseRaw
   @live
   let wrapResponseConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
-    json`{"__root":{"member_User_UserAvatar_user":{"f":""},"member_Group_GroupAvatar_group":{"f":""},"member":{"u":"response_member"}}}`
+    json`{"__root":{"member_User_description_RichContent_content":{"f":""},"member_User_UserAvatar_user":{"f":""},"member_Group_GroupAvatar_group":{"f":""},"member":{"u":"response_member"}}}`
   )
   @live
   let wrapResponseConverterMap = {
@@ -77,7 +84,7 @@ module Internal = {
   type responseRaw
   @live
   let responseConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
-    json`{"__root":{"member_User_UserAvatar_user":{"f":""},"member_Group_GroupAvatar_group":{"f":""},"member":{"u":"response_member"}}}`
+    json`{"__root":{"member_User_description_RichContent_content":{"f":""},"member_User_UserAvatar_user":{"f":""},"member_Group_GroupAvatar_group":{"f":""},"member":{"u":"response_member"}}}`
   )
   @live
   let responseConverterMap = {
@@ -106,6 +113,9 @@ module Utils = {
 module CodesplitComponents = {
   module UserAvatar = {
     let make = React.lazy_(() => Js.import(UserAvatar.make))
+  }
+  module RichContent = {
+    let make = React.lazy_(() => Js.import(RichContent.make))
   }
   module GroupAvatar = {
     let make = React.lazy_(() => Js.import(GroupAvatar.make))
@@ -170,6 +180,28 @@ return {
                 "name": "UserAvatar_user",
                 "type": "User",
                 "abstractKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "concreteType": "RichContent",
+                "kind": "LinkedField",
+                "name": "description",
+                "plural": false,
+                "selections": [
+                  {
+                    "fragment": {
+                      "args": null,
+                      "kind": "FragmentSpread",
+                      "name": "RichContent_content"
+                    },
+                    "kind": "AliasedFragmentSpread",
+                    "name": "RichContent_content",
+                    "type": "RichContent",
+                    "abstractKey": null
+                  }
+                ],
+                "storageKey": null
               }
             ],
             "type": "User",
@@ -238,6 +270,24 @@ return {
                 "kind": "ScalarField",
                 "name": "lastName",
                 "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "concreteType": "RichContent",
+                "kind": "LinkedField",
+                "name": "description",
+                "plural": false,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "content",
+                    "storageKey": null
+                  }
+                ],
+                "storageKey": null
               }
             ],
             "type": "User",
@@ -275,12 +325,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "0b0d5d985acc77e43cce13bdbc44f331",
+    "cacheID": "8d020a37332d84aeeb0a33c6b779c8a6",
     "id": null,
     "metadata": {},
     "name": "TestCodesplitQuery",
     "operationKind": "query",
-    "text": "query TestCodesplitQuery {\n  member(id: \"123\") {\n    __typename\n    ... on User {\n      ...UserAvatar_user\n    }\n    ... on Group {\n      ...GroupAvatar_group\n    }\n    ... on Node {\n      __isNode: __typename\n      __typename\n      id\n    }\n    ... on person {\n      id\n    }\n  }\n}\n\nfragment GroupAvatar_group on Group {\n  name\n}\n\nfragment UserAvatar_user on User {\n  avatarUrl\n  ...UserName_user\n}\n\nfragment UserName_user on User {\n  firstName\n  lastName\n}\n"
+    "text": "query TestCodesplitQuery {\n  member(id: \"123\") {\n    __typename\n    ... on User {\n      ...UserAvatar_user\n      description {\n        ...RichContent_content\n      }\n    }\n    ... on Group {\n      ...GroupAvatar_group\n    }\n    ... on Node {\n      __isNode: __typename\n      __typename\n      id\n    }\n    ... on person {\n      id\n    }\n  }\n}\n\nfragment GroupAvatar_group on Group {\n  name\n}\n\nfragment RichContent_content on RichContent {\n  content\n}\n\nfragment UserAvatar_user on User {\n  avatarUrl\n  ...UserName_user\n}\n\nfragment UserName_user on User {\n  firstName\n  lastName\n}\n"
   }
 };
 })() `)

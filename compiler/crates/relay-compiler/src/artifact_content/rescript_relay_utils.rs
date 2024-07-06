@@ -1,5 +1,5 @@
 use common::{DirectiveName, SourceLocationKey};
-use graphql_ir::{FragmentDefinitionName, OperationDefinition, Selection};
+use graphql_ir::{Directive, FragmentDefinitionName, OperationDefinition, Selection};
 use graphql_ir::Field;
 use intern::string_key::Intern;
 use lazy_static::lazy_static;
@@ -252,10 +252,13 @@ fn visit_selections_for_codesplits<'a>(
     selections.iter().for_each(|f| match &f {
         Selection::ScalarField(_field) => (),
         Selection::LinkedField(field) => {
+            let next_path = make_path(&current_path, field.alias_or_name(schema).to_string());
+            extract_auto_codesplits(&field.directives, fragment_locations, codesplits, &next_path);
+
             visit_selections_for_codesplits(
                 &field.selections,
                 &schema,
-                make_path(&current_path, field.alias_or_name(schema).to_string()),
+                next_path,
                 codesplits,
                 fragment_locations
             );
@@ -269,24 +272,20 @@ fn visit_selections_for_codesplits<'a>(
             };
 
             match type_name {
-                None => (),
+                None => {
+                    visit_selections_for_codesplits(
+                        &inline_fragment.selections,
+                        &schema,
+                        current_path.clone(),
+                        codesplits,
+                        fragment_locations
+                    )
+                },
                 Some(type_name) => {
                     let next_path = make_path(&current_path, format!("$$u$${}", type_name.to_string()));
-                    if inline_fragment.directives.named(DirectiveName("autoCodesplit".intern())).is_some() {
-                        let mut fragment_names = vec![];
+                    extract_auto_codesplits(&inline_fragment.directives, fragment_locations, codesplits, &next_path);
 
-                        inline_fragment.directives.iter().for_each(|d| {
-                            if d.name.item.0 == "autoCodesplit".intern() {
-                                let path_to_file = fragment_locations.0.get(&FragmentDefinitionName(d.arguments.get(0).unwrap().value.item.expect_string_literal())).unwrap().source_location().path();
-                                let filename = Path::new(path_to_file).file_stem().unwrap().to_str().unwrap().to_string();
-                                fragment_names.push(capitalize_string(&filename));
-                            }
-                        });
-
-                        codesplits.push((next_path.clone(), fragment_names))
-                    }
-
-                       visit_selections_for_codesplits(
+                    visit_selections_for_codesplits(
                         &inline_fragment.selections,
                         &schema,
                         next_path,
@@ -309,6 +308,27 @@ fn visit_selections_for_codesplits<'a>(
             ()
         },
     });
+}
+
+fn extract_auto_codesplits(
+    directives: &Vec<Directive>, 
+    fragment_locations: &FragmentLocations, 
+    codesplits: &mut Vec<(Vec<String>, Vec<String>)>, 
+    next_path: &Vec<String>
+) {
+    if directives.named(DirectiveName("autoCodesplit".intern())).is_some() {
+        let mut fragment_names = vec![];
+
+        directives.iter().for_each(|d| {
+            if d.name.item.0 == "autoCodesplit".intern() {
+                let path_to_file = fragment_locations.0.get(&FragmentDefinitionName(d.arguments.get(0).unwrap().value.item.expect_string_literal())).unwrap().source_location().path();
+                let filename = Path::new(path_to_file).file_stem().unwrap().to_str().unwrap().to_string();
+                fragment_names.push(capitalize_string(&filename));
+            }
+        });
+
+        codesplits.push((next_path.clone(), fragment_names))
+    }
 }
 
 pub fn find_codesplits_in_operation<'a>(
