@@ -43,6 +43,9 @@ let node: operationType = %raw(json` {
   }
 } `)
 
+let node = RescriptRelay_Internal.applyCodesplitMetadata(node, [
+  ("member.$$u$$User", () => {Js.import(UserAvatar.make)->ignore; Js.import(UserName.make)->ignore}), 
+])
 @live let load: (
   ~environment: RescriptRelay.Environment.t,
   ~variables: Types.variables,
