@@ -8,6 +8,7 @@ module Query = %relay(`
         }
         bestFriend {
           ...FriendComponent_user @autoCodesplit @alias @include(if: $includeFriendAvatar)
+          ...FriendComponent2_user @autoCodesplit @alias
         }
       }
       ... on Group {

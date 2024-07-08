@@ -1,7 +1,7 @@
-use common::{DirectiveName, SourceLocationKey};
+use common::{ArgumentName, DirectiveName, SourceLocationKey};
 use graphql_ir::{Directive, FragmentDefinitionName, OperationDefinition, Selection};
 use graphql_ir::Field;
-use intern::string_key::Intern;
+use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
 use regex::Regex;
 use relay_typegen::{rescript_utils::{capitalize_string, uncapitalize_string}, FragmentLocations};
@@ -246,7 +246,7 @@ fn visit_selections_for_codesplits<'a>(
     selections: &Vec<Selection>,
     schema: &'a SDLSchema,
     current_path: Vec<String>,
-    codesplits: &mut Vec<(Vec<String>, Vec<String>)>,
+    codesplits: &mut Vec<(Vec<String>, Vec<(String, Option<StringKey>)>)>,
     fragment_locations: &FragmentLocations,
 ) -> () {
     selections.iter().for_each(|f| match &f {
@@ -319,7 +319,7 @@ fn visit_selections_for_codesplits<'a>(
 fn extract_auto_codesplits(
     directives: &Vec<Directive>, 
     fragment_locations: &FragmentLocations, 
-    codesplits: &mut Vec<(Vec<String>, Vec<String>)>, 
+    codesplits: &mut Vec<(Vec<String>, Vec<(String, Option<StringKey>)>)>, 
     next_path: &Vec<String>
 ) {
     if directives.named(DirectiveName("autoCodesplit".intern())).is_some() {
@@ -327,13 +327,19 @@ fn extract_auto_codesplits(
 
         directives.iter().for_each(|d| {
             if d.name.item.0 == "autoCodesplit".intern() {
-                let argument = d.arguments.get(0);
+                let argument = d.arguments.iter().find(|a| a.name.item == ArgumentName("fragmentName".intern()));
                 if argument.is_none() {
                     log::debug!("was none: {:#?} -> {:#?}", next_path, directives)
                 } else {
                     let path_to_file = fragment_locations.0.get(&FragmentDefinitionName(argument.unwrap().value.item.expect_string_literal())).unwrap().source_location().path();
                     let filename = Path::new(path_to_file).file_stem().unwrap().to_str().unwrap().to_string();
-                    fragment_names.push(capitalize_string(&filename));
+
+                    let variable_condition = d.arguments.iter().find(|a| a.name.item == ArgumentName("variableCondition".intern()));
+
+                    fragment_names.push((capitalize_string(&filename), match variable_condition {
+                        None => None,
+                        Some(variable_condition) => Some(variable_condition.value.item.expect_string_literal())
+                    }));
                 }
                 
             }
@@ -347,7 +353,7 @@ pub fn find_codesplits_in_operation<'a>(
     operation: &OperationDefinition,
     schema: &'a SDLSchema,
     fragment_locations: &FragmentLocations,
-) -> Vec<(Vec<String>, Vec<String>)> {
+) -> Vec<(Vec<String>, Vec<(String, Option<StringKey>)>)> {
     let mut codesplits = vec![];
     visit_selections_for_codesplits(
         &operation.selections,
@@ -438,7 +444,7 @@ pub fn write_codesplit_components(codesplit_components: Vec<String>, section: &m
     }
 }
 
-pub fn write_codesplits_node_modifier(codesplits: Vec<(Vec<String>, Vec<String>)>, section: &mut GenericSection) {
+pub fn write_codesplits_node_modifier(codesplits: Vec<(Vec<String>, Vec<(String, Option<StringKey>)>)>, section: &mut GenericSection) {
     if codesplits.len() > 0 {
         writeln!(
             section,
@@ -446,12 +452,31 @@ pub fn write_codesplits_node_modifier(codesplits: Vec<(Vec<String>, Vec<String>)
         ).unwrap();
 
         codesplits.iter().for_each(|(path, modules)| {
+            let has_conditionals = modules.iter().find(|(_, c)| c.is_some()).is_some();
+
             writeln!(
                 section,
-                "  (\"{}\", () => {{{}}}), ",
+                "  (\"{}\", ({}variables: Js.Dict.t<Js.Json.t>) => {{{}}}), ",
                 path.join("."),
-                modules.iter().map(|m| {
-                    format!("Js.import({}.make)->ignore", m)
+                if has_conditionals {
+                    format!("")
+                } else {
+                    format!("_")
+                },
+                modules.iter().map(|(m, conditional)| {
+                    format!(
+                        "{}Js.import({}.make)->ignore{}", 
+                        match conditional {
+                            Some(s) => format!("if variables->Js.Dict.get(\"{}\") === Some(Js.Json.Boolean(true)) {{", s),
+                            None => format!("")
+                        }, 
+                        m,
+                        if conditional.is_some() {
+                            format!("}}")
+                        } else {
+                            format!("")
+                        }
+                    )
                 }).collect::<Vec<String>>().join("; ")
             ).unwrap();
         });

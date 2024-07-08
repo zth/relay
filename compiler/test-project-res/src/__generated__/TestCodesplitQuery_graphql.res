@@ -13,10 +13,14 @@ module Types = {
   and response_member_UserNode_node = {
     fragmentRefs: RescriptRelay.fragmentRefs<[ | #UserNode_node]>,
   }
+  and response_member_bestFriend_FriendComponent2_user = {
+    fragmentRefs: RescriptRelay.fragmentRefs<[ | #FriendComponent2_user]>,
+  }
   and response_member_bestFriend_FriendComponent_user = {
     fragmentRefs: RescriptRelay.fragmentRefs<[ | #FriendComponent_user]>,
   }
   and response_member_bestFriend = {
+    @as("FriendComponent2_user") friendComponent2_user: response_member_bestFriend_FriendComponent2_user,
     @as("FriendComponent_user") friendComponent_user: option<response_member_bestFriend_FriendComponent_user>,
   }
   and response_member_description_RichContent_content = {
@@ -74,7 +78,7 @@ module Internal = {
   type wrapResponseRaw
   @live
   let wrapResponseConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
-    json`{"__root":{"member_description_RichContent_content":{"f":""},"member_bestFriend_FriendComponent_user":{"f":""},"member_UserNode_node":{"f":""},"member_UserAvatar_user":{"f":""},"member_GroupAvatar_group":{"f":""}}}`
+    json`{"__root":{"member_description_RichContent_content":{"f":""},"member_bestFriend_FriendComponent_user":{"f":""},"member_bestFriend_FriendComponent2_user":{"f":""},"member_UserNode_node":{"f":""},"member_UserAvatar_user":{"f":""},"member_GroupAvatar_group":{"f":""}}}`
   )
   @live
   let wrapResponseConverterMap = ()
@@ -88,7 +92,7 @@ module Internal = {
   type responseRaw
   @live
   let responseConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
-    json`{"__root":{"member_description_RichContent_content":{"f":""},"member_bestFriend_FriendComponent_user":{"f":""},"member_UserNode_node":{"f":""},"member_UserAvatar_user":{"f":""},"member_GroupAvatar_group":{"f":""}}}`
+    json`{"__root":{"member_description_RichContent_content":{"f":""},"member_bestFriend_FriendComponent_user":{"f":""},"member_bestFriend_FriendComponent2_user":{"f":""},"member_UserNode_node":{"f":""},"member_UserAvatar_user":{"f":""},"member_GroupAvatar_group":{"f":""}}}`
   )
   @live
   let responseConverterMap = ()
@@ -121,6 +125,9 @@ module CodesplitComponents = {
   }
   module FriendComponent = {
     let make = React.lazy_(() => Js.import(FriendComponent.make))
+  }
+  module FriendComponent2 = {
+    let make = React.lazy_(() => Js.import(FriendComponent2.make))
   }
   module GroupAvatar = {
     let make = React.lazy_(() => Js.import(GroupAvatar.make))
@@ -168,15 +175,22 @@ v4 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
+  "name": "lastName",
+  "storageKey": null
+},
+v5 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
   "name": "id",
   "storageKey": null
 },
-v5 = [
-  (v4/*: any*/)
+v6 = [
+  (v5/*: any*/)
 ],
-v6 = {
+v7 = {
   "kind": "InlineFragment",
-  "selections": (v5/*: any*/),
+  "selections": (v6/*: any*/),
   "type": "Node",
   "abstractKey": "__isNode"
 };
@@ -257,6 +271,17 @@ return {
                         "abstractKey": null
                       }
                     ]
+                  },
+                  {
+                    "fragment": {
+                      "args": null,
+                      "kind": "FragmentSpread",
+                      "name": "FriendComponent2_user"
+                    },
+                    "kind": "AliasedFragmentSpread",
+                    "name": "FriendComponent2_user",
+                    "type": "User",
+                    "abstractKey": null
                   }
                 ],
                 "storageKey": null
@@ -327,13 +352,7 @@ return {
                 "storageKey": null
               },
               (v3/*: any*/),
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "lastName",
-                "storageKey": null
-              },
+              (v4/*: any*/),
               {
                 "alias": null,
                 "args": null,
@@ -368,7 +387,8 @@ return {
                       (v3/*: any*/)
                     ]
                   },
-                  (v4/*: any*/)
+                  (v4/*: any*/),
+                  (v5/*: any*/)
                 ],
                 "storageKey": null
               }
@@ -390,11 +410,11 @@ return {
             "type": "Group",
             "abstractKey": null
           },
-          (v6/*: any*/),
-          (v6/*: any*/),
+          (v7/*: any*/),
+          (v7/*: any*/),
           {
             "kind": "InlineFragment",
-            "selections": (v5/*: any*/),
+            "selections": (v6/*: any*/),
             "type": "person",
             "abstractKey": null
           }
@@ -404,22 +424,22 @@ return {
     ]
   },
   "params": {
-    "cacheID": "7b6aef4892e42c7c1a9d38cc2d6fe0fc",
+    "cacheID": "1f5b59585a0a99fa9838f79de1c7257e",
     "id": null,
     "metadata": {},
     "name": "TestCodesplitQuery",
     "operationKind": "query",
-    "text": "query TestCodesplitQuery(\n  $includeFriendAvatar: Boolean!\n) {\n  member(id: \"123\") {\n    __typename\n    ... on User {\n      ...UserAvatar_user\n      description {\n        ...RichContent_content\n      }\n      bestFriend {\n        ...FriendComponent_user @include(if: $includeFriendAvatar)\n        id\n      }\n    }\n    ... on Group {\n      ...GroupAvatar_group\n    }\n    ...UserNode_node\n    ... on Node {\n      __isNode: __typename\n      __typename\n      id\n    }\n    ... on person {\n      id\n    }\n  }\n}\n\nfragment FriendComponent_user on User {\n  firstName\n}\n\nfragment GroupAvatar_group on Group {\n  name\n}\n\nfragment RichContent_content on RichContent {\n  content\n}\n\nfragment UserAvatar_user on User {\n  avatarUrl\n  ...UserName_user\n}\n\nfragment UserName_user on User {\n  firstName\n  lastName\n}\n\nfragment UserNode_node on Node {\n  __isNode: __typename\n  __typename\n  id\n}\n"
+    "text": "query TestCodesplitQuery(\n  $includeFriendAvatar: Boolean!\n) {\n  member(id: \"123\") {\n    __typename\n    ... on User {\n      ...UserAvatar_user\n      description {\n        ...RichContent_content\n      }\n      bestFriend {\n        ...FriendComponent_user @include(if: $includeFriendAvatar)\n        ...FriendComponent2_user\n        id\n      }\n    }\n    ... on Group {\n      ...GroupAvatar_group\n    }\n    ...UserNode_node\n    ... on Node {\n      __isNode: __typename\n      __typename\n      id\n    }\n    ... on person {\n      id\n    }\n  }\n}\n\nfragment FriendComponent2_user on User {\n  lastName\n}\n\nfragment FriendComponent_user on User {\n  firstName\n}\n\nfragment GroupAvatar_group on Group {\n  name\n}\n\nfragment RichContent_content on RichContent {\n  content\n}\n\nfragment UserAvatar_user on User {\n  avatarUrl\n  ...UserName_user\n}\n\nfragment UserName_user on User {\n  firstName\n  lastName\n}\n\nfragment UserNode_node on Node {\n  __isNode: __typename\n  __typename\n  id\n}\n"
   }
 };
 })() `)
 
 let node = RescriptRelay_Internal.applyCodesplitMetadata(node, [
-  ("member.$$u$$User", () => {Js.import(UserAvatar.make)->ignore; Js.import(UserName.make)->ignore}), 
-  ("member.$$u$$User.description", () => {Js.import(RichContent.make)->ignore}), 
-  ("member.$$u$$User.bestFriend", () => {Js.import(FriendComponent.make)->ignore}), 
-  ("member.$$u$$Group", () => {Js.import(GroupAvatar.make)->ignore}), 
-  ("member.$$i$$Node", () => {Js.import(UserNode.make)->ignore}), 
+  ("member.$$u$$User", (_variables: Js.Dict.t<Js.Json.t>) => {Js.import(UserAvatar.make)->ignore; Js.import(UserName.make)->ignore}), 
+  ("member.$$u$$User.description", (_variables: Js.Dict.t<Js.Json.t>) => {Js.import(RichContent.make)->ignore}), 
+  ("member.$$u$$User.bestFriend", (variables: Js.Dict.t<Js.Json.t>) => {if variables->Js.Dict.get("includeFriendAvatar") === Some(Js.Json.Boolean(true)) {Js.import(FriendComponent.make)->ignore}; Js.import(FriendComponent2.make)->ignore}), 
+  ("member.$$u$$Group", (_variables: Js.Dict.t<Js.Json.t>) => {Js.import(GroupAvatar.make)->ignore}), 
+  ("member.$$i$$Node", (_variables: Js.Dict.t<Js.Json.t>) => {Js.import(UserNode.make)->ignore}), 
 ])
 @live let load: (
   ~environment: RescriptRelay.Environment.t,

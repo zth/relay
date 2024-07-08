@@ -13,7 +13,7 @@ use lazy_static::lazy_static;
 use schema::Schema;
 
 use graphql_ir::{
-    reexport::{Intern, StringKey}, Argument, ConstantValue, Directive, FragmentSpread, LinkedField, Program, Selection, Transformed, Transformer, Value
+    reexport::{Intern, StringKey}, Argument, ConstantValue, Directive, FragmentSpread, LinkedField, Program, Selection, Transformed, Transformer, Value, Variable
 };
 
 pub fn rescript_relay_inline_auto_codesplit(program: &Program) -> Program {
@@ -54,7 +54,7 @@ impl<'s> Transformer for RescriptRelayInlineAutoCodesplitTransform<'s> {
 
         let mut directives = vec![];
 
-        find_fragment_spreads(&field.selections, &mut directives);
+        find_fragment_spreads(&field.selections, &mut directives, None);
 
         if directives.len() > 0 {
             field.directives.iter().for_each(|d| {
@@ -98,11 +98,14 @@ impl<'s> Transformer for RescriptRelayInlineAutoCodesplitTransform<'s> {
     }
 }
 
-fn find_fragment_spreads(selections: &Vec<Selection>, directives: &mut Vec<Directive>) -> () {
+fn find_fragment_spreads(selections: &Vec<Selection>, directives: &mut Vec<Directive>, variable_condition: Option<StringKey>) -> () {
     selections.iter().for_each(|s| {
         match s {
             Selection::Condition(condition) => {
-                find_fragment_spreads(&condition.selections, directives);
+                find_fragment_spreads(&condition.selections, directives, match condition.value {
+                    graphql_ir::ConditionValue::Variable(Variable {name, ..}) => Some(name.item.0),
+                    graphql_ir::ConditionValue::Constant(_) => None
+                });
             },
             Selection::FragmentSpread(spread) => {
                 if let Some(auto_codesplit_directive) = spread.directives.iter().find(|d| d.name.item.0 == *FRAGMENT_SPREAD_AUTO_CODESPLIT) {
@@ -111,6 +114,13 @@ fn find_fragment_spreads(selections: &Vec<Selection>, directives: &mut Vec<Direc
                         name: common::WithLocation { location: Location::generated(), item: ArgumentName("fragmentName".intern()) },
                         value: common::WithLocation { location: Location::generated(), item: Value::Constant(ConstantValue::String(spread.fragment.item.0)) }
                     });
+
+                    if variable_condition.is_some() {
+                        arguments.push(Argument {
+                            name: common::WithLocation { location: Location::generated(), item: ArgumentName("variableCondition".intern()) },
+                            value: common::WithLocation { location: Location::generated(), item: Value::Constant(ConstantValue::String(variable_condition.unwrap())) }
+                        });
+                    }
                     let directive = Directive {
                         arguments,
                         ..auto_codesplit_directive.clone()
