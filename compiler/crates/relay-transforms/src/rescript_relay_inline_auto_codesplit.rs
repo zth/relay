@@ -54,25 +54,7 @@ impl<'s> Transformer for RescriptRelayInlineAutoCodesplitTransform<'s> {
 
         let mut directives = vec![];
 
-        field.selections.iter().for_each(|s| {
-            match s {
-                Selection::FragmentSpread(spread) => {
-                    if let Some(auto_codesplit_directive) = spread.directives.iter().find(|d| d.name.item.0 == *FRAGMENT_SPREAD_AUTO_CODESPLIT) {
-                        let mut arguments = auto_codesplit_directive.arguments.clone();
-                        arguments.push(Argument {
-                            name: common::WithLocation { location: Location::generated(), item: ArgumentName("fragmentName".intern()) },
-                            value: common::WithLocation { location: Location::generated(), item: Value::Constant(ConstantValue::String(spread.fragment.item.0)) }
-                        });
-                        let directive = Directive {
-                            arguments,
-                            ..auto_codesplit_directive.clone()
-                        };
-                        directives.push(directive);
-                    }
-                },
-                _ => ()
-            }
-        });
+        find_fragment_spreads(&field.selections, &mut directives);
 
         if directives.len() > 0 {
             field.directives.iter().for_each(|d| {
@@ -114,4 +96,29 @@ impl<'s> Transformer for RescriptRelayInlineAutoCodesplitTransform<'s> {
             self.default_transform_fragment_spread(spread)
         }
     }
+}
+
+fn find_fragment_spreads(selections: &Vec<Selection>, directives: &mut Vec<Directive>) -> () {
+    selections.iter().for_each(|s| {
+        match s {
+            Selection::Condition(condition) => {
+                find_fragment_spreads(&condition.selections, directives);
+            },
+            Selection::FragmentSpread(spread) => {
+                if let Some(auto_codesplit_directive) = spread.directives.iter().find(|d| d.name.item.0 == *FRAGMENT_SPREAD_AUTO_CODESPLIT) {
+                    let mut arguments = auto_codesplit_directive.arguments.clone();
+                    arguments.push(Argument {
+                        name: common::WithLocation { location: Location::generated(), item: ArgumentName("fragmentName".intern()) },
+                        value: common::WithLocation { location: Location::generated(), item: Value::Constant(ConstantValue::String(spread.fragment.item.0)) }
+                    });
+                    let directive = Directive {
+                        arguments,
+                        ..auto_codesplit_directive.clone()
+                    };
+                    directives.push(directive);
+                }
+            },
+            _ => ()
+        }
+    });
 }

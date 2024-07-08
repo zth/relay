@@ -1,10 +1,13 @@
 module Query = %relay(`
-  query TestCodesplitQuery {
+  query TestCodesplitQuery($includeFriendAvatar: Boolean!) {
     member(id: "123") {
       ... on User {
         ...UserAvatar_user @autoCodesplit @alias
         description {
           ...RichContent_content @autoCodesplit @alias
+        }
+        bestFriend {
+          ...FriendComponent_user @autoCodesplit @alias @include(if: $includeFriendAvatar)
         }
       }
       ... on Group {

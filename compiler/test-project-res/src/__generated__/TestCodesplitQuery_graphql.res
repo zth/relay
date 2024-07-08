@@ -13,6 +13,12 @@ module Types = {
   and response_member_UserNode_node = {
     fragmentRefs: RescriptRelay.fragmentRefs<[ | #UserNode_node]>,
   }
+  and response_member_bestFriend_FriendComponent_user = {
+    fragmentRefs: RescriptRelay.fragmentRefs<[ | #FriendComponent_user]>,
+  }
+  and response_member_bestFriend = {
+    @as("FriendComponent_user") friendComponent_user: option<response_member_bestFriend_FriendComponent_user>,
+  }
   and response_member_description_RichContent_content = {
     fragmentRefs: RescriptRelay.fragmentRefs<[ | #RichContent_content]>,
   }
@@ -24,6 +30,7 @@ module Types = {
     @as("GroupAvatar_group") groupAvatar_group: option<response_member_GroupAvatar_group>,
     @as("UserAvatar_user") userAvatar_user: option<response_member_UserAvatar_user>,
     @as("UserNode_node") userNode_node: option<response_member_UserNode_node>,
+    bestFriend: option<response_member_bestFriend>,
     description: option<response_member_description>,
   }
   type response = {
@@ -32,10 +39,19 @@ module Types = {
   @live
   type rawResponse = response
   @live
-  type variables = unit
+  type variables = {
+    includeFriendAvatar: bool,
+  }
   @live
-  type refetchVariables = unit
-  @live let makeRefetchVariables = () => ()
+  type refetchVariables = {
+    includeFriendAvatar: option<bool>,
+  }
+  @live let makeRefetchVariables = (
+    ~includeFriendAvatar=?,
+  ): refetchVariables => {
+    includeFriendAvatar: includeFriendAvatar
+  }
+
 }
 
 
@@ -58,7 +74,7 @@ module Internal = {
   type wrapResponseRaw
   @live
   let wrapResponseConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
-    json`{"__root":{"member_description_RichContent_content":{"f":""},"member_UserNode_node":{"f":""},"member_UserAvatar_user":{"f":""},"member_GroupAvatar_group":{"f":""}}}`
+    json`{"__root":{"member_description_RichContent_content":{"f":""},"member_bestFriend_FriendComponent_user":{"f":""},"member_UserNode_node":{"f":""},"member_UserAvatar_user":{"f":""},"member_GroupAvatar_group":{"f":""}}}`
   )
   @live
   let wrapResponseConverterMap = ()
@@ -72,7 +88,7 @@ module Internal = {
   type responseRaw
   @live
   let responseConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
-    json`{"__root":{"member_description_RichContent_content":{"f":""},"member_UserNode_node":{"f":""},"member_UserAvatar_user":{"f":""},"member_GroupAvatar_group":{"f":""}}}`
+    json`{"__root":{"member_description_RichContent_content":{"f":""},"member_bestFriend_FriendComponent_user":{"f":""},"member_UserNode_node":{"f":""},"member_UserAvatar_user":{"f":""},"member_GroupAvatar_group":{"f":""}}}`
   )
   @live
   let responseConverterMap = ()
@@ -103,6 +119,9 @@ module CodesplitComponents = {
   module RichContent = {
     let make = React.lazy_(() => Js.import(RichContent.make))
   }
+  module FriendComponent = {
+    let make = React.lazy_(() => Js.import(FriendComponent.make))
+  }
   module GroupAvatar = {
     let make = React.lazy_(() => Js.import(GroupAvatar.make))
   }
@@ -119,49 +138,64 @@ type operationType = RescriptRelay.queryNode<relayOperationNode>
 let node: operationType = %raw(json` (function(){
 var v0 = [
   {
+    "defaultValue": null,
+    "kind": "LocalArgument",
+    "name": "includeFriendAvatar"
+  }
+],
+v1 = [
+  {
     "kind": "Literal",
     "name": "id",
     "value": "123"
   }
 ],
-v1 = {
+v2 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
   "name": "__typename",
   "storageKey": null
 },
-v2 = [
-  {
-    "alias": null,
-    "args": null,
-    "kind": "ScalarField",
-    "name": "id",
-    "storageKey": null
-  }
-],
 v3 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "firstName",
+  "storageKey": null
+},
+v4 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "id",
+  "storageKey": null
+},
+v5 = [
+  (v4/*: any*/)
+],
+v6 = {
   "kind": "InlineFragment",
-  "selections": (v2/*: any*/),
+  "selections": (v5/*: any*/),
   "type": "Node",
   "abstractKey": "__isNode"
 };
 return {
   "fragment": {
-    "argumentDefinitions": [],
+    "argumentDefinitions": (v0/*: any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "TestCodesplitQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v1/*: any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "member",
         "plural": false,
         "selections": [
-          (v1/*: any*/),
+          (v2/*: any*/),
           {
             "kind": "InlineFragment",
             "selections": [
@@ -194,6 +228,35 @@ return {
                     "name": "RichContent_content",
                     "type": "RichContent",
                     "abstractKey": null
+                  }
+                ],
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "concreteType": "User",
+                "kind": "LinkedField",
+                "name": "bestFriend",
+                "plural": false,
+                "selections": [
+                  {
+                    "condition": "includeFriendAvatar",
+                    "kind": "Condition",
+                    "passingValue": true,
+                    "selections": [
+                      {
+                        "fragment": {
+                          "args": null,
+                          "kind": "FragmentSpread",
+                          "name": "FriendComponent_user"
+                        },
+                        "kind": "AliasedFragmentSpread",
+                        "name": "FriendComponent_user",
+                        "type": "User",
+                        "abstractKey": null
+                      }
+                    ]
                   }
                 ],
                 "storageKey": null
@@ -240,19 +303,19 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": [],
+    "argumentDefinitions": (v0/*: any*/),
     "kind": "Operation",
     "name": "TestCodesplitQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v1/*: any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "member",
         "plural": false,
         "selections": [
-          (v1/*: any*/),
+          (v2/*: any*/),
           {
             "kind": "InlineFragment",
             "selections": [
@@ -263,13 +326,7 @@ return {
                 "name": "avatarUrl",
                 "storageKey": null
               },
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "firstName",
-                "storageKey": null
-              },
+              (v3/*: any*/),
               {
                 "alias": null,
                 "args": null,
@@ -294,6 +351,26 @@ return {
                   }
                 ],
                 "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "concreteType": "User",
+                "kind": "LinkedField",
+                "name": "bestFriend",
+                "plural": false,
+                "selections": [
+                  {
+                    "condition": "includeFriendAvatar",
+                    "kind": "Condition",
+                    "passingValue": true,
+                    "selections": [
+                      (v3/*: any*/)
+                    ]
+                  },
+                  (v4/*: any*/)
+                ],
+                "storageKey": null
               }
             ],
             "type": "User",
@@ -313,11 +390,11 @@ return {
             "type": "Group",
             "abstractKey": null
           },
-          (v3/*: any*/),
-          (v3/*: any*/),
+          (v6/*: any*/),
+          (v6/*: any*/),
           {
             "kind": "InlineFragment",
-            "selections": (v2/*: any*/),
+            "selections": (v5/*: any*/),
             "type": "person",
             "abstractKey": null
           }
@@ -327,12 +404,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "32a7a55f13bf72c10405e7e1e3779462",
+    "cacheID": "7b6aef4892e42c7c1a9d38cc2d6fe0fc",
     "id": null,
     "metadata": {},
     "name": "TestCodesplitQuery",
     "operationKind": "query",
-    "text": "query TestCodesplitQuery {\n  member(id: \"123\") {\n    __typename\n    ... on User {\n      ...UserAvatar_user\n      description {\n        ...RichContent_content\n      }\n    }\n    ... on Group {\n      ...GroupAvatar_group\n    }\n    ...UserNode_node\n    ... on Node {\n      __isNode: __typename\n      __typename\n      id\n    }\n    ... on person {\n      id\n    }\n  }\n}\n\nfragment GroupAvatar_group on Group {\n  name\n}\n\nfragment RichContent_content on RichContent {\n  content\n}\n\nfragment UserAvatar_user on User {\n  avatarUrl\n  ...UserName_user\n}\n\nfragment UserName_user on User {\n  firstName\n  lastName\n}\n\nfragment UserNode_node on Node {\n  __isNode: __typename\n  __typename\n  id\n}\n"
+    "text": "query TestCodesplitQuery(\n  $includeFriendAvatar: Boolean!\n) {\n  member(id: \"123\") {\n    __typename\n    ... on User {\n      ...UserAvatar_user\n      description {\n        ...RichContent_content\n      }\n      bestFriend {\n        ...FriendComponent_user @include(if: $includeFriendAvatar)\n        id\n      }\n    }\n    ... on Group {\n      ...GroupAvatar_group\n    }\n    ...UserNode_node\n    ... on Node {\n      __isNode: __typename\n      __typename\n      id\n    }\n    ... on person {\n      id\n    }\n  }\n}\n\nfragment FriendComponent_user on User {\n  firstName\n}\n\nfragment GroupAvatar_group on Group {\n  name\n}\n\nfragment RichContent_content on RichContent {\n  content\n}\n\nfragment UserAvatar_user on User {\n  avatarUrl\n  ...UserName_user\n}\n\nfragment UserName_user on User {\n  firstName\n  lastName\n}\n\nfragment UserNode_node on Node {\n  __isNode: __typename\n  __typename\n  id\n}\n"
   }
 };
 })() `)
@@ -340,6 +417,7 @@ return {
 let node = RescriptRelay_Internal.applyCodesplitMetadata(node, [
   ("member.$$u$$User", () => {Js.import(UserAvatar.make)->ignore; Js.import(UserName.make)->ignore}), 
   ("member.$$u$$User.description", () => {Js.import(RichContent.make)->ignore}), 
+  ("member.$$u$$User.bestFriend", () => {Js.import(FriendComponent.make)->ignore}), 
   ("member.$$u$$Group", () => {Js.import(GroupAvatar.make)->ignore}), 
   ("member.$$i$$Node", () => {Js.import(UserNode.make)->ignore}), 
 ])

@@ -57,9 +57,12 @@ impl<'s> Transformer for RescriptRelayTransformAutoCodesplitTransform<'s> {
                 directives.push(d.clone());
             });
 
+            let selections = self.transform_selections(&fragment.selections);
+
             Transformed::Replace(Selection::InlineFragment(
                 Arc::new(InlineFragment {
                     directives,
+                    selections: selections.replace_or_else(|| fragment.selections.clone()),
                     ..fragment.clone()
                 })
             ))
@@ -79,6 +82,21 @@ fn extract_directives_from_nested_spreads(fragment: &InlineFragment, directives:
                     }
                     extract_directives_from_nested_spreads(&inline_fragment, directives);
                 }
+            },
+            Selection::Condition(condition) => {
+                condition.selections.iter().for_each(|selection| {
+                    match &selection {
+                        Selection::InlineFragment(inline_fragment) => {
+                            if inline_fragment.type_condition.is_some() && inline_fragment.type_condition == fragment.type_condition {
+                                if let Some(auto_codesplit_directive) = inline_fragment.directives.named(DirectiveName(*FRAGMENT_SPREAD_AUTO_CODESPLIT)) {
+                                    directives.push(auto_codesplit_directive.clone());
+                                }
+                                extract_directives_from_nested_spreads(&inline_fragment, directives);
+                            }
+                        },
+                        _ => ()
+                    }
+                })
             },
             _ => ()
         }
