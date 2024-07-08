@@ -435,11 +435,11 @@ return {
 })() `)
 
 let node = RescriptRelay_Internal.applyCodesplitMetadata(node, [
-  ("member.$$u$$User", (_variables: Js.Dict.t<Js.Json.t>) => {Js.import(UserAvatar.make)->ignore; Js.import(UserName.make)->ignore}), 
-  ("member.$$u$$User.description", (_variables: Js.Dict.t<Js.Json.t>) => {Js.import(RichContent.make)->ignore}), 
-  ("member.$$u$$User.bestFriend", (variables: Js.Dict.t<Js.Json.t>) => {if variables->Js.Dict.get("includeFriendAvatar") === Some(Js.Json.Boolean(true)) {Js.import(FriendComponent.make)->ignore}; Js.import(FriendComponent2.make)->ignore}), 
-  ("member.$$u$$Group", (_variables: Js.Dict.t<Js.Json.t>) => {Js.import(GroupAvatar.make)->ignore}), 
-  ("member.$$i$$Node", (_variables: Js.Dict.t<Js.Json.t>) => {Js.import(UserNode.make)->ignore}), 
+  ("member.$$u$$User", (_variables: dict<Js.Json.t>) => {Js.import(UserAvatar.make)->ignore; Js.import(UserName.make)->ignore}), 
+  ("member.$$u$$User.description", (_variables: dict<Js.Json.t>) => {Js.import(RichContent.make)->ignore}), 
+  ("member.$$u$$User.bestFriend", (variables: dict<Js.Json.t>) => {if variables->Js.Dict.get("includeFriendAvatar") === Some(Js.Json.Boolean(true)) {Js.import(FriendComponent.make)->ignore}; Js.import(FriendComponent2.make)->ignore}), 
+  ("member.$$u$$Group", (_variables: dict<Js.Json.t>) => {Js.import(GroupAvatar.make)->ignore}), 
+  ("member.$$i$$Node", (_variables: dict<Js.Json.t>) => {Js.import(UserNode.make)->ignore}), 
 ])
 @live let load: (
   ~environment: RescriptRelay.Environment.t,

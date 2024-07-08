@@ -456,7 +456,7 @@ pub fn write_codesplits_node_modifier(codesplits: Vec<(Vec<String>, Vec<(String,
 
             writeln!(
                 section,
-                "  (\"{}\", ({}variables: Js.Dict.t<Js.Json.t>) => {{{}}}), ",
+                "  (\"{}\", ({}variables: dict<Js.Json.t>) => {{{}}}), ",
                 path.join("."),
                 if has_conditionals {
                     format!("")
