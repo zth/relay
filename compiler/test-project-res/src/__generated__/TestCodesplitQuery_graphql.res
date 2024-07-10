@@ -16,11 +16,15 @@ module Types = {
   and response_member_bestFriend_FriendComponent2_user = {
     fragmentRefs: RescriptRelay.fragmentRefs<[ | #FriendComponent2_user]>,
   }
+  and response_member_bestFriend_FriendComponentSkip_user = {
+    fragmentRefs: RescriptRelay.fragmentRefs<[ | #FriendComponentSkip_user]>,
+  }
   and response_member_bestFriend_FriendComponent_user = {
     fragmentRefs: RescriptRelay.fragmentRefs<[ | #FriendComponent_user]>,
   }
   and response_member_bestFriend = {
     @as("FriendComponent2_user") friendComponent2_user: response_member_bestFriend_FriendComponent2_user,
+    @as("FriendComponentSkip_user") friendComponentSkip_user: option<response_member_bestFriend_FriendComponentSkip_user>,
     @as("FriendComponent_user") friendComponent_user: option<response_member_bestFriend_FriendComponent_user>,
   }
   and response_member_description_RichContent_content = {
@@ -78,7 +82,7 @@ module Internal = {
   type wrapResponseRaw
   @live
   let wrapResponseConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
-    json`{"__root":{"member_description_RichContent_content":{"f":""},"member_bestFriend_FriendComponent_user":{"f":""},"member_bestFriend_FriendComponent2_user":{"f":""},"member_UserNode_node":{"f":""},"member_UserAvatar_user":{"f":""},"member_GroupAvatar_group":{"f":""}}}`
+    json`{"__root":{"member_description_RichContent_content":{"f":""},"member_bestFriend_FriendComponent_user":{"f":""},"member_bestFriend_FriendComponentSkip_user":{"f":""},"member_bestFriend_FriendComponent2_user":{"f":""},"member_UserNode_node":{"f":""},"member_UserAvatar_user":{"f":""},"member_GroupAvatar_group":{"f":""}}}`
   )
   @live
   let wrapResponseConverterMap = ()
@@ -92,7 +96,7 @@ module Internal = {
   type responseRaw
   @live
   let responseConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
-    json`{"__root":{"member_description_RichContent_content":{"f":""},"member_bestFriend_FriendComponent_user":{"f":""},"member_bestFriend_FriendComponent2_user":{"f":""},"member_UserNode_node":{"f":""},"member_UserAvatar_user":{"f":""},"member_GroupAvatar_group":{"f":""}}}`
+    json`{"__root":{"member_description_RichContent_content":{"f":""},"member_bestFriend_FriendComponent_user":{"f":""},"member_bestFriend_FriendComponentSkip_user":{"f":""},"member_bestFriend_FriendComponent2_user":{"f":""},"member_UserNode_node":{"f":""},"member_UserAvatar_user":{"f":""},"member_GroupAvatar_group":{"f":""}}}`
   )
   @live
   let responseConverterMap = ()
@@ -128,6 +132,9 @@ module CodesplitComponents = {
   }
   module FriendComponent2 = {
     let make = React.lazy_(() => Js.import(FriendComponent2.make))
+  }
+  module FriendComponentSkip = {
+    let make = React.lazy_(() => Js.import(FriendComponentSkip.make))
   }
   module GroupAvatar = {
     let make = React.lazy_(() => Js.import(GroupAvatar.make))
@@ -168,29 +175,36 @@ v3 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
-  "name": "firstName",
+  "name": "avatarUrl",
   "storageKey": null
 },
 v4 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
-  "name": "lastName",
+  "name": "firstName",
   "storageKey": null
 },
 v5 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
+  "name": "lastName",
+  "storageKey": null
+},
+v6 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
   "name": "id",
   "storageKey": null
 },
-v6 = [
-  (v5/*: any*/)
+v7 = [
+  (v6/*: any*/)
 ],
-v7 = {
+v8 = {
   "kind": "InlineFragment",
-  "selections": (v6/*: any*/),
+  "selections": (v7/*: any*/),
   "type": "Node",
   "abstractKey": "__isNode"
 };
@@ -282,6 +296,24 @@ return {
                     "name": "FriendComponent2_user",
                     "type": "User",
                     "abstractKey": null
+                  },
+                  {
+                    "condition": "includeFriendAvatar",
+                    "kind": "Condition",
+                    "passingValue": false,
+                    "selections": [
+                      {
+                        "fragment": {
+                          "args": null,
+                          "kind": "FragmentSpread",
+                          "name": "FriendComponentSkip_user"
+                        },
+                        "kind": "AliasedFragmentSpread",
+                        "name": "FriendComponentSkip_user",
+                        "type": "User",
+                        "abstractKey": null
+                      }
+                    ]
                   }
                 ],
                 "storageKey": null
@@ -344,15 +376,9 @@ return {
           {
             "kind": "InlineFragment",
             "selections": [
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "avatarUrl",
-                "storageKey": null
-              },
               (v3/*: any*/),
               (v4/*: any*/),
+              (v5/*: any*/),
               {
                 "alias": null,
                 "args": null,
@@ -384,11 +410,19 @@ return {
                     "kind": "Condition",
                     "passingValue": true,
                     "selections": [
+                      (v4/*: any*/)
+                    ]
+                  },
+                  (v5/*: any*/),
+                  {
+                    "condition": "includeFriendAvatar",
+                    "kind": "Condition",
+                    "passingValue": false,
+                    "selections": [
                       (v3/*: any*/)
                     ]
                   },
-                  (v4/*: any*/),
-                  (v5/*: any*/)
+                  (v6/*: any*/)
                 ],
                 "storageKey": null
               }
@@ -410,11 +444,11 @@ return {
             "type": "Group",
             "abstractKey": null
           },
-          (v7/*: any*/),
-          (v7/*: any*/),
+          (v8/*: any*/),
+          (v8/*: any*/),
           {
             "kind": "InlineFragment",
-            "selections": (v6/*: any*/),
+            "selections": (v7/*: any*/),
             "type": "person",
             "abstractKey": null
           }
@@ -424,12 +458,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "1f5b59585a0a99fa9838f79de1c7257e",
+    "cacheID": "6f1289aa9e2569213ed9ac7bc8381445",
     "id": null,
     "metadata": {},
     "name": "TestCodesplitQuery",
     "operationKind": "query",
-    "text": "query TestCodesplitQuery(\n  $includeFriendAvatar: Boolean!\n) {\n  member(id: \"123\") {\n    __typename\n    ... on User {\n      ...UserAvatar_user\n      description {\n        ...RichContent_content\n      }\n      bestFriend {\n        ...FriendComponent_user @include(if: $includeFriendAvatar)\n        ...FriendComponent2_user\n        id\n      }\n    }\n    ... on Group {\n      ...GroupAvatar_group\n    }\n    ...UserNode_node\n    ... on Node {\n      __isNode: __typename\n      __typename\n      id\n    }\n    ... on person {\n      id\n    }\n  }\n}\n\nfragment FriendComponent2_user on User {\n  lastName\n}\n\nfragment FriendComponent_user on User {\n  firstName\n}\n\nfragment GroupAvatar_group on Group {\n  name\n}\n\nfragment RichContent_content on RichContent {\n  content\n}\n\nfragment UserAvatar_user on User {\n  avatarUrl\n  ...UserName_user\n}\n\nfragment UserName_user on User {\n  firstName\n  lastName\n}\n\nfragment UserNode_node on Node {\n  __isNode: __typename\n  __typename\n  id\n}\n"
+    "text": "query TestCodesplitQuery(\n  $includeFriendAvatar: Boolean!\n) {\n  member(id: \"123\") {\n    __typename\n    ... on User {\n      ...UserAvatar_user\n      description {\n        ...RichContent_content\n      }\n      bestFriend {\n        ...FriendComponent_user @include(if: $includeFriendAvatar)\n        ...FriendComponent2_user\n        ...FriendComponentSkip_user @skip(if: $includeFriendAvatar)\n        id\n      }\n    }\n    ... on Group {\n      ...GroupAvatar_group\n    }\n    ...UserNode_node\n    ... on Node {\n      __isNode: __typename\n      __typename\n      id\n    }\n    ... on person {\n      id\n    }\n  }\n}\n\nfragment FriendComponent2_user on User {\n  lastName\n}\n\nfragment FriendComponentSkip_user on User {\n  avatarUrl\n}\n\nfragment FriendComponent_user on User {\n  firstName\n}\n\nfragment GroupAvatar_group on Group {\n  name\n}\n\nfragment RichContent_content on RichContent {\n  content\n}\n\nfragment UserAvatar_user on User {\n  avatarUrl\n  ...UserName_user\n}\n\nfragment UserName_user on User {\n  firstName\n  lastName\n}\n\nfragment UserNode_node on Node {\n  __isNode: __typename\n  __typename\n  id\n}\n"
   }
 };
 })() `)
@@ -437,7 +471,7 @@ return {
 let node = RescriptRelay_Internal.applyCodesplitMetadata(node, [
   ("member.$$u$$User", (_variables: dict<Js.Json.t>) => {Js.import(UserAvatar.make)->ignore; Js.import(UserName.make)->ignore}), 
   ("member.$$u$$User.description", (_variables: dict<Js.Json.t>) => {Js.import(RichContent.make)->ignore}), 
-  ("member.$$u$$User.bestFriend", (variables: dict<Js.Json.t>) => {if variables->Js.Dict.get("includeFriendAvatar") === Some(Js.Json.Boolean(true)) {Js.import(FriendComponent.make)->ignore}; Js.import(FriendComponent2.make)->ignore}), 
+  ("member.$$u$$User.bestFriend", (variables: dict<Js.Json.t>) => {if variables->Js.Dict.get("includeFriendAvatar") === Some(Js.Json.Boolean(true)) {Js.import(FriendComponent.make)->ignore}; Js.import(FriendComponent2.make)->ignore; if variables->Js.Dict.get("includeFriendAvatar") === Some(Js.Json.Boolean(false)) {Js.import(FriendComponentSkip.make)->ignore}}), 
   ("member.$$u$$Group", (_variables: dict<Js.Json.t>) => {Js.import(GroupAvatar.make)->ignore}), 
   ("member.$$i$$Node", (_variables: dict<Js.Json.t>) => {Js.import(UserNode.make)->ignore}), 
 ])

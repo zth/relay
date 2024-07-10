@@ -246,7 +246,7 @@ fn visit_selections_for_codesplits<'a>(
     selections: &Vec<Selection>,
     schema: &'a SDLSchema,
     current_path: Vec<String>,
-    codesplits: &mut Vec<(Vec<String>, Vec<(String, Option<StringKey>)>)>,
+    codesplits: &mut Vec<(Vec<String>, Vec<(String, Option<(StringKey, bool)>)>)>,
     fragment_locations: &FragmentLocations,
 ) -> () {
     selections.iter().for_each(|f| match &f {
@@ -319,7 +319,7 @@ fn visit_selections_for_codesplits<'a>(
 fn extract_auto_codesplits(
     directives: &Vec<Directive>, 
     fragment_locations: &FragmentLocations, 
-    codesplits: &mut Vec<(Vec<String>, Vec<(String, Option<StringKey>)>)>, 
+    codesplits: &mut Vec<(Vec<String>, Vec<(String, Option<(StringKey, bool)>)>)>, 
     next_path: &Vec<String>
 ) {
     if directives.named(DirectiveName("autoCodesplit".intern())).is_some() {
@@ -335,10 +335,12 @@ fn extract_auto_codesplits(
                     let filename = Path::new(path_to_file).file_stem().unwrap().to_str().unwrap().to_string();
 
                     let variable_condition = d.arguments.iter().find(|a| a.name.item == ArgumentName("variableCondition".intern()));
+                    let variable_condition_type = d.arguments.iter().find(|a| a.name.item == ArgumentName("variableConditionIsInclude".intern()));
 
-                    fragment_names.push((capitalize_string(&filename), match variable_condition {
-                        None => None,
-                        Some(variable_condition) => Some(variable_condition.value.item.expect_string_literal())
+                    fragment_names.push((capitalize_string(&filename), match (variable_condition, variable_condition_type) {
+                        (Some(variable_condition), Some(variable_condition_type)) => Some((variable_condition.value.item.expect_string_literal(), variable_condition_type.value.item.expect_constant().unwrap_boolean())),
+                        _ => None,
+
                     }));
                 }
                 
@@ -353,7 +355,7 @@ pub fn find_codesplits_in_operation<'a>(
     operation: &OperationDefinition,
     schema: &'a SDLSchema,
     fragment_locations: &FragmentLocations,
-) -> Vec<(Vec<String>, Vec<(String, Option<StringKey>)>)> {
+) -> Vec<(Vec<String>, Vec<(String, Option<(StringKey, bool)>)>)> {
     let mut codesplits = vec![];
     visit_selections_for_codesplits(
         &operation.selections,
@@ -446,7 +448,7 @@ pub fn write_codesplit_components(codesplit_components: Vec<String>, section: &m
     }
 }
 
-pub fn write_codesplits_node_modifier(codesplits: Vec<(Vec<String>, Vec<(String, Option<StringKey>)>)>, section: &mut GenericSection) {
+pub fn write_codesplits_node_modifier(codesplits: Vec<(Vec<String>, Vec<(String, Option<(StringKey, bool)>)>)>, section: &mut GenericSection) {
     if codesplits.len() > 0 {
         writeln!(
             section,
@@ -469,7 +471,11 @@ pub fn write_codesplits_node_modifier(codesplits: Vec<(Vec<String>, Vec<(String,
                     format!(
                         "{}Js.import({}.make)->ignore{}", 
                         match conditional {
-                            Some(s) => format!("if variables->Js.Dict.get(\"{}\") === Some(Js.Json.Boolean(true)) {{", s),
+                            Some((s, t)) => format!("if variables->Js.Dict.get(\"{}\") === Some(Js.Json.Boolean({})) {{", s, if *t {
+                                "true"
+                            } else {
+                                "false"
+                            }),
                             None => format!("")
                         }, 
                         m,

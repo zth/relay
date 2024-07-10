@@ -113,12 +113,12 @@ impl<'s> Transformer for RescriptRelayInlineAutoCodesplitTransform<'s> {
     }
 }
 
-fn find_fragment_spreads(selections: &Vec<Selection>, errors: &mut Vec<Diagnostic>, directives: &mut Vec<Directive>, variable_condition: Option<StringKey>) -> () {
+fn find_fragment_spreads(selections: &Vec<Selection>, errors: &mut Vec<Diagnostic>, directives: &mut Vec<Directive>, variable_condition: Option<(StringKey, bool)>) -> () {
     selections.iter().for_each(|s| {
         match s {
             Selection::Condition(condition) => {
                 find_fragment_spreads(&condition.selections, errors, directives, match condition.value {
-                    graphql_ir::ConditionValue::Variable(Variable {name, ..}) => Some(name.item.0),
+                    graphql_ir::ConditionValue::Variable(Variable {name, ..}) => Some((name.item.0, condition.passing_value)),
                     graphql_ir::ConditionValue::Constant(_) => None
                 });
             },
@@ -140,7 +140,12 @@ fn find_fragment_spreads(selections: &Vec<Selection>, errors: &mut Vec<Diagnosti
                     if variable_condition.is_some() {
                         arguments.push(Argument {
                             name: common::WithLocation { location: Location::generated(), item: ArgumentName("variableCondition".intern()) },
-                            value: common::WithLocation { location: Location::generated(), item: Value::Constant(ConstantValue::String(variable_condition.unwrap())) }
+                            value: common::WithLocation { location: Location::generated(), item: Value::Constant(ConstantValue::String(variable_condition.unwrap().0)) }
+                        });
+
+                        arguments.push(Argument {
+                            name: common::WithLocation { location: Location::generated(), item: ArgumentName("variableConditionIsInclude".intern()) },
+                            value: common::WithLocation { location: Location::generated(), item: Value::Constant(ConstantValue::Boolean(variable_condition.unwrap().1)) }
                         });
                     }
                     let directive = Directive {
