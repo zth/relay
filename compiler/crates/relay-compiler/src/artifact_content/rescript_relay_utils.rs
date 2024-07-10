@@ -401,8 +401,10 @@ fn visit_selections_for_codesplit_components<'a>(
         Selection::FragmentSpread(fragment_spread) => {
             if fragment_spread.directives.named(DirectiveName("autoCodesplit".intern())).is_some() {
                 let path_to_file = fragment_locations.0.get(&FragmentDefinitionName(fragment_spread.fragment.item.0)).unwrap().source_location().path();
-                let filename = Path::new(path_to_file).file_stem().unwrap().to_str().unwrap().to_string();
-                codesplits.push(capitalize_string(&filename));
+                let filename = capitalize_string(&Path::new(path_to_file).file_stem().unwrap().to_str().unwrap().to_string());
+                if !codesplits.contains(&filename) {
+                    codesplits.push(capitalize_string(&filename));
+                }
             }
         },
     });

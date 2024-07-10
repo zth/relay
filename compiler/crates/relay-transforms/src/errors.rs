@@ -283,6 +283,11 @@ pub enum ValidationMessageWithData {
         "Expected `@alias` directive. Fragment spreads with `@{condition_name}` are conditionally fetched. Add `@alias` to this spread to expose the fragment reference as a nullable property."
     )]
     ExpectedAliasOnConditionalFragmentSpread { condition_name: String },
+
+    #[error(
+        "Expected `@alias` directive in addition to `@autoCodesplit`. `@autoCodesplit` must always be used together with `@alias`."
+    )]
+    ExpectedAliasWithAutoCodesplit,
 }
 
 impl WithDiagnosticData for ValidationMessageWithData {
@@ -324,6 +329,9 @@ impl WithDiagnosticData for ValidationMessageWithData {
                     Box::new(format!("@alias @{condition_name}")),
                     Box::new(format!("@dangerously_unaliased_fixme @{condition_name}")),
                 ]
+            }
+            ValidationMessageWithData::ExpectedAliasWithAutoCodesplit => {
+                vec![Box::new("")]
             }
         }
     }

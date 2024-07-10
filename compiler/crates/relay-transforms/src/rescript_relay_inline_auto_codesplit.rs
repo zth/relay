@@ -7,7 +7,7 @@
 
 use std::sync::Arc;
 
-use common::{ArgumentName, Location};
+use common::{ArgumentName, Diagnostic, DiagnosticsResult, Location};
 use itertools::Itertools;
 use lazy_static::lazy_static;
 use schema::Schema;
@@ -16,11 +16,19 @@ use graphql_ir::{
     reexport::{Intern, StringKey}, Argument, ConstantValue, Directive, FragmentSpread, LinkedField, Program, Selection, Transformed, Transformer, Value, Variable
 };
 
-pub fn rescript_relay_inline_auto_codesplit(program: &Program) -> Program {
+use crate::{fragment_alias_directive::FRAGMENT_ALIAS_DIRECTIVE_NAME, ValidationMessageWithData};
+
+pub fn rescript_relay_inline_auto_codesplit(program: &Program) -> DiagnosticsResult<Program> {
     let mut transform = RescriptRelayInlineAutoCodesplitTransform::new(program);
-    transform
+    let next_program = transform
         .transform_program(program)
-        .replace_or_else(|| program.clone())
+        .replace_or_else(|| program.clone());
+
+    if transform.errors.is_empty() {
+        Ok(next_program)
+    } else {
+        Err(transform.errors)
+    }
 }
 
 lazy_static! {
@@ -31,12 +39,13 @@ lazy_static! {
 #[allow(dead_code)]
 struct RescriptRelayInlineAutoCodesplitTransform<'s> {
     program: &'s Program,
+    errors: Vec<Diagnostic>,
 }
 
 #[allow(dead_code)]
 impl<'s> RescriptRelayInlineAutoCodesplitTransform<'s> {
     fn new(program: &'s Program) -> Self {
-        Self { program }
+        Self { program, errors: Vec::new(), }
     }
 }
 
@@ -54,7 +63,7 @@ impl<'s> Transformer for RescriptRelayInlineAutoCodesplitTransform<'s> {
 
         let mut directives = vec![];
 
-        find_fragment_spreads(&field.selections, &mut directives, None);
+        find_fragment_spreads(&field.selections, &mut self.errors, &mut directives, None);
 
         if directives.len() > 0 {
             field.directives.iter().for_each(|d| {
@@ -75,6 +84,12 @@ impl<'s> Transformer for RescriptRelayInlineAutoCodesplitTransform<'s> {
 
     fn transform_fragment_spread(&mut self, spread: &FragmentSpread) -> Transformed<Selection> {
         if spread.directives.iter().find(|d| d.name.item.0 == *FRAGMENT_SPREAD_AUTO_CODESPLIT).is_some() {
+            if !spread.directives.iter().find(|d| d.name.item == *FRAGMENT_ALIAS_DIRECTIVE_NAME).is_some() {
+                self.errors.push(Diagnostic::error_with_data(
+                    ValidationMessageWithData::ExpectedAliasWithAutoCodesplit,
+                    spread.fragment.location,
+                ));
+            }
             Transformed::Replace(Selection::FragmentSpread(Arc::new(FragmentSpread {
                 directives: spread.directives.iter().map(|d| if d.name.item.0 == *FRAGMENT_SPREAD_AUTO_CODESPLIT {
                     let mut arguments = d.arguments.clone();
@@ -98,17 +113,24 @@ impl<'s> Transformer for RescriptRelayInlineAutoCodesplitTransform<'s> {
     }
 }
 
-fn find_fragment_spreads(selections: &Vec<Selection>, directives: &mut Vec<Directive>, variable_condition: Option<StringKey>) -> () {
+fn find_fragment_spreads(selections: &Vec<Selection>, errors: &mut Vec<Diagnostic>, directives: &mut Vec<Directive>, variable_condition: Option<StringKey>) -> () {
     selections.iter().for_each(|s| {
         match s {
             Selection::Condition(condition) => {
-                find_fragment_spreads(&condition.selections, directives, match condition.value {
+                find_fragment_spreads(&condition.selections, errors, directives, match condition.value {
                     graphql_ir::ConditionValue::Variable(Variable {name, ..}) => Some(name.item.0),
                     graphql_ir::ConditionValue::Constant(_) => None
                 });
             },
             Selection::FragmentSpread(spread) => {
                 if let Some(auto_codesplit_directive) = spread.directives.iter().find(|d| d.name.item.0 == *FRAGMENT_SPREAD_AUTO_CODESPLIT) {
+                    if !spread.directives.iter().find(|d| d.name.item == *FRAGMENT_ALIAS_DIRECTIVE_NAME).is_some() {
+                        errors.push(Diagnostic::error_with_data(
+                            ValidationMessageWithData::ExpectedAliasWithAutoCodesplit,
+                            spread.fragment.location,
+                        ));
+                        return;
+                    }
                     let mut arguments = auto_codesplit_directive.arguments.clone();
                     arguments.push(Argument {
                         name: common::WithLocation { location: Location::generated(), item: ArgumentName("fragmentName".intern()) },

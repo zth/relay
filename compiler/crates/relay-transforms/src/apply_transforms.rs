@@ -458,7 +458,7 @@ fn apply_normalization_transforms(
 
     program = log_event.time("rescript_relay_inline_auto_codesplit", || {
         rescript_relay_inline_auto_codesplit(&program)
-    });
+    })?;
 
     program = log_event.time("apply_fragment_arguments", || {
         apply_fragment_arguments(
