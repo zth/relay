@@ -285,7 +285,7 @@ pub enum ValidationMessageWithData {
     ExpectedAliasOnConditionalFragmentSpread { condition_name: String },
 
     #[error(
-        "Expected `@alias` directive in addition to `@autoCodesplit`. `@autoCodesplit` must always be used together with `@alias`."
+        "Expected `@alias` directive in addition to `@codesplit`. `@codesplit` must always be used together with `@alias`."
     )]
     ExpectedAliasWithAutoCodesplit,
 }

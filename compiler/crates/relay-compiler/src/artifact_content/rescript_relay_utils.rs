@@ -253,7 +253,7 @@ fn visit_selections_for_codesplits<'a>(
         Selection::ScalarField(_field) => (),
         Selection::LinkedField(field) => {
             let next_path = make_path(&current_path, field.alias_or_name(schema).to_string());
-            extract_auto_codesplits(&field.directives, fragment_locations, codesplits, &next_path);
+            extract_codesplits(&field.directives, fragment_locations, codesplits, &next_path);
 
             visit_selections_for_codesplits(
                 &field.selections,
@@ -289,7 +289,7 @@ fn visit_selections_for_codesplits<'a>(
 
                     let next_path = make_path(&current_path, format!("{}{}", prefix, type_name.to_string()));
 
-                    extract_auto_codesplits(&inline_fragment.directives, fragment_locations, codesplits, &next_path);
+                    extract_codesplits(&inline_fragment.directives, fragment_locations, codesplits, &next_path);
 
                     visit_selections_for_codesplits(
                         &inline_fragment.selections,
@@ -316,17 +316,17 @@ fn visit_selections_for_codesplits<'a>(
     });
 }
 
-fn extract_auto_codesplits(
+fn extract_codesplits(
     directives: &Vec<Directive>, 
     fragment_locations: &FragmentLocations, 
     codesplits: &mut Vec<(Vec<String>, Vec<(String, Option<(StringKey, bool)>)>)>, 
     next_path: &Vec<String>
 ) {
-    if directives.named(DirectiveName("autoCodesplit".intern())).is_some() {
+    if directives.named(DirectiveName("codesplit".intern())).is_some() {
         let mut fragment_names = vec![];
 
         directives.iter().for_each(|d| {
-            if d.name.item.0 == "autoCodesplit".intern() {
+            if d.name.item.0 == "codesplit".intern() {
                 let argument = d.arguments.iter().find(|a| a.name.item == ArgumentName("fragmentName".intern()));
                 if argument.is_none() {
                     log::debug!("was none: {:#?} -> {:#?}", next_path, directives)
@@ -401,7 +401,7 @@ fn visit_selections_for_codesplit_components<'a>(
             );
         }
         Selection::FragmentSpread(fragment_spread) => {
-            if fragment_spread.directives.named(DirectiveName("autoCodesplit".intern())).is_some() {
+            if fragment_spread.directives.named(DirectiveName("codesplit".intern())).is_some() {
                 let path_to_file = fragment_locations.0.get(&FragmentDefinitionName(fragment_spread.fragment.item.0)).unwrap().source_location().path();
                 let filename = capitalize_string(&Path::new(path_to_file).file_stem().unwrap().to_str().unwrap().to_string());
                 if !codesplits.contains(&filename) {

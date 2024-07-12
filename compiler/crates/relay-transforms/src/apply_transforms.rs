@@ -456,8 +456,8 @@ fn apply_normalization_transforms(
         maybe_print_stats,
     )?;
 
-    program = log_event.time("rescript_relay_inline_auto_codesplit", || {
-        rescript_relay_inline_auto_codesplit(&program)
+    program = log_event.time("rescript_relay_inline_codesplit", || {
+        rescript_relay_inline_codesplit(&program)
     })?;
 
     program = log_event.time("apply_fragment_arguments", || {
@@ -523,8 +523,8 @@ fn apply_normalization_transforms(
         print_stats("rescript_relay_generate_typename", &program);
     }
 
-    program = log_event.time("rescript_relay_transform_auto_codesplit", || {
-        rescript_relay_transform_auto_codesplit(&program)
+    program = log_event.time("rescript_relay_transform_codesplit", || {
+        rescript_relay_transform_codesplit(&program)
     });
 
     log_event.time("flatten", || flatten(&mut program, true, false))?;

@@ -35,7 +35,7 @@ module Query = %relay(`
   query TestPreloadedQueryWithCodesplitQuery @preloadable {
     member(id: "1") {
       ... on User {
-        ...UserAvatar_user @alias @autoCodesplit
+        ...UserAvatar_user @alias @codesplit
       }
     }
   }

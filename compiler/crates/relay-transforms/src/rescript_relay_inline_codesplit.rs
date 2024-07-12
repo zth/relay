@@ -18,8 +18,8 @@ use graphql_ir::{
 
 use crate::{fragment_alias_directive::FRAGMENT_ALIAS_DIRECTIVE_NAME, ValidationMessageWithData};
 
-pub fn rescript_relay_inline_auto_codesplit(program: &Program) -> DiagnosticsResult<Program> {
-    let mut transform = RescriptRelayInlineAutoCodesplitTransform::new(program);
+pub fn rescript_relay_inline_codesplit(program: &Program) -> DiagnosticsResult<Program> {
+    let mut transform = RescriptRelayInlineCodesplitTransform::new(program);
     let next_program = transform
         .transform_program(program)
         .replace_or_else(|| program.clone());
@@ -33,23 +33,23 @@ pub fn rescript_relay_inline_auto_codesplit(program: &Program) -> DiagnosticsRes
 
 lazy_static! {
     static ref FRAGMENT_SPREAD_AUTO_CODESPLIT: StringKey =
-        "autoCodesplit".intern();
+        "codesplit".intern();
 }
 
 #[allow(dead_code)]
-struct RescriptRelayInlineAutoCodesplitTransform<'s> {
+struct RescriptRelayInlineCodesplitTransform<'s> {
     program: &'s Program,
     errors: Vec<Diagnostic>,
 }
 
 #[allow(dead_code)]
-impl<'s> RescriptRelayInlineAutoCodesplitTransform<'s> {
+impl<'s> RescriptRelayInlineCodesplitTransform<'s> {
     fn new(program: &'s Program) -> Self {
         Self { program, errors: Vec::new(), }
     }
 }
 
-impl<'s> Transformer for RescriptRelayInlineAutoCodesplitTransform<'s> {
+impl<'s> Transformer for RescriptRelayInlineCodesplitTransform<'s> {
     const NAME: &'static str = "RescriptRelayInlineAutoCodesplitTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = true;
@@ -123,7 +123,7 @@ fn find_fragment_spreads(selections: &Vec<Selection>, errors: &mut Vec<Diagnosti
                 });
             },
             Selection::FragmentSpread(spread) => {
-                if let Some(auto_codesplit_directive) = spread.directives.iter().find(|d| d.name.item.0 == *FRAGMENT_SPREAD_AUTO_CODESPLIT) {
+                if let Some(codesplit_directive) = spread.directives.iter().find(|d| d.name.item.0 == *FRAGMENT_SPREAD_AUTO_CODESPLIT) {
                     if !spread.directives.iter().find(|d| d.name.item == *FRAGMENT_ALIAS_DIRECTIVE_NAME).is_some() {
                         errors.push(Diagnostic::error_with_data(
                             ValidationMessageWithData::ExpectedAliasWithAutoCodesplit,
@@ -131,7 +131,7 @@ fn find_fragment_spreads(selections: &Vec<Selection>, errors: &mut Vec<Diagnosti
                         ));
                         return;
                     }
-                    let mut arguments = auto_codesplit_directive.arguments.clone();
+                    let mut arguments = codesplit_directive.arguments.clone();
                     arguments.push(Argument {
                         name: common::WithLocation { location: Location::generated(), item: ArgumentName("fragmentName".intern()) },
                         value: common::WithLocation { location: Location::generated(), item: Value::Constant(ConstantValue::String(spread.fragment.item.0)) }
@@ -150,7 +150,7 @@ fn find_fragment_spreads(selections: &Vec<Selection>, errors: &mut Vec<Diagnosti
                     }
                     let directive = Directive {
                         arguments,
-                        ..auto_codesplit_directive.clone()
+                        ..codesplit_directive.clone()
                     };
                     directives.push(directive);
                 }

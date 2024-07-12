@@ -14,35 +14,35 @@ use graphql_ir::{
     reexport::{Intern, StringKey}, Directive, InlineFragment, Program, Selection, Transformed, Transformer
 };
 
-pub fn rescript_relay_transform_auto_codesplit(program: &Program) -> Program {
-    let mut transform = RescriptRelayTransformAutoCodesplitTransform::new(program);
+pub fn rescript_relay_transform_codesplit(program: &Program) -> Program {
+    let mut transform = RescriptRelayTransformCodesplitTransform::new(program);
     transform
         .transform_program(program)
         .replace_or_else(|| program.clone())
 }
 
 lazy_static! {
-    static ref FRAGMENT_SPREAD_AUTO_CODESPLIT: StringKey =
-        "autoCodesplit".intern();
+    static ref FRAGMENT_SPREAD_CODESPLIT: StringKey =
+        "codesplit".intern();
 }
 
 #[allow(dead_code)]
-struct RescriptRelayTransformAutoCodesplitTransform<'s> {
+struct RescriptRelayTransformCodesplitTransform<'s> {
     program: &'s Program,
 }
 
 #[allow(dead_code)]
-impl<'s> RescriptRelayTransformAutoCodesplitTransform<'s> {
+impl<'s> RescriptRelayTransformCodesplitTransform<'s> {
     fn new(program: &'s Program) -> Self {
         Self { program }
     }
 }
-// This transform recursively copies all relevant @autoCodesplit directives to the top-most inline fragment spread.
+// This transform recursively copies all relevant @codesplit directives to the top-most inline fragment spread.
 // This is because of internal Relay reasons, how the normalization AST is transformed and how we need it to look.
 // All inline fragments will be flattened into the top-most one in an internal Relay transform that runs after this
 // (flatten.rs). So, we need to make sure all relevant directives are copied onto the inline fragment that'll remain,
 // or else they're gone in the inline transform and we can't figure out what to code split.
-impl<'s> Transformer for RescriptRelayTransformAutoCodesplitTransform<'s> {
+impl<'s> Transformer for RescriptRelayTransformCodesplitTransform<'s> {
     const NAME: &'static str = "RescriptRelayTransformAutoCodesplitTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = true;
@@ -77,8 +77,8 @@ fn extract_directives_from_nested_spreads(fragment: &InlineFragment, directives:
         match &s {
             Selection::InlineFragment(inline_fragment) => {
                 if inline_fragment.type_condition.is_some() && inline_fragment.type_condition == fragment.type_condition {
-                    if let Some(auto_codesplit_directive) = inline_fragment.directives.named(DirectiveName(*FRAGMENT_SPREAD_AUTO_CODESPLIT)) {
-                        directives.push(auto_codesplit_directive.clone());
+                    if let Some(codesplit_directive) = inline_fragment.directives.named(DirectiveName(*FRAGMENT_SPREAD_CODESPLIT)) {
+                        directives.push(codesplit_directive.clone());
                     }
                     extract_directives_from_nested_spreads(&inline_fragment, directives);
                 }
@@ -88,8 +88,8 @@ fn extract_directives_from_nested_spreads(fragment: &InlineFragment, directives:
                     match &selection {
                         Selection::InlineFragment(inline_fragment) => {
                             if inline_fragment.type_condition.is_some() && inline_fragment.type_condition == fragment.type_condition {
-                                if let Some(auto_codesplit_directive) = inline_fragment.directives.named(DirectiveName(*FRAGMENT_SPREAD_AUTO_CODESPLIT)) {
-                                    directives.push(auto_codesplit_directive.clone());
+                                if let Some(codesplit_directive) = inline_fragment.directives.named(DirectiveName(*FRAGMENT_SPREAD_CODESPLIT)) {
+                                    directives.push(codesplit_directive.clone());
                                 }
                                 extract_directives_from_nested_spreads(&inline_fragment, directives);
                             }

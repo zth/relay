@@ -339,9 +339,9 @@ directive @rescriptRelayNullableVariables on QUERY | MUTATION | SUBSCRIPTION
 """
 (RescriptRelay only)
 
-Auto codesplits.
+Codesplits.
 """
-directive @autoCodesplit on FRAGMENT_SPREAD
+directive @codesplit on FRAGMENT_SPREAD
 
 """
 (Relay Only)
