@@ -32,6 +32,7 @@ use crate::rescript::ReScriptPrinter;
 use crate::rescript_ast::AstToStringNeedsConversion;
 use crate::rescript_ast::Context;
 use crate::rescript_ast::ConverterInstructions;
+use crate::rescript_ast::FragmentReference;
 use crate::rescript_ast::FullEnum;
 use crate::rescript_ast::ProvidedVariable;
 use crate::rescript_relay_visitor::find_assets_in_fragment;
@@ -68,10 +69,21 @@ pub fn path_to_name(path: &Vec<String>) -> String {
     str
 }
 
-pub fn extract_fragments_from_fragment_spread(ast: &AST) -> Vec<String> {
+pub fn extract_fragments_from_fragment_spread(ast: &AST) -> Vec<FragmentReference> {
     match &ast {
         AST::FragmentReference(fragment_names) => {
-            fragment_names.iter().map(|name| name.to_string()).collect()
+            fragment_names.iter().map(|name| {
+                let (is_aliased, fragment_name) = if name.to_string().starts_with("$ALIAS$") {
+                    (true, name.to_string()[7..].to_string())
+                } else {
+                    (false, name.to_string())
+                };
+
+                FragmentReference {
+                    fragment_name, 
+                    is_aliased,
+                }
+            }).collect()
         }
         unmatched => {
             warn!("Found unmapped fragment spread member: {:?}", unmatched);

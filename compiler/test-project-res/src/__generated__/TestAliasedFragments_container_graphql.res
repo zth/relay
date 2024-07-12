@@ -4,15 +4,9 @@
 module Types = {
   @@warning("-30")
 
-  type rec fragment_TestAliasedFragments_one = {
-    fragmentRefs: RescriptRelay.fragmentRefs<[ | #TestAliasedFragments_one]>,
-  }
-  and fragment_TestAliasedFragments_two = {
-    fragmentRefs: RescriptRelay.fragmentRefs<[ | #TestAliasedFragments_two]>,
-  }
   type fragment = {
-    @as("TestAliasedFragments_one") testAliasedFragments_one: fragment_TestAliasedFragments_one,
-    @as("TestAliasedFragments_two") testAliasedFragments_two: fragment_TestAliasedFragments_two,
+    @as("TestAliasedFragments_one") testAliasedFragments_one: RescriptRelay.fragmentRefs<[ | #TestAliasedFragments_one]>,
+    @as("TestAliasedFragments_two") testAliasedFragments_two: RescriptRelay.fragmentRefs<[ | #TestAliasedFragments_two]>,
     firstName: string,
   }
 }
@@ -22,7 +16,7 @@ module Internal = {
   type fragmentRaw
   @live
   let fragmentConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
-    json`{"__root":{"TestAliasedFragments_two":{"f":""},"TestAliasedFragments_one":{"f":""}}}`
+    json`{}`
   )
   @live
   let fragmentConverterMap = ()

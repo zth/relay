@@ -232,11 +232,36 @@ fn ast_to_prop_value(
             new_at_path.push(key.to_string());
             let record_name = path_to_name(&new_at_path);
 
+            let object_props = get_object_props(state, &new_at_path, props, found_in_union, context);
+
+            // Handle @alias fragments. No need to artificially nest them inside of an object
+            // for the sake of type safety.
+            if object_props.len() == 1 {
+                if let Some(prop) = object_props.get(0) {
+                    if prop.key == "fragmentRefs" {
+                        if let PropType::FragmentSpreads(spreads) = &*prop.prop_type {
+                            if spreads.len() == 1 {
+                                let spread = spreads.get(0).unwrap();
+                                if spread.is_aliased {
+                                    return Some(PropValue {
+                                        key: safe_key,
+                                        original_key,
+                                        comment: None,
+                                        nullable: is_nullable,
+                                        prop_type: Box::new(PropType::FragmentSpreads(spreads.clone())),
+                                    })
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+
             let obj = Object {
                 at_path: new_at_path.clone(),
                 record_name: record_name.clone(),
                 comment: None,
-                values: get_object_props(state, &new_at_path, props, found_in_union, context),
+                values: object_props,
                 found_in_union,
                 original_type_name: None,
                 is_union_member_inline_obj: false
@@ -532,21 +557,24 @@ fn get_object_props(
                         // RescriptRelay, so rename to that and print
                         // accordingly.
 
-                        // Add a conversion instruction for this path
-                        state.conversion_instructions.push(InstructionContainer {
-                            context: context.clone(),
-                            at_path: current_path.clone(),
-                            instruction: ConverterInstructions::HasFragments,
-                        });
+                        let spreads = extract_fragments_from_fragment_spread(&key_value_pair.value);
+                        // Special case for @alias, no conversion instructions needed
+                        let is_aliased_spread = spreads.len() == 1 && spreads.get(0).unwrap().is_aliased;
+                        if !is_aliased_spread {
+                            // Add a conversion instruction for this path
+                            state.conversion_instructions.push(InstructionContainer {
+                                context: context.clone(),
+                                at_path: current_path.clone(),
+                                instruction: ConverterInstructions::HasFragments,
+                            });
+                        }
 
                         Some(PropValue {
                             key: String::from("fragmentRefs"),
                             original_key: None,
                             comment: None,
                             nullable: false,
-                            prop_type: Box::new(PropType::FragmentSpreads(
-                                extract_fragments_from_fragment_spread(&key_value_pair.value),
-                            )),
+                            prop_type: Box::new(PropType::FragmentSpreads(spreads)),
                         })
                     }
                     "$updatableFragmentSpreads" => {
@@ -682,7 +710,7 @@ fn get_object_prop_type_as_string(
             let mut str = String::from("RescriptRelay.fragmentRefs<[");
             fragment_names
                 .iter()
-                .for_each(|fragment_name| write!(str, " | #{}", fragment_name).unwrap());
+                .for_each(|f| write!(str, " | #{}", f.fragment_name).unwrap());
 
             write!(str, "]>").unwrap();
             str
@@ -691,7 +719,7 @@ fn get_object_prop_type_as_string(
             let mut str = String::from("RescriptRelay.updatableFragmentRefs<[");
             fragment_names
                 .iter()
-                .for_each(|fragment_name| write!(str, " | #{}", fragment_name).unwrap());
+                .for_each(|f| write!(str, " | #{}", f.fragment_name).unwrap());
 
             write!(str, "]>").unwrap();
             str
@@ -2694,13 +2722,14 @@ impl Writer for ReScriptPrinter {
                     };
 
                     let current_path = vec![root_name_from_context(&context)];
+                    let object_props = get_object_props(self, &current_path, &props, false, &context);
 
                     let record_name = path_to_name(&current_path);
                     let main_data_type = Object {
                         at_path: current_path.clone(),
                         comment: None,
                         record_name: record_name.to_string(),
-                        values: get_object_props(self, &current_path, &props, false, &context),
+                        values: object_props,
                         found_in_union: false,
                         original_type_name: None,
                         is_union_member_inline_obj: false
