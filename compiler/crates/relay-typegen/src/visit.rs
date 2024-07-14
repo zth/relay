@@ -302,6 +302,7 @@ fn visit_fragment_spread(
                 .directives
                 .named(*UPDATABLE_DIRECTIVE_FOR_TYPEGEN)
                 .is_some(),
+            is_aliased: fragment_spread.directives.named(DirectiveName("alias".intern())).is_some(),
         });
 
         let selection = if let Some(fragment_alias_metadata) =
@@ -2390,7 +2391,7 @@ fn group_refs(props: impl Iterator<Item = TypeSelection>) -> impl Iterator<Item 
                 } else {
                     regular_fragment_spreads
                         .get_or_insert_with(Vec::new)
-                        .push(inline_fragment.fragment_name);
+                        .push(if inline_fragment.is_aliased { FragmentDefinitionName(format!("$ALIAS${}", inline_fragment.fragment_name.0).intern()) } else { inline_fragment.fragment_name });
                 }
             } else if let TypeSelection::InlineFragment(inline_fragment) = prop {
                 regular_fragment_spreads

@@ -51,7 +51,7 @@ type queryRef
 module Internal = {
   @live
   let variablesConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
-    json`{"someInput":{"recursive":{"r":"someInput"},"datetime":{"c":"SomeModule.Datetime"}},"inputA":{"usingB":{"r":"inputB"},"timestamps":{"b":"a"},"timestamp":{"b":""},"time":{"c":"SomeModule.Datetime"},"recursiveA":{"r":"inputA"}},"inputB":{"usingA":{"r":"inputA"},"time":{"c":"SomeModule.Datetime"}},"__root":{"__relay_internal__pv__TestProvidedVariablesSomeInput":{"r":"someInput"},"__relay_internal__pv__TestProvidedVariablesInputB":{"r":"inputB"},"__relay_internal__pv__TestProvidedVariablesDatetimes":{"c":"SomeModule.Datetime"},"__relay_internal__pv__TestProvidedVariablesDatetime":{"c":"SomeModule.Datetime"}}}`
+    json`{"someInput":{"recursive":{"r":"someInput"},"datetime":{"c":"SomeModule.Datetime"}},"inputA":{"usingB":{"r":"inputB"},"timestamps":{"b":"a"},"timestamp":{"b":""},"time":{"c":"SomeModule.Datetime"},"recursiveA":{"r":"inputA"}},"inputB":{"usingA":{"r":"inputA"},"time":{"c":"SomeModule.Datetime"}},"__root":{"__relay_internal__pv__TestProvidedVariablesSomeInput":{"r":"someInput"},"__relay_internal__pv__TestProvidedVariablesInputB":{"r":"inputB"},"__relay_internal__pv__TestProvidedVariablesDatetimes":{"ca":"SomeModule.Datetime"},"__relay_internal__pv__TestProvidedVariablesDatetime":{"c":"SomeModule.Datetime"}}}`
   )
   @live
   let variablesConverterMap = {
@@ -119,8 +119,8 @@ module Utils = {
     onlineStatus_decode(Obj.magic(str))
   }
 }
-type providedVariable<'t> = { providedVariable: unit => 't, get: unit => 't }
-type providedVariablesType = {
+@live type providedVariable<'t> = { providedVariable: unit => 't, get: unit => 't }
+@live type providedVariablesType = {
   __relay_internal__pv__TestProvidedVariablesBool: providedVariable<bool>,
   __relay_internal__pv__TestProvidedVariablesDatetime: providedVariable<option<SomeModule.Datetime.t>>,
   __relay_internal__pv__TestProvidedVariablesDatetimes: providedVariable<option<array<SomeModule.Datetime.t>>>,
@@ -131,7 +131,7 @@ type providedVariablesType = {
   __relay_internal__pv__TestProvidedVariablesSomeInput: providedVariable<RelaySchemaAssets_graphql.input_SomeInput>,
   __relay_internal__pv__TestProvidedVariablesStr: providedVariable<string>,
 }
-let providedVariablesDefinition: providedVariablesType = {
+@live let providedVariablesDefinition: providedVariablesType = {
   __relay_internal__pv__TestProvidedVariablesSomeInput: {
     providedVariable: TestProvidedVariables.SomeInput.get,
     get: () => Internal.convertVariables(Js.Dict.fromArray([("__relay_internal__pv__TestProvidedVariablesSomeInput", TestProvidedVariables.SomeInput.get())]))->Js.Dict.unsafeGet("__relay_internal__pv__TestProvidedVariablesSomeInput"),
@@ -410,12 +410,14 @@ return {
 let node: operationType = makeNode(providedVariablesDefinition)
 
 
-  
+
+@live
 let queryRefToObservable = token => {
   let raw = token->Internal.tokenToRaw
   raw.source->Js.Nullable.toOption
 }
   
+@live
 let queryRefToPromise = token => {
   Js.Promise.make((~resolve, ~reject as _) => {
     switch token->queryRefToObservable {

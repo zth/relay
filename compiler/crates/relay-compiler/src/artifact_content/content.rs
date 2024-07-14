@@ -41,6 +41,10 @@ use super::content_section::ContentSection;
 use super::content_section::ContentSections;
 use super::content_section::DocblockSection;
 use super::content_section::GenericSection;
+use super::rescript_relay_utils::find_codesplit_components_in_operation;
+use super::rescript_relay_utils::find_codesplits_in_operation;
+use super::rescript_relay_utils::write_codesplit_components;
+use super::rescript_relay_utils::write_codesplits_node_modifier;
 use crate::config::Config;
 use crate::config::ProjectConfig;
 
@@ -1081,6 +1085,9 @@ pub fn generate_operation_rescript(
         request_parameters.text = text.clone();
     }
 
+    let codesplits = find_codesplits_in_operation(&normalization_operation, &schema, &fragment_locations);
+    let codesplit_components = find_codesplit_components_in_operation(&typegen_operation.selections, &schema, &fragment_locations);
+
     let operation_fragment = FragmentDefinition {
         name: reader_operation.name.map(|x| FragmentDefinitionName(x.0)),
         variable_definitions: reader_operation.variable_definitions.clone(),
@@ -1147,6 +1154,8 @@ pub fn generate_operation_rescript(
             Some(false)
         )
     )?;
+
+    write_codesplit_components(codesplit_components, &mut section);
     
 
     // Print operation node types
@@ -1192,6 +1201,8 @@ pub fn generate_operation_rescript(
         )
     )
     .unwrap();
+
+    write_codesplits_node_modifier(codesplits, &mut section);
 
     // Print other assets specific to various operation types.
     writeln!(
@@ -1297,6 +1308,9 @@ pub fn generate_read_only_fragment_rescript(
     .unwrap();
 
     let mut import_statements = Default::default();
+
+    let codesplit_components = find_codesplit_components_in_operation(&typegen_fragment.selections, &schema, &fragment_locations);
+    write_codesplit_components(codesplit_components, &mut section);
 
     // Print node type
     writeln!(
@@ -1452,6 +1466,11 @@ pub fn generate_preloadable_query_parameters_rescript(
         )
     )
     .unwrap();
+
+    write_codesplits_node_modifier(
+        find_codesplits_in_operation(&normalization_operation, &schema, &fragment_locations), 
+        &mut section
+    );
 
     writeln!(section, "{}", get_load_fn_code()).unwrap();
 

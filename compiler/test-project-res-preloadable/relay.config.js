@@ -2,12 +2,15 @@ module.exports = {
   src: "./src",
   schema: "../test-project-res/schema.graphql",
   artifactDirectory: "./src/__generated__",
-  customScalars: {
+  customScalarTypes: {
     Datetime: "SomeModule.Datetime",
     Timestamp: "Timestamp.t"
   },
   featureFlags: {
-    enable_relay_resolver_transform: true
+    enable_relay_resolver_transform: true,
+    enable_fragment_aliases: {
+      kind: "enabled"
+    }
   },
   persistConfig: {
     file: "./persisted_queries.json",

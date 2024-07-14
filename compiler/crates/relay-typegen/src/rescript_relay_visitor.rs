@@ -307,7 +307,7 @@ pub fn find_assets_in_fragment<'a>(
         fragment_directives: rescript_relay_directives,
         variables_with_connection_data_ids: vec![],
         operation_directives: vec![],
-        is_updatable: fragment.directives.named(*UPDATABLE_DIRECTIVE).is_some()
+        is_updatable: fragment.directives.named(*UPDATABLE_DIRECTIVE).is_some(),
     };
 
     let variable_definitions = if fragment.variable_definitions.len() > 0 {
@@ -357,7 +357,7 @@ pub fn find_assets_in_operation<'a>(
         fragment_directives: vec![],
         variables_with_connection_data_ids: vec![],
         operation_directives: rescript_relay_directives,
-        is_updatable: operation.directives.named(*UPDATABLE_DIRECTIVE).is_some()
+        is_updatable: operation.directives.named(*UPDATABLE_DIRECTIVE).is_some(),
     };
 
     let variable_definitions = vec![];

@@ -1,13 +1,12 @@
-/* @sourceLoc Test_aliasedFragments.res */
+/* @sourceLoc UserAvatar.res */
 /* @generated */
 %%raw("/* @generated */")
 module Types = {
   @@warning("-30")
 
   type fragment = {
-    @as("TestAliasedFragments_one") testAliasedFragments_one: RescriptRelay.fragmentRefs<[ | #TestAliasedFragments_one]>,
-    @as("TestAliasedFragments_two") testAliasedFragments_two: RescriptRelay.fragmentRefs<[ | #TestAliasedFragments_two]>,
-    firstName: string,
+    @as("UserName_user") userName_user: RescriptRelay.fragmentRefs<[ | #UserName_user]>,
+    avatarUrl: option<string>,
   }
 }
 
@@ -31,7 +30,7 @@ module Internal = {
 type t
 type fragmentRef
 external getFragmentRef:
-  RescriptRelay.fragmentRefs<[> | #TestAliasedFragments_container]> => fragmentRef = "%identity"
+  RescriptRelay.fragmentRefs<[> | #UserAvatar_user]> => fragmentRef = "%identity"
 
 module Utils = {
   @@warning("-33")
@@ -42,38 +41,34 @@ type relayOperationNode
 type operationType = RescriptRelay.fragmentNode<relayOperationNode>
 
 
+
+module CodesplitComponents = {
+  module UserName = {
+    let make = React.lazy_(() => Js.import(UserName.make))
+  }
+}
+
 let node: operationType = %raw(json` {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "TestAliasedFragments_container",
+  "name": "UserAvatar_user",
   "selections": [
     {
       "alias": null,
       "args": null,
       "kind": "ScalarField",
-      "name": "firstName",
+      "name": "avatarUrl",
       "storageKey": null
     },
     {
       "fragment": {
         "args": null,
         "kind": "FragmentSpread",
-        "name": "TestAliasedFragments_one"
+        "name": "UserName_user"
       },
       "kind": "AliasedFragmentSpread",
-      "name": "TestAliasedFragments_one",
-      "type": "User",
-      "abstractKey": null
-    },
-    {
-      "fragment": {
-        "args": null,
-        "kind": "FragmentSpread",
-        "name": "TestAliasedFragments_two"
-      },
-      "kind": "AliasedFragmentSpread",
-      "name": "TestAliasedFragments_two",
+      "name": "UserName_user",
       "type": "User",
       "abstractKey": null
     }

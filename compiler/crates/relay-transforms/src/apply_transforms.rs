@@ -328,9 +328,6 @@ fn apply_reader_transforms(
     program = log_event.time("rescript_relay_generate_typename", || {
         rescript_relay_generate_typename(&program)
     });
-    program = log_event.time("rescript_relay_remove_custom_directives", || {
-        rescript_relay_remove_custom_directives(&program)
-    });
     program = apply_after_custom_transforms(
         &program,
         custom_transforms,
@@ -459,6 +456,10 @@ fn apply_normalization_transforms(
         maybe_print_stats,
     )?;
 
+    program = log_event.time("rescript_relay_inline_codesplit", || {
+        rescript_relay_inline_codesplit(&program)
+    })?;
+
     program = log_event.time("apply_fragment_arguments", || {
         apply_fragment_arguments(
             &program,
@@ -521,6 +522,10 @@ fn apply_normalization_transforms(
     if let Some(print_stats) = maybe_print_stats {
         print_stats("rescript_relay_generate_typename", &program);
     }
+
+    program = log_event.time("rescript_relay_transform_codesplit", || {
+        rescript_relay_transform_codesplit(&program)
+    });
 
     log_event.time("flatten", || flatten(&mut program, true, false))?;
     if let Some(print_stats) = maybe_print_stats {

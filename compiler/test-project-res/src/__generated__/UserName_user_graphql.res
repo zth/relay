@@ -1,13 +1,12 @@
-/* @sourceLoc Test_aliasedFragments.res */
+/* @sourceLoc UserName.res */
 /* @generated */
 %%raw("/* @generated */")
 module Types = {
   @@warning("-30")
 
   type fragment = {
-    @as("TestAliasedFragments_one") testAliasedFragments_one: RescriptRelay.fragmentRefs<[ | #TestAliasedFragments_one]>,
-    @as("TestAliasedFragments_two") testAliasedFragments_two: RescriptRelay.fragmentRefs<[ | #TestAliasedFragments_two]>,
     firstName: string,
+    lastName: string,
   }
 }
 
@@ -31,7 +30,7 @@ module Internal = {
 type t
 type fragmentRef
 external getFragmentRef:
-  RescriptRelay.fragmentRefs<[> | #TestAliasedFragments_container]> => fragmentRef = "%identity"
+  RescriptRelay.fragmentRefs<[> | #UserName_user]> => fragmentRef = "%identity"
 
 module Utils = {
   @@warning("-33")
@@ -46,7 +45,7 @@ let node: operationType = %raw(json` {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "TestAliasedFragments_container",
+  "name": "UserName_user",
   "selections": [
     {
       "alias": null,
@@ -56,26 +55,11 @@ let node: operationType = %raw(json` {
       "storageKey": null
     },
     {
-      "fragment": {
-        "args": null,
-        "kind": "FragmentSpread",
-        "name": "TestAliasedFragments_one"
-      },
-      "kind": "AliasedFragmentSpread",
-      "name": "TestAliasedFragments_one",
-      "type": "User",
-      "abstractKey": null
-    },
-    {
-      "fragment": {
-        "args": null,
-        "kind": "FragmentSpread",
-        "name": "TestAliasedFragments_two"
-      },
-      "kind": "AliasedFragmentSpread",
-      "name": "TestAliasedFragments_two",
-      "type": "User",
-      "abstractKey": null
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "lastName",
+      "storageKey": null
     }
   ],
   "type": "User",

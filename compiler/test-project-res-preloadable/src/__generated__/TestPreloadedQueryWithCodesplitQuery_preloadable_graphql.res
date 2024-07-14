@@ -1,14 +1,12 @@
 /* @sourceLoc Test_preloadedQuery.res */
 /* @generated */
 %%raw("/* @generated */")
-type queryRef = TestPreloadedQuery_graphql.queryRef
+type queryRef = TestPreloadedQueryWithCodesplitQuery_graphql.queryRef
 module Types = {
   @@warning("-30")
 
   @live
-  type variables = {
-    status?: RelaySchemaAssets_graphql.enum_OnlineStatus_input,
-  }
+  type variables = unit
 }
 
 module Internal = {
@@ -37,14 +35,17 @@ type operationType = RescriptRelay.queryNode<relayOperationNode>
 let node: operationType = %raw(json` {
   "kind": "PreloadableConcreteRequest",
   "params": {
-    "id": "64e1bd5c44a860103e5980b544f5e454",
+    "id": "258078f3456869cbf67a1f1aca9549a1",
     "metadata": {},
-    "name": "TestPreloadedQuery",
+    "name": "TestPreloadedQueryWithCodesplitQuery",
     "operationKind": "query",
     "text": null
   }
 } `)
 
+let node = RescriptRelay_Internal.applyCodesplitMetadata(node, [
+  ("member.$$u$$User", () => {Js.import(UserAvatar.make)->ignore; Js.import(UserName.make)->ignore}), 
+])
 @live let load: (
   ~environment: RescriptRelay.Environment.t,
   ~variables: Types.variables,

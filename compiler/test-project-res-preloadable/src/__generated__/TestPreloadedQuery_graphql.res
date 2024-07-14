@@ -213,12 +213,14 @@ return {
 })() `)
 
 
-  
+
+@live
 let queryRefToObservable = token => {
   let raw = token->Internal.tokenToRaw
   raw.source->Js.Nullable.toOption
 }
   
+@live
 let queryRefToPromise = token => {
   Js.Promise.make((~resolve, ~reject as _) => {
     switch token->queryRefToObservable {

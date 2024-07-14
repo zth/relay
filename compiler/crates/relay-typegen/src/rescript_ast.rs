@@ -23,14 +23,20 @@ pub enum ScalarValues {
 }
 
 #[derive(Debug, Clone)]
+pub struct FragmentReference {
+    pub fragment_name: String,
+    pub is_aliased: bool,
+}
+
+#[derive(Debug, Clone)]
 pub enum PropType {
     DataId,
     Scalar(ScalarValues),
     StringLiteral(String),
     Enum(String),
     Array((bool, Box<PropType>)),
-    FragmentSpreads(Vec<String>),
-    UpdatableFragmentSpreads(Vec<String>),
+    FragmentSpreads(Vec<FragmentReference>),
+    UpdatableFragmentSpreads(Vec<FragmentReference>),
     InputObjectReference(String),
     RecordReference(String),
     UnionReference(String),

@@ -31,6 +31,16 @@ module Query = %relay(`
   }
 `)
 
+module Query = %relay(`
+  query TestPreloadedQueryWithCodesplitQuery @preloadable {
+    member(id: "1") {
+      ... on User {
+        ...UserAvatar_user @alias @codesplit
+      }
+    }
+  }
+`)
+
 module Fragment = %relay(`
   fragment TestPreloadedQuery_user on User @argumentDefinitions(
     someInput: { 
