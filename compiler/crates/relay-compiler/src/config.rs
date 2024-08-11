@@ -410,6 +410,7 @@ impl Config {
                     diagnostic_report_config: config_file_project.diagnostic_report_config,
                     resolvers_schema_module: config_file_project.resolvers_schema_module,
                     codegen_command: config_file_project.codegen_command,
+                    input_unions: config_file_project.input_unions,
                 };
                 Ok((project_name, project_config))
             })
@@ -775,6 +776,9 @@ pub struct SingleProjectConfigFile {
 
     #[serde(default)]
     pub resolvers_schema_module: Option<ResolversSchemaModuleConfig>,
+
+    #[serde(default)]
+    pub input_unions: Option<Vec<StringKey>>,
 }
 
 impl Default for SingleProjectConfigFile {
@@ -798,6 +802,7 @@ impl Default for SingleProjectConfigFile {
             feature_flags: None,
             module_import_config: Default::default(),
             resolvers_schema_module: Default::default(),
+            input_unions: Default::default(),
         }
     }
 }
@@ -903,6 +908,7 @@ impl SingleProjectConfigFile {
             feature_flags: self.feature_flags,
             module_import_config: self.module_import_config,
             resolvers_schema_module: self.resolvers_schema_module,
+            input_unions: self.input_unions,
             ..Default::default()
         };
 
@@ -1049,6 +1055,9 @@ pub struct ConfigFileProject {
 
     #[serde(default)]
     pub codegen_command: Option<String>,
+
+    #[serde(default)]
+    pub input_unions: Option<Vec<StringKey>>,
 }
 
 pub type PersistId = String;

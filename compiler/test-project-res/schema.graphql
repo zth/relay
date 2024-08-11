@@ -237,3 +237,9 @@ input Location @oneOf {
   byAddress: ByAddress
   byLoc: ByLoc
 }
+
+input LocationWithoutDirective {
+  byAddress: ByAddress
+  byLoc: ByLoc
+  byId: ID
+}

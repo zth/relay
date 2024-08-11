@@ -249,6 +249,7 @@ pub struct ProjectConfig {
     pub diagnostic_report_config: DiagnosticReportConfig,
     pub resolvers_schema_module: Option<ResolversSchemaModuleConfig>,
     pub codegen_command: Option<String>,
+    pub input_unions: Option<Vec<StringKey>>,
 }
 
 impl Default for ProjectConfig {
@@ -277,6 +278,7 @@ impl Default for ProjectConfig {
             diagnostic_report_config: Default::default(),
             resolvers_schema_module: Default::default(),
             codegen_command: Default::default(),
+            input_unions: Default::default(),
         }
     }
 }
@@ -307,6 +309,7 @@ impl Debug for ProjectConfig {
             diagnostic_report_config,
             resolvers_schema_module,
             codegen_command,
+            input_unions,
         } = self;
         f.debug_struct("ProjectConfig")
             .field("name", name)
@@ -332,6 +335,7 @@ impl Debug for ProjectConfig {
             .field("diagnostic_report_config", diagnostic_report_config)
             .field("resolvers_schema_module", resolvers_schema_module)
             .field("codegen_command", codegen_command)
+            .field("input_unions", input_unions)
             .finish()
     }
 }

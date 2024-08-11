@@ -12,5 +12,6 @@ module.exports = {
       kind: "enabled"
     }
   },
-  schemaExtensions: ["./schemaExtensions"]
+  schemaExtensions: ["./schemaExtensions"],
+  inputUnions: ["LocationWithoutDirective"]
 };

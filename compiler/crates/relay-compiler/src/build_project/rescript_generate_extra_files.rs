@@ -118,6 +118,18 @@ pub(crate) fn rescript_generate_extra_artifacts(
             directive.name.0.eq(&"oneOf".intern())
         }).is_some();
 
+        let is_input_union = if is_input_union {
+            true
+        } else if project_config.input_unions.is_some() && project_config.input_unions.as_ref().unwrap().contains(&input_obj.name.item.0) {
+            let valid_input_object = input_obj.fields.iter().find(|f| f.type_.is_non_null()).is_none();
+            if !valid_input_object {
+                log::warn!("Tried to use input object \"{}\" as input union (because it is in the configured as such via the \"inputObjects\" array in relay.config.js, but the input object is invalid because it has one or more required fields.", input_obj.name.item.0)
+            }
+            valid_input_object
+        } else {
+            false
+        };
+
         if is_input_union {
             // The non-nullable version
             writeln!(

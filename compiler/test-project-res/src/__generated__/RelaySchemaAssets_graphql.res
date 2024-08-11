@@ -195,3 +195,17 @@ and input_Location =
 and input_Location_nullable = 
 | @as("byAddress") ByAddress(input_ByAddress_nullable)
 | @as("byLoc") ByLoc(input_ByLoc_nullable)
+
+@live
+@tag("__$inputUnion")
+and input_LocationWithoutDirective = 
+| @as("byAddress") ByAddress(input_ByAddress)
+| @as("byLoc") ByLoc(input_ByLoc)
+| @as("byId") ById(string)
+
+@live
+@tag("__$inputUnion")
+and input_LocationWithoutDirective_nullable = 
+| @as("byAddress") ByAddress(input_ByAddress_nullable)
+| @as("byLoc") ByLoc(input_ByLoc_nullable)
+| @as("byId") ById(string)
