@@ -98,6 +98,12 @@ type User implements Node {
   bestFriend: User
 }
 
+type Organization implements Node & HasName {
+  id: ID!
+  name: String!
+  slug: String!
+}
+
 type Group implements Node & HasName {
   id: ID!
   name: String!
