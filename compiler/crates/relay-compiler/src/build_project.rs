@@ -70,6 +70,7 @@ use schema_diff::check::IncrementalBuildSchemaChange;
 use schema_diff::check::SchemaChangeSafety;
 pub use source_control::source_control_for_root;
 pub use validate::validate;
+pub use validate::validate_reader;
 pub use validate::AdditionalValidations;
 
 use self::log_program_stats::print_stats;
@@ -251,6 +252,30 @@ pub fn validate_program(
     result
 }
 
+pub fn validate_reader_program(
+    config: &Config,
+    project_config: &ProjectConfig,
+    program: &Program,
+    log_event: &impl PerfLogEvent,
+) -> Result<Vec<Diagnostic>, BuildProjectError> {
+    let timer = log_event.start("validate_reader_time");
+    log_event.number("validate_reader_documents_count", program.document_count());
+    let result = validate_reader(program, project_config, &config.additional_validations)
+        .map_or_else(
+            |errors| {
+                Err(BuildProjectError::ValidationErrors {
+                    errors,
+                    project_name: project_config.name,
+                })
+            },
+            |result| Ok(result.diagnostics),
+        );
+
+    log_event.stop(timer);
+
+    result
+}
+
 /// Apply various chains of transforms to create a set of output programs.
 pub fn transform_program(
     project_config: &ProjectConfig,
@@ -281,6 +306,7 @@ pub fn transform_program(
     result
 }
 
+#[allow(clippy::too_many_arguments)]
 pub fn build_programs(
     config: &Config,
     project_config: &ProjectConfig,
@@ -370,7 +396,7 @@ pub fn build_programs(
         .map(|program| {
             // Call validation rules that go beyond type checking.
             // FIXME: Return non-fatal diagnostics from transforms (only validations for now)
-            let diagnostics = validate_program(config, project_config, &program, log_event)?;
+            let mut diagnostics = validate_program(config, project_config, &program, log_event)?;
 
             let programs = transform_program(
                 project_config,
@@ -380,6 +406,13 @@ pub fn build_programs(
                 log_event,
                 config.custom_transforms.as_ref(),
             )?;
+
+            diagnostics.extend(validate_reader_program(
+                config,
+                project_config,
+                &programs.reader,
+                log_event,
+            )?);
 
             Ok((programs, diagnostics))
         })

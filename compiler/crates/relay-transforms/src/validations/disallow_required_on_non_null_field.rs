@@ -12,6 +12,7 @@ use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::DirectiveName;
 use common::NamedItem;
+use errors::try2;
 use graphql_ir::reexport::Intern;
 use graphql_ir::Field;
 use graphql_ir::FragmentDefinition;
@@ -23,6 +24,7 @@ use lazy_static::lazy_static;
 use schema::Schema;
 
 use crate::ValidationMessageWithData;
+use crate::CHILDREN_CAN_BUBBLE_METADATA_KEY;
 use crate::REQUIRED_DIRECTIVE_NAME;
 
 lazy_static! {
@@ -122,8 +124,19 @@ impl<'program> DisallowRequiredOnNonNullField<'program> {
     ) -> DiagnosticsResult<()> {
         try_all(selections.iter().map(|selection| match selection {
             Selection::LinkedField(linked_field) => {
-                self.validate_required_field(linked_field, is_throw_on_field_error)?;
-                self.validate_selection_fields(&linked_field.selections, is_throw_on_field_error)
+                let field_result = match linked_field
+                    .directives()
+                    .named(*CHILDREN_CAN_BUBBLE_METADATA_KEY)
+                {
+                    Some(_) => Ok(()),
+                    None => self.validate_required_field(linked_field, is_throw_on_field_error),
+                };
+
+                let selection_result = self
+                    .validate_selection_fields(&linked_field.selections, is_throw_on_field_error);
+
+                try2(field_result, selection_result)?;
+                Ok(())
             }
             Selection::ScalarField(scalar_field) => {
                 self.validate_required_field(scalar_field, is_throw_on_field_error)

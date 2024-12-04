@@ -20,6 +20,7 @@ use log::info;
 use relay_compiler::build_project::artifact_writer::ArtifactValidationWriter;
 use relay_compiler::compiler::Compiler;
 use relay_compiler::config::Config;
+use relay_compiler::config::ConfigFile;
 use relay_compiler::errors::Error as CompilerError;
 use relay_compiler::FileSourceKind;
 use relay_compiler::LocalPersister;
@@ -118,10 +119,15 @@ struct LspCommand {
     locate_command: Option<String>,
 }
 
+#[derive(Parser)]
+#[clap(about = "Print the Json Schema definition for the Relay compiler config.")]
+struct ConfigJsonSchemaCommand {}
+
 #[derive(clap::Subcommand)]
 enum Commands {
     Compiler(CompileCommand),
     Lsp(LspCommand),
+    ConfigJsonSchema(ConfigJsonSchemaCommand),
 }
 
 #[derive(ArgEnum, Clone, Copy)]
@@ -178,14 +184,15 @@ async fn main() {
     let result = match command {
         Commands::Compiler(command) => handle_compiler_command(command).await,
         Commands::Lsp(command) => handle_lsp_command(command).await,
+        Commands::ConfigJsonSchema(_) => {
+            println!("{}", ConfigFile::json_schema());
+            Ok(())
+        }
     };
 
-    match result {
-        Ok(_) => info!("Done."),
-        Err(err) => {
-            error!("{}", err);
-            std::process::exit(1);
-        }
+    if let Err(err) = result {
+        error!("{}", err);
+        std::process::exit(1);
     }
 }
 
@@ -313,6 +320,7 @@ async fn handle_compiler_command(command: CompileCommand) -> Result<(), Error> {
             })?;
     }
 
+    info!("Done.");
     Ok(())
 }
 
