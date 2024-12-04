@@ -208,14 +208,19 @@ return {
             "selections": [
               {
                 "fragment": {
-                  "args": null,
-                  "kind": "FragmentSpread",
-                  "name": "UserAvatar_user"
+                  "kind": "InlineFragment",
+                  "selections": [
+                    {
+                      "args": null,
+                      "kind": "FragmentSpread",
+                      "name": "UserAvatar_user"
+                    }
+                  ],
+                  "type": "User",
+                  "abstractKey": null
                 },
-                "kind": "AliasedFragmentSpread",
-                "name": "UserAvatar_user",
-                "type": "User",
-                "abstractKey": null
+                "kind": "AliasedInlineFragmentSpread",
+                "name": "UserAvatar_user"
               },
               {
                 "alias": null,
@@ -227,14 +232,19 @@ return {
                 "selections": [
                   {
                     "fragment": {
-                      "args": null,
-                      "kind": "FragmentSpread",
-                      "name": "RichContent_content"
+                      "kind": "InlineFragment",
+                      "selections": [
+                        {
+                          "args": null,
+                          "kind": "FragmentSpread",
+                          "name": "RichContent_content"
+                        }
+                      ],
+                      "type": "RichContent",
+                      "abstractKey": null
                     },
-                    "kind": "AliasedFragmentSpread",
-                    "name": "RichContent_content",
-                    "type": "RichContent",
-                    "abstractKey": null
+                    "kind": "AliasedInlineFragmentSpread",
+                    "name": "RichContent_content"
                   }
                 ],
                 "storageKey": null
@@ -254,27 +264,37 @@ return {
                     "selections": [
                       {
                         "fragment": {
-                          "args": null,
-                          "kind": "FragmentSpread",
-                          "name": "FriendComponent_user"
+                          "kind": "InlineFragment",
+                          "selections": [
+                            {
+                              "args": null,
+                              "kind": "FragmentSpread",
+                              "name": "FriendComponent_user"
+                            }
+                          ],
+                          "type": "User",
+                          "abstractKey": null
                         },
-                        "kind": "AliasedFragmentSpread",
-                        "name": "FriendComponent_user",
-                        "type": "User",
-                        "abstractKey": null
+                        "kind": "AliasedInlineFragmentSpread",
+                        "name": "FriendComponent_user"
                       }
                     ]
                   },
                   {
                     "fragment": {
-                      "args": null,
-                      "kind": "FragmentSpread",
-                      "name": "FriendComponent2_user"
+                      "kind": "InlineFragment",
+                      "selections": [
+                        {
+                          "args": null,
+                          "kind": "FragmentSpread",
+                          "name": "FriendComponent2_user"
+                        }
+                      ],
+                      "type": "User",
+                      "abstractKey": null
                     },
-                    "kind": "AliasedFragmentSpread",
-                    "name": "FriendComponent2_user",
-                    "type": "User",
-                    "abstractKey": null
+                    "kind": "AliasedInlineFragmentSpread",
+                    "name": "FriendComponent2_user"
                   },
                   {
                     "condition": "includeFriendAvatar",
@@ -283,14 +303,19 @@ return {
                     "selections": [
                       {
                         "fragment": {
-                          "args": null,
-                          "kind": "FragmentSpread",
-                          "name": "FriendComponentSkip_user"
+                          "kind": "InlineFragment",
+                          "selections": [
+                            {
+                              "args": null,
+                              "kind": "FragmentSpread",
+                              "name": "FriendComponentSkip_user"
+                            }
+                          ],
+                          "type": "User",
+                          "abstractKey": null
                         },
-                        "kind": "AliasedFragmentSpread",
-                        "name": "FriendComponentSkip_user",
-                        "type": "User",
-                        "abstractKey": null
+                        "kind": "AliasedInlineFragmentSpread",
+                        "name": "FriendComponentSkip_user"
                       }
                     ]
                   }
@@ -306,14 +331,19 @@ return {
             "selections": [
               {
                 "fragment": {
-                  "args": null,
-                  "kind": "FragmentSpread",
-                  "name": "GroupAvatar_group"
+                  "kind": "InlineFragment",
+                  "selections": [
+                    {
+                      "args": null,
+                      "kind": "FragmentSpread",
+                      "name": "GroupAvatar_group"
+                    }
+                  ],
+                  "type": "Group",
+                  "abstractKey": null
                 },
-                "kind": "AliasedFragmentSpread",
-                "name": "GroupAvatar_group",
-                "type": "Group",
-                "abstractKey": null
+                "kind": "AliasedInlineFragmentSpread",
+                "name": "GroupAvatar_group"
               }
             ],
             "type": "Group",
@@ -321,14 +351,19 @@ return {
           },
           {
             "fragment": {
-              "args": null,
-              "kind": "FragmentSpread",
-              "name": "UserNode_node"
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "args": null,
+                  "kind": "FragmentSpread",
+                  "name": "UserNode_node"
+                }
+              ],
+              "type": "Node",
+              "abstractKey": "__isNode"
             },
-            "kind": "AliasedFragmentSpread",
-            "name": "UserNode_node",
-            "type": "Node",
-            "abstractKey": "__isNode"
+            "kind": "AliasedInlineFragmentSpread",
+            "name": "UserNode_node"
           }
         ],
         "storageKey": "member(id:\"123\")"

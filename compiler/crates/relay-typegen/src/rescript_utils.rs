@@ -17,8 +17,8 @@ use graphql_ir::Variable;
 use graphql_ir::VariableDefinition;
 use itertools::Itertools;
 use log::warn;
-use relay_config::CustomScalarType;
-use relay_config::CustomScalarTypeImport;
+use relay_config::CustomType;
+use relay_config::CustomTypeImport;
 use relay_config::TypegenConfig;
 use relay_transforms::RelayDirective;
 use schema::SDLSchema;
@@ -351,8 +351,8 @@ pub fn get_custom_scalar_name(
     match custom_scalar_types.get(&ScalarName(custom_scalar.to_string().intern())) {
         None => custom_scalar.to_string(),
         Some(
-            CustomScalarType::Name(name)
-            | CustomScalarType::Path(CustomScalarTypeImport { name, .. }),
+            CustomType::Name(name)
+            | CustomType::Path(CustomTypeImport { name, .. }),
         ) => name.to_string(),
     }
 }
@@ -361,8 +361,8 @@ pub fn get_custom_scalar_raw_typenames(custom_scalar_types: &CustomScalarsMap) -
     custom_scalar_types
         .iter()
         .filter_map(|(_, v)| match &v {
-            CustomScalarType::Name(name) => Some(name.to_string()),
-            CustomScalarType::Path(_) => None,
+            CustomType::Name(name) => Some(name.to_string()),
+            CustomType::Path(_) => None,
         })
         .collect_vec()
 }
@@ -975,8 +975,8 @@ fn value_is_custom_scalar(identifier: &StringKey, custom_scalars: &CustomScalars
         .find(
             |(_custom_scalar_graphql_name, custom_scalar_mapped_rescript_name)| {
                 match custom_scalar_mapped_rescript_name {
-                    CustomScalarType::Name(name) => &name == &identifier,
-                    CustomScalarType::Path(_) => false,
+                    CustomType::Name(name) => &name == &identifier,
+                    CustomType::Path(_) => false,
                 }
             },
         )

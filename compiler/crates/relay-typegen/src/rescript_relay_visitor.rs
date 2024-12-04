@@ -14,13 +14,13 @@ use graphql_ir::{
 use indexmap::IndexMap;
 use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
-use relay_config::CustomScalarType;
+use relay_config::CustomType;
 use relay_transforms::UPDATABLE_DIRECTIVE;
 use schema::{SDLSchema, Schema, Type};
 
 use crate::rescript_utils::{get_connection_key_maker, get_custom_scalar_raw_typenames};
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
-pub type CustomScalarsMap = FnvIndexMap<ScalarName, CustomScalarType>;
+pub type CustomScalarsMap = FnvIndexMap<ScalarName, CustomType>;
 
 #[derive(Debug)]
 pub struct RescriptRelayConnectionConfig {
