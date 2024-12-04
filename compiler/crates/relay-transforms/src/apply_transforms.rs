@@ -31,7 +31,7 @@ use crate::match_::hash_supported_argument;
 use crate::relay_resolvers_abstract_types::relay_resolvers_abstract_types;
 use crate::skip_updatable_queries::skip_updatable_queries;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Programs {
     pub source: Arc<Program>,
     pub reader: Arc<Program>,
@@ -160,10 +160,9 @@ fn apply_common_transforms(
     program = log_event.time("fragment_alias_directive", || {
         fragment_alias_directive(
             &program,
-            project_config
+            &project_config
                 .feature_flags
-                .enforce_fragment_alias_where_ambiguous
-                .is_fully_enabled(),
+                .enforce_fragment_alias_where_ambiguous,
         )
     })?;
 
@@ -271,11 +270,7 @@ fn apply_reader_transforms(
     })?;
 
     program = log_event.time("relay_resolvers", || {
-        relay_resolvers(
-            project_config.name,
-            &program,
-            project_config.feature_flags.enable_relay_resolver_transform,
-        )
+        relay_resolvers(project_config.name, &program)
     })?;
 
     program = log_event.time("client_extensions", || client_extensions(&program));
@@ -364,11 +359,7 @@ fn apply_operation_transforms(
         client_edges(&program, project_config, &base_fragment_names)
     })?;
     program = log_event.time("relay_resolvers", || {
-        relay_resolvers(
-            project_config.name,
-            &program,
-            project_config.feature_flags.enable_relay_resolver_transform,
-        )
+        relay_resolvers(project_config.name, &program)
     })?;
     if project_config.resolvers_schema_module.is_some() {
         program = log_event.time(
@@ -691,10 +682,9 @@ fn apply_typegen_transforms(
     program = log_event.time("fragment_alias_directive", || {
         fragment_alias_directive(
             &program,
-            project_config
+            &project_config
                 .feature_flags
-                .enforce_fragment_alias_where_ambiguous
-                .is_fully_enabled(),
+                .enforce_fragment_alias_where_ambiguous,
         )
     })?;
 
@@ -731,10 +721,6 @@ fn apply_typegen_transforms(
         },
     )?;
 
-    program = log_event.time("client_edges", || {
-        client_edges(&program, project_config, &base_fragment_names)
-    })?;
-
     program = log_event.time(
         "transform_assignable_fragment_spreads_in_regular_queries",
         || transform_assignable_fragment_spreads_in_regular_queries(&program),
@@ -747,12 +733,12 @@ fn apply_typegen_transforms(
         annotate_updatable_fragment_spreads(&program)
     });
 
+    program = log_event.time("client_edges", || {
+        client_edges(&program, project_config, &base_fragment_names)
+    })?;
+
     program = log_event.time("relay_resolvers", || {
-        relay_resolvers(
-            project_config.name,
-            &program,
-            project_config.feature_flags.enable_relay_resolver_transform,
-        )
+        relay_resolvers(project_config.name, &program)
     })?;
     log_event.time("flatten", || flatten(&mut program, false, false))?;
     program = log_event.time("transform_refetchable_fragment", || {
