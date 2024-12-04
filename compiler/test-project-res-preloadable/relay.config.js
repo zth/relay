@@ -7,10 +7,7 @@ module.exports = {
     Timestamp: "Timestamp.t"
   },
   featureFlags: {
-    enable_relay_resolver_transform: true,
-    enable_fragment_aliases: {
-      kind: "enabled"
-    }
+    enable_relay_resolver_transform: true
   },
   persistConfig: {
     file: "./persisted_queries.json",

@@ -491,6 +491,7 @@ fn get_resolver_arguments(
     let void_type = match typegen_context.project_config.typegen_config.language {
         TypegenLanguage::Flow | TypegenLanguage::JavaScript => AST::RawType(intern!("void")),
         TypegenLanguage::TypeScript => AST::RawType(intern!("undefined")),
+        TypegenLanguage::ReScript => AST::RawType(intern!("unit")),
     };
 
     let mut resolver_arguments = vec![];
