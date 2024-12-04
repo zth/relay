@@ -10,7 +10,6 @@ use std::path::Path;
 use std::path::PathBuf;
 use std::path::MAIN_SEPARATOR;
 use std::sync::Arc;
-use std::usize;
 
 use common::DirectiveName;
 use common::FeatureFlags;
@@ -19,6 +18,7 @@ use common::SourceLocationKey;
 use common::WithLocation;
 use fmt::Debug;
 use fnv::FnvBuildHasher;
+use globset::GlobSet;
 use indexmap::IndexMap;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
@@ -227,11 +227,14 @@ impl Default for SchemaConfig {
     }
 }
 
+type CustomArtifactFilePath = Box<dyn Fn(&ProjectConfig, &PathBuf) -> PathBuf + Send + Sync>;
+
 pub struct ProjectConfig {
     pub name: ProjectName,
     pub base: Option<ProjectName>,
     pub extra_artifacts_output: Option<PathBuf>,
     pub extra_artifacts_config: Option<ExtraArtifactsConfig>,
+    pub excludes_extensions: Option<GlobSet>,
     pub output: Option<PathBuf>,
     pub shard_output: bool,
     pub shard_strip_regex: Option<Regex>,
@@ -252,6 +255,7 @@ pub struct ProjectConfig {
     pub resolvers_schema_module: Option<ResolversSchemaModuleConfig>,
     pub codegen_command: Option<String>,
     pub input_unions: Option<Vec<StringKey>>,
+    pub get_custom_path_for_artifact: Option<CustomArtifactFilePath>,
 }
 
 impl Default for ProjectConfig {
@@ -262,6 +266,7 @@ impl Default for ProjectConfig {
             base: None,
             extra_artifacts_output: None,
             extra_artifacts_config: None,
+            excludes_extensions: None,
             output: None,
             shard_output: false,
             shard_strip_regex: None,
@@ -281,6 +286,7 @@ impl Default for ProjectConfig {
             resolvers_schema_module: Default::default(),
             codegen_command: Default::default(),
             input_unions: Default::default(),
+            get_custom_path_for_artifact: None,
         }
     }
 }
@@ -292,6 +298,7 @@ impl Debug for ProjectConfig {
             base,
             extra_artifacts_output,
             extra_artifacts_config,
+            excludes_extensions,
             output,
             shard_output,
             shard_strip_regex,
@@ -312,6 +319,7 @@ impl Debug for ProjectConfig {
             resolvers_schema_module,
             codegen_command,
             input_unions,
+            get_custom_path_for_artifact: _,
         } = self;
         f.debug_struct("ProjectConfig")
             .field("name", name)
@@ -319,6 +327,7 @@ impl Debug for ProjectConfig {
             .field("output", output)
             .field("extra_artifacts_config", extra_artifacts_config)
             .field("extra_artifacts_output", extra_artifacts_output)
+            .field("excludes_extensions", excludes_extensions)
             .field("shard_output", shard_output)
             .field("shard_strip_regex", shard_strip_regex)
             .field("schema_extensions", schema_extensions)
@@ -379,7 +388,7 @@ impl ProjectConfig {
     ) -> PathBuf {
         let source_location = definition_name.location.source_location();
         let artifact_name = definition_name.item.into();
-        if let Some(extra_artifacts_config) = &self.extra_artifacts_config {
+        let path = if let Some(extra_artifacts_config) = &self.extra_artifacts_config {
             let filename =
                 (extra_artifacts_config.filename_for_artifact)(source_location, artifact_name);
 
@@ -389,6 +398,19 @@ impl ProjectConfig {
                 source_location,
                 format!("{}_graphql", artifact_name),
             )
+        };
+        if self
+            .feature_flags
+            .enable_custom_artifacts_path
+            .is_enabled_for(path.to_string_lossy().to_string().intern())
+        {
+            if let Some(get_custom_path_for_artifact) = &self.get_custom_path_for_artifact {
+                get_custom_path_for_artifact(self, &path)
+            } else {
+                path
+            }
+        } else {
+            path
         }
     }
 
