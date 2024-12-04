@@ -143,10 +143,10 @@ pub struct FeatureFlags {
 
     /// Skip the optimization which extracts common JavaScript structures in
     /// generated artifacts into numbered variables and uses them by reference
-    /// in each position in which they occure.
+    /// in each position in which they occur.
     ///
     /// This optimization can make it hard to follow changes to generated
-    /// code, so being able to disable it can be helpful for debgging.
+    /// code, so being able to disable it can be helpful for debugging.
     ///
     /// To disable deduping for just one fragment or operation's generated
     /// artifacts:
@@ -158,6 +158,14 @@ pub struct FeatureFlags {
     /// ```
     #[serde(default)]
     pub disable_deduping_common_structures_in_artifacts: FeatureFlag,
+
+    /// The `path` field in `@required` Reader AST nodes is no longer used. But
+    /// removing them in one diff is too large of a change to ship at once.
+    ///
+    /// This flag will allow us to use the rollout FeatureFlag to remove them
+    /// across a number of diffs.
+    #[serde(default)]
+    pub legacy_include_path_in_required_reader_nodes: FeatureFlag,
 }
 
 #[derive(Debug, Deserialize, Clone, Serialize, Default, JsonSchema)]

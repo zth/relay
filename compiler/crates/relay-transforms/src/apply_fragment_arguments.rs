@@ -29,6 +29,7 @@ use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::FragmentDefinitionNameMap;
 use graphql_ir::FragmentDefinitionNameSet;
+use graphql_ir::FragmentSignature;
 use graphql_ir::FragmentSpread;
 use graphql_ir::InlineFragment;
 use graphql_ir::OperationDefinition;
@@ -298,6 +299,12 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
                         fragment.name.location,
                         FragmentDefinitionName(normalization_name),
                     ),
+                    signature: Some(FragmentSignature {
+                        name: fragment.name,
+                        variable_definitions: fragment.variable_definitions.clone(),
+                        type_condition: fragment.type_condition,
+                        directives: fragment.directives.clone(),
+                    }),
                 }));
                 // If the fragment type is abstract, we need to ensure that it's only evaluated at runtime if the
                 // type of the object matches the fragment's type condition. Rather than reimplement type refinement
@@ -324,6 +331,12 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
                 fragment: applied_fragment.name,
                 arguments: Vec::new(),
                 directives,
+                signature: Some(FragmentSignature {
+                    name: applied_fragment.name,
+                    variable_definitions: applied_fragment.variable_definitions.clone(),
+                    type_condition: applied_fragment.type_condition,
+                    directives: applied_fragment.directives.clone(),
+                }),
             })))
         } else {
             Transformed::Delete
@@ -443,7 +456,7 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
                     "Invalid usage of @no_inline on fragment '{}': this feature is gated and currently set to: {}",
                     fragment.name.item, self.no_inline_feature
                 ),
-                directive.name.location,
+                directive.location,
             ));
         }
 

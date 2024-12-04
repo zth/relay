@@ -41,16 +41,12 @@ declare module react {
   declare export var Component: typeof React$Component;
   declare export var PureComponent: typeof React$PureComponent;
   declare export type ComponentType<-P> = React$ComponentType<P>;
-  declare export type AbstractComponent<
-    -Config,
-    +Instance = mixed,
-  > = React$AbstractComponent<Config, Instance>;
   declare export type MixedElement = React$MixedElement;
   declare export type ElementType = React$ElementType;
   declare export type Element<+C> = React$Element<C>;
   declare export var Fragment: React$FragmentType;
   declare export type Key = React$Key;
-  declare export type Ref<C> = React$Ref<C>;
+  declare export type RefSetter<-T> = React$RefSetter<T>;
   declare export type Node = React$Node;
   declare export type Context<T> = React$Context<T>;
   declare export type Portal = React$Portal;
@@ -92,24 +88,23 @@ declare module react {
     ...
   };
 
-  declare export function forwardRef<Config, Instance>(
-    render: (
-      props: Config,
-      ref: {current: null | Instance, ...} | ((null | Instance) => mixed),
-    ) => React$Node,
-  ): React$AbstractComponent<Config, Instance>;
+  declare export function forwardRef<Config: {...}, Instance>(
+    render: (props: Config, ref: React$RefSetter<Instance>) => React$Node,
+  ): component(ref: React.RefSetter<Instance>, ...Config);
 
-  declare export function memo<Config, Instance = mixed>(
-    component_: React$AbstractComponent<Config, Instance>,
+  declare export function memo<Config: {...}, Instance = mixed>(
+    component: component(ref: React.RefSetter<Instance>, ...Config),
     equal?: (Config, Config) => boolean,
-  ): React$AbstractComponent<Config, Instance>;
+  ): component(ref: React.RefSetter<Instance>, ...Config);
 
-  declare export function lazy<Config, Instance = mixed>(
-    component_: () => Promise<{
-      default: React$AbstractComponent<Config, Instance>,
-      ...
-    }>,
-  ): React$AbstractComponent<Config, Instance>;
+  declare export function lazy<Config: {...}, Instance = mixed>(
+    component_: () => Promise<
+      $ReadOnly<{
+        default: component(ref: React.RefSetter<Instance>, ...Config),
+        ...
+      }>,
+    >,
+  ): component(ref: React.RefSetter<Instance>, ...Config);
 
   declare type MaybeCleanUpFn = void | (() => void);
 
@@ -192,14 +187,11 @@ declare module react {
     interactions: Set<Interaction>,
   ) => void;
 
-  declare export var Profiler: React$AbstractComponent<
-    {|
-      children?: React$Node,
-      id: string,
-      onRender: ProfilerOnRenderFnType,
-    |},
-    void,
-  >;
+  declare export var Profiler: React$ComponentType<{|
+    children?: React$Node,
+    id: string,
+    onRender: ProfilerOnRenderFnType,
+  |}>;
 
   declare type TimeoutConfig = {|
     timeoutMs: number,

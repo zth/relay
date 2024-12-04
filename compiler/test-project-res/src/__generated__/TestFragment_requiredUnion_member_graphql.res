@@ -89,8 +89,7 @@ return {
             "name": "isOnline",
             "storageKey": null
           },
-          "action": "NONE",
-          "path": "isOnline"
+          "action": "NONE"
         },
         {
           "alias": null,

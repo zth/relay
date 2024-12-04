@@ -38,6 +38,7 @@ use schema::TypeReference;
 use serde::Deserialize;
 use serde::Serialize;
 
+use crate::signatures::FragmentSignature;
 use crate::AssociatedData;
 use crate::ValidationMessage;
 // Definitions
@@ -405,6 +406,7 @@ impl fmt::Debug for Selection {
 pub struct FragmentSpread {
     pub fragment: WithLocation<FragmentDefinitionName>,
     pub arguments: Vec<Argument>,
+    pub signature: Option<FragmentSignature>,
     pub directives: Vec<Directive>,
 }
 
@@ -453,7 +455,7 @@ impl InlineFragment {
                     ))),
                     None => Err(vec![Diagnostic::error(
                         ValidationMessage::FragmentAliasDirectiveMissingAs,
-                        directive.name.location,
+                        directive.location,
                     )]),
                 }
             }
@@ -569,6 +571,7 @@ pub struct Directive {
     /// to attach arbitrary data on compiler-internal directives, such as to
     /// pass instructions to code generation.
     pub data: Option<Box<dyn AssociatedData>>,
+    pub location: Location,
 }
 impl Named for Directive {
     type Name = DirectiveName;
@@ -722,7 +725,7 @@ fn alias_arg_as(alias_directive: &Directive) -> DiagnosticsResult<Option<WithLoc
             }
             _ => Err(vec![Diagnostic::error(
                 ValidationMessage::FragmentAliasDirectiveDynamicNameArg,
-                alias_directive.name.location,
+                alias_directive.location,
             )]),
         },
         None => Ok(None),

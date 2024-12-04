@@ -27,6 +27,7 @@ export type NormalizationOperation = {
   +clientAbstractTypes?: {
     +[string]: $ReadOnlyArray<string>,
   },
+  +use_exec_time_resolvers?: boolean,
 };
 
 export type NormalizationHandle =
@@ -200,10 +201,17 @@ export type NormalizationLiveResolverField = {
   ...ResolverData,
 };
 
+export type NormalizationModelResolvers = {
+  [string]: {
+    +resolverModule: ResolverModule,
+  },
+};
+
 export type NormalizationClientEdgeToClientObject = {
   +kind: 'ClientEdgeToClientObject',
   +linkedField: NormalizationLinkedField,
   +backingField: NormalizationResolverField | NormalizationLiveResolverField,
+  +modelResolvers?: NormalizationModelResolvers | null,
 };
 
 export type NormalizationClientComponent = {

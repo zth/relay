@@ -58,8 +58,7 @@ let node: operationType = %raw(json` {
         "name": "isOnline",
         "storageKey": null
       },
-      "action": "NONE",
-      "path": "isOnline"
+      "action": "NONE"
     },
     {
       "alias": null,

@@ -228,8 +228,7 @@ return {
                   "storageKey": null
                 }
               },
-              "action": "NONE",
-              "path": "localUser.meta"
+              "action": "NONE"
             }
           ],
           "storageKey": null

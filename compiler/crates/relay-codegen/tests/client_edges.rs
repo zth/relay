@@ -22,7 +22,6 @@ use relay_config::ProjectName;
 use relay_test_schema::get_test_schema_with_extensions;
 use relay_transforms::client_edges;
 use relay_transforms::relay_resolvers;
-use relay_transforms::sort_selections;
 
 pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts: Vec<_> = fixture.content.split("%extensions%").collect();
@@ -39,19 +38,21 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         } else {
             FeatureFlag::Disabled
         };
+        let enable_exec_time_resolvers_directive = fixture
+            .content
+            .contains("# enable-exec-time-resolvers-directive");
         let feature_flags = Arc::new(FeatureFlags {
             relay_resolver_enable_interface_output_type,
+            enable_exec_time_resolvers_directive,
             ..Default::default()
         });
         let project_config: ProjectConfig = ProjectConfig {
             feature_flags,
             ..Default::default()
         };
-        let next_program = sort_selections(
-            &client_edges(&program, &project_config, &Default::default())
-                .and_then(|program| relay_resolvers(ProjectName::default(), &program))
-                .unwrap(),
-        );
+        let next_program = &client_edges(&program, &project_config, &Default::default())
+            .and_then(|program| relay_resolvers(ProjectName::default(), &program))
+            .unwrap();
         let mut result = next_program
             .fragments()
             .map(|def| {
@@ -61,6 +62,10 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
                     def,
                     &ProjectConfig {
                         js_module_format: JsModuleFormat::Haste,
+                        feature_flags: Arc::new(FeatureFlags {
+                            enable_exec_time_resolvers_directive: true,
+                            ..Default::default()
+                        }),
                         ..Default::default()
                     },
                     &mut import_statements,
@@ -74,6 +79,10 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
                     def,
                     &ProjectConfig {
                         js_module_format: JsModuleFormat::Haste,
+                        feature_flags: Arc::new(FeatureFlags {
+                            enable_exec_time_resolvers_directive: true,
+                            ..Default::default()
+                        }),
                         ..Default::default()
                     },
                     &mut import_statements,

@@ -71,8 +71,7 @@ let node: operationType = %raw(json` {
               "name": "avatarUrl",
               "storageKey": null
             },
-            "action": "NONE",
-            "path": "requiredFields.avatarUrl"
+            "action": "NONE"
           },
           {
             "kind": "RequiredField",
@@ -83,8 +82,7 @@ let node: operationType = %raw(json` {
               "name": "isOnline",
               "storageKey": null
             },
-            "action": "NONE",
-            "path": "requiredFields.isOnline"
+            "action": "NONE"
           }
         ],
         "type": null,

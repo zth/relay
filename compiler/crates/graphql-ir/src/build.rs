@@ -250,6 +250,28 @@ pub fn build_variable_definitions(
     builder.build_variable_definitions(definitions)
 }
 
+pub fn build_directives(
+    schema: &SDLSchema,
+    directives: &[graphql_syntax::Directive],
+    directive_location: DirectiveLocation,
+    location: Location,
+) -> DiagnosticsResult<Vec<Directive>> {
+    let signatures = Default::default();
+    let mut builder = Builder::new(
+        schema,
+        &signatures,
+        location,
+        &BuilderOptions {
+            allow_undefined_fragment_spreads: false,
+            fragment_variables_semantic: FragmentVariablesSemantic::Disabled,
+            relay_mode: None,
+            default_anonymous_operation_name: None,
+            allow_custom_scalar_literals: true, // for compatibility
+        },
+    );
+    builder.build_directives(directives, directive_location)
+}
+
 // Helper Types
 
 type VariableDefinitions = HashMap<VariableName, VariableDefinition>;
@@ -769,6 +791,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                 return Ok(FragmentSpread {
                     fragment: spread_name_with_location,
                     arguments: Vec::new(),
+                    signature: None,
                     directives,
                 });
             }
@@ -821,6 +844,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
             return Ok(FragmentSpread {
                 fragment: spread_name_with_location,
                 arguments: Vec::new(),
+                signature: Some(signature.clone()),
                 directives,
             });
         }
@@ -853,6 +877,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
             return Ok(FragmentSpread {
                 fragment: spread_name_with_location,
                 arguments: spread_arguments,
+                signature: Some(signature.clone()),
                 directives,
             });
         }
@@ -914,6 +939,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         Ok(FragmentSpread {
             fragment: spread_name_with_location,
             arguments,
+            signature: Some(signature.clone()),
             directives,
         })
     }
@@ -1343,13 +1369,15 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                     .skip(index + 1)
                     .find(|other_directive| other_directive.name.item == directive.name.item)
                 {
-                    return Err(vec![Diagnostic::error(
-                        ValidationMessage::RepeatedNonRepeatableDirective {
-                            name: directive.name.item,
-                        },
-                        repeated_directive.name.location,
-                    )
-                    .annotate("previously used here", directive.name.location)]);
+                    return Err(vec![
+                        Diagnostic::error(
+                            ValidationMessage::RepeatedNonRepeatableDirective {
+                                name: directive.name.item,
+                            },
+                            repeated_directive.location,
+                        )
+                        .annotate("previously used here", directive.location),
+                    ]);
                 }
             }
         }
@@ -1376,6 +1404,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                     .map(DirectiveName),
                 arguments: vec![],
                 data: None,
+                location: self.location.with_span(directive.span),
             });
         }
         let directive_definition = match self
@@ -1392,9 +1421,15 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         };
         if !directive_definition.locations.contains(&location) {
             return Err(vec![Diagnostic::error(
-                ValidationMessage::InvalidDirectiveUsageUnsupportedLocation(DirectiveName(
-                    directive.name.value,
-                )),
+                ValidationMessage::InvalidDirectiveUsageUnsupportedLocation {
+                    directive_name: DirectiveName(directive.name.value),
+                    valid_locations: directive_definition
+                        .locations
+                        .iter()
+                        .map(|l| l.to_string())
+                        .collect::<Vec<_>>()
+                        .join(", "),
+                },
                 self.location.with_span(directive.name.span),
             )]);
         }
@@ -1415,6 +1450,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
             ),
             arguments,
             data: None,
+            location: self.location.with_span(directive.span),
         })
     }
 

@@ -110,14 +110,12 @@ return {
             {
               "kind": "RequiredField",
               "field": (v0/*: any*/),
-              "action": "NONE",
-              "path": "loggedInUser.avatarUrl"
+              "action": "NONE"
             }
           ],
           "storageKey": null
         },
-        "action": "NONE",
-        "path": "loggedInUser"
+        "action": "NONE"
       }
     ],
     "type": "Query",

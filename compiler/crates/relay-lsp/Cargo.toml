@@ -45,8 +45,8 @@ schema-diff = { path = "../schema-diff" }
 schema-documentation = { path = "../schema-documentation" }
 schema-print = { path = "../schema-print" }
 serde = { version = "1.0.185", features = ["derive", "rc"] }
-serde_json = { version = "1.0.125", features = ["float_roundtrip", "unbounded_depth"] }
-tokio = { version = "1.37.0", features = ["full", "test-util", "tracing"] }
+serde_json = { version = "1.0.132", features = ["float_roundtrip", "unbounded_depth"] }
+tokio = { version = "1.41.0", features = ["full", "test-util", "tracing"] }
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }

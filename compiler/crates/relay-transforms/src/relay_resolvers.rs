@@ -28,6 +28,7 @@ use graphql_ir::Argument;
 use graphql_ir::Directive;
 use graphql_ir::Field as IrField;
 use graphql_ir::FragmentDefinitionName;
+use graphql_ir::FragmentSignature;
 use graphql_ir::FragmentSpread;
 use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
@@ -265,6 +266,12 @@ impl<'program> RelayResolverSpreadTransform<'program> {
                 Selection::FragmentSpread(Arc::new(FragmentSpread {
                     fragment: fragment_definition.name,
                     arguments: fragment_arguments,
+                    signature: Some(FragmentSignature {
+                        name: fragment_definition.name,
+                        variable_definitions: fragment_definition.variable_definitions.clone(),
+                        type_condition: fragment_definition.type_condition,
+                        directives: fragment_definition.directives.clone(),
+                    }),
                     directives: new_directives,
                 }))
             } else {
@@ -401,7 +408,7 @@ impl<'program> RelayResolverFieldTransform<'program> {
                     if let Some(directive) = non_required_directives.next() {
                         self.errors.push(Diagnostic::error(
                             ValidationMessage::RelayResolverUnexpectedDirective,
-                            directive.name.location,
+                            directive.location,
                         ));
                     }
 
