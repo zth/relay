@@ -671,7 +671,7 @@ fn get_object_prop_type_as_string(
 ) -> String {
     match &prop_value {
         &PropType::Result(value ) =>  {
-            format!("result<{}, Js.Json.t>", get_object_prop_type_as_string(state,
+            format!("result<{}, RescriptRelay.catchError<Js.Json.t>>", get_object_prop_type_as_string(state,
                 value.as_ref(),
                 &context,
                 indentation,
@@ -1169,6 +1169,32 @@ fn write_converter_map(
                 )
                 .unwrap();
             }
+            ConverterInstructions::IsResult => {
+                if !has_instructions {
+                    has_instructions = true;
+                    writeln!(str, "{{").unwrap();
+                }
+
+                let fn_name = match direction {
+                    ConversionDirection::Wrap => String::from("internal_wrapResult"),
+                    ConversionDirection::Unwrap => String::from("internal_unwrapResult"),
+                };
+
+                if printed_instruction_keys.contains(&fn_name) {
+                    return;
+                } else {
+                    printed_instruction_keys.push(fn_name.clone());
+                }
+
+                write_indentation(str, indentation + 1).unwrap();
+                writeln!(
+                    str,
+                    "\"{}$\": RescriptRelay_Internal.{},",
+                    fn_name,
+                    fn_name
+                )
+                .unwrap();
+            }
             _ => (),
         };
     });
@@ -1260,7 +1286,8 @@ fn write_internal_assets(
     write_indentation(str, indentation).unwrap();
     writeln!(str, ")").unwrap();
 
-    // Converters are either unions (that needs to be wrapped/unwrapped), or
+    // Converters are either unions (that needs to be wrapped/unwrapped), 
+    // results (that also needs to be unwrapped), or
     // custom scalars _that are ReScript modules_, and therefore should be
     // autoconverted.
     let converters: Vec<&InstructionContainer> = target_conversion_instructions
@@ -1274,7 +1301,8 @@ fn write_internal_assets(
                         RescriptCustomTypeValue::Module => true,
                     }
                 }
-                ConverterInstructions::ConvertUnion(_) => true,
+                ConverterInstructions::ConvertUnion(_) 
+                | ConverterInstructions::IsResult => true,
                 _ => false,
             }
         })

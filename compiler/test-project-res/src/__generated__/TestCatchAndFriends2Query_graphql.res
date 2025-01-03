@@ -14,7 +14,7 @@ module Types = {
     | @live @as("__unselected") UnselectedUnionMember(string)
 
   type response = {
-    member: result<response_member, Js.Json.t>,
+    member: result<response_member, RescriptRelay.catchError<Js.Json.t>>,
   }
   @live
   type rawResponse = response
@@ -54,6 +54,7 @@ module Internal = {
   @live
   let wrapResponseConverterMap = {
     "response_member": wrap_response_member,
+    "internal_wrapResult$": RescriptRelay_Internal.internal_wrapResult,
   }
   @live
   let convertWrapResponse = v => v->RescriptRelay.convertObj(
@@ -70,6 +71,7 @@ module Internal = {
   @live
   let responseConverterMap = {
     "response_member": unwrap_response_member,
+    "internal_unwrapResult$": RescriptRelay_Internal.internal_unwrapResult,
   }
   @live
   let convertResponse = v => v->RescriptRelay.convertObj(

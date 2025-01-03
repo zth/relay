@@ -14,7 +14,7 @@ module Types = {
     | @live @as("__unselected") UnselectedUnionMember(string)
 
   type rec response_members_edges = {
-    node: result<response_members_edges_node, Js.Json.t>,
+    node: result<response_members_edges_node, RescriptRelay.catchError<Js.Json.t>>,
   }
   and response_members = {
     edges: option<array<option<response_members_edges>>>,
@@ -60,6 +60,7 @@ module Internal = {
   @live
   let wrapResponseConverterMap = {
     "response_members_edges_node": wrap_response_members_edges_node,
+    "internal_wrapResult$": RescriptRelay_Internal.internal_wrapResult,
   }
   @live
   let convertWrapResponse = v => v->RescriptRelay.convertObj(
@@ -76,6 +77,7 @@ module Internal = {
   @live
   let responseConverterMap = {
     "response_members_edges_node": unwrap_response_members_edges_node,
+    "internal_unwrapResult$": RescriptRelay_Internal.internal_unwrapResult,
   }
   @live
   let convertResponse = v => v->RescriptRelay.convertObj(
