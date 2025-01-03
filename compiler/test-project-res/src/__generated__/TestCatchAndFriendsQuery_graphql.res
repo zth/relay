@@ -43,7 +43,7 @@ module Internal = {
   )
   @live
   let wrapResponseConverterMap = {
-    "internal_wrapResult$": RescriptRelay_Internal.internal_wrapResult,
+    "wrapResult$": RescriptRelay_Internal.internal_wrapResult,
   }
   @live
   let convertWrapResponse = v => v->RescriptRelay.convertObj(
@@ -59,7 +59,7 @@ module Internal = {
   )
   @live
   let responseConverterMap = {
-    "internal_unwrapResult$": RescriptRelay_Internal.internal_unwrapResult,
+    "wrapResult$": RescriptRelay_Internal.internal_unwrapResult,
   }
   @live
   let convertResponse = v => v->RescriptRelay.convertObj(

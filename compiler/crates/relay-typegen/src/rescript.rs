@@ -1189,8 +1189,7 @@ fn write_converter_map(
                 write_indentation(str, indentation + 1).unwrap();
                 writeln!(
                     str,
-                    "\"{}$\": RescriptRelay_Internal.{},",
-                    fn_name,
+                    "\"wrapResult$\": RescriptRelay_Internal.{},",
                     fn_name
                 )
                 .unwrap();
