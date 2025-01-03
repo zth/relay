@@ -5,7 +5,7 @@ module Types = {
   @@warning("-30")
 
   type rec response_loggedInUser = {
-    avatarUrl: RescriptRelay.catchResult<string, Js.Json.t>,
+    avatarUrl: result<string, Js.Json.t>,
   }
   type response = {
     loggedInUser: response_loggedInUser,
