@@ -34,6 +34,7 @@ pub enum PropType {
     Scalar(ScalarValues),
     StringLiteral(String),
     Enum(String),
+    Result(Box<PropType>),
     Array((bool, Box<PropType>)),
     FragmentSpreads(Vec<FragmentReference>),
     UpdatableFragmentSpreads(Vec<FragmentReference>),
@@ -97,6 +98,7 @@ pub struct FullEnum {
 // and apply them accordingly.
 #[derive(Debug, Clone)]
 pub enum ConverterInstructions {
+    IsResult,
     ConvertUnion(String),
     ConvertCustomField(String, bool),
     HasFragments,

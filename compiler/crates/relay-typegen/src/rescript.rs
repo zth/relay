@@ -9,6 +9,7 @@ use common::rescript_utils::get_module_name_from_file_path;
 use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{FragmentDefinition, OperationDefinition};
 use graphql_syntax::OperationKind;
+use intern::string_key::Intern;
 use itertools::Itertools;
 use log::{debug, warn};
 
@@ -159,6 +160,47 @@ fn ast_to_prop_value(
     }
 
     match value {
+        AST::GenericType { outer, inner } =>  {
+            if outer.eq(&"Result".intern()) {
+                let ok_ast = inner.get(0).unwrap();
+
+                let ok_prop_value = ast_to_prop_value(
+                    state,
+                    current_path.to_vec(),
+                    ok_ast,
+                    key,
+                    false,
+                    found_in_union,
+                    found_in_array,
+                    context,
+                );
+
+                let mut at_path_for_result = current_path.clone();
+                at_path_for_result.push(key.to_string());
+                
+                match ok_prop_value {
+                    None => None,
+                    Some(prop_value) => {
+                        state.conversion_instructions.push(InstructionContainer {
+                            context: context.clone(),
+                            at_path: at_path_for_result,
+                            instruction: ConverterInstructions::IsResult,
+                        });
+
+                        Some(PropValue {
+                        key: safe_key,
+                        original_key,
+                        comment: None,
+                        nullable: is_nullable,
+                        prop_type: Box::new(PropType::Result(prop_value.prop_type))
+                    })
+                    }
+                }
+
+            } else {
+                None
+            }
+        },
         AST::Boolean => Some(PropValue {
             key: safe_key,
             original_key,
@@ -279,7 +321,7 @@ fn ast_to_prop_value(
         }
         AST::Union(members) => {
             let mut new_at_path = current_path.clone();
-            new_at_path.push(key.to_string());         
+            new_at_path.push(key.to_string());
 
             let (union_members, include_catch_all) = extract_union_members(state, &new_at_path, members, context);
 
@@ -628,6 +670,13 @@ fn get_object_prop_type_as_string(
     field_path_name: &Vec<String>,
 ) -> String {
     match &prop_value {
+        &PropType::Result(value ) =>  {
+            format!("RescriptRelay.catchResult<{}, Js.Json.t>", get_object_prop_type_as_string(state,
+                value.as_ref(),
+                &context,
+                indentation,
+                field_path_name))
+        },
         &PropType::DataId => String::from("RescriptRelay.dataId"),
         &PropType::Enum(enum_name) => {
             let has_allow_unsafe_enum_directive = state
