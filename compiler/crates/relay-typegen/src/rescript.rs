@@ -671,7 +671,7 @@ fn get_object_prop_type_as_string(
 ) -> String {
     match &prop_value {
         &PropType::Result(value ) =>  {
-            format!("result<{}, RescriptRelay.catchError<Js.Json.t>>", get_object_prop_type_as_string(state,
+            format!("RescriptRelay.CatchResult.t<{}>", get_object_prop_type_as_string(state,
                 value.as_ref(),
                 &context,
                 indentation,

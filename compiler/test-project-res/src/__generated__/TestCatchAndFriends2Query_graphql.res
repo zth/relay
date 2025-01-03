@@ -14,7 +14,7 @@ module Types = {
     | @live @as("__unselected") UnselectedUnionMember(string)
 
   type response = {
-    member: result<response_member, RescriptRelay.catchError<Js.Json.t>>,
+    member: RescriptRelay.CatchResult.t<response_member>,
   }
   @live
   type rawResponse = response
