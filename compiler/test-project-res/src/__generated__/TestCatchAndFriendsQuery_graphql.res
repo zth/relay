@@ -39,12 +39,10 @@ module Internal = {
   type wrapResponseRaw
   @live
   let wrapResponseConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
-    json`{"__root":{"loggedInUser_avatarUrl":{"re":""}}}`
+    json`{}`
   )
   @live
-  let wrapResponseConverterMap = {
-    "wrapResult$": RescriptRelay_Internal.internal_wrapResult,
-  }
+  let wrapResponseConverterMap = ()
   @live
   let convertWrapResponse = v => v->RescriptRelay.convertObj(
     wrapResponseConverter,
@@ -55,12 +53,10 @@ module Internal = {
   type responseRaw
   @live
   let responseConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
-    json`{"__root":{"loggedInUser_avatarUrl":{"re":""}}}`
+    json`{}`
   )
   @live
-  let responseConverterMap = {
-    "wrapResult$": RescriptRelay_Internal.internal_unwrapResult,
-  }
+  let responseConverterMap = ()
   @live
   let convertResponse = v => v->RescriptRelay.convertObj(
     responseConverter,

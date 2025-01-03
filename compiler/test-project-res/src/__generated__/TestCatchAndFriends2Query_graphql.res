@@ -4,17 +4,27 @@
 module Types = {
   @@warning("-30")
 
-  @tag("__typename") type response_member = 
+  @tag("__typename") type response_member_value_User_memberOfSingular_value = 
+    | @live User(
+      {
+        @live __typename: [ | #User],
+        createdAt: SomeModule.Datetime.t,
+      }
+    )
+    | @live @as("__unselected") UnselectedUnionMember(string)
+
+  @tag("__typename") type response_member_value = 
     | @live User(
       {
         @live __typename: [ | #User],
         @live id: string,
+        memberOfSingular: RescriptRelay.CatchResult.t<response_member_value_User_memberOfSingular_value>,
       }
     )
     | @live @as("__unselected") UnselectedUnionMember(string)
 
   type response = {
-    member: RescriptRelay.CatchResult.t<response_member>,
+    member: RescriptRelay.CatchResult.t<response_member_value>,
   }
   @live
   type rawResponse = response
@@ -26,9 +36,13 @@ module Types = {
 }
 
 @live
-let unwrap_response_member: Types.response_member => Types.response_member = RescriptRelay_Internal.unwrapUnion(_, ["User"])
+let unwrap_response_member_value_User_memberOfSingular_value: Types.response_member_value_User_memberOfSingular_value => Types.response_member_value_User_memberOfSingular_value = RescriptRelay_Internal.unwrapUnion(_, ["User"])
 @live
-let wrap_response_member: Types.response_member => Types.response_member = RescriptRelay_Internal.wrapUnion
+let wrap_response_member_value_User_memberOfSingular_value: Types.response_member_value_User_memberOfSingular_value => Types.response_member_value_User_memberOfSingular_value = RescriptRelay_Internal.wrapUnion
+@live
+let unwrap_response_member_value: Types.response_member_value => Types.response_member_value = RescriptRelay_Internal.unwrapUnion(_, ["User"])
+@live
+let wrap_response_member_value: Types.response_member_value => Types.response_member_value = RescriptRelay_Internal.wrapUnion
 
 type queryRef
 
@@ -49,12 +63,13 @@ module Internal = {
   type wrapResponseRaw
   @live
   let wrapResponseConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
-    json`{"__root":{"member":{"u":"response_member","re":""}}}`
+    json`{"__root":{"member_value_User_memberOfSingular_value_User_createdAt":{"c":"SomeModule.Datetime"},"member_value_User_memberOfSingular_value":{"u":"response_member_value_User_memberOfSingular_value"},"member_value":{"u":"response_member_value"}}}`
   )
   @live
   let wrapResponseConverterMap = {
-    "response_member": wrap_response_member,
-    "wrapResult$": RescriptRelay_Internal.internal_wrapResult,
+    "SomeModule.Datetime": SomeModule.Datetime.serialize,
+    "response_member_value_User_memberOfSingular_value": wrap_response_member_value_User_memberOfSingular_value,
+    "response_member_value": wrap_response_member_value,
   }
   @live
   let convertWrapResponse = v => v->RescriptRelay.convertObj(
@@ -66,12 +81,13 @@ module Internal = {
   type responseRaw
   @live
   let responseConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
-    json`{"__root":{"member":{"u":"response_member","re":""}}}`
+    json`{"__root":{"member_value_User_memberOfSingular_value_User_createdAt":{"c":"SomeModule.Datetime"},"member_value_User_memberOfSingular_value":{"u":"response_member_value_User_memberOfSingular_value"},"member_value":{"u":"response_member_value"}}}`
   )
   @live
   let responseConverterMap = {
-    "response_member": unwrap_response_member,
-    "wrapResult$": RescriptRelay_Internal.internal_unwrapResult,
+    "SomeModule.Datetime": SomeModule.Datetime.parse,
+    "response_member_value_User_memberOfSingular_value": unwrap_response_member_value_User_memberOfSingular_value,
+    "response_member_value": unwrap_response_member_value,
   }
   @live
   let convertResponse = v => v->RescriptRelay.convertObj(
@@ -112,19 +128,40 @@ v1 = {
   "name": "__typename",
   "storageKey": null
 },
-v2 = [
-  {
-    "alias": null,
-    "args": null,
-    "kind": "ScalarField",
-    "name": "id",
-    "storageKey": null
-  }
-],
+v2 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "id",
+  "storageKey": null
+},
 v3 = {
   "kind": "InlineFragment",
-  "selections": (v2/*: any*/),
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "createdAt",
+      "storageKey": null
+    }
+  ],
   "type": "User",
+  "abstractKey": null
+},
+v4 = [
+  (v2/*: any*/)
+],
+v5 = {
+  "kind": "InlineFragment",
+  "selections": (v4/*: any*/),
+  "type": "Node",
+  "abstractKey": "__isNode"
+},
+v6 = {
+  "kind": "InlineFragment",
+  "selections": (v4/*: any*/),
+  "type": "person",
   "abstractKey": null
 };
 return {
@@ -145,7 +182,31 @@ return {
           "plural": false,
           "selections": [
             (v1/*: any*/),
-            (v3/*: any*/)
+            {
+              "kind": "InlineFragment",
+              "selections": [
+                (v2/*: any*/),
+                {
+                  "kind": "CatchField",
+                  "field": {
+                    "alias": null,
+                    "args": null,
+                    "concreteType": null,
+                    "kind": "LinkedField",
+                    "name": "memberOfSingular",
+                    "plural": false,
+                    "selections": [
+                      (v1/*: any*/),
+                      (v3/*: any*/)
+                    ],
+                    "storageKey": null
+                  },
+                  "to": "RESULT"
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            }
           ],
           "storageKey": "member(id:\"123\")"
         },
@@ -170,31 +231,43 @@ return {
         "plural": false,
         "selections": [
           (v1/*: any*/),
-          (v3/*: any*/),
           {
             "kind": "InlineFragment",
-            "selections": (v2/*: any*/),
-            "type": "Node",
-            "abstractKey": "__isNode"
-          },
-          {
-            "kind": "InlineFragment",
-            "selections": (v2/*: any*/),
-            "type": "person",
+            "selections": [
+              (v2/*: any*/),
+              {
+                "alias": null,
+                "args": null,
+                "concreteType": null,
+                "kind": "LinkedField",
+                "name": "memberOfSingular",
+                "plural": false,
+                "selections": [
+                  (v1/*: any*/),
+                  (v3/*: any*/),
+                  (v5/*: any*/),
+                  (v6/*: any*/)
+                ],
+                "storageKey": null
+              }
+            ],
+            "type": "User",
             "abstractKey": null
-          }
+          },
+          (v5/*: any*/),
+          (v6/*: any*/)
         ],
         "storageKey": "member(id:\"123\")"
       }
     ]
   },
   "params": {
-    "cacheID": "ac64a52d77b92dddff44b666bfc505c7",
+    "cacheID": "409831d8a6bf938b462e1c61cb77f8cc",
     "id": null,
     "metadata": {},
     "name": "TestCatchAndFriends2Query",
     "operationKind": "query",
-    "text": "query TestCatchAndFriends2Query {\n  member(id: \"123\") {\n    __typename\n    ... on User {\n      id\n    }\n    ... on Node {\n      __isNode: __typename\n      __typename\n      id\n    }\n    ... on person {\n      id\n    }\n  }\n}\n"
+    "text": "query TestCatchAndFriends2Query {\n  member(id: \"123\") {\n    __typename\n    ... on User {\n      id\n      memberOfSingular {\n        __typename\n        ... on User {\n          createdAt\n        }\n        ... on Node {\n          __isNode: __typename\n          __typename\n          id\n        }\n        ... on person {\n          id\n        }\n      }\n    }\n    ... on Node {\n      __isNode: __typename\n      __typename\n      id\n    }\n    ... on person {\n      id\n    }\n  }\n}\n"
   }
 };
 })() `)

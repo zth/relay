@@ -12,6 +12,11 @@ module Query = %relay(`
     member(id: "123") @catch {
       ... on User {
         id
+        memberOfSingular @catch {
+          ... on User {
+            createdAt
+          }
+        }
       }
     }
   }

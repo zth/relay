@@ -4,7 +4,7 @@
 module Types = {
   @@warning("-30")
 
-  @tag("__typename") type response_members_edges_node = 
+  @tag("__typename") type response_members_edges_node_value = 
     | @live User(
       {
         @live __typename: [ | #User],
@@ -14,7 +14,7 @@ module Types = {
     | @live @as("__unselected") UnselectedUnionMember(string)
 
   type rec response_members_edges = {
-    node: RescriptRelay.CatchResult.t<response_members_edges_node>,
+    node: RescriptRelay.CatchResult.t<response_members_edges_node_value>,
   }
   and response_members = {
     edges: option<array<option<response_members_edges>>>,
@@ -32,9 +32,9 @@ module Types = {
 }
 
 @live
-let unwrap_response_members_edges_node: Types.response_members_edges_node => Types.response_members_edges_node = RescriptRelay_Internal.unwrapUnion(_, ["User"])
+let unwrap_response_members_edges_node_value: Types.response_members_edges_node_value => Types.response_members_edges_node_value = RescriptRelay_Internal.unwrapUnion(_, ["User"])
 @live
-let wrap_response_members_edges_node: Types.response_members_edges_node => Types.response_members_edges_node = RescriptRelay_Internal.wrapUnion
+let wrap_response_members_edges_node_value: Types.response_members_edges_node_value => Types.response_members_edges_node_value = RescriptRelay_Internal.wrapUnion
 
 type queryRef
 
@@ -55,12 +55,11 @@ module Internal = {
   type wrapResponseRaw
   @live
   let wrapResponseConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
-    json`{"__root":{"members_edges_node":{"u":"response_members_edges_node","re":""}}}`
+    json`{"__root":{"members_edges_node_value":{"u":"response_members_edges_node_value"}}}`
   )
   @live
   let wrapResponseConverterMap = {
-    "response_members_edges_node": wrap_response_members_edges_node,
-    "wrapResult$": RescriptRelay_Internal.internal_wrapResult,
+    "response_members_edges_node_value": wrap_response_members_edges_node_value,
   }
   @live
   let convertWrapResponse = v => v->RescriptRelay.convertObj(
@@ -72,12 +71,11 @@ module Internal = {
   type responseRaw
   @live
   let responseConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
-    json`{"__root":{"members_edges_node":{"u":"response_members_edges_node","re":""}}}`
+    json`{"__root":{"members_edges_node_value":{"u":"response_members_edges_node_value"}}}`
   )
   @live
   let responseConverterMap = {
-    "response_members_edges_node": unwrap_response_members_edges_node,
-    "wrapResult$": RescriptRelay_Internal.internal_unwrapResult,
+    "response_members_edges_node_value": unwrap_response_members_edges_node_value,
   }
   @live
   let convertResponse = v => v->RescriptRelay.convertObj(

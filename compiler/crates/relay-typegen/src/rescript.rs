@@ -126,6 +126,7 @@ fn ast_to_prop_value(
     found_in_union: bool,
     found_in_array: bool,
     context: &Context,
+    is_from_result: bool
 ) -> Option<PropValue> {
     let (nullable, value) = unwrap_ast(ast);
     let is_nullable = nullable || optional;
@@ -173,27 +174,19 @@ fn ast_to_prop_value(
                     found_in_union,
                     found_in_array,
                     context,
+                    true
                 );
-
-                let mut at_path_for_result = current_path.clone();
-                at_path_for_result.push(key.to_string());
                 
                 match ok_prop_value {
                     None => None,
                     Some(prop_value) => {
-                        state.conversion_instructions.push(InstructionContainer {
-                            context: context.clone(),
-                            at_path: at_path_for_result,
-                            instruction: ConverterInstructions::IsResult,
-                        });
-
                         Some(PropValue {
-                        key: safe_key,
-                        original_key,
-                        comment: None,
-                        nullable: is_nullable,
-                        prop_type: Box::new(PropType::Result(prop_value.prop_type))
-                    })
+                            key: safe_key,
+                            original_key,
+                            comment: None,
+                            nullable: is_nullable,
+                            prop_type: Box::new(PropType::Result(prop_value.prop_type))
+                        })
                     }
                 }
 
@@ -252,6 +245,7 @@ fn ast_to_prop_value(
                 found_in_union,
                 true,
                 context,
+                is_from_result
             ) {
                 None => {
                     warn!("Could not extract type from array. This should not happen.");
@@ -272,6 +266,11 @@ fn ast_to_prop_value(
         AST::ExactObject(props) => {
             let mut new_at_path = current_path.clone();
             new_at_path.push(key.to_string());
+
+            if is_from_result {
+                new_at_path.push(String::from("value"));
+            }
+            
             let record_name = path_to_name(&new_at_path);
 
             let object_props = get_object_props(state, &new_at_path, props, found_in_union, context);
@@ -323,6 +322,10 @@ fn ast_to_prop_value(
             let mut new_at_path = current_path.clone();
             new_at_path.push(key.to_string());
 
+            if is_from_result {
+                new_at_path.push(String::from("value"));
+            }
+
             let (union_members, include_catch_all) = extract_union_members(state, &new_at_path, members, context);
 
             let union_record_name = path_to_name(&new_at_path);
@@ -360,9 +363,6 @@ fn ast_to_prop_value(
                     prop_type: Box::new(PropType::Enum(full_enum.name.to_string())),
                 }),
                 ClassifiedIdentifier::InputObject((input_object_record_name, _)) => {
-                    let mut new_at_path = current_path.clone();
-                    new_at_path.push(key.to_string());
-
                     Some(PropValue {
                         key: safe_key,
                         original_key,
@@ -376,6 +376,11 @@ fn ast_to_prop_value(
                 ClassifiedIdentifier::RawIdentifier(identifier) => {
                     let mut new_at_path = current_path.clone();
                     new_at_path.push(key.to_string());
+
+                    if is_from_result {
+                        new_at_path.push(String::from("value"));
+                    }
+
                     let mut is_custom_scalar_that_needs_conversion = false;
 
                     // Add a conversion instruction if this is a custom type
@@ -573,6 +578,7 @@ fn get_object_props(
                     found_in_union,
                     false,
                     context,
+                    false
                 )
             }
             &Prop::KeyValuePair(key_value_pair) => {
@@ -653,6 +659,7 @@ fn get_object_props(
                                 found_in_union,
                                 false,
                                 context,
+                                false
                             )
                         }
                     }
