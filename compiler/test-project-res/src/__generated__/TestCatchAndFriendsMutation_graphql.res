@@ -16,7 +16,7 @@ module Types = {
   type response_value = {
     updateUserAvatar: option<response_value_updateUserAvatar>,
   }
-  type response = RescriptRelay.CatchError.t<response_value>
+  type response = RescriptRelay.CatchResult.t<response_value>
   @live
   type rawResponse = response_value
   @live

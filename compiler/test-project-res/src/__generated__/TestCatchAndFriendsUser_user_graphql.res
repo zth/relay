@@ -7,7 +7,7 @@ module Types = {
   type fragment_t = {
     createdAt: SomeModule.Datetime.t,
   }
-  type fragment = RescriptRelay.CatchError.t<fragment_t>
+  type fragment = RescriptRelay.CatchResult.t<fragment_t>
 }
 
 module Internal = {

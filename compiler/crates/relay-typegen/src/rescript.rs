@@ -1667,7 +1667,7 @@ fn write_fragment_definition(
                 .unwrap();
 
                 write_indentation(str, indentation).unwrap();
-                writeln!(str, "type fragment = RescriptRelay.CatchError.t<option<fragment_t>>").unwrap()
+                writeln!(str, "type fragment = RescriptRelay.CatchResult.t<option<fragment_t>>").unwrap()
             } else {
                 write_object_definition(
                     state,
@@ -1683,7 +1683,7 @@ fn write_fragment_definition(
                 .unwrap();
 
                 write_indentation(str, indentation).unwrap();
-                writeln!(str, "type fragment = RescriptRelay.CatchError.t<fragment_t>").unwrap()
+                writeln!(str, "type fragment = RescriptRelay.CatchResult.t<fragment_t>").unwrap()
             }
         }
         &TopLevelFragmentType::ArrayWithObject(obj) => {
@@ -1721,9 +1721,9 @@ fn write_fragment_definition(
             .unwrap();
             write_indentation(str, indentation).unwrap();
             if nullable {
-                writeln!(str, "type fragment = RescriptRelay.CatchError.t<array<option<fragment_t>>>").unwrap()
+                writeln!(str, "type fragment = RescriptRelay.CatchResult.t<array<option<fragment_t>>>").unwrap()
             } else {
-                writeln!(str, "type fragment = RescriptRelay.CatchError.t<array<fragment_t>>").unwrap()
+                writeln!(str, "type fragment = RescriptRelay.CatchResult.t<array<fragment_t>>").unwrap()
             }
         }
         &TopLevelFragmentType::Union(union) => {
@@ -2210,7 +2210,7 @@ impl Writer for ReScriptPrinter {
                             .unwrap();
 
                             write_indentation(&mut generated_types, indentation).unwrap();
-                            writeln!(generated_types, "type response = RescriptRelay.CatchError.t<response_value>").unwrap()
+                            writeln!(generated_types, "type response = RescriptRelay.CatchResult.t<response_value>").unwrap()
                         }
                     }
 
