@@ -136,6 +136,16 @@ fn ast_to_prop_value(
     // print the types.
     let (safe_key, original_key) = get_safe_key(key);
 
+    let mut new_at_path = current_path.clone();
+    new_at_path.push(key.to_string());
+
+    // The catch result type in Relay is shaped as `{ok: true, value: 'value} | {ok: false, errors: array<catchErrors>}`.
+    // This sets the path up here to follow into `value`, which is where the OK result will be located if it's an OK
+    // response.
+    if is_from_result {
+        new_at_path.push(String::from("value"));
+    }
+
     // We do special treatment for any variable definition in
     // mutations/subscriptions which is passed into `connections` of a
     // store updater directive (like @appendNode, @deleteEdge, etc).
@@ -264,13 +274,6 @@ fn ast_to_prop_value(
             }
         }
         AST::ExactObject(props) => {
-            let mut new_at_path = current_path.clone();
-            new_at_path.push(key.to_string());
-
-            if is_from_result {
-                new_at_path.push(String::from("value"));
-            }
-            
             let record_name = path_to_name(&new_at_path);
 
             let object_props = get_object_props(state, &new_at_path, props, found_in_union, context);
@@ -319,13 +322,6 @@ fn ast_to_prop_value(
             })
         }
         AST::Union(members) => {
-            let mut new_at_path = current_path.clone();
-            new_at_path.push(key.to_string());
-
-            if is_from_result {
-                new_at_path.push(String::from("value"));
-            }
-
             let (union_members, include_catch_all) = extract_union_members(state, &new_at_path, members, context);
 
             let union_record_name = path_to_name(&new_at_path);
@@ -374,13 +370,6 @@ fn ast_to_prop_value(
                     })
                 }
                 ClassifiedIdentifier::RawIdentifier(identifier) => {
-                    let mut new_at_path = current_path.clone();
-                    new_at_path.push(key.to_string());
-
-                    if is_from_result {
-                        new_at_path.push(String::from("value"));
-                    }
-
                     let mut is_custom_scalar_that_needs_conversion = false;
 
                     // Add a conversion instruction if this is a custom type
@@ -677,12 +666,17 @@ fn get_object_prop_type_as_string(
     field_path_name: &Vec<String>,
 ) -> String {
     match &prop_value {
-        &PropType::Result(value ) =>  {
-            format!("RescriptRelay.CatchResult.t<{}>", get_object_prop_type_as_string(state,
-                value.as_ref(),
-                &context,
-                indentation,
-                field_path_name))
+        &PropType::Result(value) =>  {
+            format!(
+                "RescriptRelay.CatchResult.t<{}>", 
+                get_object_prop_type_as_string(
+                    state,
+                    value.as_ref(),
+                    &context,
+                    indentation,
+                    field_path_name
+                )
+            )
         },
         &PropType::DataId => String::from("RescriptRelay.dataId"),
         &PropType::Enum(enum_name) => {
@@ -1176,31 +1170,6 @@ fn write_converter_map(
                 )
                 .unwrap();
             }
-            ConverterInstructions::IsResult => {
-                if !has_instructions {
-                    has_instructions = true;
-                    writeln!(str, "{{").unwrap();
-                }
-
-                let fn_name = match direction {
-                    ConversionDirection::Wrap => String::from("internal_wrapResult"),
-                    ConversionDirection::Unwrap => String::from("internal_unwrapResult"),
-                };
-
-                if printed_instruction_keys.contains(&fn_name) {
-                    return;
-                } else {
-                    printed_instruction_keys.push(fn_name.clone());
-                }
-
-                write_indentation(str, indentation + 1).unwrap();
-                writeln!(
-                    str,
-                    "\"wrapResult$\": RescriptRelay_Internal.{},",
-                    fn_name
-                )
-                .unwrap();
-            }
             _ => (),
         };
     });
@@ -1292,8 +1261,7 @@ fn write_internal_assets(
     write_indentation(str, indentation).unwrap();
     writeln!(str, ")").unwrap();
 
-    // Converters are either unions (that needs to be wrapped/unwrapped), 
-    // results (that also needs to be unwrapped), or
+    // Converters are either unions (that needs to be wrapped/unwrapped), or
     // custom scalars _that are ReScript modules_, and therefore should be
     // autoconverted.
     let converters: Vec<&InstructionContainer> = target_conversion_instructions
@@ -1307,8 +1275,7 @@ fn write_internal_assets(
                         RescriptCustomTypeValue::Module => true,
                     }
                 }
-                ConverterInstructions::ConvertUnion(_) 
-                | ConverterInstructions::IsResult => true,
+                ConverterInstructions::ConvertUnion(_) => true,
                 _ => false,
             }
         })
