@@ -127,9 +127,11 @@ pub fn unwrap_ast(ast: &AST) -> (bool, &AST) {
 #[derive(Debug)]
 pub enum ClassifiedTopLevelObjectType<'a> {
     Object(&'a Vec<Prop>),
+    Result(&'a Vec<Prop>),
     Union(&'a Vec<AST>),
     ArrayWithObject(&'a Vec<Prop>),
     ArrayWithUnion(&'a Vec<AST>),
+    ArrayWithResult(&'a Vec<Prop>),
 }
 
 // This classifies top level object types, meaning anything that comes in the
@@ -163,7 +165,31 @@ pub fn classify_top_level_object_type_ast(
                     array_item_nullable,
                     ClassifiedTopLevelObjectType::ArrayWithUnion(&ast),
                 )),
+                Some((array_item_nullable, ClassifiedTopLevelObjectType::Result(ast))) => Some((
+                    array_item_nullable,
+                    ClassifiedTopLevelObjectType::ArrayWithResult(&ast),
+                )),
                 _ => None,
+            }
+        }
+        &AST::GenericType { outer, inner } => {
+            if outer.eq(&"Result".intern()) {
+                let ok_ast = inner.get(0).unwrap();
+                match &ok_ast {
+                    &AST::ExactObject(props) => {
+                        Some((nullable, ClassifiedTopLevelObjectType::Result(&props)))
+                    }
+                    &AST::ReadOnlyArray(inner_ast) => match &inner_ast.as_ref() {
+                        &AST::ExactObject(props) => Some((
+                            nullable,
+                            ClassifiedTopLevelObjectType::ArrayWithResult(&props),
+                        )),
+                        _ => None,
+                    },
+                    _ => None,
+                }
+            } else {
+                None
             }
         }
         _ => None,

@@ -28,9 +28,19 @@ use std::fmt::{Result, Write};
 #[derive(Debug)]
 pub enum TopLevelFragmentType {
     Object(Object),
+    Result(Object),
     Union(Union),
     ArrayWithObject(Object),
+    ArrayWithResult(Object),
     ArrayWithUnion(Union),
+}
+
+// This is the same as TopLevelFragmentType, but for the response type.
+// Mutations can be Results, otherwise everything as a response is always an object.
+#[derive(Debug)]
+pub enum TopLevelResponseType {
+    Object(Object),
+    Result(Object),
 }
 
 // The current operation type definition type, as given to us by the Relay
@@ -71,7 +81,7 @@ pub struct ReScriptPrinter {
     // response is nullable or not. Nullability of responses happen when the
     // @required directive bubbles the nullability all the way up to the
     // response top level.
-    pub response: Option<(bool, Object)>,
+    pub response: Option<(bool, TopLevelResponseType)>,
 
     // The @raw_response_type annotation on operations will populate this. It
     // holds a type that represents the full, raw response Relay expects from
@@ -1641,6 +1651,41 @@ fn write_fragment_definition(
                 .unwrap();
             }
         }
+        &TopLevelFragmentType::Result(obj) => {
+            if nullable {
+                write_object_definition(
+                    state,
+                    str,
+                    indentation,
+                    obj,
+                    ObjectPrintMode::Standalone,
+                    Some(String::from("fragment_t")),
+                    &context,
+                    false,
+                    false
+                )
+                .unwrap();
+
+                write_indentation(str, indentation).unwrap();
+                writeln!(str, "type fragment = RescriptRelay.CatchError.t<option<fragment_t>>").unwrap()
+            } else {
+                write_object_definition(
+                    state,
+                    str,
+                    indentation,
+                    obj,
+                    ObjectPrintMode::Standalone,
+                    Some(String::from("fragment_t")),
+                    &context,
+                    false,
+                    false
+                )
+                .unwrap();
+
+                write_indentation(str, indentation).unwrap();
+                writeln!(str, "type fragment = RescriptRelay.CatchError.t<fragment_t>").unwrap()
+            }
+        }
         &TopLevelFragmentType::ArrayWithObject(obj) => {
             write_object_definition(
                 state,
@@ -1659,6 +1704,26 @@ fn write_fragment_definition(
                 writeln!(str, "type fragment = array<option<fragment_t>>").unwrap()
             } else {
                 writeln!(str, "type fragment = array<fragment_t>").unwrap()
+            }
+        }
+        &TopLevelFragmentType::ArrayWithResult(obj) => {
+            write_object_definition(
+                state,
+                str,
+                indentation,
+                obj,
+                ObjectPrintMode::Standalone,
+                Some(String::from("fragment_t")),
+                &context,
+                false,
+                false
+            )
+            .unwrap();
+            write_indentation(str, indentation).unwrap();
+            if nullable {
+                writeln!(str, "type fragment = RescriptRelay.CatchError.t<array<option<fragment_t>>>").unwrap()
+            } else {
+                writeln!(str, "type fragment = RescriptRelay.CatchError.t<array<fragment_t>>").unwrap()
             }
         }
         &TopLevelFragmentType::Union(union) => {
@@ -2093,34 +2158,60 @@ impl Writer for ReScriptPrinter {
 
                 // Print the response and raw response (if wanted)
                 if let Some((nullable, response)) = &self.response {
-                    if *nullable {
-                        write_object_definition(
-                            &self,
-                            &mut generated_types,
-                            indentation,
-                            &response,
-                            ObjectPrintMode::Standalone,
-                            Some(String::from("response_t")),
-                            &Context::Response,
-                            false,
-                            false
-                        )
-                        .unwrap();
-                        write_indentation(&mut generated_types, indentation).unwrap();
-                        writeln!(generated_types, "type response = option<response_t>").unwrap()
-                    } else {
-                        write_object_definition(
-                            &self,
-                            &mut generated_types,
-                            indentation,
-                            &response,
-                            ObjectPrintMode::Standalone,
-                            None,
-                            &Context::Response,
-                            false,
-                            false
-                        )
-                        .unwrap();
+                    let is_result = match response {
+                        TopLevelResponseType::Result(_) => true,
+                        _ => false
+                    };
+
+                    match response {
+                        TopLevelResponseType::Object(response) => {
+                            if *nullable {
+                                write_object_definition(
+                                    &self,
+                                    &mut generated_types,
+                                    indentation,
+                                    &response,
+                                    ObjectPrintMode::Standalone,
+                                    Some(String::from("response_t")),
+                                    &Context::Response,
+                                    false,
+                                    false
+                                )
+                                .unwrap();
+                                write_indentation(&mut generated_types, indentation).unwrap();
+                                writeln!(generated_types, "type response = option<response_t>").unwrap()
+                            } else {
+                                write_object_definition(
+                                    &self,
+                                    &mut generated_types,
+                                    indentation,
+                                    &response,
+                                    ObjectPrintMode::Standalone,
+                                    None,
+                                    &Context::Response,
+                                    false,
+                                    false
+                                )
+                                .unwrap();
+                            }
+                        }
+                        TopLevelResponseType::Result(response) => {
+                            write_object_definition(
+                                &self,
+                                &mut generated_types,
+                                indentation,
+                                &response,
+                                ObjectPrintMode::Standalone,
+                                None,
+                                &Context::Response,
+                                false,
+                                false
+                            )
+                            .unwrap();
+
+                            write_indentation(&mut generated_types, indentation).unwrap();
+                            writeln!(generated_types, "type response = RescriptRelay.CatchError.t<response_value>").unwrap()
+                        }
                     }
 
                     // This prints the rawResponse, which the Relay compiler outputs if
@@ -2161,7 +2252,13 @@ impl Writer for ReScriptPrinter {
                                     // was nullable, as it might be nullable only because of
                                     // @required, and we don't care about that when using
                                     // the raw response.
-                                    if *nullable { "response_t" } else { "response" }
+                                    if *nullable { 
+                                        "response_t" 
+                                    } else if is_result { 
+                                        "response_value" 
+                                    } else { 
+                                        "response" 
+                                    }
                                 )
                                 .unwrap()
                             }
@@ -2260,7 +2357,7 @@ impl Writer for ReScriptPrinter {
             }
             Some((
                 _,
-                TopLevelFragmentType::Object(_) | TopLevelFragmentType::ArrayWithObject(_),
+                TopLevelFragmentType::Object(_) | TopLevelFragmentType::ArrayWithObject(_) | TopLevelFragmentType::Result(_) | TopLevelFragmentType::ArrayWithResult(_),
             ))
             | None => (),
         }
@@ -2764,14 +2861,25 @@ impl Writer for ReScriptPrinter {
         // for those key top level objects and treat them specially.
 
         if name.ends_with("$data") {            
-            match classify_top_level_object_type_ast(&value) {
-                Some((nullable, ClassifiedTopLevelObjectType::Object(props))) => {
+            let cto = classify_top_level_object_type_ast(&value);
+            match cto {
+                Some((nullable, ClassifiedTopLevelObjectType::Object(props) | ClassifiedTopLevelObjectType::Result(props))) => {
                     let context = match &self.typegen_definition {
                         DefinitionType::Fragment(_) => Context::Fragment,
                         _ => Context::Response,
                     };
 
-                    let current_path = vec![root_name_from_context(&context)];
+                    let is_result = match cto {
+                        Some((_, ClassifiedTopLevelObjectType::Result(_))) => true,
+                        _ => false
+                    };
+
+                    let mut current_path = vec![root_name_from_context(&context)];
+
+                    if is_result {
+                        current_path.push(String::from("value"));
+                    }
+
                     let object_props = get_object_props(self, &current_path, &props, false, &context);
 
                     let record_name = path_to_name(&current_path);
@@ -2788,21 +2896,40 @@ impl Writer for ReScriptPrinter {
                     match &self.typegen_definition {
                         DefinitionType::Fragment(_) => {
                             self.fragment =
-                                Some((nullable, TopLevelFragmentType::Object(main_data_type)));
+                                Some((nullable, if is_result { 
+                                    TopLevelFragmentType::Result(main_data_type) 
+                                } else { 
+                                    TopLevelFragmentType::Object(main_data_type) 
+                                }));
                         }
                         _ => {
-                            self.response = Some((nullable, main_data_type));
+                            self.response = 
+                                Some((nullable, if is_result {
+                                    TopLevelResponseType::Result(main_data_type)
+                                } else {
+                                    TopLevelResponseType::Object(main_data_type)
+                                }));
                         }
                     };
 
                     Ok(())
                 }
-                Some((nullable, ClassifiedTopLevelObjectType::ArrayWithObject(props))) => {
+                Some((nullable, ClassifiedTopLevelObjectType::ArrayWithObject(props) | ClassifiedTopLevelObjectType::ArrayWithResult(props))) => {
                     let context = match &self.typegen_definition {
                         DefinitionType::Fragment(_) => Context::Fragment,
                         _ => Context::Response,
                     };
-                    let current_path = vec![root_name_from_context(&context)];
+
+                    let is_result = match cto {
+                        Some((_, ClassifiedTopLevelObjectType::Result(_))) => true,
+                        _ => false
+                    };
+
+                    let mut current_path = vec![root_name_from_context(&context)];
+
+                    if is_result {
+                        current_path.push(String::from("value"));
+                    }
 
                     let record_name = path_to_name(&current_path);
                     let fragment_type = Object {
@@ -2817,7 +2944,11 @@ impl Writer for ReScriptPrinter {
 
                     self.fragment = Some((
                         nullable,
-                        TopLevelFragmentType::ArrayWithObject(fragment_type),
+                        if is_result {
+                            TopLevelFragmentType::ArrayWithResult(fragment_type)
+                        } else {
+                            TopLevelFragmentType::ArrayWithObject(fragment_type)
+                        },
                     ));
                     Ok(())
                 }
@@ -2874,6 +3005,7 @@ impl Writer for ReScriptPrinter {
                     Ok(())
                 }
                 None => {
+                    log::info!("{:#?}", &value);
                     warn_about_unimplemented_feature(
                         &self.typegen_definition,
                         String::from("unknown top level data"),

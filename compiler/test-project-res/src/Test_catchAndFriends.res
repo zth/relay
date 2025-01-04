@@ -35,3 +35,25 @@ module Query = %relay(`
     }
   }
 `)
+
+module LoggedInUserFragment = %relay(`
+  fragment TestCatchAndFriendsUser_user on User @catch {
+    createdAt
+  }
+`)
+
+module LoggedInUserFragment = %relay(`
+  fragment TestCatchAndFriendsUserPlural_user on User @relay(plural: true) @catch {
+    createdAt
+  }
+`)
+
+module Mutation = %relay(`
+  mutation TestCatchAndFriendsMutation @catch {
+    updateUserAvatar(avatarUrl: "https://avatars.com/avatar/user") {
+      user {
+        id
+      }
+    }
+  }
+`)
