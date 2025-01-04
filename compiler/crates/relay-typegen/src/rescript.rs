@@ -3005,7 +3005,6 @@ impl Writer for ReScriptPrinter {
                     Ok(())
                 }
                 None => {
-                    log::info!("{:#?}", &value);
                     warn_about_unimplemented_feature(
                         &self.typegen_definition,
                         String::from("unknown top level data"),
