@@ -34,6 +34,7 @@ pub enum PropType {
     Scalar(ScalarValues),
     StringLiteral(String),
     Enum(String),
+    Result(Box<PropType>),
     Array((bool, Box<PropType>)),
     FragmentSpreads(Vec<FragmentReference>),
     UpdatableFragmentSpreads(Vec<FragmentReference>),

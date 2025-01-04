@@ -5,8 +5,6 @@ use std::ops::Add;
 use common::ScalarName;
 use common::WithLocation;
 use docblock_shared::RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE;
-use graphql_ir::reexport::Intern;
-use graphql_ir::reexport::StringKey;
 use graphql_ir::Argument;
 use graphql_ir::ConstantValue;
 use graphql_ir::FragmentDefinition;
@@ -15,6 +13,8 @@ use graphql_ir::ProvidedVariableMetadata;
 use graphql_ir::Value;
 use graphql_ir::Variable;
 use graphql_ir::VariableDefinition;
+use graphql_ir::reexport::Intern;
+use graphql_ir::reexport::StringKey;
 use itertools::Itertools;
 use log::warn;
 use relay_config::CustomType;
@@ -35,13 +35,13 @@ use crate::rescript_ast::ConverterInstructions;
 use crate::rescript_ast::FragmentReference;
 use crate::rescript_ast::FullEnum;
 use crate::rescript_ast::ProvidedVariable;
-use crate::rescript_relay_visitor::find_assets_in_fragment;
-use crate::rescript_relay_visitor::find_assets_in_operation;
 use crate::rescript_relay_visitor::CustomScalarsMap;
 use crate::rescript_relay_visitor::RescriptRelayOperationMetaData;
+use crate::rescript_relay_visitor::find_assets_in_fragment;
+use crate::rescript_relay_visitor::find_assets_in_operation;
+use crate::writer::AST;
 use crate::writer::Prop;
 use crate::writer::StringLiteral;
-use crate::writer::AST;
 
 pub fn uncapitalize_string(str: &String) -> String {
     str[..1].to_ascii_lowercase().add(&str[1..])
@@ -71,8 +71,9 @@ pub fn path_to_name(path: &Vec<String>) -> String {
 
 pub fn extract_fragments_from_fragment_spread(ast: &AST) -> Vec<FragmentReference> {
     match &ast {
-        AST::FragmentReference(fragment_names) => {
-            fragment_names.iter().map(|name| {
+        AST::FragmentReference(fragment_names) => fragment_names
+            .iter()
+            .map(|name| {
                 let (is_aliased, fragment_name) = if name.to_string().starts_with("$ALIAS$") {
                     (true, name.to_string()[7..].to_string())
                 } else {
@@ -80,11 +81,11 @@ pub fn extract_fragments_from_fragment_spread(ast: &AST) -> Vec<FragmentReferenc
                 };
 
                 FragmentReference {
-                    fragment_name, 
+                    fragment_name,
                     is_aliased,
                 }
-            }).collect()
-        }
+            })
+            .collect(),
         unmatched => {
             warn!("Found unmapped fragment spread member: {:?}", unmatched);
             vec![]
@@ -126,9 +127,11 @@ pub fn unwrap_ast(ast: &AST) -> (bool, &AST) {
 #[derive(Debug)]
 pub enum ClassifiedTopLevelObjectType<'a> {
     Object(&'a Vec<Prop>),
+    Result(&'a Vec<Prop>),
     Union(&'a Vec<AST>),
     ArrayWithObject(&'a Vec<Prop>),
     ArrayWithUnion(&'a Vec<AST>),
+    ArrayWithResult(&'a Vec<Prop>),
 }
 
 // This classifies top level object types, meaning anything that comes in the
@@ -162,7 +165,31 @@ pub fn classify_top_level_object_type_ast(
                     array_item_nullable,
                     ClassifiedTopLevelObjectType::ArrayWithUnion(&ast),
                 )),
+                Some((array_item_nullable, ClassifiedTopLevelObjectType::Result(ast))) => Some((
+                    array_item_nullable,
+                    ClassifiedTopLevelObjectType::ArrayWithResult(&ast),
+                )),
                 _ => None,
+            }
+        }
+        &AST::GenericType { outer, inner } => {
+            if outer.eq(&"Result".intern()) {
+                let ok_ast = inner.get(0).unwrap();
+                match &ok_ast {
+                    &AST::ExactObject(props) => {
+                        Some((nullable, ClassifiedTopLevelObjectType::Result(&props)))
+                    }
+                    &AST::ReadOnlyArray(inner_ast) => match &inner_ast.as_ref() {
+                        &AST::ExactObject(props) => Some((
+                            nullable,
+                            ClassifiedTopLevelObjectType::ArrayWithResult(&props),
+                        )),
+                        _ => None,
+                    },
+                    _ => None,
+                }
+            } else {
+                None
             }
         }
         _ => None,
@@ -240,13 +267,11 @@ pub fn get_rescript_relay_meta_data(
             &schema,
             typegen_config.custom_scalar_types.clone(),
         ),
-        DefinitionType::Operation((definition, _)) => {
-            find_assets_in_operation(
-                &definition,
-                &schema,
-                typegen_config.custom_scalar_types.clone(),
-            )
-        }
+        DefinitionType::Operation((definition, _)) => find_assets_in_operation(
+            &definition,
+            &schema,
+            typegen_config.custom_scalar_types.clone(),
+        ),
     }
 }
 
@@ -309,7 +334,10 @@ pub fn get_safe_key(original_key: &String) -> (String, Option<String>) {
     if is_first_char_uppercase(&original_key) {
         let uncapitalized = uncapitalize_string(&original_key);
         if is_legal_key(&uncapitalized) {
-            (format!("{}_", uncapitalized), Some(original_key.to_string()))
+            (
+                format!("{}_", uncapitalized),
+                Some(original_key.to_string()),
+            )
         } else {
             (uncapitalized, Some(original_key.to_string()))
         }
@@ -350,10 +378,9 @@ pub fn get_custom_scalar_name(
 ) -> String {
     match custom_scalar_types.get(&ScalarName(custom_scalar.to_string().intern())) {
         None => custom_scalar.to_string(),
-        Some(
-            CustomType::Name(name)
-            | CustomType::Path(CustomTypeImport { name, .. }),
-        ) => name.to_string(),
+        Some(CustomType::Name(name) | CustomType::Path(CustomTypeImport { name, .. })) => {
+            name.to_string()
+        }
     }
 }
 
@@ -381,7 +408,6 @@ pub fn print_opt(str: &String, optional: bool, nullability_mode: &NullabilityMod
             NullabilityMode::Option => format!("option<{}>", str),
             NullabilityMode::Nullable => format!("Js.Null.t<{}>", str),
             NullabilityMode::NullAndUndefined => format!("Js.Nullable.t<{}>", str),
-
         }
     } else {
         format!("{}", str)
@@ -495,7 +521,11 @@ pub fn print_type_reference(
                             ""
                         },
                         enum_.name.item,
-                        if enum_as_inputs || enum_.is_extension  { "_input" } else { "" }
+                        if enum_as_inputs || enum_.is_extension {
+                            "_input"
+                        } else {
+                            ""
+                        }
                     )
                 }
                 Type::InputObject(id) => {
@@ -510,43 +540,48 @@ pub fn print_type_reference(
                         obj.name.item,
                         match &nullability_mode {
                             NullabilityMode::Nullable => "_nullable",
-                            _ => ""
+                            _ => "",
                         }
                     )
                 }
-                Type::Scalar(id) => format!(
-                    "{}",
-                    match schema.scalar(*id).name.item.to_string().as_str() {
-                        "Boolean" => String::from("bool"),
-                        "Int" => String::from("int"),
-                        "Float" => String::from("float"),
-                        "String" | "ID" => String::from("string"),
-                        custom_scalar => {
-                            let is_custom_scalar = custom_scalar_types
-                                .get(&ScalarName(custom_scalar.to_string().intern()))
-                                .is_some();
+                Type::Scalar(id) => format!("{}", match schema
+                    .scalar(*id)
+                    .name
+                    .item
+                    .to_string()
+                    .as_str()
+                {
+                    "Boolean" => String::from("bool"),
+                    "Int" => String::from("int"),
+                    "Float" => String::from("float"),
+                    "String" | "ID" => String::from("string"),
+                    custom_scalar => {
+                        let is_custom_scalar = custom_scalar_types
+                            .get(&ScalarName(custom_scalar.to_string().intern()))
+                            .is_some();
 
-                            if is_custom_scalar {
-                                let custom_scalar_name =
-                                    get_custom_scalar_name(&custom_scalar_types, &custom_scalar);
+                        if is_custom_scalar {
+                            let custom_scalar_name =
+                                get_custom_scalar_name(&custom_scalar_types, &custom_scalar);
 
-                                match classify_rescript_value_string(&custom_scalar_name) {
-                                    RescriptCustomTypeValue::Module => {
-                                        format!("{}.t", custom_scalar_name)
-                                    }
-                                    RescriptCustomTypeValue::Type => custom_scalar_name.to_string(),
+                            match classify_rescript_value_string(&custom_scalar_name) {
+                                RescriptCustomTypeValue::Module => {
+                                    format!("{}.t", custom_scalar_name)
                                 }
-                            } else {
-                                String::from("RescriptRelay.any")
+                                RescriptCustomTypeValue::Type => custom_scalar_name.to_string(),
                             }
+                        } else {
+                            String::from("RescriptRelay.any")
                         }
                     }
-                ),
+                }),
                 Type::Object(id) => {
                     let object = schema.object(*id);
-                    let weak = object.directives.iter().find(|d| {
-                        d.name == *RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE
-                    }).is_some();
+                    let weak = object
+                        .directives
+                        .iter()
+                        .find(|d| d.name == *RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE)
+                        .is_some();
 
                     if weak {
                         format!("Relay{}Model.t", object.name.item)
@@ -555,7 +590,7 @@ pub fn print_type_reference(
                     } else {
                         format!("RescriptRelay.dataId")
                     }
-                },
+                }
                 _ => String::from("RescriptRelay.any"),
             },
             nullable,
@@ -800,16 +835,14 @@ pub fn get_connection_key_maker(
                         )
                     },
                     match (&default_value, &variable.type_) {
-                        (Some(default_value), _) => format!(
-                            "={}",
-                            match dig_type_ref(&variable.type_) {
+                        (Some(default_value), _) =>
+                            format!("={}", match dig_type_ref(&variable.type_) {
                                 Type::InputObject(_) => format!(
                                     "{}",
                                     print_constant_value(&default_value.item, false, false, false)
                                 ),
                                 _ => print_constant_value(&default_value.item, false, false, false),
-                            }
-                        ),
+                            }),
                         (None, TypeReference::List(_) | TypeReference::Named(_)) =>
                             String::from("=?"),
                         (None, TypeReference::NonNull(_)) => String::from(""),

@@ -9,6 +9,7 @@ use common::rescript_utils::get_module_name_from_file_path;
 use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{FragmentDefinition, OperationDefinition};
 use graphql_syntax::OperationKind;
+use intern::string_key::Intern;
 use itertools::Itertools;
 use log::{debug, warn};
 
@@ -27,9 +28,19 @@ use std::fmt::{Result, Write};
 #[derive(Debug)]
 pub enum TopLevelFragmentType {
     Object(Object),
+    Result(Object),
     Union(Union),
     ArrayWithObject(Object),
+    ArrayWithResult(Object),
     ArrayWithUnion(Union),
+}
+
+// This is the same as TopLevelFragmentType, but for the response type.
+// Mutations can be Results, otherwise everything as a response is always an object.
+#[derive(Debug)]
+pub enum TopLevelResponseType {
+    Object(Object),
+    Result(Object),
 }
 
 // The current operation type definition type, as given to us by the Relay
@@ -70,7 +81,7 @@ pub struct ReScriptPrinter {
     // response is nullable or not. Nullability of responses happen when the
     // @required directive bubbles the nullability all the way up to the
     // response top level.
-    pub response: Option<(bool, Object)>,
+    pub response: Option<(bool, TopLevelResponseType)>,
 
     // The @raw_response_type annotation on operations will populate this. It
     // holds a type that represents the full, raw response Relay expects from
@@ -125,6 +136,7 @@ fn ast_to_prop_value(
     found_in_union: bool,
     found_in_array: bool,
     context: &Context,
+    is_from_result: bool
 ) -> Option<PropValue> {
     let (nullable, value) = unwrap_ast(ast);
     let is_nullable = nullable || optional;
@@ -133,6 +145,16 @@ fn ast_to_prop_value(
     // ReScript. If it is, we'll need to map it via the @as decorator when we
     // print the types.
     let (safe_key, original_key) = get_safe_key(key);
+
+    let mut new_at_path = current_path.clone();
+    new_at_path.push(key.to_string());
+
+    // The catch result type in Relay is shaped as `{ok: true, value: 'value} | {ok: false, errors: array<catchErrors>}`.
+    // This sets the path up here to follow into `value`, which is where the OK result will be located if it's an OK
+    // response.
+    if is_from_result {
+        new_at_path.push(String::from("value"));
+    }
 
     // We do special treatment for any variable definition in
     // mutations/subscriptions which is passed into `connections` of a
@@ -159,6 +181,39 @@ fn ast_to_prop_value(
     }
 
     match value {
+        AST::GenericType { outer, inner } =>  {
+            if outer.eq(&"Result".intern()) {
+                let ok_ast = inner.get(0).unwrap();
+
+                let ok_prop_value = ast_to_prop_value(
+                    state,
+                    current_path.to_vec(),
+                    ok_ast,
+                    key,
+                    false,
+                    found_in_union,
+                    found_in_array,
+                    context,
+                    true
+                );
+                
+                match ok_prop_value {
+                    None => None,
+                    Some(prop_value) => {
+                        Some(PropValue {
+                            key: safe_key,
+                            original_key,
+                            comment: None,
+                            nullable: is_nullable,
+                            prop_type: Box::new(PropType::Result(prop_value.prop_type))
+                        })
+                    }
+                }
+
+            } else {
+                None
+            }
+        },
         AST::Boolean => Some(PropValue {
             key: safe_key,
             original_key,
@@ -210,6 +265,7 @@ fn ast_to_prop_value(
                 found_in_union,
                 true,
                 context,
+                is_from_result
             ) {
                 None => {
                     warn!("Could not extract type from array. This should not happen.");
@@ -228,8 +284,6 @@ fn ast_to_prop_value(
             }
         }
         AST::ExactObject(props) => {
-            let mut new_at_path = current_path.clone();
-            new_at_path.push(key.to_string());
             let record_name = path_to_name(&new_at_path);
 
             let object_props = get_object_props(state, &new_at_path, props, found_in_union, context);
@@ -278,9 +332,6 @@ fn ast_to_prop_value(
             })
         }
         AST::Union(members) => {
-            let mut new_at_path = current_path.clone();
-            new_at_path.push(key.to_string());         
-
             let (union_members, include_catch_all) = extract_union_members(state, &new_at_path, members, context);
 
             let union_record_name = path_to_name(&new_at_path);
@@ -318,9 +369,6 @@ fn ast_to_prop_value(
                     prop_type: Box::new(PropType::Enum(full_enum.name.to_string())),
                 }),
                 ClassifiedIdentifier::InputObject((input_object_record_name, _)) => {
-                    let mut new_at_path = current_path.clone();
-                    new_at_path.push(key.to_string());
-
                     Some(PropValue {
                         key: safe_key,
                         original_key,
@@ -332,8 +380,6 @@ fn ast_to_prop_value(
                     })
                 }
                 ClassifiedIdentifier::RawIdentifier(identifier) => {
-                    let mut new_at_path = current_path.clone();
-                    new_at_path.push(key.to_string());
                     let mut is_custom_scalar_that_needs_conversion = false;
 
                     // Add a conversion instruction if this is a custom type
@@ -531,6 +577,7 @@ fn get_object_props(
                     found_in_union,
                     false,
                     context,
+                    false
                 )
             }
             &Prop::KeyValuePair(key_value_pair) => {
@@ -611,6 +658,7 @@ fn get_object_props(
                                 found_in_union,
                                 false,
                                 context,
+                                false
                             )
                         }
                     }
@@ -628,6 +676,18 @@ fn get_object_prop_type_as_string(
     field_path_name: &Vec<String>,
 ) -> String {
     match &prop_value {
+        &PropType::Result(value) =>  {
+            format!(
+                "RescriptRelay.CatchResult.t<{}>", 
+                get_object_prop_type_as_string(
+                    state,
+                    value.as_ref(),
+                    &context,
+                    indentation,
+                    field_path_name
+                )
+            )
+        },
         &PropType::DataId => String::from("RescriptRelay.dataId"),
         &PropType::Enum(enum_name) => {
             let has_allow_unsafe_enum_directive = state
@@ -1591,6 +1651,41 @@ fn write_fragment_definition(
                 .unwrap();
             }
         }
+        &TopLevelFragmentType::Result(obj) => {
+            if nullable {
+                write_object_definition(
+                    state,
+                    str,
+                    indentation,
+                    obj,
+                    ObjectPrintMode::Standalone,
+                    Some(String::from("fragment_t")),
+                    &context,
+                    false,
+                    false
+                )
+                .unwrap();
+
+                write_indentation(str, indentation).unwrap();
+                writeln!(str, "type fragment = RescriptRelay.CatchResult.t<option<fragment_t>>").unwrap()
+            } else {
+                write_object_definition(
+                    state,
+                    str,
+                    indentation,
+                    obj,
+                    ObjectPrintMode::Standalone,
+                    Some(String::from("fragment_t")),
+                    &context,
+                    false,
+                    false
+                )
+                .unwrap();
+
+                write_indentation(str, indentation).unwrap();
+                writeln!(str, "type fragment = RescriptRelay.CatchResult.t<fragment_t>").unwrap()
+            }
+        }
         &TopLevelFragmentType::ArrayWithObject(obj) => {
             write_object_definition(
                 state,
@@ -1609,6 +1704,26 @@ fn write_fragment_definition(
                 writeln!(str, "type fragment = array<option<fragment_t>>").unwrap()
             } else {
                 writeln!(str, "type fragment = array<fragment_t>").unwrap()
+            }
+        }
+        &TopLevelFragmentType::ArrayWithResult(obj) => {
+            write_object_definition(
+                state,
+                str,
+                indentation,
+                obj,
+                ObjectPrintMode::Standalone,
+                Some(String::from("fragment_t")),
+                &context,
+                false,
+                false
+            )
+            .unwrap();
+            write_indentation(str, indentation).unwrap();
+            if nullable {
+                writeln!(str, "type fragment = RescriptRelay.CatchResult.t<array<option<fragment_t>>>").unwrap()
+            } else {
+                writeln!(str, "type fragment = RescriptRelay.CatchResult.t<array<fragment_t>>").unwrap()
             }
         }
         &TopLevelFragmentType::Union(union) => {
@@ -2043,34 +2158,60 @@ impl Writer for ReScriptPrinter {
 
                 // Print the response and raw response (if wanted)
                 if let Some((nullable, response)) = &self.response {
-                    if *nullable {
-                        write_object_definition(
-                            &self,
-                            &mut generated_types,
-                            indentation,
-                            &response,
-                            ObjectPrintMode::Standalone,
-                            Some(String::from("response_t")),
-                            &Context::Response,
-                            false,
-                            false
-                        )
-                        .unwrap();
-                        write_indentation(&mut generated_types, indentation).unwrap();
-                        writeln!(generated_types, "type response = option<response_t>").unwrap()
-                    } else {
-                        write_object_definition(
-                            &self,
-                            &mut generated_types,
-                            indentation,
-                            &response,
-                            ObjectPrintMode::Standalone,
-                            None,
-                            &Context::Response,
-                            false,
-                            false
-                        )
-                        .unwrap();
+                    let is_result = match response {
+                        TopLevelResponseType::Result(_) => true,
+                        _ => false
+                    };
+
+                    match response {
+                        TopLevelResponseType::Object(response) => {
+                            if *nullable {
+                                write_object_definition(
+                                    &self,
+                                    &mut generated_types,
+                                    indentation,
+                                    &response,
+                                    ObjectPrintMode::Standalone,
+                                    Some(String::from("response_t")),
+                                    &Context::Response,
+                                    false,
+                                    false
+                                )
+                                .unwrap();
+                                write_indentation(&mut generated_types, indentation).unwrap();
+                                writeln!(generated_types, "type response = option<response_t>").unwrap()
+                            } else {
+                                write_object_definition(
+                                    &self,
+                                    &mut generated_types,
+                                    indentation,
+                                    &response,
+                                    ObjectPrintMode::Standalone,
+                                    None,
+                                    &Context::Response,
+                                    false,
+                                    false
+                                )
+                                .unwrap();
+                            }
+                        }
+                        TopLevelResponseType::Result(response) => {
+                            write_object_definition(
+                                &self,
+                                &mut generated_types,
+                                indentation,
+                                &response,
+                                ObjectPrintMode::Standalone,
+                                None,
+                                &Context::Response,
+                                false,
+                                false
+                            )
+                            .unwrap();
+
+                            write_indentation(&mut generated_types, indentation).unwrap();
+                            writeln!(generated_types, "type response = RescriptRelay.CatchResult.t<response_value>").unwrap()
+                        }
                     }
 
                     // This prints the rawResponse, which the Relay compiler outputs if
@@ -2111,7 +2252,13 @@ impl Writer for ReScriptPrinter {
                                     // was nullable, as it might be nullable only because of
                                     // @required, and we don't care about that when using
                                     // the raw response.
-                                    if *nullable { "response_t" } else { "response" }
+                                    if *nullable { 
+                                        "response_t" 
+                                    } else if is_result { 
+                                        "response_value" 
+                                    } else { 
+                                        "response" 
+                                    }
                                 )
                                 .unwrap()
                             }
@@ -2210,7 +2357,7 @@ impl Writer for ReScriptPrinter {
             }
             Some((
                 _,
-                TopLevelFragmentType::Object(_) | TopLevelFragmentType::ArrayWithObject(_),
+                TopLevelFragmentType::Object(_) | TopLevelFragmentType::ArrayWithObject(_) | TopLevelFragmentType::Result(_) | TopLevelFragmentType::ArrayWithResult(_),
             ))
             | None => (),
         }
@@ -2714,14 +2861,25 @@ impl Writer for ReScriptPrinter {
         // for those key top level objects and treat them specially.
 
         if name.ends_with("$data") {            
-            match classify_top_level_object_type_ast(&value) {
-                Some((nullable, ClassifiedTopLevelObjectType::Object(props))) => {
+            let cto = classify_top_level_object_type_ast(&value);
+            match cto {
+                Some((nullable, ClassifiedTopLevelObjectType::Object(props) | ClassifiedTopLevelObjectType::Result(props))) => {
                     let context = match &self.typegen_definition {
                         DefinitionType::Fragment(_) => Context::Fragment,
                         _ => Context::Response,
                     };
 
-                    let current_path = vec![root_name_from_context(&context)];
+                    let is_result = match cto {
+                        Some((_, ClassifiedTopLevelObjectType::Result(_))) => true,
+                        _ => false
+                    };
+
+                    let mut current_path = vec![root_name_from_context(&context)];
+
+                    if is_result {
+                        current_path.push(String::from("value"));
+                    }
+
                     let object_props = get_object_props(self, &current_path, &props, false, &context);
 
                     let record_name = path_to_name(&current_path);
@@ -2738,21 +2896,40 @@ impl Writer for ReScriptPrinter {
                     match &self.typegen_definition {
                         DefinitionType::Fragment(_) => {
                             self.fragment =
-                                Some((nullable, TopLevelFragmentType::Object(main_data_type)));
+                                Some((nullable, if is_result { 
+                                    TopLevelFragmentType::Result(main_data_type) 
+                                } else { 
+                                    TopLevelFragmentType::Object(main_data_type) 
+                                }));
                         }
                         _ => {
-                            self.response = Some((nullable, main_data_type));
+                            self.response = 
+                                Some((nullable, if is_result {
+                                    TopLevelResponseType::Result(main_data_type)
+                                } else {
+                                    TopLevelResponseType::Object(main_data_type)
+                                }));
                         }
                     };
 
                     Ok(())
                 }
-                Some((nullable, ClassifiedTopLevelObjectType::ArrayWithObject(props))) => {
+                Some((nullable, ClassifiedTopLevelObjectType::ArrayWithObject(props) | ClassifiedTopLevelObjectType::ArrayWithResult(props))) => {
                     let context = match &self.typegen_definition {
                         DefinitionType::Fragment(_) => Context::Fragment,
                         _ => Context::Response,
                     };
-                    let current_path = vec![root_name_from_context(&context)];
+
+                    let is_result = match cto {
+                        Some((_, ClassifiedTopLevelObjectType::Result(_))) => true,
+                        _ => false
+                    };
+
+                    let mut current_path = vec![root_name_from_context(&context)];
+
+                    if is_result {
+                        current_path.push(String::from("value"));
+                    }
 
                     let record_name = path_to_name(&current_path);
                     let fragment_type = Object {
@@ -2767,7 +2944,11 @@ impl Writer for ReScriptPrinter {
 
                     self.fragment = Some((
                         nullable,
-                        TopLevelFragmentType::ArrayWithObject(fragment_type),
+                        if is_result {
+                            TopLevelFragmentType::ArrayWithResult(fragment_type)
+                        } else {
+                            TopLevelFragmentType::ArrayWithObject(fragment_type)
+                        },
                     ));
                     Ok(())
                 }
