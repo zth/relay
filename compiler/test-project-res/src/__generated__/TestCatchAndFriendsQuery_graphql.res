@@ -6,6 +6,7 @@ module Types = {
 
   type rec response_loggedInUser = {
     avatarUrl: RescriptRelay.CatchResult.t<string>,
+    isOnline: RescriptRelay.CatchResult.t<option<bool>>,
   }
   type response = {
     loggedInUser: response_loggedInUser,
@@ -88,6 +89,13 @@ var v0 = {
   "kind": "ScalarField",
   "name": "avatarUrl",
   "storageKey": null
+},
+v1 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "isOnline",
+  "storageKey": null
 };
 return {
   "fragment": {
@@ -107,6 +115,11 @@ return {
           {
             "kind": "CatchField",
             "field": (v0/*: any*/),
+            "to": "RESULT"
+          },
+          {
+            "kind": "CatchField",
+            "field": (v1/*: any*/),
             "to": "RESULT"
           }
         ],
@@ -131,6 +144,7 @@ return {
         "plural": false,
         "selections": [
           (v0/*: any*/),
+          (v1/*: any*/),
           {
             "alias": null,
             "args": null,
@@ -144,12 +158,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "ed195a41a45830b2c899a233d7d23a90",
+    "cacheID": "ff8cfa8f60adc3047cf8670a539bb64a",
     "id": null,
     "metadata": {},
     "name": "TestCatchAndFriendsQuery",
     "operationKind": "query",
-    "text": "query TestCatchAndFriendsQuery {\n  loggedInUser {\n    avatarUrl\n    id\n  }\n}\n"
+    "text": "query TestCatchAndFriendsQuery {\n  loggedInUser {\n    avatarUrl\n    isOnline\n    id\n  }\n}\n"
   }
 };
 })() `)

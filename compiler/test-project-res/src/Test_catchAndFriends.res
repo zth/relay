@@ -2,6 +2,7 @@ module Query = %relay(`
   query TestCatchAndFriendsQuery {
     loggedInUser {
       avatarUrl @catch
+      isOnline @catch
     }
   }
 `)
@@ -14,7 +15,7 @@ module Query = %relay(`
         id
         memberOfSingular @catch {
           ... on User {
-            createdAt
+            createdAt @required(action: THROW)
           }
         }
       }

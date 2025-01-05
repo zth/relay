@@ -190,7 +190,7 @@ fn ast_to_prop_value(
                     current_path.to_vec(),
                     ok_ast,
                     key,
-                    false,
+                    is_nullable,
                     found_in_union,
                     found_in_array,
                     context,
@@ -205,7 +205,7 @@ fn ast_to_prop_value(
                             original_key,
                             comment: None,
                             nullable: is_nullable,
-                            prop_type: Box::new(PropType::Result(prop_value.prop_type))
+                            prop_type: Box::new(PropType::Result((prop_value.nullable, prop_value.prop_type)))
                         })
                     }
                 }
@@ -676,16 +676,22 @@ fn get_object_prop_type_as_string(
     field_path_name: &Vec<String>,
 ) -> String {
     match &prop_value {
-        &PropType::Result(value) =>  {
+        &PropType::Result((is_nullable, value)) =>  {
+            let type_as_string = get_object_prop_type_as_string(
+                state,
+                value.as_ref(),
+                &context,
+                indentation,
+                field_path_name
+            );
+
             format!(
-                "RescriptRelay.CatchResult.t<{}>", 
-                get_object_prop_type_as_string(
-                    state,
-                    value.as_ref(),
-                    &context,
-                    indentation,
-                    field_path_name
-                )
+                "RescriptRelay.CatchResult.t<{}>",
+                if *is_nullable {
+                    format!("option<{}>", type_as_string)
+                } else {
+                    type_as_string
+                }
             )
         },
         &PropType::DataId => String::from("RescriptRelay.dataId"),

@@ -18,13 +18,13 @@ module Types = {
       {
         @live __typename: [ | #User],
         @live id: string,
-        memberOfSingular: RescriptRelay.CatchResult.t<response_member_value_User_memberOfSingular_value>,
+        memberOfSingular: RescriptRelay.CatchResult.t<option<response_member_value_User_memberOfSingular_value>>,
       }
     )
     | @live @as("__unselected") UnselectedUnionMember(string)
 
   type response = {
-    member: RescriptRelay.CatchResult.t<response_member_value>,
+    member: RescriptRelay.CatchResult.t<option<response_member_value>>,
   }
   @live
   type rawResponse = response
@@ -136,18 +136,11 @@ v2 = {
   "storageKey": null
 },
 v3 = {
-  "kind": "InlineFragment",
-  "selections": [
-    {
-      "alias": null,
-      "args": null,
-      "kind": "ScalarField",
-      "name": "createdAt",
-      "storageKey": null
-    }
-  ],
-  "type": "User",
-  "abstractKey": null
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "createdAt",
+  "storageKey": null
 },
 v4 = [
   (v2/*: any*/)
@@ -197,7 +190,18 @@ return {
                     "plural": false,
                     "selections": [
                       (v1/*: any*/),
-                      (v3/*: any*/)
+                      {
+                        "kind": "InlineFragment",
+                        "selections": [
+                          {
+                            "kind": "RequiredField",
+                            "field": (v3/*: any*/),
+                            "action": "THROW"
+                          }
+                        ],
+                        "type": "User",
+                        "abstractKey": null
+                      }
                     ],
                     "storageKey": null
                   },
@@ -244,7 +248,14 @@ return {
                 "plural": false,
                 "selections": [
                   (v1/*: any*/),
-                  (v3/*: any*/),
+                  {
+                    "kind": "InlineFragment",
+                    "selections": [
+                      (v3/*: any*/)
+                    ],
+                    "type": "User",
+                    "abstractKey": null
+                  },
                   (v5/*: any*/),
                   (v6/*: any*/)
                 ],

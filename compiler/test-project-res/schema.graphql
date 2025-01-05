@@ -63,7 +63,7 @@ type User implements Node {
   id: ID!
   firstName: String!
   lastName: String!
-  avatarUrl: String
+  avatarUrl: String @semanticNonNull
   isOnline: Boolean
   private: Boolean
   description: RichContent
