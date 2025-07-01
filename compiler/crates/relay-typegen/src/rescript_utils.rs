@@ -129,6 +129,7 @@ pub enum ClassifiedTopLevelObjectType<'a> {
     Object(&'a Vec<Prop>),
     Result(&'a Vec<Prop>),
     Union(&'a Vec<AST>),
+    ResultWithUnion(&'a Vec<AST>),
     ArrayWithObject(&'a Vec<Prop>),
     ArrayWithUnion(&'a Vec<AST>),
     ArrayWithResult(&'a Vec<Prop>),
@@ -179,6 +180,10 @@ pub fn classify_top_level_object_type_ast(
                     &AST::ExactObject(props) => {
                         Some((nullable, ClassifiedTopLevelObjectType::Result(&props)))
                     }
+                    &AST::Union(members) => Some((
+                        nullable,
+                        ClassifiedTopLevelObjectType::ResultWithUnion(&members),
+                    )),
                     &AST::ReadOnlyArray(inner_ast) => match &inner_ast.as_ref() {
                         &AST::ExactObject(props) => Some((
                             nullable,
@@ -544,37 +549,34 @@ pub fn print_type_reference(
                         }
                     )
                 }
-                Type::Scalar(id) => format!("{}", match schema
-                    .scalar(*id)
-                    .name
-                    .item
-                    .to_string()
-                    .as_str()
-                {
-                    "Boolean" => String::from("bool"),
-                    "Int" => String::from("int"),
-                    "Float" => String::from("float"),
-                    "String" | "ID" => String::from("string"),
-                    custom_scalar => {
-                        let is_custom_scalar = custom_scalar_types
-                            .get(&ScalarName(custom_scalar.to_string().intern()))
-                            .is_some();
+                Type::Scalar(id) => format!(
+                    "{}",
+                    match schema.scalar(*id).name.item.to_string().as_str() {
+                        "Boolean" => String::from("bool"),
+                        "Int" => String::from("int"),
+                        "Float" => String::from("float"),
+                        "String" | "ID" => String::from("string"),
+                        custom_scalar => {
+                            let is_custom_scalar = custom_scalar_types
+                                .get(&ScalarName(custom_scalar.to_string().intern()))
+                                .is_some();
 
-                        if is_custom_scalar {
-                            let custom_scalar_name =
-                                get_custom_scalar_name(&custom_scalar_types, &custom_scalar);
+                            if is_custom_scalar {
+                                let custom_scalar_name =
+                                    get_custom_scalar_name(&custom_scalar_types, &custom_scalar);
 
-                            match classify_rescript_value_string(&custom_scalar_name) {
-                                RescriptCustomTypeValue::Module => {
-                                    format!("{}.t", custom_scalar_name)
+                                match classify_rescript_value_string(&custom_scalar_name) {
+                                    RescriptCustomTypeValue::Module => {
+                                        format!("{}.t", custom_scalar_name)
+                                    }
+                                    RescriptCustomTypeValue::Type => custom_scalar_name.to_string(),
                                 }
-                                RescriptCustomTypeValue::Type => custom_scalar_name.to_string(),
+                            } else {
+                                String::from("RescriptRelay.any")
                             }
-                        } else {
-                            String::from("RescriptRelay.any")
                         }
                     }
-                }),
+                ),
                 Type::Object(id) => {
                     let object = schema.object(*id);
                     let weak = object
@@ -835,14 +837,16 @@ pub fn get_connection_key_maker(
                         )
                     },
                     match (&default_value, &variable.type_) {
-                        (Some(default_value), _) =>
-                            format!("={}", match dig_type_ref(&variable.type_) {
+                        (Some(default_value), _) => format!(
+                            "={}",
+                            match dig_type_ref(&variable.type_) {
                                 Type::InputObject(_) => format!(
                                     "{}",
                                     print_constant_value(&default_value.item, false, false, false)
                                 ),
                                 _ => print_constant_value(&default_value.item, false, false, false),
-                            }),
+                            }
+                        ),
                         (None, TypeReference::List(_) | TypeReference::Named(_)) =>
                             String::from("=?"),
                         (None, TypeReference::NonNull(_)) => String::from(""),

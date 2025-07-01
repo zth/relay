@@ -30,6 +30,7 @@ pub enum TopLevelFragmentType {
     Object(Object),
     Result(Object),
     Union(Union),
+    ResultWithUnion(Union),
     ArrayWithObject(Object),
     ArrayWithResult(Object),
     ArrayWithUnion(Union),
@@ -1759,6 +1760,35 @@ fn write_fragment_definition(
                 .unwrap();
             }
         }
+        &TopLevelFragmentType::ResultWithUnion(union) => {
+            if nullable {
+                write_union_definition(
+                    state,
+                    str,
+                    &context,
+                    indentation,
+                    &union,
+                    Some(String::from("fragment_t")),
+                    &ObjectPrintMode::Standalone,
+                )
+                .unwrap();
+                write_indentation(str, indentation).unwrap();
+                writeln!(str, "type fragment = RescriptRelay.CatchResult.t<option<fragment_t>>").unwrap()
+            } else {
+                write_union_definition(
+                    state,
+                    str,
+                    &context,
+                    indentation,
+                    &union,
+                    Some(String::from("fragment_t")),
+                    &ObjectPrintMode::Standalone,
+                )
+                .unwrap();
+                write_indentation(str, indentation).unwrap();
+                writeln!(str, "type fragment = RescriptRelay.CatchResult.t<fragment_t>").unwrap()
+            }
+        }
         &TopLevelFragmentType::ArrayWithUnion(union) => {
             write_union_definition(
                 state,
@@ -2357,6 +2387,7 @@ impl Writer for ReScriptPrinter {
             Some((
                 _,
                 TopLevelFragmentType::Union(fragment_union)
+                | TopLevelFragmentType::ResultWithUnion(fragment_union)
                 | TopLevelFragmentType::ArrayWithUnion(fragment_union),
             )) => {
                 write_union_converters(&mut generated_types, indentation, &fragment_union).unwrap();
@@ -2981,6 +3012,34 @@ impl Writer for ReScriptPrinter {
 
                     self.fragment =
                         Some((nullable, TopLevelFragmentType::Union(fragment_union_type)));
+                    Ok(())
+                }
+                Some((nullable, ClassifiedTopLevelObjectType::ResultWithUnion(members_raw))) => {
+                    let context = Context::Fragment;
+
+                    let mut current_path = vec![root_name_from_context(&context)];
+                    current_path.push(String::from("value"));
+                    let record_name = String::from("fragment_t");
+                    let (union_members, include_catch_all) =
+                        extract_union_members(self, &current_path, members_raw, &context);
+                    let fragment_union_type = Union {
+                        include_catch_all,
+                        at_path: current_path.clone(),
+                        comment: None,
+                        record_name: record_name.to_string(),
+                        members: union_members,
+                    };
+
+                    self.conversion_instructions.push(InstructionContainer {
+                        context: context.clone(),
+                        at_path: current_path.clone(),
+                        instruction: ConverterInstructions::ConvertUnion(String::from("fragment_t")),
+                    });
+
+                    self.fragment = Some((
+                        nullable,
+                        TopLevelFragmentType::ResultWithUnion(fragment_union_type),
+                    ));
                     Ok(())
                 }
                 Some((nullable, ClassifiedTopLevelObjectType::ArrayWithUnion(members_raw))) => {

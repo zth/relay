@@ -44,6 +44,17 @@ module LoggedInUserFragment = %relay(`
 `)
 
 module LoggedInUserFragment = %relay(`
+  fragment TestCatchAndFriendsUser_member on Member @catch {
+    ... on User {
+      id
+    }
+    ... on Group {
+      id
+    }
+  }
+`)
+
+module LoggedInUserFragment = %relay(`
   fragment TestCatchAndFriendsUserPlural_user on User @relay(plural: true) @catch {
     createdAt
   }
