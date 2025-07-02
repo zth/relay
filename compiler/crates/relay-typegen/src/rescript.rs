@@ -5,21 +5,29 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::fmt::Result;
+use std::fmt::Write;
+
 use common::rescript_utils::get_module_name_from_file_path;
-use fnv::{FnvHashMap, FnvHashSet};
-use graphql_ir::{FragmentDefinition, OperationDefinition};
+use fnv::FnvHashMap;
+use fnv::FnvHashSet;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::OperationDefinition;
 use graphql_syntax::OperationKind;
 use intern::string_key::Intern;
 use itertools::Itertools;
-use log::{debug, warn};
+use log::debug;
+use log::warn;
 
 use crate::rescript_ast::*;
-use crate::rescript_relay_visitor::{
-    RescriptRelayFragmentDirective, RescriptRelayOperationMetaData, RescriptRelayOperationDirective,
-};
+use crate::rescript_relay_visitor::RescriptRelayFragmentDirective;
+use crate::rescript_relay_visitor::RescriptRelayOperationDirective;
+use crate::rescript_relay_visitor::RescriptRelayOperationMetaData;
 use crate::rescript_utils::*;
-use crate::writer::{KeyValuePairProp, Prop, Writer, AST};
-use std::fmt::{Result, Write};
+use crate::writer::AST;
+use crate::writer::KeyValuePairProp;
+use crate::writer::Prop;
+use crate::writer::Writer;
 
 // Fragments in Relay can be on either an abstract type (union/interface) or on
 // a concrete type (object). It can also be plural, meaning it's an array. This
@@ -137,7 +145,7 @@ fn ast_to_prop_value(
     found_in_union: bool,
     found_in_array: bool,
     context: &Context,
-    is_from_result: bool
+    is_from_result: bool,
 ) -> Option<PropValue> {
     let (nullable, value) = unwrap_ast(ast);
     let is_nullable = nullable || optional;
@@ -182,7 +190,7 @@ fn ast_to_prop_value(
     }
 
     match value {
-        AST::GenericType { outer, inner } =>  {
+        AST::GenericType { outer, inner } => {
             if outer.eq(&"Result".intern()) {
                 let ok_ast = inner.get(0).unwrap();
 
@@ -195,26 +203,26 @@ fn ast_to_prop_value(
                     found_in_union,
                     found_in_array,
                     context,
-                    true
+                    true,
                 );
-                
+
                 match ok_prop_value {
                     None => None,
-                    Some(prop_value) => {
-                        Some(PropValue {
-                            key: safe_key,
-                            original_key,
-                            comment: None,
-                            nullable: is_nullable,
-                            prop_type: Box::new(PropType::Result((prop_value.nullable, prop_value.prop_type)))
-                        })
-                    }
+                    Some(prop_value) => Some(PropValue {
+                        key: safe_key,
+                        original_key,
+                        comment: None,
+                        nullable: is_nullable,
+                        prop_type: Box::new(PropType::Result((
+                            prop_value.nullable,
+                            prop_value.prop_type,
+                        ))),
+                    }),
                 }
-
             } else {
                 None
             }
-        },
+        }
         AST::Boolean => Some(PropValue {
             key: safe_key,
             original_key,
@@ -266,7 +274,7 @@ fn ast_to_prop_value(
                 found_in_union,
                 true,
                 context,
-                is_from_result
+                is_from_result,
             ) {
                 None => {
                     warn!("Could not extract type from array. This should not happen.");
@@ -287,7 +295,8 @@ fn ast_to_prop_value(
         AST::ExactObject(props) => {
             let record_name = path_to_name(&new_at_path);
 
-            let object_props = get_object_props(state, &new_at_path, props, found_in_union, context);
+            let object_props =
+                get_object_props(state, &new_at_path, props, found_in_union, context);
 
             // Handle @alias fragments. No need to artificially nest them inside of an object
             // for the sake of type safety.
@@ -303,8 +312,10 @@ fn ast_to_prop_value(
                                         original_key,
                                         comment: None,
                                         nullable: is_nullable,
-                                        prop_type: Box::new(PropType::FragmentSpreads(spreads.clone())),
-                                    })
+                                        prop_type: Box::new(PropType::FragmentSpreads(
+                                            spreads.clone(),
+                                        )),
+                                    });
                                 }
                             }
                         }
@@ -319,7 +330,7 @@ fn ast_to_prop_value(
                 values: object_props,
                 found_in_union,
                 original_type_name: None,
-                is_union_member_inline_obj: false
+                is_union_member_inline_obj: false,
             };
 
             state.objects.push(obj);
@@ -333,7 +344,8 @@ fn ast_to_prop_value(
             })
         }
         AST::Union(members) => {
-            let (union_members, include_catch_all) = extract_union_members(state, &new_at_path, members, context);
+            let (union_members, include_catch_all) =
+                extract_union_members(state, &new_at_path, members, context);
 
             let union_record_name = path_to_name(&new_at_path);
             let union = Union {
@@ -393,7 +405,7 @@ fn ast_to_prop_value(
                                 at_path: new_at_path,
                                 instruction: ConverterInstructions::ConvertCustomField(
                                     identifier.to_string(),
-                                    found_in_array
+                                    found_in_array,
                                 ),
                             });
                             is_custom_scalar_that_needs_conversion = true;
@@ -407,7 +419,9 @@ fn ast_to_prop_value(
                                 state.conversion_instructions.push(InstructionContainer {
                                     context: context.clone(),
                                     at_path: new_at_path,
-                                    instruction: ConverterInstructions::BlockTraversal(found_in_array),
+                                    instruction: ConverterInstructions::BlockTraversal(
+                                        found_in_array,
+                                    ),
                                 });
                             }
                         }
@@ -416,19 +430,26 @@ fn ast_to_prop_value(
                     Some(PropValue {
                         key: safe_key,
                         original_key,
-                        comment: 
-                            if state.operation_meta_data.is_updatable && is_custom_scalar_that_needs_conversion {
-                                Some(format!("This is the raw, not parsed value of the custom scalar `{}.t`. In updatable fragments you need to convert to and from the custom scalar manually as you read and make updates to it.", identifier))
-                            } else {
-                                None
-                            },
+                        comment: if state.operation_meta_data.is_updatable
+                            && is_custom_scalar_that_needs_conversion
+                        {
+                            Some(format!(
+                                "This is the raw, not parsed value of the custom scalar `{}.t`. In updatable fragments you need to convert to and from the custom scalar manually as you read and make updates to it.",
+                                identifier
+                            ))
+                        } else {
+                            None
+                        },
                         nullable: is_nullable,
                         prop_type: Box::new(PropType::RawIdentifier(
-                            if state.operation_meta_data.is_updatable && is_custom_scalar_that_needs_conversion {
-                                String::from("Js.Json.t") 
+                            if state.operation_meta_data.is_updatable
+                                && is_custom_scalar_that_needs_conversion
+                            {
+                                String::from("Js.Json.t")
                             } else {
                                 identifier
-                            })),
+                            },
+                        )),
                     })
                 }
             };
@@ -483,9 +504,7 @@ fn ast_to_prop_value(
             // These are ignored for now, but might be supported in the future.
             None
         }
-        AST::AssertFunctionType(_) => {
-            None
-        },
+        AST::AssertFunctionType(_) => None,
         _ => None,
     }
 }
@@ -510,7 +529,7 @@ fn extract_union_members(
                         match (&key_value_pair.key.to_string()[..], &key_value_pair.value) {
                             ("__typename", AST::StringLiteral(typename)) => {
                                 Some(typename.to_string())
-                            },
+                            }
                             ("__typename", AST::OtherTypename) => {
                                 has_catch_all = true;
                                 None
@@ -535,7 +554,7 @@ fn extract_union_members(
                         values: member_fields,
                         found_in_union: true,
                         original_type_name: None,
-                        is_union_member_inline_obj: true
+                        is_union_member_inline_obj: true,
                     };
 
                     state.objects.push(union_member_shape.clone());
@@ -543,7 +562,7 @@ fn extract_union_members(
                     Some(UnionMember {
                         typename: member_type,
                         member_record_name: union_member_record_name.to_string(),
-                        object: union_member_shape
+                        object: union_member_shape,
                     })
                 } else {
                     None
@@ -567,7 +586,7 @@ fn get_object_props(
         .iter()
         .filter_map(|prop| match &prop {
             &Prop::Spread(_) => None,
-            &Prop::GetterSetterPair(getter_setter_pair) => {                
+            &Prop::GetterSetterPair(getter_setter_pair) => {
                 let key = getter_setter_pair.key.to_string();
                 ast_to_prop_value(
                     state,
@@ -578,7 +597,7 @@ fn get_object_props(
                     found_in_union,
                     false,
                     context,
-                    false
+                    false,
                 )
             }
             &Prop::KeyValuePair(key_value_pair) => {
@@ -607,7 +626,8 @@ fn get_object_props(
 
                         let spreads = extract_fragments_from_fragment_spread(&key_value_pair.value);
                         // Special case for @alias, no conversion instructions needed
-                        let is_aliased_spread = spreads.len() == 1 && spreads.get(0).unwrap().is_aliased;
+                        let is_aliased_spread =
+                            spreads.len() == 1 && spreads.get(0).unwrap().is_aliased;
                         if !is_aliased_spread {
                             // Add a conversion instruction for this path
                             state.conversion_instructions.push(InstructionContainer {
@@ -659,7 +679,7 @@ fn get_object_props(
                                 found_in_union,
                                 false,
                                 context,
-                                false
+                                false,
                             )
                         }
                     }
@@ -677,13 +697,13 @@ fn get_object_prop_type_as_string(
     field_path_name: &Vec<String>,
 ) -> String {
     match &prop_value {
-        &PropType::Result((is_nullable, value)) =>  {
+        &PropType::Result((is_nullable, value)) => {
             let type_as_string = get_object_prop_type_as_string(
                 state,
                 value.as_ref(),
                 &context,
                 indentation,
-                field_path_name
+                field_path_name,
             );
 
             format!(
@@ -694,7 +714,7 @@ fn get_object_prop_type_as_string(
                     type_as_string
                 }
             )
-        },
+        }
         &PropType::DataId => String::from("RescriptRelay.dataId"),
         &PropType::Enum(enum_name) => {
             let has_allow_unsafe_enum_directive = state
@@ -721,9 +741,11 @@ fn get_object_prop_type_as_string(
                                 warn!("Did not find enum");
                                 String::from("invalid_enum")
                             }
-                            Some(full_enum) => format!("RelaySchemaAssets_graphql.enum_{}_input", full_enum.name),
+                            Some(full_enum) => {
+                                format!("RelaySchemaAssets_graphql.enum_{}_input", full_enum.name)
+                            }
                         }
-                    },
+                    }
                     _ => format!("RelaySchemaAssets_graphql.enum_{}", enum_name),
                 }
             }
@@ -885,11 +907,7 @@ fn write_enum_util_functions(str: &mut String, indentation: usize, full_enum: &F
     write_indentation(str, indentation + 2).unwrap();
     writeln!(str, "| FutureAddedValue(_) => None",).unwrap();
     write_indentation(str, indentation + 2).unwrap();
-    writeln!(
-        str,
-        "| valid => Some(Obj.magic(valid))"
-    )
-    .unwrap();
+    writeln!(str, "| valid => Some(Obj.magic(valid))").unwrap();
     write_indentation(str, indentation + 1).unwrap();
     writeln!(str, "}}",).unwrap();
     write_indentation(str, indentation).unwrap();
@@ -915,7 +933,13 @@ fn write_enum_util_functions(str: &mut String, indentation: usize, full_enum: &F
     Ok(())
 }
 
-fn write_union_definition_body(state: &Box<ReScriptPrinter>, str: &mut String, indentation: usize, union: &Union, context: &Context,) -> Result {
+fn write_union_definition_body(
+    state: &Box<ReScriptPrinter>,
+    str: &mut String,
+    indentation: usize,
+    union: &Union,
+    context: &Context,
+) -> Result {
     for member in &union.members {
         write_indentation(str, indentation + 1).unwrap();
         let name_capitalized = capitalize_string(&member.typename);
@@ -932,16 +956,31 @@ fn write_union_definition_body(state: &Box<ReScriptPrinter>, str: &mut String, i
         .unwrap();
 
         write_indentation(str, indentation + 2).unwrap();
-        write_object_definition_body(state, str, indentation + 2, &member.object, &context, false, false).unwrap();
+        write_object_definition_body(
+            state,
+            str,
+            indentation + 2,
+            &member.object,
+            &context,
+            false,
+            false,
+        )
+        .unwrap();
         write_indentation(str, indentation + 1).unwrap();
         writeln!(str, ")").unwrap();
     }
 
-    if state.operation_meta_data.is_updatable /*|| union.include_catch_all == false TODO: Fix at some point*/ {
+    if state.operation_meta_data.is_updatable
+    /*|| union.include_catch_all == false TODO: Fix at some point*/
+    {
         ()
     } else {
         write_indentation(str, indentation + 1).unwrap();
-        writeln!(str, "| @live @as(\"__unselected\") UnselectedUnionMember(string)").unwrap();
+        writeln!(
+            str,
+            "| @live @as(\"__unselected\") UnselectedUnionMember(string)"
+        )
+        .unwrap();
         writeln!(str, "").unwrap();
     }
 
@@ -1337,9 +1376,14 @@ fn write_union_converters(str: &mut String, indentation: usize, union: &Union) -
     writeln!(
         str,
         "let unwrap_{}: Types.{} => Types.{} = RescriptRelay_Internal.unwrapUnion(_, [{}])",
-        union.record_name, union.record_name, union.record_name, union.members.iter().map(|member| {
-            format!("\"{}\"", &member.typename)
-        }).join(", ")
+        union.record_name,
+        union.record_name,
+        union.record_name,
+        union
+            .members
+            .iter()
+            .map(|member| { format!("\"{}\"", &member.typename) })
+            .join(", ")
     )
     .unwrap();
 
@@ -1368,7 +1412,7 @@ enum ObjectPrintMode {
 pub enum NullabilityMode {
     Option,
     Nullable,
-    NullAndUndefined
+    NullAndUndefined,
 }
 
 fn write_record_type_start(
@@ -1398,23 +1442,32 @@ fn write_object_definition_body(
     object: &Object,
     context: &Context,
     is_refetch_var: bool,
-    output_as_optional_fields: bool
+    output_as_optional_fields: bool,
 ) -> Result {
     // This isn't toggleable yet, but a preparation for if we want to have a directive
     // that makes an updatable fragment or operation safer, by making almost everything
     // in it nullable.
     let use_safe_updatable = false;
 
-    let nullability = match (state.operation_meta_data.operation_directives.contains(&RescriptRelayOperationDirective::NullableVariables), context, state.operation_meta_data.is_updatable) {
+    let nullability = match (
+        state
+            .operation_meta_data
+            .operation_directives
+            .contains(&RescriptRelayOperationDirective::NullableVariables),
+        context,
+        state.operation_meta_data.is_updatable,
+    ) {
         (true, &Context::Variables | &Context::RootObject(_), _) => NullabilityMode::Nullable,
-        (_, _, true) => if use_safe_updatable {
-            NullabilityMode::Nullable
-        } else {
-            NullabilityMode::NullAndUndefined
-        },
+        (_, _, true) => {
+            if use_safe_updatable {
+                NullabilityMode::Nullable
+            } else {
+                NullabilityMode::NullAndUndefined
+            }
+        }
         _ => NullabilityMode::Option,
     };
-    
+
     writeln!(str, "{{").unwrap();
 
     let in_object_indentation = indentation + 1;
@@ -1431,17 +1484,32 @@ fn write_object_definition_body(
         let mut field_path_name = object.at_path.clone();
         field_path_name.push(prop.key.to_owned());
 
-        let prop_that_always_exists = &*prop.key == "__typename" || &*prop.key == "__id" || &*prop.key == "fragmentRefs";
+        let prop_that_always_exists =
+            &*prop.key == "__typename" || &*prop.key == "__id" || &*prop.key == "fragmentRefs";
 
-        let write_as_mutable = match (state.operation_meta_data.is_updatable, &*prop.prop_type, prop_that_always_exists, &context) {
+        let write_as_mutable = match (
+            state.operation_meta_data.is_updatable,
+            &*prop.prop_type,
+            prop_that_always_exists,
+            &context,
+        ) {
             (_, _, true, _) | (_, _, _, &Context::Variables) => false,
-            (true, PropType::RawIdentifier(_) | PropType::Scalar(_)| PropType::StringLiteral(_) | PropType::Array(_) | PropType::Enum(_), _, _) => true,
-            _ => false
+            (
+                true,
+                PropType::RawIdentifier(_)
+                | PropType::Scalar(_)
+                | PropType::StringLiteral(_)
+                | PropType::Array(_)
+                | PropType::Enum(_),
+                _,
+                _,
+            ) => true,
+            _ => false,
         };
 
         let can_apply_updatable_optionality = match &context {
             Context::Fragment | Context::Response => true,
-            _ => false
+            _ => false,
         };
 
         write_indentation(str, in_object_indentation).unwrap();
@@ -1449,7 +1517,11 @@ fn write_object_definition_body(
             str,
             "{}{}{}{}{}{}: {},",
             if let Some(comment) = &prop.comment {
-                format!("/** {} */\n{}", comment, &"  ".repeat(in_object_indentation))
+                format!(
+                    "/** {} */\n{}",
+                    comment,
+                    &"  ".repeat(in_object_indentation)
+                )
             } else {
                 String::from("")
             },
@@ -1462,9 +1534,7 @@ fn write_object_definition_body(
                     .operation_meta_data
                     .fragment_directives
                     .iter()
-                    .find(|directive| {
-                        *directive == &RescriptRelayFragmentDirective::IgnoreUnused
-                    })
+                    .find(|directive| *directive == &RescriptRelayFragmentDirective::IgnoreUnused)
                     .is_some();
                 match (should_ignore_all_unused, &prop.key[..]) {
                     (true, _) | (false, "id" | "__id" | "__typename") => "@live ",
@@ -1480,30 +1550,29 @@ fn write_object_definition_body(
                 None => String::from(""),
                 Some(original_key) => format!("@as(\"{}\") ", original_key),
             },
-            if write_as_mutable {
-                "mutable "
-            } else {
-                ""
-            },
+            if write_as_mutable { "mutable " } else { "" },
             prop.key,
-            if state.operation_meta_data.is_updatable && can_apply_updatable_optionality && use_safe_updatable {
-                if prop_that_always_exists {
-                    ""
-                } else {
-                    "?"
-                }
+            if state.operation_meta_data.is_updatable
+                && can_apply_updatable_optionality
+                && use_safe_updatable
+            {
+                if prop_that_always_exists { "" } else { "?" }
             } else {
                 if output_as_optional_fields && prop.nullable {
                     "?"
                 } else {
-                    match (&nullability, prop.nullable, state.operation_meta_data.is_updatable) {
+                    match (
+                        &nullability,
+                        prop.nullable,
+                        state.operation_meta_data.is_updatable,
+                    ) {
                         (NullabilityMode::Nullable, true, false) => "?",
-                        _ => ""
+                        _ => "",
                     }
                 }
             },
-            // This messy part decides how to print the actual value. We have quite a few variants 
-            // here (option, Nullable.t, plain, plain depending on optional fields, etc) so I've 
+            // This messy part decides how to print the actual value. We have quite a few variants
+            // here (option, Nullable.t, plain, plain depending on optional fields, etc) so I've
             // opted to have some logic here I feel is clear, but maybe not the most efficient.
             match (prop.nullable, is_refetch_var) {
                 (true, true) => format!(
@@ -1518,13 +1587,16 @@ fn write_object_definition_body(
                 ),
                 (true, false) | (false, true) => format!(
                     "{}",
-                    if output_as_optional_fields && prop.nullable && nullability == NullabilityMode::Option {
+                    if output_as_optional_fields
+                        && prop.nullable
+                        && nullability == NullabilityMode::Option
+                    {
                         get_object_prop_type_as_string(
                             state,
                             &prop.prop_type,
                             &context,
                             indentation,
-                            &field_path_name
+                            &field_path_name,
                         )
                     } else {
                         print_opt(
@@ -1533,10 +1605,10 @@ fn write_object_definition_body(
                                 &prop.prop_type,
                                 &context,
                                 indentation,
-                                &field_path_name
+                                &field_path_name,
                             ),
-                            true, 
-                            &nullability
+                            true,
+                            &nullability,
                         )
                     }
                 ),
@@ -1570,7 +1642,7 @@ fn write_object_definition(
     override_name: Option<String>,
     context: &Context,
     is_refetch_var: bool,
-    output_as_optional_fields: bool
+    output_as_optional_fields: bool,
 ) -> Result {
     let is_generated_operation = match &state.typegen_definition {
         DefinitionType::Operation((
@@ -1613,7 +1685,15 @@ fn write_object_definition(
         writeln!(str, "unit").unwrap();
         return Ok(());
     } else {
-        write_object_definition_body(state, str, indentation, &object, &context, is_refetch_var, output_as_optional_fields)
+        write_object_definition_body(
+            state,
+            str,
+            indentation,
+            &object,
+            &context,
+            is_refetch_var,
+            output_as_optional_fields,
+        )
     }
 }
 
@@ -1637,7 +1717,7 @@ fn write_fragment_definition(
                     Some(String::from("fragment_t")),
                     &context,
                     false,
-                    false
+                    false,
                 )
                 .unwrap();
 
@@ -1653,7 +1733,7 @@ fn write_fragment_definition(
                     None,
                     &context,
                     false,
-                    false
+                    false,
                 )
                 .unwrap();
             }
@@ -1669,12 +1749,16 @@ fn write_fragment_definition(
                     Some(String::from("fragment_t")),
                     &context,
                     false,
-                    false
+                    false,
                 )
                 .unwrap();
 
                 write_indentation(str, indentation).unwrap();
-                writeln!(str, "type fragment = RescriptRelay.CatchResult.t<option<fragment_t>>").unwrap()
+                writeln!(
+                    str,
+                    "type fragment = RescriptRelay.CatchResult.t<option<fragment_t>>"
+                )
+                .unwrap()
             } else {
                 write_object_definition(
                     state,
@@ -1685,12 +1769,16 @@ fn write_fragment_definition(
                     Some(String::from("fragment_t")),
                     &context,
                     false,
-                    false
+                    false,
                 )
                 .unwrap();
 
                 write_indentation(str, indentation).unwrap();
-                writeln!(str, "type fragment = RescriptRelay.CatchResult.t<fragment_t>").unwrap()
+                writeln!(
+                    str,
+                    "type fragment = RescriptRelay.CatchResult.t<fragment_t>"
+                )
+                .unwrap()
             }
         }
         &TopLevelFragmentType::ArrayWithObject(obj) => {
@@ -1703,7 +1791,7 @@ fn write_fragment_definition(
                 Some(String::from("fragment_t")),
                 &context,
                 false,
-                false
+                false,
             )
             .unwrap();
             write_indentation(str, indentation).unwrap();
@@ -1723,14 +1811,22 @@ fn write_fragment_definition(
                 Some(String::from("fragment_t")),
                 &context,
                 false,
-                false
+                false,
             )
             .unwrap();
             write_indentation(str, indentation).unwrap();
             if nullable {
-                writeln!(str, "type fragment = RescriptRelay.CatchResult.t<array<option<fragment_t>>>").unwrap()
+                writeln!(
+                    str,
+                    "type fragment = RescriptRelay.CatchResult.t<array<option<fragment_t>>>"
+                )
+                .unwrap()
             } else {
-                writeln!(str, "type fragment = RescriptRelay.CatchResult.t<array<fragment_t>>").unwrap()
+                writeln!(
+                    str,
+                    "type fragment = RescriptRelay.CatchResult.t<array<fragment_t>>"
+                )
+                .unwrap()
             }
         }
         &TopLevelFragmentType::Union(union) => {
@@ -1742,7 +1838,7 @@ fn write_fragment_definition(
                     indentation,
                     &union,
                     Some(String::from("fragment_t")),
-                    &ObjectPrintMode::Standalone,    
+                    &ObjectPrintMode::Standalone,
                 )
                 .unwrap();
                 write_indentation(str, indentation).unwrap();
@@ -1773,7 +1869,11 @@ fn write_fragment_definition(
                 )
                 .unwrap();
                 write_indentation(str, indentation).unwrap();
-                writeln!(str, "type fragment = RescriptRelay.CatchResult.t<option<fragment_t>>").unwrap()
+                writeln!(
+                    str,
+                    "type fragment = RescriptRelay.CatchResult.t<option<fragment_t>>"
+                )
+                .unwrap()
             } else {
                 write_union_definition(
                     state,
@@ -1786,7 +1886,11 @@ fn write_fragment_definition(
                 )
                 .unwrap();
                 write_indentation(str, indentation).unwrap();
-                writeln!(str, "type fragment = RescriptRelay.CatchResult.t<fragment_t>").unwrap()
+                writeln!(
+                    str,
+                    "type fragment = RescriptRelay.CatchResult.t<fragment_t>"
+                )
+                .unwrap()
             }
         }
         &TopLevelFragmentType::ArrayWithUnion(union) => {
@@ -1813,16 +1917,16 @@ fn write_fragment_definition(
     write_indentation(str, indentation).unwrap();
     match &fragment {
         // Cases where we create fragment_t and wrap it in option<> - useOpt should point to fragment_t
-        | &TopLevelFragmentType::Object(_) 
-        | &TopLevelFragmentType::Union(_) 
-        | &TopLevelFragmentType::Result(_) 
-        | &TopLevelFragmentType::ResultWithUnion(_) if nullable => {
+        &TopLevelFragmentType::Object(_)
+        | &TopLevelFragmentType::Union(_)
+        | &TopLevelFragmentType::Result(_)
+        | &TopLevelFragmentType::ResultWithUnion(_)
+            if nullable =>
+        {
             writeln!(str, "type fragment_useOpt = fragment_t").unwrap()
         }
         // All other cases (including arrays, non-nullable fragments) - alias to fragment
-        _ => {
-            writeln!(str, "type fragment_useOpt = fragment").unwrap()
-        }
+        _ => writeln!(str, "type fragment_useOpt = fragment").unwrap(),
     }
 
     Ok(())
@@ -2048,10 +2152,15 @@ fn write_get_connection_nodes_function(
 }
 
 fn warn_about_unimplemented_feature(definition_type: &DefinitionType, context: String) {
-    warn!("'{}' (context: '{}') produced a type that RescriptRelay does not understand. Please open an issue on the repo https://github.com/zth/rescript-relay and describe what you were doing as this happened.", match &definition_type {
-        DefinitionType::Fragment(fragment_definition) => fragment_definition.name.item.0,
-        DefinitionType::Operation((operation_definition, _)) => operation_definition.name.item.0
-    }, context);
+    warn!(
+        "'{}' (context: '{}') produced a type that RescriptRelay does not understand. Please open an issue on the repo https://github.com/zth/rescript-relay and describe what you were doing as this happened.",
+        match &definition_type {
+            DefinitionType::Fragment(fragment_definition) => fragment_definition.name.item.0,
+            DefinitionType::Operation((operation_definition, _)) =>
+                operation_definition.name.item.0,
+        },
+        context
+    );
 }
 
 fn context_from_obj_path(at_path: &Vec<String>) -> Context {
@@ -2066,7 +2175,7 @@ fn context_from_obj_path(at_path: &Vec<String>) -> Context {
 enum PreloadableMode {
     Off,
     FullFile,
-    ThinFile
+    ThinFile,
 }
 
 impl Writer for ReScriptPrinter {
@@ -2081,7 +2190,7 @@ impl Writer for ReScriptPrinter {
         let preloadable_mode = match self.is_preloadable_thin_file {
             Some(true) => PreloadableMode::ThinFile,
             Some(false) => PreloadableMode::FullFile,
-            None => PreloadableMode::Off
+            None => PreloadableMode::Off,
         };
 
         // Print the Types module. This will contain most of the type
@@ -2104,7 +2213,17 @@ impl Writer for ReScriptPrinter {
                     writeln!(
                         generated_types,
                         "@live type {} = RelaySchemaAssets_graphql.input_{}{}",
-                        input_object.record_name, input_obj_name, if self.operation_meta_data.operation_directives.contains(&RescriptRelayOperationDirective::NullableVariables) { "_nullable" } else {""}
+                        input_object.record_name,
+                        input_obj_name,
+                        if self
+                            .operation_meta_data
+                            .operation_directives
+                            .contains(&RescriptRelayOperationDirective::NullableVariables)
+                        {
+                            "_nullable"
+                        } else {
+                            ""
+                        }
                     )
                     .unwrap();
                 }
@@ -2143,7 +2262,7 @@ impl Writer for ReScriptPrinter {
                                 _ => &Context::NotRelevant,
                             },
                             false,
-                            false
+                            false,
                         )
                         .unwrap()
                     });
@@ -2190,7 +2309,7 @@ impl Writer for ReScriptPrinter {
                             None,
                             &context,
                             false,
-                            false
+                            false,
                         )
                         .unwrap()
                     });
@@ -2212,7 +2331,7 @@ impl Writer for ReScriptPrinter {
                 if let Some((nullable, response)) = &self.response {
                     let is_result = match response {
                         TopLevelResponseType::Result(_) => true,
-                        _ => false
+                        _ => false,
                     };
 
                     match response {
@@ -2227,11 +2346,12 @@ impl Writer for ReScriptPrinter {
                                     Some(String::from("response_t")),
                                     &Context::Response,
                                     false,
-                                    false
+                                    false,
                                 )
                                 .unwrap();
                                 write_indentation(&mut generated_types, indentation).unwrap();
-                                writeln!(generated_types, "type response = option<response_t>").unwrap()
+                                writeln!(generated_types, "type response = option<response_t>")
+                                    .unwrap()
                             } else {
                                 write_object_definition(
                                     &self,
@@ -2242,7 +2362,7 @@ impl Writer for ReScriptPrinter {
                                     None,
                                     &Context::Response,
                                     false,
-                                    false
+                                    false,
                                 )
                                 .unwrap();
                             }
@@ -2257,12 +2377,16 @@ impl Writer for ReScriptPrinter {
                                 None,
                                 &Context::Response,
                                 false,
-                                false
+                                false,
                             )
                             .unwrap();
 
                             write_indentation(&mut generated_types, indentation).unwrap();
-                            writeln!(generated_types, "type response = RescriptRelay.CatchResult.t<response_value>").unwrap()
+                            writeln!(
+                                generated_types,
+                                "type response = RescriptRelay.CatchResult.t<response_value>"
+                            )
+                            .unwrap()
                         }
                     }
 
@@ -2289,13 +2413,16 @@ impl Writer for ReScriptPrinter {
                             None,
                             &Context::RawResponse,
                             false,
-                            false
+                            false,
                         )
                         .unwrap(),
                         None => {
                             if !self.operation_meta_data.is_updatable {
-                                write_suppress_dead_code_warning_annotation(&mut generated_types, indentation)
-                                    .unwrap();
+                                write_suppress_dead_code_warning_annotation(
+                                    &mut generated_types,
+                                    indentation,
+                                )
+                                .unwrap();
                                 write_indentation(&mut generated_types, indentation).unwrap();
                                 writeln!(
                                     generated_types,
@@ -2304,12 +2431,12 @@ impl Writer for ReScriptPrinter {
                                     // was nullable, as it might be nullable only because of
                                     // @required, and we don't care about that when using
                                     // the raw response.
-                                    if *nullable { 
-                                        "response_t" 
-                                    } else if is_result { 
-                                        "response_value" 
-                                    } else { 
-                                        "response" 
+                                    if *nullable {
+                                        "response_t"
+                                    } else if is_result {
+                                        "response_value"
+                                    } else {
+                                        "response"
                                     }
                                 )
                                 .unwrap()
@@ -2332,20 +2459,28 @@ impl Writer for ReScriptPrinter {
                 None,
                 &Context::Variables,
                 false,
-                true
+                true,
             )
             .unwrap();
 
             // And, if we're in a query, print the refetch variables assets as
             // well.
-            match (&self.typegen_definition, &preloadable_mode, self.operation_meta_data.is_updatable) {
-                (&DefinitionType::Operation((
-                    OperationDefinition {
-                        kind: OperationKind::Query,
-                        ..
-                    },
-                    _,
-                )), PreloadableMode::FullFile | PreloadableMode::Off, false) => {
+            match (
+                &self.typegen_definition,
+                &preloadable_mode,
+                self.operation_meta_data.is_updatable,
+            ) {
+                (
+                    &DefinitionType::Operation((
+                        OperationDefinition {
+                            kind: OperationKind::Query,
+                            ..
+                        },
+                        _,
+                    )),
+                    PreloadableMode::FullFile | PreloadableMode::Off,
+                    false,
+                ) => {
                     // Refetch variables are the regular variables, but with all
                     // top level fields forced to be optional. Note: This is not
                     // 100% and we'll need to revisit this at a later point in
@@ -2379,7 +2514,7 @@ impl Writer for ReScriptPrinter {
                         Some(String::from("refetchVariables")),
                         &Context::Variables,
                         true,
-                        false
+                        false,
                     )
                     .unwrap();
 
@@ -2410,40 +2545,43 @@ impl Writer for ReScriptPrinter {
             }
             Some((
                 _,
-                TopLevelFragmentType::Object(_) | TopLevelFragmentType::ArrayWithObject(_) | TopLevelFragmentType::Result(_) | TopLevelFragmentType::ArrayWithResult(_),
+                TopLevelFragmentType::Object(_)
+                | TopLevelFragmentType::ArrayWithObject(_)
+                | TopLevelFragmentType::Result(_)
+                | TopLevelFragmentType::ArrayWithResult(_),
             ))
             | None => (),
         }
 
-
         match &preloadable_mode {
             &PreloadableMode::ThinFile => (),
             _ => {
-        
-            if !self.operation_meta_data.is_updatable {
-                // Print union converters
-                self.unions
-                    .iter()
-                    .unique_by(|union| &union.record_name)
-                    .for_each(|union| {
-                        write_union_converters(&mut generated_types, indentation, &union).unwrap()
-                    });
+                if !self.operation_meta_data.is_updatable {
+                    // Print union converters
+                    self.unions
+                        .iter()
+                        .unique_by(|union| &union.record_name)
+                        .for_each(|union| {
+                            write_union_converters(&mut generated_types, indentation, &union)
+                                .unwrap()
+                        });
                 }
 
                 match &self.typegen_definition {
-                    DefinitionType::Operation((operation_definition, _)) => match operation_definition.kind
-                    {
-                        OperationKind::Query => {
-                            write_indentation(&mut generated_types, indentation).unwrap();
-                            writeln!(generated_types, "").unwrap();
-                            write_indentation(&mut generated_types, indentation).unwrap();
-                            writeln!(generated_types, "type queryRef").unwrap();
-                            write_indentation(&mut generated_types, indentation).unwrap();
-                            writeln!(generated_types, "").unwrap();
+                    DefinitionType::Operation((operation_definition, _)) => {
+                        match operation_definition.kind {
+                            OperationKind::Query => {
+                                write_indentation(&mut generated_types, indentation).unwrap();
+                                writeln!(generated_types, "").unwrap();
+                                write_indentation(&mut generated_types, indentation).unwrap();
+                                writeln!(generated_types, "type queryRef").unwrap();
+                                write_indentation(&mut generated_types, indentation).unwrap();
+                                writeln!(generated_types, "").unwrap();
+                            }
+                            OperationKind::Mutation | OperationKind::Subscription => (),
                         }
-                        OperationKind::Mutation | OperationKind::Subscription => (),
-                    },
-                    _ => ()
+                    }
+                    _ => (),
                 }
             }
         }
@@ -2485,7 +2623,11 @@ impl Writer for ReScriptPrinter {
                     String::from("variables"),
                     false,
                     ConversionDirection::Wrap,
-                    if self.operation_meta_data.operation_directives.contains(&RescriptRelayOperationDirective::NullableVariables) {
+                    if self
+                        .operation_meta_data
+                        .operation_directives
+                        .contains(&RescriptRelayOperationDirective::NullableVariables)
+                    {
                         NullableType::Null
                     } else {
                         NullableType::Undefined
@@ -2543,7 +2685,12 @@ impl Writer for ReScriptPrinter {
             _ => (),
         };
 
-        match (&preloadable_mode, &self.response, &self.raw_response, &self.typegen_definition) {
+        match (
+            &preloadable_mode,
+            &self.response,
+            &self.raw_response,
+            &self.typegen_definition,
+        ) {
             (PreloadableMode::ThinFile, _, _, _) => (),
             (_, Some(_), Some(_), DefinitionType::Operation((op, _))) => {
                 match &op.kind {
@@ -2618,17 +2765,15 @@ impl Writer for ReScriptPrinter {
 
         match (&preloadable_mode, &self.typegen_definition) {
             (&PreloadableMode::ThinFile, _) => (),
-            (_, DefinitionType::Operation((op, _))) => {
-                match &op.kind {
-                    OperationKind::Query => {
-                        if !self.operation_meta_data.is_updatable {
-                            writeln!(generated_types, "  type rawPreloadToken<'response> = {{source: Js.Nullable.t<RescriptRelay.Observable.t<'response>>}}").unwrap();
-                            writeln!(generated_types, "  external tokenToRaw: queryRef => rawPreloadToken<Types.response> = \"%identity\"").unwrap();
-                        }
+            (_, DefinitionType::Operation((op, _))) => match &op.kind {
+                OperationKind::Query => {
+                    if !self.operation_meta_data.is_updatable {
+                        writeln!(generated_types, "  type rawPreloadToken<'response> = {{source: Js.Nullable.t<RescriptRelay.Observable.t<'response>>}}").unwrap();
+                        writeln!(generated_types, "  external tokenToRaw: queryRef => rawPreloadToken<Types.response> = \"%identity\"").unwrap();
                     }
-                    _ => (),
                 }
-            }
+                _ => (),
+            },
             _ => (),
         };
 
@@ -2667,21 +2812,25 @@ impl Writer for ReScriptPrinter {
                     .unwrap();
                 }
             }
-            DefinitionType::Operation(_) => 
-            if self.operation_meta_data.is_updatable {
-                write_indentation(&mut generated_types, indentation).unwrap();
-                writeln!(
+            DefinitionType::Operation(_) => {
+                if self.operation_meta_data.is_updatable {
+                    write_indentation(&mut generated_types, indentation).unwrap();
+                    writeln!(
                     generated_types,
                     "\n\ntype relayOperationNode\n\ntype updatableData = {{updatableData: Types.response}}\n\n@send external readUpdatableQuery: (RescriptRelay.RecordSourceSelectorProxy.t, ~node: RescriptRelay.queryNode<relayOperationNode>, ~variables: Types.variables) => updatableData = \"readUpdatableQuery\""
                 )
                 .unwrap()
+                }
             }
         }
 
         // Let's write some connection helpers! These are emitted anytime
         // there's an @connection directive present in a fragment. They're all
         // about simplifying using connections.
-        match (&preloadable_mode, &self.operation_meta_data.connection_config) {
+        match (
+            &preloadable_mode,
+            &self.operation_meta_data.connection_config,
+        ) {
             (PreloadableMode::ThinFile, _) | (_, None) => (),
             (_, Some(connection_config)) => {
                 write_suppress_dead_code_warning_annotation(&mut generated_types, indentation)
@@ -2717,14 +2866,24 @@ impl Writer for ReScriptPrinter {
         writeln!(generated_types, "open Types").unwrap();
 
         // Write getConnectionNodes if we can.
-        match (&preloadable_mode, &self.operation_meta_data.connection_config) {
+        match (
+            &preloadable_mode,
+            &self.operation_meta_data.connection_config,
+        ) {
             (PreloadableMode::ThinFile, _) | (_, None) => (),
             (_, Some(connection_config)) => {
                 // Print the getConnectionNodes helper. This can target a
                 // connection that's either in a nested object somewhere, or
                 // directly on the fragment.
                 match (&self.fragment, connection_config.at_object_path.len()) {
-                    (Some((_, TopLevelFragmentType::Object(fragment) | TopLevelFragmentType::ArrayWithObject(fragment))), 1) => {
+                    (
+                        Some((
+                            _,
+                            TopLevelFragmentType::Object(fragment)
+                            | TopLevelFragmentType::ArrayWithObject(fragment),
+                        )),
+                        1,
+                    ) => {
                         // Only one element means it's on the fragment, since
                         // @connection only appears on fragments, and the prefix
                         // "fragment" will be here in the path.
@@ -2737,10 +2896,7 @@ impl Writer for ReScriptPrinter {
                         )
                         .unwrap()
                     }
-                    (
-                        Some(_),
-                        _,
-                    ) => {
+                    (Some(_), _) => {
                         // More elements means this is an object somewhere else
                         // in the response. So, we'll need to find it.
                         match find_object_with_record_name(
@@ -2766,17 +2922,18 @@ impl Writer for ReScriptPrinter {
 
         match &preloadable_mode {
             PreloadableMode::ThinFile => (),
-            _ => {   
+            _ => {
                 if !self.operation_meta_data.is_updatable {
                     self.enums
                         .iter()
                         .unique_by(|full_enum| &full_enum.name)
                         .for_each(|full_enum| {
-                            write_enum_util_functions(&mut generated_types, indentation, &full_enum).unwrap()
+                            write_enum_util_functions(&mut generated_types, indentation, &full_enum)
+                                .unwrap()
                         });
-                    }
                 }
             }
+        }
 
         indentation -= 1;
         write_indentation(&mut generated_types, indentation).unwrap();
@@ -2879,7 +3036,6 @@ impl Writer for ReScriptPrinter {
                             )
                             .unwrap();
                             }
-                            
 
                             indentation -= 1;
 
@@ -2887,7 +3043,6 @@ impl Writer for ReScriptPrinter {
                             writeln!(
                                 generated_types,
                                 "}},",
-                                
                             )
                             .unwrap();
                         });
@@ -2913,10 +3068,14 @@ impl Writer for ReScriptPrinter {
         // fragments, and variables) as <Identifier>$<type>. So, here we look
         // for those key top level objects and treat them specially.
 
-        if name.ends_with("$data") {            
+        if name.ends_with("$data") {
             let cto = classify_top_level_object_type_ast(&value);
             match cto {
-                Some((nullable, ClassifiedTopLevelObjectType::Object(props) | ClassifiedTopLevelObjectType::Result(props))) => {
+                Some((
+                    nullable,
+                    ClassifiedTopLevelObjectType::Object(props)
+                    | ClassifiedTopLevelObjectType::Result(props),
+                )) => {
                     let context = match &self.typegen_definition {
                         DefinitionType::Fragment(_) => Context::Fragment,
                         _ => Context::Response,
@@ -2924,7 +3083,7 @@ impl Writer for ReScriptPrinter {
 
                     let is_result = match cto {
                         Some((_, ClassifiedTopLevelObjectType::Result(_))) => true,
-                        _ => false
+                        _ => false,
                     };
 
                     let mut current_path = vec![root_name_from_context(&context)];
@@ -2933,7 +3092,8 @@ impl Writer for ReScriptPrinter {
                         current_path.push(String::from("value"));
                     }
 
-                    let object_props = get_object_props(self, &current_path, &props, false, &context);
+                    let object_props =
+                        get_object_props(self, &current_path, &props, false, &context);
 
                     let record_name = path_to_name(&current_path);
                     let main_data_type = Object {
@@ -2943,31 +3103,39 @@ impl Writer for ReScriptPrinter {
                         values: object_props,
                         found_in_union: false,
                         original_type_name: None,
-                        is_union_member_inline_obj: false
+                        is_union_member_inline_obj: false,
                     };
 
                     match &self.typegen_definition {
                         DefinitionType::Fragment(_) => {
-                            self.fragment =
-                                Some((nullable, if is_result { 
-                                    TopLevelFragmentType::Result(main_data_type) 
-                                } else { 
-                                    TopLevelFragmentType::Object(main_data_type) 
-                                }));
+                            self.fragment = Some((
+                                nullable,
+                                if is_result {
+                                    TopLevelFragmentType::Result(main_data_type)
+                                } else {
+                                    TopLevelFragmentType::Object(main_data_type)
+                                },
+                            ));
                         }
                         _ => {
-                            self.response = 
-                                Some((nullable, if is_result {
+                            self.response = Some((
+                                nullable,
+                                if is_result {
                                     TopLevelResponseType::Result(main_data_type)
                                 } else {
                                     TopLevelResponseType::Object(main_data_type)
-                                }));
+                                },
+                            ));
                         }
                     };
 
                     Ok(())
                 }
-                Some((nullable, ClassifiedTopLevelObjectType::ArrayWithObject(props) | ClassifiedTopLevelObjectType::ArrayWithResult(props))) => {
+                Some((
+                    nullable,
+                    ClassifiedTopLevelObjectType::ArrayWithObject(props)
+                    | ClassifiedTopLevelObjectType::ArrayWithResult(props),
+                )) => {
                     let context = match &self.typegen_definition {
                         DefinitionType::Fragment(_) => Context::Fragment,
                         _ => Context::Response,
@@ -2975,7 +3143,7 @@ impl Writer for ReScriptPrinter {
 
                     let is_result = match cto {
                         Some((_, ClassifiedTopLevelObjectType::Result(_))) => true,
-                        _ => false
+                        _ => false,
                     };
 
                     let mut current_path = vec![root_name_from_context(&context)];
@@ -2992,7 +3160,7 @@ impl Writer for ReScriptPrinter {
                         values: get_object_props(self, &current_path, &props, false, &context),
                         found_in_union: false,
                         original_type_name: None,
-                        is_union_member_inline_obj: false
+                        is_union_member_inline_obj: false,
                     };
 
                     self.fragment = Some((
@@ -3049,7 +3217,9 @@ impl Writer for ReScriptPrinter {
                     self.conversion_instructions.push(InstructionContainer {
                         context: context.clone(),
                         at_path: current_path.clone(),
-                        instruction: ConverterInstructions::ConvertUnion(String::from("fragment_t")),
+                        instruction: ConverterInstructions::ConvertUnion(String::from(
+                            "fragment_t",
+                        )),
                     });
 
                     self.fragment = Some((
@@ -3106,7 +3276,7 @@ impl Writer for ReScriptPrinter {
                         values: get_object_props(self, &current_path, &props, false, &context),
                         found_in_union: false,
                         original_type_name: None,
-                        is_union_member_inline_obj: false
+                        is_union_member_inline_obj: false,
                     };
 
                     self.variables = Some(obj);
@@ -3133,7 +3303,7 @@ impl Writer for ReScriptPrinter {
                         values: get_object_props(self, &current_path, &props, false, &context),
                         found_in_union: false,
                         original_type_name: None,
-                        is_union_member_inline_obj: false
+                        is_union_member_inline_obj: false,
                     };
 
                     self.raw_response = Some(obj);
@@ -3176,7 +3346,7 @@ impl Writer for ReScriptPrinter {
                         at_path: path.clone(),
                         record_name: path_to_name(&path),
                         found_in_union: false,
-                        is_union_member_inline_obj: false
+                        is_union_member_inline_obj: false,
                     };
                     self.input_objects.push(obj);
                 }
@@ -3283,7 +3453,7 @@ impl Writer for ReScriptPrinter {
                                         self,
                                         &Context::NotRelevant,
                                         &mut needs_conversion,
-                                        false
+                                        false,
                                     ),
                                     needs_conversion: needs_conversion.clone(),
                                 });
@@ -3310,7 +3480,10 @@ impl Writer for ReScriptPrinter {
                                             ),
                                         });
                                     }
-                                    Some(AstToStringNeedsConversion::CustomScalar(scalar_name, found_in_array)) => {
+                                    Some(AstToStringNeedsConversion::CustomScalar(
+                                        scalar_name,
+                                        found_in_array,
+                                    )) => {
                                         self.conversion_instructions.push(InstructionContainer {
                                             context: Context::Variables,
                                             at_path: vec![
@@ -3319,7 +3492,7 @@ impl Writer for ReScriptPrinter {
                                             ],
                                             instruction: ConverterInstructions::ConvertCustomField(
                                                 scalar_name.clone(),
-                                                found_in_array.clone()
+                                                found_in_array.clone(),
                                             ),
                                         });
                                     }
@@ -3351,7 +3524,7 @@ impl Writer for ReScriptPrinter {
     ) -> Result {
         let target_name = match import_as {
             Some(name) => name,
-            None => name
+            None => name,
         };
         if target_name.ends_with("ResolverType") {
             self.relay_resolvers.push(RelayResolverInfo {
@@ -3368,7 +3541,7 @@ impl ReScriptPrinter {
         operation_meta_data: RescriptRelayOperationMetaData,
         typegen_definition: DefinitionType,
         is_preloadable_thin_file: Option<bool>,
-        client_extension_enums: FnvHashSet<String>
+        client_extension_enums: FnvHashSet<String>,
     ) -> Self {
         Self {
             enums: vec![],
@@ -3385,7 +3558,7 @@ impl ReScriptPrinter {
             relay_resolvers: vec![],
             provided_variables: None,
             is_preloadable_thin_file,
-            client_extension_enums
+            client_extension_enums,
         }
     }
 }

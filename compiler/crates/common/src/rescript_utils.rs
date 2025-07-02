@@ -1,4 +1,5 @@
-use intern::string_key::{Intern, StringKey};
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
 
 pub fn get_module_name_from_file_path(str: &str) -> String {
     match std::path::Path::new(str).file_stem().unwrap().to_str() {
@@ -8,7 +9,7 @@ pub fn get_module_name_from_file_path(str: &str) -> String {
 }
 
 pub fn get_load_fn_code() -> StringKey {
-  "@live let load: (
+    "@live let load: (
   ~environment: RescriptRelay.Environment.t,
   ~variables: Types.variables,
   ~fetchPolicy: RescriptRelay.fetchPolicy=?,
@@ -30,11 +31,13 @@ pub fn get_load_fn_code() -> StringKey {
       fetchPolicy,
       networkCacheConfig,
     },
-  )".intern()
+  )"
+    .intern()
 }
 
 pub fn get_load_query_code(include_load_fn: bool) -> StringKey {
-    format!("{}
+    format!(
+        "{}
 
 @live
 let queryRefToObservable = token => {{
@@ -52,10 +55,12 @@ let queryRefToPromise = token => {{
       let _: subscription = o->subscribe(makeObserver(~complete=() => resolve(Ok())))
     }}
   }})
-}}", 
-if include_load_fn {
-  get_load_fn_code()
-} else {
-  "".intern()
-}).intern()
+}}",
+        if include_load_fn {
+            get_load_fn_code()
+        } else {
+            "".intern()
+        }
+    )
+    .intern()
 }

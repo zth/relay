@@ -5,20 +5,32 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{ScalarName, DirectiveName, NamedItem};
+use common::DirectiveName;
+use common::NamedItem;
+use common::ScalarName;
 use fnv::FnvBuildHasher;
-use graphql_ir::{
-    Argument, ConstantValue, Directive, Field, FragmentDefinition, OperationDefinition, Selection,
-    Value, Variable, VariableDefinition,
-};
+use graphql_ir::Argument;
+use graphql_ir::ConstantValue;
+use graphql_ir::Directive;
+use graphql_ir::Field;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Selection;
+use graphql_ir::Value;
+use graphql_ir::Variable;
+use graphql_ir::VariableDefinition;
 use indexmap::IndexMap;
-use intern::string_key::{Intern, StringKey};
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 use relay_config::CustomType;
 use relay_transforms::UPDATABLE_DIRECTIVE;
-use schema::{SDLSchema, Schema, Type};
+use schema::SDLSchema;
+use schema::Schema;
+use schema::Type;
 
-use crate::rescript_utils::{get_connection_key_maker, get_custom_scalar_raw_typenames};
+use crate::rescript_utils::get_connection_key_maker;
+use crate::rescript_utils::get_custom_scalar_raw_typenames;
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 pub type CustomScalarsMap = FnvIndexMap<ScalarName, CustomType>;
 

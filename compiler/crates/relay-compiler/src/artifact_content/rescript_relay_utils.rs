@@ -1,13 +1,26 @@
-use common::{ArgumentName, DirectiveName, SourceLocationKey};
-use graphql_ir::{Directive, FragmentDefinitionName, OperationDefinition, Selection};
+use std::fmt::Write;
+use std::ops::RangeTo;
+use std::path::Path;
+
+use common::ArgumentName;
+use common::DirectiveName;
+use common::NamedItem;
+use common::SourceLocationKey;
+use graphql_ir::Directive;
 use graphql_ir::Field;
-use intern::string_key::{Intern, StringKey};
+use graphql_ir::FragmentDefinitionName;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Selection;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 use regex::Regex;
-use relay_typegen::{rescript_utils::{capitalize_string, uncapitalize_string}, FragmentLocations};
-use schema::{SDLSchema, Schema, Type};
-use std::{fmt::Write, ops::RangeTo, path::Path};
-use common::NamedItem;
+use relay_typegen::FragmentLocations;
+use relay_typegen::rescript_utils::capitalize_string;
+use relay_typegen::rescript_utils::uncapitalize_string;
+use schema::SDLSchema;
+use schema::Schema;
+use schema::Type;
 
 use super::content_section::GenericSection;
 
@@ -16,7 +29,7 @@ pub enum ImportType {
     GraphQLNode(String),
     ModuleImport(String, Option<String>),
     ProvidedVariables,
-    ResolverDataInjector
+    ResolverDataInjector,
 }
 
 pub fn rescript_find_code_import_references(concrete_text: &str) -> Vec<ImportType> {
@@ -55,7 +68,7 @@ pub fn rescript_find_code_import_references(concrete_text: &str) -> Vec<ImportTy
             let module_name = matched_name.get(0).unwrap();
             let path = match matched_name.get(1) {
                 Some(path) => Some(path.to_string()),
-                None => None
+                None => None,
             };
             if path.is_some() && !results.contains(&ImportType::ResolverDataInjector) {
                 results.push(ImportType::ResolverDataInjector)
@@ -64,7 +77,6 @@ pub fn rescript_find_code_import_references(concrete_text: &str) -> Vec<ImportTy
             if !results.contains(&module_import) {
                 results.push(module_import)
             }
-
         });
 
     results
@@ -91,8 +103,8 @@ pub fn rescript_make_operation_type_and_node_text(
                 let replace_this = format!("{}.{}", module_name, path);
                 let with_this = format!("{}_{}", module_name, path);
                 replaced_text = replaced_text.replace(&replace_this, &with_this);
-            },
-            _ => ()
+            }
+            _ => (),
         }
     }
 
@@ -120,7 +132,7 @@ pub fn rescript_make_operation_type_and_node_text(
                         &ImportType::GraphQLNode(_) => "rescript_graphql_node_",
                         &ImportType::ModuleImport(_, _) => "rescript_module_",
                         &ImportType::ProvidedVariables => "providedVariablesDefinition",
-                        &ImportType::ResolverDataInjector => "resolverDataInjector"
+                        &ImportType::ResolverDataInjector => "resolverDataInjector",
                     },
                     match &import_type {
                         &ImportType::GraphQLNode(module_name) => module_name.to_owned(),
@@ -129,11 +141,12 @@ pub fn rescript_make_operation_type_and_node_text(
                                 Some(path) => {
                                     let d = format!("{}_{}", module_name, path);
                                     d
-                                },
-                                None => module_name.to_owned()
+                                }
+                                None => module_name.to_owned(),
                             }
-                        },
-                        &ImportType::ProvidedVariables | &ImportType::ResolverDataInjector => "".to_owned(),
+                        }
+                        &ImportType::ProvidedVariables | &ImportType::ResolverDataInjector =>
+                            "".to_owned(),
                     }
                 ))
                 .collect::<Vec<String>>()
@@ -162,11 +175,12 @@ pub fn rescript_make_operation_type_and_node_text(
                                 Some(path) => {
                                     let d = format!("{}_{}", module_name, path);
                                     d
-                                },
-                                None => module_name.to_owned()
+                                }
+                                None => module_name.to_owned(),
                             }
-                        },
-                        &ImportType::ProvidedVariables | &ImportType::ResolverDataInjector => "".to_owned(),
+                        }
+                        &ImportType::ProvidedVariables | &ImportType::ResolverDataInjector =>
+                            "".to_owned(),
                     }
                 ))
                 .collect::<Vec<String>>()
@@ -188,11 +202,14 @@ pub fn rescript_make_operation_type_and_node_text(
                     match &import_type {
                         &ImportType::GraphQLNode(module_name) =>
                             format!("{}_graphql.node", module_name),
-                        &ImportType::ModuleImport(module_name, path) =>
-                            format!("{}.{}", module_name, match &path {
+                        &ImportType::ModuleImport(module_name, path) => format!(
+                            "{}.{}",
+                            module_name,
+                            match &path {
                                 Some(path) => uncapitalize_string(path).intern(),
-                                None => "default".intern()
-                            }),
+                                None => "default".intern(),
+                            }
+                        ),
                         &ImportType::ProvidedVariables =>
                             String::from("providedVariablesDefinition"),
                         &ImportType::ResolverDataInjector =>
@@ -253,14 +270,19 @@ fn visit_selections_for_codesplits<'a>(
         Selection::ScalarField(_field) => (),
         Selection::LinkedField(field) => {
             let next_path = make_path(&current_path, field.alias_or_name(schema).to_string());
-            extract_codesplits(&field.directives, fragment_locations, codesplits, &next_path);
+            extract_codesplits(
+                &field.directives,
+                fragment_locations,
+                codesplits,
+                &next_path,
+            );
 
             visit_selections_for_codesplits(
                 &field.selections,
                 &schema,
                 next_path,
                 codesplits,
-                fragment_locations
+                fragment_locations,
             );
         }
         Selection::InlineFragment(inline_fragment) => {
@@ -272,31 +294,37 @@ fn visit_selections_for_codesplits<'a>(
             };
 
             match type_name {
-                None => {
-                    visit_selections_for_codesplits(
-                        &inline_fragment.selections,
-                        &schema,
-                        current_path.clone(),
-                        codesplits,
-                        fragment_locations
-                    )
-                },
+                None => visit_selections_for_codesplits(
+                    &inline_fragment.selections,
+                    &schema,
+                    current_path.clone(),
+                    codesplits,
+                    fragment_locations,
+                ),
                 Some(type_name) => {
                     let prefix = match &inline_fragment.type_condition {
                         Some(Type::Interface(_)) => "$$i$$",
-                        _ => "$$u$$"
+                        _ => "$$u$$",
                     };
 
-                    let next_path = make_path(&current_path, format!("{}{}", prefix, type_name.to_string()));
+                    let next_path = make_path(
+                        &current_path,
+                        format!("{}{}", prefix, type_name.to_string()),
+                    );
 
-                    extract_codesplits(&inline_fragment.directives, fragment_locations, codesplits, &next_path);
+                    extract_codesplits(
+                        &inline_fragment.directives,
+                        fragment_locations,
+                        codesplits,
+                        &next_path,
+                    );
 
                     visit_selections_for_codesplits(
                         &inline_fragment.selections,
                         &schema,
                         next_path,
                         codesplits,
-                        fragment_locations
+                        fragment_locations,
                     )
                 }
             }
@@ -307,43 +335,72 @@ fn visit_selections_for_codesplits<'a>(
                 &schema,
                 current_path.clone(),
                 codesplits,
-                fragment_locations
+                fragment_locations,
             );
         }
-        Selection::FragmentSpread(_fragment_spread) => {
-            ()
-        },
+        Selection::FragmentSpread(_fragment_spread) => (),
     });
 }
 
 fn extract_codesplits(
-    directives: &Vec<Directive>, 
-    fragment_locations: &FragmentLocations, 
-    codesplits: &mut Vec<(Vec<String>, Vec<(String, Option<(StringKey, bool)>)>)>, 
-    next_path: &Vec<String>
+    directives: &Vec<Directive>,
+    fragment_locations: &FragmentLocations,
+    codesplits: &mut Vec<(Vec<String>, Vec<(String, Option<(StringKey, bool)>)>)>,
+    next_path: &Vec<String>,
 ) {
-    if directives.named(DirectiveName("codesplit".intern())).is_some() {
+    if directives
+        .named(DirectiveName("codesplit".intern()))
+        .is_some()
+    {
         let mut fragment_names = vec![];
 
         directives.iter().for_each(|d| {
             if d.name.item.0 == "codesplit".intern() {
-                let argument = d.arguments.iter().find(|a| a.name.item == ArgumentName("fragmentName".intern()));
+                let argument = d
+                    .arguments
+                    .iter()
+                    .find(|a| a.name.item == ArgumentName("fragmentName".intern()));
                 if argument.is_none() {
                     log::debug!("was none: {:#?} -> {:#?}", next_path, directives)
                 } else {
-                    let path_to_file = fragment_locations.0.get(&FragmentDefinitionName(argument.unwrap().value.item.expect_string_literal())).unwrap().source_location().path();
-                    let filename = Path::new(path_to_file).file_stem().unwrap().to_str().unwrap().to_string();
+                    let path_to_file = fragment_locations
+                        .0
+                        .get(&FragmentDefinitionName(
+                            argument.unwrap().value.item.expect_string_literal(),
+                        ))
+                        .unwrap()
+                        .source_location()
+                        .path();
+                    let filename = Path::new(path_to_file)
+                        .file_stem()
+                        .unwrap()
+                        .to_str()
+                        .unwrap()
+                        .to_string();
 
-                    let variable_condition = d.arguments.iter().find(|a| a.name.item == ArgumentName("variableCondition".intern()));
-                    let variable_condition_type = d.arguments.iter().find(|a| a.name.item == ArgumentName("variableConditionIsInclude".intern()));
+                    let variable_condition = d
+                        .arguments
+                        .iter()
+                        .find(|a| a.name.item == ArgumentName("variableCondition".intern()));
+                    let variable_condition_type = d.arguments.iter().find(|a| {
+                        a.name.item == ArgumentName("variableConditionIsInclude".intern())
+                    });
 
-                    fragment_names.push((capitalize_string(&filename), match (variable_condition, variable_condition_type) {
-                        (Some(variable_condition), Some(variable_condition_type)) => Some((variable_condition.value.item.expect_string_literal(), variable_condition_type.value.item.expect_constant().unwrap_boolean())),
-                        _ => None,
-
-                    }));
+                    fragment_names.push((
+                        capitalize_string(&filename),
+                        match (variable_condition, variable_condition_type) {
+                            (Some(variable_condition), Some(variable_condition_type)) => Some((
+                                variable_condition.value.item.expect_string_literal(),
+                                variable_condition_type
+                                    .value
+                                    .item
+                                    .expect_constant()
+                                    .unwrap_boolean(),
+                            )),
+                            _ => None,
+                        },
+                    ));
                 }
-                
             }
         });
 
@@ -362,7 +419,7 @@ pub fn find_codesplits_in_operation<'a>(
         &schema,
         vec![],
         &mut codesplits,
-        &fragment_locations
+        &fragment_locations,
     );
 
     codesplits
@@ -381,34 +438,48 @@ fn visit_selections_for_codesplit_components<'a>(
                 &field.selections,
                 &schema,
                 codesplits,
-                fragment_locations
+                fragment_locations,
             );
         }
-        Selection::InlineFragment(inline_fragment) => {
-            visit_selections_for_codesplit_components(
-                &inline_fragment.selections,
-                &schema,
-                codesplits,
-                fragment_locations
-            )
-        }
+        Selection::InlineFragment(inline_fragment) => visit_selections_for_codesplit_components(
+            &inline_fragment.selections,
+            &schema,
+            codesplits,
+            fragment_locations,
+        ),
         Selection::Condition(condition) => {
             visit_selections_for_codesplit_components(
                 &condition.selections,
                 &schema,
                 codesplits,
-                fragment_locations
+                fragment_locations,
             );
         }
         Selection::FragmentSpread(fragment_spread) => {
-            if fragment_spread.directives.named(DirectiveName("codesplit".intern())).is_some() {
-                let path_to_file = fragment_locations.0.get(&FragmentDefinitionName(fragment_spread.fragment.item.0)).unwrap().source_location().path();
-                let filename = capitalize_string(&Path::new(path_to_file).file_stem().unwrap().to_str().unwrap().to_string());
+            if fragment_spread
+                .directives
+                .named(DirectiveName("codesplit".intern()))
+                .is_some()
+            {
+                let path_to_file = fragment_locations
+                    .0
+                    .get(&FragmentDefinitionName(fragment_spread.fragment.item.0))
+                    .unwrap()
+                    .source_location()
+                    .path();
+                let filename = capitalize_string(
+                    &Path::new(path_to_file)
+                        .file_stem()
+                        .unwrap()
+                        .to_str()
+                        .unwrap()
+                        .to_string(),
+                );
                 if !codesplits.contains(&filename) {
                     codesplits.push(capitalize_string(&filename));
                 }
             }
-        },
+        }
     });
 }
 
@@ -422,7 +493,7 @@ pub fn find_codesplit_components_in_operation<'a>(
         &selections,
         &schema,
         &mut codesplits,
-        &fragment_locations
+        &fragment_locations,
     );
 
     codesplits
@@ -430,30 +501,29 @@ pub fn find_codesplit_components_in_operation<'a>(
 
 pub fn write_codesplit_components(codesplit_components: Vec<String>, section: &mut GenericSection) {
     if codesplit_components.len() > 0 {
-        writeln!(
-            section,
-            "\nmodule CodesplitComponents = {{",
-        ).unwrap();
+        writeln!(section, "\nmodule CodesplitComponents = {{",).unwrap();
         codesplit_components.iter().for_each(|c| {
             writeln!(
                 section,
                 "  module {} = {{\n    let make = React.lazy_(() => Js.import({}.make))\n  }}",
                 c, c
-            ).unwrap();
+            )
+            .unwrap();
         });
-        writeln!(
-            section,
-            "}}\n",
-        ).unwrap();
+        writeln!(section, "}}\n",).unwrap();
     }
 }
 
-pub fn write_codesplits_node_modifier(codesplits: Vec<(Vec<String>, Vec<(String, Option<(StringKey, bool)>)>)>, section: &mut GenericSection) {
+pub fn write_codesplits_node_modifier(
+    codesplits: Vec<(Vec<String>, Vec<(String, Option<(StringKey, bool)>)>)>,
+    section: &mut GenericSection,
+) {
     if codesplits.len() > 0 {
         writeln!(
             section,
             "let node = RescriptRelay_Internal.applyCodesplitMetadata(node, ["
-        ).unwrap();
+        )
+        .unwrap();
 
         codesplits.iter().for_each(|(path, modules)| {
             let has_conditionals = modules.iter().find(|(_, c)| c.is_some()).is_some();
@@ -477,7 +547,7 @@ pub fn write_codesplits_node_modifier(codesplits: Vec<(Vec<String>, Vec<(String,
                                 "false"
                             }),
                             None => format!("")
-                        }, 
+                        },
                         m,
                         if conditional.is_some() {
                             format!("}}")
@@ -489,10 +559,7 @@ pub fn write_codesplits_node_modifier(codesplits: Vec<(Vec<String>, Vec<(String,
             ).unwrap();
         });
 
-        writeln!(
-            section,
-            "])"
-        ).unwrap();
+        writeln!(section, "])").unwrap();
     }
 }
 

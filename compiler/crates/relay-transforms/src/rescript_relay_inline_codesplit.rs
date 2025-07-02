@@ -7,16 +7,29 @@
 
 use std::sync::Arc;
 
-use common::{ArgumentName, Diagnostic, DiagnosticsResult, Location};
+use common::ArgumentName;
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::Location;
+use graphql_ir::Argument;
+use graphql_ir::ConstantValue;
+use graphql_ir::Directive;
+use graphql_ir::FragmentSpread;
+use graphql_ir::LinkedField;
+use graphql_ir::Program;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::Transformer;
+use graphql_ir::Value;
+use graphql_ir::Variable;
+use graphql_ir::reexport::Intern;
+use graphql_ir::reexport::StringKey;
 use itertools::Itertools;
 use lazy_static::lazy_static;
 use schema::Schema;
 
-use graphql_ir::{
-    reexport::{Intern, StringKey}, Argument, ConstantValue, Directive, FragmentSpread, LinkedField, Program, Selection, Transformed, Transformer, Value, Variable
-};
-
-use crate::{fragment_alias_directive::FRAGMENT_ALIAS_DIRECTIVE_NAME, ValidationMessageWithData};
+use crate::ValidationMessageWithData;
+use crate::fragment_alias_directive::FRAGMENT_ALIAS_DIRECTIVE_NAME;
 
 pub fn rescript_relay_inline_codesplit(program: &Program) -> DiagnosticsResult<Program> {
     let mut transform = RescriptRelayInlineCodesplitTransform::new(program);
@@ -32,8 +45,7 @@ pub fn rescript_relay_inline_codesplit(program: &Program) -> DiagnosticsResult<P
 }
 
 lazy_static! {
-    static ref FRAGMENT_SPREAD_AUTO_CODESPLIT: StringKey =
-        "codesplit".intern();
+    static ref FRAGMENT_SPREAD_AUTO_CODESPLIT: StringKey = "codesplit".intern();
 }
 
 #[allow(dead_code)]
@@ -45,7 +57,10 @@ struct RescriptRelayInlineCodesplitTransform<'s> {
 #[allow(dead_code)]
 impl<'s> RescriptRelayInlineCodesplitTransform<'s> {
     fn new(program: &'s Program) -> Self {
-        Self { program, errors: Vec::new(), }
+        Self {
+            program,
+            errors: Vec::new(),
+        }
     }
 }
 
@@ -57,8 +72,15 @@ impl<'s> Transformer for RescriptRelayInlineCodesplitTransform<'s> {
     // Inline child fragment spread auto codesplit directives of linked fields on the linked field itself.
     // Only relevant for fields that are objects, interfaces/unions are handled elsewhere.
     fn transform_linked_field(&mut self, field: &LinkedField) -> Transformed<Selection> {
-        if !self.program.schema.field(field.definition.item).type_.inner().is_object() {
-            return self.default_transform_linked_field(field)
+        if !self
+            .program
+            .schema
+            .field(field.definition.item)
+            .type_
+            .inner()
+            .is_object()
+        {
+            return self.default_transform_linked_field(field);
         }
 
         let mut directives = vec![];
@@ -83,28 +105,52 @@ impl<'s> Transformer for RescriptRelayInlineCodesplitTransform<'s> {
     }
 
     fn transform_fragment_spread(&mut self, spread: &FragmentSpread) -> Transformed<Selection> {
-        if spread.directives.iter().find(|d| d.name.item.0 == *FRAGMENT_SPREAD_AUTO_CODESPLIT).is_some() {
-            if !spread.directives.iter().find(|d| d.name.item == *FRAGMENT_ALIAS_DIRECTIVE_NAME).is_some() {
+        if spread
+            .directives
+            .iter()
+            .find(|d| d.name.item.0 == *FRAGMENT_SPREAD_AUTO_CODESPLIT)
+            .is_some()
+        {
+            if !spread
+                .directives
+                .iter()
+                .find(|d| d.name.item == *FRAGMENT_ALIAS_DIRECTIVE_NAME)
+                .is_some()
+            {
                 self.errors.push(Diagnostic::error_with_data(
                     ValidationMessageWithData::ExpectedAliasWithAutoCodesplit,
                     spread.fragment.location,
                 ));
             }
             Transformed::Replace(Selection::FragmentSpread(Arc::new(FragmentSpread {
-                directives: spread.directives.iter().map(|d| if d.name.item.0 == *FRAGMENT_SPREAD_AUTO_CODESPLIT {
-                    let mut arguments = d.arguments.clone();
-                    arguments.push(Argument {
-                        name: common::WithLocation { location: Location::generated(), item: ArgumentName("fragmentName".intern()) },
-                        value: common::WithLocation { location: Location::generated(), item: graphql_ir::Value::Constant(graphql_ir::ConstantValue::String(spread.fragment.item.0)) }
-                    });
-                    let directive = Directive {
-                        arguments,
-                        ..d.clone()
-                    };
-                    directive
-                } else {
-                    d.clone()
-                }).collect_vec(),
+                directives: spread
+                    .directives
+                    .iter()
+                    .map(|d| {
+                        if d.name.item.0 == *FRAGMENT_SPREAD_AUTO_CODESPLIT {
+                            let mut arguments = d.arguments.clone();
+                            arguments.push(Argument {
+                                name: common::WithLocation {
+                                    location: Location::generated(),
+                                    item: ArgumentName("fragmentName".intern()),
+                                },
+                                value: common::WithLocation {
+                                    location: Location::generated(),
+                                    item: graphql_ir::Value::Constant(
+                                        graphql_ir::ConstantValue::String(spread.fragment.item.0),
+                                    ),
+                                },
+                            });
+                            let directive = Directive {
+                                arguments,
+                                ..d.clone()
+                            };
+                            directive
+                        } else {
+                            d.clone()
+                        }
+                    })
+                    .collect_vec(),
                 ..spread.clone()
             })))
         } else {
@@ -113,49 +159,90 @@ impl<'s> Transformer for RescriptRelayInlineCodesplitTransform<'s> {
     }
 }
 
-fn find_fragment_spreads(selections: &Vec<Selection>, errors: &mut Vec<Diagnostic>, directives: &mut Vec<Directive>, variable_condition: Option<(StringKey, bool)>) -> () {
-    selections.iter().for_each(|s| {
-        match s {
-            Selection::Condition(condition) => {
-                find_fragment_spreads(&condition.selections, errors, directives, match condition.value {
-                    graphql_ir::ConditionValue::Variable(Variable {name, ..}) => Some((name.item.0, condition.passing_value)),
-                    graphql_ir::ConditionValue::Constant(_) => None
-                });
-            },
-            Selection::FragmentSpread(spread) => {
-                if let Some(codesplit_directive) = spread.directives.iter().find(|d| d.name.item.0 == *FRAGMENT_SPREAD_AUTO_CODESPLIT) {
-                    if !spread.directives.iter().find(|d| d.name.item == *FRAGMENT_ALIAS_DIRECTIVE_NAME).is_some() {
-                        errors.push(Diagnostic::error_with_data(
-                            ValidationMessageWithData::ExpectedAliasWithAutoCodesplit,
-                            spread.fragment.location,
-                        ));
-                        return;
+fn find_fragment_spreads(
+    selections: &Vec<Selection>,
+    errors: &mut Vec<Diagnostic>,
+    directives: &mut Vec<Directive>,
+    variable_condition: Option<(StringKey, bool)>,
+) -> () {
+    selections.iter().for_each(|s| match s {
+        Selection::Condition(condition) => {
+            find_fragment_spreads(
+                &condition.selections,
+                errors,
+                directives,
+                match condition.value {
+                    graphql_ir::ConditionValue::Variable(Variable { name, .. }) => {
+                        Some((name.item.0, condition.passing_value))
                     }
-                    let mut arguments = codesplit_directive.arguments.clone();
+                    graphql_ir::ConditionValue::Constant(_) => None,
+                },
+            );
+        }
+        Selection::FragmentSpread(spread) => {
+            if let Some(codesplit_directive) = spread
+                .directives
+                .iter()
+                .find(|d| d.name.item.0 == *FRAGMENT_SPREAD_AUTO_CODESPLIT)
+            {
+                if !spread
+                    .directives
+                    .iter()
+                    .find(|d| d.name.item == *FRAGMENT_ALIAS_DIRECTIVE_NAME)
+                    .is_some()
+                {
+                    errors.push(Diagnostic::error_with_data(
+                        ValidationMessageWithData::ExpectedAliasWithAutoCodesplit,
+                        spread.fragment.location,
+                    ));
+                    return;
+                }
+                let mut arguments = codesplit_directive.arguments.clone();
+                arguments.push(Argument {
+                    name: common::WithLocation {
+                        location: Location::generated(),
+                        item: ArgumentName("fragmentName".intern()),
+                    },
+                    value: common::WithLocation {
+                        location: Location::generated(),
+                        item: Value::Constant(ConstantValue::String(spread.fragment.item.0)),
+                    },
+                });
+
+                if variable_condition.is_some() {
                     arguments.push(Argument {
-                        name: common::WithLocation { location: Location::generated(), item: ArgumentName("fragmentName".intern()) },
-                        value: common::WithLocation { location: Location::generated(), item: Value::Constant(ConstantValue::String(spread.fragment.item.0)) }
+                        name: common::WithLocation {
+                            location: Location::generated(),
+                            item: ArgumentName("variableCondition".intern()),
+                        },
+                        value: common::WithLocation {
+                            location: Location::generated(),
+                            item: Value::Constant(ConstantValue::String(
+                                variable_condition.unwrap().0,
+                            )),
+                        },
                     });
 
-                    if variable_condition.is_some() {
-                        arguments.push(Argument {
-                            name: common::WithLocation { location: Location::generated(), item: ArgumentName("variableCondition".intern()) },
-                            value: common::WithLocation { location: Location::generated(), item: Value::Constant(ConstantValue::String(variable_condition.unwrap().0)) }
-                        });
-
-                        arguments.push(Argument {
-                            name: common::WithLocation { location: Location::generated(), item: ArgumentName("variableConditionIsInclude".intern()) },
-                            value: common::WithLocation { location: Location::generated(), item: Value::Constant(ConstantValue::Boolean(variable_condition.unwrap().1)) }
-                        });
-                    }
-                    let directive = Directive {
-                        arguments,
-                        ..codesplit_directive.clone()
-                    };
-                    directives.push(directive);
+                    arguments.push(Argument {
+                        name: common::WithLocation {
+                            location: Location::generated(),
+                            item: ArgumentName("variableConditionIsInclude".intern()),
+                        },
+                        value: common::WithLocation {
+                            location: Location::generated(),
+                            item: Value::Constant(ConstantValue::Boolean(
+                                variable_condition.unwrap().1,
+                            )),
+                        },
+                    });
                 }
-            },
-            _ => ()
+                let directive = Directive {
+                    arguments,
+                    ..codesplit_directive.clone()
+                };
+                directives.push(directive);
+            }
         }
+        _ => (),
     });
 }

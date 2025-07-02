@@ -1,13 +1,14 @@
 use std::fmt::Write;
+
+use common::NamedItem;
 use common::SourceLocationKey;
 use docblock_shared::RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE;
 use graphql_ir::reexport::Intern;
 use relay_config::ProjectConfig;
-use relay_transforms::relay_resolvers::get_resolver_info;
-use common::NamedItem;
 use relay_transforms::Programs;
-use relay_transforms::is_operation_preloadable;
 use relay_transforms::RESOLVER_BELONGS_TO_BASE_SCHEMA_DIRECTIVE;
+use relay_transforms::is_operation_preloadable;
+use relay_transforms::relay_resolvers::get_resolver_info;
 use relay_typegen::rescript::NullabilityMode;
 use relay_typegen::rescript_utils::capitalize_string;
 use relay_typegen::rescript_utils::get_safe_key;
@@ -31,31 +32,31 @@ pub(crate) fn rescript_generate_extra_artifacts(
 ) -> Vec<Artifact> {
     // Preloaded operations
     let mut extra_artifacts: Vec<Artifact> = artifacts
-    .iter()
-    .map(|artifact| match &artifact.content {
-        ArtifactContent::Operation {
-            normalization_operation,
-            typegen_operation,
-            id_and_text_hash,
-            ..
-        } => {
-            if !is_operation_preloadable(&normalization_operation) {
-                return None;
-            }
-
-            Some(generate_preloadable_query_parameters_artifact(
-                project_config,
+        .iter()
+        .map(|artifact| match &artifact.content {
+            ArtifactContent::Operation {
                 normalization_operation,
                 typegen_operation,
                 id_and_text_hash,
-                artifact.artifact_source_keys.clone(),
-                artifact.source_file,
-            ))
-        }
-        _ => None,
-    })
-    .filter_map(|artifact| artifact)
-    .collect();
+                ..
+            } => {
+                if !is_operation_preloadable(&normalization_operation) {
+                    return None;
+                }
+
+                Some(generate_preloadable_query_parameters_artifact(
+                    project_config,
+                    normalization_operation,
+                    typegen_operation,
+                    id_and_text_hash,
+                    artifact.artifact_source_keys.clone(),
+                    artifact.source_file,
+                ))
+            }
+            _ => None,
+        })
+        .filter_map(|artifact| artifact)
+        .collect();
 
     // Schema assets file
     let dummy_source_file = SourceLocationKey::Generated;
@@ -83,15 +84,11 @@ pub(crate) fn rescript_generate_extra_artifacts(
         if let Some(desc) = e.description {
             writeln!(content, "/** {} */", desc).unwrap();
         }
-        
+
         writeln!(
             content,
             "@live{}\ntype enum_{}_input = ",
-            if e.values.len() > 1 {
-                " @unboxed"
-            } else {
-                ""
-            },
+            if e.values.len() > 1 { " @unboxed" } else { "" },
             e.name.item
         )
         .unwrap();
@@ -146,9 +143,9 @@ pub(crate) fn rescript_generate_extra_artifacts(
 
             input_obj.fields.iter().for_each(|field| {
                 writeln!(
-                    content, 
-                    "| @as(\"{}\") {}({})", 
-                    field.name.item, 
+                    content,
+                    "| @as(\"{}\") {}({})",
+                    field.name.item,
                     capitalize_string(&field.name.item.to_string()),
                     print_type_reference(
                         &field.type_,
@@ -177,9 +174,9 @@ pub(crate) fn rescript_generate_extra_artifacts(
 
             input_obj.fields.iter().for_each(|field| {
                 writeln!(
-                    content, 
-                    "| @as(\"{}\") {}({})", 
-                    field.name.item, 
+                    content,
+                    "| @as(\"{}\") {}({})",
+                    field.name.item,
                     capitalize_string(&field.name.item.to_string()),
                     print_type_reference(
                         &field.type_,
@@ -193,7 +190,7 @@ pub(crate) fn rescript_generate_extra_artifacts(
                 ).unwrap();
             });
 
-        } else {       
+        } else {
 
             writeln!(
                 content,
@@ -230,7 +227,7 @@ pub(crate) fn rescript_generate_extra_artifacts(
                         false,
                         &NullabilityMode::Option,
                         true
-                        
+
                     )
                 )
                 .unwrap();
@@ -299,7 +296,10 @@ pub(crate) fn rescript_generate_extra_artifacts(
 
     let schema_assets_artifact = Artifact {
         artifact_source_keys: vec![],
-        path: project_config.create_path_for_artifact(dummy_source_file, String::from("RelaySchemaAssets_graphql.res")),
+        path: project_config.create_path_for_artifact(
+            dummy_source_file,
+            String::from("RelaySchemaAssets_graphql.res"),
+        ),
         source_file: dummy_source_file,
         content: crate::ArtifactContent::Generic {
             content: content.as_bytes().to_vec(),
@@ -314,12 +314,12 @@ pub(crate) fn rescript_generate_extra_artifacts(
         let mut c = String::from("/* @generated */\n@@warning(\"-30\")\n\n");
 
         for field in object.fields.iter().map(|field_id| schema.field(*field_id)) {
-            if let Some(Ok(resolver_info)) = get_resolver_info(schema, field, field.name.location)
-            {
+            if let Some(Ok(resolver_info)) = get_resolver_info(schema, field, field.name.location) {
                 if field
                     .directives
                     .named(*RESOLVER_BELONGS_TO_BASE_SCHEMA_DIRECTIVE)
-                    .is_some() || field.name.item.to_string().starts_with("__relay_")
+                    .is_some()
+                    || field.name.item.to_string().starts_with("__relay_")
                 {
                     continue;
                 }
@@ -328,10 +328,16 @@ pub(crate) fn rescript_generate_extra_artifacts(
 
                 if !&field.arguments.is_empty() {
                     // Write args type
-                    write!(c, "type {}ResolverArgs = {{\n", uncapitalize_string(&field.name.item.to_string())).unwrap();
+                    write!(
+                        c,
+                        "type {}ResolverArgs = {{\n",
+                        uncapitalize_string(&field.name.item.to_string())
+                    )
+                    .unwrap();
                     field.arguments.iter().for_each(|argument| {
-                        let (key, maybe_original_key) = get_safe_key(&argument.name.item.to_string());
-        
+                        let (key, maybe_original_key) =
+                            get_safe_key(&argument.name.item.to_string());
+
                         writeln!(
                             c,
                             "  {}{}: {},",
@@ -355,27 +361,47 @@ pub(crate) fn rescript_generate_extra_artifacts(
                     write!(c, "}}\n").unwrap();
                 }
 
-                write!(c, "type {}Resolver = (", uncapitalize_string(&field.name.item.to_string())).unwrap();
+                write!(
+                    c,
+                    "type {}Resolver = (",
+                    uncapitalize_string(&field.name.item.to_string())
+                )
+                .unwrap();
 
                 match resolver_info.fragment_name {
-                    Some(fragment_name) => if !fragment_name.0.to_string().contains("__relay_") {
-                        write!(c, "RescriptRelay.resolverFragmentRefs<[#{}]>, ", fragment_name).unwrap()
-                    } else {
-                        ()
-                    },
-                    None => ()
+                    Some(fragment_name) => {
+                        if !fragment_name.0.to_string().contains("__relay_") {
+                            write!(
+                                c,
+                                "RescriptRelay.resolverFragmentRefs<[#{}]>, ",
+                                fragment_name
+                            )
+                            .unwrap()
+                        } else {
+                            ()
+                        }
+                    }
+                    None => (),
                 };
 
                 // Case when the field is on a client extension type
                 if object.is_extension {
                     write!(c, "Relay{}Model.t, ", &object.name.item.to_string()).unwrap();
-                    
+
                     // Case @weak object
-                    let _is_weak_object = object.directives.named(*RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE).is_some();
+                    let _is_weak_object = object
+                        .directives
+                        .named(*RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE)
+                        .is_some();
                 }
 
                 if !&field.arguments.is_empty() {
-                    write!(c, "{}ResolverArgs", uncapitalize_string(&field.name.item.to_string())).unwrap();
+                    write!(
+                        c,
+                        "{}ResolverArgs",
+                        uncapitalize_string(&field.name.item.to_string())
+                    )
+                    .unwrap();
                 }
 
                 let is_live = resolver_info.live;
@@ -383,32 +409,37 @@ pub(crate) fn rescript_generate_extra_artifacts(
                     &field.type_,
                     &schema,
                     &project_config.typegen_config.custom_scalar_types,
-                false,
+                    false,
                     false,
                     &NullabilityMode::Option,
-                    true
+                    true,
                 );
                 write!(
-                    c, ") => {}\n\n", 
+                    c,
+                    ") => {}\n\n",
                     if is_live {
                         format!("RescriptRelay.liveState<{}>", return_type)
                     } else {
                         return_type
                     }
-                ).unwrap();
+                )
+                .unwrap();
             }
         }
 
         if has_resolvers {
             let relay_resolvers_assets_artifact = Artifact {
                 artifact_source_keys: vec![],
-                path: project_config.create_path_for_artifact(dummy_source_file, format!("{}_relayResolvers_graphql.res", object.name.item.0)),
+                path: project_config.create_path_for_artifact(
+                    dummy_source_file,
+                    format!("{}_relayResolvers_graphql.res", object.name.item.0),
+                ),
                 source_file: dummy_source_file,
                 content: crate::ArtifactContent::Generic {
                     content: c.as_bytes().to_vec(),
                 },
             };
-        
+
             extra_artifacts.push(relay_resolvers_assets_artifact);
         }
     }

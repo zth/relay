@@ -1,9 +1,16 @@
-use common::{Diagnostic, DiagnosticsResult, Location};
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::Location;
 use errors::validate;
-use graphql_ir::{
-    Field, LinkedField, OperationDefinition, Program, ScalarField, ValidationMessage, Validator,
-};
-use intern::string_key::{Intern, StringKey};
+use graphql_ir::Field;
+use graphql_ir::LinkedField;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::ScalarField;
+use graphql_ir::ValidationMessage;
+use graphql_ir::Validator;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
 use schema::Schema;
 
 /// This disallows selecting/naming variables a bunch of keywords in ReScript.
