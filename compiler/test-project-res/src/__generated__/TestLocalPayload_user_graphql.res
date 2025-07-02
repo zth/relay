@@ -8,7 +8,6 @@ module Types = {
     avatarUrl: option<string>,
     firstName: string,
   }
-  type fragment_useOpt = fragment
 }
 
 module Internal = {

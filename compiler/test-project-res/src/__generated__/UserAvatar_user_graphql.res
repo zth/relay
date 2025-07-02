@@ -8,7 +8,6 @@ module Types = {
     @as("UserName_user") userName_user: RescriptRelay.fragmentRefs<[ | #UserName_user]>,
     avatarUrl: option<string>,
   }
-  type fragment_useOpt = fragment
 }
 
 module Internal = {

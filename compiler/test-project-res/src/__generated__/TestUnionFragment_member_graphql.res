@@ -21,7 +21,6 @@ module Types = {
     )
     | @live @as("__unselected") UnselectedUnionMember(string)
 
-  type fragment_useOpt = fragment
 }
 
 @live

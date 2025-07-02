@@ -11,7 +11,6 @@ module Types = {
     firstName: string,
     friendsConnection: fragment_friendsConnection,
   }
-  type fragment_useOpt = fragment
 }
 
 module Internal = {

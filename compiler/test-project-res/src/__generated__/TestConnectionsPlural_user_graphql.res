@@ -17,7 +17,6 @@ module Types = {
     friendsConnection: fragment_friendsConnection,
   }
   type fragment = array<fragment_t>
-  type fragment_useOpt = fragment
 }
 
 module Internal = {

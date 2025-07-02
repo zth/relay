@@ -7,7 +7,6 @@ module Types = {
   type fragment = {
     @live id: string,
   }
-  type fragment_useOpt = fragment
 }
 
 module Internal = {

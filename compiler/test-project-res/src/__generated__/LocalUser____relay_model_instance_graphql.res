@@ -5,7 +5,6 @@ module Types = {
   @@warning("-30")
 
   type fragment = unit
-  type fragment_useOpt = fragment
 }
 
 module Internal = {

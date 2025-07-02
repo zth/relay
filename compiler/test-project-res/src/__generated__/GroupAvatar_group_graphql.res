@@ -7,7 +7,6 @@ module Types = {
   type fragment = {
     name: string,
   }
-  type fragment_useOpt = fragment
 }
 
 module Internal = {

@@ -17,7 +17,6 @@ module Types = {
     localOnlineStatus: option<RelaySchemaAssets_graphql.enum_LocalOnlineStatus_input>,
     localUnion: option<fragment_localUnion>,
   }
-  type fragment_useOpt = fragment
 }
 
 @live

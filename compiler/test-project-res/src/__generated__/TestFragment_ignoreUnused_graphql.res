@@ -9,7 +9,6 @@ module Types = {
     @live lastName: string,
     @live onlineStatus: option<RelaySchemaAssets_graphql.enum_OnlineStatus>,
   }
-  type fragment_useOpt = fragment
 }
 
 module Internal = {

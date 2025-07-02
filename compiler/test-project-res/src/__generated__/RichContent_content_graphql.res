@@ -7,7 +7,6 @@ module Types = {
   type fragment = {
     content: option<string>,
   }
-  type fragment_useOpt = fragment
 }
 
 module Internal = {

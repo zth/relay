@@ -8,7 +8,6 @@ module Types = {
     createdAt: SomeModule.Datetime.t,
   }
   type fragment = RescriptRelay.CatchResult.t<fragment_t>
-  type fragment_useOpt = fragment
 }
 
 module Internal = {
