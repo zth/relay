@@ -22,6 +22,7 @@ module Types = {
     bestFriend: Js.Nullable.t<fragment_bestFriend>,
     memberOfSingular: Js.Nullable.t<fragment_memberOfSingular>,
   }
+  type fragment_useOpt = fragment
 }
 
 module Internal = {

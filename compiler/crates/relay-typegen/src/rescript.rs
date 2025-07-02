@@ -1809,6 +1809,22 @@ fn write_fragment_definition(
         }
     }
 
+    // Generate the fragment_useOpt type
+    write_indentation(str, indentation).unwrap();
+    match &fragment {
+        // Cases where we create fragment_t and wrap it in option<> - useOpt should point to fragment_t
+        | &TopLevelFragmentType::Object(_) 
+        | &TopLevelFragmentType::Union(_) 
+        | &TopLevelFragmentType::Result(_) 
+        | &TopLevelFragmentType::ResultWithUnion(_) if nullable => {
+            writeln!(str, "type fragment_useOpt = fragment_t").unwrap()
+        }
+        // All other cases (including arrays, non-nullable fragments) - alias to fragment
+        _ => {
+            writeln!(str, "type fragment_useOpt = fragment").unwrap()
+        }
+    }
+
     Ok(())
 }
 

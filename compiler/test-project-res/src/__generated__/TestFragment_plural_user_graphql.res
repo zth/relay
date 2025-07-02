@@ -10,6 +10,7 @@ module Types = {
     onlineStatus: option<RelaySchemaAssets_graphql.enum_OnlineStatus>,
   }
   type fragment = array<fragment_t>
+  type fragment_useOpt = fragment
 }
 
 module Internal = {

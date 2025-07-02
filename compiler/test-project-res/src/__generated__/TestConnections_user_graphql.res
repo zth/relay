@@ -16,6 +16,7 @@ module Types = {
   type fragment = {
     friendsConnection: fragment_friendsConnection,
   }
+  type fragment_useOpt = fragment
 }
 
 module Internal = {

@@ -20,6 +20,7 @@ module Types = {
     | @live @as("__unselected") UnselectedUnionMember(string)
 
   type fragment = RescriptRelay.CatchResult.t<fragment_t>
+  type fragment_useOpt = fragment
 }
 
 @live

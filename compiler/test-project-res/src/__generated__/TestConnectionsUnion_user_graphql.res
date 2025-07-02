@@ -25,6 +25,7 @@ module Types = {
   type fragment = {
     member: option<fragment_member>,
   }
+  type fragment_useOpt = fragment
 }
 
 @live

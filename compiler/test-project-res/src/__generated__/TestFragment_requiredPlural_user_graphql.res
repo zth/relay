@@ -10,6 +10,7 @@ module Types = {
     lastName: string,
   }
   type fragment = array<option<fragment_t>>
+  type fragment_useOpt = fragment
 }
 
 module Internal = {

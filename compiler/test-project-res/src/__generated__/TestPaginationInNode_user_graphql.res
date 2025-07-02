@@ -12,6 +12,7 @@ module Types = {
     friendsConnection: fragment_friendsConnection,
     @live id: string,
   }
+  type fragment_useOpt = fragment
 }
 
 module Internal = {

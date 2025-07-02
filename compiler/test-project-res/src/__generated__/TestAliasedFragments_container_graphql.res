@@ -9,6 +9,7 @@ module Types = {
     @as("TestAliasedFragments_two") testAliasedFragments_two: RescriptRelay.fragmentRefs<[ | #TestAliasedFragments_two]>,
     firstName: string,
   }
+  type fragment_useOpt = fragment
 }
 
 module Internal = {

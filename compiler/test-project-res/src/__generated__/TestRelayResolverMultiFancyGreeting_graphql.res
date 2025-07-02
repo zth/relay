@@ -7,6 +7,7 @@ module Types = {
   type fragment = {
     firstName: option<string>,
   }
+  type fragment_useOpt = fragment
 }
 
 module Internal = {

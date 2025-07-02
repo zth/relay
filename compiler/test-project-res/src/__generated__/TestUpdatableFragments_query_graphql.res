@@ -12,6 +12,7 @@ module Types = {
   type fragment = {
     loggedInUser: fragment_loggedInUser,
   }
+  type fragment_useOpt = fragment
 }
 
 module Internal = {

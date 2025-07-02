@@ -12,6 +12,7 @@ module Types = {
     firstName: string,
     requiredFields: option<fragment_requiredFields>,
   }
+  type fragment_useOpt = fragment
 }
 
 module Internal = {

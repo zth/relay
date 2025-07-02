@@ -24,6 +24,7 @@ module Types = {
     byType: fragment_byType,
     name: string,
   }
+  type fragment_useOpt = fragment
 }
 
 @live

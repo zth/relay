@@ -26,6 +26,7 @@ module Types = {
     memberOf: option<array<option<fragment_memberOf>>>,
     onlineStatus: option<RelaySchemaAssets_graphql.enum_OnlineStatus>,
   }
+  type fragment_useOpt = fragment
 }
 
 @live

@@ -10,6 +10,7 @@ module Types = {
     onlineStatus: option<RelaySchemaAssets_graphql.enum_OnlineStatus>,
     fragmentRefs: RescriptRelay.fragmentRefs<[ | #TestFragment_sub_user]>,
   }
+  type fragment_useOpt = fragment
 }
 
 module Internal = {

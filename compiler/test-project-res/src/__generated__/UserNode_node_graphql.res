@@ -8,6 +8,7 @@ module Types = {
     @live __typename: string,
     @live id: string,
   }
+  type fragment_useOpt = fragment
 }
 
 module Internal = {

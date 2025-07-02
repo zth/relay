@@ -26,6 +26,7 @@ module Types = {
     member: option<fragment_member>,
   }
   type fragment = array<fragment_t>
+  type fragment_useOpt = fragment
 }
 
 @live
