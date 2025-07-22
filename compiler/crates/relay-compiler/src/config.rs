@@ -420,6 +420,7 @@ impl Config {
                     typegen_config: config_file_project.typegen_config,
                     persist: config_file_project.persist,
                     variable_names_comment: config_file_project.variable_names_comment,
+                    auto_exhaustive_mutations: config_file_project.auto_exhaustive_mutations,
                     test_path_regex,
                     feature_flags: Arc::new(
                         config_file_project
@@ -1194,6 +1195,11 @@ pub struct ConfigFileProject {
     /// Generates a `// @relayVariables name1 name2` header in generated operation files
     #[serde(default)]
     variable_names_comment: bool,
+
+    /// Automatically enforce exhaustive union selections on mutation fields
+    /// returning union types.
+    #[serde(default)]
+    auto_exhaustive_mutations: bool,
 
     /// A placeholder for allowing extra information in the config file
     #[serde(default)]

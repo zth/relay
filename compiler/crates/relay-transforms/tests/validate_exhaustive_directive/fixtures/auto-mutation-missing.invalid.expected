@@ -1,0 +1,22 @@
+==================================== INPUT ====================================
+# expected-to-throw
+mutation AutoMissing {
+  unionField {
+    ... on A { __typename }
+  }
+}
+# %extensions%
+extend type Mutation { unionField: MyUnion }
+type A { id: ID }
+type B { id: ID }
+union MyUnion = A | B
+directive @exhaustive(ignore: [String!]) on FIELD
+directive @nonExhaustive on FIELD
+==================================== ERROR ====================================
+✖︎ Field 'unionField' marked with @exhaustive is missing selection for union member 'B'.
+
+  auto-mutation-missing.invalid.graphql:3:3
+    2 │ mutation AutoMissing {
+    3 │   unionField {
+      │   ^^^^^^^^^^
+    4 │     ... on A { __typename }

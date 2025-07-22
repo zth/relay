@@ -1,0 +1,8 @@
+fragment IgnoreMemberValid on User {
+  nameRenderer @exhaustive(ignore: ["CustomNameRenderer"]) {
+    ... on PlainUserNameRenderer { __typename }
+    ... on MarkdownUserNameRenderer { __typename }
+  }
+}
+# %extensions%
+directive @exhaustive(ignore: [String!]) on FIELD

@@ -221,6 +221,15 @@ pub enum ValidationMessage {
         parent_name: Option<StringKey>,
         reason: Option<StringKey>,
     },
+    #[error(
+        "Field '{field_name}' marked with @exhaustive is missing selection for union member '{member_name}'."
+    )]
+    MissingExhaustiveUnionMember {
+        field_name: StringKey,
+        member_name: StringKey,
+    },
+    #[error("The @exhaustive directive can only be applied to fields returning union types.")]
+    ExhaustiveDirectiveOnNonUnionField,
 }
 
 #[derive(

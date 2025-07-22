@@ -1,0 +1,6 @@
+#expected-to-throw
+fragment DirectiveOnNonUnion on User {
+  name @exhaustive
+}
+# %extensions%
+directive @exhaustive(ignore: [String!]) on FIELD

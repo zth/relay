@@ -1,0 +1,15 @@
+fragment AllMembersValid on User {
+  nameRenderer @exhaustive {
+    ... on PlainUserNameRenderer {
+      __typename
+    }
+    ... on MarkdownUserNameRenderer {
+      __typename
+    }
+    ... on CustomNameRenderer {
+      __typename
+    }
+  }
+}
+# %extensions%
+directive @exhaustive(ignore: [String!]) on FIELD

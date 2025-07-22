@@ -1,0 +1,25 @@
+==================================== INPUT ====================================
+mutation AutoValid {
+  unionField {
+    ... on A { __typename }
+    ... on B { __typename }
+  }
+}
+# %extensions%
+extend type Mutation { unionField: MyUnion }
+type A { id: ID }
+type B { id: ID }
+union MyUnion = A | B
+directive @exhaustive(ignore: [String!]) on FIELD
+directive @nonExhaustive on FIELD
+==================================== OUTPUT ===================================
+mutation AutoValid {
+  unionField {
+    ... on A {
+      __typename
+    }
+    ... on B {
+      __typename
+    }
+  }
+}

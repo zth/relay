@@ -24,6 +24,7 @@ use relay_transforms::validate_client_schema_extensions_use_catch;
 use relay_transforms::validate_connections;
 use relay_transforms::validate_fragment_alias_conflict;
 use relay_transforms::validate_global_variable_names;
+use relay_transforms::validate_exhaustive_directive;
 use relay_transforms::validate_module_names;
 use relay_transforms::validate_no_double_underscore_alias;
 use relay_transforms::validate_no_inline_fragments_with_raw_response_type;
@@ -77,6 +78,7 @@ pub fn validate(
         validate_relay_directives(program),
         validate_global_variable_names(program),
         validate_module_names(program),
+        validate_exhaustive_directive(program, project_config),
         validate_client_schema_extensions_use_catch(program),
         validate_no_inline_fragments_with_raw_response_type(program),
         disallow_typename_on_root(program),
