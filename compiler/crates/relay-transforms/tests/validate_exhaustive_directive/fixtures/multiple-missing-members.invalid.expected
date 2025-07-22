@@ -1,0 +1,15 @@
+==================================== INPUT ====================================
+#expected-to-throw
+fragment MultipleMissingMembers on User {
+  nameRenderer @exhaustive {
+    ... on PlainUserNameRenderer { __typename }
+  }
+}
+==================================== ERROR ====================================
+✖︎ Field 'nameRenderer' marked with @exhaustive is missing selection for union members: 'MarkdownUserNameRenderer', 'CustomNameRenderer'.
+
+  multiple-missing-members.invalid.graphql:3:3
+    2 │ fragment MultipleMissingMembers on User {
+    3 │   nameRenderer @exhaustive {
+      │   ^^^^^^^^^^^^
+    4 │     ... on PlainUserNameRenderer { __typename }

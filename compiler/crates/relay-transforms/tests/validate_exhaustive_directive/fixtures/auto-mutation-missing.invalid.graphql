@@ -1,0 +1,11 @@
+# expected-to-throw
+mutation AutoMissing {
+  unionField {
+    ... on A { __typename }
+  }
+}
+# %extensions%
+extend type Mutation { unionField: MyUnion }
+type A { id: ID }
+type B { id: ID }
+union MyUnion = A | B

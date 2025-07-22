@@ -285,6 +285,9 @@ pub struct ProjectConfig {
     pub persist: Option<PersistConfig>,
     /// Whether to include variable names in comments.
     pub variable_names_comment: bool,
+    /// Automatically enforce exhaustive union selections on mutation fields
+    /// returning union types.
+    pub auto_exhaustive_mutations: bool,
     /// Additional metadata for the project.
     pub extra: serde_json::Value,
     /// Feature flags for the project.
@@ -328,6 +331,7 @@ impl Default for ProjectConfig {
             typegen_config: Default::default(),
             persist: None,
             variable_names_comment: false,
+            auto_exhaustive_mutations: false,
             extra: Default::default(),
             test_path_regex: None,
             rollout: Default::default(),
@@ -361,6 +365,7 @@ impl Debug for ProjectConfig {
             typegen_config,
             persist,
             variable_names_comment,
+            auto_exhaustive_mutations,
             extra,
             feature_flags,
             test_path_regex,
@@ -390,6 +395,7 @@ impl Debug for ProjectConfig {
             .field("typegen_config", typegen_config)
             .field("persist", persist)
             .field("variable_names_comment", variable_names_comment)
+            .field("auto_exhaustive_mutations", auto_exhaustive_mutations)
             .field("extra", extra)
             .field("feature_flags", feature_flags)
             .field("test_path_regex", test_path_regex)

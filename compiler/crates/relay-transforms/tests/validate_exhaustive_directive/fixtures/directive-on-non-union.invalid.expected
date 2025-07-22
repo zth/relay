@@ -1,0 +1,13 @@
+==================================== INPUT ====================================
+#expected-to-throw
+fragment DirectiveOnNonUnion on User {
+  name @exhaustive
+}
+==================================== ERROR ====================================
+✖︎ The @exhaustive directive can only be applied to fields or fragment definitions returning union types.
+
+  directive-on-non-union.invalid.graphql:3:3
+    2 │ fragment DirectiveOnNonUnion on User {
+    3 │   name @exhaustive
+      │   ^^^^
+    4 │ }

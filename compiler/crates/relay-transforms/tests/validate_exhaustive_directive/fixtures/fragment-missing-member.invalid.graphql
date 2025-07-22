@@ -1,0 +1,5 @@
+#expected-to-throw
+fragment FragmentMissingMember on UserNameRenderer @exhaustive {
+  ... on PlainUserNameRenderer { __typename }
+  ... on MarkdownUserNameRenderer { __typename }
+}

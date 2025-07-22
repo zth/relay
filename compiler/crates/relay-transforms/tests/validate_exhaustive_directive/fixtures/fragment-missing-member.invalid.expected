@@ -1,0 +1,14 @@
+==================================== INPUT ====================================
+#expected-to-throw
+fragment FragmentMissingMember on UserNameRenderer @exhaustive {
+  ... on PlainUserNameRenderer { __typename }
+  ... on MarkdownUserNameRenderer { __typename }
+}
+==================================== ERROR ====================================
+✖︎ Fragment 'FragmentMissingMember' marked with @exhaustive is missing selection for union members: 'CustomNameRenderer'.
+
+  fragment-missing-member.invalid.graphql:2:10
+    1 │ #expected-to-throw
+    2 │ fragment FragmentMissingMember on UserNameRenderer @exhaustive {
+      │          ^^^^^^^^^^^^^^^^^^^^^
+    3 │   ... on PlainUserNameRenderer { __typename }

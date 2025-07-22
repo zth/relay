@@ -1,0 +1,24 @@
+==================================== INPUT ====================================
+fragment FragmentAllMembersValid on UserNameRenderer @exhaustive {
+  ... on PlainUserNameRenderer {
+    __typename
+  }
+  ... on MarkdownUserNameRenderer {
+    __typename
+  }
+  ... on CustomNameRenderer {
+    __typename
+  }
+}
+==================================== OUTPUT ===================================
+fragment FragmentAllMembersValid on UserNameRenderer @exhaustive {
+  ... on PlainUserNameRenderer {
+    __typename
+  }
+  ... on MarkdownUserNameRenderer {
+    __typename
+  }
+  ... on CustomNameRenderer {
+    __typename
+  }
+}

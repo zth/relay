@@ -7,6 +7,16 @@ module Query = %relay(`
     }
 `)
 
+module Query = %relay(`
+    query TestUnionFragmentExhaustiveQuery {
+      member(id: "123") @exhaustive {
+        ... on User {
+          firstName
+        }
+      }
+    }
+`)
+
 module Fragment = %relay(`
     fragment TestUnionFragment_member on Member {
       ... on User {
