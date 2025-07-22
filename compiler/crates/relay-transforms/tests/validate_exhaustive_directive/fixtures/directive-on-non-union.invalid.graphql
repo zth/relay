@@ -1,0 +1,4 @@
+#expected-to-throw
+fragment DirectiveOnNonUnion on User {
+  name @exhaustive
+}

@@ -1,0 +1,6 @@
+#expected-to-throw
+fragment MultipleMissingMembers on User {
+  nameRenderer @exhaustive {
+    ... on PlainUserNameRenderer { __typename }
+  }
+} 

@@ -1,0 +1,18 @@
+==================================== INPUT ====================================
+fragment IgnoreMemberValid on User {
+  nameRenderer @exhaustive(ignore: ["CustomNameRenderer"]) {
+    ... on PlainUserNameRenderer { __typename }
+    ... on MarkdownUserNameRenderer { __typename }
+  }
+}
+==================================== OUTPUT ===================================
+fragment IgnoreMemberValid on User {
+  nameRenderer @exhaustive(ignore: ["CustomNameRenderer"]) {
+    ... on PlainUserNameRenderer {
+      __typename
+    }
+    ... on MarkdownUserNameRenderer {
+      __typename
+    }
+  }
+}

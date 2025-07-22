@@ -353,6 +353,13 @@ Codesplits.
 directive @codesplit on FRAGMENT_SPREAD
 
 """
+(RescriptRelay only)
+
+Marks a field as exhaustive.
+"""
+directive @exhaustive(ignore: [String!], disabled: Boolean) on FIELD | FRAGMENT_DEFINITION
+
+"""
 (Relay Only)
 
 **To resolve, replace `@dangerously_unaliased_fixme` with `@alias`**

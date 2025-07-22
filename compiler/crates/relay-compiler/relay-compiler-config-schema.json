@@ -5681,6 +5681,11 @@
                 "description": "Generates a `// @relayVariables name1 name2` header in generated operation files",
                 "default": false,
                 "type": "boolean"
+              },
+              "autoExhaustiveMutations": {
+                "description": "Automatically enforce exhaustive union selections on mutation fields returning union types",
+                "default": false,
+                "type": "boolean"
               }
             },
             "additionalProperties": false

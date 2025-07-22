@@ -1,0 +1,14 @@
+fragment AllMembersValid on User {
+  nameRenderer @exhaustive {
+    ... on PlainUserNameRenderer {
+      __typename
+    }
+    ... on MarkdownUserNameRenderer {
+      __typename
+    }
+    ... on CustomNameRenderer {
+      __typename
+    }
+  }
+}
+
