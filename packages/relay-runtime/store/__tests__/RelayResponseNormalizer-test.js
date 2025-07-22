@@ -37,6 +37,7 @@ describe('RelayResponseNormalizer', () => {
   const defaultOptions = {
     getDataID: defaultGetDataID,
     treatMissingFieldsAsNull: false,
+    log: null,
   };
 
   it('normalizes queries', () => {
@@ -399,7 +400,7 @@ describe('RelayResponseNormalizer', () => {
       BarQuery = graphql`
         query RelayResponseNormalizerTest4Query($id: ID!) {
           node(id: $id) {
-            ...RelayResponseNormalizerTestFragment
+            ...RelayResponseNormalizerTestFragment @dangerously_unaliased_fixme
           }
         }
       `;
@@ -676,7 +677,7 @@ describe('RelayResponseNormalizer', () => {
       BarQuery = graphql`
         query RelayResponseNormalizerTest5Query($id: ID!) {
           node(id: $id) {
-            ...RelayResponseNormalizerTest1Fragment
+            ...RelayResponseNormalizerTest1Fragment @dangerously_unaliased_fixme
           }
         }
       `;
@@ -899,6 +900,7 @@ describe('RelayResponseNormalizer', () => {
         ) {
           node(id: $id) {
             ...RelayResponseNormalizerTest2Fragment
+              @dangerously_unaliased_fixme
               @defer(label: "TestFragment", if: $enableDefer)
           }
         }
@@ -949,6 +951,7 @@ describe('RelayResponseNormalizer', () => {
         query RelayResponseNormalizerTest7Query($id: ID!) {
           node(id: $id) {
             ...RelayResponseNormalizerTest3Fragment
+              @dangerously_unaliased_fixme
               @defer(label: "TestFragment", if: true)
           }
         }
@@ -1014,6 +1017,7 @@ describe('RelayResponseNormalizer', () => {
         ) {
           node(id: $id) {
             ...RelayResponseNormalizerTest4Fragment
+              @dangerously_unaliased_fixme
               @defer(label: "TestFragment", if: $enableDefer)
           }
         }
@@ -1079,6 +1083,7 @@ describe('RelayResponseNormalizer', () => {
             ... on Feedback {
               actors {
                 ...RelayResponseNormalizerTest5Fragment
+                  @dangerously_unaliased_fixme
                   @defer(label: "TestFragment", if: true)
               }
             }
@@ -1171,6 +1176,7 @@ describe('RelayResponseNormalizer', () => {
         query RelayResponseNormalizerTest10Query($id: ID!) {
           node(id: $id) {
             ...RelayResponseNormalizerTest6Fragment
+              @dangerously_unaliased_fixme
               @defer(label: "TestFragment")
           }
         }
@@ -1227,7 +1233,7 @@ describe('RelayResponseNormalizer', () => {
           $enableStream: Boolean!
         ) {
           node(id: $id) {
-            ...RelayResponseNormalizerTest7Fragment
+            ...RelayResponseNormalizerTest7Fragment @dangerously_unaliased_fixme
           }
         }
       `;
@@ -1284,7 +1290,7 @@ describe('RelayResponseNormalizer', () => {
       const Query = graphql`
         query RelayResponseNormalizerTestQuery($id: ID!) {
           node(id: $id) {
-            ...RelayResponseNormalizerTest8Fragment
+            ...RelayResponseNormalizerTest8Fragment @dangerously_unaliased_fixme
           }
         }
       `;
@@ -1353,7 +1359,7 @@ describe('RelayResponseNormalizer', () => {
           $enableStream: Boolean!
         ) {
           node(id: $id) {
-            ...RelayResponseNormalizerTest9Fragment
+            ...RelayResponseNormalizerTest9Fragment @dangerously_unaliased_fixme
           }
         }
       `;
@@ -1426,6 +1432,7 @@ describe('RelayResponseNormalizer', () => {
         query RelayResponseNormalizerTest13Query($id: ID!) {
           node(id: $id) {
             ...RelayResponseNormalizerTest10Fragment
+              @dangerously_unaliased_fixme
           }
         }
       `;
@@ -1510,6 +1517,7 @@ describe('RelayResponseNormalizer', () => {
         query RelayResponseNormalizerTest14Query($id: ID!) {
           node(id: $id) {
             ...RelayResponseNormalizerTest11Fragment
+              @dangerously_unaliased_fixme
           }
         }
       `;
@@ -1943,7 +1951,7 @@ describe('RelayResponseNormalizer', () => {
             id: '1',
           }),
           fooPayload,
-          {getDataID, treatMissingFieldsAsNull: false},
+          {getDataID, treatMissingFieldsAsNull: false, log: null},
         );
         expect(recordSource.toJSON()).toEqual({
           'client:root': {
@@ -2016,7 +2024,7 @@ describe('RelayResponseNormalizer', () => {
             id: '1',
           }),
           fooPayload0,
-          {getDataID, treatMissingFieldsAsNull: false},
+          {getDataID, treatMissingFieldsAsNull: false, log: null},
         );
         normalize(
           recordSource,
@@ -2024,7 +2032,7 @@ describe('RelayResponseNormalizer', () => {
             id: '1',
           }),
           fooPayload1,
-          {getDataID, treatMissingFieldsAsNull: false},
+          {getDataID, treatMissingFieldsAsNull: false, log: null},
         );
         expect(recordSource.toJSON()).toEqual({
           'client:root': {
@@ -2064,7 +2072,7 @@ describe('RelayResponseNormalizer', () => {
             id: '1',
           }),
           payload,
-          {getDataID, treatMissingFieldsAsNull: false},
+          {getDataID, treatMissingFieldsAsNull: false, log: null},
         );
         expect(recordSource.toJSON()).toEqual({
           '1:Page': {
@@ -2133,7 +2141,11 @@ describe('RelayResponseNormalizer', () => {
             id: '1',
           }),
           payload,
-          {getDataID: getNullAsDataID, treatMissingFieldsAsNull: false},
+          {
+            getDataID: getNullAsDataID,
+            treatMissingFieldsAsNull: false,
+            log: null,
+          },
         );
         expect(recordSource.toJSON()).toEqual(expectedData);
         expect(getNullAsDataID).toBeCalledTimes(3);
@@ -2146,7 +2158,11 @@ describe('RelayResponseNormalizer', () => {
             id: '1',
           }),
           payload,
-          {getDataID: getNullAsDataID, treatMissingFieldsAsNull: false},
+          {
+            getDataID: getNullAsDataID,
+            treatMissingFieldsAsNull: false,
+            log: null,
+          },
         );
         expect(recordSource.toJSON()).toEqual({
           'client:root': {
@@ -2222,7 +2238,7 @@ describe('RelayResponseNormalizer', () => {
             id: '1',
           }),
           payload,
-          {getDataID, treatMissingFieldsAsNull: false},
+          {getDataID, treatMissingFieldsAsNull: false, log: null},
         );
         expect(recordSource.toJSON()).toEqual({
           '1:Page': {
@@ -2293,7 +2309,11 @@ describe('RelayResponseNormalizer', () => {
             id: '1',
           }),
           payload,
-          {getDataID: getNullAsDataID, treatMissingFieldsAsNull: false},
+          {
+            getDataID: getNullAsDataID,
+            treatMissingFieldsAsNull: false,
+            log: null,
+          },
         );
         expect(recordSource.toJSON()).toEqual(expectedData);
         expect(getNullAsDataID).toBeCalledTimes(3);
@@ -2329,7 +2349,11 @@ describe('RelayResponseNormalizer', () => {
             id: '1',
           }),
           payload,
-          {getDataID: getNullAsDataID, treatMissingFieldsAsNull: false},
+          {
+            getDataID: getNullAsDataID,
+            treatMissingFieldsAsNull: false,
+            log: null,
+          },
         );
         const result = recordSource.toJSON();
         expect(result['test:root:node(id:"1")']).toEqual({
@@ -2358,7 +2382,11 @@ describe('RelayResponseNormalizer', () => {
             id: '1',
           }),
           payload,
-          {getDataID: getNullAsDataID, treatMissingFieldsAsNull: false},
+          {
+            getDataID: getNullAsDataID,
+            treatMissingFieldsAsNull: false,
+            log: null,
+          },
         );
         expect(recordSource.toJSON()).toEqual({
           'client:root': {
@@ -2445,7 +2473,7 @@ describe('RelayResponseNormalizer', () => {
             id: '1',
           }),
           payload0,
-          {getDataID, treatMissingFieldsAsNull: false},
+          {getDataID, treatMissingFieldsAsNull: false, log: null},
         );
         normalize(
           recordSource,
@@ -2453,7 +2481,7 @@ describe('RelayResponseNormalizer', () => {
             id: '1',
           }),
           payload1,
-          {getDataID, treatMissingFieldsAsNull: false},
+          {getDataID, treatMissingFieldsAsNull: false, log: null},
         );
         expect(recordSource.toJSON()).toEqual({
           '1:Page': {
@@ -2520,7 +2548,7 @@ describe('RelayResponseNormalizer', () => {
       query RelayResponseNormalizerTest_pvQuery($id: ID!) {
         node(id: $id) {
           id
-          ...RelayResponseNormalizerTest_pvFragment
+          ...RelayResponseNormalizerTest_pvFragment @dangerously_unaliased_fixme
         }
       }
     `;
@@ -3672,6 +3700,7 @@ describe('RelayResponseNormalizer', () => {
         viewer {
           actor @fb_actor_change {
             ...RelayResponseNormalizerTestActorChangeFragment
+              @dangerously_unaliased_fixme
           }
         }
       }
@@ -4001,6 +4030,7 @@ describe('RelayResponseNormalizer', () => {
             }
             actor @fb_actor_change {
               ...RelayResponseNormalizerTestActorChangeFragment
+                @dangerously_unaliased_fixme
             }
           }
         }

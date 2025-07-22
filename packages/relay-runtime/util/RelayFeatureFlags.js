@@ -55,21 +55,21 @@ export type FeatureFlags = {
   // Temporary flag to experiment to enable compatibility with React's unstable <Activity> API
   ENABLE_ACTIVITY_COMPATIBILITY: boolean,
 
-  // Enables optimization for recreating the load more function.
-  // When enabled, this flag reduce and simplify amount of dependencies for the function loadMore
-  OPTIMIZE_RECREATING_LOAD_MORE_FUNCTION: boolean,
-
   // Adds a prefix to the storage key of read time resolvers. This is used to
   // disambiguate the same resolver being used at both read time and exec time.
   ENABLE_READ_TIME_RESOLVER_STORAGE_KEY_PREFIX: boolean,
 
-  // Enables the use of an experimental new useResourceEffect React API. This
-  // hook allows you to manage a resource that is not tied to the component
-  // and replaces the need for multiple useEffects to manage the same resource.
-  ENABLE_RESOURCE_EFFECTS: boolean,
-
   // Enable the fix for usePaginationFragment stucking in loading state
   ENABLE_USE_PAGINATION_IS_LOADING_FIX: boolean,
+
+  // Enable logging an ID collision in the Relay store
+  ENABLE_STORE_ID_COLLISION_LOGGING: boolean,
+
+  // Throw on nested store updates
+  DISALLOW_NESTED_UPDATES: boolean,
+
+  // Enable prefixing of DataID in the store with __typename
+  ENABLE_TYPENAME_PREFIXED_DATA_ID: boolean,
 };
 
 const RelayFeatureFlags: FeatureFlags = {
@@ -84,18 +84,19 @@ const RelayFeatureFlags: FeatureFlags = {
   MAX_DATA_ID_LENGTH: null,
   STRING_INTERN_LEVEL: 0,
   LOG_MISSING_RECORDS_IN_PROD: false,
+  ENABLE_STORE_ID_COLLISION_LOGGING: false,
   ENABLE_NONCOMPLIANT_ERROR_HANDLING_ON_LISTS: false,
   ENABLE_LOOSE_SUBSCRIPTION_ATTRIBUTION: false,
   ENABLE_OPERATION_TRACKER_OPTIMISTIC_UPDATES: false,
   ENABLE_RELAY_OPERATION_TRACKER_SUSPENSE: false,
   PROCESS_OPTIMISTIC_UPDATE_BEFORE_SUBSCRIPTION: false,
   MARK_RESOLVER_VALUES_AS_CLEAN_AFTER_FRAGMENT_REREAD: false,
-  OPTIMIZE_RECREATING_LOAD_MORE_FUNCTION: false,
   ENABLE_CYLE_DETECTION_IN_VARIABLES: false,
   ENABLE_ACTIVITY_COMPATIBILITY: false,
   ENABLE_READ_TIME_RESOLVER_STORAGE_KEY_PREFIX: true,
-  ENABLE_RESOURCE_EFFECTS: false,
   ENABLE_USE_PAGINATION_IS_LOADING_FIX: false,
+  DISALLOW_NESTED_UPDATES: false,
+  ENABLE_TYPENAME_PREFIXED_DATA_ID: false,
 };
 
 module.exports = RelayFeatureFlags;

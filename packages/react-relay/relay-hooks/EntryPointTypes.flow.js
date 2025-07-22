@@ -36,6 +36,7 @@ export type PreloadFetchPolicy =
 export type PreloadOptions = {
   +fetchKey?: string | number,
   +fetchPolicy?: ?PreloadFetchPolicy,
+  +includeIf?: ?boolean,
   +networkCacheConfig?: ?CacheConfig,
 };
 
@@ -180,7 +181,6 @@ export type EntryPointComponent<
   TExtraProps = null,
   TRenders: React.Node = React.Node,
 > = component(
-  ref?: React.RefSetter<mixed>,
   ...EntryPointProps<
     TPreloadedQueries,
     TPreloadedEntryPoints,

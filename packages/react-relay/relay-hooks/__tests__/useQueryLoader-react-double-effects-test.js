@@ -36,6 +36,7 @@ function expectToHaveFetched(
     metadata?: {[key: string]: mixed},
     onSubscribe?: () => void,
     onResume?: (pauseTimeMs: number) => void,
+    onPause?: (mqttConnectionIsOk: boolean, internetIsOk: boolean) => void,
     poll?: ?number,
     transactionId?: ?string,
   },
@@ -120,6 +121,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
           id
           name
           ...useQueryLoaderReactDoubleEffectsTestUserFragment
+            @dangerously_unaliased_fixme
         }
       }
     `;

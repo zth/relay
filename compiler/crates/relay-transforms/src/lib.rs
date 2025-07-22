@@ -199,6 +199,7 @@ pub use rescript_relay_generate_typename::rescript_relay_generate_typename;
 pub use rescript_relay_inline_codesplit::rescript_relay_inline_codesplit;
 pub use rescript_relay_transform_codesplit::rescript_relay_transform_codesplit;
 pub use required_directive::THROW_ACTION;
+pub use root_variables::VariableMapEntry;
 pub use skip_client_directives::skip_client_directives;
 pub use skip_client_extensions::skip_client_extensions;
 pub use skip_null_arguments_transform::skip_null_arguments_transform;

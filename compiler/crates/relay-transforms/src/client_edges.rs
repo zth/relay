@@ -51,6 +51,7 @@ use schema::Schema;
 use schema::Type;
 
 use super::ValidationMessageWithData;
+use crate::match_::MATCH_CONSTANTS;
 use crate::refetchable_fragment::RefetchableFragment;
 use crate::refetchable_fragment::REFETCHABLE_NAME;
 use crate::relay_resolvers::get_bool_argument_is_true;
@@ -313,6 +314,7 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
             *REQUIRED_DIRECTIVE_NAME,
             *CHILDREN_CAN_BUBBLE_METADATA_KEY,
             RequiredMetadataDirective::directive_name(),
+            MATCH_CONSTANTS.match_directive_name,
         ];
 
         let other_directives = directives
@@ -484,6 +486,12 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
         waterfall_directive: Option<&Directive>,
         selections: Vec<Selection>,
     ) -> ClientEdgeMetadataDirective {
+        if field_type.type_.is_list() {
+            self.errors.push(Diagnostic::error(
+                ValidationMessage::ClientEdgeToServerObjectList,
+                field_type.name.location,
+            ));
+        }
         // Client Edges to server objects must be annotated with @waterfall
         if waterfall_directive.is_none() {
             self.errors.push(Diagnostic::error_with_data(

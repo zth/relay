@@ -55,6 +55,7 @@ function expectToHaveFetched(
     metadata?: {[key: string]: mixed},
     onSubscribe?: () => void,
     onResume?: (pauseTimeMs: number) => void,
+    onPause?: (mqttConnectionIsOk: boolean, internetIsOk: boolean) => void,
     poll?: ?number,
     transactionId?: ?string,
   },
@@ -103,6 +104,7 @@ describe('useLazyLoadQueryNode-fast-refresh', () => {
           id
           name
           ...useLazyLoadQueryNodeFastRefreshTestUserFragment
+            @dangerously_unaliased_fixme
         }
       }
     `;
