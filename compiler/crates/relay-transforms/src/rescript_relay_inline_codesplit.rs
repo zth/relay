@@ -64,7 +64,7 @@ impl<'s> RescriptRelayInlineCodesplitTransform<'s> {
     }
 }
 
-impl<'s> Transformer for RescriptRelayInlineCodesplitTransform<'s> {
+impl Transformer<'_> for RescriptRelayInlineCodesplitTransform<'_> {
     const NAME: &'static str = "RescriptRelayInlineAutoCodesplitTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = true;

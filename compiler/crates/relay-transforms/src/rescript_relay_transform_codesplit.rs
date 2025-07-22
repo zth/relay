@@ -46,7 +46,7 @@ impl<'s> RescriptRelayTransformCodesplitTransform<'s> {
 // All inline fragments will be flattened into the top-most one in an internal Relay transform that runs after this
 // (flatten.rs). So, we need to make sure all relevant directives are copied onto the inline fragment that'll remain,
 // or else they're gone in the inline transform and we can't figure out what to code split.
-impl<'s> Transformer for RescriptRelayTransformCodesplitTransform<'s> {
+impl Transformer<'_> for RescriptRelayTransformCodesplitTransform<'_> {
     const NAME: &'static str = "RescriptRelayTransformAutoCodesplitTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = true;

@@ -1,8 +1,6 @@
 /* @generated */
 @@warning("-30")
 
-type greetingResolver = (RescriptRelay.resolverFragmentRefs<[#TestRelayResolver]>, ) => string
-
 type metaResolverArgs = {
   status: enum_OnlineStatus_input,
 }
@@ -15,4 +13,6 @@ type fancyGreetingResolverArgs = {
   includeFull: option<bool>,
 }
 type fancyGreetingResolver = (RescriptRelay.resolverFragmentRefs<[#TestRelayResolverMultiFancyGreeting]>, fancyGreetingResolverArgs) => string
+
+type greetingResolver = (RescriptRelay.resolverFragmentRefs<[#TestRelayResolver]>, ) => string
 
