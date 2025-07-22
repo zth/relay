@@ -30,6 +30,7 @@ const invariant = require('invariant');
 const {
   // $FlowFixMe[prop-missing] this is only available in custom builds
   experimental_useResourceEffect: useResourceEffect,
+  useCallback,
   useDebugValue,
   useEffect,
   useMemo,
@@ -131,13 +132,10 @@ function handlePotentialSnapshotErrorsForState(
   state: FragmentState,
 ): void {
   if (state.kind === 'singular') {
-    handlePotentialSnapshotErrors(
-      environment,
-      state.snapshot.errorResponseFields,
-    );
+    handlePotentialSnapshotErrors(environment, state.snapshot.fieldErrors);
   } else if (state.kind === 'plural') {
     for (const snapshot of state.snapshots) {
-      handlePotentialSnapshotErrors(environment, snapshot.errorResponseFields);
+      handlePotentialSnapshotErrors(environment, snapshot.fieldErrors);
     }
   }
 }
@@ -173,7 +171,7 @@ function handleMissedUpdates(
       missingLiveResolverFields: currentSnapshot.missingLiveResolverFields,
       seenRecords: currentSnapshot.seenRecords,
       selector: currentSnapshot.selector,
-      errorResponseFields: currentSnapshot.errorResponseFields,
+      fieldErrors: currentSnapshot.fieldErrors,
     };
     return [
       updatedData !== state.snapshot.data,
@@ -199,7 +197,7 @@ function handleMissedUpdates(
         missingLiveResolverFields: currentSnapshot.missingLiveResolverFields,
         seenRecords: currentSnapshot.seenRecords,
         selector: currentSnapshot.selector,
-        errorResponseFields: currentSnapshot.errorResponseFields,
+        fieldErrors: currentSnapshot.fieldErrors,
       };
       if (updatedData !== snapshot.data) {
         didMissUpdates = true;
@@ -585,28 +583,74 @@ hook useFragmentInternal_EXPERIMENTAL(
     selector: ?ReaderSelector,
     environment: IEnvironment,
   } | null>(null);
-
   if (
     RelayFeatureFlags.ENABLE_RESOURCE_EFFECTS &&
     typeof useResourceEffect === 'function'
   ) {
     // $FlowExpectedError[react-rule-hook] - the condition is static
-    useResourceEffect(
+    const getStateForSubscription = useCallback(() => {
+      // The FragmentState that we'll actually subscribe to. Note that it's possible that
+      // a concurrent modification to the store didn't affect the snapshot _data_ (so we don't
+      // need to re-render), but did affect the seen records. So if there were missed updates
+      // we use that state to subscribe.
+      let stateForSubscription: FragmentState = state;
+      // No subscription yet or the selector has changed, so we need to subscribe
+      // first check for updates since the state was rendered
+      const updates = handleMissedUpdates(state.environment, state);
+      if (updates !== null) {
+        const [didMissUpdates, updatedState] = updates;
+        // TODO: didMissUpdates only checks for changes to snapshot data, but it's possible
+        // that other snapshot properties may have changed that should also trigger a re-render,
+        // such as changed missing resolver fields, missing client edges, etc.
+        // A potential alternative is for handleMissedUpdates() to recycle the entire state
+        // value, and return the new (recycled) state only if there was some change. In that
+        // case the code would always setState if something in the snapshot changed, in addition
+        // to using the latest snapshot to subscribe.
+        if (didMissUpdates) {
+          setState(updatedState);
+          // We missed updates, we're going to render again anyway so wait until then to subscribe
+          return null;
+        }
+        stateForSubscription = updatedState;
+      }
+
+      return stateForSubscription;
+    }, [state]);
+    // $FlowExpectedError[react-rule-hook] - the condition is static
+    useResourceEffect<{
+      subscribed: boolean,
+      dispose: () => void,
+      selector: ?ReaderSelector,
+      environment: IEnvironment,
+    }>(
       () => {
+        const stateForSubscription = getStateForSubscription();
+        if (stateForSubscription == null) {
+          return {
+            subscribed: false,
+            dispose: () => {},
+            selector: state.selector,
+            environment: state.environment,
+          };
+        }
+
+        const dispose = subscribeToSnapshot(
+          state.environment,
+          stateForSubscription,
+          setState,
+        );
         return {
-          dispose:
-            state.kind !== 'bailout'
-              ? subscribeToSnapshot(state.environment, state, setState)
-              : () => {},
+          subscribed: true,
+          dispose,
           selector: state.selector,
           environment: state.environment,
         };
       },
-      // NOTE: this intentionally has no dependencies
       [],
       // $FlowFixMe[missing-local-annot] - Untyped in OSS
       storeSubscription => {
         if (
+          storeSubscription.subscribed === true &&
           state.environment === storeSubscription.environment &&
           state.selector === storeSubscription.selector
         ) {
@@ -619,35 +663,17 @@ hook useFragmentInternal_EXPERIMENTAL(
         if (state.kind === 'bailout') {
           return;
         }
-        // The FragmentState that we'll actually subscribe to. Note that it's possible that
-        // a concurrent modification to the store didn't affect the snapshot _data_ (so we don't
-        // need to re-render), but did affect the seen records. So if there were missed updates
-        // we use that state to subscribe.
-        let stateForSubscription: FragmentState = state;
-        // No subscription yet or the selector has changed, so we need to subscribe
-        // first check for updates since the state was rendered
-        const updates = handleMissedUpdates(state.environment, state);
-        if (updates !== null) {
-          const [didMissUpdates, updatedState] = updates;
-          // TODO: didMissUpdates only checks for changes to snapshot data, but it's possible
-          // that other snapshot properties may have changed that should also trigger a re-render,
-          // such as changed missing resolver fields, missing client edges, etc.
-          // A potential alternative is for handleMissedUpdates() to recycle the entire state
-          // value, and return the new (recycled) state only if there was some change. In that
-          // case the code would always setState if something in the snapshot changed, in addition
-          // to using the latest snapshot to subscribe.
-          if (didMissUpdates) {
-            setState(updatedState);
-            // We missed updates, we're going to render again anyway so wait until then to subscribe
-            return;
-          }
-          stateForSubscription = updatedState;
+
+        const stateForSubscription = getStateForSubscription();
+        if (stateForSubscription == null) {
+          return;
         }
         const dispose = subscribeToSnapshot(
           state.environment,
           stateForSubscription,
           setState,
         );
+        storeSubscription.subscribed = true;
         storeSubscription.dispose = dispose;
         storeSubscription.selector = state.selector;
         storeSubscription.environment = state.environment;
@@ -656,6 +682,7 @@ hook useFragmentInternal_EXPERIMENTAL(
       // $FlowFixMe[missing-local-annot] - Untyped in OSS
       storeSubscription => {
         storeSubscription.dispose();
+        storeSubscription.subscribed = false;
       },
     );
   } else {

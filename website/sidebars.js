@@ -219,6 +219,7 @@ module.exports = {
             'api-reference/relay-runtime/request-subscription',
             'api-reference/relay-runtime/observe-fragment',
             'api-reference/relay-runtime/wait-for-fragment-data',
+            'api-reference/relay-runtime/runtime-config',
           ],
         },
         {
@@ -238,6 +239,7 @@ module.exports = {
             'debugging/fb/debugging-and-troubleshooting',
             'debugging/relay-devtools',
             'debugging/fb/network-logger',
+            'debugging/fb/performance-logger',
             'debugging/inconsistent-typename-error',
             'debugging/declarative-mutation-directives',
             'debugging/fb/debugging-suspense',

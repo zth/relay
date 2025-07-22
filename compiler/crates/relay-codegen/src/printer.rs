@@ -13,17 +13,20 @@ use std::path::Path;
 
 use fnv::FnvBuildHasher;
 use fnv::FnvHashSet;
-use graphql_ir::reexport::Intern;
 use graphql_ir::ExecutableDefinitionName;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::OperationDefinition;
+use graphql_ir::reexport::Intern;
 use indexmap::IndexMap;
-use intern::string_key::StringKey;
 use intern::Lookup;
+use intern::string_key::StringKey;
 use relay_config::DynamicModuleProvider;
 use relay_config::ProjectConfig;
 use schema::SDLSchema;
 
+use crate::CodegenBuilder;
+use crate::CodegenVariant;
+use crate::JsModuleFormat;
 use crate::ast::Ast;
 use crate::ast::AstBuilder;
 use crate::ast::AstKey;
@@ -34,6 +37,7 @@ use crate::ast::ObjectEntry;
 use crate::ast::Primitive;
 use crate::ast::QueryID;
 use crate::ast::RequestParameters;
+use crate::ast::ResolverJSFunction;
 use crate::ast::ResolverModuleReference;
 use crate::build_ast::build_fragment;
 use crate::build_ast::build_operation;
@@ -49,9 +53,6 @@ use crate::object;
 use crate::top_level_statements::TopLevelStatement;
 use crate::top_level_statements::TopLevelStatements;
 use crate::utils::escape;
-use crate::CodegenBuilder;
-use crate::CodegenVariant;
-use crate::JsModuleFormat;
 
 pub fn print_operation(
     schema: &SDLSchema,
@@ -547,7 +548,9 @@ impl<'b> JSONPrinter<'b> {
                 };
                 self.write_js_dependency(
                     f,
-                    ModuleImportName::Default(format!("rescript_graphql_node_{}", variable_name).intern()),
+                    ModuleImportName::Default(
+                        format!("rescript_graphql_node_{}", variable_name).intern(),
+                    ),
                     Cow::Owned(format!(
                         "rescript_graphql_node_{}",
                         get_module_path(self.js_module_format, *key)
@@ -555,27 +558,29 @@ impl<'b> JSONPrinter<'b> {
                 )
             }
             Primitive::JSModuleDependency(JSModuleDependency { path, import_name }) => {
-                let write_js_dependency = self
-                            .write_js_dependency(
-                                f,
-                                match import_name {
-                                    ModuleImportName::Default(_) => ModuleImportName::Default(format!(
-                                        "rescript_module_{}",
-                                        common::rescript_utils::get_module_name_from_file_path(
-                                            &path.to_string().as_str()
-                                        )
-                                    ).intern()),
-                                    o => o.clone()
-                                },
-                                Cow::Owned(format!(
-                                    "rescript_module_{}",
-                                    common::rescript_utils::get_module_name_from_file_path(
-                                        &path.to_string().as_str()
-                                    )
-                                )),
-                            );
+                let write_js_dependency = self.write_js_dependency(
+                    f,
+                    match import_name {
+                        ModuleImportName::Default(_) => ModuleImportName::Default(
+                            format!(
+                                "rescript_module_{}",
+                                common::rescript_utils::get_module_name_from_file_path(
+                                    &path.to_string().as_str()
+                                )
+                            )
+                            .intern(),
+                        ),
+                        o => o.clone(),
+                    },
+                    Cow::Owned(format!(
+                        "rescript_module_{}",
+                        common::rescript_utils::get_module_name_from_file_path(
+                            &path.to_string().as_str()
+                        )
+                    )),
+                );
                 write_js_dependency
-            },
+            }
             Primitive::ResolverModuleReference(ResolverModuleReference {
                 field_type,
                 resolver_function_name,
@@ -604,13 +609,13 @@ impl<'b> JSONPrinter<'b> {
             Primitive::RelayResolverModel {
                 graphql_module_path,
                 graphql_module_name,
-                js_module,
+                resolver_fn,
                 injected_field_name_details,
             } => self.write_relay_resolver_model(
                 f,
                 *graphql_module_name,
                 *graphql_module_path,
-                js_module,
+                resolver_fn,
                 injected_field_name_details.as_ref().copied(),
             ),
         }
@@ -671,7 +676,6 @@ impl<'b> JSONPrinter<'b> {
                     } else {
                         write!(f, "{}.{}", path, name)
                     }
-                    
                 }
             }
         }
@@ -682,7 +686,7 @@ impl<'b> JSONPrinter<'b> {
         f: &mut String,
         graphql_module_name: StringKey,
         graphql_module_path: StringKey,
-        js_module: &JSModuleDependency,
+        resolver_fn: &ResolverJSFunction,
         injected_field_name_details: Option<(StringKey, bool)>,
     ) -> FmtResult {
         let relay_runtime_experimental = "relay-runtime/experimental";
@@ -699,24 +703,39 @@ impl<'b> JSONPrinter<'b> {
         write!(f, "(")?;
         self.write_js_dependency(
             f,
-            ModuleImportName::Default(format!("rescript_graphql_node_{}", graphql_module_name).intern()),
+            ModuleImportName::Default(
+                format!("rescript_graphql_node_{}", graphql_module_name).intern(),
+            ),
             Cow::Owned(format!(
                 "rescript_graphql_node_{}",
                 get_module_path(self.js_module_format, graphql_module_path)
             )),
         )?;
         write!(f, ", ")?;
-        self.write_js_dependency(
-            f,
-            js_module.import_name.clone(),
-            Cow::Owned(format!("rescript_module_{}", get_module_path(self.js_module_format, js_module.path))),
-        )?;
+        match resolver_fn {
+            ResolverJSFunction::Module(js_module) => self.write_js_dependency(
+                f,
+                js_module.import_name.clone(),
+                Cow::Owned(format!(
+                    "rescript_module_{}",
+                    get_module_path(self.js_module_format, js_module.path)
+                )),
+            )?,
+            ResolverJSFunction::PropertyLookup(property) => {
+                write_arrow_fn(f, &["o"], &format!("o.{}", property))?
+            }
+        }
         if let Some((field_name, is_required_field)) = injected_field_name_details {
             write!(f, ", '{}'", field_name)?;
             write!(f, ", {}", is_required_field)?;
         }
         write!(f, ")")
     }
+}
+
+fn write_arrow_fn(f: &mut String, params: &[&str], body: &str) -> FmtResult {
+    write!(f, "({}) => {}", params.join(", "), body)?;
+    Ok(())
 }
 
 pub fn get_module_path(js_module_format: JsModuleFormat, key: StringKey) -> Cow<'static, str> {

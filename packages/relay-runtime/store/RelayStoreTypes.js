@@ -116,7 +116,7 @@ export type NormalizationSelector = {
   +variables: Variables,
 };
 
-export type ErrorResponseField =
+export type FieldError =
   | RelayFieldPayloadErrorEvent
   | MissingExpectedDataLogEvent
   | MissingExpectedDataThrowEvent
@@ -124,7 +124,7 @@ export type ErrorResponseField =
   | MissingRequiredFieldLogEvent
   | MissingRequiredFieldThrowEvent;
 
-export type ErrorResponseFields = Array<ErrorResponseField>;
+export type FieldErrors = Array<FieldError>;
 
 export type ClientEdgeTraversalInfo = {
   +readerClientEdge: ReaderClientEdgeToServerObject,
@@ -149,7 +149,7 @@ export type Snapshot = {
   +missingClientEdges: null | $ReadOnlyArray<MissingClientEdgeRequestInfo>,
   +seenRecords: DataIDSet,
   +selector: SingularReaderSelector,
-  +errorResponseFields: ?ErrorResponseFields,
+  +fieldErrors: ?FieldErrors,
 };
 
 /**
@@ -684,6 +684,11 @@ export type ExecuteCompleteLogEvent = {
   +executeId: number,
 };
 
+export type ExecuteUnsubscribeLogEvent = {
+  +name: 'execute.unsubscribe',
+  +executeId: number,
+};
+
 export type ExecuteNormalizeStart = {
   +name: 'execute.normalize.start',
   +operation: OperationDescriptor,
@@ -800,6 +805,7 @@ export type LogEvent =
   | ExecuteAsyncModuleLogEvent
   | ExecuteErrorLogEvent
   | ExecuteCompleteLogEvent
+  | ExecuteUnsubscribeLogEvent
   | ExecuteNormalizeStart
   | ExecuteNormalizeEnd
   | StoreDataCheckerStartEvent

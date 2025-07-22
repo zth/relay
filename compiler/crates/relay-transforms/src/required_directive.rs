@@ -319,7 +319,7 @@ impl<'program> RequiredDirective<'program> {
     }
 }
 
-impl<'s> Transformer<'_> for RequiredDirective<'s> {
+impl Transformer<'_> for RequiredDirective<'_> {
     const NAME: &'static str = "RequiredDirectiveTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
@@ -592,21 +592,25 @@ struct RequiredDirectiveVisitor<'s> {
     visited_fragments: FragmentDefinitionNameMap<bool>,
 }
 
-impl<'s> DirectiveFinder for RequiredDirectiveVisitor<'s> {
+impl DirectiveFinder for RequiredDirectiveVisitor<'_> {
     fn visit_directive(&self, directive: &Directive) -> bool {
         directive.name.item == *REQUIRED_DIRECTIVE_NAME
     }
 
     fn visit_fragment_spread(&mut self, fragment_spread: &graphql_ir::FragmentSpread) -> bool {
-        let fragment = self
-            .program
-            .fragment(fragment_spread.fragment.item)
-            .unwrap();
-        self.visit_fragment(fragment)
+        let fragment = self.program.fragment(fragment_spread.fragment.item);
+        if let Some(frag) = fragment {
+            self.visit_fragment(frag)
+        } else {
+            // Could not find fragment spread. This can happen if we are running
+            // this transform via LSP validation where we only validate a single
+            // tagged template literal in isolation.
+            false
+        }
     }
 }
 
-impl<'s> RequiredDirectiveVisitor<'s> {
+impl RequiredDirectiveVisitor<'_> {
     fn visit_fragment(&mut self, fragment: &FragmentDefinition) -> bool {
         if let Some(val) = self.visited_fragments.get(&fragment.name.item) {
             return *val;

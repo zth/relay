@@ -45,6 +45,7 @@ use relay_schema::definitions::ResolverType;
 use relay_schema::CUSTOM_SCALAR_DIRECTIVE_NAME;
 use relay_schema::EXPORT_NAME_CUSTOM_SCALAR_ARGUMENT_NAME;
 use relay_schema::PATH_CUSTOM_SCALAR_ARGUMENT_NAME;
+use relay_transforms::relay_resolvers::ResolverSchemaGenType;
 use relay_transforms::CatchMetadataDirective;
 use relay_transforms::CatchTo;
 use relay_transforms::ClientEdgeMetadata;
@@ -641,12 +642,17 @@ fn import_relay_resolver_function_type(
         None => None,
     };
 
-    let resolver_type = if resolver_metadata.type_confirmed
+    let is_property_lookup = match resolver_metadata.resolver_type {
+        ResolverSchemaGenType::PropertyLookup { .. } => true,
+        ResolverSchemaGenType::ResolverModule => false,
+    };
+    let resolver_type = if (resolver_metadata.type_confirmed
         && typegen_context
             .project_config
             .feature_flags
             .omit_resolver_type_assertions_for_confirmed_types
-            .is_fully_enabled()
+            .is_fully_enabled())
+        || is_property_lookup
     {
         None
     } else {
@@ -665,17 +671,19 @@ fn import_relay_resolver_function_type(
         ))
     };
 
-    let imported_resolver = ImportedResolver {
-        resolver_name,
-        resolver_type,
-        import_path,
-        context_import,
-    };
+    if !is_property_lookup {
+        let imported_resolver = ImportedResolver {
+            resolver_name,
+            resolver_type,
+            import_path,
+            context_import,
+        };
 
-    imported_resolvers
-        .0
-        .entry(local_resolver_name)
-        .or_insert(imported_resolver);
+        imported_resolvers
+            .0
+            .entry(local_resolver_name)
+            .or_insert(imported_resolver);
+    }
 }
 
 /// Check if the scalar field has the special type `RelayResolverValue`. This is a type that
@@ -1287,6 +1295,38 @@ fn visit_scalar_field(
         concrete_type: None,
         is_result_type,
     }));
+}
+
+#[allow(clippy::too_many_arguments)]
+fn raw_response_visit_condition(
+    typegen_context: &'_ TypegenContext<'_>,
+    type_selections: &mut Vec<TypeSelection>,
+    condition: &Condition,
+    encountered_enums: &mut EncounteredEnums,
+    match_fields: &mut MatchFields,
+    encountered_fragments: &mut EncounteredFragments,
+    imported_raw_response_types: &mut ImportedRawResponseTypes,
+    runtime_imports: &mut RuntimeImports,
+    custom_scalars: &mut CustomScalarsImports,
+    enclosing_linked_field_concrete_type: Option<Type>,
+    is_throw_on_field_error: bool,
+) {
+    let mut selections = raw_response_visit_selections(
+        typegen_context,
+        &condition.selections,
+        encountered_enums,
+        match_fields,
+        encountered_fragments,
+        imported_raw_response_types,
+        runtime_imports,
+        custom_scalars,
+        enclosing_linked_field_concrete_type,
+        is_throw_on_field_error,
+    );
+    for selection in selections.iter_mut() {
+        selection.set_conditional(true);
+    }
+    type_selections.append(&mut selections);
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -2340,20 +2380,19 @@ pub(crate) fn raw_response_visit_selections(
                 enclosing_linked_field_concrete_type,
                 emit_semantic_types,
             ),
-            Selection::Condition(condition) => {
-                type_selections.extend(raw_response_visit_selections(
-                    typegen_context,
-                    &condition.selections,
-                    encountered_enums,
-                    match_fields,
-                    encountered_fragments,
-                    imported_raw_response_types,
-                    runtime_imports,
-                    custom_scalars,
-                    enclosing_linked_field_concrete_type,
-                    emit_semantic_types,
-                ));
-            }
+            Selection::Condition(condition) => raw_response_visit_condition(
+                typegen_context,
+                &mut type_selections,
+                condition,
+                encountered_enums,
+                match_fields,
+                encountered_fragments,
+                imported_raw_response_types,
+                runtime_imports,
+                custom_scalars,
+                enclosing_linked_field_concrete_type,
+                emit_semantic_types,
+            ),
         }
     }
     type_selections

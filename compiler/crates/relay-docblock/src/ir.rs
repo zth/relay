@@ -28,10 +28,12 @@ use docblock_shared::INJECT_FRAGMENT_DATA_ARGUMENT_NAME;
 use docblock_shared::LIVE_ARGUMENT_NAME;
 use docblock_shared::RELAY_RESOLVER_DIRECTIVE_NAME;
 use docblock_shared::RELAY_RESOLVER_MODEL_DIRECTIVE_NAME;
+use docblock_shared::RELAY_RESOLVER_MODEL_GENERATED_ID_FIELD_DIRECTIVE_NAME;
 use docblock_shared::RELAY_RESOLVER_MODEL_INSTANCE_FIELD;
 use docblock_shared::RELAY_RESOLVER_SOURCE_HASH;
 use docblock_shared::RELAY_RESOLVER_SOURCE_HASH_VALUE;
 use docblock_shared::RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE;
+use docblock_shared::RESOLVER_PROPERTY_LOOKUP_NAME;
 use docblock_shared::RESOLVER_VALUE_SCALAR_NAME;
 use docblock_shared::TYPE_CONFIRMED_ARGUMENT_NAME;
 use graphql_ir::FragmentDefinitionName;
@@ -373,6 +375,7 @@ trait ResolverIr: Sized {
     fn source_hash(&self) -> ResolverSourceHash;
     fn semantic_non_null(&self) -> Option<ConstantDirective>;
     fn type_confirmed(&self) -> bool;
+    fn property_lookup_name(&self) -> Option<WithLocation<StringKey>>;
 
     fn to_graphql_schema_ast(
         self,
@@ -514,7 +517,13 @@ trait ResolverIr: Sized {
                 }
             }
         }
-
+        let property_lookup = self.property_lookup_name();
+        if let Some(property_lookup) = property_lookup {
+            arguments.push(string_argument(
+                RESOLVER_PROPERTY_LOOKUP_NAME.0,
+                property_lookup,
+            ));
+        }
         let schema = project_config.schema;
 
         if let Some(output_type) = self.output_type() {
@@ -821,6 +830,7 @@ pub struct TerseRelayResolverIr {
     /// Indicates that the extraction method used has already validated that the
     /// implementaiton matches the GraphQL types.
     pub type_confirmed: bool,
+    pub property_lookup_name: Option<WithLocation<StringKey>>,
 }
 
 impl ResolverIr for TerseRelayResolverIr {
@@ -925,6 +935,10 @@ impl ResolverIr for TerseRelayResolverIr {
 
     fn type_confirmed(&self) -> bool {
         self.type_confirmed
+    }
+
+    fn property_lookup_name(&self) -> Option<WithLocation<StringKey>> {
+        self.property_lookup_name
     }
 }
 
@@ -1118,6 +1132,10 @@ impl ResolverIr for LegacyVerboseResolverIr {
     fn type_confirmed(&self) -> bool {
         false
     }
+
+    fn property_lookup_name(&self) -> Option<WithLocation<StringKey>> {
+        None
+    }
 }
 
 impl ResolverTypeDefinitionIr for LegacyVerboseResolverIr {
@@ -1177,7 +1195,14 @@ impl StrongObjectIr {
                     exclamation: dummy_token(span),
                 })),
                 arguments: None,
-                directives: vec![],
+                directives: vec![ConstantDirective {
+                    span,
+                    at: dummy_token(span),
+                    name: string_key_as_identifier(
+                        RELAY_RESOLVER_MODEL_GENERATED_ID_FIELD_DIRECTIVE_NAME.0,
+                    ),
+                    arguments: None,
+                }],
                 description: None,
                 hack_source: None,
                 span,
@@ -1266,6 +1291,10 @@ impl ResolverIr for StrongObjectIr {
     }
     fn type_confirmed(&self) -> bool {
         self.type_confirmed
+    }
+
+    fn property_lookup_name(&self) -> Option<WithLocation<StringKey>> {
+        None
     }
 }
 
@@ -1455,6 +1484,10 @@ impl ResolverIr for WeakObjectIr {
 
     fn type_confirmed(&self) -> bool {
         self.type_confirmed
+    }
+
+    fn property_lookup_name(&self) -> Option<WithLocation<StringKey>> {
+        None
     }
 }
 
