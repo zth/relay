@@ -2258,12 +2258,12 @@ babel-plugin-polyfill-regenerator@^0.6.1:
   dependencies:
     "@babel/helper-define-polyfill-provider" "^0.6.2"
 
-babel-plugin-syntax-hermes-parser@0.24.0:
-  version "0.24.0"
-  resolved "https://registry.yarnpkg.com/babel-plugin-syntax-hermes-parser/-/babel-plugin-syntax-hermes-parser-0.24.0.tgz#79d0c73daae7bd7d4b07f64ee281c75aa48845cf"
-  integrity sha512-J4wETqz7ehbyYl2uge65zsfr0Ue+0yJYYMMkGAWpZc0fB02z4JAcx+mJEXVU14yiihGwqVUlR7oS4/gDYOxUdA==
+babel-plugin-syntax-hermes-parser@0.25.1:
+  version "0.25.1"
+  resolved "https://registry.yarnpkg.com/babel-plugin-syntax-hermes-parser/-/babel-plugin-syntax-hermes-parser-0.25.1.tgz#58b539df973427fcfbb5176a3aec7e5dee793cb0"
+  integrity sha512-IVNpGzboFLfXZUAwkLFcI/bnqVbwky0jP3eBno4HKtqvQJAHBLdgxiG6lQ4to0+Q/YCN3PO0od5NZwIKyY4REQ==
   dependencies:
-    hermes-parser "0.24.0"
+    hermes-parser "0.25.1"
 
 babel-plugin-syntax-trailing-function-commas@^7.0.0-beta.0:
   version "7.0.0-beta.0"
@@ -3864,10 +3864,10 @@ flatted@^3.1.0:
   resolved "https://registry.yarnpkg.com/flatted/-/flatted-3.2.6.tgz#022e9218c637f9f3fc9c35ab9c9193f05add60b2"
   integrity sha512-0sQoMh9s0BYsm+12Huy/rkKxVu4R1+r96YX5cG44rHV0pQ6iC3Q+mkoMFaGWObMFYQxCVT+ssG1ksneA2MI9KQ==
 
-flow-bin@^0.253.0:
-  version "0.253.0"
-  resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.253.0.tgz#5b5150ad9a68560c1b8ace225b7d30e1a6469346"
-  integrity sha512-D1EY3n+YNTG9PK15VGHuwxTPMJncUizVDjFS7vm6mIj1qoo7DDDMa8poEgpuZS0yKVBMWoM2IXlWYyZ9v5MVvg==
+flow-bin@^0.256.0:
+  version "0.256.0"
+  resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.256.0.tgz#0cddc3b665b8e9cae34eb5896c8429d0f2961fdf"
+  integrity sha512-ujKn6fRfx9SujbqBLhT/lxFsXRsRDgrot2UuNhw4Z5W3QlVn4teV+7rBhs87FVHSnRvZeFAMKHHYYahWYw5W4w==
 
 flush-write-stream@^1.0.2:
   version "1.1.1"
@@ -4314,26 +4314,26 @@ has@^1.0.3:
   dependencies:
     function-bind "^1.1.1"
 
-hermes-eslint@0.24.0:
-  version "0.24.0"
-  resolved "https://registry.yarnpkg.com/hermes-eslint/-/hermes-eslint-0.24.0.tgz#a86b723bfb0d12ac3031b66c4b861f0ff2d582f3"
-  integrity sha512-PS/b1MO7NxVBwnxaPvcd3MGsXlt7B0S9gfL7mIbMDIf1A0tYsR09/i/Sl8BHhMX9zb99h499b4POitmr8soQFQ==
+hermes-eslint@0.25.1:
+  version "0.25.1"
+  resolved "https://registry.yarnpkg.com/hermes-eslint/-/hermes-eslint-0.25.1.tgz#e7d2d845256705d5e2d5cf69dc79032ac3921bb3"
+  integrity sha512-nPz9+oyejT1zsIwoJ2pWdUvLcN1i+tbaWCOD8PpNBYQtnHXaPXImZp/6zZHnm3bo/DoFcAgh8+SNcxLFxh7m/A==
   dependencies:
     esrecurse "^4.3.0"
-    hermes-estree "0.24.0"
-    hermes-parser "0.24.0"
+    hermes-estree "0.25.1"
+    hermes-parser "0.25.1"
 
-hermes-estree@0.24.0:
-  version "0.24.0"
-  resolved "https://registry.yarnpkg.com/hermes-estree/-/hermes-estree-0.24.0.tgz#487dc1ddc0bae698c2d79f34153ac9bf62d7b3c0"
-  integrity sha512-LyoXLB7IFzeZW0EvAbGZacbxBN7t6KKSDqFJPo3Ydow7wDlrDjXwsdiAHV6XOdvEN9MEuWXsSIFN4tzpyrXIHw==
+hermes-estree@0.25.1:
+  version "0.25.1"
+  resolved "https://registry.yarnpkg.com/hermes-estree/-/hermes-estree-0.25.1.tgz#6aeec17d1983b4eabf69721f3aa3eb705b17f480"
+  integrity sha512-0wUoCcLp+5Ev5pDW2OriHC2MJCbwLwuRx+gAqMTOkGKJJiBCLjtrvy4PWUGn6MIVefecRpzoOZ/UV6iGdOr+Cw==
 
-hermes-parser@0.24.0:
-  version "0.24.0"
-  resolved "https://registry.yarnpkg.com/hermes-parser/-/hermes-parser-0.24.0.tgz#2ed19d079efc0848eb1f800f0c393a074c4696fb"
-  integrity sha512-IJooSvvu2qNRe7oo9Rb04sUT4omtZqZqf9uq9WM25Tb6v3usmvA93UqfnnoWs5V0uYjEl9Al6MNU10MCGKLwpg==
+hermes-parser@0.25.1:
+  version "0.25.1"
+  resolved "https://registry.yarnpkg.com/hermes-parser/-/hermes-parser-0.25.1.tgz#5be0e487b2090886c62bd8a11724cd766d5f54d1"
+  integrity sha512-6pEjquH3rqaI6cYAXYPcz9MS4rY6R4ngRgrgfDshRptUZIc3lw0MCIJIGDj9++mfySOuPTHB4nrSW99BCvOPIA==
   dependencies:
-    hermes-estree "0.24.0"
+    hermes-estree "0.25.1"
 
 homedir-polyfill@^1.0.1:
   version "1.0.3"
@@ -6318,14 +6318,14 @@ prelude-ls@^1.2.1:
   resolved "https://registry.yarnpkg.com/prelude-ls/-/prelude-ls-1.2.1.tgz#debc6489d7a6e6b0e7611888cec880337d316396"
   integrity sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==
 
-prettier-plugin-hermes-parser@0.24.0:
-  version "0.24.0"
-  resolved "https://registry.yarnpkg.com/prettier-plugin-hermes-parser/-/prettier-plugin-hermes-parser-0.24.0.tgz#b6a03a2d88e0320d05fc788598b1f0e21e9f7eb6"
-  integrity sha512-5ocvjexclFaU/qaiw3EW36G5I3H5iX8FQKNWwbls3qXVdzWGMaHNt61xxMzne0E9Unpk9EpMzpijGxgPGb94pw==
+prettier-plugin-hermes-parser@0.25.1:
+  version "0.25.1"
+  resolved "https://registry.yarnpkg.com/prettier-plugin-hermes-parser/-/prettier-plugin-hermes-parser-0.25.1.tgz#f7e82357f7fdcf5fcdf9e06dcc3bbafe03ed61eb"
+  integrity sha512-qVsgSt1ZLz7sxQyMmLM3b8JYIcUt4pkE+OCMEoUTe5G87ghNe9lluYMy7ptu1h0f3fAZ+zkifUV3JojMmQcKkg==
   dependencies:
-    hermes-estree "0.24.0"
-    hermes-parser "0.24.0"
-    prettier-plugin-hermes-parser "0.24.0"
+    hermes-estree "0.25.1"
+    hermes-parser "0.25.1"
+    prettier-plugin-hermes-parser "0.25.1"
 
 prettier@2.8.8:
   version "2.8.8"
@@ -6448,17 +6448,17 @@ randombytes@^2.1.0:
   dependencies:
     safe-buffer "^5.1.0"
 
-react-dom@0.0.0-experimental-4beb1fd8-20241118:
-  version "0.0.0-experimental-4beb1fd8-20241118"
-  resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-0.0.0-experimental-4beb1fd8-20241118.tgz#bf51483d52faea0618abef7d7eab681eea328ac7"
-  integrity sha512-/Gs2N/6hiuwqf2uuJ3UN/PWxpIncbuY7XY/IynlB2oNpopeV+x1MMXfNdse8TiPkpgg9aw+VUfQUlLPC52bKiQ==
+react-dom@0.0.0-experimental-7670501b-20241124:
+  version "0.0.0-experimental-7670501b-20241124"
+  resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-0.0.0-experimental-7670501b-20241124.tgz#2d94f677386cb524df568deb7972623de2e7c3fb"
+  integrity sha512-150W/wDCbC/W8WpDowFCY3294u1WYTnpgc4owl3BVzsAkBeGxgKN1CNT4IC1xNI05CGDDG9lyGE9M0wvDj0fTQ==
   dependencies:
-    scheduler "0.0.0-experimental-4beb1fd8-20241118"
+    scheduler "0.0.0-experimental-7670501b-20241124"
 
-react-is@0.0.0-experimental-4beb1fd8-20241118:
-  version "0.0.0-experimental-4beb1fd8-20241118"
-  resolved "https://registry.yarnpkg.com/react-is/-/react-is-0.0.0-experimental-4beb1fd8-20241118.tgz#b6831c4ea841c994cc4a2f8c516ec8bbfe6b93ec"
-  integrity sha512-7JE3PtW4zpMYdp1bTXKNmz2t0jzaqc3frMWbvbuZmhif5ndtYx5oCGhfnbm6S5ZeTNKe4GXsN5D73QtZClfepQ==
+react-is@0.0.0-experimental-7670501b-20241124:
+  version "0.0.0-experimental-7670501b-20241124"
+  resolved "https://registry.yarnpkg.com/react-is/-/react-is-0.0.0-experimental-7670501b-20241124.tgz#e6ca59dbe174a84973fc1fcb93c80e70fd954e92"
+  integrity sha512-PnwSMy9ku+6ZQbUNXA9bF9y4LyVQTKfOLAQYe/YcM2D+6KdENLKFp+CBQIuqOo5iC5b89bYyDSM3FJ7GNh0byA==
 
 react-is@^16.13.1:
   version "16.13.1"
@@ -6475,23 +6475,23 @@ react-is@^18.0.0:
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-18.2.0.tgz#199431eeaaa2e09f86427efbb4f1473edb47609b"
   integrity sha512-xWGDIW6x921xtzPkhiULtthJHoJvBbF3q26fzloPCK0hsvxtPVelvftw3zjbHWSkR2km9Z+4uxbDDK/6Zw9B8w==
 
-react-refresh@0.0.0-experimental-4beb1fd8-20241118:
-  version "0.0.0-experimental-4beb1fd8-20241118"
-  resolved "https://registry.yarnpkg.com/react-refresh/-/react-refresh-0.0.0-experimental-4beb1fd8-20241118.tgz#0605b592bbbdfeee13b49f14fea5cb0247100667"
-  integrity sha512-McWSxqM2X1KeDxMZsKOvecqs0lqa8ToHn8uFA1uKGn5VpD1zpqGS81c9ZMiDI4KLIC1jt0Q0Na0XPNMUNpyi9A==
+react-refresh@0.0.0-experimental-7670501b-20241124:
+  version "0.0.0-experimental-7670501b-20241124"
+  resolved "https://registry.yarnpkg.com/react-refresh/-/react-refresh-0.0.0-experimental-7670501b-20241124.tgz#eae264af9c555810115c06e2802119da0ddf0e0b"
+  integrity sha512-GfDDetNKgJr9Y/Ny2vbIvZkBRuMyVdKRp9xWQDUgmlzl/Mr4oPYlDJacCxctn0G/UT9FnsqQOOhu7Vy7NF8r7w==
 
-react-test-renderer@0.0.0-experimental-4beb1fd8-20241118:
-  version "0.0.0-experimental-4beb1fd8-20241118"
-  resolved "https://registry.yarnpkg.com/react-test-renderer/-/react-test-renderer-0.0.0-experimental-4beb1fd8-20241118.tgz#fbf42d72d3049ae17c19d589cede3c2632a34ea1"
-  integrity sha512-/SWsL+FRxDgDLT8b1/yG8eOSl/lw2k8f0fhb7oTzwU1ArjimKy0mU2sWMr46U5ZP6NZ1iZyQlNJ/q2PwyjCT7A==
+react-test-renderer@0.0.0-experimental-7670501b-20241124:
+  version "0.0.0-experimental-7670501b-20241124"
+  resolved "https://registry.yarnpkg.com/react-test-renderer/-/react-test-renderer-0.0.0-experimental-7670501b-20241124.tgz#651782a2fa4a9ba03c64d18ca7f97f759f266b89"
+  integrity sha512-/lzy5JWNO6CiKIJOmlpVSyFuhVMqEMAwsSH8LoLgBpaxWUlA88CWJPhJxU9yN1eEVkSRb3O9umqtfNeqT+bYHA==
   dependencies:
-    react-is "0.0.0-experimental-4beb1fd8-20241118"
-    scheduler "0.0.0-experimental-4beb1fd8-20241118"
+    react-is "0.0.0-experimental-7670501b-20241124"
+    scheduler "0.0.0-experimental-7670501b-20241124"
 
-react@0.0.0-experimental-4beb1fd8-20241118:
-  version "0.0.0-experimental-4beb1fd8-20241118"
-  resolved "https://registry.yarnpkg.com/react/-/react-0.0.0-experimental-4beb1fd8-20241118.tgz#1585771bb5246a2a9828700997d90db9adb0eeba"
-  integrity sha512-SojDx9IQZXRbze+BNoLRiBDblVTMRebpOZyU2QyRk4ptJob78QiROi58uuE7yxrFMDQN4kBl6tqYkSwQaIM2nQ==
+react@0.0.0-experimental-7670501b-20241124:
+  version "0.0.0-experimental-7670501b-20241124"
+  resolved "https://registry.yarnpkg.com/react/-/react-0.0.0-experimental-7670501b-20241124.tgz#056d77fa46ba89238a7d1fff6101b688802bdac7"
+  integrity sha512-A7FwEzKrEj3Trjm+EQAgGYaBriKgIfRf2q6byM8RpEip1PDG/6g8giycr0Y03JLSlkKNDoHXqq9z+YQudpCSCg==
 
 read-pkg-up@^1.0.1:
   version "1.0.1"
@@ -6779,10 +6779,10 @@ saxes@^6.0.0:
   dependencies:
     xmlchars "^2.2.0"
 
-scheduler@0.0.0-experimental-4beb1fd8-20241118:
-  version "0.0.0-experimental-4beb1fd8-20241118"
-  resolved "https://registry.yarnpkg.com/scheduler/-/scheduler-0.0.0-experimental-4beb1fd8-20241118.tgz#3143baa23dfb4daed6a9d0bfd44a8050a0cdab93"
-  integrity sha512-b7GQktevD5BPcS+R5qY5se5oX4b8AHQyebWswGZBdLCmElIwR3Q+RO5EgsLOA4t5D3/TDjLm58CQG16uEB5rMA==
+scheduler@0.0.0-experimental-7670501b-20241124:
+  version "0.0.0-experimental-7670501b-20241124"
+  resolved "https://registry.yarnpkg.com/scheduler/-/scheduler-0.0.0-experimental-7670501b-20241124.tgz#87eb07afd85a709b6cdff847cdf427ed4408830e"
+  integrity sha512-3gEk9E54G93Oio+DIwptiqdPQdhU28UYOOL4F5ktKEnkFuUdTme8CDcvPOmca5Hg9URhp1tNZnW8m6gP993YdQ==
 
 schema-utils@^3.1.1, schema-utils@^3.2.0:
   version "3.3.0"
