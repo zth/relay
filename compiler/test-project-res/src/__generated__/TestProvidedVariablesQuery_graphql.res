@@ -27,7 +27,7 @@ type queryRef
 
 module Internal = {
   @live
-  let variablesConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
+  let variablesConverter: dict<dict<dict<string>>> = %raw(
     json`{"someInput":{"recursive":{"r":"someInput"},"datetime":{"c":"SomeModule.Datetime"}},"inputA":{"usingB":{"r":"inputB"},"timestamps":{"b":"a"},"timestamp":{"b":""},"time":{"c":"SomeModule.Datetime"},"recursiveA":{"r":"inputA"}},"inputB":{"usingA":{"r":"inputA"},"time":{"c":"SomeModule.Datetime"}},"__root":{"__relay_internal__pv__TestProvidedVariablesSomeInput":{"r":"someInput"},"__relay_internal__pv__TestProvidedVariablesInputB":{"r":"inputB"},"__relay_internal__pv__TestProvidedVariablesDatetimes":{"ca":"SomeModule.Datetime"},"__relay_internal__pv__TestProvidedVariablesDatetime":{"c":"SomeModule.Datetime"}}}`
   )
   @live
@@ -38,12 +38,12 @@ module Internal = {
   let convertVariables = v => v->RescriptRelay.convertObj(
     variablesConverter,
     variablesConverterMap,
-    Js.undefined
+    None
   )
   @live
   type wrapResponseRaw
   @live
-  let wrapResponseConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
+  let wrapResponseConverter: dict<dict<dict<string>>> = %raw(
     json`{"__root":{"loggedInUser":{"f":""}}}`
   )
   @live
@@ -52,12 +52,12 @@ module Internal = {
   let convertWrapResponse = v => v->RescriptRelay.convertObj(
     wrapResponseConverter,
     wrapResponseConverterMap,
-    Js.null
+    null
   )
   @live
   type responseRaw
   @live
-  let responseConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
+  let responseConverter: dict<dict<dict<string>>> = %raw(
     json`{"__root":{"loggedInUser":{"f":""}}}`
   )
   @live
@@ -66,7 +66,7 @@ module Internal = {
   let convertResponse = v => v->RescriptRelay.convertObj(
     responseConverter,
     responseConverterMap,
-    Js.undefined
+    None
   )
   type wrapRawResponseRaw = wrapResponseRaw
   @live
@@ -74,7 +74,7 @@ module Internal = {
   type rawResponseRaw = responseRaw
   @live
   let convertRawResponse = convertResponse
-  type rawPreloadToken<'response> = {source: Js.Nullable.t<RescriptRelay.Observable.t<'response>>}
+  type rawPreloadToken<'response> = {source: Nullable.t<RescriptRelay.Observable.t<'response>>}
   external tokenToRaw: queryRef => rawPreloadToken<Types.response> = "%identity"
 }
 module Utils = {
@@ -96,11 +96,11 @@ module Utils = {
 @live let providedVariablesDefinition: providedVariablesType = {
   __relay_internal__pv__TestProvidedVariablesSomeInput: {
     providedVariable: TestProvidedVariables.SomeInput.get,
-    get: () => Internal.convertVariables(Js.Dict.fromArray([("__relay_internal__pv__TestProvidedVariablesSomeInput", TestProvidedVariables.SomeInput.get())]))->Js.Dict.unsafeGet("__relay_internal__pv__TestProvidedVariablesSomeInput"),
+    get: () => Internal.convertVariables(dict{"__relay_internal__pv__TestProvidedVariablesSomeInput": TestProvidedVariables.SomeInput.get()})-Dict.getUnsafe("__relay_internal__pv__TestProvidedVariablesSomeInput"),
   },
   __relay_internal__pv__TestProvidedVariablesInputB: {
     providedVariable: TestProvidedVariables.InputB.get,
-    get: () => Internal.convertVariables(Js.Dict.fromArray([("__relay_internal__pv__TestProvidedVariablesInputB", TestProvidedVariables.InputB.get())]))->Js.Dict.unsafeGet("__relay_internal__pv__TestProvidedVariablesInputB"),
+    get: () => Internal.convertVariables(dict{"__relay_internal__pv__TestProvidedVariablesInputB": TestProvidedVariables.InputB.get()})-Dict.getUnsafe("__relay_internal__pv__TestProvidedVariablesInputB"),
   },
   __relay_internal__pv__TestProvidedVariablesBool: {
     providedVariable: TestProvidedVariables.Bool.get,
@@ -124,11 +124,11 @@ module Utils = {
   },
   __relay_internal__pv__TestProvidedVariablesDatetime: {
     providedVariable: TestProvidedVariables.Datetime.get,
-    get: () => Internal.convertVariables(Js.Dict.fromArray([("__relay_internal__pv__TestProvidedVariablesDatetime", TestProvidedVariables.Datetime.get())]))->Js.Dict.unsafeGet("__relay_internal__pv__TestProvidedVariablesDatetime"),
+    get: () => Internal.convertVariables(dict{"__relay_internal__pv__TestProvidedVariablesDatetime": TestProvidedVariables.Datetime.get()})-Dict.getUnsafe("__relay_internal__pv__TestProvidedVariablesDatetime"),
   },
   __relay_internal__pv__TestProvidedVariablesDatetimes: {
     providedVariable: TestProvidedVariables.Datetimes.get,
-    get: () => Internal.convertVariables(Js.Dict.fromArray([("__relay_internal__pv__TestProvidedVariablesDatetimes", TestProvidedVariables.Datetimes.get())]))->Js.Dict.unsafeGet("__relay_internal__pv__TestProvidedVariablesDatetimes"),
+    get: () => Internal.convertVariables(dict{"__relay_internal__pv__TestProvidedVariablesDatetimes": TestProvidedVariables.Datetimes.get()})-Dict.getUnsafe("__relay_internal__pv__TestProvidedVariablesDatetimes"),
   },
 }
 
@@ -337,12 +337,12 @@ let node: operationType = makeNode(providedVariablesDefinition)
 @live
 let queryRefToObservable = token => {
   let raw = token->Internal.tokenToRaw
-  raw.source->Js.Nullable.toOption
+  raw.source->Nullable.toOption
 }
   
 @live
 let queryRefToPromise = token => {
-  Js.Promise.make((~resolve, ~reject as _) => {
+  Promise.make((resolve, _reject) => {
     switch token->queryRefToObservable {
     | None => resolve(Error())
     | Some(o) =>

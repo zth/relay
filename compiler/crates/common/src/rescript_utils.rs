@@ -42,12 +42,12 @@ pub fn get_load_query_code(include_load_fn: bool) -> StringKey {
 @live
 let queryRefToObservable = token => {{
   let raw = token->Internal.tokenToRaw
-  raw.source->Js.Nullable.toOption
+  raw.source->Nullable.toOption
 }}
   
 @live
 let queryRefToPromise = token => {{
-  Js.Promise.make((~resolve, ~reject as _) => {{
+  Promise.make((resolve, _reject) => {{
     switch token->queryRefToObservable {{
     | None => resolve(Error())
     | Some(o) =>

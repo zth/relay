@@ -46,7 +46,7 @@ type queryRef
 
 module Internal = {
   @live
-  let variablesConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
+  let variablesConverter: dict<dict<dict<string>>> = %raw(
     json`{}`
   )
   @live
@@ -55,12 +55,12 @@ module Internal = {
   let convertVariables = v => v->RescriptRelay.convertObj(
     variablesConverter,
     variablesConverterMap,
-    Js.undefined
+    None
   )
   @live
   type wrapResponseRaw
   @live
-  let wrapResponseConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
+  let wrapResponseConverter: dict<dict<dict<string>>> = %raw(
     json`{}`
   )
   @live
@@ -69,12 +69,12 @@ module Internal = {
   let convertWrapResponse = v => v->RescriptRelay.convertObj(
     wrapResponseConverter,
     wrapResponseConverterMap,
-    Js.null
+    null
   )
   @live
   type responseRaw
   @live
-  let responseConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
+  let responseConverter: dict<dict<dict<string>>> = %raw(
     json`{}`
   )
   @live
@@ -83,7 +83,7 @@ module Internal = {
   let convertResponse = v => v->RescriptRelay.convertObj(
     responseConverter,
     responseConverterMap,
-    Js.undefined
+    None
   )
   type wrapRawResponseRaw = wrapResponseRaw
   @live
@@ -91,7 +91,7 @@ module Internal = {
   type rawResponseRaw = responseRaw
   @live
   let convertRawResponse = convertResponse
-  type rawPreloadToken<'response> = {source: Js.Nullable.t<RescriptRelay.Observable.t<'response>>}
+  type rawPreloadToken<'response> = {source: Nullable.t<RescriptRelay.Observable.t<'response>>}
   external tokenToRaw: queryRef => rawPreloadToken<Types.response> = "%identity"
 }
 module Utils = {
@@ -101,25 +101,25 @@ module Utils = {
 
 module CodesplitComponents = {
   module UserAvatar = {
-    let make = React.lazy_(() => Js.import(UserAvatar.make))
+    let make = React.lazy_(() => import(UserAvatar.make))
   }
   module RichContent = {
-    let make = React.lazy_(() => Js.import(RichContent.make))
+    let make = React.lazy_(() => import(RichContent.make))
   }
   module FriendComponent = {
-    let make = React.lazy_(() => Js.import(FriendComponent.make))
+    let make = React.lazy_(() => import(FriendComponent.make))
   }
   module FriendComponent2 = {
-    let make = React.lazy_(() => Js.import(FriendComponent2.make))
+    let make = React.lazy_(() => import(FriendComponent2.make))
   }
   module FriendComponentSkip = {
-    let make = React.lazy_(() => Js.import(FriendComponentSkip.make))
+    let make = React.lazy_(() => import(FriendComponentSkip.make))
   }
   module GroupAvatar = {
-    let make = React.lazy_(() => Js.import(GroupAvatar.make))
+    let make = React.lazy_(() => import(GroupAvatar.make))
   }
   module UserNode = {
-    let make = React.lazy_(() => Js.import(UserNode.make))
+    let make = React.lazy_(() => import(UserNode.make))
   }
 }
 
@@ -483,11 +483,11 @@ return {
 })() `)
 
 let node = RescriptRelay_Internal.applyCodesplitMetadata(node, [
-  ("member.$$u$$User", (_variables: dict<Js.Json.t>) => {Js.import(UserAvatar.make)->ignore; Js.import(UserName.make)->ignore}), 
-  ("member.$$u$$User.description", (_variables: dict<Js.Json.t>) => {Js.import(RichContent.make)->ignore}), 
-  ("member.$$u$$User.bestFriend", (variables: dict<Js.Json.t>) => {if variables->Js.Dict.get("includeFriendAvatar") === Some(Js.Json.Boolean(true)) {Js.import(FriendComponent.make)->ignore}; Js.import(FriendComponent2.make)->ignore; if variables->Js.Dict.get("includeFriendAvatar") === Some(Js.Json.Boolean(false)) {Js.import(FriendComponentSkip.make)->ignore}}), 
-  ("member.$$u$$Group", (_variables: dict<Js.Json.t>) => {Js.import(GroupAvatar.make)->ignore}), 
-  ("member.$$i$$Node", (_variables: dict<Js.Json.t>) => {Js.import(UserNode.make)->ignore}), 
+  ("member.$$u$$User", (_variables: dict<JSON.t>) => {import(UserAvatar.make)->ignore; import(UserName.make)->ignore}), 
+  ("member.$$u$$User.description", (_variables: dict<JSON.t>) => {import(RichContent.make)->ignore}), 
+  ("member.$$u$$User.bestFriend", (variables: dict<JSON.t>) => {if variables->Dict.get("includeFriendAvatar") === Some(JSON.Boolean(true)) {import(FriendComponent.make)->ignore}; import(FriendComponent2.make)->ignore; if variables->Dict.get("includeFriendAvatar") === Some(JSON.Boolean(false)) {import(FriendComponentSkip.make)->ignore}}), 
+  ("member.$$u$$Group", (_variables: dict<JSON.t>) => {import(GroupAvatar.make)->ignore}), 
+  ("member.$$i$$Node", (_variables: dict<JSON.t>) => {import(UserNode.make)->ignore}), 
 ])
 @live let load: (
   ~environment: RescriptRelay.Environment.t,
@@ -516,12 +516,12 @@ let node = RescriptRelay_Internal.applyCodesplitMetadata(node, [
 @live
 let queryRefToObservable = token => {
   let raw = token->Internal.tokenToRaw
-  raw.source->Js.Nullable.toOption
+  raw.source->Nullable.toOption
 }
   
 @live
 let queryRefToPromise = token => {
-  Js.Promise.make((~resolve, ~reject as _) => {
+  Promise.make((resolve, _reject) => {
     switch token->queryRefToObservable {
     | None => resolve(Error())
     | Some(o) =>

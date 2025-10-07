@@ -15,11 +15,11 @@ module Types = {
   }
   type fragment = {
     /** This is the raw, not parsed value of the custom scalar `SomeModule.Datetime.t`. In updatable fragments you need to convert to and from the custom scalar manually as you read and make updates to it. */
-    mutable createdAt: Js.Json.t,
-    mutable isOnline: Js.Nullable.t<bool>,
-    mutable onlineStatus: Js.Nullable.t<RelaySchemaAssets_graphql.enum_OnlineStatus>,
-    bestFriend: Js.Nullable.t<fragment_bestFriend>,
-    memberOfSingular: Js.Nullable.t<fragment_memberOfSingular>,
+    mutable createdAt: JSON.t,
+    mutable isOnline: Nullable.t<bool>,
+    mutable onlineStatus: Nullable.t<RelaySchemaAssets_graphql.enum_OnlineStatus>,
+    bestFriend: Nullable.t<fragment_bestFriend>,
+    memberOfSingular: Nullable.t<fragment_memberOfSingular>,
   }
 }
 
