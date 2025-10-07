@@ -22,7 +22,7 @@ module Internal = {
   @live
   type fragmentRaw
   @live
-  let fragmentConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
+  let fragmentConverter: dict<dict<dict<string>>> = %raw(
     json`{}`
   )
   @live
@@ -31,7 +31,7 @@ module Internal = {
   let convertFragment = v => v->RescriptRelay.convertObj(
     fragmentConverter,
     fragmentConverterMap,
-    Js.undefined
+    None
   )
 }
 
@@ -50,15 +50,15 @@ let connectionKey = "TestConnectionsWithonstantValues_user_friendsConnection"
 )
 
 @live
-let makeConnectionId = (connectionParentDataId: RescriptRelay.dataId, ~onlineStatus: RelaySchemaAssets_graphql.enum_OnlineStatus, ~beforeDate: SomeModule.Datetime.t, ~datetime: Js.null<SomeModule.Datetime.t>=Js.null, ~bool: option<bool>=?, ~flt: Js.null<float>=Js.null, ~datetime2: option<SomeModule.Datetime.t>=?, ~datetime3: SomeModule.Datetime.t) => {
+let makeConnectionId = (connectionParentDataId: RescriptRelay.dataId, ~onlineStatus: RelaySchemaAssets_graphql.enum_OnlineStatus, ~beforeDate: SomeModule.Datetime.t, ~datetime: Null.t<SomeModule.Datetime.t>=null, ~bool: option<bool>=?, ~flt: Null.t<float>=null, ~datetime2: option<SomeModule.Datetime.t>=?, ~datetime3: SomeModule.Datetime.t) => {
   let onlineStatus = Some(onlineStatus)
   let beforeDate = Some(SomeModule.Datetime.serialize(beforeDate))
-  let datetime = datetime->Js.Null.toOption
+  let datetime = datetime->Null.toOption
   let datetime = switch datetime { | None => None | Some(v) => Some(SomeModule.Datetime.serialize(v)) }
-  let flt = flt->Js.Null.toOption
+  let flt = flt->Null.toOption
   let datetime2 = switch datetime2 { | None => None | Some(v) => Some(SomeModule.Datetime.serialize(v)) }
   let datetime3 = Some(SomeModule.Datetime.serialize(datetime3))
-  let args = {"statuses": [RescriptRelay_Internal.Arg(Some("Idle")), RescriptRelay_Internal.Arg(onlineStatus)], "beforeDate": beforeDate, "objTest": {"str": Some("123"), "bool": Some(false), "float": Some(12.2), "int": Some(64), "datetime": datetime, "recursive": {"str": Some("234"), "bool": bool, "float": flt, "int": Some(Js.null), "datetime": datetime2, "recursive": {"bool": bool, "datetime": datetime3}}}}
+  let args = {"statuses": [RescriptRelay_Internal.Arg(Some("Idle")), RescriptRelay_Internal.Arg(onlineStatus)], "beforeDate": beforeDate, "objTest": {"str": Some("123"), "bool": Some(false), "float": Some(12.2), "int": Some(64), "datetime": datetime, "recursive": {"str": Some("234"), "bool": bool, "float": flt, "int": Some(null), "datetime": datetime2, "recursive": {"bool": bool, "datetime": datetime3}}}}
   internal_makeConnectionId(connectionParentDataId, args)
 }
 module Utils = {
