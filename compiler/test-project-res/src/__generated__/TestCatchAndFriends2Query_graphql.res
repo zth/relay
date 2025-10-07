@@ -7,7 +7,6 @@ module Types = {
   @tag("__typename") type response_member_value_User_memberOfSingular_value = 
     | @live User(
       {
-        @live __typename: [ | #User],
         createdAt: SomeModule.Datetime.t,
       }
     )
@@ -16,7 +15,6 @@ module Types = {
   @tag("__typename") type response_member_value = 
     | @live User(
       {
-        @live __typename: [ | #User],
         @live id: string,
         memberOfSingular: RescriptRelay.CatchResult.t<option<response_member_value_User_memberOfSingular_value>>,
       }

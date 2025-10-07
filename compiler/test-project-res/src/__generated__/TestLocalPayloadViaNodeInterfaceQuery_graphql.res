@@ -7,7 +7,6 @@ module Types = {
   @tag("__typename") type response_node = 
     | @live User(
       {
-        @live __typename: [ | #User],
         avatarUrl: option<string>,
         firstName: string,
         onlineStatus: option<RelaySchemaAssets_graphql.enum_OnlineStatus>,
@@ -18,7 +17,6 @@ module Types = {
   @tag("__typename") type rawResponse_node = 
     | @live User(
       {
-        @live __typename: [ | #User],
         avatarUrl: option<string>,
         firstName: string,
         @live id: string,

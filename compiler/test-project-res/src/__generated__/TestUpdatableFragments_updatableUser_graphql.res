@@ -7,7 +7,6 @@ module Types = {
   @tag("__typename") type fragment_memberOfSingular = 
     | @live Group(
       {
-        @live __typename: [ | #Group],
         mutable name: string,
       }
     )

@@ -9,7 +9,7 @@ module Query = %relay(`
 
 module Query = %relay(`
     query TestUnionFragmentExhaustiveQuery {
-      member(id: "123") @exhaustive {
+      member(id: "123") {
         ... on User {
           firstName
         }

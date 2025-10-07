@@ -7,7 +7,6 @@ module Types = {
   @tag("__typename") type fragment_localUnion = 
     | @live LocalThing(
       {
-        @live __typename: [ | #LocalThing],
         name: string,
       }
     )

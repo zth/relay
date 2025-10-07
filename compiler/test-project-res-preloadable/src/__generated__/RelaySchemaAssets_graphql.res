@@ -182,3 +182,17 @@ and input_Location =
 and input_Location_nullable = 
 | @as("byAddress") ByAddress(input_ByAddress_nullable)
 | @as("byLoc") ByLoc(input_ByLoc_nullable)
+
+@live
+and input_LocationWithoutDirective = {
+  byAddress?: input_ByAddress,
+  byLoc?: input_ByLoc,
+  byId?: string,
+}
+
+@live
+and input_LocationWithoutDirective_nullable = {
+  byAddress?: Js.Null.t<input_ByAddress_nullable>,
+  byLoc?: Js.Null.t<input_ByLoc_nullable>,
+  byId?: Js.Null.t<string>,
+}

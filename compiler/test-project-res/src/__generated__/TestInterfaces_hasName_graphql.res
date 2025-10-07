@@ -7,13 +7,11 @@ module Types = {
   @tag("__typename") type fragment_byType = 
     | @live Group(
       {
-        @live __typename: [ | #Group],
         avatarUrl: option<string>,
       }
     )
     | @live Organization(
       {
-        @live __typename: [ | #Organization],
         slug: string,
       }
     )

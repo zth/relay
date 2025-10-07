@@ -6,14 +6,10 @@
 module Types = {
   @@warning("-30")
 
-  type rec response_member_User_UserAvatar_user = {
-    fragmentRefs: RescriptRelay.fragmentRefs<[ | #UserAvatar_user]>,
-  }
-  @tag("__typename") and response_member = 
+  @tag("__typename") type response_member = 
     | @live User(
       {
-        @live __typename: [ | #User],
-        @as("UserAvatar_user") userAvatar_user: option<response_member_User_UserAvatar_user>,
+        @as("UserAvatar_user") userAvatar_user: option<RescriptRelay.fragmentRefs<[ | #UserAvatar_user]>>,
       }
     )
     | @live @as("__unselected") UnselectedUnionMember(string)
@@ -54,7 +50,7 @@ module Internal = {
   type wrapResponseRaw
   @live
   let wrapResponseConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
-    json`{"__root":{"member_User_UserAvatar_user":{"f":""},"member":{"u":"response_member"}}}`
+    json`{"__root":{"member":{"u":"response_member"}}}`
   )
   @live
   let wrapResponseConverterMap = {
@@ -70,7 +66,7 @@ module Internal = {
   type responseRaw
   @live
   let responseConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
-    json`{"__root":{"member_User_UserAvatar_user":{"f":""},"member":{"u":"response_member"}}}`
+    json`{"__root":{"member":{"u":"response_member"}}}`
   )
   @live
   let responseConverterMap = {
@@ -152,14 +148,19 @@ return {
             "selections": [
               {
                 "fragment": {
-                  "args": null,
-                  "kind": "FragmentSpread",
-                  "name": "UserAvatar_user"
+                  "kind": "InlineFragment",
+                  "selections": [
+                    {
+                      "args": null,
+                      "kind": "FragmentSpread",
+                      "name": "UserAvatar_user"
+                    }
+                  ],
+                  "type": "User",
+                  "abstractKey": null
                 },
-                "kind": "AliasedFragmentSpread",
-                "name": "UserAvatar_user",
-                "type": "User",
-                "abstractKey": null
+                "kind": "AliasedInlineFragmentSpread",
+                "name": "UserAvatar_user"
               }
             ],
             "type": "User",
@@ -243,7 +244,7 @@ return {
 })() `)
 
 let node = RescriptRelay_Internal.applyCodesplitMetadata(node, [
-  ("member.$$u$$User", () => {Js.import(UserAvatar.make)->ignore; Js.import(UserName.make)->ignore}), 
+  ("member.$$u$$User", (_variables: dict<Js.Json.t>) => {Js.import(UserAvatar.make)->ignore; Js.import(UserName.make)->ignore}), 
 ])
 
 

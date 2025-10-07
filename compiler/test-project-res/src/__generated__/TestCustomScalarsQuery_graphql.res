@@ -7,7 +7,6 @@ module Types = {
   @tag("__typename") type response_member = 
     | @live User(
       {
-        @live __typename: [ | #User],
         createdAt: SomeModule.Datetime.t,
         datetimes: option<array<option<SomeModule.Datetime.t>>>,
         onlineStatus: option<RelaySchemaAssets_graphql.enum_OnlineStatus>,

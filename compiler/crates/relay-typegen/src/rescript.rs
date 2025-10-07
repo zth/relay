@@ -1475,6 +1475,12 @@ fn write_object_definition_body(
     let mut has_printed_keys = FnvHashSet::default();
 
     object.values.iter().for_each(|prop| {
+        // If this is the inline object that forms the payload of a union
+        // variant tagged by __typename, do not also emit a __typename field
+        // inside the object payload.
+        if object.is_union_member_inline_obj && &*prop.key == "__typename" {
+            return;
+        }
         if has_printed_keys.contains(&prop.key) {
             return;
         } else {
