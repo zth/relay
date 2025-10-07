@@ -411,8 +411,8 @@ pub fn print_opt(str: &String, optional: bool, nullability_mode: &NullabilityMod
     if optional {
         match &nullability_mode {
             NullabilityMode::Option => format!("option<{}>", str),
-            NullabilityMode::Nullable => format!("Js.Null.t<{}>", str),
-            NullabilityMode::NullAndUndefined => format!("Js.Nullable.t<{}>", str),
+            NullabilityMode::Nullable => format!("Null.t<{}>", str),
+            NullabilityMode::NullAndUndefined => format!("Nullable.t<{}>", str),
         }
     } else {
         format!("{}", str)
@@ -433,7 +433,7 @@ pub fn print_constant_value(
             print_wrapped_in_some(&format!("\"{}\"", s.to_string()), print_as_optional)
         }
         ConstantValue::Boolean(b) => print_wrapped_in_some(&b.to_string(), print_as_optional),
-        ConstantValue::Null() => print_wrapped_in_some(&String::from("Js.null"), print_as_optional),
+        ConstantValue::Null() => print_wrapped_in_some(&String::from("null"), print_as_optional),
         ConstantValue::Enum(s) => {
             // It's fine to print enum values as string here if we're in the args body, since it's not important this refers to the correct variant anyway.
             if is_in_args_body {
@@ -799,7 +799,7 @@ pub fn get_connection_key_maker(
             .iter()
             .map(|(variable, default_value)| {
                 // Setting a default value as null means we'll want to treat
-                // this entire variable definition as Js.null, so that the null
+                // this entire variable definition as null, so that the null
                 // default value works type wise.
                 let has_default_value_null = match &default_value {
                     Some(WithLocation {
@@ -814,7 +814,7 @@ pub fn get_connection_key_maker(
                     variable.name.item,
                     if has_default_value_null {
                         format!(
-                            "Js.null<{}>",
+                            "Null.t<{}>",
                             print_type_reference(
                                 &variable.type_,
                                 &schema,
@@ -867,7 +867,7 @@ pub fn get_connection_key_maker(
      *    constant values also part of the connection id pattern. In order to not have to keep track of what is and isn't
      *    optional to make types match, we ensure everything is always optional as the args object is produced.
      *
-     * We also need to special case Js.null<t> here.
+     * We also need to special case Null.t<t> here.
      */
 
     all_variables.iter().for_each(|(variable, default_value)| {
@@ -905,7 +905,7 @@ pub fn get_connection_key_maker(
             write_indentation(&mut str, local_indentation).unwrap();
             writeln!(
                 str,
-                "let {} = {}->Js.Null.toOption",
+                "let {} = {}->Null.toOption",
                 variable.name.item, variable.name.item,
             )
             .unwrap();

@@ -25,15 +25,15 @@ module Types = {
   type rawResponse = response
   @live
   type variables = {
-    datetime?: Js.Null.t<SomeModule.Datetime.t>,
+    datetime?: Null.t<SomeModule.Datetime.t>,
     onlineStatus: RelaySchemaAssets_graphql.enum_OnlineStatus_input,
-    recursive?: Js.Null.t<someInput>,
+    recursive?: Null.t<someInput>,
   }
 }
 
 module Internal = {
   @live
-  let variablesConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
+  let variablesConverter: dict<dict<dict<string>>> = %raw(
     json`{"someInput":{"recursive":{"r":"someInput"},"datetime":{"c":"SomeModule.Datetime"}},"__root":{"recursive":{"r":"someInput"},"datetime":{"c":"SomeModule.Datetime"}}}`
   )
   @live
@@ -44,12 +44,12 @@ module Internal = {
   let convertVariables = v => v->RescriptRelay.convertObj(
     variablesConverter,
     variablesConverterMap,
-    Js.null
+    null
   )
   @live
   type wrapResponseRaw
   @live
-  let wrapResponseConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
+  let wrapResponseConverter: dict<dict<dict<string>>> = %raw(
     json`{}`
   )
   @live
@@ -58,12 +58,12 @@ module Internal = {
   let convertWrapResponse = v => v->RescriptRelay.convertObj(
     wrapResponseConverter,
     wrapResponseConverterMap,
-    Js.null
+    null
   )
   @live
   type responseRaw
   @live
-  let responseConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
+  let responseConverter: dict<dict<dict<string>>> = %raw(
     json`{}`
   )
   @live
@@ -72,7 +72,7 @@ module Internal = {
   let convertResponse = v => v->RescriptRelay.convertObj(
     responseConverter,
     responseConverterMap,
-    Js.undefined
+    None
   )
   type wrapRawResponseRaw = wrapResponseRaw
   @live

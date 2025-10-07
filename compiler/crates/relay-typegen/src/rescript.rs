@@ -445,7 +445,7 @@ fn ast_to_prop_value(
                             if state.operation_meta_data.is_updatable
                                 && is_custom_scalar_that_needs_conversion
                             {
-                                String::from("Js.Json.t")
+                                String::from("JSON.t")
                             } else {
                                 identifier
                             },
@@ -1266,7 +1266,7 @@ fn write_internal_assets(
     write_indentation(str, indentation).unwrap();
     writeln!(
         str,
-        "let {}Converter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(",
+        "let {}Converter: dict<dict<dict<string>>> = %raw(",
         name
     )
     .unwrap();
@@ -1357,8 +1357,8 @@ fn write_internal_assets(
         str,
         "{}",
         match nullable_type {
-            NullableType::Undefined => "Js.undefined",
-            NullableType::Null => "Js.null",
+            NullableType::Undefined => "None",
+            NullableType::Null => "null",
         }
     )
     .unwrap();
@@ -2774,7 +2774,7 @@ impl Writer for ReScriptPrinter {
             (_, DefinitionType::Operation((op, _))) => match &op.kind {
                 OperationKind::Query => {
                     if !self.operation_meta_data.is_updatable {
-                        writeln!(generated_types, "  type rawPreloadToken<'response> = {{source: Js.Nullable.t<RescriptRelay.Observable.t<'response>>}}").unwrap();
+                        writeln!(generated_types, "  type rawPreloadToken<'response> = {{source: Nullable.t<RescriptRelay.Observable.t<'response>>}}").unwrap();
                         writeln!(generated_types, "  external tokenToRaw: queryRef => rawPreloadToken<Types.response> = \"%identity\"").unwrap();
                     }
                 }
@@ -3026,11 +3026,11 @@ impl Writer for ReScriptPrinter {
                                 // necessarily what comes out. And this messes
                                 // up our conversion because the conversion
                                 // instructions expect specific keys. Using a
-                                // Js.Dict in between like this doesn't mangle
+                                // dict in between like this doesn't mangle
                                 // the keys, which means this works out.
                                 writeln!(
                                     generated_types,
-                                    "get: () => Internal.convertVariables(Js.Dict.fromArray([(\"{}\", {}.get())]))->Js.Dict.unsafeGet(\"{}\"),",
+                                    "get: () => Internal.convertVariables(dict{{\"{}\": {}.get()}})-Dict.getUnsafe(\"{}\"),",
                                     key, module_name, key
                                 )
                                 .unwrap();

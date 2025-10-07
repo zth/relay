@@ -505,7 +505,7 @@ pub fn write_codesplit_components(codesplit_components: Vec<String>, section: &m
         codesplit_components.iter().for_each(|c| {
             writeln!(
                 section,
-                "  module {} = {{\n    let make = React.lazy_(() => Js.import({}.make))\n  }}",
+                "  module {} = {{\n    let make = React.lazy_(() => import({}.make))\n  }}",
                 c, c
             )
             .unwrap();
@@ -530,33 +530,38 @@ pub fn write_codesplits_node_modifier(
 
             writeln!(
                 section,
-                "  (\"{}\", ({}variables: dict<Js.Json.t>) => {{{}}}), ",
+                "  (\"{}\", ({}variables: dict<JSON.t>) => {{{}}}), ",
                 path.join("."),
                 if has_conditionals {
                     format!("")
                 } else {
                     format!("_")
                 },
-                modules.iter().map(|(m, conditional)| {
-                    format!(
-                        "{}Js.import({}.make)->ignore{}", 
-                        match conditional {
-                            Some((s, t)) => format!("if variables->Js.Dict.get(\"{}\") === Some(Js.Json.Boolean({})) {{", s, if *t {
-                                "true"
+                modules
+                    .iter()
+                    .map(|(m, conditional)| {
+                        format!(
+                            "{}import({}.make)->ignore{}",
+                            match conditional {
+                                Some((s, t)) => format!(
+                                    "if variables->Dict.get(\"{}\") === Some(JSON.Boolean({})) {{",
+                                    s,
+                                    if *t { "true" } else { "false" }
+                                ),
+                                None => format!(""),
+                            },
+                            m,
+                            if conditional.is_some() {
+                                format!("}}")
                             } else {
-                                "false"
-                            }),
-                            None => format!("")
-                        },
-                        m,
-                        if conditional.is_some() {
-                            format!("}}")
-                        } else {
-                            format!("")
-                        }
-                    )
-                }).collect::<Vec<String>>().join("; ")
-            ).unwrap();
+                                format!("")
+                            }
+                        )
+                    })
+                    .collect::<Vec<String>>()
+                    .join("; ")
+            )
+            .unwrap();
         });
 
         writeln!(section, "])").unwrap();
