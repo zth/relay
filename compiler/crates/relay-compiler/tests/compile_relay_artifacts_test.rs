@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<220a462d1e8062621d9ac165e8d6b30d>>
+ * @generated SignedSource<<67aa79681f4c3c1406944dd059174dc7>>
  */
 
 mod compile_relay_artifacts;
@@ -678,6 +678,20 @@ async fn fragment_on_query() {
 }
 
 #[tokio::test]
+async fn fragment_on_query_commonjs() {
+    let input = include_str!("compile_relay_artifacts/fixtures/fragment-on-query-commonjs.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/fragment-on-query-commonjs.expected");
+    test_fixture(transform_fixture, file!(), "fragment-on-query-commonjs.graphql", "compile_relay_artifacts/fixtures/fragment-on-query-commonjs.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn fragment_on_query_commonjs_relativize_disabled() {
+    let input = include_str!("compile_relay_artifacts/fixtures/fragment-on-query-commonjs-relativize-disabled.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/fragment-on-query-commonjs-relativize-disabled.expected");
+    test_fixture(transform_fixture, file!(), "fragment-on-query-commonjs-relativize-disabled.graphql", "compile_relay_artifacts/fixtures/fragment-on-query-commonjs-relativize-disabled.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn fragment_on_query_with_cycle_invalid() {
     let input = include_str!("compile_relay_artifacts/fixtures/fragment-on-query-with-cycle.invalid.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/fragment-on-query-with-cycle.invalid.expected");
@@ -993,6 +1007,20 @@ async fn plural_fragment() {
 }
 
 #[tokio::test]
+async fn prefetchable_pagination_query_with_conflicting_args_invalid() {
+    let input = include_str!("compile_relay_artifacts/fixtures/prefetchable-pagination-query-with-conflicting-args.invalid.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/prefetchable-pagination-query-with-conflicting-args.invalid.expected");
+    test_fixture(transform_fixture, file!(), "prefetchable-pagination-query-with-conflicting-args.invalid.graphql", "compile_relay_artifacts/fixtures/prefetchable-pagination-query-with-conflicting-args.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn prefetchable_pagination_query_without_conflicting_args() {
+    let input = include_str!("compile_relay_artifacts/fixtures/prefetchable-pagination-query-without-conflicting-args.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/prefetchable-pagination-query-without-conflicting-args.expected");
+    test_fixture(transform_fixture, file!(), "prefetchable-pagination-query-without-conflicting-args.graphql", "compile_relay_artifacts/fixtures/prefetchable-pagination-query-without-conflicting-args.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn prefetchable_refetchable_fragment_with_connection() {
     let input = include_str!("compile_relay_artifacts/fixtures/prefetchable-refetchable-fragment-with-connection.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/prefetchable-refetchable-fragment-with-connection.expected");
@@ -1011,6 +1039,27 @@ async fn provided_variable_directive() {
     let input = include_str!("compile_relay_artifacts/fixtures/provided-variable-directive.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/provided-variable-directive.expected");
     test_fixture(transform_fixture, file!(), "provided-variable-directive.graphql", "compile_relay_artifacts/fixtures/provided-variable-directive.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn provided_variable_directive_commonjs() {
+    let input = include_str!("compile_relay_artifacts/fixtures/provided-variable-directive-commonjs.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/provided-variable-directive-commonjs.expected");
+    test_fixture(transform_fixture, file!(), "provided-variable-directive-commonjs.graphql", "compile_relay_artifacts/fixtures/provided-variable-directive-commonjs.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn provided_variable_directive_commonjs_relativize_disabled() {
+    let input = include_str!("compile_relay_artifacts/fixtures/provided-variable-directive-commonjs-relativize-disabled.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/provided-variable-directive-commonjs-relativize-disabled.expected");
+    test_fixture(transform_fixture, file!(), "provided-variable-directive-commonjs-relativize-disabled.graphql", "compile_relay_artifacts/fixtures/provided-variable-directive-commonjs-relativize-disabled.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn provided_variable_directive_commonjs_relativize_enabled() {
+    let input = include_str!("compile_relay_artifacts/fixtures/provided-variable-directive-commonjs-relativize-enabled.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/provided-variable-directive-commonjs-relativize-enabled.expected");
+    test_fixture(transform_fixture, file!(), "provided-variable-directive-commonjs-relativize-enabled.graphql", "compile_relay_artifacts/fixtures/provided-variable-directive-commonjs-relativize-enabled.expected", input, expected).await;
 }
 
 #[tokio::test]
@@ -1287,13 +1336,6 @@ async fn refetchable_with_arguments_conflicting_invalid() {
 }
 
 #[tokio::test]
-async fn refetchable_with_arguments_invalid() {
-    let input = include_str!("compile_relay_artifacts/fixtures/refetchable-with-arguments.invalid.graphql");
-    let expected = include_str!("compile_relay_artifacts/fixtures/refetchable-with-arguments.invalid.expected");
-    test_fixture(transform_fixture, file!(), "refetchable-with-arguments.invalid.graphql", "compile_relay_artifacts/fixtures/refetchable-with-arguments.invalid.expected", input, expected).await;
-}
-
-#[tokio::test]
 async fn relay_client_id_field() {
     let input = include_str!("compile_relay_artifacts/fixtures/relay-client-id-field.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/relay-client-id-field.expected");
@@ -1550,6 +1592,13 @@ async fn relay_resolvers_with_different_field_args_are_not_merged() {
     let input = include_str!("compile_relay_artifacts/fixtures/relay-resolvers-with-different-field-args-are-not-merged.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolvers-with-different-field-args-are-not-merged.expected");
     test_fixture(transform_fixture, file!(), "relay-resolvers-with-different-field-args-are-not-merged.graphql", "compile_relay_artifacts/fixtures/relay-resolvers-with-different-field-args-are-not-merged.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_test_operation() {
+    let input = include_str!("compile_relay_artifacts/fixtures/relay-test-operation.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/relay-test-operation.expected");
+    test_fixture(transform_fixture, file!(), "relay-test-operation.graphql", "compile_relay_artifacts/fixtures/relay-test-operation.expected", input, expected).await;
 }
 
 #[tokio::test]
@@ -2040,6 +2089,13 @@ async fn updatable_fragment_spread() {
     let input = include_str!("compile_relay_artifacts/fixtures/updatable-fragment-spread.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/updatable-fragment-spread.expected");
     test_fixture(transform_fixture, file!(), "updatable-fragment-spread.graphql", "compile_relay_artifacts/fixtures/updatable-fragment-spread.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn updatable_fragment_spread_with_dangerously_unaliased_fixme() {
+    let input = include_str!("compile_relay_artifacts/fixtures/updatable-fragment-spread-with-dangerously-unaliased-fixme.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/updatable-fragment-spread-with-dangerously-unaliased-fixme.expected");
+    test_fixture(transform_fixture, file!(), "updatable-fragment-spread-with-dangerously-unaliased-fixme.graphql", "compile_relay_artifacts/fixtures/updatable-fragment-spread-with-dangerously-unaliased-fixme.expected", input, expected).await;
 }
 
 #[tokio::test]

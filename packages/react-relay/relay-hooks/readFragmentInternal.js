@@ -83,13 +83,10 @@ function handlePotentialSnapshotErrorsForState(
   state: FragmentState,
 ): void {
   if (state.kind === 'singular') {
-    handlePotentialSnapshotErrors(
-      environment,
-      state.snapshot.errorResponseFields,
-    );
+    handlePotentialSnapshotErrors(environment, state.snapshot.fieldErrors);
   } else if (state.kind === 'plural') {
     for (const snapshot of state.snapshots) {
-      handlePotentialSnapshotErrors(environment, snapshot.errorResponseFields);
+      handlePotentialSnapshotErrors(environment, snapshot.fieldErrors);
     }
   }
 }
@@ -201,14 +198,15 @@ function readFragmentInternal(
       'to `%s`. If the parent fragment only fetches the fragment conditionally ' +
       '- with e.g. `@include`, `@skip`, or inside a `... on SomeType { }` ' +
       'spread  - then the fragment reference will not exist. ' +
-      'In this case, pass `null` if the conditions for evaluating the ' +
-      'fragment are not met (e.g. if the `@include(if)` value is false.)',
+      'This issue can generally be fixed by adding `@alias` after `...%s`.\n' +
+      'See https://relay.dev/docs/next/guides/alias-directive/',
     fragmentNode.name,
     fragmentNode.name,
     hookDisplayName,
     fragmentNode.name,
     fragmentKey == null ? 'a fragment reference' : `the \`${fragmentKey}\``,
     hookDisplayName,
+    fragmentNode.name,
   );
 
   const state = getFragmentState(environment, fragmentSelector);
@@ -216,7 +214,10 @@ function readFragmentInternal(
   // Handle the queries for any missing client edges; this may suspend.
   // FIXME handle client edges in parallel.
   let clientEdgeQueries = null;
-  if (fragmentNode.metadata?.hasClientEdges === true) {
+  if (
+    fragmentNode.metadata?.hasClientEdges === true ||
+    RelayFeatureFlags.CHECK_ALL_FRAGMENTS_FOR_MISSING_CLIENT_EDGES
+  ) {
     const missingClientEdges = getMissingClientEdges(state);
     if (missingClientEdges?.length) {
       clientEdgeQueries = ([]: Array<QueryResult>);

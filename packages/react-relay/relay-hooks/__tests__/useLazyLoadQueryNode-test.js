@@ -42,6 +42,7 @@ const {
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
+
 const {
   disallowConsoleErrors,
   disallowWarnings,
@@ -195,6 +196,7 @@ beforeEach(() => {
     const originalDisposable = originalRetain(...args);
     return {
       dispose: () => {
+        // $FlowFixMe[prop-missing]
         release(args[0].variables);
         originalDisposable.dispose();
       },
@@ -206,7 +208,7 @@ beforeEach(() => {
       node(id: $id) {
         id
         name
-        ...useLazyLoadQueryNodeTestUserFragment
+        ...useLazyLoadQueryNodeTestUserFragment @dangerously_unaliased_fixme
       }
     }
   `;
@@ -750,7 +752,9 @@ describe('with @defer and re-rendering', () => {
     gqlQuery = graphql`
       query useLazyLoadQueryNodeTest1Query($id: ID) {
         node(id: $id) {
-          ...useLazyLoadQueryNodeTestDeferFragment @defer
+          ...useLazyLoadQueryNodeTestDeferFragment
+            @dangerously_unaliased_fixme
+            @defer
         }
       }
     `;

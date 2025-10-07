@@ -26,6 +26,7 @@ export type FeatureFlags = {
   STRING_INTERN_LEVEL: number,
   LOG_MISSING_RECORDS_IN_PROD: boolean,
   ENABLE_RELAY_OPERATION_TRACKER_SUSPENSE: boolean,
+  ENABLE_UI_CONTEXT_ON_RELAY_LOGGER: boolean,
 
   // Some GraphQL servers are noncompliant with the GraphQL specification and
   // return an empty list instead of null when there is a field error on a list.
@@ -58,6 +59,27 @@ export type FeatureFlags = {
   // Adds a prefix to the storage key of read time resolvers. This is used to
   // disambiguate the same resolver being used at both read time and exec time.
   ENABLE_READ_TIME_RESOLVER_STORAGE_KEY_PREFIX: boolean,
+
+  // Enable the fix for usePaginationFragment stucking in loading state
+  ENABLE_USE_PAGINATION_IS_LOADING_FIX: boolean,
+
+  // Enable logging an ID collision in the Relay store
+  ENABLE_STORE_ID_COLLISION_LOGGING: boolean,
+
+  // Throw on nested store updates
+  DISALLOW_NESTED_UPDATES: boolean,
+
+  // Enable prefixing of DataID in the store with __typename
+  ENABLE_TYPENAME_PREFIXED_DATA_ID: boolean,
+
+  // Relay previously had a bug where it would fail to check for missing client
+  // edge to server data in fragments nested within client edge Relay Resolver
+  // fields. This feature flag fixes the behavior but comes with a perf cost.
+  // This flag is here to allow us to gradually rollout the fix and track the perf
+  // impact.
+  //
+  // See https://github.com/facebook/relay/issues/4882
+  CHECK_ALL_FRAGMENTS_FOR_MISSING_CLIENT_EDGES: boolean,
 };
 
 const RelayFeatureFlags: FeatureFlags = {
@@ -72,6 +94,7 @@ const RelayFeatureFlags: FeatureFlags = {
   MAX_DATA_ID_LENGTH: null,
   STRING_INTERN_LEVEL: 0,
   LOG_MISSING_RECORDS_IN_PROD: false,
+  ENABLE_STORE_ID_COLLISION_LOGGING: false,
   ENABLE_NONCOMPLIANT_ERROR_HANDLING_ON_LISTS: false,
   ENABLE_LOOSE_SUBSCRIPTION_ATTRIBUTION: false,
   ENABLE_OPERATION_TRACKER_OPTIMISTIC_UPDATES: false,
@@ -81,6 +104,11 @@ const RelayFeatureFlags: FeatureFlags = {
   ENABLE_CYLE_DETECTION_IN_VARIABLES: false,
   ENABLE_ACTIVITY_COMPATIBILITY: false,
   ENABLE_READ_TIME_RESOLVER_STORAGE_KEY_PREFIX: true,
+  ENABLE_USE_PAGINATION_IS_LOADING_FIX: false,
+  DISALLOW_NESTED_UPDATES: false,
+  ENABLE_TYPENAME_PREFIXED_DATA_ID: false,
+  ENABLE_UI_CONTEXT_ON_RELAY_LOGGER: false,
+  CHECK_ALL_FRAGMENTS_FOR_MISSING_CLIENT_EDGES: false,
 };
 
 module.exports = RelayFeatureFlags;

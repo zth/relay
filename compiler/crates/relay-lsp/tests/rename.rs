@@ -11,16 +11,16 @@ use common::Location;
 use common::SourceLocationKey;
 use common::Span;
 use fixture_tests::Fixture;
-use graphql_ir::build;
 use graphql_ir::Program;
-use graphql_syntax::parse_executable_with_features;
+use graphql_ir::build;
 use graphql_syntax::FragmentArgumentSyntaxKind;
 use graphql_syntax::ParserFeatures;
+use graphql_syntax::parse_executable_with_features;
 use graphql_test_helpers::diagnostics_to_sorted_string;
 use itertools::Itertools;
+use relay_lsp::Feature;
 use relay_lsp::rename::create_rename_request;
 use relay_lsp::rename::get_locations_for_rename;
-use relay_lsp::Feature;
 use relay_test_schema::get_test_schema;
 
 pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
@@ -34,6 +34,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         ParserFeatures {
             fragment_argument_capability:
                 FragmentArgumentSyntaxKind::SpreadArgumentsAndFragmentVariableDefinitions,
+            allow_string_literal_alias: false,
         },
     )
     .map_err(|diagnostics| diagnostics_to_sorted_string(&source, &diagnostics))?;
@@ -70,7 +71,7 @@ fn rename_locations(locations: Vec<Location>, source: &str) -> String {
         let start = (span.start as i32 + offset) as usize;
         let end = (span.end as i32 + offset) as usize;
 
-        source_with_renames.replace_range(start..end, &renamed_key);
+        source_with_renames.replace_range(start..end, renamed_key);
 
         let original_length = end as i32 - start as i32;
         offset += renamed_key_length - original_length;

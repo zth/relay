@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1a9a6616628a9eabcb1d1df9c1fac6a3>>
+ * @generated SignedSource<<623769945819d176c24e3232659b0b2c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,6 +15,8 @@
 /* eslint-disable */
 
 'use strict';
+
+// @indirectDataDrivenDependency RelayClient3DModuleTestFragment2BasicUser.basicUser {"branches":{"ClientUser":{"component":"ClientUser.react","fragment":"RelayClient3DModuleTestFragmentClientUser_data$normalization.graphql"},"SpecialUser":{"component":"SpecialUser.react","fragment":"RelayClient3DModuleTestFragmentSpecialUser_data$normalization.graphql"}},"plural":false}
 
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
@@ -105,13 +107,33 @@ return {
                   },
                   {
                     "kind": "InlineFragment",
-                    "selections": [],
+                    "selections": [
+                      {
+                        "args": null,
+                        "documentName": "RelayClient3DModuleTestFragment2BasicUser",
+                        "fragmentName": "RelayClient3DModuleTestFragmentClientUser_data",
+                        "fragmentPropName": "data",
+                        "kind": "ModuleImport",
+                        "componentModuleProvider": () => require('./../ClientUser.react'),
+                        "operationModuleProvider": () => require('./RelayClient3DModuleTestFragmentClientUser_data$normalization.graphql')
+                      }
+                    ],
                     "type": "ClientUser",
                     "abstractKey": null
                   },
                   {
                     "kind": "InlineFragment",
-                    "selections": [],
+                    "selections": [
+                      {
+                        "args": null,
+                        "documentName": "RelayClient3DModuleTestFragment2BasicUser",
+                        "fragmentName": "RelayClient3DModuleTestFragmentSpecialUser_data",
+                        "fragmentPropName": "data",
+                        "kind": "ModuleImport",
+                        "componentModuleProvider": () => require('./../SpecialUser.react'),
+                        "operationModuleProvider": () => require('./RelayClient3DModuleTestFragmentSpecialUser_data$normalization.graphql')
+                      }
+                    ],
                     "type": "SpecialUser",
                     "abstractKey": null
                   },

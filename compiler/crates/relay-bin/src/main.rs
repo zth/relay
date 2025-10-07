@@ -17,25 +17,25 @@ use common::ConsoleLogger;
 use intern::string_key::Intern;
 use log::error;
 use log::info;
-use relay_codemod::run_codemod;
 use relay_codemod::AvailableCodemod;
-use relay_compiler::build_project::artifact_writer::ArtifactValidationWriter;
-use relay_compiler::compiler::Compiler;
-use relay_compiler::config::Config;
-use relay_compiler::config::ConfigFile;
-use relay_compiler::errors::Error as CompilerError;
-use relay_compiler::get_programs;
+use relay_codemod::run_codemod;
 use relay_compiler::FileSourceKind;
 use relay_compiler::LocalPersister;
 use relay_compiler::OperationPersister;
 use relay_compiler::PersistConfig;
 use relay_compiler::ProjectName;
 use relay_compiler::RemotePersister;
-use relay_lsp::start_language_server;
+use relay_compiler::build_project::artifact_writer::ArtifactValidationWriter;
+use relay_compiler::compiler::Compiler;
+use relay_compiler::config::Config;
+use relay_compiler::config::ConfigFile;
+use relay_compiler::errors::Error as CompilerError;
+use relay_compiler::get_programs;
 use relay_lsp::DummyExtraDataProvider;
 use relay_lsp::FieldDefinitionSourceInfo;
 use relay_lsp::FieldSchemaInfo;
 use relay_lsp::LSPExtraDataProvider;
+use relay_lsp::start_language_server;
 use schema::SDLSchema;
 use schema_documentation::SchemaDocumentationLoader;
 use simplelog::ColorChoice;
@@ -285,6 +285,7 @@ async fn handle_codemod_command(command: CodemodCommand) -> Result<(), Error> {
     let mut config = get_config(command.config)?;
     set_project_flag(&mut config, command.projects)?;
     let (programs, _, config) = get_programs(config, Arc::new(ConsoleLogger)).await;
+    let programs = programs.values().cloned().collect();
 
     match run_codemod(programs, Arc::clone(&config), command.codemod).await {
         Ok(_) => Ok(()),
@@ -407,10 +408,12 @@ impl LSPExtraDataProvider for ExtraDataProvider {
         }
         let file_path = result[0];
         let line_number = result[1].parse::<u64>().unwrap() - 1;
+        let column_number = result[2].parse::<u64>().unwrap_or(1_u64) - 1;
 
         Ok(Some(FieldDefinitionSourceInfo {
             file_path: file_path.to_string(),
             line_number,
+            column_number,
             is_local: true,
         }))
     }

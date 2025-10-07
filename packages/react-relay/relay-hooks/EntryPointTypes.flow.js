@@ -36,6 +36,8 @@ export type PreloadFetchPolicy =
 export type PreloadOptions = {
   +fetchKey?: string | number,
   +fetchPolicy?: ?PreloadFetchPolicy,
+  +includeIf?: ?boolean,
+  +prefetchExpiryInHours?: ?number,
   +networkCacheConfig?: ?CacheConfig,
 };
 
@@ -178,14 +180,15 @@ export type EntryPointComponent<
   TPreloadedEntryPoints = {},
   TRuntimeProps = {},
   TExtraProps = null,
-> = ComponentType<
-  EntryPointProps<
+  TRenders: React.Node = React.Node,
+> = component(
+  ...EntryPointProps<
     TPreloadedQueries,
     TPreloadedEntryPoints,
     TRuntimeProps,
     TExtraProps,
-  >,
->;
+  >
+) renders TRenders;
 
 // Return type of the `getPreloadProps(...)` of the entry point
 export type PreloadProps<
@@ -290,6 +293,6 @@ export type EntryPoint<TEntryPointParams, +TEntryPointComponent> =
 
 export type PreloadParamsOf<T> = Parameters<T['getPreloadProps']>[0];
 
-export type IEnvironmentProvider<TOptions> = {
+export type IEnvironmentProvider<TOptions> = $ReadOnly<{
   getEnvironment: (options: ?TOptions) => IEnvironment,
-};
+}>;

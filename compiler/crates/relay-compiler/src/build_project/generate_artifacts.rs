@@ -15,8 +15,8 @@ use graphql_ir::FragmentDefinition;
 use graphql_ir::OperationDefinition;
 use graphql_text_printer::OperationPrinter;
 use graphql_text_printer::PrinterOptions;
-use intern::string_key::StringKey;
 use intern::Lookup;
+use intern::string_key::StringKey;
 use relay_codegen::QueryID;
 use relay_config::ResolversSchemaModuleConfig;
 use relay_transforms::ArtifactSourceKeyData;
@@ -57,7 +57,7 @@ pub fn generate_artifacts(
         ..Default::default()
     };
     let mut operation_printer = OperationPrinter::new(&programs.operation_text, printer_options);
-    return group_operations(programs).into_values().map(|operations| {
+    group_operations(programs).into_values().map(|operations| {
             if let Some(normalization) = operations.normalization {
                 // We have a normalization AST... so we'll move forward with that
                 if let Some(metadata) = SplitOperationMetadata::find(&normalization.directives)
@@ -196,7 +196,7 @@ pub fn generate_artifacts(
                 _ => vec![],
             }
         )
-        .collect();
+        .collect()
 }
 
 fn generate_normalization_artifact(
@@ -309,7 +309,7 @@ struct OperationGroup<'a> {
     typegen: Option<&'a Arc<OperationDefinition>>,
 }
 
-impl<'a> OperationGroup<'a> {
+impl OperationGroup<'_> {
     fn new() -> Self {
         OperationGroup {
             normalization: None,

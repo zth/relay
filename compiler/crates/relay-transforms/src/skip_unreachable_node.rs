@@ -10,7 +10,6 @@ use std::sync::Arc;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::NamedItem;
-use graphql_ir::transform_list_multi;
 use graphql_ir::Condition;
 use graphql_ir::ConditionValue;
 use graphql_ir::ConstantValue;
@@ -27,6 +26,7 @@ use graphql_ir::TransformedMulti;
 use graphql_ir::TransformedValue;
 use graphql_ir::Transformer;
 use graphql_ir::Value;
+use graphql_ir::transform_list_multi;
 use intern::string_key::StringKey;
 use relay_config::DeferStreamInterface;
 use thiserror::Error;
@@ -86,7 +86,7 @@ pub struct SkipUnreachableNodeTransform<'s> {
     defer_stream_interface: DeferStreamInterface,
 }
 
-impl<'s> Transformer for SkipUnreachableNodeTransform<'s> {
+impl Transformer<'_> for SkipUnreachableNodeTransform<'_> {
     const NAME: &'static str = "SkipUnreachableNodeTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

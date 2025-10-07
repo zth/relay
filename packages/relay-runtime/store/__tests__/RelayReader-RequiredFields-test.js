@@ -21,6 +21,9 @@ const {
   LiveResolverCache,
 } = require('relay-runtime/store/live-resolvers/LiveResolverCache');
 const RelayModernStore = require('relay-runtime/store/RelayModernStore');
+const {
+  RELAY_READ_TIME_RESOLVER_KEY_PREFIX,
+} = require('relay-runtime/store/RelayStoreUtils');
 
 describe('RelayReader @required', () => {
   it('bubbles @required(action: LOG) scalars up to LinkedField', () => {
@@ -143,9 +146,9 @@ describe('RelayReader @required', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data, errorResponseFields} = read(source, operation.fragment);
+    const {data, fieldErrors} = read(source, operation.fragment);
     expect(data).toEqual(null);
-    expect(errorResponseFields[0].fieldPath).toBe('me.lastName');
+    expect(fieldErrors[0].fieldPath).toBe('me.lastName');
   });
 
   it('bubbles @required(action: LOG) scalars up to LinkedField even if subsequent fields are not unexpectedly null', () => {
@@ -893,7 +896,7 @@ describe('RelayReader @required', () => {
         const store = new RelayModernStore(source);
         const operation = createOperationDescriptor(FooQuery, {});
         const resolverCache = new LiveResolverCache(() => source, store);
-        const {data, errorResponseFields} = read(
+        const {data, fieldErrors} = read(
           source,
           operation.fragment,
           resolverCache,
@@ -910,7 +913,7 @@ describe('RelayReader @required', () => {
           },
         });
         // these are "handled" because the field with the required error was caught
-        expect(errorResponseFields).toEqual([
+        expect(fieldErrors).toEqual([
           {
             fieldPath: 'me.client_object',
             handled: true,
@@ -946,12 +949,8 @@ describe('RelayReader @required', () => {
       const store = new RelayModernStore(source);
       const operation = createOperationDescriptor(FooQuery, {});
       const resolverCache = new LiveResolverCache(() => source, store);
-      const {errorResponseFields} = read(
-        source,
-        operation.fragment,
-        resolverCache,
-      );
-      expect(errorResponseFields).toEqual([
+      const {fieldErrors} = read(source, operation.fragment, resolverCache);
+      expect(fieldErrors).toEqual([
         {
           fieldPath: 'me.client_object',
           kind: 'missing_required_field.throw',
@@ -992,13 +991,13 @@ describe('RelayReader @required', () => {
       const store = new RelayModernStore(source);
       const operation = createOperationDescriptor(FooQuery, {});
       const resolverCache = new LiveResolverCache(() => source, store);
-      const {data, errorResponseFields} = read(
+      const {data, fieldErrors} = read(
         source,
         operation.fragment,
         resolverCache,
       );
       expect(data).toEqual({me: {astrological_sign: {name: 'Pisces'}}});
-      expect(errorResponseFields).toBe(null);
+      expect(fieldErrors).toBe(null);
     });
 
     test('does not throw when required plural field is present', () => {
@@ -1025,13 +1024,13 @@ describe('RelayReader @required', () => {
       const store = new RelayModernStore(source);
       const operation = createOperationDescriptor(FooQuery, {});
       const resolverCache = new LiveResolverCache(() => source, store);
-      const {data, errorResponseFields} = read(
+      const {data, fieldErrors} = read(
         source,
         operation.fragment,
         resolverCache,
       );
       expect(data.all_astrological_signs.length).toBe(12);
-      expect(errorResponseFields).toBe(null);
+      expect(fieldErrors).toBe(null);
     });
 
     test('does not throw when @live required field is suspended', () => {
@@ -1054,9 +1053,9 @@ describe('RelayReader @required', () => {
       const operation = createOperationDescriptor(FooQuery, {});
       const resolverCache = new LiveResolverCache(() => source, store);
       const snapshot = read(source, operation.fragment, resolverCache);
-      expect(snapshot.errorResponseFields).toEqual(null);
+      expect(snapshot.fieldErrors).toEqual(null);
       expect(snapshot.missingLiveResolverFields).toEqual([
-        'client:root:live_user_resolver_always_suspend',
+        `client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}live_user_resolver_always_suspend`,
       ]);
     });
   });

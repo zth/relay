@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<593198c057eeeda8d160623a10c56a3a>>
+ * @generated SignedSource<<0293a0c9a7d6f43f6ee18d498db221ee>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -75,8 +75,8 @@ return {
               "name": "Cat__id"
             },
             "kind": "RelayResolver",
-            "name": "cat",
-            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Cat__id.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/CatResolvers').Cat, 'id', true),
+            "name": "__relay_model_instance",
+            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Cat__id.graphql'), require('../../../relay-runtime/store/__tests__/resolvers/CatResolvers').Cat, 'id', true),
             "path": "cat.__relay_model_instance"
           }
         },
@@ -86,7 +86,7 @@ return {
           "fragment": null,
           "kind": "RelayResolver",
           "name": "cat",
-          "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/CatResolvers').cat,
+          "resolverModule": require('../../../relay-runtime/store/__tests__/resolvers/CatResolvers').cat,
           "path": "cat"
         },
         "linkedField": {

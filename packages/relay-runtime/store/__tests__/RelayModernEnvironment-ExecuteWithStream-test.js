@@ -62,6 +62,7 @@ describe('execute() a query with @stream', () => {
       ) {
         node(id: $id) {
           ...RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment
+            @dangerously_unaliased_fixme
         }
       }
     `;
@@ -98,7 +99,7 @@ describe('execute() a query with @stream', () => {
       },
     };
 
-    function getDataID(data: {[string]: mixed}, typename: string) {
+    function getDataID(data: {+[string]: mixed}, typename: string) {
       if (typename === 'MessagingParticipant') {
         return `${typename}:${String(data.id)}`;
       }

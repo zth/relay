@@ -48,7 +48,9 @@ type UseEntryPointLoaderHookReturnType<
 type NullEntryPointReference = {
   kind: 'NullEntryPointReference',
 };
-const initialNullEntryPointReferenceState = {kind: 'NullEntryPointReference'};
+const initialNullEntryPointReferenceState: NullEntryPointReference = {
+  kind: 'NullEntryPointReference',
+};
 
 hook useLoadEntryPoint<
   TEntryPointParams: {...},
@@ -122,7 +124,7 @@ hook useLoadEntryPoint<
 
   const disposeEntryPoint = useCallback(() => {
     if (isMountedRef.current) {
-      const nullEntryPointReference = {
+      const nullEntryPointReference: NullEntryPointReference = {
         kind: 'NullEntryPointReference',
       };
       undisposedEntryPointReferencesRef.current.add(nullEntryPointReference);
@@ -156,7 +158,7 @@ hook useLoadEntryPoint<
   useEffect(() => {
     return () => {
       // Attempt to detect if the component was
-      // hidden (by Offscreen API), or fast refresh occured;
+      // hidden (by Offscreen API), or fast refresh occurred;
       // Only in these situations would the effect cleanup
       // for "unmounting" run multiple times, so if
       // we are ever able to read this ref with a value

@@ -138,6 +138,7 @@ class Executor<TMutation: MutationParameters> {
   _operationTracker: OperationTracker;
   _operationUpdateEpochs: Map<string, number>;
   _optimisticUpdates: null | Array<OptimisticUpdate<TMutation>>;
+  _useExecTimeResolvers: boolean;
   _pendingModulePayloadsCount: number;
   +_getPublishQueue: (actorIdentifier: ActorIdentifier) => PublishQueue;
   _shouldProcessClientComponents: ?boolean;
@@ -158,6 +159,7 @@ class Executor<TMutation: MutationParameters> {
   +_isSubscriptionOperation: boolean;
   +_seenActors: Set<ActorIdentifier>;
   _normalizeResponse: NormalizeResponseFunction;
+  _execTimeResolverResponseComplete: boolean;
 
   constructor({
     actorIdentifier,
@@ -193,6 +195,12 @@ class Executor<TMutation: MutationParameters> {
     this._operationTracker = operationTracker;
     this._operationUpdateEpochs = new Map();
     this._optimisticUpdates = null;
+    this._useExecTimeResolvers =
+      this._operation.request.node.operation.use_exec_time_resolvers ??
+      this._operation.request.node.operation.exec_time_resolvers_enabled_provider?.get() ===
+        true ??
+      false;
+    this._execTimeResolverResponseComplete = false;
     this._pendingModulePayloadsCount = 0;
     this._getPublishQueue = getPublishQueue;
     this._scheduler = scheduler;
@@ -245,6 +253,12 @@ class Executor<TMutation: MutationParameters> {
           cacheConfig: this._operation.request.cacheConfig ?? {},
         });
       },
+      unsubscribe: () => {
+        this._log({
+          name: 'execute.unsubscribe',
+          executeId: this._executeId,
+        });
+      },
     });
 
     if (
@@ -293,7 +307,7 @@ class Executor<TMutation: MutationParameters> {
   }
 
   _updateActiveState(): void {
-    let activeState;
+    let activeState: ActiveState;
     switch (this._state) {
       case 'started': {
         activeState = 'active';
@@ -309,7 +323,11 @@ class Executor<TMutation: MutationParameters> {
       }
       case 'loading_final': {
         activeState =
-          this._pendingModulePayloadsCount > 0 ? 'active' : 'inactive';
+          this._pendingModulePayloadsCount > 0 ||
+          (this._useExecTimeResolvers &&
+            !this._execTimeResolverResponseComplete)
+            ? 'active'
+            : 'inactive';
         break;
       }
       default:
@@ -510,9 +528,10 @@ class Executor<TMutation: MutationParameters> {
       return;
     }
 
-    const [nonIncrementalResponses, incrementalResponses] =
+    const [nonIncrementalResponses, incrementalResponses, normalizedResponses] =
       partitionGraphQLResponses(responsesWithData);
     const hasNonIncrementalResponses = nonIncrementalResponses.length > 0;
+    const hasNormalizedResponses = normalizedResponses.length > 0;
 
     // In theory this doesn't preserve the ordering of the batch.
     // The idea is that a batch is always:
@@ -547,6 +566,37 @@ class Executor<TMutation: MutationParameters> {
       this._processPayloadFollowups(payloadFollowups);
     }
 
+    if (hasNormalizedResponses) {
+      const payloadFollowups = [];
+      for (let i = 0; i < normalizedResponses.length; i++) {
+        const response = normalizedResponses[i];
+        const source = new RelayRecordSource(
+          response.data as $FlowExpectedError,
+        );
+        const isFinal = response.extensions?.is_final === true;
+        const payload: RelayResponsePayload = {
+          errors: [],
+          fieldPayloads: [],
+          followupPayloads: [],
+          incrementalPlaceholders: [],
+          isFinal,
+          source,
+        };
+        this._getPublishQueueAndSaveActor().commitPayload(
+          this._operation,
+          payload,
+          this._updater,
+        );
+        payloadFollowups.push(payload);
+        this._execTimeResolverResponseComplete = isFinal;
+        if (isFinal) {
+          // Need to update the active state to mark the query as inactive,
+          // incase server payloads have completed
+          this._updateActiveState();
+        }
+      }
+    }
+
     if (incrementalResponses.length > 0) {
       const payloadFollowups =
         this._processIncrementalResponses(incrementalResponses);
@@ -572,7 +622,9 @@ class Executor<TMutation: MutationParameters> {
     // the publish queue here, which will later be passed to the store (via
     // notify) to indicate that this operation caused the store to update
     const updatedOwners = this._runPublishQueue(
-      hasNonIncrementalResponses ? this._operation : undefined,
+      hasNonIncrementalResponses || hasNormalizedResponses
+        ? this._operation
+        : undefined,
     );
 
     if (hasNonIncrementalResponses) {
@@ -606,10 +658,12 @@ class Executor<TMutation: MutationParameters> {
         {
           actorIdentifier: this._actorIdentifier,
           getDataID: this._getDataID,
+          log: this._log,
           path: [],
           shouldProcessClientComponents: this._shouldProcessClientComponents,
           treatMissingFieldsAsNull,
         },
+        this._useExecTimeResolvers,
       );
       validateOptimisticResponsePayload(payload);
       optimisticUpdates.push({
@@ -708,17 +762,26 @@ class Executor<TMutation: MutationParameters> {
       followupPayload.dataID,
       variables,
     );
+    const nextResponse: GraphQLResponseWithData = {
+      data: followupPayload.data,
+      // `is_final` flag needs to be set for processing nested defer and 3D
+      // when the server doesn't support streaming
+      extensions:
+        this._state === 'loading_final' ? {is_final: true} : undefined,
+    };
     return this._normalizeResponse(
-      {data: followupPayload.data},
+      nextResponse,
       selector,
       followupPayload.typeName,
       {
         actorIdentifier: this._actorIdentifier,
         getDataID: this._getDataID,
+        log: this._log,
         path: followupPayload.path,
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
         shouldProcessClientComponents: this._shouldProcessClientComponents,
       },
+      this._useExecTimeResolvers,
     );
   }
 
@@ -797,10 +860,12 @@ class Executor<TMutation: MutationParameters> {
         {
           actorIdentifier: this._actorIdentifier,
           getDataID: this._getDataID,
+          log: this._log,
           path: [],
           treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
           shouldProcessClientComponents: this._shouldProcessClientComponents,
         },
+        this._useExecTimeResolvers,
       );
       this._getPublishQueueAndSaveActor().commitPayload(
         this._operation,
@@ -875,7 +940,8 @@ class Executor<TMutation: MutationParameters> {
                   placeholder.label,
                   placeholder.path,
                   placeholder,
-                  {data: placeholder.data},
+                  // `is_final` flag needs to be set for processing nested defer payloads
+                  {data: placeholder.data, extensions: {is_final: true}},
                 ),
               );
             }
@@ -889,7 +955,14 @@ class Executor<TMutation: MutationParameters> {
   }
 
   _maybeCompleteSubscriptionOperationTracking() {
-    if (!this._isSubscriptionOperation) {
+    if (
+      !this._isSubscriptionOperation &&
+      !(
+        this._useExecTimeResolvers &&
+        this._execTimeResolverResponseComplete &&
+        this._state === 'loading_final'
+      )
+    ) {
       return;
     }
     if (
@@ -1253,10 +1326,12 @@ class Executor<TMutation: MutationParameters> {
       {
         actorIdentifier: this._actorIdentifier,
         getDataID: this._getDataID,
+        log: this._log,
         path: placeholder.path,
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
         shouldProcessClientComponents: this._shouldProcessClientComponents,
       },
+      this._useExecTimeResolvers,
     );
     this._getPublishQueueAndSaveActor().commitPayload(
       this._operation,
@@ -1477,13 +1552,20 @@ class Executor<TMutation: MutationParameters> {
       record: nextParentRecord,
       fieldPayloads,
     });
-    const relayPayload = this._normalizeResponse(response, selector, typeName, {
-      actorIdentifier: this._actorIdentifier,
-      getDataID: this._getDataID,
-      path: [...normalizationPath, responseKey, String(itemIndex)],
-      treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
-      shouldProcessClientComponents: this._shouldProcessClientComponents,
-    });
+    const relayPayload = this._normalizeResponse(
+      response,
+      selector,
+      typeName,
+      {
+        actorIdentifier: this._actorIdentifier,
+        getDataID: this._getDataID,
+        log: this._log,
+        path: [...normalizationPath, responseKey, String(itemIndex)],
+        treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
+        shouldProcessClientComponents: this._shouldProcessClientComponents,
+      },
+      this._useExecTimeResolvers,
+    );
     return {
       fieldPayloads,
       itemID,
@@ -1586,9 +1668,11 @@ function partitionGraphQLResponses(
 ): [
   $ReadOnlyArray<GraphQLResponseWithData>,
   $ReadOnlyArray<IncrementalGraphQLResponse>,
+  $ReadOnlyArray<GraphQLResponseWithData>,
 ] {
   const nonIncrementalResponses: Array<GraphQLResponseWithData> = [];
   const incrementalResponses: Array<IncrementalGraphQLResponse> = [];
+  const normalizedResponses: Array<GraphQLResponseWithData> = [];
   responses.forEach(response => {
     if (response.path != null || response.label != null) {
       const {label, path} = response;
@@ -1606,11 +1690,13 @@ function partitionGraphQLResponses(
         path,
         response,
       });
+    } else if (response.extensions?.is_normalized === true) {
+      normalizedResponses.push(response);
     } else {
       nonIncrementalResponses.push(response);
     }
   });
-  return [nonIncrementalResponses, incrementalResponses];
+  return [nonIncrementalResponses, incrementalResponses, normalizedResponses];
 }
 
 function stableStringify(value: mixed): string {

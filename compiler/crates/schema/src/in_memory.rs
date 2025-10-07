@@ -5,9 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use std::collections::hash_map::Entry;
 use std::collections::BTreeMap;
 use std::collections::HashMap;
+use std::collections::hash_map::Entry;
 
 use common::ArgumentName;
 use common::Diagnostic;
@@ -23,9 +23,9 @@ use common::SourceLocationKey;
 use common::UnionName;
 use common::WithLocation;
 use graphql_syntax::*;
+use intern::Lookup;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
-use intern::Lookup;
 use rayon::iter::IntoParallelRefIterator;
 use rayon::iter::ParallelIterator;
 
@@ -363,6 +363,10 @@ impl InMemorySchema {
 
     pub fn get_enums(&self) -> impl Iterator<Item = &Enum> {
         self.enums.iter()
+    }
+
+    pub fn get_enums_par_iter(&self) -> impl ParallelIterator<Item = &Enum> {
+        self.enums.par_iter()
     }
 
     pub fn get_objects(&self) -> impl Iterator<Item = &Object> {

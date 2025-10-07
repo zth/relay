@@ -6,9 +6,9 @@
  */
 
 use std::fmt;
+use std::path::MAIN_SEPARATOR;
 use std::path::Path;
 use std::path::PathBuf;
-use std::path::MAIN_SEPARATOR;
 use std::sync::Arc;
 
 use common::DirectiveName;
@@ -24,22 +24,22 @@ use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use regex::Regex;
 use schemars::JsonSchema;
-use serde::de::Error;
 use serde::Deserialize;
 use serde::Deserializer;
 use serde::Serialize;
+use serde::de::Error;
 use serde_json::Value;
 
+use crate::JsModuleFormat;
+use crate::ProjectName;
+use crate::TypegenConfig;
+use crate::TypegenLanguage;
 use crate::connection_interface::ConnectionInterface;
 use crate::defer_stream_interface::DeferStreamInterface;
 use crate::diagnostic_report_config::DiagnosticReportConfig;
 use crate::module_import_config::ModuleImportConfig;
 use crate::non_node_id_fields_config::NonNodeIdFieldsConfig;
 use crate::resolvers_schema_module_config::ResolversSchemaModuleConfig;
-use crate::JsModuleFormat;
-use crate::ProjectName;
-use crate::TypegenConfig;
-use crate::TypegenLanguage;
 
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 
@@ -220,6 +220,10 @@ pub struct SchemaConfig {
     /// The name of the directive indicating fields that cannot be selected
     #[serde(default = "default_unselectable_directive_name")]
     pub unselectable_directive_name: DirectiveName,
+
+    /// If we should select __token field on fetchable types
+    #[serde(default = "default_enable_token_field")]
+    pub enable_token_field: bool,
 }
 
 fn default_node_interface_id_field() -> StringKey {
@@ -234,6 +238,10 @@ fn default_unselectable_directive_name() -> DirectiveName {
     DirectiveName("unselectable".intern())
 }
 
+fn default_enable_token_field() -> bool {
+    false
+}
+
 impl Default for SchemaConfig {
     fn default() -> Self {
         Self {
@@ -243,6 +251,7 @@ impl Default for SchemaConfig {
             node_interface_id_variable_name: default_node_interface_id_variable_name(),
             non_node_id_fields: None,
             unselectable_directive_name: default_unselectable_directive_name(),
+            enable_token_field: default_enable_token_field(),
         }
     }
 }
@@ -309,6 +318,9 @@ pub struct ProjectConfig {
     pub input_unions: Option<Vec<StringKey>>,
     /// Custom function to get the path for an artifact.
     pub get_custom_path_for_artifact: Option<CustomArtifactFilePath>,
+    /// Treats JS module paths as relative to './' when true, and leaves JS
+    /// module paths unmodified when false.
+    pub relativize_js_module_paths: bool,
 }
 
 impl Default for ProjectConfig {
@@ -342,6 +354,7 @@ impl Default for ProjectConfig {
             codegen_command: Default::default(),
             input_unions: Default::default(),
             get_custom_path_for_artifact: None,
+            relativize_js_module_paths: true,
         }
     }
 }
@@ -377,6 +390,7 @@ impl Debug for ProjectConfig {
             codegen_command,
             input_unions,
             get_custom_path_for_artifact: _,
+            relativize_js_module_paths,
         } = self;
         f.debug_struct("ProjectConfig")
             .field("name", name)
@@ -406,12 +420,14 @@ impl Debug for ProjectConfig {
             .field("resolvers_schema_module", resolvers_schema_module)
             .field("codegen_command", codegen_command)
             .field("input_unions", input_unions)
+            .field("relativize_js_module_paths", relativize_js_module_paths)
             .finish()
     }
 }
 
 impl ProjectConfig {
-    /// This function will create a correct path for an artifact based on the project configuration
+    /// Gets the correct path for a generated artifact based on its originating source file's
+    /// location, and the project's configuration.
     pub fn create_path_for_artifact(
         &self,
         source_file: SourceLocationKey,
@@ -441,6 +457,7 @@ impl ProjectConfig {
         }
     }
 
+    /// Generates a path for an artifact file based on a definition name and its location.
     pub fn artifact_path_for_definition(
         &self,
         definition_name: WithLocation<impl Into<StringKey>>,
@@ -465,6 +482,7 @@ impl ProjectConfig {
         }
     }
 
+    /// Generates a path for an artifact file that is specific to the programming language being used.
     pub fn path_for_language_specific_artifact(
         &self,
         source_file: SourceLocationKey,

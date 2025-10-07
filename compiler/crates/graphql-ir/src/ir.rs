@@ -11,15 +11,16 @@ use std::fmt;
 use std::fmt::Display;
 use std::fmt::Formatter;
 use std::hash::Hash;
+use std::hash::Hasher;
 use std::str::FromStr;
 use std::sync::Arc;
 
+use ::intern::BuildIdHasher;
+use ::intern::Lookup;
 use ::intern::impl_lookup;
 use ::intern::intern;
 use ::intern::string_key::Intern;
 use ::intern::string_key::StringKey;
-use ::intern::BuildIdHasher;
-use ::intern::Lookup;
 use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
@@ -38,9 +39,9 @@ use schema::TypeReference;
 use serde::Deserialize;
 use serde::Serialize;
 
-use crate::signatures::FragmentSignature;
 use crate::AssociatedData;
 use crate::ValidationMessage;
+use crate::signatures::FragmentSignature;
 // Definitions
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -50,6 +51,13 @@ pub enum ExecutableDefinition {
 }
 
 impl ExecutableDefinition {
+    pub fn directives(&self) -> &[Directive] {
+        match self {
+            ExecutableDefinition::Operation(node) => &node.directives,
+            ExecutableDefinition::Fragment(node) => &node.directives,
+        }
+    }
+
     pub fn has_directive(&self, directive_name: DirectiveName) -> bool {
         match self {
             ExecutableDefinition::Operation(node) => node
@@ -151,7 +159,9 @@ pub type FragmentDefinitionNameSet = HashSet<FragmentDefinitionName, BuildIdHash
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct FragmentDefinition {
     pub name: WithLocation<FragmentDefinitionName>,
+    /// Local variables defined in the fragment using the `@argumentDefinitions` directive.
     pub variable_definitions: Vec<VariableDefinition>,
+    /// Global variables that are used but NOT defined within the fragment (they can come from a parent query or fragment).
     pub used_global_variables: Vec<VariableDefinition>,
     pub type_condition: Type,
     pub directives: Vec<Directive>,
@@ -297,7 +307,7 @@ impl Named for VariableDefinition {
 // Selections
 
 /// A selection within an operation or fragment
-#[derive(Clone, Eq, PartialEq)]
+#[derive(Clone, Eq, PartialEq, Hash)]
 pub enum Selection {
     FragmentSpread(Arc<FragmentSpread>),
     InlineFragment(Arc<InlineFragment>),
@@ -402,7 +412,7 @@ impl fmt::Debug for Selection {
 }
 
 /// ... Name
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct FragmentSpread {
     pub fragment: WithLocation<FragmentDefinitionName>,
     pub arguments: Vec<Argument>,
@@ -436,6 +446,16 @@ pub struct InlineFragment {
     pub selections: Vec<Selection>,
     /// Points to "..."
     pub spread_location: Location,
+}
+
+impl Hash for InlineFragment {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.type_condition.hash(state);
+        self.directives.hash(state);
+        self.spread_location.hash(state);
+        // Avoid descending into selections, which leads to large recursion
+        self.selections.len().hash(state);
+    }
 }
 
 impl InlineFragment {
@@ -496,6 +516,17 @@ pub struct LinkedField {
     pub selections: Vec<Selection>,
 }
 
+impl Hash for LinkedField {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.alias.hash(state);
+        self.definition.hash(state);
+        self.arguments.hash(state);
+        self.directives.hash(state);
+        // Avoid descending into selections, which leads to large recursion
+        self.selections.len().hash(state);
+    }
+}
+
 impl Field for LinkedField {
     fn alias(&self) -> Option<WithLocation<StringKey>> {
         self.alias
@@ -515,7 +546,7 @@ impl Field for LinkedField {
 }
 
 /// Name Arguments?
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct ScalarField {
     pub alias: Option<WithLocation<StringKey>>,
     pub definition: WithLocation<FieldID>,
@@ -548,6 +579,16 @@ pub struct Condition {
     pub value: ConditionValue,
     pub passing_value: bool,
     pub location: Location,
+}
+
+impl Hash for Condition {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.value.hash(state);
+        self.passing_value.hash(state);
+        self.location.hash(state);
+        // Avoid descending into selections, which leads to large recursion
+        self.selections.len().hash(state);
+    }
 }
 
 impl Condition {
@@ -656,7 +697,7 @@ impl Named for ConstantArgument {
 }
 
 macro_rules! generate_unwrap_fn {
-    ($fn_name:ident,$self:ident,$t:ty,$cv:pat => $result:expr) => {
+    ($fn_name:ident,$self:ident,$t:ty,$cv:pat => $result:expr_2021) => {
         pub fn $fn_name(&$self) -> $t {
             match $self {
                 $cv => $result,
@@ -703,7 +744,7 @@ impl ConstantValue {
     generate_unwrap_fn!(unwrap_object, self, &Vec<ConstantArgument>, ConstantValue::Object(o) => o);
 }
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub enum ConditionValue {
     Constant(bool),
     Variable(Variable),

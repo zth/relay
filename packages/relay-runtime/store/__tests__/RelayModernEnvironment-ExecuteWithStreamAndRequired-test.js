@@ -50,6 +50,7 @@ describe('execute() a query with @stream and @required', () => {
       ) {
         node(id: $id) {
           ...RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment
+            @dangerously_unaliased_fixme
         }
       }
     `;
@@ -111,7 +112,7 @@ describe('execute() a query with @stream and @required', () => {
     jest.runAllTimers();
 
     const snapshot = callback.mock.calls[0][0];
-    expect(snapshot.errorResponseFields).toEqual([
+    expect(snapshot.fieldErrors).toEqual([
       {
         kind: 'missing_required_field.log',
         owner:

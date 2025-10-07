@@ -107,6 +107,7 @@ class RelayModernStore implements Store {
       fetchTime: ?number,
     },
   >;
+  _shouldRetainWithinTTL_EXPERIMENTAL: boolean;
   _shouldScheduleGC: boolean;
   _storeSubscriptions: StoreSubscriptions;
   _updatedRecordIDs: DataIDSet;
@@ -126,6 +127,9 @@ class RelayModernStore implements Store {
       queryCacheExpirationTime?: ?number,
       shouldProcessClientComponents?: ?boolean,
       resolverContext?: ResolverContext,
+
+      // Experimental
+      shouldRetainWithinTTL_EXPERIMENTAL?: boolean,
 
       // These additional config options are only used if the experimental
       // @outputType resolver feature is used
@@ -147,6 +151,8 @@ class RelayModernStore implements Store {
     this._gcHoldCounter = 0;
     this._gcReleaseBufferSize =
       options?.gcReleaseBufferSize ?? DEFAULT_RELEASE_BUFFER_SIZE;
+    this._shouldRetainWithinTTL_EXPERIMENTAL =
+      options?.shouldRetainWithinTTL_EXPERIMENTAL ?? false;
     this._gcRun = null;
     this._gcScheduler = options?.gcScheduler ?? resolveImmediate;
     this._getDataID = options?.getDataID ?? defaultGetDataID;
@@ -165,14 +171,15 @@ class RelayModernStore implements Store {
       () => this._getMutableRecordSource(),
       this,
     );
+    this._resolverContext = options?.resolverContext;
     this._storeSubscriptions = new RelayStoreSubscriptions(
       options?.log,
       this._resolverCache,
+      this._resolverContext,
     );
     this._updatedRecordIDs = new Set();
     this._shouldProcessClientComponents =
       options?.shouldProcessClientComponents ?? false;
-    this._resolverContext = options?.resolverContext;
 
     this._treatMissingFieldsAsNull = options?.treatMissingFieldsAsNull ?? false;
     this._actorIdentifier = options?.actorIdentifier;
@@ -235,6 +242,11 @@ class RelayModernStore implements Store {
     const selector = operation.root;
     const source = this._getMutableRecordSource();
     const globalInvalidationEpoch = this._globalInvalidationEpoch;
+    const useExecTimeResolvers =
+      operation.request.node.operation.use_exec_time_resolvers ??
+      operation.request.node.operation.exec_time_resolvers_enabled_provider?.get() ===
+        true ??
+      false;
 
     const rootEntry = this._roots.get(operation.request.identifier);
     const operationLastWrittenAt = rootEntry != null ? rootEntry.epoch : null;
@@ -279,6 +291,7 @@ class RelayModernStore implements Store {
       this._getDataID,
       this._shouldProcessClientComponents,
       this.__log,
+      useExecTimeResolvers,
     );
 
     return getAvailabilityStatus(
@@ -315,7 +328,9 @@ class RelayModernStore implements Store {
           rootEntry.fetchTime <= Date.now() - _queryCacheExpirationTime;
 
         if (rootEntryIsStale) {
-          this._roots.delete(id);
+          if (!this._shouldRetainWithinTTL_EXPERIMENTAL) {
+            this._roots.delete(id);
+          }
           this.scheduleGC();
         } else {
           this._releaseBuffer.push(id);
@@ -325,8 +340,10 @@ class RelayModernStore implements Store {
           // buffer have a refCount of 0.
           if (this._releaseBuffer.length > this._gcReleaseBufferSize) {
             const _id = this._releaseBuffer.shift();
-            // $FlowFixMe[incompatible-call]
-            this._roots.delete(_id);
+            if (!this._shouldRetainWithinTTL_EXPERIMENTAL) {
+              // $FlowFixMe[incompatible-call]
+              this._roots.delete(_id);
+            }
             this.scheduleGC();
           }
         }
@@ -453,6 +470,8 @@ class RelayModernStore implements Store {
           fetchTime: Date.now(),
         };
         this._releaseBuffer.push(id);
+        /* $FlowFixMe[incompatible-call] Natural Inference rollout. See
+         * https://fburl.com/gdoc/y8dn025u */
         this._roots.set(id, temporaryRootEntry);
       }
     }
@@ -688,6 +707,14 @@ class RelayModernStore implements Store {
   };
 
   *_collect(): Generator<void, void, void> {
+    if (
+      this._shouldRetainWithinTTL_EXPERIMENTAL &&
+      this._queryCacheExpirationTime == null
+    ) {
+      // Null expiration time indicates infinite TTL, so we don't need to
+      // run GC.
+      return;
+    }
     /* eslint-disable no-labels */
     const log = this.__log;
     top: while (true) {
@@ -699,15 +726,43 @@ class RelayModernStore implements Store {
       const startEpoch = this._currentWriteEpoch;
       const references = new Set<DataID>();
 
-      // Mark all records that are traversable from a root
-      for (const {operation} of this._roots.values()) {
+      for (const [
+        dataID,
+        {operation, refCount, fetchTime},
+      ] of this._roots.entries()) {
+        if (this._shouldRetainWithinTTL_EXPERIMENTAL) {
+          // Do not mark records that should be garbage collected
+          const {_queryCacheExpirationTime} = this;
+          invariant(
+            _queryCacheExpirationTime != null,
+            'Query cache expiration time should be non-null if executing GC',
+          );
+          const recordHasExpired =
+            fetchTime == null ||
+            fetchTime <= Date.now() - _queryCacheExpirationTime;
+          const recordShouldBeCollected =
+            recordHasExpired &&
+            refCount === 0 &&
+            !this._releaseBuffer.includes(dataID);
+          if (recordShouldBeCollected) {
+            continue;
+          }
+        }
+
+        // Mark all records that are traversable from a root that is still valid
         const selector = operation.root;
+        const useExecTimeResolvers =
+          operation.request.node.operation.use_exec_time_resolvers ??
+          operation.request.node.operation.exec_time_resolvers_enabled_provider?.get() ===
+            true ??
+          false;
         RelayReferenceMarker.mark(
           this._recordSource,
           selector,
           references,
           this._operationLoader,
           this._shouldProcessClientComponents,
+          useExecTimeResolvers,
         );
         // Yield for other work after each operation
         yield;
@@ -723,31 +778,36 @@ class RelayModernStore implements Store {
         }
       }
 
-      // Sweep records without references
-      if (references.size === 0) {
-        // Short-circuit if *nothing* is referenced
-        this._recordSource.clear();
-      } else {
-        // Evict any unreferenced nodes
-        const storeIDs = this._recordSource.getRecordIDs();
-        for (let ii = 0; ii < storeIDs.length; ii++) {
-          const dataID = storeIDs[ii];
-          if (!references.has(dataID)) {
-            const record = this._recordSource.get(dataID);
-            if (record != null) {
-              const maybeResolverSubscription = RelayModernRecord.getValue(
-                record,
-                RELAY_RESOLVER_LIVE_STATE_SUBSCRIPTION_KEY,
-              );
-              if (maybeResolverSubscription != null) {
-                // $FlowFixMe - this value if it is not null, it is a function
-                maybeResolverSubscription();
-              }
+      // NOTE: It may be tempting to use `this._recordSource.clear()`
+      // when no references are found, but that would prevent calling
+      // maybeResolverSubscription() on any records that have an active
+      // resolver subscription. This would result in a memory leak.
+
+      // Evict any unreferenced nodes
+      const storeIDs = this._recordSource.getRecordIDs();
+      for (let ii = 0; ii < storeIDs.length; ii++) {
+        const dataID = storeIDs[ii];
+        if (!references.has(dataID)) {
+          const record = this._recordSource.get(dataID);
+          if (record != null) {
+            const maybeResolverSubscription = RelayModernRecord.getValue(
+              record,
+              RELAY_RESOLVER_LIVE_STATE_SUBSCRIPTION_KEY,
+            );
+            if (maybeResolverSubscription != null) {
+              // $FlowFixMe - this value if it is not null, it is a function
+              maybeResolverSubscription();
             }
-            this._recordSource.remove(dataID);
+          }
+          this._recordSource.remove(dataID);
+          if (this._shouldRetainWithinTTL_EXPERIMENTAL) {
+            // Note: A record that was never retained will not be in the roots map
+            // but the following line should not throw
+            this._roots.delete(dataID);
           }
         }
       }
+
       if (log != null) {
         log({
           name: 'store.gc.end',
@@ -765,6 +825,7 @@ class RelayModernStore implements Store {
     return {
       path,
       getDataID: this._getDataID,
+      log: this.__log,
       treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
       shouldProcessClientComponents: this._shouldProcessClientComponents,
       actorIdentifier: this._actorIdentifier,

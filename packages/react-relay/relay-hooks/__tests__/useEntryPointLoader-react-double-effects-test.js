@@ -37,6 +37,8 @@ function expectToHaveFetched(
     liveConfigId?: ?string,
     metadata?: {[key: string]: mixed},
     onSubscribe?: () => void,
+    onResume?: (pauseTimeMs: number) => void,
+    onPause?: (mqttConnectionIsOk: boolean, internetIsOk: boolean) => void,
     poll?: ?number,
     transactionId?: ?string,
   },
@@ -133,6 +135,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
           id
           name
           ...useEntryPointLoaderReactDoubleEffectsTestUserFragment
+            @dangerously_unaliased_fixme
         }
       }
     `;

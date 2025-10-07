@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<97d12bb3a656d891fe4d828b1b1d24ce>>
+ * @generated SignedSource<<87ea795183a44f4aa1db1ae95d9d297b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -114,28 +114,28 @@ return {
         "modelResolvers": {
           "Cat": {
             "alias": null,
-            "args": [],
+            "args": null,
             "fragment": {
               "args": null,
               "kind": "FragmentSpread",
               "name": "Cat__id"
             },
             "kind": "RelayResolver",
-            "name": "animal",
-            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Cat__id.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/CatResolvers').Cat, 'id', true),
+            "name": "__relay_model_instance",
+            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Cat__id.graphql'), require('../../../relay-runtime/store/__tests__/resolvers/CatResolvers').Cat, 'id', true),
             "path": "animal.__relay_model_instance"
           },
           "Fish": {
             "alias": null,
-            "args": [],
+            "args": null,
             "fragment": {
               "args": null,
               "kind": "FragmentSpread",
               "name": "Fish__id"
             },
             "kind": "RelayResolver",
-            "name": "animal",
-            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Fish__id.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/FishResolvers').Fish, 'id', true),
+            "name": "__relay_model_instance",
+            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Fish__id.graphql'), require('../../../relay-runtime/store/__tests__/resolvers/FishResolvers').Fish, 'id', true),
             "path": "animal.__relay_model_instance"
           }
         },
@@ -145,7 +145,7 @@ return {
           "fragment": null,
           "kind": "RelayResolver",
           "name": "animal",
-          "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/AnimalQueryResolvers').animal,
+          "resolverModule": require('../../../relay-runtime/store/__tests__/resolvers/AnimalQueryResolvers').animal,
           "path": "animal"
         },
         "linkedField": {
@@ -170,7 +170,7 @@ return {
                   },
                   "kind": "RelayResolver",
                   "name": "greeting",
-                  "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Cat____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/AnimalQueryResolvers').greeting, '__relay_model_instance', true),
+                  "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Cat____relay_model_instance.graphql'), require('../../../relay-runtime/store/__tests__/resolvers/AnimalQueryResolvers').greeting, '__relay_model_instance', true),
                   "path": "animal.greeting"
                 }
               ],
@@ -190,7 +190,7 @@ return {
                   },
                   "kind": "RelayResolver",
                   "name": "greeting",
-                  "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Fish____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/AnimalQueryResolvers').greeting, '__relay_model_instance', true),
+                  "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Fish____relay_model_instance.graphql'), require('../../../relay-runtime/store/__tests__/resolvers/AnimalQueryResolvers').greeting, '__relay_model_instance', true),
                   "path": "animal.greeting"
                 }
               ],

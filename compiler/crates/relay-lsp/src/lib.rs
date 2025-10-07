@@ -33,6 +33,7 @@ mod shutdown;
 mod status_reporter;
 pub mod status_updater;
 pub mod text_documents;
+pub mod type_information;
 pub mod utils;
 use std::path::Path;
 use std::sync::Arc;
@@ -126,11 +127,11 @@ pub fn diagnostics_to_code_actions(
     let mut all_actions = vec![];
     for param in published_params {
         for diagnostic in param.diagnostics {
-            if let Some(action) = get_code_actions_from_diagnostic(&param.uri, diagnostic)
-                .unwrap()
-                .first()
-            {
-                all_actions.push(action.clone());
+            if let Some(actions) = get_code_actions_from_diagnostic(&param.uri, diagnostic) {
+                // If there are multiple actions for a diagnostic, we only send the first one.
+                if let Some(action) = actions.first() {
+                    all_actions.push(action.clone());
+                }
             }
         }
     }

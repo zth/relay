@@ -11,6 +11,7 @@
 
 'use strict';
 
+import type {OperationAvailability} from '../store/RelayStoreTypes';
 import type {RequestParameters} from '../util/RelayConcreteNode';
 import type {CacheConfig, Variables} from '../util/RelayRuntimeTypes';
 import type RelayObservable, {ObservableFromValue} from './RelayObservable';
@@ -25,7 +26,7 @@ export interface INetwork {
 
 export type LogRequestInfoFunction = mixed => void;
 
-export type PayloadData = {[key: string]: mixed};
+export type PayloadData = {+[key: string]: mixed};
 
 export type PayloadError = interface {
   message: string,
@@ -104,6 +105,8 @@ export type ExecuteFunction = (
   logRequestInfo?: ?LogRequestInfoFunction,
   encryptedVariables?: ?string,
   preprocessResponse?: ?preprocessResponseFunction,
+  // Run datachecker on the current operation and returns the OperationAvailability
+  checkOperation?: () => OperationAvailability,
 ) => RelayObservable<GraphQLResponse>;
 
 /**
@@ -131,4 +134,4 @@ export type SubscribeFunction = (
 ) => RelayObservable<GraphQLResponse>;
 
 export type Uploadable = File | Blob;
-export type UploadableMap = {[key: string]: Uploadable};
+export type UploadableMap = {+[key: string]: Uploadable};

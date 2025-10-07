@@ -16,10 +16,8 @@ use common::NamedItem;
 use common::ObjectName;
 use common::WithLocation;
 use docblock_shared::HAS_OUTPUT_TYPE_ARGUMENT_NAME;
-use docblock_shared::LIVE_ARGUMENT_NAME;
 use docblock_shared::RELAY_RESOLVER_DIRECTIVE_NAME;
 use docblock_shared::RELAY_RESOLVER_MODEL_INSTANCE_FIELD;
-use graphql_ir::associated_data_impl;
 use graphql_ir::Argument;
 use graphql_ir::ConstantValue;
 use graphql_ir::Directive;
@@ -37,27 +35,32 @@ use graphql_ir::Selection;
 use graphql_ir::Transformed;
 use graphql_ir::Transformer;
 use graphql_ir::Value;
+use graphql_ir::associated_data_impl;
 use graphql_syntax::OperationKind;
+use intern::Lookup;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use intern::string_key::StringKeyMap;
-use intern::Lookup;
 use lazy_static::lazy_static;
 use relay_config::ProjectConfig;
 use relay_schema::definitions::ResolverType;
 use schema::DirectiveValue;
+use schema::FieldID;
 use schema::ObjectID;
 use schema::Schema;
 use schema::Type;
 
 use super::ValidationMessageWithData;
-use crate::refetchable_fragment::RefetchableFragment;
-use crate::refetchable_fragment::REFETCHABLE_NAME;
-use crate::relay_resolvers::get_bool_argument_is_true;
-use crate::RequiredMetadataDirective;
-use crate::ValidationMessage;
 use crate::CHILDREN_CAN_BUBBLE_METADATA_KEY;
 use crate::REQUIRED_DIRECTIVE_NAME;
+use crate::RequiredMetadataDirective;
+use crate::ValidationMessage;
+use crate::match_::MATCH_CONSTANTS;
+use crate::refetchable_fragment::REFETCHABLE_NAME;
+use crate::refetchable_fragment::RefetchableFragment;
+use crate::relay_resolvers::ResolverInfo;
+use crate::relay_resolvers::get_bool_argument_is_true;
+use crate::relay_resolvers::get_resolver_info;
 
 lazy_static! {
     // This gets attached to the generated query
@@ -90,8 +93,9 @@ associated_data_impl!(ClientEdgeMetadataDirective);
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct ClientEdgeModelResolver {
+    pub model_field_id: FieldID,
     pub type_name: WithLocation<ObjectName>,
-    pub is_live: bool,
+    pub resolver_info: ResolverInfo,
 }
 
 /// Metadata directive attached to generated queries
@@ -103,7 +107,7 @@ associated_data_impl!(ClientEdgeGeneratedQueryMetadataDirective);
 
 pub struct ClientEdgeMetadata<'a> {
     /// The field which defines the graph relationship (currently always a Resolver)
-    pub backing_field: Selection,
+    pub backing_field: &'a Selection,
     /// Models the client edge field and its selections
     pub linked_field: &'a LinkedField,
     /// Additional metadata about the client edge
@@ -132,14 +136,10 @@ impl<'a> ClientEdgeMetadata<'a> {
                 fragment.selections.len() == 2,
                 "Expected Client Edge inline fragment to have exactly two selections. This is a bug in the Relay compiler."
             );
-            let mut backing_field = fragment
-                .selections.first()
-                .expect("Client Edge inline fragments have exactly two selections").clone();
 
-            let backing_field_directives = backing_field.directives().iter().filter(|directive|
-                directive.name.item != RequiredMetadataDirective::directive_name()
-            ).cloned().collect();
-            backing_field.set_directives(backing_field_directives);
+            let backing_field = fragment
+                .selections.first()
+                .expect("Client Edge inline fragments have exactly two selections");
 
             let linked_field = match fragment.selections.get(1) {
                 Some(Selection::LinkedField(linked_field)) => linked_field,
@@ -317,6 +317,7 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
             *REQUIRED_DIRECTIVE_NAME,
             *CHILDREN_CAN_BUBBLE_METADATA_KEY,
             RequiredMetadataDirective::directive_name(),
+            MATCH_CONSTANTS.match_directive_name,
         ];
 
         let other_directives = directives
@@ -468,17 +469,19 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
             .schema
             .named_field(model, *RELAY_RESOLVER_MODEL_INSTANCE_FIELD)?;
         let model_field = self.program.schema.field(model_field_id);
-        let resolver_directive = model_field.directives.named(*RELAY_RESOLVER_DIRECTIVE_NAME);
-        let is_live = resolver_directive.map_or(false, |resolver_directive| {
-            resolver_directive
-                .arguments
-                .iter()
-                .any(|arg| arg.name.0 == LIVE_ARGUMENT_NAME.0)
-        });
-        Some(ClientEdgeModelResolver {
-            type_name: object.name,
-            is_live,
-        })
+        get_resolver_info(&self.program.schema, model_field, object.name.location)
+            .and_then(|resolver_info_result| match resolver_info_result {
+                Ok(resolver_info) => Some(resolver_info),
+                Err(diagnstics) => {
+                    self.errors.extend(diagnstics);
+                    None
+                }
+            })
+            .map(|resolver_info| ClientEdgeModelResolver {
+                model_field_id,
+                type_name: object.name,
+                resolver_info,
+            })
     }
 
     fn get_edge_to_server_object_metadata_directive(
@@ -488,6 +491,12 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
         waterfall_directive: Option<&Directive>,
         selections: Vec<Selection>,
     ) -> ClientEdgeMetadataDirective {
+        if field_type.type_.is_list() {
+            self.errors.push(Diagnostic::error(
+                ValidationMessage::ClientEdgeToServerObjectList,
+                field_type.name.location,
+            ));
+        }
         // Client Edges to server objects must be annotated with @waterfall
         if waterfall_directive.is_none() {
             self.errors.push(Diagnostic::error_with_data(
@@ -606,7 +615,20 @@ fn create_inline_fragment_for_client_edge(
     }
 
     let transformed_field = Arc::new(LinkedField {
+        selections: selections.clone(),
+        ..field.clone()
+    });
+
+    let backing_field_directives = field
+        .directives()
+        .iter()
+        .filter(|directive| directive.name.item != RequiredMetadataDirective::directive_name())
+        .cloned()
+        .collect();
+
+    let backing_field = Arc::new(LinkedField {
         selections,
+        directives: backing_field_directives,
         ..field.clone()
     });
 
@@ -615,14 +637,14 @@ fn create_inline_fragment_for_client_edge(
         directives: inline_fragment_directives,
         selections: vec![
             // NOTE: This creates 2^H selecitons where H is the depth of nested client edges
+            Selection::LinkedField(Arc::clone(&backing_field)),
             Selection::LinkedField(Arc::clone(&transformed_field)),
-            Selection::LinkedField(transformed_field),
         ],
         spread_location: Location::generated(),
     }
 }
 
-impl Transformer for ClientEdgesTransform<'_, '_> {
+impl Transformer<'_> for ClientEdgesTransform<'_, '_> {
     const NAME: &'static str = "ClientEdgesTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
@@ -716,7 +738,7 @@ pub fn remove_client_edge_selections(program: &Program) -> DiagnosticsResult<Pro
 #[derive(Default)]
 struct ClientEdgesCleanupTransform;
 
-impl Transformer for ClientEdgesCleanupTransform {
+impl Transformer<'_> for ClientEdgesCleanupTransform {
     const NAME: &'static str = "ClientEdgesCleanupTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
@@ -727,7 +749,7 @@ impl Transformer for ClientEdgesCleanupTransform {
                 let new_selection = metadata.backing_field;
 
                 Transformed::Replace(
-                    self.transform_selection(&new_selection)
+                    self.transform_selection(new_selection)
                         .unwrap_or_else(|| new_selection.clone()),
                 )
             }

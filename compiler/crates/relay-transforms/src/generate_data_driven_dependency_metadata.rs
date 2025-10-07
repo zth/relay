@@ -5,7 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use graphql_ir::associated_data_impl;
 use graphql_ir::Directive;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::OperationDefinition;
@@ -13,6 +12,7 @@ use graphql_ir::Program;
 use graphql_ir::Selection;
 use graphql_ir::Transformed;
 use graphql_ir::Transformer;
+use graphql_ir::associated_data_impl;
 use intern::string_key::StringKey;
 use intern::string_key::StringKeyMap;
 use itertools::Itertools;
@@ -20,8 +20,8 @@ use schema::Schema;
 use schema::Type;
 use schema::TypeReference;
 
-use crate::util::get_normalization_fragment_filename;
 use crate::ModuleMetadata;
+use crate::util::get_normalization_fragment_filename;
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct RelayDataDrivenDependencyMetadata {
@@ -149,11 +149,23 @@ impl<'s> GenerateDataDrivenDependencyMetadata<'s> {
                                 .program
                                 .schema
                                 .get_type_name(processing_item.parent_type.inner());
-                            if !module_metadata.read_time_resolvers {
-                                module_entries
-                                    .entry(id)
-                                    .and_modify(|module_entry| {
-                                        module_entry.branches.insert(
+                            module_entries
+                                .entry(id)
+                                .and_modify(|module_entry| {
+                                    module_entry.branches.insert(
+                                        type_name,
+                                        Branch {
+                                            component,
+                                            fragment: get_normalization_fragment_filename(
+                                                fragment_name,
+                                            ),
+                                        },
+                                    );
+                                })
+                                .or_insert(ModuleEntry {
+                                    branches: {
+                                        let mut map = StringKeyMap::default();
+                                        map.insert(
                                             type_name,
                                             Branch {
                                                 component,
@@ -162,24 +174,10 @@ impl<'s> GenerateDataDrivenDependencyMetadata<'s> {
                                                 ),
                                             },
                                         );
-                                    })
-                                    .or_insert(ModuleEntry {
-                                        branches: {
-                                            let mut map = StringKeyMap::default();
-                                            map.insert(
-                                                type_name,
-                                                Branch {
-                                                    component,
-                                                    fragment: get_normalization_fragment_filename(
-                                                        fragment_name,
-                                                    ),
-                                                },
-                                            );
-                                            map
-                                        },
-                                        plural: processing_item.plural,
-                                    });
-                            }
+                                        map
+                                    },
+                                    plural: processing_item.plural,
+                                });
                         }
                     }
                     Selection::Condition(condition) => {
@@ -228,7 +226,7 @@ struct ProcessingItem<'a> {
     selections: &'a [Selection],
 }
 
-impl<'s> Transformer for GenerateDataDrivenDependencyMetadata<'s> {
+impl Transformer<'_> for GenerateDataDrivenDependencyMetadata<'_> {
     const NAME: &'static str = "GenerateDataDrivenDependencyMetadata";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

@@ -19,7 +19,6 @@ use common::DirectiveName;
 use common::Location;
 use common::NamedItem;
 use common::WithLocation;
-use graphql_ir::associated_data_impl;
 use graphql_ir::Directive;
 use graphql_ir::Field;
 use graphql_ir::FragmentDefinition;
@@ -33,10 +32,11 @@ use graphql_ir::Selection;
 use graphql_ir::Transformed;
 use graphql_ir::TransformedValue;
 use graphql_ir::Transformer;
+use graphql_ir::associated_data_impl;
+use intern::Lookup;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use intern::string_key::StringKeyMap;
-use intern::Lookup;
 use lazy_static::lazy_static;
 use requireable_field::RequireableField;
 use requireable_field::RequiredMetadata;
@@ -319,7 +319,7 @@ impl<'program> RequiredDirective<'program> {
     }
 }
 
-impl<'s> Transformer for RequiredDirective<'s> {
+impl Transformer<'_> for RequiredDirective<'_> {
     const NAME: &'static str = "RequiredDirectiveTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
@@ -592,21 +592,25 @@ struct RequiredDirectiveVisitor<'s> {
     visited_fragments: FragmentDefinitionNameMap<bool>,
 }
 
-impl<'s> DirectiveFinder for RequiredDirectiveVisitor<'s> {
+impl DirectiveFinder for RequiredDirectiveVisitor<'_> {
     fn visit_directive(&self, directive: &Directive) -> bool {
         directive.name.item == *REQUIRED_DIRECTIVE_NAME
     }
 
     fn visit_fragment_spread(&mut self, fragment_spread: &graphql_ir::FragmentSpread) -> bool {
-        let fragment = self
-            .program
-            .fragment(fragment_spread.fragment.item)
-            .unwrap();
-        self.visit_fragment(fragment)
+        let fragment = self.program.fragment(fragment_spread.fragment.item);
+        if let Some(frag) = fragment {
+            self.visit_fragment(frag)
+        } else {
+            // Could not find fragment spread. This can happen if we are running
+            // this transform via LSP validation where we only validate a single
+            // tagged template literal in isolation.
+            false
+        }
     }
 }
 
-impl<'s> RequiredDirectiveVisitor<'s> {
+impl RequiredDirectiveVisitor<'_> {
     fn visit_fragment(&mut self, fragment: &FragmentDefinition) -> bool {
         if let Some(val) = self.visited_fragments.get(&fragment.name.item) {
             return *val;

@@ -15,9 +15,9 @@ use graphql_ir::OperationDefinition;
 use graphql_ir::Program;
 use graphql_ir::Transformed;
 use graphql_ir::Transformer;
+use graphql_text_printer::PrinterOptions;
 use graphql_text_printer::print_fragment;
 use graphql_text_printer::print_operation;
-use graphql_text_printer::PrinterOptions;
 use schema::SDLSchema;
 
 /// A transform for debugging purpose only. Insert it to `apply_transforms`, and
@@ -40,7 +40,7 @@ const PRINTER_OPTIONS: PrinterOptions = PrinterOptions {
     debug_directive_data: false,
 };
 
-impl Transformer for DebugTransform {
+impl Transformer<'_> for DebugTransform {
     const NAME: &'static str = "DebugTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

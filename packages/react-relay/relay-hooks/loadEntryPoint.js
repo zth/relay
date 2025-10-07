@@ -62,6 +62,12 @@ function loadEntryPoint<
       const {environmentProviderOptions, options, parameters, variables} =
         query;
 
+      // $FlowFixMe[prop-missing] Exists for types that wrap EntryPoint
+      if (options?.includeIf === false) {
+        // don't preload this query since the includeIf is false
+        return;
+      }
+
       const environment = environmentProvider.getEnvironment(
         environmentProviderOptions,
       );
@@ -138,7 +144,7 @@ function loadEntryPoint<
       // that it's actually an es6 module wrapper, so unwrap it. This won't work for React classes with a static property named "default", but
       // that's probably a worthwhile trade-off.
       const component =
-        // $FlowIgnore[prop-missing]
+        // $FlowFixMe[prop-missing]
         componentModule.default != null
           ? componentModule.default
           : componentModule;

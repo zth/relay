@@ -135,6 +135,8 @@ hook useLoadMoreFunction_EXPERIMENTAL<TVariables: Variables>(
     connectionPathInFragmentData,
   );
 
+  const isRequestInvalid = fragmentData == null || isParentQueryActive;
+
   const isMountedRef = useIsMountedRef();
   const loadMore = useCallback(
     (
@@ -164,11 +166,8 @@ hook useLoadMoreFunction_EXPERIMENTAL<TVariables: Variables>(
       }
 
       const fragmentSelector = getSelector(fragmentNode, fragmentRef);
-      if (
-        fetchStatusRef.current.kind === 'fetching' ||
-        fragmentData == null ||
-        isParentQueryActive
-      ) {
+
+      if (fetchStatusRef.current.kind === 'fetching' || isRequestInvalid) {
         if (fragmentSelector == null) {
           warning(
             false,
@@ -267,8 +266,7 @@ hook useLoadMoreFunction_EXPERIMENTAL<TVariables: Variables>(
       identifierValue,
       direction,
       cursor,
-      isParentQueryActive,
-      fragmentData,
+      isRequestInvalid,
       fragmentNode.name,
       fragmentRef,
       componentDisplayName,

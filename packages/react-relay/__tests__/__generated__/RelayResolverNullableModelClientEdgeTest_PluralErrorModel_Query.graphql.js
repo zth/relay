@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<843eff00f65f0343dd36ff40ea5e55c6>>
+ * @generated SignedSource<<b777252dd866c8f5755630ce84e4d2b6>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -71,8 +71,8 @@ return {
               "name": "ErrorModel__id"
             },
             "kind": "RelayResolver",
-            "name": "edge_to_plural_models_that_throw",
-            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./ErrorModel__id.graphql'), require('./../RelayResolverNullableModelClientEdge-test').ErrorModel, 'id', true),
+            "name": "__relay_model_instance",
+            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./ErrorModel__id.graphql'), require('../RelayResolverNullableModelClientEdge-test').ErrorModel, 'id', true),
             "path": "edge_to_plural_models_that_throw.__relay_model_instance"
           }
         },
@@ -82,7 +82,7 @@ return {
           "fragment": null,
           "kind": "RelayResolver",
           "name": "edge_to_plural_models_that_throw",
-          "resolverModule": require('./../RelayResolverNullableModelClientEdge-test').edge_to_plural_models_that_throw,
+          "resolverModule": require('../RelayResolverNullableModelClientEdge-test').edge_to_plural_models_that_throw,
           "path": "edge_to_plural_models_that_throw"
         },
         "linkedField": {

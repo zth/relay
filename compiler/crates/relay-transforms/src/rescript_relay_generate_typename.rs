@@ -58,7 +58,7 @@ impl<'s> RescriptRelayGenerateTypenameTransform<'s> {
     }
 }
 
-impl<'s> Transformer for RescriptRelayGenerateTypenameTransform<'s> {
+impl<'s> Transformer<'_> for RescriptRelayGenerateTypenameTransform<'s> {
     const NAME: &'static str = "RescriptRelayGenerateTypenameTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

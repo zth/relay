@@ -71,7 +71,7 @@ type Traversable = {
   +args: ?{[string]: mixed, ...},
 };
 type MockData = {[string]: mixed, ...};
-type MockResolverContext = {
+export type MockResolverContext = {
   +parentType: ?string,
   +name: ?string,
   +alias: ?string,
@@ -82,7 +82,7 @@ type MockResolver = (
   context: MockResolverContext,
   generateId: () => number,
 ) => mixed;
-export type MockResolvers = {[typeName: string]: MockResolver, ...};
+export type MockResolvers = {+[typeName: string]: MockResolver, ...};
 
 type SelectionMetadata = {
   [selectionPath: string]: {
@@ -536,7 +536,9 @@ class RelayMockPayloadGenerator {
             mockData = {
               ...mockData,
               [TYPENAME_KEY]: typeName,
+              // $FlowFixMe[invalid-computed-prop]
               [getModuleOperationKey(documentName)]: operation.name,
+              // $FlowFixMe[invalid-computed-prop]
               [getModuleComponentKey(documentName)]:
                 defaultValues.__module_component,
               ...this._traverseSelections(

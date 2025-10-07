@@ -84,6 +84,7 @@ describe('ReactRelayFragmentContainer with fragment ownership', () => {
       ) {
         node(id: $id) {
           ...ReactRelayFragmentContainerWithFragmentOwnershipTestUserFragment
+            @dangerously_unaliased_fixme
         }
       }
     `;
@@ -94,6 +95,7 @@ describe('ReactRelayFragmentContainer with fragment ownership', () => {
       ) {
         node(id: $id) {
           ...ReactRelayFragmentContainerWithFragmentOwnershipTestUserFragment
+            @dangerously_unaliased_fixme
             @arguments(cond: $condGlobal)
         }
       }
@@ -206,7 +208,7 @@ describe('ReactRelayFragmentContainer with fragment ownership', () => {
         },
         __fragmentOwner: ownerUser1.request,
       },
-      errorResponseFields: null,
+      fieldErrors: null,
       missingLiveResolverFields: [],
       missingClientEdges: null,
       isMissingData: false,
@@ -333,7 +335,7 @@ describe('ReactRelayFragmentContainer with fragment ownership', () => {
         },
         __fragmentOwner: ownerUser2.request,
       },
-      errorResponseFields: null,
+      fieldErrors: null,
       missingLiveResolverFields: [],
       missingClientEdges: null,
       isMissingData: false,
@@ -403,7 +405,7 @@ describe('ReactRelayFragmentContainer with fragment ownership', () => {
         },
         __fragmentOwner: ownerUser1WithCondVar.request,
       },
-      errorResponseFields: null,
+      fieldErrors: null,
       missingLiveResolverFields: [],
       missingClientEdges: null,
       isMissingData: false,

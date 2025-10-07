@@ -16,8 +16,6 @@ import type {Options} from './useRefetchableFragmentInternal';
 import type {
   Disposable,
   FragmentType,
-  GraphQLResponse,
-  Observer,
   RefetchableFragment,
   Variables,
 } from 'relay-runtime';
@@ -28,6 +26,7 @@ const useRelayEnvironment = require('./useRelayEnvironment');
 const useStaticFragmentNodeWarning = require('./useStaticFragmentNodeWarning');
 const {useCallback, useDebugValue, useState} = require('react');
 const {
+  RelayFeatureFlags,
   getFragment,
   getFragmentIdentifier,
   getPaginationMetadata,
@@ -145,6 +144,7 @@ hook usePaginationFragment<
   if (__DEV__) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     // $FlowFixMe[react-rule-hook]
+    // $FlowFixMe[react-rule-hook-conditional]
     useDebugValue({
       fragment: fragmentNode.name,
       data: fragmentData,
@@ -168,14 +168,7 @@ hook usePaginationFragment<
 }
 
 hook useLoadMore<TVariables: Variables>(
-  args: $Diff<
-    UseLoadMoreFunctionArgs,
-    {
-      observer: Observer<GraphQLResponse>,
-      onReset: () => void,
-      ...
-    },
-  >,
+  args: Omit<UseLoadMoreFunctionArgs, 'observer' | 'onReset'>,
 ): [LoadMoreFn<TVariables>, boolean, boolean, () => void] {
   const environment = useRelayEnvironment();
   const [isLoadingMore, reallySetIsLoadingMore] = useState(false);
@@ -196,6 +189,9 @@ hook useLoadMore<TVariables: Variables>(
     start: () => setIsLoadingMore(true),
     complete: () => setIsLoadingMore(false),
     error: () => setIsLoadingMore(false),
+    unsubscribe: RelayFeatureFlags.ENABLE_USE_PAGINATION_IS_LOADING_FIX
+      ? () => setIsLoadingMore(false)
+      : undefined,
   };
   const handleReset = () => setIsLoadingMore(false);
   const [loadMore, hasMore, disposeFetch] = useLoadMoreFunction<TVariables>({

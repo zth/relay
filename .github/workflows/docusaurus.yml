@@ -21,7 +21,16 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: 1.76.0
+          # Should stay in sync with fbcode/buck2/rust-toolchain
+          # And other similar references in this file and
+          # ci.yml
+          # toolchain: nightly-2025-05-09
+
+          # Bug in rust causes wasm-pack to fail. Bug is fixed in
+          # https://github.com/rust-lang/rust/pull/139498 so we're temporarily
+          # ahead here while we wait for that fix to land in the common
+          # toolchain version used at Meta.
+          toolchain: nightly-2025-05-12
           override: true
       - name: Install wasm-pack
         run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh

@@ -73,6 +73,7 @@ function check(
   getDataID: GetDataID,
   shouldProcessClientComponents: ?boolean,
   log: ?LogFunction,
+  useExecTimeResolvers: ?boolean,
 ): Availability {
   if (log != null) {
     log({
@@ -90,6 +91,8 @@ function check(
     operationLoader,
     getDataID,
     shouldProcessClientComponents,
+    log,
+    useExecTimeResolvers,
   );
   const result = checker.check(node, dataID);
   if (log != null) {
@@ -112,6 +115,7 @@ class DataChecker {
   _recordSourceProxy: RelayRecordSourceProxy;
   _recordWasMissing: boolean;
   _source: RecordSource;
+  _useExecTimeResolvers: boolean;
   _variables: Variables;
   _shouldProcessClientComponents: ?boolean;
   +_getSourceForActor: (actorIdentifier: ActorIdentifier) => RecordSource;
@@ -123,6 +127,7 @@ class DataChecker {
     ActorIdentifier,
     [RelayRecordSourceMutator, RelayRecordSourceProxy],
   >;
+  _log: ?LogFunction;
 
   constructor(
     getSourceForActor: (actorIdentifier: ActorIdentifier) => RecordSource,
@@ -135,6 +140,8 @@ class DataChecker {
     operationLoader: ?OperationLoader,
     getDataID: GetDataID,
     shouldProcessClientComponents: ?boolean,
+    log: ?LogFunction,
+    useExecTimeResolvers: ?boolean,
   ) {
     this._getSourceForActor = getSourceForActor;
     this._getTargetForActor = getTargetForActor;
@@ -144,6 +151,7 @@ class DataChecker {
     const [mutator, recordSourceProxy] = this._getMutatorAndRecordProxyForActor(
       defaultActorIdentifier,
     );
+    this._useExecTimeResolvers = useExecTimeResolvers ?? false;
     this._mostRecentlyInvalidatedAt = null;
     this._handlers = handlers;
     this._mutator = mutator;
@@ -152,6 +160,7 @@ class DataChecker {
     this._recordWasMissing = false;
     this._variables = variables;
     this._shouldProcessClientComponents = shouldProcessClientComponents;
+    this._log = log;
   }
 
   _getMutatorAndRecordProxyForActor(
@@ -170,6 +179,7 @@ class DataChecker {
         this._getDataID,
         undefined,
         this._handlers,
+        this._log,
       );
       tuple = [mutator, recordSourceProxy];
       this._mutatorRecordSourceProxyCache.set(actorIdentifier, tuple);
@@ -449,13 +459,15 @@ class DataChecker {
           this._traverseSelections(selection.fragment.selections, dataID);
           break;
         case 'RelayResolver':
-          this._checkResolver(selection, dataID);
-          break;
         case 'RelayLiveResolver':
-          this._checkResolver(selection, dataID);
+          if (!this._useExecTimeResolvers) {
+            this._checkResolver(selection, dataID);
+          }
           break;
         case 'ClientEdgeToClientObject':
-          this._checkResolver(selection.backingField, dataID);
+          if (!this._useExecTimeResolvers) {
+            this._checkResolver(selection.backingField, dataID);
+          }
           break;
         default:
           (selection: empty);

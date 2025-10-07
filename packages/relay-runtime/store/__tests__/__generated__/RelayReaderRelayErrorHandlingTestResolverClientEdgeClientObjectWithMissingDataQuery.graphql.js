@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ee65709e3fff0ef65250cb9271cba571>>
+ * @generated SignedSource<<adc4f43043604a80f67438c24005b3bf>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -92,7 +92,7 @@ return {
               },
               "kind": "RelayResolver",
               "name": "astrological_sign",
-              "resolverModule": require('./../resolvers/UserAstrologicalSignResolver').astrological_sign,
+              "resolverModule": require('../resolvers/UserAstrologicalSignResolver').astrological_sign,
               "path": "me.astrological_sign"
             },
             "linkedField": {
@@ -103,7 +103,11 @@ return {
               "name": "astrological_sign",
               "plural": false,
               "selections": [
-                (v0/*: any*/)
+                {
+                  "kind": "CatchField",
+                  "field": (v0/*: any*/),
+                  "to": "NULL"
+                }
               ],
               "storageKey": null
             }
@@ -202,7 +206,7 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "f58793dca8d722401223f2d241a24705";
+  (node/*: any*/).hash = "10b9776fee65d766ecdf6dec167c69da";
 }
 
 module.exports = ((node/*: any*/)/*: Query<

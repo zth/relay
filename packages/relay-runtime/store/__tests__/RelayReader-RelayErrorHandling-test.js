@@ -11,6 +11,7 @@
 'use strict';
 
 const {graphql} = require('../../query/GraphQLTag');
+const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
@@ -19,7 +20,7 @@ const {read} = require('../RelayReader');
 const RelayRecordSource = require('../RelayRecordSource');
 
 describe('RelayReader error fields', () => {
-  it('adds the errors to errorResponseFields', () => {
+  it('adds the errors to fieldErrors', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -50,9 +51,9 @@ describe('RelayReader error fields', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data, errorResponseFields} = read(source, operation.fragment);
+    const {data, fieldErrors} = read(source, operation.fragment);
     expect(data).toEqual({me: {lastName: null}});
-    expect(errorResponseFields).toEqual([
+    expect(fieldErrors).toEqual([
       {
         owner: 'RelayReaderRelayErrorHandlingTest1Query',
         fieldPath: 'me.lastName',
@@ -67,7 +68,7 @@ describe('RelayReader error fields', () => {
     ]);
   });
 
-  it('adds the errors to errorResponseFields including missingData - without @catch', () => {
+  it('adds the errors to fieldErrors including missingData - without @catch', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -102,9 +103,9 @@ describe('RelayReader error fields', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {size: 42});
-    const {errorResponseFields} = read(source, operation.fragment);
+    const {fieldErrors} = read(source, operation.fragment);
 
-    expect(errorResponseFields).toEqual([
+    expect(fieldErrors).toEqual([
       {
         owner: 'RelayReaderRelayErrorHandlingTest4Query',
         fieldPath: 'me.lastName',
@@ -125,7 +126,7 @@ describe('RelayReader error fields', () => {
     ]);
   });
 
-  it('adds the errors to errorResponseFields including missingData within plural fields - without @catch', () => {
+  it('adds the errors to fieldErrors including missingData within plural fields - without @catch', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -160,9 +161,9 @@ describe('RelayReader error fields', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {size: 42});
-    const {errorResponseFields} = read(source, operation.fragment);
+    const {fieldErrors} = read(source, operation.fragment);
 
-    expect(errorResponseFields).toEqual([
+    expect(fieldErrors).toEqual([
       {
         owner: 'RelayReaderRelayErrorHandlingTestMissingPluralQuery',
         fieldPath: 'me.lastName',
@@ -183,7 +184,7 @@ describe('RelayReader error fields', () => {
     ]);
   });
 
-  it('adds the errors to errorResponseFields including missingData - with @catch', () => {
+  it('adds the errors to fieldErrors including missingData - with @catch', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -217,7 +218,7 @@ describe('RelayReader error fields', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {size: 42});
-    const {data, errorResponseFields} = read(source, operation.fragment);
+    const {data, fieldErrors} = read(source, operation.fragment);
 
     // we have a task out for adding path to missingData. Meantime that array is empty.
     expect(data).toEqual({
@@ -234,7 +235,7 @@ describe('RelayReader error fields', () => {
       },
     });
 
-    expect(errorResponseFields).toEqual([
+    expect(fieldErrors).toEqual([
       {
         error: {message: 'There was an error!', path: ['me', 'lastName']},
         fieldPath: 'me.lastName',
@@ -282,7 +283,7 @@ describe('RelayReader error fields', () => {
     `;
 
     const operation = createOperationDescriptor(FooQuery, {size: 42});
-    const {data, errorResponseFields} = read(source, operation.fragment);
+    const {data, fieldErrors} = read(source, operation.fragment);
 
     expect(data).toEqual({
       me: {
@@ -290,7 +291,7 @@ describe('RelayReader error fields', () => {
       },
     });
 
-    expect(errorResponseFields).toEqual([
+    expect(fieldErrors).toEqual([
       {
         error: {message: 'There was an error!', path: ['me', 'lastName']},
         fieldPath: 'me.lastName',
@@ -336,9 +337,9 @@ describe('RelayReader error fields', () => {
     `;
 
     const operation = createOperationDescriptor(FooQuery, {size: 42});
-    const {errorResponseFields} = read(source, operation.fragment);
+    const {fieldErrors} = read(source, operation.fragment);
 
-    expect(errorResponseFields).toEqual([
+    expect(fieldErrors).toEqual([
       {
         error: {message: 'There was an error!', path: ['me', 'lastName']},
         fieldPath: 'me.lastName',
@@ -385,9 +386,9 @@ describe('RelayReader error fields', () => {
     `;
 
     const operation = createOperationDescriptor(FooQuery, {size: 42});
-    const {errorResponseFields} = read(source, operation.fragment);
+    const {fieldErrors} = read(source, operation.fragment);
 
-    expect(errorResponseFields).toEqual([
+    expect(fieldErrors).toEqual([
       {
         fieldPath: 'me.client_edge.firstName',
         kind: 'missing_expected_data.throw',
@@ -427,20 +428,21 @@ describe('RelayReader error fields', () => {
       @throwOnFieldError {
         me {
           astrological_sign {
-            notes # Not in the store!
+            # Compiler forces us to use @catch here
+            notes @catch(to: NULL) # Not in the store!
           }
         }
       }
     `;
 
     const operation = createOperationDescriptor(FooQuery, {});
-    const {errorResponseFields} = store.lookup(operation.fragment);
+    const {fieldErrors} = store.lookup(operation.fragment);
 
-    expect(errorResponseFields).toEqual([
+    expect(fieldErrors).toEqual([
       {
         fieldPath: 'me.astrological_sign.notes',
         kind: 'missing_expected_data.throw',
-        handled: false,
+        handled: true,
         owner:
           'RelayReaderRelayErrorHandlingTestResolverClientEdgeClientObjectWithMissingDataQuery',
       },
@@ -465,17 +467,18 @@ describe('RelayReader error fields', () => {
       query RelayReaderRelayErrorHandlingTestResolverClientPluralEdgeClientObjectWithMissingDataQuery
       @throwOnFieldError {
         all_astrological_signs {
-          notes # Not in the store!
+          # Compiler forces us to use @catch here
+          notes @catch(to: NULL) # Not in the store!
         }
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {});
-    const {errorResponseFields} = store.lookup(operation.fragment);
-    for (let i = 0; i < errorResponseFields.length; i++) {
-      expect(errorResponseFields[i]).toEqual({
+    const {fieldErrors} = store.lookup(operation.fragment);
+    for (let i = 0; i < fieldErrors.length; i++) {
+      expect(fieldErrors[i]).toEqual({
         fieldPath: `all_astrological_signs.${i}.notes`,
         kind: 'missing_expected_data.throw',
-        handled: false,
+        handled: true,
         owner:
           'RelayReaderRelayErrorHandlingTestResolverClientPluralEdgeClientObjectWithMissingDataQuery',
       });
@@ -512,13 +515,10 @@ describe('RelayReader error fields', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {});
-    const {errorResponseFields, isMissingData} = read(
-      source,
-      operation.fragment,
-    );
+    const {fieldErrors, isMissingData} = read(source, operation.fragment);
 
     expect(isMissingData).toBe(false);
-    expect(errorResponseFields).toEqual(null);
+    expect(fieldErrors).toEqual(null);
   });
 
   it('does report missing data within an inline fragment that does match', () => {
@@ -552,13 +552,10 @@ describe('RelayReader error fields', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {});
-    const {errorResponseFields, isMissingData} = read(
-      source,
-      operation.fragment,
-    );
+    const {fieldErrors, isMissingData} = read(source, operation.fragment);
 
     expect(isMissingData).toBe(true);
-    expect(errorResponseFields).toEqual([
+    expect(fieldErrors).toEqual([
       // We are missing the metadata bout the interface
       {
         fieldPath: 'node.<abstract-type-hint>',
@@ -608,13 +605,10 @@ describe('RelayReader error fields', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {});
-    const {errorResponseFields, isMissingData} = read(
-      source,
-      operation.fragment,
-    );
+    const {fieldErrors, isMissingData} = read(source, operation.fragment);
 
     expect(isMissingData).toBe(true);
-    expect(errorResponseFields).toEqual([
+    expect(fieldErrors).toEqual([
       {
         fieldPath: 'also_me.name',
         handled: false,
@@ -634,5 +628,252 @@ describe('RelayReader error fields', () => {
         owner: 'RelayReaderRelayErrorHandlingTestErrorOrderQuery',
       },
     ]);
+  });
+
+  let wasNoncompliantErrorHandlingOnListsEnabled;
+
+  beforeEach(() => {
+    wasNoncompliantErrorHandlingOnListsEnabled =
+      RelayFeatureFlags.ENABLE_NONCOMPLIANT_ERROR_HANDLING_ON_LISTS;
+  });
+
+  afterEach(() => {
+    RelayFeatureFlags.ENABLE_NONCOMPLIANT_ERROR_HANDLING_ON_LISTS =
+      wasNoncompliantErrorHandlingOnListsEnabled;
+  });
+
+  describe('when noncompliant error handling on lists is enabled', () => {
+    beforeEach(() => {
+      RelayFeatureFlags.ENABLE_NONCOMPLIANT_ERROR_HANDLING_ON_LISTS = true;
+    });
+
+    describe('when query has @throwOnFieldError directive', () => {
+      it('has errors that will throw when the linked field is an empty list', () => {
+        const source = RelayRecordSource.create({
+          '1': {
+            __id: '1',
+            __typename: 'User',
+            'friends(first:3)': {
+              __ref: 'client:1:friends(first:3)',
+            },
+            id: '1',
+          },
+          'client:1:friends(first:3)': {
+            __id: 'client:1:friends(first:3)',
+            __typename: 'FriendsConnection',
+            __errors: {
+              edges: [
+                {
+                  message: 'There was an error!',
+                },
+              ],
+            },
+            edges: {
+              __refs: [],
+            },
+          },
+          'client:root': {
+            __id: 'client:root',
+            __typename: '__Root',
+            'node(id:"1")': {__ref: '1'},
+          },
+        });
+
+        const FooQuery = graphql`
+          query RelayReaderRelayErrorHandlingTestNoncompliantEmptyLinkedFieldWithThrowOnFieldErrorQuery
+          @throwOnFieldError {
+            node(id: "1") {
+              id
+              __typename
+              ... on User {
+                friends(first: 3) {
+                  edges {
+                    cursor
+                  }
+                }
+              }
+            }
+          }
+        `;
+        const operation = createOperationDescriptor(FooQuery, {});
+        const {fieldErrors} = read(source, operation.fragment);
+
+        expect(fieldErrors).toEqual([
+          {
+            fieldPath: '',
+            handled: false,
+            error: {message: 'There was an error!'},
+            kind: 'relay_field_payload.error',
+            owner:
+              'RelayReaderRelayErrorHandlingTestNoncompliantEmptyLinkedFieldWithThrowOnFieldErrorQuery',
+            shouldThrow: true,
+          },
+        ]);
+      });
+
+      it('has errors that will throw when the scalar field is an empty list', () => {
+        const source = RelayRecordSource.create({
+          '1': {
+            __id: '1',
+            __typename: 'User',
+            __errors: {
+              emailAddresses: [
+                {
+                  message: 'There was an error!',
+                },
+              ],
+            },
+            id: '1',
+            emailAddresses: [],
+          },
+          'client:root': {
+            __id: 'client:root',
+            __typename: '__Root',
+            'node(id:"1")': {__ref: '1'},
+          },
+        });
+
+        const FooQuery = graphql`
+          query RelayReaderRelayErrorHandlingTestNoncompliantEmptyScalarFieldWithThrowOnFieldErrorQuery
+          @throwOnFieldError {
+            node(id: "1") {
+              id
+              __typename
+              ... on User {
+                emailAddresses
+              }
+            }
+          }
+        `;
+        const operation = createOperationDescriptor(FooQuery, {});
+        const {fieldErrors} = read(source, operation.fragment);
+
+        expect(fieldErrors).toEqual([
+          {
+            fieldPath: '',
+            handled: false,
+            error: {message: 'There was an error!'},
+            kind: 'relay_field_payload.error',
+            owner:
+              'RelayReaderRelayErrorHandlingTestNoncompliantEmptyScalarFieldWithThrowOnFieldErrorQuery',
+            shouldThrow: true,
+          },
+        ]);
+      });
+    });
+
+    describe('when query does not have the @throwOnFieldError directive', () => {
+      it('has errors that wont throw when the linked field is an empty list', () => {
+        const source = RelayRecordSource.create({
+          '1': {
+            __id: '1',
+            __typename: 'User',
+            'friends(first:3)': {
+              __ref: 'client:1:friends(first:3)',
+            },
+            id: '1',
+          },
+          'client:1:friends(first:3)': {
+            __id: 'client:1:friends(first:3)',
+            __typename: 'FriendsConnection',
+            __errors: {
+              edges: [
+                {
+                  message: 'There was an error!',
+                },
+              ],
+            },
+            edges: {
+              __refs: [],
+            },
+          },
+          'client:root': {
+            __id: 'client:root',
+            __typename: '__Root',
+            'node(id:"1")': {__ref: '1'},
+          },
+        });
+
+        const FooQuery = graphql`
+          query RelayReaderRelayErrorHandlingTestNoncompliantEmptyLinkedFieldWithoutThrowOnFieldErrorQuery {
+            node(id: "1") {
+              id
+              __typename
+              ... on User {
+                friends(first: 3) {
+                  edges {
+                    cursor
+                  }
+                }
+              }
+            }
+          }
+        `;
+        const operation = createOperationDescriptor(FooQuery, {});
+        const {data, fieldErrors} = read(source, operation.fragment);
+
+        expect(data.node.friends.edges).toEqual([]);
+        expect(fieldErrors).toEqual([
+          {
+            fieldPath: '',
+            handled: false,
+            error: {message: 'There was an error!'},
+            kind: 'relay_field_payload.error',
+            owner:
+              'RelayReaderRelayErrorHandlingTestNoncompliantEmptyLinkedFieldWithoutThrowOnFieldErrorQuery',
+            shouldThrow: false,
+          },
+        ]);
+      });
+
+      it('has errors that wont throw when the scalar field is an empty list', () => {
+        const source = RelayRecordSource.create({
+          '1': {
+            __id: '1',
+            __typename: 'User',
+            __errors: {
+              emailAddresses: [
+                {
+                  message: 'There was an error!',
+                },
+              ],
+            },
+            id: '1',
+            emailAddresses: [],
+          },
+          'client:root': {
+            __id: 'client:root',
+            __typename: '__Root',
+            'node(id:"1")': {__ref: '1'},
+          },
+        });
+
+        const FooQuery = graphql`
+          query RelayReaderRelayErrorHandlingTestNoncompliantEmptyScalarFieldWithoutThrowOnFieldErrorQuery {
+            node(id: "1") {
+              id
+              __typename
+              ... on User {
+                emailAddresses
+              }
+            }
+          }
+        `;
+        const operation = createOperationDescriptor(FooQuery, {});
+        const {data, fieldErrors} = read(source, operation.fragment);
+        expect(data.node.emailAddresses).toEqual([]);
+        expect(fieldErrors).toEqual([
+          {
+            fieldPath: '',
+            handled: false,
+            error: {message: 'There was an error!'},
+            kind: 'relay_field_payload.error',
+            owner:
+              'RelayReaderRelayErrorHandlingTestNoncompliantEmptyScalarFieldWithoutThrowOnFieldErrorQuery',
+            shouldThrow: false,
+          },
+        ]);
+      });
+    });
   });
 });

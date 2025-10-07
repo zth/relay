@@ -5,6 +5,7 @@
 
 directive @relay_test_operation(
   DO_NOT_USE_use_in_production: Boolean = false @static
+  emitRawText: Boolean = false @static
 ) on QUERY | MUTATION | SUBSCRIPTION
 
 """
@@ -26,7 +27,7 @@ directive @no_inline(raw_response_type: Boolean) on FRAGMENT_DEFINITION
 
 A directive added to queries and fragments which causes the Relay client to throw
 if reading a field that has an error. Relay will also honor the @semanticNonNull
-direcitve on fields read from that query or fragment. Emitted types for such
+directive on fields read from that query or fragment. Emitted types for such
 fields will be non-null. Requires the `experimental_emit_semantic_nullability_types`
 typegen configuration to be enabled.
 
@@ -404,4 +405,4 @@ If added to a query, resolvers in that query to run at exec-time, rather than re
 This means the resolvers are run when the query data is requested rather than when the
 query is used (i.e. when the network request is made instead of at render time).
 """
-directive @exec_time_resolvers on QUERY
+directive @exec_time_resolvers(enabledProvider: String) on QUERY

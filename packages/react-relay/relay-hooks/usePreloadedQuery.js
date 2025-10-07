@@ -16,7 +16,7 @@ import type {
   PreloadedQueryInner,
   PreloadedQueryInner_DEPRECATED,
 } from './EntryPointTypes.flow';
-import type {Query, RenderPolicy, Variables} from 'relay-runtime';
+import type {ClientQuery, Query, RenderPolicy, Variables} from 'relay-runtime';
 
 const useLazyLoadQueryNode = require('./useLazyLoadQueryNode');
 const useMemoOperationDescriptor = require('./useMemoOperationDescriptor');
@@ -56,7 +56,9 @@ hook usePreloadedQuery<
   TData,
   TRawResponse: ?{...} = void,
 >(
-  gqlQuery: Query<TVariables, TData, TRawResponse>,
+  gqlQuery:
+    | Query<TVariables, TData, TRawResponse>
+    | ClientQuery<TVariables, TData, TRawResponse>,
   preloadedQuery: PreloadedQuery<
     TVariables,
     TData,
@@ -126,7 +128,7 @@ hook usePreloadedQuery<
       // context, we cannot re-use the existing preloaded query.
       // Instead, we need to fall back and re-execute and de-dupe the query with
       // the new environment (at render time).
-      // TODO T68036756 track occurences of this warning and turn it into a hard error
+      // TODO T68036756 track occurrences of this warning and turn it into a hard error
       warning(
         false,
         'usePreloadedQuery(): usePreloadedQuery was passed a preloaded query ' +
@@ -155,11 +157,14 @@ hook usePreloadedQuery<
     variables: TVariables,
     response: TData,
     rawResponse?: $NonMaybeType<TRawResponse>,
+    /* $FlowFixMe[incompatible-call] Natural Inference rollout. See
+     * https://fburl.com/gdoc/y8dn025u */
   }>(useLazyLoadQueryNodeParams);
 
   if (__DEV__) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     // $FlowFixMe[react-rule-hook]
+    // $FlowFixMe[react-rule-hook-conditional]
     useDebugValue({
       query: preloadedQuery.name,
       variables: preloadedQuery.variables,

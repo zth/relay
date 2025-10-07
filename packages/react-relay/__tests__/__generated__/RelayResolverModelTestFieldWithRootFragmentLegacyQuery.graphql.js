@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<25344ea51d96e1715d614a4699b5bb91>>
+ * @generated SignedSource<<4d00f108270488d43e06c8d0592e657d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -91,15 +91,15 @@ return {
         "modelResolvers": {
           "TodoModel": {
             "alias": null,
-            "args": [],
+            "args": null,
             "fragment": {
               "args": null,
               "kind": "FragmentSpread",
               "name": "TodoModel__id"
             },
             "kind": "RelayLiveResolver",
-            "name": "todo_model",
-            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel__id.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').TodoModel, 'id', true),
+            "name": "__relay_model_instance",
+            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel__id.graphql'), require('../../../relay-runtime/store/__tests__/resolvers/TodoModel').TodoModel, 'id', true),
             "path": "todo_model.__relay_model_instance"
           }
         },
@@ -109,7 +109,7 @@ return {
           "fragment": null,
           "kind": "RelayResolver",
           "name": "todo_model",
-          "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/QueryTodoModel').todo_model,
+          "resolverModule": require('../../../relay-runtime/store/__tests__/resolvers/QueryTodoModel').todo_model,
           "path": "todo_model"
         },
         "linkedField": {
@@ -130,7 +130,7 @@ return {
               },
               "kind": "RelayResolver",
               "name": "capitalized_id_legacy",
-              "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').capitalized_id_legacy,
+              "resolverModule": require('../../../relay-runtime/store/__tests__/resolvers/TodoModel').capitalized_id_legacy,
               "path": "todo_model.capitalized_id_legacy"
             }
           ],

@@ -12,22 +12,20 @@ use std::fmt::Formatter;
 use std::str::FromStr;
 
 use indexmap::IndexMap;
-use schemars::gen::SchemaGenerator;
-use schemars::schema::InstanceType;
-use schemars::schema::Schema;
-use schemars::schema::SchemaObject;
-use schemars::schema::SingleOrVec;
 use schemars::JsonSchema;
+use schemars::Schema;
+use schemars::SchemaGenerator;
+use schemars::json_schema;
 use serde::Deserialize;
 use serde::Deserializer;
 use serde::Serialize;
 use serde::Serializer;
 
+pub use crate::Lookup;
 use crate::idhasher::BuildIdHasher;
 use crate::string;
 use crate::string::IntoUtf8Bytes;
 use crate::string::StringId;
-pub use crate::Lookup;
 
 // StringKey is a small impedence matcher around StringId.
 // NOTE in particular that it does NOT do de-duplicating serde.
@@ -36,17 +34,16 @@ pub use crate::Lookup;
 pub struct StringKey(StringId);
 
 impl JsonSchema for StringKey {
-    fn schema_name() -> std::string::String {
-        String::from("StringKey")
+    fn schema_name() -> std::borrow::Cow<'static, str> {
+        String::from("StringKey").into()
     }
 
     fn json_schema(_gen: &mut SchemaGenerator) -> Schema {
-        SchemaObject {
-            instance_type: Some(SingleOrVec::Single(Box::new(InstanceType::String))),
-            format: None,
-            ..Default::default()
-        }
-        .into()
+        json_schema!({
+                "type": "string",
+                "format": null,
+                }
+        )
     }
 }
 
@@ -72,7 +69,7 @@ impl StringKey {
     }
 
     pub unsafe fn from_index(index: u32) -> Self {
-        Self(StringId::from_index(index))
+        unsafe { Self(StringId::from_index(index)) }
     }
 }
 
@@ -128,7 +125,7 @@ macro_rules! intern {
         static INSTANCE: Lazy<$crate::string_key::StringKey> = Lazy::new(|| $value.intern());
         *INSTANCE
     }};
-    ($_:expr) => {
+    ($_:expr_2021) => {
         compile_error!("intern! macro can only be used with string literals.")
     };
 }

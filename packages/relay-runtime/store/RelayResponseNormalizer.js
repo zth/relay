@@ -29,7 +29,9 @@ import type {RelayErrorTrie} from './RelayErrorTrie';
 import type {
   FollowupPayload,
   HandleFieldPayload,
+  IdCollisionTypenameLogEvent,
   IncrementalDataPlaceholder,
+  LogFunction,
   MutableRecordSource,
   NormalizationSelector,
   Record,
@@ -65,13 +67,14 @@ const invariant = require('invariant');
 const warning = require('warning');
 
 export type GetDataID = (
-  fieldValue: {[string]: mixed},
+  fieldValue: {+[string]: mixed},
   typeName: string,
 ) => mixed;
 
 export type NormalizationOptions = {
   +getDataID: GetDataID,
   +treatMissingFieldsAsNull: boolean,
+  +log: ?LogFunction,
   +path?: $ReadOnlyArray<string>,
   +shouldProcessClientComponents?: ?boolean,
   +actorIdentifier?: ?ActorIdentifier,
@@ -87,12 +90,14 @@ function normalize(
   response: PayloadData,
   options: NormalizationOptions,
   errors?: Array<PayloadError>,
+  useExecTimeResolvers?: boolean,
 ): RelayResponsePayload {
   const {dataID, node, variables} = selector;
   const normalizer = new RelayResponseNormalizer(
     recordSource,
     variables,
     options,
+    useExecTimeResolvers ?? false,
   );
   return normalizer.normalizeResponse(node, dataID, response, errors);
 }
@@ -114,13 +119,16 @@ class RelayResponseNormalizer {
   _path: Array<string>;
   _recordSource: MutableRecordSource;
   _variables: Variables;
+  _useExecTimeResolvers: boolean;
   _shouldProcessClientComponents: ?boolean;
   _errorTrie: RelayErrorTrie | null;
+  _log: ?LogFunction;
 
   constructor(
     recordSource: MutableRecordSource,
     variables: Variables,
     options: NormalizationOptions,
+    useExecTimeResolvers: boolean,
   ) {
     this._actorIdentifier = options.actorIdentifier;
     this._getDataId = options.getDataID;
@@ -129,11 +137,13 @@ class RelayResponseNormalizer {
     this._incrementalPlaceholders = [];
     this._isClientExtension = false;
     this._isUnmatchedAbstractType = false;
+    this._useExecTimeResolvers = useExecTimeResolvers;
     this._followupPayloads = [];
     this._path = options.path ? [...options.path] : [];
     this._recordSource = recordSource;
     this._variables = variables;
     this._shouldProcessClientComponents = options.shouldProcessClientComponents;
+    this._log = options.log;
   }
 
   normalizeResponse(
@@ -240,7 +250,11 @@ class RelayResponseNormalizer {
               this._traverseSelections(selection, record, data);
             }
           } else {
-            const implementsInterface = data.hasOwnProperty(abstractKey);
+            // $FlowFixMe[method-unbinding] - data could be prototype less
+            const implementsInterface = Object.prototype.hasOwnProperty.call(
+              data,
+              abstractKey,
+            );
             const typeName = RelayModernRecord.getType(record);
             const typeID = generateTypeID(typeName);
             let typeRecord = this._recordSource.get(typeID);
@@ -261,7 +275,11 @@ class RelayResponseNormalizer {
         }
         case 'TypeDiscriminator': {
           const {abstractKey} = selection;
-          const implementsInterface = data.hasOwnProperty(abstractKey);
+          // $FlowFixMe[method-unbinding] - data could be prototype less
+          const implementsInterface = Object.prototype.hasOwnProperty.call(
+            data,
+            abstractKey,
+          );
           const typeName = RelayModernRecord.getType(record);
           const typeID = generateTypeID(typeName);
           let typeRecord = this._recordSource.get(typeID);
@@ -319,13 +337,15 @@ class RelayResponseNormalizer {
           this._normalizeActorChange(selection, record, data);
           break;
         case 'RelayResolver':
-          this._normalizeResolver(selection, record, data);
-          break;
         case 'RelayLiveResolver':
-          this._normalizeResolver(selection, record, data);
+          if (!this._useExecTimeResolvers) {
+            this._normalizeResolver(selection, record, data);
+          }
           break;
         case 'ClientEdgeToClientObject':
-          this._normalizeResolver(selection.backingField, record, data);
+          if (!this._useExecTimeResolvers) {
+            this._normalizeResolver(selection.backingField, record, data);
+          }
           break;
         default:
           (selection: empty);
@@ -472,12 +492,11 @@ class RelayResponseNormalizer {
     const responseKey = selection.alias || selection.name;
     const storageKey = getStorageKey(selection, this._variables);
     const fieldValue = data[responseKey];
-    if (
-      fieldValue == null ||
-      (RelayFeatureFlags.ENABLE_NONCOMPLIANT_ERROR_HANDLING_ON_LISTS &&
-        Array.isArray(fieldValue) &&
-        fieldValue.length === 0)
-    ) {
+    const isNoncompliantlyNullish =
+      RelayFeatureFlags.ENABLE_NONCOMPLIANT_ERROR_HANDLING_ON_LISTS &&
+      Array.isArray(fieldValue) &&
+      fieldValue.length === 0;
+    if (fieldValue == null || isNoncompliantlyNullish) {
       if (fieldValue === undefined) {
         // Fields may be missing in the response in two main cases:
         // - Inside a client extension: the server will not generally return
@@ -511,20 +530,27 @@ class RelayResponseNormalizer {
           return;
         }
       }
-      if (__DEV__) {
-        if (selection.kind === 'ScalarField') {
-          this._validateConflictingFieldsWithIdenticalId(
-            record,
-            storageKey,
-            // When using `treatMissingFieldsAsNull` the conflicting validation raises a false positive
-            // because the value is set using `null` but validated using `fieldValue` which at this point
-            // will be `undefined`.
-            // Setting this to `null` matches the value that we actually set to the `fieldValue`.
-            null,
-          );
-        }
+      if (selection.kind === 'ScalarField') {
+        this._validateConflictingFieldsWithIdenticalId(
+          record,
+          storageKey,
+          // When using `treatMissingFieldsAsNull` the conflicting validation raises a false positive
+          // because the value is set using `null` but validated using `fieldValue` which at this point
+          // will be `undefined`.
+          // Setting this to `null` matches the value that we actually set to the `fieldValue`.
+          null,
+        );
       }
-      RelayModernRecord.setValue(record, storageKey, null);
+      if (isNoncompliantlyNullish) {
+        // We need to preserve the fact that we received an empty list
+        if (selection.kind === 'LinkedField') {
+          RelayModernRecord.setLinkedRecordIDs(record, storageKey, []);
+        } else {
+          RelayModernRecord.setValue(record, storageKey, []);
+        }
+      } else {
+        RelayModernRecord.setValue(record, storageKey, null);
+      }
       const errorTrie = this._errorTrie;
       if (errorTrie != null) {
         const errors = getErrorsByKey(errorTrie, responseKey);
@@ -536,13 +562,11 @@ class RelayResponseNormalizer {
     }
 
     if (selection.kind === 'ScalarField') {
-      if (__DEV__) {
-        this._validateConflictingFieldsWithIdenticalId(
-          record,
-          storageKey,
-          fieldValue,
-        );
-      }
+      this._validateConflictingFieldsWithIdenticalId(
+        record,
+        storageKey,
+        fieldValue,
+      );
       RelayModernRecord.setValue(record, storageKey, fieldValue);
     } else if (selection.kind === 'LinkedField') {
       this._path.push(responseKey);
@@ -686,13 +710,11 @@ class RelayResponseNormalizer {
       'RelayResponseNormalizer: Expected id on field `%s` to be a string.',
       storageKey,
     );
-    if (__DEV__) {
-      this._validateConflictingLinkedFieldsWithIdenticalId(
-        RelayModernRecord.getLinkedRecordID(record, storageKey),
-        nextID,
-        storageKey,
-      );
-    }
+    this._validateConflictingLinkedFieldsWithIdenticalId(
+      RelayModernRecord.getLinkedRecordID(record, storageKey),
+      nextID,
+      storageKey,
+    );
     RelayModernRecord.setLinkedRecordID(record, storageKey, nextID);
     let nextRecord = this._recordSource.get(nextID);
     if (!nextRecord) {
@@ -700,7 +722,7 @@ class RelayResponseNormalizer {
       const typeName = field.concreteType || this._getRecordType(fieldValue);
       nextRecord = RelayModernRecord.create(nextID, typeName);
       this._recordSource.set(nextID, nextRecord);
-    } else if (__DEV__) {
+    } else {
       this._validateRecordType(nextRecord, field, fieldValue);
     }
     // $FlowFixMe[incompatible-variance]
@@ -766,19 +788,15 @@ class RelayResponseNormalizer {
         const typeName = field.concreteType || this._getRecordType(item);
         nextRecord = RelayModernRecord.create(nextID, typeName);
         this._recordSource.set(nextID, nextRecord);
-      } else if (__DEV__) {
+      } else {
         this._validateRecordType(nextRecord, field, item);
       }
-      // NOTE: the check to strip __DEV__ code only works for simple
-      // `if (__DEV__)`
-      if (__DEV__) {
-        if (prevIDs) {
-          this._validateConflictingLinkedFieldsWithIdenticalId(
-            prevIDs[nextIndex],
-            nextID,
-            storageKey,
-          );
-        }
+      if (prevIDs) {
+        this._validateConflictingLinkedFieldsWithIdenticalId(
+          prevIDs[nextIndex],
+          nextID,
+          storageKey,
+        );
       }
       // $FlowFixMe[incompatible-variance]
       this._traverseSelections(field, nextRecord, item);
@@ -796,20 +814,42 @@ class RelayResponseNormalizer {
     field: NormalizationLinkedField,
     payload: Object,
   ): void {
-    const typeName = field.concreteType ?? this._getRecordType(payload);
-    const dataID = RelayModernRecord.getDataID(record);
-    warning(
-      (isClientID(dataID) && dataID !== ROOT_ID) ||
-        RelayModernRecord.getType(record) === typeName,
-      'RelayResponseNormalizer: Invalid record `%s`. Expected %s to be ' +
-        'consistent, but the record was assigned conflicting types `%s` ' +
-        'and `%s`. The GraphQL server likely violated the globally unique ' +
-        'id requirement by returning the same id for different objects.',
-      dataID,
-      TYPENAME_KEY,
-      RelayModernRecord.getType(record),
-      typeName,
-    );
+    if (RelayFeatureFlags.ENABLE_STORE_ID_COLLISION_LOGGING) {
+      const typeName = field.concreteType ?? this._getRecordType(payload);
+      const dataID = RelayModernRecord.getDataID(record);
+      const expected =
+        (isClientID(dataID) && dataID !== ROOT_ID) ||
+        RelayModernRecord.getType(record) === typeName;
+      if (!expected) {
+        const logEvent: IdCollisionTypenameLogEvent = {
+          name: 'idCollision.typename',
+          previous_typename: RelayModernRecord.getType(record),
+          new_typename: typeName,
+        };
+        if (this._log != null) {
+          this._log(logEvent);
+        }
+      }
+    }
+    // NOTE: Only emit a warning in DEV
+    if (__DEV__) {
+      const typeName = field.concreteType ?? this._getRecordType(payload);
+      const dataID = RelayModernRecord.getDataID(record);
+      const expected =
+        (isClientID(dataID) && dataID !== ROOT_ID) ||
+        RelayModernRecord.getType(record) === typeName;
+      warning(
+        expected,
+        'RelayResponseNormalizer: Invalid record `%s`. Expected %s to be ' +
+          'consistent, but the record was assigned conflicting types `%s` ' +
+          'and `%s`. The GraphQL server likely violated the globally unique ' +
+          'id requirement by returning the same id for different objects.',
+        dataID,
+        TYPENAME_KEY,
+        RelayModernRecord.getType(record),
+        typeName,
+      );
+    }
   }
 
   /**
@@ -820,14 +860,16 @@ class RelayResponseNormalizer {
     storageKey: string,
     fieldValue: mixed,
   ): void {
-    // NOTE: Only call this function in DEV
+    // NOTE: Only emit a warning in DEV
     if (__DEV__) {
+      const previousValue = RelayModernRecord.getValue(record, storageKey);
       const dataID = RelayModernRecord.getDataID(record);
-      var previousValue = RelayModernRecord.getValue(record, storageKey);
-      warning(
+      const expected =
         storageKey === TYPENAME_KEY ||
-          previousValue === undefined ||
-          areEqual(previousValue, fieldValue),
+        previousValue === undefined ||
+        areEqual(previousValue, fieldValue);
+      warning(
+        expected,
         'RelayResponseNormalizer: Invalid record. The record contains two ' +
           'instances of the same id: `%s` with conflicting field, %s and its values: %s and %s. ' +
           'If two fields are different but share ' +
@@ -848,10 +890,11 @@ class RelayResponseNormalizer {
     nextID: DataID,
     storageKey: string,
   ): void {
-    // NOTE: Only call this function in DEV
+    // NOTE: Only emit a warning in DEV
     if (__DEV__) {
+      const expected = prevID === undefined || prevID === nextID;
       warning(
-        prevID === undefined || prevID === nextID,
+        expected,
         'RelayResponseNormalizer: Invalid record. The record contains ' +
           'references to the conflicting field, %s and its id values: %s and %s. ' +
           'We need to make sure that the record the field points ' +

@@ -4,10 +4,10 @@
 name = "relay-saved-state-loader"
 version = "0.0.0"
 authors = ["Facebook"]
-edition = "2021"
+edition = "2024"
 repository = "https://github.com/facebook/relay"
 license = "MIT"
 
 [dependencies]
-async-trait = "0.1.71"
-serde_bser = "0.3"
+async-trait = "0.1.86"
+serde_bser = "0.4"

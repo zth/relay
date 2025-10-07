@@ -319,14 +319,14 @@ function toObserver(observerOrCallback: ?ObserverOrCallback): Observer<void> {
 
 function createContainerWithFragments<
   Props: {...},
-  TComponent: React.ComponentType<Props>,
+  TComponent: component(...Props),
 >(
   Component: TComponent,
   fragments: FragmentMap,
   connectionConfig: ConnectionConfig,
-): React.ComponentType<
-  $RelayProps<React.ElementConfig<TComponent>, RelayPaginationProp>,
-> {
+): component(
+  ...$RelayProps<React.ElementConfig<TComponent>, RelayPaginationProp>
+) {
   const componentName = getComponentName(Component);
   const containerName = getContainerName(Component);
 
@@ -347,7 +347,7 @@ function createContainerWithFragments<
     connectionConfig.getFragmentVariables ||
     createGetFragmentVariables(metadata);
 
-  return class extends React.Component<$FlowFixMeProps, ContainerState> {
+  return class extends React.Component<$FlowFixMe, ContainerState> {
     // $FlowFixMe[missing-local-annot]
     static displayName = containerName;
 
@@ -805,7 +805,7 @@ function createContainerWithFragments<
         ...fragmentVariables,
       }: Variables);
 
-      const cacheConfig: ?CacheConfig = options
+      const cacheConfig: ?{...CacheConfig} = options
         ? {force: !!options.force}
         : undefined;
       if (cacheConfig != null && options?.metadata != null) {
@@ -937,13 +937,13 @@ function createContainerWithFragments<
  * `fragmentSpec` is memoized once per environment, rather than once per
  * instance of the container constructed/rendered.
  */
-function createContainer<Props: {...}, TComponent: React.ComponentType<Props>>(
+function createContainer<Props: {...}, TComponent: component(...Props)>(
   Component: TComponent,
   fragmentSpec: GeneratedNodeMap,
   connectionConfig: ConnectionConfig,
-): React.ComponentType<
-  $RelayProps<React.ElementConfig<TComponent>, RelayPaginationProp>,
-> {
+): component(
+  ...$RelayProps<React.ElementConfig<TComponent>, RelayPaginationProp>
+) {
   // $FlowFixMe[incompatible-return]
   return buildReactRelayContainer(
     Component,

@@ -24,17 +24,17 @@ use graphql_ir::Transformer;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use lazy_static::lazy_static;
-use schema::suggestion_list::did_you_mean;
-use schema::suggestion_list::GraphQLSuggestions;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
 use schema::TypeWithFields;
+use schema::suggestion_list::GraphQLSuggestions;
+use schema::suggestion_list::did_you_mean;
 use thiserror::Error;
 
 use crate::connections::ConnectionInterface;
-use crate::handle_fields::build_handle_field_directive;
 use crate::handle_fields::HandleFieldDirectiveValues;
+use crate::handle_fields::build_handle_field_directive;
 
 pub fn transform_declarative_connection(
     program: &Program,
@@ -102,7 +102,7 @@ impl<'a> DeclarativeConnectionMutationTransform<'a> {
     }
 }
 
-impl Transformer for DeclarativeConnectionMutationTransform<'_> {
+impl Transformer<'_> for DeclarativeConnectionMutationTransform<'_> {
     const NAME: &'static str = "DeclarativeConnectionMutationTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
@@ -294,7 +294,7 @@ impl Transformer for DeclarativeConnectionMutationTransform<'_> {
                                     let is_not_object_type = self
                                         .schema
                                         .get_type(edge_typename_value)
-                                        .map_or(true, |edge_type| !edge_type.is_object());
+                                        .is_none_or(|edge_type| !edge_type.is_object());
 
                                     if is_not_object_type {
                                         let suggestions = GraphQLSuggestions::new(self.schema);
