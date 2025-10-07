@@ -96,11 +96,11 @@ module Utils = {
 @live let providedVariablesDefinition: providedVariablesType = {
   __relay_internal__pv__TestProvidedVariablesSomeInput: {
     providedVariable: TestProvidedVariables.SomeInput.get,
-    get: () => Internal.convertVariables(dict{"__relay_internal__pv__TestProvidedVariablesSomeInput": TestProvidedVariables.SomeInput.get()})-Dict.getUnsafe("__relay_internal__pv__TestProvidedVariablesSomeInput"),
+    get: () => Internal.convertVariables(Dict.fromArray([("__relay_internal__pv__TestProvidedVariablesSomeInput", TestProvidedVariables.SomeInput.get())]))->Dict.getUnsafe("__relay_internal__pv__TestProvidedVariablesSomeInput"),
   },
   __relay_internal__pv__TestProvidedVariablesInputB: {
     providedVariable: TestProvidedVariables.InputB.get,
-    get: () => Internal.convertVariables(dict{"__relay_internal__pv__TestProvidedVariablesInputB": TestProvidedVariables.InputB.get()})-Dict.getUnsafe("__relay_internal__pv__TestProvidedVariablesInputB"),
+    get: () => Internal.convertVariables(Dict.fromArray([("__relay_internal__pv__TestProvidedVariablesInputB", TestProvidedVariables.InputB.get())]))->Dict.getUnsafe("__relay_internal__pv__TestProvidedVariablesInputB"),
   },
   __relay_internal__pv__TestProvidedVariablesBool: {
     providedVariable: TestProvidedVariables.Bool.get,
@@ -124,11 +124,11 @@ module Utils = {
   },
   __relay_internal__pv__TestProvidedVariablesDatetime: {
     providedVariable: TestProvidedVariables.Datetime.get,
-    get: () => Internal.convertVariables(dict{"__relay_internal__pv__TestProvidedVariablesDatetime": TestProvidedVariables.Datetime.get()})-Dict.getUnsafe("__relay_internal__pv__TestProvidedVariablesDatetime"),
+    get: () => Internal.convertVariables(Dict.fromArray([("__relay_internal__pv__TestProvidedVariablesDatetime", TestProvidedVariables.Datetime.get())]))->Dict.getUnsafe("__relay_internal__pv__TestProvidedVariablesDatetime"),
   },
   __relay_internal__pv__TestProvidedVariablesDatetimes: {
     providedVariable: TestProvidedVariables.Datetimes.get,
-    get: () => Internal.convertVariables(dict{"__relay_internal__pv__TestProvidedVariablesDatetimes": TestProvidedVariables.Datetimes.get()})-Dict.getUnsafe("__relay_internal__pv__TestProvidedVariablesDatetimes"),
+    get: () => Internal.convertVariables(Dict.fromArray([("__relay_internal__pv__TestProvidedVariablesDatetimes", TestProvidedVariables.Datetimes.get())]))->Dict.getUnsafe("__relay_internal__pv__TestProvidedVariablesDatetimes"),
   },
 }
 
