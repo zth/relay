@@ -21,6 +21,7 @@ use indexmap::IndexMap;
 use intern::Lookup;
 use intern::string_key::StringKey;
 use relay_config::ModuleProvider;
+use relay_config::TypegenLanguage;
 use relay_config::ProjectConfig;
 use schema::SDLSchema;
 
@@ -336,6 +337,7 @@ pub struct JSONPrinter<'b> {
     top_level_statements: &'b mut TopLevelStatements,
     skip_printing_nulls: bool,
     relativize_js_module_paths: bool,
+    is_rescript: bool,
 }
 
 impl<'b> JSONPrinter<'b> {
@@ -356,6 +358,7 @@ impl<'b> JSONPrinter<'b> {
                 .feature_flags
                 .skip_printing_nulls
                 .is_fully_enabled(),
+            is_rescript: matches!(project_config.typegen_config.language, TypegenLanguage::ReScript),
         }
     }
 
@@ -646,6 +649,30 @@ impl<'b> JSONPrinter<'b> {
         module_import_name: ModuleImportName,
         path: Cow<'_, str>,
     ) -> FmtResult {
+        // ReScript artifacts expect special sentinel identifiers inside the printed JSON
+        // so the ReScript post-processor can rewrite them into makeNode params. For ReScript,
+        // always emit the sentinel identifiers rather than real import paths/aliases.
+        if self.is_rescript {
+            match module_import_name {
+                ModuleImportName::Default(name) => {
+                    // For default imports, emit the provided identifier as-is
+                    // (e.g. `rescript_graphql_node_<Name>` or `rescript_module_<Module>`)
+                    return write!(f, "{}", name);
+                }
+                ModuleImportName::Named { name, .. } => {
+                    // Special-case the injector to keep the raw identifier
+                    if name.to_string() == "resolverDataInjector" {
+                        return write!(f, "{}", name);
+                    }
+                    // For named imports, emit `rescript_module_<Module>.<ExportName>`
+                    let module_alias = format!(
+                        "rescript_module_{}",
+                        common::rescript_utils::get_module_name_from_file_path(&path.to_string().as_str())
+                    );
+                    return write!(f, "{}.{}", module_alias, name);
+                }
+            }
+        }
         if self.eager_es_modules {
             let path = path.into_owned();
             let key = match module_import_name {

@@ -1630,6 +1630,25 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         // information to _read_ the resolver. Specifically, enough data
         // to construct a fragment key, and an import of the resolver
         // module itself.
+        // For model resolvers that inject fragment data via a special backing field,
+        // keep the displayed `name` equal to the public field name (the first segment in the path),
+        // not the injected backing field name (e.g. `__relay_model_instance`).
+        let display_name = if relay_resolver_metadata
+            .fragment_data_injection_mode
+            .is_some()
+        {
+            let path_str = path.lookup();
+            if path_str.ends_with(".__relay_model_instance") {
+                match path_str.split('.').next() {
+                    Some(first) => first.intern(),
+                    None => field_name,
+                }
+            } else {
+                field_name
+            }
+        } else {
+            field_name
+        };
         let mut object_props = object! {
             :build_alias(field_alias, field_name),
             args: args,
@@ -1638,7 +1657,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 Some(fragment_primitive) => fragment_primitive,
             },
             kind: Primitive::String(kind),
-            name: Primitive::String(field_name),
+            name: Primitive::String(display_name),
             resolver_module: resolver_module,
             path: Primitive::String(path),
         };
