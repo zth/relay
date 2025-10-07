@@ -4,7 +4,7 @@
 name = "relay-lsp"
 version = "0.0.0"
 authors = ["Facebook"]
-edition = "2021"
+edition = "2024"
 repository = "https://github.com/facebook/relay"
 license = "MIT"
 
@@ -18,7 +18,7 @@ crossbeam = "0.8"
 dashmap = { version = "5.5.3", features = ["rayon", "serde"] }
 docblock-shared = { path = "../docblock-shared" }
 docblock-syntax = { path = "../docblock-syntax" }
-dunce = "1.0.2"
+dunce = "1.0.5"
 extract-graphql = { path = "../extract-graphql" }
 env_logger = "0.7"
 fnv = "1.0"
@@ -27,9 +27,9 @@ graphql-syntax = { path = "../graphql-syntax" }
 graphql-text-printer = { path = "../graphql-text-printer" }
 graphql-watchman = { path = "../graphql-watchman" }
 intern = { path = "../intern" }
-itertools = "0.13.0"
-lazy_static = "1.4"
-log = { version = "0.4.22", features = ["kv_unstable"] }
+itertools = "0.14.0"
+lazy_static = "1.5"
+log = { version = "0.4.27", features = ["kv_unstable", "kv_unstable_std"] }
 lsp-server = "0.7.2"
 lsp-types = "0.94.1"
 percent-encoding = "2.1"
@@ -44,9 +44,9 @@ schema = { path = "../schema" }
 schema-diff = { path = "../schema-diff" }
 schema-documentation = { path = "../schema-documentation" }
 schema-print = { path = "../schema-print" }
-serde = { version = "1.0.185", features = ["derive", "rc"] }
-serde_json = { version = "1.0.132", features = ["float_roundtrip", "unbounded_depth"] }
-tokio = { version = "1.41.0", features = ["full", "test-util", "tracing"] }
+serde = { version = "1.0.219", features = ["derive", "rc"] }
+serde_json = { version = "1.0.140", features = ["alloc", "float_roundtrip", "unbounded_depth"] }
+tokio = { version = "1.46.1", features = ["full", "test-util", "tracing"] }
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }

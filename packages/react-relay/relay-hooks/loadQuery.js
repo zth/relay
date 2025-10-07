@@ -28,6 +28,7 @@ import type {
   RequestIdentifier,
   RequestParameters,
 } from 'relay-runtime';
+import type {OperationAvailability} from 'relay-runtime/store/RelayStoreTypes';
 
 const invariant = require('invariant');
 const {
@@ -42,7 +43,7 @@ const {
 
 let fetchKey = 100001;
 
-type QueryType<T> =
+export type QueryType<T> =
   T extends Query<infer V, infer D, infer RR>
     ? {
         variables: V,
@@ -125,11 +126,12 @@ function loadQuery<
   let networkError = null;
   // makeNetworkRequest will immediately start a raw network request if
   // one isn't already in flight and return an Observable that when
-  // subscribed to will replay the network events that have occured so far,
+  // subscribed to will replay the network events that have occurred so far,
   // as well as subsequent events.
   let didMakeNetworkRequest = false;
   const makeNetworkRequest = (
     params: RequestParameters,
+    checkOperation?: () => OperationAvailability,
   ): Observable<GraphQLResponse> => {
     // N.B. this function is called synchronously or not at all
     // didMakeNetworkRequest is safe to rely on in the returned value
@@ -160,7 +162,16 @@ function loadQuery<
       'raw-network-request-' + getRequestIdentifier(params, variables);
     const observable = fetchQueryDeduped(environment, identifier, () => {
       const network = environment.getNetwork();
-      return network.execute(params, variables, networkCacheConfig);
+      return network.execute(
+        params,
+        variables,
+        networkCacheConfig,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        checkOperation,
+      );
     });
 
     const {unsubscribe} = observable.subscribe({
@@ -247,13 +258,18 @@ function loadQuery<
     // then we do nothing.
     const shouldFetch =
       fetchPolicy !== 'store-or-network' ||
+      // environment.check can trigger store updates through missing field handlers,
+      // short circuiting the check avoids unnecessary updates
       environment.check(operation).status !== 'available';
 
     if (shouldFetch) {
       executeDeduped(operation, () => {
         // N.B. Since we have the operation synchronously available here,
         // we can immediately fetch and execute the operation.
-        const networkObservable = makeNetworkRequest(concreteRequest.params);
+        const networkObservable = makeNetworkRequest(
+          concreteRequest.params,
+          () => environment.check(operation),
+        );
         const executeObservable = executeWithNetworkSource(
           operation,
           networkObservable,
@@ -335,10 +351,16 @@ function loadQuery<
       return;
     }
     if (didExecuteNetworkSource) {
+      /* $FlowFixMe[constant-condition] Error discovered during Constant
+       * Condition roll out. See https://fburl.com/workplace/1v97vimq. */
       unsubscribeFromExecution && unsubscribeFromExecution();
     } else {
+      /* $FlowFixMe[constant-condition] Error discovered during Constant
+       * Condition roll out. See https://fburl.com/workplace/1v97vimq. */
       unsubscribeFromNetworkRequest && unsubscribeFromNetworkRequest();
     }
+    /* $FlowFixMe[constant-condition] Error discovered during Constant
+     * Condition roll out. See https://fburl.com/workplace/1v97vimq. */
     cancelOnLoadCallback && cancelOnLoadCallback();
     isNetworkRequestCancelled = true;
   };

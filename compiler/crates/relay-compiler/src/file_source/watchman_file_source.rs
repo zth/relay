@@ -20,9 +20,8 @@ use relay_saved_state_loader::SavedStateLoader;
 pub use watchman_client::prelude::Clock;
 use watchman_client::prelude::*;
 
-use super::watchman_query_builder::get_all_roots;
-use super::watchman_query_builder::get_watchman_expr;
 use super::FileSourceResult;
+use super::watchman_query_builder::get_watchman_expr;
 use crate::compiler_state::CompilerState;
 use crate::config::Config;
 use crate::errors::Error;
@@ -233,9 +232,11 @@ impl WatchmanFileSource {
 
         let since = Some(scm_since.clone());
         let root = self.resolved_root.clone();
+        let saved_state_query_timer = perf_logger_event.start("saved_state_info_query_time");
         let saved_state_result = query_file_result(&self.config, &self.client, &root, since, true)
             .await
             .map_err(|_| "query failed")?;
+        perf_logger_event.stop(saved_state_query_timer);
 
         let since = Some(scm_since.clone());
         let config = Arc::clone(&self.config);
@@ -292,9 +293,12 @@ impl WatchmanFileSource {
         }
 
         // Then await the changed files query.
+        let saved_state_await_changed_files_time =
+            perf_logger_event.start("saved_state_await_changed_files_time");
         let file_source_result = changed_files_result_future
             .await
             .map_err(|_| "query failed")??;
+        perf_logger_event.stop(saved_state_await_changed_files_time);
 
         compiler_state
             .pending_file_source_changes
@@ -305,17 +309,19 @@ impl WatchmanFileSource {
         if let Some(update_compiler_state_from_saved_state) =
             &self.config.update_compiler_state_from_saved_state
         {
+            let update_compiler_state_from_saved_state_time =
+                perf_logger_event.start("update_compiler_state_from_saved_state_time");
             update_compiler_state_from_saved_state(&mut compiler_state, &self.config);
+            perf_logger_event.stop(update_compiler_state_from_saved_state_time);
         }
 
-        if let Err(parse_error) = perf_logger_event.time("merge_file_source_changes", || {
+        match perf_logger_event.time("merge_file_source_changes", || {
             let result = compiler_state.merge_file_source_changes(&self.config, perf_logger, true);
             perf_logger_event.stop(try_saved_state_event);
             result
         }) {
-            Ok(Err(parse_error))
-        } else {
-            Ok(Ok(compiler_state))
+            Err(parse_error) => Ok(Err(parse_error)),
+            _ => Ok(Ok(compiler_state)),
         }
     }
 }
@@ -345,7 +351,8 @@ async fn query_file_result(
             ..Default::default()
         }
     } else {
-        let query_roots = get_all_roots(config)
+        let query_roots = config
+            .get_all_roots()
             .into_iter()
             .map(PathGeneratorElement::RecursivePath)
             .collect();

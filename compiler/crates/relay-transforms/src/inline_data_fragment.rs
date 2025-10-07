@@ -13,7 +13,6 @@ use common::DirectiveName;
 use common::Location;
 use common::NamedItem;
 use common::WithLocation;
-use graphql_ir::associated_data_impl;
 use graphql_ir::Argument;
 use graphql_ir::Directive;
 use graphql_ir::FragmentDefinitionName;
@@ -24,6 +23,7 @@ use graphql_ir::Selection;
 use graphql_ir::Transformed;
 use graphql_ir::Transformer;
 use graphql_ir::VariableDefinition;
+use graphql_ir::associated_data_impl;
 use intern::string_key::Intern;
 use lazy_static::lazy_static;
 use thiserror::Error;
@@ -97,7 +97,7 @@ pub struct InlineDirectiveMetadata {
 }
 associated_data_impl!(InlineDirectiveMetadata);
 
-impl<'s> Transformer for InlineDataFragmentsTransform<'s> {
+impl Transformer<'_> for InlineDataFragmentsTransform<'_> {
     const NAME: &'static str = "InlineDataFragmentsTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

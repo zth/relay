@@ -10,20 +10,33 @@ use std::fmt::Formatter;
 use std::fmt::Result as FmtResult;
 
 use indexmap::IndexSet;
-use intern::string_key::StringKey;
 use intern::Lookup;
+use intern::string_key::StringKey;
 use schemars::JsonSchema;
 use serde::Deserialize;
 use serde::Serialize;
 
 use crate::Rollout;
+use crate::rollout::RolloutRange;
 
 #[derive(Default, Debug, Serialize, Deserialize, Clone, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct FeatureFlags {
     #[serde(default)]
-    // Enable returning interfaces from Relay Resolvers without @outputType
+    /// Enable returning interfaces from Relay Resolvers without @outputType
     pub relay_resolver_enable_interface_output_type: FeatureFlag,
+
+    #[serde(default)]
+    /// @outputType resolvers are a discontinued experimental feature. This flag
+    /// allows users to allowlist old uses of this feature while they work to
+    /// remove them. Weak types (types without an `id` field) returned by a Relay
+    /// Resolver should be limited to types defined using `@RelayResolver` with `@weak`.
+    ///
+    /// If using the "limited" feature flag variant, users can allowlist a
+    /// specific list of field names.
+    ///
+    /// https://relay.dev/docs/next/guides/relay-resolvers/defining-types/#defining-a-weak-type
+    pub allow_output_type_resolvers: FeatureFlag,
 
     /// For now, this also disallows fragments with variable definitions
     /// This also makes @module to opt in using @no_inline internally
@@ -49,7 +62,7 @@ pub struct FeatureFlags {
 
     /// Enforce that you must add `@alias` to a fragment if it may not match,
     /// due to type mismatch or `@skip`/`@include`
-    #[serde(default)]
+    #[serde(default = "enabled_feature_flag")]
     pub enforce_fragment_alias_where_ambiguous: FeatureFlag,
 
     /// Print queries in compact form
@@ -168,7 +181,7 @@ pub struct FeatureFlags {
     pub legacy_include_path_in_required_reader_nodes: FeatureFlag,
 }
 
-#[derive(Debug, Deserialize, Clone, Serialize, Default, JsonSchema)]
+#[derive(Debug, serde::Deserialize, Clone, Serialize, Default, JsonSchema)]
 #[serde(tag = "kind", rename_all = "lowercase")]
 pub enum FeatureFlag {
     /// Fully disabled: developers may not use this feature
@@ -183,6 +196,14 @@ pub enum FeatureFlag {
 
     /// Partially enabled: used for gradual rollout of the feature
     Rollout { rollout: Rollout },
+
+    /// Partially enabled: used for gradual rollout of the feature
+    RolloutRange { rollout: RolloutRange },
+}
+
+/// Used for making feature flags enabled by default via Serde's default attribute.
+fn enabled_feature_flag() -> FeatureFlag {
+    FeatureFlag::Enabled
 }
 
 impl FeatureFlag {
@@ -191,6 +212,7 @@ impl FeatureFlag {
             FeatureFlag::Enabled => true,
             FeatureFlag::Limited { allowlist } => allowlist.contains(&name),
             FeatureFlag::Rollout { rollout } => rollout.check(name.lookup()),
+            FeatureFlag::RolloutRange { rollout } => rollout.check(name.lookup()),
             FeatureFlag::Disabled => false,
         }
     }
@@ -211,6 +233,7 @@ impl Display for FeatureFlag {
                 f.write_str(&items.join(", "))
             }
             FeatureFlag::Rollout { rollout } => write!(f, "Rollout: {:#?}", rollout),
+            FeatureFlag::RolloutRange { rollout } => write!(f, "RolloutRange: {:#?}", rollout),
         }
     }
 }

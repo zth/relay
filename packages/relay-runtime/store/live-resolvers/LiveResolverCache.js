@@ -48,6 +48,7 @@ const {
   RELAY_RESOLVER_OUTPUT_TYPE_RECORD_IDS,
   RELAY_RESOLVER_SNAPSHOT_KEY,
   RELAY_RESOLVER_VALUE_KEY,
+  getReadTimeResolverStorageKey,
   getStorageKey,
 } = require('../RelayStoreUtils');
 const getOutputTypeRecordIDs = require('./getOutputTypeRecordIDs');
@@ -129,7 +130,7 @@ class LiveResolverCache implements ResolverCache {
     // resolvers on this parent record.
     const record = expectRecord(recordSource, recordID);
 
-    const storageKey = getStorageKey(field, variables);
+    const storageKey = getReadTimeResolverStorageKey(field, variables);
     let linkedID = RelayModernRecord.getLinkedRecordID(record, storageKey);
     let linkedRecord = linkedID == null ? null : recordSource.get(linkedID);
 
@@ -753,7 +754,8 @@ class LiveResolverCache implements ResolverCache {
           outputTypeDataID,
           variables,
         );
-
+        // LiveResolverCache is only used by read time resolvers, so this flag should be hardcoded as false.
+        const useExecTimeResolvers = false;
         const normalizationOptions =
           this._store.__getNormalizationOptions(fieldPath);
         // The resulted `source` is the normalized version of the
@@ -761,6 +763,7 @@ class LiveResolverCache implements ResolverCache {
         // All records in the `source` should have IDs that
         // is "prefix-ed" with the parent resolver record `ID`
         // and they don't expect to have a "strong" identifier.
+
         return normalize(
           source,
           selector,
@@ -770,6 +773,8 @@ class LiveResolverCache implements ResolverCache {
           // $FlowFixMe[incompatible-variance]
           value,
           normalizationOptions,
+          undefined,
+          useExecTimeResolvers,
         ).source;
       }
       // For weak models we have a simpler case. We simply need to update a

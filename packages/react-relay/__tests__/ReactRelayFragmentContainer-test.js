@@ -88,6 +88,7 @@ describe('ReactRelayFragmentContainer', () => {
       query ReactRelayFragmentContainerTestUserQuery($id: ID!) {
         node(id: $id) {
           ...ReactRelayFragmentContainerTestUserFragment
+            @dangerously_unaliased_fixme
         }
       }
     `;
@@ -99,6 +100,7 @@ describe('ReactRelayFragmentContainer', () => {
       ) {
         node(id: $id) {
           ...ReactRelayFragmentContainerTestUserFragment
+            @dangerously_unaliased_fixme
             @arguments(cond: $condGlobal)
         }
       }
@@ -270,7 +272,7 @@ describe('ReactRelayFragmentContainer', () => {
         id: '4',
         name: 'Zuck',
       },
-      errorResponseFields: null,
+      fieldErrors: null,
       missingLiveResolverFields: [],
       missingClientEdges: null,
       isMissingData: false,
@@ -371,7 +373,7 @@ describe('ReactRelayFragmentContainer', () => {
         name: 'Joe',
       },
       isMissingData: false,
-      errorResponseFields: null,
+      fieldErrors: null,
       missingLiveResolverFields: [],
       missingClientEdges: null,
       seenRecords: expect.any(Object),
@@ -429,7 +431,7 @@ describe('ReactRelayFragmentContainer', () => {
         // Name is excluded since value of cond is now false
       },
       isMissingData: false,
-      errorResponseFields: null,
+      fieldErrors: null,
       missingLiveResolverFields: [],
       missingClientEdges: null,
       seenRecords: expect.any(Object),

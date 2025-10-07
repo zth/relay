@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9f59b2fcd357e043b5d5fa94238f3fe2>>
+ * @generated SignedSource<<34bd9ffc955c782f7e5871d6d90ed2a0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -30,8 +30,8 @@ export type withProvidedVariablesTest5Query = {|
   variables: withProvidedVariablesTest5Query$variables,
 |};
 ({
-  "__relay_internal__pv__provideRandomNumber_invalid1relayprovider": require('./../provideRandomNumber_invalid1.relayprovider'),
-  "__relay_internal__pv__provideRandomNumber_invalid2relayprovider": require('./../provideRandomNumber_invalid2.relayprovider')
+  "__relay_internal__pv__provideRandomNumber_invalid1relayprovider": require('../provideRandomNumber_invalid1.relayprovider'),
+  "__relay_internal__pv__provideRandomNumber_invalid2relayprovider": require('../provideRandomNumber_invalid2.relayprovider')
 }: {|
   +__relay_internal__pv__provideRandomNumber_invalid1relayprovider: {|
     +get: () => number,
@@ -177,15 +177,15 @@ return {
     "operationKind": "query",
     "text": "query withProvidedVariablesTest5Query(\n  $__relay_internal__pv__provideRandomNumber_invalid1relayprovider: Float!\n  $__relay_internal__pv__provideRandomNumber_invalid2relayprovider: Float!\n) {\n  node(id: 4) {\n    __typename\n    ...withProvidedVariablesTest5Fragment\n    id\n  }\n}\n\nfragment withProvidedVariablesTest5Fragment on User {\n  profile_picture(scale: $__relay_internal__pv__provideRandomNumber_invalid1relayprovider) {\n    uri\n  }\n  other_picture: profile_picture(scale: $__relay_internal__pv__provideRandomNumber_invalid2relayprovider) {\n    uri\n  }\n}\n",
     "providedVariables": {
-      "__relay_internal__pv__provideRandomNumber_invalid1relayprovider": require('./../provideRandomNumber_invalid1.relayprovider'),
-      "__relay_internal__pv__provideRandomNumber_invalid2relayprovider": require('./../provideRandomNumber_invalid2.relayprovider')
+      "__relay_internal__pv__provideRandomNumber_invalid1relayprovider": require('../provideRandomNumber_invalid1.relayprovider'),
+      "__relay_internal__pv__provideRandomNumber_invalid2relayprovider": require('../provideRandomNumber_invalid2.relayprovider')
     }
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "b9da4aca44074152f72d5208416421af";
+  (node/*: any*/).hash = "fea93f1b453b7ed30e1b62dc0b32bc4e";
 }
 
 module.exports = ((node/*: any*/)/*: Query<

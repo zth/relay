@@ -17,8 +17,8 @@ use graphql_ir::Selection;
 use graphql_ir::Transformed;
 use graphql_ir::Transformer;
 use graphql_ir::Value;
-use intern::string_key::Intern;
 use intern::Lookup;
+use intern::string_key::Intern;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::TypeReference;
@@ -45,7 +45,7 @@ struct HashSupportedArgumentTransform<'a> {
     errors: Vec<Diagnostic>,
 }
 
-impl<'a> Transformer for HashSupportedArgumentTransform<'a> {
+impl Transformer<'_> for HashSupportedArgumentTransform<'_> {
     const NAME: &'static str = "HashSupportedArgumentTransform";
 
     const VISIT_ARGUMENTS: bool = false;
@@ -110,7 +110,7 @@ impl<'a> Transformer for HashSupportedArgumentTransform<'a> {
     }
 }
 
-impl<'a> HashSupportedArgumentTransform<'a> {
+impl HashSupportedArgumentTransform<'_> {
     /// Returns true iff the field is supplied with a `supported` arg and that
     /// arg has a type of `[string]` (potentially non-nullable somewhere).
     fn has_match_supported_arg(&self, field: &LinkedField) -> bool {

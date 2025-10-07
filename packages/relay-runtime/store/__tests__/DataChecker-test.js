@@ -13,7 +13,7 @@
 import type {NormalizationLinkedField} from '../../util/NormalizationNode';
 import type {ReaderLinkedField} from '../../util/ReaderNode';
 import type {Variables} from '../../util/RelayRuntimeTypes';
-import type {ReadOnlyRecordProxy} from '../RelayStoreTypes';
+import type {ReadOnlyRecordProxy, RecordSourceJSON} from '../RelayStoreTypes';
 import type {
   DataCheckerTest10Query$data,
   DataCheckerTest10Query$variables,
@@ -70,7 +70,7 @@ describe('check()', () => {
         DataCheckerTestQuery$variables,
         DataCheckerTestQuery$data,
       >;
-  let sampleData;
+  let sampleData: RecordSourceJSON;
   beforeEach(() => {
     sampleData = {
       '1': {
@@ -176,7 +176,7 @@ describe('check()', () => {
   });
 
   it('reads fragment data', () => {
-    const data = {
+    const data: RecordSourceJSON = {
       '1': {
         __id: '1',
         id: '1',
@@ -251,12 +251,13 @@ describe('check()', () => {
 
   it('reads handle fields in fragment', () => {
     const handleKey = getRelayHandleKey('test', null, 'profilePicture');
-    const data = {
+    const data: RecordSourceJSON = {
       '1': {
         __id: '1',
         id: '1',
         __typename: 'User',
         'profilePicture(size:32)': {__ref: 'client:1'},
+        // $FlowFixMe[invalid-computed-prop]
         [handleKey]: {__ref: 'client:3'},
       },
       'client:1': {
@@ -296,7 +297,7 @@ describe('check()', () => {
   });
 
   it('reads handle fields in fragment and checks missing', () => {
-    const data = {
+    const data: RecordSourceJSON = {
       '1': {
         __id: '1',
         id: '1',
@@ -342,12 +343,13 @@ describe('check()', () => {
 
   it('reads handle fields in fragment and checks missing sub field', () => {
     const handleKey = getRelayHandleKey('test', null, 'profilePicture');
-    const data = {
+    const data: RecordSourceJSON = {
       '1': {
         __id: '1',
         id: '1',
         __typename: 'User',
         'profilePicture(size:32)': {__ref: 'client:1'},
+        // $FlowFixMe[invalid-computed-prop]
         [handleKey]: {__ref: 'client:3'},
       },
       'client:1': {
@@ -388,7 +390,7 @@ describe('check()', () => {
 
   it('reads handle fields in operation', () => {
     const handleKey = getRelayHandleKey('test', null, 'profilePicture');
-    const data = {
+    const data: RecordSourceJSON = {
       'client:root': {
         __id: 'client:root',
         __typename: '__Root',
@@ -399,6 +401,7 @@ describe('check()', () => {
         id: '1',
         __typename: 'User',
         'profilePicture(size:32)': {__ref: 'client:1'},
+        // $FlowFixMe[invalid-computed-prop]
         [handleKey]: {__ref: 'client:3'},
       },
       'client:1': {
@@ -447,7 +450,7 @@ describe('check()', () => {
   });
 
   it('reads handle fields in operation and checks missing', () => {
-    const data = {
+    const data: RecordSourceJSON = {
       'client:root': {
         __id: 'client:root',
         __typename: '__Root',
@@ -506,7 +509,7 @@ describe('check()', () => {
 
   it('reads handle fields in operation and checks missing sub field', () => {
     const handleKey = getRelayHandleKey('test', null, 'profilePicture');
-    const data = {
+    const data: RecordSourceJSON = {
       'client:root': {
         __id: 'client:root',
         __typename: '__Root',
@@ -517,6 +520,7 @@ describe('check()', () => {
         id: '1',
         __typename: 'User',
         'profilePicture(size:32)': {__ref: 'client:1'},
+        // $FlowFixMe[invalid-computed-prop]
         [handleKey]: {__ref: 'client:3'},
       },
       'client:1': {
@@ -565,7 +569,7 @@ describe('check()', () => {
 
   it('reads scalar handle fields in operation and checks presence', () => {
     const handleKey = getRelayHandleKey('test', null, 'uri');
-    const data = {
+    const data: RecordSourceJSON = {
       'client:root': {
         __id: 'client:root',
         __typename: '__Root',
@@ -581,6 +585,7 @@ describe('check()', () => {
         __id: 'client:2',
         __typename: 'Photo',
         uri: 'https://...',
+        // $FlowFixMe[invalid-computed-prop]
         [handleKey]: 'https://...',
       },
     };
@@ -618,7 +623,7 @@ describe('check()', () => {
   });
 
   it('reads scalar handle fields in operation and checks missing', () => {
-    const data = {
+    const data: RecordSourceJSON = {
       'client:root': {
         __id: 'client:root',
         __typename: '__Root',
@@ -708,7 +713,7 @@ describe('check()', () => {
       BarQuery = graphql`
         query DataCheckerTest4Query($id: ID!) {
           node(id: $id) {
-            ...DataCheckerTest4Fragment
+            ...DataCheckerTest4Fragment @dangerously_unaliased_fixme
           }
         }
       `;
@@ -731,7 +736,7 @@ describe('check()', () => {
 
     it('returns true when the match field/record exist and match a supported type (plaintext)', () => {
       // When the type matches PlainUserNameRenderer
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           id: '1',
@@ -792,7 +797,7 @@ describe('check()', () => {
 
     it('returns true when the match field/record exist and match a supported type (markdown)', () => {
       // When the type matches MarkdownUserNameRenderer
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           id: '1',
@@ -851,7 +856,7 @@ describe('check()', () => {
       // The field returned the MarkdownUserNameRenderer type, but the module for that branch
       // has not been loaded. The assumption is that the data cannot have been processed in that
       // case and therefore the markdown field is missing in the store.
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           id: '1',
@@ -902,7 +907,7 @@ describe('check()', () => {
 
     it('returns false when the match field/record exist but a scalar field is missing', () => {
       // the `data` field for the MarkdownUserNameRenderer is missing
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           id: '1',
@@ -956,7 +961,7 @@ describe('check()', () => {
 
     it('returns false when the match field/record exist but a linked field is missing', () => {
       // the `data` field for the MarkdownUserNameRenderer is missing
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           id: '1',
@@ -1003,7 +1008,7 @@ describe('check()', () => {
     });
 
     it('returns true when the match field/record exist but do not match a supported type', () => {
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           id: '1',
@@ -1048,7 +1053,7 @@ describe('check()', () => {
     });
 
     it('returns true when the match field is non-existent (null)', () => {
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           id: '1',
@@ -1086,7 +1091,7 @@ describe('check()', () => {
     });
 
     it('returns false when the match field is not fetched (undefined)', () => {
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           id: '1',
@@ -1160,7 +1165,7 @@ describe('check()', () => {
       BarQuery = graphql`
         query DataCheckerTest5Query($id: ID!) {
           node(id: $id) {
-            ...DataCheckerTest5Fragment
+            ...DataCheckerTest5Fragment @dangerously_unaliased_fixme
           }
         }
       `;
@@ -1183,7 +1188,7 @@ describe('check()', () => {
 
     it('returns true when the field/record exists and matches the @module type (plaintext)', () => {
       // When the type matches PlainUserNameRenderer
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           id: '1',
@@ -1244,7 +1249,7 @@ describe('check()', () => {
 
     it('returns true when the field/record exist and matches the @module type (markdown)', () => {
       // When the type matches MarkdownUserNameRenderer
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           id: '1',
@@ -1303,7 +1308,7 @@ describe('check()', () => {
       // The field returned the MarkdownUserNameRenderer type, but the module for that branch
       // has not been loaded. The assumption is that the data cannot have been processed in that
       // case and therefore the markdown field is missing in the store.
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           id: '1',
@@ -1354,7 +1359,7 @@ describe('check()', () => {
 
     it('returns false when the field/record exists but a scalar field is missing', () => {
       // the `data` field for the MarkdownUserNameRenderer is missing
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           id: '1',
@@ -1408,7 +1413,7 @@ describe('check()', () => {
 
     it('returns false when the field/record exists but a linked field is missing', () => {
       // the `data` field for the MarkdownUserNameRenderer is missing
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           id: '1',
@@ -1455,7 +1460,7 @@ describe('check()', () => {
     });
 
     it('returns true when the field/record exists but does not match any @module selection', () => {
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           id: '1',
@@ -1512,14 +1517,16 @@ describe('check()', () => {
       Query = graphql`
         query DataCheckerTest9Query($id: ID!) {
           node(id: $id) {
-            ...DataCheckerTest6Fragment @defer(label: "TestFragment")
+            ...DataCheckerTest6Fragment
+              @dangerously_unaliased_fixme
+              @defer(label: "TestFragment")
           }
         }
       `;
     });
 
     it('returns true when deferred selections are fetched', () => {
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           __typename: 'User',
@@ -1555,7 +1562,7 @@ describe('check()', () => {
     });
 
     it('returns false when deferred selections are not fetched', () => {
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           __typename: 'User',
@@ -1604,14 +1611,14 @@ describe('check()', () => {
       Query = graphql`
         query DataCheckerTest6Query($id: ID!) {
           node(id: $id) {
-            ...DataCheckerTest7Fragment
+            ...DataCheckerTest7Fragment @dangerously_unaliased_fixme
           }
         }
       `;
     });
 
     it('returns true when streamed selections are fetched', () => {
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           __typename: 'Feedback',
@@ -1653,7 +1660,7 @@ describe('check()', () => {
     });
 
     it('returns false when streamed selections are not fetched', () => {
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           __typename: 'Feedback',
@@ -1721,7 +1728,7 @@ describe('check()', () => {
 
   describe('when some data is missing', () => {
     it('returns missing on missing records', () => {
-      const data = {
+      const data: RecordSourceJSON = {
         '1': {
           __id: '1',
           id: '1',
@@ -1760,7 +1767,7 @@ describe('check()', () => {
     });
 
     it('returns missing on missing fields', () => {
-      const data = {
+      const data: RecordSourceJSON = {
         '1': {
           __id: '1',
           id: '1',
@@ -1802,7 +1809,7 @@ describe('check()', () => {
     });
 
     it('allows handlers to supplement missing scalar fields', () => {
-      const data = {
+      const data: RecordSourceJSON = {
         '1': {
           __id: '1',
           id: '1',
@@ -1907,7 +1914,7 @@ describe('check()', () => {
     ])(
       'linked field handler handler that returns %s',
       (_name, {handleReturnValue, expectedStatus, updatedHometown}) => {
-        const data = {
+        const data: RecordSourceJSON = {
           user1: {
             __id: 'user1',
             id: 'user1',
@@ -2066,7 +2073,7 @@ describe('check()', () => {
     ])(
       'plural linked field handler handler that returns %s',
       (_name, {handleReturnValue, expectedStatus, updatedScreennames}) => {
-        const data = {
+        const data: RecordSourceJSON = {
           user1: {
             __id: 'user1',
             id: 'user1',
@@ -2142,7 +2149,7 @@ describe('check()', () => {
     );
 
     it('returns modified records with the target', () => {
-      const data = {
+      const data: RecordSourceJSON = {
         '1': {
           __id: '1',
           id: '1',
@@ -2217,7 +2224,7 @@ describe('check()', () => {
     });
 
     it('returns available even when client field is missing', () => {
-      const data = {
+      const data: RecordSourceJSON = {
         '1': {
           __id: '1',
           id: '1',
@@ -2584,7 +2591,7 @@ describe('check()', () => {
       }
     `;
 
-    const data = {
+    const data: RecordSourceJSON = {
       'client:root': {
         __id: 'client:root',
         __typename: 'Query',
@@ -2636,7 +2643,7 @@ describe('check()', () => {
       `;
 
       const typeID = generateTypeID('User');
-      const data = {
+      const data: RecordSourceJSON = {
         'client:root': {
           __id: 'client:root',
           __typename: 'Query',
@@ -2648,6 +2655,7 @@ describe('check()', () => {
           name: 'Alice',
           // no `id` value
         },
+        // $FlowFixMe[invalid-computed-prop]
         [typeID]: {
           __id: typeID,
           __typename: TYPE_SCHEMA_TYPE,
@@ -2691,7 +2699,7 @@ describe('check()', () => {
       `;
 
       const typeID = generateTypeID('User');
-      const data = {
+      const data: RecordSourceJSON = {
         'client:root': {
           __id: 'client:root',
           __typename: 'Query',
@@ -2703,6 +2711,7 @@ describe('check()', () => {
           name: 'Alice',
           id: '1',
         },
+        // $FlowFixMe[invalid-computed-prop]
         [typeID]: {
           __id: typeID,
           __typename: TYPE_SCHEMA_TYPE,
@@ -2747,7 +2756,7 @@ describe('check()', () => {
       `;
 
       const typeID = generateTypeID('NonNodeNoID');
-      const data = {
+      const data: RecordSourceJSON = {
         'client:root': {
           __id: 'client:root',
           __typename: 'Query',
@@ -2759,6 +2768,7 @@ describe('check()', () => {
           // no 'id' bc not a Node
           name: 'Not a Node!',
         },
+        // $FlowFixMe[invalid-computed-prop]
         [typeID]: {
           __id: typeID,
           __typename: TYPE_SCHEMA_TYPE,
@@ -2814,7 +2824,7 @@ describe('check()', () => {
     });
 
     it('should be able to handle multi-actor stores', () => {
-      const data = {
+      const data: RecordSourceJSON = {
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -2862,6 +2872,7 @@ describe('check()', () => {
                 __typename: 'Text',
                 text: 'Hello, Antonio',
               },
+              // $FlowFixMe[invalid-computed-prop]
               [typeID]: {
                 __id: typeID,
                 __typename: TYPE_SCHEMA_TYPE,
@@ -2891,7 +2902,7 @@ describe('check()', () => {
     });
 
     it('should report missing data in multi-actor stores', () => {
-      const data = {
+      const data: RecordSourceJSON = {
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -3054,5 +3065,161 @@ describe('check()', () => {
       defaultGetDataID,
     );
     expect(target.toJSON()).toEqual({});
+  });
+
+  describe('exec time resolvers', () => {
+    describe('client query', () => {
+      const Query = graphql`
+        query DataCheckerTestExecQuery @exec_time_resolvers {
+          RelayReaderExecResolversTest_user_one {
+            name
+            best_friend {
+              name
+              best_friend {
+                name
+              }
+            }
+          }
+        }
+      `;
+
+      it('should return available when all data is available', () => {
+        const source = RelayRecordSource.create({
+          'client:root': {
+            __id: 'client:root',
+            __typename: '__Root',
+            RelayReaderExecResolversTest_user_one: {__ref: '1'},
+          },
+          '1': {
+            __id: '1',
+            name: 'Alice',
+            best_friend: {__ref: '2'},
+          },
+          '2': {
+            __id: '2',
+            name: 'Bob',
+            best_fried: {__ref: '3'},
+          },
+          '3': {
+            __id: '3',
+            name: 'Zuck',
+          },
+        });
+        const target = RelayRecordSource.create();
+        const status = check(
+          () => source,
+          () => target,
+          INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+          createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {}),
+          [],
+          null,
+          defaultGetDataID,
+        );
+        expect(status.status).toBe('available');
+      });
+
+      it('should return available when only client data is missing', () => {
+        const source = RelayRecordSource.create({
+          'client:root': {
+            __id: 'client:root',
+            __typename: '__Root',
+            RelayReaderExecResolversTest_user_one: {__ref: '1'},
+          },
+          '1': {
+            __id: '1',
+            name: 'Alice',
+            best_friend: {__ref: '2'},
+          },
+          '2': {
+            __id: '2',
+            name: 'Bob',
+            best_fried: undefined,
+          },
+        });
+        const target = RelayRecordSource.create();
+        const status = check(
+          () => source,
+          () => target,
+          INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+          createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {}),
+          [],
+          null,
+          defaultGetDataID,
+        );
+        expect(status.status).toBe('available');
+      });
+    });
+
+    describe('server and client query', () => {
+      const Query = graphql`
+        query DataCheckerTestExecWithServerDataQuery @exec_time_resolvers {
+          RelayReaderExecResolversTest_user_one {
+            name
+            best_friend {
+              name
+              best_friend {
+                name
+              }
+            }
+          }
+          me {
+            name
+          }
+        }
+      `;
+      it('should return available when server data is available', () => {
+        const source = RelayRecordSource.create({
+          'client:root': {
+            __id: 'client:root',
+            __typename: '__Root',
+            RelayReaderExecResolversTest_user_one: undefined,
+            me: {__ref: '0'},
+          },
+          '0': {
+            __id: '0',
+            id: '0',
+            name: 'Zuck',
+          },
+        });
+        const target = RelayRecordSource.create();
+        const status = check(
+          () => source,
+          () => target,
+          INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+          createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {}),
+          [],
+          null,
+          defaultGetDataID,
+        );
+        expect(status.status).toBe('available');
+      });
+
+      it('should return missing when server data is missing', () => {
+        const source = RelayRecordSource.create({
+          'client:root': {
+            __id: 'client:root',
+            __typename: '__Root',
+            RelayReaderExecResolversTest_user_one: undefined,
+            me: {__ref: '0'},
+          },
+          '0': {
+            __id: '0',
+            id: '0',
+            name: undefined,
+          },
+        });
+        const target = RelayRecordSource.create();
+        const status = check(
+          () => source,
+          () => target,
+          INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+          createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {}),
+          [],
+          null,
+          defaultGetDataID,
+        );
+        expect(status.status).toBe('missing');
+      });
+    });
   });
 });

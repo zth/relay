@@ -11,8 +11,8 @@ use std::fmt::Write;
 use std::ops::Deref;
 
 use fnv::FnvHashSet;
-use intern::string_key::StringKey;
 use intern::Lookup;
+use intern::string_key::StringKey;
 use relay_config::TypegenConfig;
 use relay_config::TypegenLanguage;
 use schema::Schema;

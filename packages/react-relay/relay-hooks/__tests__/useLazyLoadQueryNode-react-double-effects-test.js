@@ -10,9 +10,11 @@
  */
 
 'use strict';
+
 import type {RelayMockEnvironment} from '../../../relay-test-utils/RelayModernMockEnvironment';
 import type {useLazyLoadQueryNodeReactDoubleEffectsTestUserFragment$key} from './__generated__/useLazyLoadQueryNodeReactDoubleEffectsTestUserFragment.graphql';
 import typeof useLazyLoadQueryNodeReactDoubleEffectsTestUserFragment from './__generated__/useLazyLoadQueryNodeReactDoubleEffectsTestUserFragment.graphql';
+import type {useLazyLoadQueryNodeReactDoubleEffectsTestUserQuery$variables} from './__generated__/useLazyLoadQueryNodeReactDoubleEffectsTestUserQuery.graphql';
 import typeof useLazyLoadQueryNodeReactDoubleEffectsTestUserQuery from './__generated__/useLazyLoadQueryNodeReactDoubleEffectsTestUserQuery.graphql';
 import typeof useLazyLoadQueryNodeReactDoubleEffectsTestUserQueryWithDeferQuery from './__generated__/useLazyLoadQueryNodeReactDoubleEffectsTestUserQueryWithDeferQuery.graphql';
 import type {OperationDescriptor} from 'relay-runtime/store/RelayStoreTypes';
@@ -61,6 +63,7 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
         id
         name
         ...useLazyLoadQueryNodeReactDoubleEffectsTestUserFragment
+          @dangerously_unaliased_fixme
       }
     }
   `;
@@ -71,7 +74,9 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
       node(id: $id) {
         id
         name
-        ...useLazyLoadQueryNodeReactDoubleEffectsTestUserFragment @defer
+        ...useLazyLoadQueryNodeReactDoubleEffectsTestUserFragment
+          @dangerously_unaliased_fixme
+          @defer
       }
     }
   `;
@@ -82,7 +87,7 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
   `;
   let query;
   let queryWithDefer;
-  let variables;
+  let variables: useLazyLoadQueryNodeReactDoubleEffectsTestUserQuery$variables;
   let release;
   let cancelNetworkRequest;
 

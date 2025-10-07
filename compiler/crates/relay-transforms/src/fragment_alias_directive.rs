@@ -14,8 +14,6 @@ use common::DirectiveName;
 use common::FeatureFlag;
 use common::NamedItem;
 use common::WithLocation;
-use graphql_ir::associated_data_impl;
-use graphql_ir::transform_list;
 use graphql_ir::Condition;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentSpread;
@@ -27,16 +25,18 @@ use graphql_ir::Selection;
 use graphql_ir::Transformed;
 use graphql_ir::TransformedValue;
 use graphql_ir::Transformer;
+use graphql_ir::associated_data_impl;
+use graphql_ir::transform_list;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 use schema::Schema;
 use schema::Type;
 
+use crate::MATCH_CONSTANTS;
 use crate::RelayDirective;
 use crate::ValidationMessage;
 use crate::ValidationMessageWithData;
-use crate::MATCH_CONSTANTS;
 
 lazy_static! {
     pub static ref FRAGMENT_ALIAS_DIRECTIVE_NAME: DirectiveName = DirectiveName("alias".intern());
@@ -79,7 +79,7 @@ pub fn remove_aliased_inline_fragments(program: &Program) -> Program {
 
 struct AliasedInlineFragmentRemovalTransform {}
 
-impl Transformer for AliasedInlineFragmentRemovalTransform {
+impl Transformer<'_> for AliasedInlineFragmentRemovalTransform {
     const NAME: &'static str = "AliasedInlineFragmentRemovalTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
@@ -192,7 +192,7 @@ impl<'program> FragmentAliasTransform<'program> {
             .expect("I believe we have already validated that all fragments exist");
 
         let fragment_is_plural =
-            RelayDirective::find(&fragment.directives).map_or(false, |directive| directive.plural);
+            RelayDirective::find(&fragment.directives).is_some_and(|directive| directive.plural);
 
         if fragment_is_plural && self.parent_type.expect("expect parent type").is_plural {
             // Plural fragments handle their own nullability when read. However,
@@ -257,7 +257,7 @@ impl<'program> FragmentAliasTransform<'program> {
     }
 }
 
-impl Transformer for FragmentAliasTransform<'_> {
+impl Transformer<'_> for FragmentAliasTransform<'_> {
     const NAME: &'static str = "NamedFragmentSpreadsTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
@@ -414,7 +414,7 @@ impl Transformer for FragmentAliasTransform<'_> {
         match spread.alias() {
             Ok(Some(alias)) => {
                 let fragment_is_plural = RelayDirective::find(&fragment.directives)
-                    .map_or(false, |directive| directive.plural);
+                    .is_some_and(|directive| directive.plural);
 
                 let parent_type = self
                     .parent_type

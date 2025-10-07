@@ -160,7 +160,7 @@ describe('FragmentResource', () => {
       query FragmentResourceTest1Query($id: ID!) {
         node(id: $id) {
           __typename
-          ...FragmentResourceTest1Fragment
+          ...FragmentResourceTest1Fragment @dangerously_unaliased_fixme
         }
       }
     `;
@@ -176,7 +176,7 @@ describe('FragmentResource', () => {
       query FragmentResourceTest2Query($id: ID!) {
         node(id: $id) {
           __typename
-          ...FragmentResourceTest2Fragment
+          ...FragmentResourceTest2Fragment @dangerously_unaliased_fixme
         }
       }
     `;
@@ -449,7 +449,7 @@ describe('FragmentResource', () => {
             node(id: $id) {
               __typename
               name @include(if: $foo)
-              ...FragmentResourceTest6Fragment
+              ...FragmentResourceTest6Fragment @dangerously_unaliased_fixme
             }
           }
         `;
@@ -712,7 +712,7 @@ describe('FragmentResource', () => {
           componentDisplayName,
         ),
       ).toThrow(
-        "Relay: Expected to receive an object where `...FragmentResourceTest1Fragment` was spread, but the fragment reference was not found`. This is most likely the result of:\n- Forgetting to spread `FragmentResourceTest1Fragment` in `TestComponent`'s parent's fragment.\n- Conditionally fetching `FragmentResourceTest1Fragment` but unconditionally passing a fragment reference prop to `TestComponent`. If the parent fragment only fetches the fragment conditionally - with e.g. `@include`, `@skip`, or inside a `... on SomeType { }` spread  - then the fragment reference will not exist. In this case, pass `null` if the conditions for evaluating the fragment are not met (e.g. if the `@include(if)` value is false.)",
+        `Relay: Expected to receive an object where \`...FragmentResourceTest1Fragment\` was spread, but the fragment reference was not found\`.`,
       );
     });
   });

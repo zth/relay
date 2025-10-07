@@ -19,8 +19,8 @@ use common::PerfLogEvent;
 use common::PerfLogger;
 use crossbeam::channel::Receiver;
 use crossbeam::select;
-use heartbeat::on_heartbeat;
 use heartbeat::HeartbeatRequest;
+use heartbeat::on_heartbeat;
 use log::debug;
 pub use lsp_notification_dispatch::LSPNotificationDispatch;
 pub use lsp_request_dispatch::LSPRequestDispatch;
@@ -30,10 +30,19 @@ use lsp_server::Message;
 use lsp_server::Notification;
 use lsp_server::Response as ServerResponse;
 use lsp_server::ResponseError;
-pub use lsp_state::build_ir_for_lsp;
 pub use lsp_state::GlobalState;
 pub use lsp_state::LSPState;
 pub use lsp_state::Schemas;
+pub use lsp_state::build_ir_for_lsp;
+use lsp_types::CodeActionOptions;
+use lsp_types::CodeActionProviderCapability;
+use lsp_types::CompletionOptions;
+use lsp_types::InitializeParams;
+use lsp_types::RenameOptions;
+use lsp_types::ServerCapabilities;
+use lsp_types::TextDocumentSyncCapability;
+use lsp_types::TextDocumentSyncKind;
+use lsp_types::WorkDoneProgressOptions;
 use lsp_types::notification::Cancel;
 use lsp_types::notification::DidChangeTextDocument;
 use lsp_types::notification::DidCloseTextDocument;
@@ -50,45 +59,38 @@ use lsp_types::request::References;
 use lsp_types::request::Rename;
 use lsp_types::request::ResolveCompletionItem;
 use lsp_types::request::Shutdown;
-use lsp_types::CodeActionProviderCapability;
-use lsp_types::CompletionOptions;
-use lsp_types::InitializeParams;
-use lsp_types::RenameOptions;
-use lsp_types::ServerCapabilities;
-use lsp_types::TextDocumentSyncCapability;
-use lsp_types::TextDocumentSyncKind;
-use lsp_types::WorkDoneProgressOptions;
-use relay_compiler::config::Config;
 use relay_compiler::NoopArtifactWriter;
+use relay_compiler::config::Config;
 use schema_documentation::SchemaDocumentation;
 use schema_documentation::SchemaDocumentationLoader;
 
 use self::task_queue::TaskProcessor;
+pub use crate::LSPExtraDataProvider;
 use crate::code_action::on_code_action;
 use crate::completion::on_completion;
 use crate::completion::on_resolve_completion_item;
-use crate::explore_schema_for_type::on_explore_schema_for_type;
 use crate::explore_schema_for_type::ExploreSchemaForType;
-use crate::find_field_usages::on_find_field_usages;
+use crate::explore_schema_for_type::on_explore_schema_for_type;
 use crate::find_field_usages::FindFieldUsages;
+use crate::find_field_usages::on_find_field_usages;
+use crate::goto_definition::GetSourceLocationOfTypeDefinition;
 use crate::goto_definition::on_get_source_location_of_type_definition;
 use crate::goto_definition::on_goto_definition;
-use crate::goto_definition::GetSourceLocationOfTypeDefinition;
-use crate::graphql_tools::on_graphql_execute_query;
 use crate::graphql_tools::GraphQLExecuteQuery;
+use crate::graphql_tools::on_graphql_execute_query;
 use crate::hover::on_hover;
 use crate::inlay_hints::on_inlay_hint_request;
 use crate::lsp_process_error::LSPProcessResult;
 use crate::lsp_runtime_error::LSPRuntimeError;
-use crate::print_operation::on_print_operation;
 use crate::print_operation::PrintOperation;
+use crate::print_operation::on_print_operation;
 use crate::references::on_references;
 use crate::rename::on_prepare_rename;
 use crate::rename::on_rename;
-use crate::resolved_types_at_location::on_get_resolved_types_at_location;
 use crate::resolved_types_at_location::ResolvedTypesAtLocation;
-use crate::search_schema_items::on_search_schema_items;
+use crate::resolved_types_at_location::on_get_resolved_types_at_location;
 use crate::search_schema_items::SearchSchemaItems;
+use crate::search_schema_items::on_search_schema_items;
 use crate::server::lsp_state::handle_lsp_state_tasks;
 use crate::server::lsp_state_resources::LSPStateResources;
 use crate::server::task_queue::TaskQueue;
@@ -100,7 +102,8 @@ use crate::text_documents::on_did_change_text_document;
 use crate::text_documents::on_did_close_text_document;
 use crate::text_documents::on_did_open_text_document;
 use crate::text_documents::on_did_save_text_document;
-pub use crate::LSPExtraDataProvider;
+use crate::type_information::TypeInformation;
+use crate::type_information::on_type_information;
 
 /// Initializes an LSP connection, handling the `initialize` message and `initialized` notification
 /// handshake.
@@ -132,7 +135,10 @@ pub fn initialize(connection: &Connection) -> LSPProcessResult<InitializeParams>
         hover_provider: Some(lsp_types::HoverProviderCapability::Simple(true)),
         definition_provider: Some(lsp_types::OneOf::Left(true)),
         references_provider: Some(lsp_types::OneOf::Left(true)),
-        code_action_provider: Some(CodeActionProviderCapability::Simple(true)),
+        code_action_provider: Some(CodeActionProviderCapability::Options(CodeActionOptions {
+            code_action_kinds: Some(vec![lsp_types::CodeActionKind::QUICKFIX]),
+            ..Default::default()
+        })),
         inlay_hint_provider: Some(lsp_types::OneOf::Left(true)),
         ..Default::default()
     };
@@ -262,6 +268,7 @@ fn dispatch_request(request: lsp_server::Request, lsp_state: &impl GlobalState) 
         let request = LSPRequestDispatch::new(request, lsp_state)
             .on_request_sync::<ResolvedTypesAtLocation>(on_get_resolved_types_at_location)?
             .on_request_sync::<SearchSchemaItems>(on_search_schema_items)?
+            .on_request_sync::<TypeInformation>(on_type_information)?
             .on_request_sync::<ExploreSchemaForType>(on_explore_schema_for_type)?
             .on_request_sync::<GetSourceLocationOfTypeDefinition>(
                 on_get_source_location_of_type_definition,

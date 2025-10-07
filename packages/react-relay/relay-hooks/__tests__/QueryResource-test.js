@@ -11,7 +11,7 @@
 
 'use strict';
 
-import type {FetchPolicy, Subscription} from 'relay-runtime';
+import type {FetchPolicy, RenderPolicy, Subscription} from 'relay-runtime';
 
 const {getQueryResourceForEnvironment} = require('../QueryResource');
 const {
@@ -35,7 +35,7 @@ disallowConsoleErrors();
 describe('QueryResource', () => {
   let environment;
   let QueryResource;
-  let fetchPolicy;
+  let fetchPolicy: FetchPolicy;
   let fetchObservable;
   let fetchObservableMissingData;
   let fetchObserverableLiveMissingData;
@@ -46,7 +46,7 @@ describe('QueryResource', () => {
   let liveQueryMissingData;
   let gqlLiveQueryMissingData;
   let release;
-  let renderPolicy;
+  let renderPolicy: RenderPolicy;
   let store;
   const variables = {
     id: '4',
@@ -414,7 +414,7 @@ describe('QueryResource', () => {
               query QueryResourceTest3Query($id: ID!) {
                 node(id: $id) {
                   __typename
-                  ...QueryResourceTest1Fragment
+                  ...QueryResourceTest1Fragment @dangerously_unaliased_fixme
                 }
               }
             `;
@@ -472,7 +472,7 @@ describe('QueryResource', () => {
               query QueryResourceTest4Query($id: ID!) {
                 node(id: $id) {
                   __typename
-                  ...QueryResourceTest2Fragment
+                  ...QueryResourceTest2Fragment @dangerously_unaliased_fixme
                 }
               }
             `;
@@ -528,7 +528,7 @@ describe('QueryResource', () => {
               query QueryResourceTest5Query($id: ID!) {
                 node(id: $id) {
                   __typename
-                  ...QueryResourceTest3Fragment
+                  ...QueryResourceTest3Fragment @dangerously_unaliased_fixme
                 }
               }
             `;
@@ -884,7 +884,7 @@ describe('QueryResource', () => {
               query QueryResourceTest6Query($id: ID!) {
                 node(id: $id) {
                   __typename
-                  ...QueryResourceTest4Fragment
+                  ...QueryResourceTest4Fragment @dangerously_unaliased_fixme
                 }
               }
             `;
@@ -942,7 +942,7 @@ describe('QueryResource', () => {
               query QueryResourceTest7Query($id: ID!) {
                 node(id: $id) {
                   __typename
-                  ...QueryResourceTest5Fragment
+                  ...QueryResourceTest5Fragment @dangerously_unaliased_fixme
                 }
               }
             `;
@@ -998,7 +998,9 @@ describe('QueryResource', () => {
                 node(id: $id) {
                   __typename
                   id
-                  ...QueryResourceTest6Fragment @defer
+                  ...QueryResourceTest6Fragment
+                    @dangerously_unaliased_fixme
+                    @defer
                 }
               }
             `;
@@ -2892,7 +2894,7 @@ describe('QueryResource, with an environment meant for SSR', () => {
   let gqlQuery;
   let query;
   let release;
-  let renderPolicy;
+  let renderPolicy: RenderPolicy;
   const variables = {
     id: '4',
   };

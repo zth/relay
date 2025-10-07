@@ -346,7 +346,7 @@ it('does not release or cancel the query before the new component tree unsuspend
 
     let transitionToSecondRoute;
     function ConcurrentWrapper() {
-      const [route, setRoute] = React.useState('FIRST');
+      const [route, setRoute] = React.useState<'FIRST' | 'SECOND'>('FIRST');
 
       transitionToSecondRoute = () =>
         React.startTransition(() => setRoute('SECOND'));
@@ -377,6 +377,8 @@ it('does not release or cancel the query before the new component tree unsuspend
     expect(currentDispose).not.toHaveBeenCalled();
 
     ReactTestRenderer.act(() => {
+      /* $FlowFixMe[constant-condition] Error discovered during Constant
+       * Condition roll out. See https://fburl.com/workplace/1v97vimq. */
       resolve && resolve();
       jest.runAllImmediates();
     });

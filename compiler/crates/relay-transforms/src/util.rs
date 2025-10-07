@@ -6,42 +6,43 @@
  */
 
 use common::DirectiveName;
+use graphql_ir::ARGUMENT_DEFINITION;
 use graphql_ir::Argument;
 use graphql_ir::Directive;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::ProvidedVariableMetadata;
+use graphql_ir::UNUSED_LOCAL_VARIABLE_DEPRECATED;
 use graphql_ir::Value;
 use graphql_ir::VariableName;
-use graphql_ir::ARGUMENT_DEFINITION;
-use graphql_ir::UNUSED_LOCAL_VARIABLE_DEPRECATED;
+use intern::Lookup;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
-use intern::Lookup;
 use lazy_static::lazy_static;
 use regex::Regex;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
 
+use crate::ClientEdgeGeneratedQueryMetadataDirective;
+use crate::ClientEdgeMetadataDirective;
+use crate::DIRECTIVE_SPLIT_OPERATION;
+use crate::FragmentAliasMetadata;
+use crate::INTERNAL_METADATA_DIRECTIVE;
+use crate::ModuleMetadata;
+use crate::RefetchableDerivedFromMetadata;
+use crate::RelayResolverMetadata;
+use crate::RequiredMetadataDirective;
 use crate::catch_directive::CATCH_DIRECTIVE_NAME;
 use crate::client_extensions::CLIENT_EXTENSION_DIRECTIVE_NAME;
 use crate::connections::ConnectionMetadataDirective;
 use crate::fragment_alias_directive::FRAGMENT_DANGEROUSLY_UNALIAS_DIRECTIVE_NAME;
 use crate::handle_fields::HANDLE_FIELD_DIRECTIVE_NAME;
 use crate::inline_data_fragment::InlineDirectiveMetadata;
+use crate::raw_text::RAW_TEXT_DIRECTIVE_NAME;
 use crate::refetchable_fragment::RefetchableMetadata;
 use crate::relay_actor_change::RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN;
 use crate::required_directive::CHILDREN_CAN_BUBBLE_METADATA_KEY;
 use crate::required_directive::REQUIRED_DIRECTIVE_NAME;
-use crate::ClientEdgeGeneratedQueryMetadataDirective;
-use crate::ClientEdgeMetadataDirective;
-use crate::FragmentAliasMetadata;
-use crate::ModuleMetadata;
-use crate::RefetchableDerivedFromMetadata;
-use crate::RelayResolverMetadata;
-use crate::RequiredMetadataDirective;
-use crate::DIRECTIVE_SPLIT_OPERATION;
-use crate::INTERNAL_METADATA_DIRECTIVE;
 
 /// This function will return a new Vec[...] of directives,
 /// where one will be missing. The one with `remove_directive_name` name
@@ -86,7 +87,7 @@ pub fn extract_variable_name(argument: Option<&Argument>) -> Option<StringKey> {
 }
 
 lazy_static! {
-    static ref CUSTOM_METADATA_DIRECTIVES: [DirectiveName; 20] = [
+    static ref CUSTOM_METADATA_DIRECTIVES: [DirectiveName; 21] = [
         *CATCH_DIRECTIVE_NAME,
         *CLIENT_EXTENSION_DIRECTIVE_NAME,
         ConnectionMetadataDirective::directive_name(),
@@ -107,6 +108,7 @@ lazy_static! {
         *RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
         ProvidedVariableMetadata::directive_name(),
         FragmentAliasMetadata::directive_name(),
+        *RAW_TEXT_DIRECTIVE_NAME,
     ];
     static ref DIRECTIVES_SKIPPED_IN_NODE_IDENTIFIER: [DirectiveName; 10] = [
         *CATCH_DIRECTIVE_NAME,

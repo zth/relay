@@ -50,6 +50,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           ) {
             node(id: $id) {
               ...RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment
+                @dangerously_unaliased_fixme
             }
           }
         `;
@@ -130,7 +131,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           getSingularSelector(fragment, nextOperationSnapshot.data?.node),
         );
         const snapshot = environment.lookup(selector);
-        expect(snapshot.errorResponseFields).toEqual([
+        expect(snapshot.fieldErrors).toEqual([
           {
             kind: 'missing_required_field.log',
             owner:

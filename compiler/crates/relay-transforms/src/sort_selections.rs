@@ -9,7 +9,6 @@ use std::cmp::Ordering;
 use std::collections::HashMap;
 
 use common::PointerAddress;
-use graphql_ir::transform_list;
 use graphql_ir::Field;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::OperationDefinition;
@@ -18,6 +17,7 @@ use graphql_ir::Selection;
 use graphql_ir::Transformed;
 use graphql_ir::TransformedValue;
 use graphql_ir::Transformer;
+use graphql_ir::transform_list;
 
 type Seen = HashMap<PointerAddress, Transformed<Selection>>;
 
@@ -43,7 +43,7 @@ impl<'s> SortSelectionsTransform<'s> {
     }
 }
 
-impl Transformer for SortSelectionsTransform<'_> {
+impl Transformer<'_> for SortSelectionsTransform<'_> {
     const NAME: &'static str = "SortSelectionsTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6703998458a25903621ee13227354a96>>
+ * @generated SignedSource<<18c8b08a242350766dc3e35b00e88bee>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -30,7 +30,7 @@ export type withProvidedVariablesTest1Query = {|
   variables: withProvidedVariablesTest1Query$variables,
 |};
 ({
-  "__relay_internal__pv__provideNumberOfFriendsrelayprovider": require('./../provideNumberOfFriends.relayprovider')
+  "__relay_internal__pv__provideNumberOfFriendsrelayprovider": require('../provideNumberOfFriends.relayprovider')
 }: {|
   +__relay_internal__pv__provideNumberOfFriendsrelayprovider: {|
     +get: () => number,
@@ -151,14 +151,14 @@ return {
     "operationKind": "query",
     "text": "query withProvidedVariablesTest1Query(\n  $__relay_internal__pv__provideNumberOfFriendsrelayprovider: Int!\n) {\n  node(id: 4) {\n    __typename\n    ...withProvidedVariablesTest1Fragment\n    id\n  }\n}\n\nfragment withProvidedVariablesTest1Fragment on User {\n  friends(first: $__relay_internal__pv__provideNumberOfFriendsrelayprovider) {\n    count\n  }\n}\n",
     "providedVariables": {
-      "__relay_internal__pv__provideNumberOfFriendsrelayprovider": require('./../provideNumberOfFriends.relayprovider')
+      "__relay_internal__pv__provideNumberOfFriendsrelayprovider": require('../provideNumberOfFriends.relayprovider')
     }
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "a613af5829765dd939e03fd6ff1141ff";
+  (node/*: any*/).hash = "c5f46e63be71ffd76d40c58b53dc2c3a";
 }
 
 module.exports = ((node/*: any*/)/*: Query<

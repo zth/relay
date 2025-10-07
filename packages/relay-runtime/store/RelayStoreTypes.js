@@ -116,7 +116,7 @@ export type NormalizationSelector = {
   +variables: Variables,
 };
 
-export type ErrorResponseField =
+export type FieldError =
   | RelayFieldPayloadErrorEvent
   | MissingExpectedDataLogEvent
   | MissingExpectedDataThrowEvent
@@ -124,7 +124,7 @@ export type ErrorResponseField =
   | MissingRequiredFieldLogEvent
   | MissingRequiredFieldThrowEvent;
 
-export type ErrorResponseFields = Array<ErrorResponseField>;
+export type FieldErrors = Array<FieldError>;
 
 export type ClientEdgeTraversalInfo = {
   +readerClientEdge: ReaderClientEdgeToServerObject,
@@ -149,7 +149,7 @@ export type Snapshot = {
   +missingClientEdges: null | $ReadOnlyArray<MissingClientEdgeRequestInfo>,
   +seenRecords: DataIDSet,
   +selector: SingularReaderSelector,
-  +errorResponseFields: ?ErrorResponseFields,
+  +fieldErrors: ?FieldErrors,
 };
 
 /**
@@ -245,7 +245,7 @@ export interface RecordSource {
 /**
  * A collection of records keyed by id.
  */
-export type RecordSourceJSON = {[DataID]: ?RecordJSON};
+export type RecordSourceJSON = {+[DataID]: ?RecordJSON};
 
 /**
  * A read/write interface for accessing and updating graph data.
@@ -258,10 +258,10 @@ export interface MutableRecordSource extends RecordSource {
 }
 
 export type CheckOptions = {
-  handlers: $ReadOnlyArray<MissingFieldHandler>,
-  defaultActorIdentifier: ActorIdentifier,
-  getTargetForActor: (actorIdentifier: ActorIdentifier) => MutableRecordSource,
-  getSourceForActor: (actorIdentifier: ActorIdentifier) => RecordSource,
+  +handlers: $ReadOnlyArray<MissingFieldHandler>,
+  +defaultActorIdentifier: ActorIdentifier,
+  +getTargetForActor: (actorIdentifier: ActorIdentifier) => MutableRecordSource,
+  +getSourceForActor: (actorIdentifier: ActorIdentifier) => RecordSource,
 };
 
 export type OperationAvailability =
@@ -684,6 +684,11 @@ export type ExecuteCompleteLogEvent = {
   +executeId: number,
 };
 
+export type ExecuteUnsubscribeLogEvent = {
+  +name: 'execute.unsubscribe',
+  +executeId: number,
+};
+
 export type ExecuteNormalizeStart = {
   +name: 'execute.normalize.start',
   +operation: OperationDescriptor,
@@ -781,12 +786,23 @@ export type UseFragmentSubscriptionMissedUpdates = {
   +hasDataChanges: boolean,
 };
 
+/**
+ * This event is logged when two strong objects share the same id,
+ * but have different types, resulting in an collision in the store.
+ */
+export type IdCollisionTypenameLogEvent = {
+  +name: 'idCollision.typename',
+  +previous_typename: string,
+  +new_typename: string,
+};
+
 export type LogEvent =
   | SuspenseFragmentLogEvent
   | SuspenseQueryLogEvent
   | QueryResourceFetchLogEvent
   | QueryResourceRetainLogEvent
   | FragmentResourceMissingDataLogEvent
+  | IdCollisionTypenameLogEvent
   | PendingOperationFoundLogEvent
   | NetworkInfoLogEvent
   | NetworkStartLogEvent
@@ -800,6 +816,7 @@ export type LogEvent =
   | ExecuteAsyncModuleLogEvent
   | ExecuteErrorLogEvent
   | ExecuteCompleteLogEvent
+  | ExecuteUnsubscribeLogEvent
   | ExecuteNormalizeStart
   | ExecuteNormalizeEnd
   | StoreDataCheckerStartEvent
@@ -1155,6 +1172,7 @@ export type NormalizeResponseFunction = (
   selector: NormalizationSelector,
   typeName: string,
   options: NormalizationOptions,
+  useExecTimeResolvers: boolean,
 ) => RelayResponsePayload;
 
 /**
@@ -1270,6 +1288,8 @@ export type MissingExpectedDataLogEvent = {
   +kind: 'missing_expected_data.log',
   +owner: string,
   fieldPath: string, // Purposefully mutable to allow lazy construction in RelayReader
+  // To populate this, you should pass the value to a ReactRelayLoggingContext
+  +uiContext: mixed | void,
 };
 
 /**
@@ -1297,6 +1317,8 @@ export type MissingExpectedDataThrowEvent = {
   +owner: string,
   fieldPath: string, // Purposefully mutable to allow lazy construction in RelayReader
   +handled: boolean,
+  // To populate this, you should pass the value to a ReactRelayLoggingContext
+  +uiContext: mixed | void,
 };
 
 /**
@@ -1307,6 +1329,8 @@ export type MissingRequiredFieldLogEvent = {
   +kind: 'missing_required_field.log',
   +owner: string,
   fieldPath: string, // Purposefully mutable to allow lazy construction in RelayReader
+  // To populate this, you should pass the value to a ReactRelayLoggingContext
+  +uiContext: mixed | void,
 };
 
 /**
@@ -1325,6 +1349,8 @@ export type MissingRequiredFieldThrowEvent = {
   +owner: string,
   fieldPath: string, // Purposefully mutable to allow lazy construction in RelayReader
   +handled: boolean,
+  // To populate this, you should pass the value to a ReactRelayLoggingContext
+  +uiContext: mixed | void,
 };
 
 /**
@@ -1346,6 +1372,8 @@ export type RelayResolverErrorEvent = {
   +error: Error,
   +shouldThrow: boolean,
   +handled: boolean,
+  // To populate this, you should pass the value to a ReactRelayLoggingContext
+  +uiContext: mixed | void,
 };
 
 /**
@@ -1372,6 +1400,8 @@ export type RelayFieldPayloadErrorEvent = {
   +error: TRelayFieldError,
   +shouldThrow: boolean,
   +handled: boolean,
+  // To populate this, you should pass the value to a ReactRelayLoggingContext
+  +uiContext: mixed | void,
 };
 
 /**
@@ -1481,7 +1511,7 @@ export type ConcreteClientEdgeResolverReturnType<T = any> = {
  * returns a callback which should be called when the value _may_ have changed.
  *
  * While over-notification (subscription notifications when the read value has
- * not actually changed) is suported, for performance reasons, it is recommended
+ * not actually changed) is supported, for performance reasons, it is recommended
  * that the provider of the LiveState value confirms that the value has indeed
  * change before notifying Relay of the change.
  */

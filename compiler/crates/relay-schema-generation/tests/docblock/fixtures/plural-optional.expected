@@ -92,6 +92,7 @@ Field(
                 "78b9d79fcbb849dee2ae7a1d6d275e22",
             ),
             type_confirmed: true,
+            property_lookup_name: None,
         },
     ),
 )
@@ -144,6 +145,7 @@ Field(
                 "78b9d79fcbb849dee2ae7a1d6d275e22",
             ),
             type_confirmed: true,
+            property_lookup_name: None,
         },
     ),
 )
@@ -184,6 +186,6 @@ Type(
     ),
 )
 type Cat @__RelayResolverModel {
-  id: ID!
+  id: ID! @__RelayResolverModelGeneratedIDField
   __relay_model_instance: RelayResolverValue! @relay_resolver(generated_fragment: true, fragment_name: "Cat__id", import_name: "Cat", import_path: "Cat.js", inject_fragment_data: "id") @resolver_source_hash(value: "b0ce1a838dad74fce5422c930d8d9fc3") @unselectable(reason: "This field is intended only for Relay's internal use")
 }

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a10daa809c16cccc0b90156daccf490b>>
+ * @generated SignedSource<<593b3030b73bbadda5607047611b5d02>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -32,8 +32,8 @@ export type preloadQueryDEPRECATEDTest_ProvidedVarQuery = {|
   variables: preloadQueryDEPRECATEDTest_ProvidedVarQuery$variables,
 |};
 ({
-  "__relay_internal__pv__RelayProvider_returnsTruerelayprovider": require('./../RelayProvider_returnsTrue.relayprovider'),
-  "__relay_internal__pv__RelayProvider_returnsFalserelayprovider": require('./../RelayProvider_returnsFalse.relayprovider')
+  "__relay_internal__pv__RelayProvider_returnsTruerelayprovider": require('../RelayProvider_returnsTrue.relayprovider'),
+  "__relay_internal__pv__RelayProvider_returnsFalserelayprovider": require('../RelayProvider_returnsFalse.relayprovider')
 }: {|
   +__relay_internal__pv__RelayProvider_returnsFalserelayprovider: {|
     +get: () => boolean,
@@ -202,15 +202,15 @@ return {
     "operationKind": "query",
     "text": "query preloadQueryDEPRECATEDTest_ProvidedVarQuery(\n  $id: ID!\n  $__relay_internal__pv__RelayProvider_returnsTruerelayprovider: Boolean!\n  $__relay_internal__pv__RelayProvider_returnsFalserelayprovider: Boolean!\n) {\n  node(id: $id) {\n    __typename\n    ...preloadQueryDEPRECATEDTest_ProvidedVarFragment\n    id\n  }\n}\n\nfragment preloadQueryDEPRECATEDTest_ProvidedVarFragment on User {\n  name @include(if: $__relay_internal__pv__RelayProvider_returnsTruerelayprovider)\n  firstName @include(if: $__relay_internal__pv__RelayProvider_returnsFalserelayprovider)\n  lastName @skip(if: $__relay_internal__pv__RelayProvider_returnsFalserelayprovider)\n  username @skip(if: $__relay_internal__pv__RelayProvider_returnsTruerelayprovider)\n}\n",
     "providedVariables": {
-      "__relay_internal__pv__RelayProvider_returnsTruerelayprovider": require('./../RelayProvider_returnsTrue.relayprovider'),
-      "__relay_internal__pv__RelayProvider_returnsFalserelayprovider": require('./../RelayProvider_returnsFalse.relayprovider')
+      "__relay_internal__pv__RelayProvider_returnsTruerelayprovider": require('../RelayProvider_returnsTrue.relayprovider'),
+      "__relay_internal__pv__RelayProvider_returnsFalserelayprovider": require('../RelayProvider_returnsFalse.relayprovider')
     }
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "949cb1280a8579bbc809976fd4ed18c6";
+  (node/*: any*/).hash = "4979a880c3f4961191919f23c6de8c42";
 }
 
 module.exports = ((node/*: any*/)/*: Query<

@@ -19,10 +19,10 @@ use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use log::error;
 use log::info;
-use lsp_types::request::GotoDefinition;
-use lsp_types::request::Request;
 use lsp_types::GotoDefinitionResponse;
 use lsp_types::Url;
+use lsp_types::request::GotoDefinition;
+use lsp_types::request::Request;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
@@ -32,13 +32,13 @@ use serde::Serialize;
 use self::goto_docblock_definition::get_docblock_definition_description;
 use self::goto_graphql_definition::get_graphql_definition_description;
 use self::goto_graphql_definition::get_graphql_schema_definition_description;
+use crate::FieldDefinitionSourceInfo;
+use crate::FieldSchemaInfo;
+use crate::LSPExtraDataProvider;
 use crate::location::transform_relay_location_on_disk_to_lsp_location;
 use crate::lsp_runtime_error::LSPRuntimeError;
 use crate::lsp_runtime_error::LSPRuntimeResult;
 use crate::server::GlobalState;
-use crate::FieldDefinitionSourceInfo;
-use crate::FieldSchemaInfo;
-use crate::LSPExtraDataProvider;
 
 /// A concrete description of a GraphQL definition that a user would like to goto.
 pub enum DefinitionDescription {
@@ -202,6 +202,7 @@ fn locate_type_definition(
             GotoDefinitionResponse::Scalar(get_location(
                 &source_info.file_path,
                 source_info.line_number,
+                source_info.column_number,
             )?)
         } else {
             return Err(LSPRuntimeError::ExpectedError);
@@ -318,6 +319,7 @@ fn locate_field_definition(
                 return Ok(GotoDefinitionResponse::Scalar(get_location(
                     &source_info.file_path,
                     source_info.line_number,
+                    source_info.column_number,
                 )?));
             } else {
                 error!(
@@ -345,10 +347,14 @@ fn locate_field_definition(
         .map_err(|_| LSPRuntimeError::ExpectedError)
 }
 
-fn get_location(path: &str, line: u64) -> Result<lsp_types::Location, LSPRuntimeError> {
+fn get_location(
+    path: &str,
+    line: u64,
+    column: u64,
+) -> Result<lsp_types::Location, LSPRuntimeError> {
     let start = lsp_types::Position {
         line: line as u32,
-        character: 0,
+        character: column as u32,
     };
     let range = lsp_types::Range { start, end: start };
 

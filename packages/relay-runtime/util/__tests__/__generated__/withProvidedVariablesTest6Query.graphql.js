@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<33a7c304a92c212c1292fd71495c8cb8>>
+ * @generated SignedSource<<fa773c7429f03e53aba8a48166a7793b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -30,7 +30,7 @@ export type withProvidedVariablesTest6Query = {|
   variables: withProvidedVariablesTest6Query$variables,
 |};
 ({
-  "__relay_internal__pv__provideRandomNumber_invalid1relayprovider": require('./../provideRandomNumber_invalid1.relayprovider')
+  "__relay_internal__pv__provideRandomNumber_invalid1relayprovider": require('../provideRandomNumber_invalid1.relayprovider')
 }: {|
   +__relay_internal__pv__provideRandomNumber_invalid1relayprovider: {|
     +get: () => number,
@@ -151,14 +151,14 @@ return {
     "operationKind": "query",
     "text": "query withProvidedVariablesTest6Query(\n  $__relay_internal__pv__provideRandomNumber_invalid1relayprovider: Float!\n) {\n  node(id: 4) {\n    __typename\n    ...withProvidedVariablesTest6Fragment\n    id\n  }\n}\n\nfragment withProvidedVariablesTest6Fragment on User {\n  profile_picture(scale: $__relay_internal__pv__provideRandomNumber_invalid1relayprovider) {\n    uri\n  }\n}\n",
     "providedVariables": {
-      "__relay_internal__pv__provideRandomNumber_invalid1relayprovider": require('./../provideRandomNumber_invalid1.relayprovider')
+      "__relay_internal__pv__provideRandomNumber_invalid1relayprovider": require('../provideRandomNumber_invalid1.relayprovider')
     }
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "8c7f3de6f49184530628833ac9970eef";
+  (node/*: any*/).hash = "4f2c4062537ffda1cddd4cb6b75b6bfa";
 }
 
 module.exports = ((node/*: any*/)/*: Query<

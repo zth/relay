@@ -15,7 +15,6 @@ use std::hash::Hasher;
 use std::num::NonZeroU32;
 use std::sync::atomic::AtomicU32;
 use std::sync::atomic::Ordering;
-use std::u32;
 
 use once_cell::sync::OnceCell;
 use serde::Deserialize;
@@ -110,7 +109,7 @@ pub trait InternId: 'static + Eq + Copy {
     #[doc(hidden)]
     #[inline]
     unsafe fn from_index(i: u32) -> Self {
-        Self::wrap(Ref::from_index(i))
+        unsafe { Self::wrap(Ref::from_index(i)) }
     }
 
     /// Raw index for internal use only.
@@ -124,7 +123,7 @@ pub trait InternId: 'static + Eq + Copy {
     #[doc(hidden)]
     #[inline]
     unsafe fn from_raw(i: NonZeroU32) -> Self {
-        Self::wrap(Ref::from_raw(i))
+        unsafe { Self::wrap(Ref::from_raw(i)) }
     }
 }
 
@@ -242,7 +241,7 @@ impl<Id, Type> InternTable<Id, Type> {
 
 impl<Id: InternId> InternTable<Id, Id::Intern> {
     /// The methods from here on are internal and private.
-    fn shards(&'static self) -> &Shards<Id> {
+    fn shards(&'static self) -> &'static Shards<Id> {
         self.shards.get_or_init(|| {
             let shards: Shards<Id> = ShardedSet::default();
             if !self.arena.is_empty() {
@@ -291,7 +290,7 @@ impl<Id: InternId> InternTable<Id, Id::Intern> {
     /// Get a shared reference to the underlying `Id::Intern`.
     /// Usually you can rely on `deref` to do this implicitly.
     #[inline]
-    fn get(&'static self, r: Id) -> &Id::Intern {
+    fn get(&'static self, r: Id) -> &'static Id::Intern {
         self.arena.get(r.unwrap())
     }
 
@@ -552,11 +551,11 @@ where
 macro_rules! intern_struct {
     () => { };
     ($(#[$attr:meta])* struct $Name:ident = Intern<$T:ty> {
-        $(serdes($l:expr);)?
+        $(serdes($l:expr_2021);)?
         $(type Lookup = $L:ty;)?
         $(type Set = $S:ident;)?
         $(type Map = $M:ident;)?
-        $(const $Z:ident = $ze:expr;)?
+        $(const $Z:ident = $ze:expr_2021;)?
      }
      $($rest:tt)*) => {
         intern_struct!(@DOIT, ($(#[$attr])*), (), $Name, $T,
@@ -564,11 +563,11 @@ macro_rules! intern_struct {
         intern_struct!{ $($rest)* }
     };
     ($(#[$attr:meta])* pub struct $Name:ident = Intern<$T:ty> {
-        $(serdes($l:expr);)?
+        $(serdes($l:expr_2021);)?
         $(type Lookup = $L:ty;)?
         $(type Set = $S:ident;)?
         $(type Map = $M:ident;)?
-        $(const $Z:ident = $ze:expr;)?
+        $(const $Z:ident = $ze:expr_2021;)?
      }
      $($rest:tt)*) => {
         intern_struct!(@DOIT, ($(#[$attr])*), (pub), $Name, $T,
@@ -576,11 +575,11 @@ macro_rules! intern_struct {
         intern_struct!{ $($rest)* }
     };
     ($(#[$attr:meta])* pub(crate) struct $Name:ident = Intern<$T:ty> {
-        $(serdes($l:expr);)?
+        $(serdes($l:expr_2021);)?
         $(type Lookup = $L:ty;)?
         $(type Set = $S:ident;)?
         $(type Map = $M:ident;)?
-        $(const $Z:ident = $ze:expr;)?
+        $(const $Z:ident = $ze:expr_2021;)?
      }
      $($rest:tt)*) => {
         intern_struct!(@DOIT, ($(#[$attr])*), (pub(crate)), $Name, $T,
@@ -588,7 +587,7 @@ macro_rules! intern_struct {
         intern_struct!{ $($rest)* }
     };
     (@SERDESDERIVE(); $($decl:tt)*) => { $($decl)* };
-    (@SERDESDERIVE($l:expr); $($decl:tt)*) => {
+    (@SERDESDERIVE($l:expr_2021); $($decl:tt)*) => {
         #[derive(serde_derive::Deserialize, serde_derive::Serialize)]
         #[serde(from = $l)]
         #[serde(into = $l)]
@@ -623,18 +622,18 @@ macro_rules! intern_struct {
         $($vis)* type $S = std::collections::HashSet<$Name, $crate::idhasher::BuildIdHasher<u32>>;
     };
     (@TABLE($T:ty, ())) => { $crate::intern::InternTable::new() };
-    (@TABLE($T:ty, ($v:ident, $zero:expr))) => {{
+    (@TABLE($T:ty, ($v:ident, $zero:expr_2021))) => {{
         static ZERO: $crate::Zero<$T> = $crate::Zero::new($zero);
         $crate::intern::InternTable::with_zero(&ZERO)
     }};
     (@ZERO($Name:ident, ())) => { };
-    (@ZERO($Name:ident, ($v:ident, $zero:expr))) => {
+    (@ZERO($Name:ident, ($v:ident, $zero:expr_2021))) => {
         impl $Name {
             pub const $v: Self = $Name($crate::Zero::zero());
         }
     };
     (@DOIT, ($(#[$attr:meta])*), ($($vis:tt)*), $Name:ident, $T:ty,
-     ( $($Lookup:ty)? ), ( $($Z:ident, $ze:expr)* ), ( $($serdes:tt)? ),
+     ( $($Lookup:ty)? ), ( $($Z:ident, $ze:expr_2021)* ), ( $($serdes:tt)? ),
      ( $($S:ident)? ), ( $($M:ident)? ) ) => {
         intern_struct!{
             @SERDESDERIVE($($serdes)?);
@@ -736,7 +735,7 @@ mod tests {
 
     impl std::cmp::PartialOrd for MyId {
         fn partial_cmp(&self, other: &Self) -> std::option::Option<std::cmp::Ordering> {
-            self.get().partial_cmp(other.get())
+            Some(self.get().cmp(other.get()))
         }
     }
 

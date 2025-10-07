@@ -22,6 +22,7 @@ use common::UnionName;
 use common::WithLocation;
 use flatbuffers::ForwardsUOffset;
 use flatbuffers::Vector;
+use flatbuffers::VerifierOptions;
 use graphql_syntax::BooleanNode;
 use graphql_syntax::ConstantArgument;
 use graphql_syntax::ConstantValue;
@@ -35,9 +36,9 @@ use graphql_syntax::List;
 use graphql_syntax::StringNode;
 use graphql_syntax::Token;
 use graphql_syntax::TokenKind;
+use intern::Lookup;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
-use intern::Lookup;
 pub use serialize::serialize_as_flatbuffer;
 pub use wrapper::SchemaWrapper;
 
@@ -64,8 +65,15 @@ pub struct FlatBufferSchema<'fb> {
 impl<'fb> FlatBufferSchema<'fb> {
     pub fn build(bytes: &'fb [u8]) -> Self {
         #![allow(deprecated)]
+        // Use custom verifier options with increased max_tables limit (default 1M) to handle large schemas
+        let opts: VerifierOptions = flatbuffers::VerifierOptions {
+            max_tables: usize::MAX,
+            ..Default::default()
+        };
+
         let fb_schema: schema_flatbuffer::Schema<'fb> =
-            schema_flatbuffer::get_root_as_schema(bytes);
+            schema_flatbuffer::root_as_schema_with_opts(&opts, bytes)
+                .expect("Failed to get root as schema");
 
         let query_type = Type::Object(ObjectID(fb_schema.query_type()));
         let mutation_type = fb_schema
@@ -571,8 +579,8 @@ fn wrap_ids<T>(ids: Option<Vector<'_, u32>>, f: impl Fn(u32) -> T) -> Vec<T> {
 }
 
 fn get_mapped_location(location: schema_flatbuffer::DirectiveLocation) -> DirectiveLocation {
-    use schema_flatbuffer::DirectiveLocation as FDL;
     use DirectiveLocation as DL;
+    use schema_flatbuffer::DirectiveLocation as FDL;
     match location {
         FDL::Query => DL::Query,
         FDL::Mutation => DL::Mutation,

@@ -10,8 +10,8 @@
 //! This module provides a way to manage the state of the Relay compiler, including the current project,
 //! schema, and other configuration options. It also provides methods for updating the state and
 //! generating artifacts.
-use std::collections::hash_map::Entry;
 use std::collections::HashMap;
+use std::collections::hash_map::Entry;
 use std::env;
 use std::fmt;
 use std::fs::File as FsFile;
@@ -51,9 +51,6 @@ use crate::artifact_map::ArtifactSourceKey;
 use crate::config::Config;
 use crate::errors::Error;
 use crate::errors::Result;
-use crate::file_source::categorize_files;
-use crate::file_source::extract_javascript_features_from_file;
-use crate::file_source::read_file_to_string;
 use crate::file_source::Clock;
 use crate::file_source::File;
 use crate::file_source::FileGroup;
@@ -62,6 +59,9 @@ use crate::file_source::LocatedDocblockSource;
 use crate::file_source::LocatedGraphQLSource;
 use crate::file_source::LocatedJavascriptSourceFeatures;
 use crate::file_source::SourceControlUpdateStatus;
+use crate::file_source::categorize_files;
+use crate::file_source::extract_javascript_features_from_file;
+use crate::file_source::read_file_to_string;
 
 /// Set of project names.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, Hash, JsonSchema)]
@@ -186,8 +186,7 @@ impl<V: Source + Clone> IncrementalSources<V> {
                     entry.insert(value.clone());
                 }
                 Entry::Vacant(vacant) => {
-                    if !value.is_empty() || self.processed.get(key).map_or(false, |v| !v.is_empty())
-                    {
+                    if !value.is_empty() || self.processed.get(key).is_some_and(|v| !v.is_empty()) {
                         vacant.insert(value.clone());
                     }
                 }
@@ -408,7 +407,7 @@ impl CompilerState {
     pub fn project_has_pending_changes(&self, project_name: ProjectName) -> bool {
         self.graphql_sources
             .get(&project_name)
-            .map_or(false, |sources| !sources.pending.is_empty())
+            .is_some_and(|sources| !sources.pending.is_empty())
             || self.project_has_pending_schema_changes(project_name)
             || self.dirty_artifact_paths.contains_key(&project_name)
     }
@@ -416,19 +415,19 @@ impl CompilerState {
     pub fn project_has_pending_schema_changes(&self, project_name: ProjectName) -> bool {
         self.schemas
             .get(&project_name)
-            .map_or(false, |sources| !sources.pending.is_empty())
+            .is_some_and(|sources| !sources.pending.is_empty())
             || self
                 .extensions
                 .get(&project_name)
-                .map_or(false, |sources| !sources.pending.is_empty())
+                .is_some_and(|sources| !sources.pending.is_empty())
             || self
                 .docblocks
                 .get(&project_name)
-                .map_or(false, |sources| !sources.pending.is_empty())
+                .is_some_and(|sources| !sources.pending.is_empty())
             || self
                 .full_sources
                 .get(&project_name)
-                .map_or(false, |sources| !sources.pending.is_empty())
+                .is_some_and(|sources| !sources.pending.is_empty())
     }
 
     pub fn has_processed_changes(&self) -> bool {
@@ -914,11 +913,11 @@ fn extract_sources(
 /// which requires "self descriptive" serialization formats and `bincode` does not
 /// support those enums.
 mod clock_json_string {
+    use serde::Deserializer;
+    use serde::Serializer;
     use serde::de::Error as DeserializationError;
     use serde::de::Visitor;
     use serde::ser::Error as SerializationError;
-    use serde::Deserializer;
-    use serde::Serializer;
 
     use crate::file_source::Clock;
 
@@ -940,7 +939,7 @@ mod clock_json_string {
     }
 
     struct JSONStringVisitor;
-    impl<'de> Visitor<'de> for JSONStringVisitor {
+    impl Visitor<'_> for JSONStringVisitor {
         type Value = Option<Clock>;
 
         fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {

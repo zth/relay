@@ -17,20 +17,20 @@ use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::OperationDefinition;
 use intern::string_key::Intern;
-use relay_codegen::build_request_params;
 use relay_codegen::Printer;
 use relay_codegen::QueryID;
-use relay_transforms::is_operation_preloadable;
-use relay_transforms::RelayDataDrivenDependencyMetadata;
+use relay_codegen::build_request_params;
 use relay_transforms::ASSIGNABLE_DIRECTIVE;
+use relay_transforms::RelayDataDrivenDependencyMetadata;
 use relay_transforms::UPDATABLE_DIRECTIVE;
+use relay_transforms::is_operation_preloadable;
+use relay_typegen::FragmentLocations;
+use relay_typegen::TypegenConfig;
+use relay_typegen::TypegenLanguage;
 use relay_typegen::generate_fragment_type_exports_section;
 use relay_typegen::generate_named_validator_export;
 use relay_typegen::generate_operation_type_exports_section;
 use relay_typegen::generate_split_operation_type_exports_section;
-use relay_typegen::FragmentLocations;
-use relay_typegen::TypegenConfig;
-use relay_typegen::TypegenLanguage;
 use relay_typegen::rescript_utils::find_provided_variables;
 use schema::SDLSchema;
 use signedsource::SIGNING_TOKEN;
@@ -302,7 +302,7 @@ pub fn generate_operation(
         if project_config
             .persist
             .as_ref()
-            .map_or(false, |config| config.include_query_text())
+            .is_some_and(|config| config.include_query_text())
         {
             request_parameters.text.clone_from(text);
         }

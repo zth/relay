@@ -16,6 +16,7 @@ import type {DataID} from './util/RelayRuntimeTypes';
 
 const resolverDataInjector = require('./store/live-resolvers/resolverDataInjector');
 const {observeFragment} = require('./store/observeFragmentExperimental');
+const {observeQuery} = require('./store/observeQueryExperimental');
 const {waitForFragmentData} = require('./store/waitForFragmentExperimental');
 
 // Annotates a strong object return type, where `A` is the GraphQL typename and `Typename` is the
@@ -43,13 +44,13 @@ export type IdOf<A: string, Typename: void | string = void> = [
 export type RelayResolverValue<A> = $NonMaybeType<A>;
 
 type ErrorResult<Error> = {
-  ok: false,
-  errors: $ReadOnlyArray<Error>,
+  +ok: false,
+  +errors: $ReadOnlyArray<Error>,
 };
 
 type OkayResult<T> = {
-  ok: true,
-  value: T,
+  +ok: true,
+  +value: T,
 };
 
 export type Result<T, Error> = OkayResult<T> | ErrorResult<Error>;
@@ -57,19 +58,20 @@ export type Result<T, Error> = OkayResult<T> | ErrorResult<Error>;
 function isValueResult<T = mixed>(
   input: Result<T, Error>,
 ): input is OkayResult<T> {
-  return input.ok === true;
+  return input.ok === (true as const);
 }
 
 function isErrorResult<T = mixed>(
   input: Result<T, Error>,
 ): input is ErrorResult<Error> {
-  return input.ok === false;
+  return input.ok === (false as const);
 }
 
 module.exports = {
   resolverDataInjector,
   isValueResult,
   isErrorResult,
+  observeQuery,
   observeFragment,
   waitForFragmentData,
 };

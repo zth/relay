@@ -5,8 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use std::collections::hash_map::Entry;
 use std::collections::HashMap;
+use std::collections::hash_map::Entry;
 use std::mem;
 use std::sync::Arc;
 
@@ -113,7 +113,7 @@ impl<'s> ValidateFragmentAliasConflict<'s> {
     }
 }
 
-impl<'a> Validator for ValidateFragmentAliasConflict<'a> {
+impl Validator for ValidateFragmentAliasConflict<'_> {
     const NAME: &'static str = "ValidateFragmentAliasConflict";
 
     const VALIDATE_ARGUMENTS: bool = false;

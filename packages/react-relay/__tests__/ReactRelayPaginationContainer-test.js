@@ -102,6 +102,7 @@ describe('ReactRelayPaginationContainer', () => {
           id
           __typename
           ...ReactRelayPaginationContainerTestUserFragment
+            @dangerously_unaliased_fixme
             @arguments(isViewerFriendLocal: $isViewerFriend, orderby: $orderby)
         }
       }
@@ -343,7 +344,7 @@ describe('ReactRelayPaginationContainer', () => {
     expect(environment.subscribe.mock.calls[0][0]).toEqual({
       data: expect.any(Object),
       isMissingData: false,
-      errorResponseFields: null,
+      fieldErrors: null,
       missingLiveResolverFields: [],
       missingClientEdges: null,
       seenRecords: expect.any(Object),
@@ -456,7 +457,7 @@ describe('ReactRelayPaginationContainer', () => {
     expect(environment.subscribe.mock.calls[0][0]).toEqual({
       data: expect.any(Object),
       isMissingData: false,
-      errorResponseFields: null,
+      fieldErrors: null,
       missingLiveResolverFields: [],
       missingClientEdges: null,
       seenRecords: expect.any(Object),
@@ -525,7 +526,7 @@ describe('ReactRelayPaginationContainer', () => {
     expect(environment.subscribe.mock.calls[0][0]).toEqual({
       data: expect.any(Object),
       isMissingData: false,
-      errorResponseFields: null,
+      fieldErrors: null,
       missingLiveResolverFields: [],
       missingClientEdges: null,
       seenRecords: expect.any(Object),
@@ -629,7 +630,7 @@ describe('ReactRelayPaginationContainer', () => {
     expect(environment.subscribe.mock.calls[0][0]).toEqual({
       data: expect.any(Object),
       isMissingData: false,
-      errorResponseFields: null,
+      fieldErrors: null,
       missingLiveResolverFields: [],
       missingClientEdges: null,
       seenRecords: expect.any(Object),
@@ -815,6 +816,7 @@ describe('ReactRelayPaginationContainer', () => {
         node(id: $id) {
           id
           ...ReactRelayPaginationContainerTestNoConnectionUserFragment
+            @dangerously_unaliased_fixme
         }
       }
     `;
@@ -870,6 +872,7 @@ describe('ReactRelayPaginationContainer', () => {
         node(id: $id) {
           id
           ...ReactRelayPaginationContainerTestNoConnectionOnFragmentUserFragment
+            @dangerously_unaliased_fixme
         }
       }
     `;

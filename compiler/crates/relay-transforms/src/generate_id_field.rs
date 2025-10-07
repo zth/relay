@@ -5,8 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use std::collections::hash_map::Entry;
 use std::collections::HashMap;
+use std::collections::hash_map::Entry;
 use std::sync::Arc;
 
 use common::Location;
@@ -52,7 +52,7 @@ struct NodeInterface {
     id_field: FieldID,
 }
 
-impl<'s> Transformer for GenerateIDFieldTransform<'s> {
+impl Transformer<'_> for GenerateIDFieldTransform<'_> {
     const NAME: &'static str = "GenerateIDFieldTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

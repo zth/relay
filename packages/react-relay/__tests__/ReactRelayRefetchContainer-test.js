@@ -104,6 +104,7 @@ describe('ReactRelayRefetchContainer', () => {
       ) {
         node(id: $id) {
           ...ReactRelayRefetchContainerTestUserFragment
+            @dangerously_unaliased_fixme
             @arguments(cond: $condGlobal)
         }
       }
@@ -112,6 +113,7 @@ describe('ReactRelayRefetchContainer', () => {
       query ReactRelayRefetchContainerTestUserQuery($id: ID!) {
         node(id: $id) {
           ...ReactRelayRefetchContainerTestUserFragment
+            @dangerously_unaliased_fixme
         }
       }
     `;
@@ -279,7 +281,7 @@ describe('ReactRelayRefetchContainer', () => {
         name: 'Zuck',
       },
       isMissingData: false,
-      errorResponseFields: null,
+      fieldErrors: null,
       missingLiveResolverFields: [],
       missingClientEdges: null,
       seenRecords: expect.any(Object),
@@ -379,7 +381,7 @@ describe('ReactRelayRefetchContainer', () => {
         name: 'Joe',
       },
       isMissingData: false,
-      errorResponseFields: null,
+      fieldErrors: null,
       missingLiveResolverFields: [],
       missingClientEdges: null,
       seenRecords: expect.any(Object),
@@ -438,7 +440,7 @@ describe('ReactRelayRefetchContainer', () => {
         // Name is excluded since value of cond is now false
       },
       isMissingData: false,
-      errorResponseFields: null,
+      fieldErrors: null,
       missingLiveResolverFields: [],
       missingClientEdges: null,
       seenRecords: expect.any(Object),
@@ -524,7 +526,7 @@ describe('ReactRelayRefetchContainer', () => {
         id: '4',
         // Name is excluded since value of cond is now false
       },
-      errorResponseFields: null,
+      fieldErrors: null,
       missingLiveResolverFields: [],
       missingClientEdges: null,
       isMissingData: false,

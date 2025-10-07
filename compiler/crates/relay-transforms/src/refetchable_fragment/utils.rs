@@ -13,12 +13,10 @@ use common::DiagnosticsResult;
 use common::DirectiveName;
 use common::NamedItem;
 use common::WithLocation;
-use graphql_ir::associated_data_impl;
 use graphql_ir::Argument;
 use graphql_ir::Directive;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentDefinitionName;
-use graphql_ir::FragmentSignature;
 use graphql_ir::FragmentSpread;
 use graphql_ir::OperationDefinitionName;
 use graphql_ir::ProvidedVariableMetadata;
@@ -26,6 +24,7 @@ use graphql_ir::Selection;
 use graphql_ir::Value;
 use graphql_ir::Variable;
 use graphql_ir::VariableDefinition;
+use graphql_ir::associated_data_impl;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use lazy_static::lazy_static;
@@ -88,12 +87,7 @@ pub fn build_fragment_spread(fragment: &FragmentDefinition) -> Selection {
                 ),
             })
             .collect(),
-        signature: Some(FragmentSignature {
-            name: fragment.name,
-            variable_definitions: fragment.variable_definitions.clone(),
-            type_condition: fragment.type_condition,
-            directives: fragment.directives.clone(),
-        }),
+        signature: Some(fragment.into()),
     }))
 }
 

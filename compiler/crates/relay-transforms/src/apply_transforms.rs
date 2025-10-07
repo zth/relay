@@ -7,20 +7,21 @@
 
 use std::sync::Arc;
 
-use common::sync::try_join;
 use common::DiagnosticsResult;
 use common::DirectiveName;
 use common::PerfLogEvent;
 use common::PerfLogger;
+use common::sync::try_join;
 use graphql_ir::FragmentDefinitionNameSet;
 use graphql_ir::Program;
+use raw_text::set_raw_text;
 use relay_config::ProjectConfig;
 use validate_operation_variables::ValidateVariablesOptions;
 
 use super::*;
+use crate::apply_custom_transforms::CustomTransformsConfig;
 use crate::apply_custom_transforms::apply_after_custom_transforms;
 use crate::apply_custom_transforms::apply_before_custom_transforms;
-use crate::apply_custom_transforms::CustomTransformsConfig;
 use crate::assignable_fragment_spread::annotate_updatable_fragment_spreads;
 use crate::assignable_fragment_spread::replace_updatable_fragment_spreads;
 use crate::client_extensions_abstract_types::client_extensions_abstract_types;
@@ -152,8 +153,11 @@ fn apply_common_transforms(
     let log_event = perf_logger.create_event("apply_common_transforms");
     log_event.string("project", project_config.name.to_string());
 
+    // raw_text stores the operation text before transforms and should be executed first
+    let mut program = log_event.time("raw_text", || set_raw_text(&program))?;
+
     let custom_transforms = &custom_transforms_config.and_then(|c| c.common_transforms.as_ref());
-    let mut program = apply_before_custom_transforms(
+    program = apply_before_custom_transforms(
         &program,
         custom_transforms,
         project_config,

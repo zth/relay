@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<940e03983e6e001ebaf61ce67f5941e5>>
+ * @generated SignedSource<<8c98dbf87be396aee280980643b58fe5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -32,7 +32,7 @@ export type usePreloadedQueryProvidedVariablesTest_badQuery = {|
   variables: usePreloadedQueryProvidedVariablesTest_badQuery$variables,
 |};
 ({
-  "__relay_internal__pv__RelayProvider_impurerelayprovider": require('./../RelayProvider_impure.relayprovider')
+  "__relay_internal__pv__RelayProvider_impurerelayprovider": require('../RelayProvider_impure.relayprovider')
 }: {|
   +__relay_internal__pv__RelayProvider_impurerelayprovider: {|
     +get: () => number,
@@ -161,14 +161,14 @@ return {
     "operationKind": "query",
     "text": "query usePreloadedQueryProvidedVariablesTest_badQuery(\n  $id: ID!\n  $__relay_internal__pv__RelayProvider_impurerelayprovider: Float!\n) {\n  node(id: $id) {\n    __typename\n    ...usePreloadedQueryProvidedVariablesTest_badFragment\n    id\n  }\n}\n\nfragment usePreloadedQueryProvidedVariablesTest_badFragment on User {\n  profile_picture(scale: $__relay_internal__pv__RelayProvider_impurerelayprovider) {\n    uri\n  }\n}\n",
     "providedVariables": {
-      "__relay_internal__pv__RelayProvider_impurerelayprovider": require('./../RelayProvider_impure.relayprovider')
+      "__relay_internal__pv__RelayProvider_impurerelayprovider": require('../RelayProvider_impure.relayprovider')
     }
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "38101eec78c6bee2608fbe821589dd15";
+  (node/*: any*/).hash = "9f08a83ca6f077bedba106cc1674156d";
 }
 
 module.exports = ((node/*: any*/)/*: Query<

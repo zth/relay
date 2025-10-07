@@ -18,9 +18,6 @@ use common::Location;
 use common::NamedItem;
 use common::SourceLocationKey;
 use common::WithLocation;
-use graphql_ir::associated_data_impl;
-use graphql_ir::transform_list;
-use graphql_ir::transform_list_multi;
 use graphql_ir::Condition;
 use graphql_ir::ConditionValue;
 use graphql_ir::ConstantValue;
@@ -29,7 +26,6 @@ use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::FragmentDefinitionNameMap;
 use graphql_ir::FragmentDefinitionNameSet;
-use graphql_ir::FragmentSignature;
 use graphql_ir::FragmentSpread;
 use graphql_ir::InlineFragment;
 use graphql_ir::OperationDefinition;
@@ -45,24 +41,28 @@ use graphql_ir::Value;
 use graphql_ir::Variable;
 use graphql_ir::VariableDefinition;
 use graphql_ir::VariableName;
+use graphql_ir::associated_data_impl;
+use graphql_ir::transform_list;
+use graphql_ir::transform_list_multi;
 use graphql_syntax::OperationKind;
 use intern::string_key::Intern;
+use intern::string_key::StringKey;
 use intern::string_key::StringKeyIndexMap;
 use intern::string_key::StringKeyMap;
 use itertools::Itertools;
-use scope::format_local_variable;
 use scope::Scope;
+use scope::format_local_variable;
 use thiserror::Error;
 
 use super::get_applied_fragment_name;
-use crate::match_::SplitOperationMetadata;
-use crate::match_::DIRECTIVE_SPLIT_OPERATION;
-use crate::no_inline::is_raw_response_type_enabled;
-use crate::no_inline::NO_INLINE_DIRECTIVE_NAME;
-use crate::no_inline::PARENT_DOCUMENTS_ARG;
-use crate::util::get_normalization_operation_name;
 use crate::RawResponseGenerationMode;
 use crate::RelayResolverMetadata;
+use crate::match_::DIRECTIVE_SPLIT_OPERATION;
+use crate::match_::SplitOperationMetadata;
+use crate::no_inline::NO_INLINE_DIRECTIVE_NAME;
+use crate::no_inline::PARENT_DOCUMENTS_ARG;
+use crate::no_inline::is_raw_response_type_enabled;
+use crate::util::get_normalization_operation_name;
 
 /// A transform that converts a set of documents containing fragments/fragment
 /// spreads *with* arguments to one where all arguments have been inlined. This
@@ -169,7 +169,7 @@ struct ApplyFragmentArgumentsTransform<'flags, 'program, 'base_fragments> {
     split_operations: StringKeyMap<(Option<OperationDefinition>, ProvidedVariablesMap)>,
 }
 
-impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
+impl Transformer<'_> for ApplyFragmentArgumentsTransform<'_, '_, '_> {
     const NAME: &'static str = "ApplyFragmentArgumentsTransform";
     const VISIT_ARGUMENTS: bool = true;
     const VISIT_DIRECTIVES: bool = true;
@@ -190,7 +190,22 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
             // this transform does not add the SplitOperation directive, so this
             //  should be equal to checking whether the result is a split operation
             self.provided_variables.clear();
-            transform_result
+
+            match transform_result {
+                Transformed::Keep => Transformed::Keep,
+                Transformed::Replace(new_operation) => Transformed::Replace(new_operation),
+                Transformed::Delete => {
+                    self.errors.push(Diagnostic::error(
+                        ValidationMessage::EmptySelectionsInDocument {
+                            document: "query",
+                            name: operation.name.item.0,
+                        },
+                        operation.name.location,
+                    ));
+
+                    Transformed::Delete
+                }
+            }
         } else {
             let mut add_provided_variables = |new_operation: &mut OperationDefinition| {
                 new_operation.variable_definitions.append(
@@ -211,7 +226,17 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
                     add_provided_variables(&mut new_operation);
                     Transformed::Replace(new_operation)
                 }
-                Transformed::Delete => Transformed::Delete,
+                Transformed::Delete => {
+                    self.errors.push(Diagnostic::error(
+                        ValidationMessage::EmptySelectionsInDocument {
+                            document: "query",
+                            name: operation.name.item.0,
+                        },
+                        operation.name.location,
+                    ));
+
+                    Transformed::Delete
+                }
             }
         }
     }
@@ -299,12 +324,7 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
                         fragment.name.location,
                         FragmentDefinitionName(normalization_name),
                     ),
-                    signature: Some(FragmentSignature {
-                        name: fragment.name,
-                        variable_definitions: fragment.variable_definitions.clone(),
-                        type_condition: fragment.type_condition,
-                        directives: fragment.directives.clone(),
-                    }),
+                    signature: Some(fragment.as_ref().into()),
                 }));
                 // If the fragment type is abstract, we need to ensure that it's only evaluated at runtime if the
                 // type of the object matches the fragment's type condition. Rather than reimplement type refinement
@@ -323,23 +343,19 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
             }
         }
 
-        if let Some(applied_fragment) = self.apply_fragment(spread, fragment) {
-            let directives = self
-                .transform_directives(&spread.directives)
-                .replace_or_else(|| spread.directives.clone());
-            Transformed::Replace(Selection::FragmentSpread(Arc::new(FragmentSpread {
-                fragment: applied_fragment.name,
-                arguments: Vec::new(),
-                directives,
-                signature: Some(FragmentSignature {
-                    name: applied_fragment.name,
-                    variable_definitions: applied_fragment.variable_definitions.clone(),
-                    type_condition: applied_fragment.type_condition,
-                    directives: applied_fragment.directives.clone(),
-                }),
-            })))
-        } else {
-            Transformed::Delete
+        match self.apply_fragment(spread, fragment) {
+            Some(applied_fragment) => {
+                let directives = self
+                    .transform_directives(&spread.directives)
+                    .replace_or_else(|| spread.directives.clone());
+                Transformed::Replace(Selection::FragmentSpread(Arc::new(FragmentSpread {
+                    fragment: applied_fragment.name,
+                    arguments: Vec::new(),
+                    directives,
+                    signature: Some(applied_fragment.as_ref().into()),
+                })))
+            }
+            _ => Transformed::Delete,
         }
     }
 
@@ -740,5 +756,15 @@ enum ValidationMessage {
     )]
     ProvidedVariableIncompatibleWithArguments {
         original_definition_name: VariableName,
+    },
+    #[error(
+        "After applying transforms to the {document} `{name}` selections of \
+        the `{name}` that would be sent to the server are empty. \
+        This is likely due to the use of `@skip`/`@include` directives with \
+        constant values that remove all selections in the {document}. "
+    )]
+    EmptySelectionsInDocument {
+        name: StringKey,
+        document: &'static str,
     },
 }

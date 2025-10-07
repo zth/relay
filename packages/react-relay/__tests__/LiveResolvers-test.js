@@ -40,6 +40,9 @@ const {
 const RelayModernStore = require('relay-runtime/store/RelayModernStore');
 const RelayRecordSource = require('relay-runtime/store/RelayRecordSource');
 const {
+  RELAY_READ_TIME_RESOLVER_KEY_PREFIX,
+} = require('relay-runtime/store/RelayStoreUtils');
+const {
   disallowConsoleErrors,
   disallowWarnings,
   injectPromisePolyfill__DEPRECATED,
@@ -403,6 +406,7 @@ test('Outer resolvers do not overwrite subscriptions made by inner resolvers (re
   });
 
   TestRenderer.act(() => jest.runAllImmediates());
+  // $FlowFixMe[incompatible-use]
   expect(renderer.toJSON()).toEqual(null);
 
   // Calling increment here should be ignored by Relay. However, if there are
@@ -411,12 +415,14 @@ test('Outer resolvers do not overwrite subscriptions made by inner resolvers (re
     GLOBAL_STORE.dispatch({type: 'INCREMENT'});
   });
   TestRenderer.act(() => jest.runAllImmediates());
+  // $FlowFixMe[incompatible-use]
   expect(renderer.toJSON()).toEqual(null);
 
   // Revering optimistic update puts inner back into a state where its
   // fragment is valid. HOWEVER, if a dangling subscription has marked inner
   // as dirty, we will try to read from a LiveValue that does not exist.
   TestRenderer.act(() => update.dispose());
+  // $FlowFixMe[incompatible-use]
   expect(renderer.toJSON()).toEqual('1');
 
   // Not part of the repro, but just to confirm: We should now be resubscribed...
@@ -424,6 +430,7 @@ test('Outer resolvers do not overwrite subscriptions made by inner resolvers (re
     GLOBAL_STORE.dispatch({type: 'INCREMENT'});
   });
   TestRenderer.act(() => jest.runAllImmediates());
+  // $FlowFixMe[incompatible-use]
   expect(renderer.toJSON()).toEqual('2');
 });
 
@@ -496,6 +503,7 @@ test("Resolvers without fragments aren't reevaluated when their parent record up
   TestRenderer.act(() => jest.runAllImmediates());
 
   expect(counterNoFragmentResolver.callCount).toBe(initialCallCount + 1);
+  // $FlowFixMe[incompatible-use]
   expect(renderer.toJSON()).toEqual('0');
 });
 
@@ -561,10 +569,12 @@ test('Can suspend', () => {
   });
   // If do not trigger `act` here, the renderer is still `0`. Probably, a React thing...
   TestRenderer.act(() => jest.runAllImmediates());
+  // $FlowFixMe[incompatible-use]
   expect(renderer.toJSON()).toEqual('Loading...');
   TestRenderer.act(() => {
     GLOBAL_STORE.dispatch({type: 'INCREMENT'});
   });
+  // $FlowFixMe[incompatible-use]
   expect(renderer.toJSON()).toEqual('2');
 });
 
@@ -633,10 +643,12 @@ test('Can suspend with resolver that uses live resolver', () => {
   });
   // If do not trigger `act` here, the renderer is still `0`. Probably, a React thing...
   TestRenderer.act(() => jest.runAllImmediates());
+  // $FlowFixMe[incompatible-use]
   expect(renderer.toJSON()).toEqual('Loading...');
   TestRenderer.act(() => {
     GLOBAL_STORE.dispatch({type: 'INCREMENT'});
   });
+  // $FlowFixMe[incompatible-use]
   expect(renderer.toJSON()).toEqual('Alice 2');
   TestRenderer.act(() => {
     const operationDescriptor = createOperationDescriptor(
@@ -647,6 +659,7 @@ test('Can suspend with resolver that uses live resolver', () => {
       me: {id: '1', name: 'Bob', __typename: 'User'},
     });
   });
+  // $FlowFixMe[incompatible-use]
   expect(renderer.toJSON()).toEqual('Bob 2');
 });
 
@@ -877,6 +890,7 @@ describe('Live Resolver with Suspense and Missing Data', () => {
 });
 
 skipIf(
+  // $FlowFixMe[cannot-resolve-name]
   process.env.OSS,
   'Live Resolver with Missing Data and @required',
   async () => {
@@ -1387,7 +1401,7 @@ describe('client-only fragments', () => {
   const LiveResolversTestLiveResolverSuspenseQuery = graphql`
     query LiveResolversTestLiveResolverSuspenseQuery($id: ID!) {
       node(id: $id) {
-        ...LiveResolversTestCounterUserFragment
+        ...LiveResolversTestCounterUserFragment @dangerously_unaliased_fixme
       }
     }
   `;
@@ -1444,10 +1458,12 @@ describe('client-only fragments', () => {
       GLOBAL_STORE.dispatch({type: 'INCREMENT'});
     });
     TestRenderer.act(() => jest.runAllImmediates());
+    // $FlowFixMe[incompatible-use]
     expect(renderer.toJSON()).toEqual('Loading...');
     TestRenderer.act(() => {
       GLOBAL_STORE.dispatch({type: 'INCREMENT'});
     });
+    // $FlowFixMe[incompatible-use]
     expect(renderer.toJSON()).toEqual('2');
   });
 
@@ -1477,10 +1493,13 @@ describe('client-only fragments', () => {
       GLOBAL_STORE.dispatch({type: 'INCREMENT'});
     });
     TestRenderer.act(() => jest.runAllImmediates());
+    // $FlowFixMe[incompatible-use]
     expect(renderer.toJSON()).toEqual('Loading...');
     environment.applyUpdate({
       storeUpdater: store => {
-        const record = store.get('client:1:counter_suspends_when_odd');
+        const record = store.get(
+          `client:1:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}counter_suspends_when_odd`,
+        );
         // this will force the invalid `liveState` value` in the resolver record
         record?.setValue(undefined, '__resolverLiveStateValue');
       },
@@ -1488,8 +1507,9 @@ describe('client-only fragments', () => {
     expect(() => {
       GLOBAL_STORE.dispatch({type: 'INCREMENT'});
     }).toThrowError(
-      'Unexpected LiveState value returned from Relay Resolver internal field `RELAY_RESOLVER_LIVE_STATE_VALUE`. It is likely a bug in Relay, or a corrupt state of the relay store state Field Path `counter_suspends_when_odd`. Record `{"__id":"client:1:counter_suspends_when_odd","__typename":"__RELAY_RESOLVER__","__resolverError":null,"__resolverValue":{"__LIVE_RESOLVER_SUSPENSE_SENTINEL":true},"__resolverLiveStateDirty":true}`.',
+      'Unexpected LiveState value returned from Relay Resolver internal field `RELAY_RESOLVER_LIVE_STATE_VALUE`. It is likely a bug in Relay, or a corrupt state of the relay store state Field Path `counter_suspends_when_odd`. Record `{"__id":"client:1:$r:counter_suspends_when_odd","__typename":"__RELAY_RESOLVER__","__resolverError":null,"__resolverValue":{"__LIVE_RESOLVER_SUSPENSE_SENTINEL":true},"__resolverLiveStateDirty":true}`.',
     );
+    // $FlowFixMe[incompatible-use]
     expect(renderer.toJSON()).toEqual('Loading...');
   });
 });
@@ -1682,7 +1702,7 @@ test('Errors when reading a @live resolver that does not return a LiveState obje
   });
 
   const data = environment.lookup(operation.fragment);
-  expect(data.errorResponseFields).toEqual([
+  expect(data.fieldErrors).toEqual([
     {
       kind: 'relay_resolver.error',
       owner: 'LiveResolversTest18Query',
@@ -1738,7 +1758,7 @@ test('provided variables and resolvers', () => {
   });
 
   const snapshot = environment.lookup(operation.fragment);
-  expect(snapshot.errorResponseFields).toEqual(null);
+  expect(snapshot.fieldErrors).toEqual(null);
   expect(snapshot.data).toEqual({
     hello_world_with_provided_variable: 'Hello, Hello, World!!',
   });
@@ -1763,7 +1783,7 @@ test('allows dependencies to be provided through the store', () => {
   });
 
   const snapshot = environment.lookup(operation.fragment);
-  expect(snapshot.errorResponseFields).toEqual(null);
+  expect(snapshot.fieldErrors).toEqual(null);
   expect(snapshot.data).toEqual({
     hello_world_with_context: 'Hello Hello Allemaal!!',
   });
@@ -1790,7 +1810,7 @@ test('allows objects to be provided to be provided through the store', () => {
   });
 
   const snapshot = environment.lookup(operation.fragment);
-  expect(snapshot.errorResponseFields).toEqual(null);
+  expect(snapshot.fieldErrors).toEqual(null);
   expect(snapshot.data).toEqual({
     hello_world_with_context_object: 'Hello Hello Allemaal!!',
   });
@@ -1875,4 +1895,157 @@ test('ResolverContext can contain observable values', async () => {
   expect(nextSnapshot.data).toEqual({
     counter_context: 1,
   });
+});
+
+test('ResolverContext as passed through nested resolver counters', async () => {
+  const source = RelayRecordSource.create({
+    'client:root': {
+      __id: 'client:root',
+      __typename: '__Root',
+      me: {__ref: '1'},
+    },
+    '1': {
+      __id: '1',
+      __typename: 'User',
+      id: '1',
+    },
+  });
+  const FooQuery = graphql`
+    query LiveResolversTestCounterContextBaseQuery {
+      base_counter_context {
+        count_plus_one
+      }
+    }
+  `;
+
+  let next: (v: number) => void = () => {
+    throw new Error('next() not initialized');
+  };
+
+  const operation = createOperationDescriptor(FooQuery, {});
+  const store = new RelayModernStore(source, {
+    gcReleaseBufferSize: 0,
+    resolverContext: {
+      counter: Observable.create<number>(observer => {
+        next = (value: number) => observer.next(value);
+      }),
+    },
+  });
+
+  const environment = new RelayModernEnvironment({
+    network: RelayNetwork.create(jest.fn()),
+    store,
+  });
+
+  let observedCounter = null;
+
+  const snapshot = environment.lookup(operation.fragment);
+  // $FlowFixMe[unclear-type] - lookup() doesn't have the nice types of reading a fragment through the actual APIs:
+  observedCounter = (snapshot.data: any).base_counter_context.count_plus_one;
+
+  const environmentUpdateHandler = jest.fn(() => {
+    const s = environment.lookup(operation.fragment);
+    // $FlowFixMe[unclear-type] - lookup() doesn't have the nice types of reading a fragment through the actual APIs:
+    observedCounter = (s.data: any).base_counter_context.count_plus_one;
+  });
+  const disposable = environment.subscribe(
+    snapshot,
+    // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
+    environmentUpdateHandler,
+  );
+
+  // SETUP COMPLETE
+
+  // Read the initial value
+  expect(observedCounter).toBe(0);
+  expect(environmentUpdateHandler).not.toHaveBeenCalled();
+
+  // Increment and assert we get notified of the new value
+  next(43);
+  expect(environmentUpdateHandler).toHaveBeenCalledTimes(1);
+  expect(observedCounter).toBe(44);
+
+  // Unsubscribe then increment and assert don't get notified.
+  disposable.dispose();
+  next(1);
+  expect(environmentUpdateHandler).toHaveBeenCalledTimes(1);
+  expect(observedCounter).toBe(44);
+
+  // Explicitly read and assert we see the incremented value
+  // missed before due to unsubscribing.
+  const nextSnapshot = environment.lookup(operation.fragment);
+
+  expect(nextSnapshot.data).toEqual({
+    base_counter_context: {
+      count_plus_one: 2,
+    },
+  });
+});
+
+test('Defer does not prevent suspense from a deferred fragment', () => {
+  const source = RelayRecordSource.create({
+    'client:root': {
+      __id: 'client:root',
+      __typename: '__Root',
+    },
+  });
+
+  const Fragment = graphql`
+    fragment LiveResolversTestDeferFragment on Query {
+      counter_suspends_when_odd
+    }
+  `;
+  const FooQuery = graphql`
+    query LiveResolversTestDeferQuery {
+      ...LiveResolversTestDeferFragment @defer
+    }
+  `;
+
+  const store = new RelayModernStore(source, {
+    gcReleaseBufferSize: 0,
+  });
+
+  // Make the value odd for `counter_suspends_when_odd`
+  GLOBAL_STORE.dispatch({type: 'INCREMENT'});
+
+  const environment = new RelayModernEnvironment({
+    network: RelayNetwork.create(jest.fn()),
+    store,
+  });
+  environment.commitPayload(
+    createOperationDescriptor(getRequest(FooQuery), {}),
+    {
+      me: {id: '1'},
+    },
+  );
+
+  function Environment({children}: {children: React.Node}) {
+    return (
+      <RelayEnvironmentProvider environment={environment}>
+        <React.Suspense fallback="Loading...">{children}</React.Suspense>
+      </RelayEnvironmentProvider>
+    );
+  }
+
+  function TestComponent() {
+    const queryData = useLazyLoadQuery(FooQuery, {});
+    const fragmentData = useFragment(Fragment, queryData);
+    return fragmentData.counter_suspends_when_odd;
+  }
+
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <Environment>
+        <TestComponent />
+      </Environment>,
+    );
+  });
+  // @defer does not prevent suspense from a resolve field
+  expect(renderer?.toJSON()).toEqual('Loading...');
+  TestRenderer.act(() => {
+    GLOBAL_STORE.dispatch({type: 'INCREMENT'});
+  });
+  TestRenderer.act(() => jest.runAllImmediates());
+  expect(renderer?.toJSON()).toEqual('2');
 });

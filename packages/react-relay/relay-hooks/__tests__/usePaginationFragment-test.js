@@ -176,6 +176,19 @@ function expectFragmentResults(
   renderSpy.mockClear();
 }
 
+function expectFragmentLastResult(expectedCall: {
+  data: $FlowFixMe,
+  isLoadingNext: boolean,
+  isLoadingPrevious: boolean,
+  hasNext: boolean,
+  hasPrevious: boolean,
+}) {
+  TestRenderer.act(() => jest.runAllImmediates());
+  const lastIdx = renderSpy.mock.calls.length - 1;
+  assertCall(expectedCall, lastIdx);
+  renderSpy.mockClear();
+}
+
 function resolveQuery(payload: mixed) {
   TestRenderer.act(() => {
     dataSource.next(payload);
@@ -218,7 +231,7 @@ function createMockEnvironment() {
     },
   );
   const environment = new Environment({
-    getDataID: (data: {[string]: mixed}, typename: string) => {
+    getDataID: (data: {+[string]: mixed}, typename: string) => {
       // This is the default, but making it explicit in case we need to override
       return data.id;
     },
@@ -283,6 +296,7 @@ beforeEach(() => {
     ) {
       node(id: $id) {
         ...usePaginationFragmentTestUserFragment
+          @dangerously_unaliased_fixme
           @arguments(isViewerFriendLocal: $isViewerFriend, orderby: $orderby)
       }
     }
@@ -300,6 +314,7 @@ beforeEach(() => {
       node(id: $id) {
         actor {
           ...usePaginationFragmentTestUserFragment
+            @dangerously_unaliased_fixme
             @arguments(isViewerFriendLocal: $isViewerFriend, orderby: $orderby)
         }
       }
@@ -317,6 +332,7 @@ beforeEach(() => {
       viewer {
         actor {
           ...usePaginationFragmentTestUserFragment
+            @dangerously_unaliased_fixme
             @arguments(isViewerFriendLocal: $isViewerFriend, orderby: $orderby)
         }
       }
@@ -332,6 +348,7 @@ beforeEach(() => {
     ) {
       node(id: $id) {
         ...usePaginationFragmentTestUserFragment
+          @dangerously_unaliased_fixme
           @arguments(isViewerFriendLocal: true, orderby: ["name"])
       }
     }
@@ -348,6 +365,7 @@ beforeEach(() => {
     ) {
       node(id: $id) {
         ...usePaginationFragmentTestUserFragmentWithStreaming
+          @dangerously_unaliased_fixme
           @arguments(isViewerFriendLocal: $isViewerFriend, orderby: $orderby)
       }
     }
@@ -555,7 +573,7 @@ beforeEach(() => {
     );
     const userRef = props.hasOwnProperty('userRef')
       ? props.userRef
-      : nodeUserRef ?? ownerOperationRef;
+      : (nodeUserRef ?? ownerOperationRef);
 
     setOwner = _setOwner;
 
@@ -4311,6 +4329,152 @@ describe.each([
             hasPrevious: false,
           },
         ]);
+      });
+
+      it('resets `isLoading` to false, hen loadMore gets interrupted by refresh, and useLoadMore does not trigger a reset', () => {
+        RelayFeatureFlags.ENABLE_USE_PAGINATION_IS_LOADING_FIX = true;
+        renderFragment();
+        expectFragmentResults([
+          {
+            data: initialUser,
+            isLoadingNext: false,
+            isLoadingPrevious: false,
+            hasNext: true,
+            hasPrevious: false,
+          },
+        ]);
+
+        TestRenderer.act(() => {
+          loadNext(1);
+        });
+
+        expectFragmentResults([
+          {
+            data: initialUser,
+            isLoadingNext: true,
+            isLoadingPrevious: false,
+            hasNext: true,
+            hasPrevious: false,
+          },
+        ]);
+        fetch.mockClear();
+
+        TestRenderer.act(() => {
+          refetch(
+            {
+              cursor: null,
+            },
+            {
+              fetchPolicy: 'network-only',
+            },
+          );
+        });
+
+        const refetchVariables = {
+          after: null,
+          before: null,
+          first: 1,
+          isViewerFriendLocal: false,
+          last: null,
+          orderby: ['name'],
+          scale: null,
+          id: '1',
+        };
+        paginationQuery = createOperationDescriptor(
+          gqlPaginationQuery,
+          refetchVariables,
+          {force: true},
+        );
+
+        const REFETCH_DATA = {
+          data: {
+            node: {
+              __typename: 'User',
+              id: '1',
+              name: 'Alice',
+              friends: {
+                edges: [
+                  {
+                    cursor: 'cursor:100',
+                    node: {
+                      __typename: 'User',
+                      id: 'node:100',
+                      name: 'name:node:100',
+                      username: 'username:node:100',
+                    },
+                  },
+                ],
+                pageInfo: {
+                  endCursor: 'cursor:100',
+                  hasNextPage: true,
+                  hasPreviousPage: false,
+                  startCursor: 'cursor:100',
+                },
+              },
+            },
+          },
+        };
+        resolveQuery(REFETCH_DATA);
+
+        const expectedUser = {
+          id: '1',
+          name: 'Alice',
+          friends: {
+            edges: [
+              {
+                cursor: 'cursor:100',
+                node: {
+                  __typename: 'User',
+                  id: 'node:100',
+                  name: 'name:node:100',
+                  ...createFragmentRef('node:100', paginationQuery),
+                },
+              },
+            ],
+            pageInfo: {
+              endCursor: 'cursor:100',
+              hasNextPage: true,
+              hasPreviousPage: false,
+              startCursor: 'cursor:100',
+            },
+          },
+        };
+
+        // loadNext gets interrupted by refetch, and `reset()` in useLoadMore triggers
+        expectFragmentLastResult({
+          data: expectedUser,
+          isLoadingNext: false,
+          isLoadingPrevious: false,
+          hasNext: true,
+          hasPrevious: false,
+        });
+
+        // loadNext gets interrupted by refetch, and `reset()` in useLoadMore doesn't trigger
+        // because fragmentIdentifier doesn't change
+        TestRenderer.act(() => {
+          loadNext(1);
+        });
+        TestRenderer.act(() => {
+          refetch(
+            {
+              cursor: null,
+            },
+            {
+              fetchPolicy: 'network-only',
+            },
+          );
+        });
+
+        resolveQuery(REFETCH_DATA);
+        expectFragmentLastResult({
+          data: expectedUser,
+          isLoadingNext: false,
+          isLoadingPrevious: false,
+          hasNext: true,
+          hasPrevious: false,
+        });
+
+        RelayFeatureFlags.ENABLE_USE_PAGINATION_IS_LOADING_FIX = false;
       });
     });
 

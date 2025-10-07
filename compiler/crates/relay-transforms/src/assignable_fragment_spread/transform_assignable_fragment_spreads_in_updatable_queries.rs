@@ -11,7 +11,6 @@ use common::DirectiveName;
 use common::Location;
 use common::NamedItem;
 use common::WithLocation;
-use graphql_ir::associated_data_impl;
 use graphql_ir::Directive;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentSpread;
@@ -20,6 +19,7 @@ use graphql_ir::Program;
 use graphql_ir::Selection;
 use graphql_ir::Transformed;
 use graphql_ir::Transformer;
+use graphql_ir::associated_data_impl;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use lazy_static::lazy_static;
@@ -71,7 +71,7 @@ struct AssignableFragmentSpreadForUpdatable<'s> {
     program: &'s Program,
 }
 
-impl<'s> Transformer for AssignableFragmentSpreadForUpdatable<'s> {
+impl Transformer<'_> for AssignableFragmentSpreadForUpdatable<'_> {
     const NAME: &'static str = "AssignableFragmentTransformForUpdatable";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

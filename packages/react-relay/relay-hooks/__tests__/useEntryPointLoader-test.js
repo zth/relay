@@ -32,8 +32,10 @@ let loadEntryPointLastReturnValue;
 let disposeEntryPoint;
 
 let renderCount: ?number;
-let environment;
-let defaultEnvironmentProvider;
+let environment: IEnvironment;
+let defaultEnvironmentProvider: $ReadOnly<{
+  getEnvironment: (options: ?EnvironmentProviderOptions) => IEnvironment,
+}>;
 let render;
 let Container;
 let defaultEntryPoint: any;
@@ -75,12 +77,12 @@ beforeEach(() => {
   Container = function ({
     entryPoint,
     environmentProvider,
-  }: {
+  }: $ReadOnly<{
     entryPoint: any,
-    environmentProvider: {
+    environmentProvider: $ReadOnly<{
       getEnvironment: (options: ?EnvironmentProviderOptions) => IEnvironment,
-    },
-  }) {
+    }>,
+  }>) {
     renderCount = (renderCount || 0) + 1;
     [loadedEntryPoint, entryPointLoaderCallback, disposeEntryPoint] =
       // $FlowFixMe[react-rule-hook]
@@ -149,6 +151,8 @@ it('disposes the entry point and nullifies the state when the disposeEntryPoint 
   const params = {};
   ReactTestRenderer.act(() => entryPointLoaderCallback(params));
   expect(disposeEntryPoint).toBeDefined();
+  /* $FlowFixMe[constant-condition] Error discovered during Constant Condition
+   * roll out. See https://fburl.com/workplace/1v97vimq. */
   if (disposeEntryPoint) {
     expect(loadedEntryPoint).not.toBe(null);
     expect(dispose).not.toHaveBeenCalled();
@@ -210,7 +214,7 @@ it('does not dispose the entry point before the new component tree unsuspends in
 
     let transitionToSecondRoute;
     function ConcurrentWrapper() {
-      const [route, setRoute] = React.useState('FIRST');
+      const [route, setRoute] = React.useState<'FIRST' | 'SECOND'>('FIRST');
 
       transitionToSecondRoute = () =>
         React.startTransition(() => setRoute('SECOND'));
@@ -241,6 +245,8 @@ it('does not dispose the entry point before the new component tree unsuspends in
     expect(currentDispose).not.toHaveBeenCalled();
 
     ReactTestRenderer.act(() => {
+      /* $FlowFixMe[constant-condition] Error discovered during Constant
+       * Condition roll out. See https://fburl.com/workplace/1v97vimq. */
       resolve && resolve();
       jest.runAllImmediates();
     });
@@ -558,6 +564,7 @@ it('disposes all entry points if the callback is called, the component suspends,
     entryPointLoaderCallback({});
   });
   const secondDispose = dispose;
+  // $FlowFixMe[incompatible-use]
   expect(outerInstance.toJSON()).toEqual('fallback');
 
   // TODO(T19754110): This fails in OSS where we have concurrent mode, but might
@@ -609,6 +616,7 @@ it('disposes all entry points if the component suspends, another entry point is 
   // *even though the component is in a suspended state.* As such, it commits and
   // the entry point is disposed.
   expect(renderCount).toBeLessThanOrEqual(2);
+  // $FlowFixMe[incompatible-use]
   expect(outerInstance.toJSON()).toEqual('fallback');
   expect(dispose).not.toHaveBeenCalled();
   ReactTestRenderer.act(() => outerInstance.unmount());

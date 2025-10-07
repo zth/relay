@@ -22,13 +22,12 @@ use docblock_shared::INJECT_FRAGMENT_DATA_ARGUMENT_NAME;
 use docblock_shared::LIVE_ARGUMENT_NAME;
 use docblock_shared::RELAY_RESOLVER_DIRECTIVE_NAME;
 use docblock_shared::RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE;
+use docblock_shared::RESOLVER_PROPERTY_LOOKUP_NAME;
 use docblock_shared::TYPE_CONFIRMED_ARGUMENT_NAME;
-use graphql_ir::associated_data_impl;
 use graphql_ir::Argument;
 use graphql_ir::Directive;
 use graphql_ir::Field as IrField;
 use graphql_ir::FragmentDefinitionName;
-use graphql_ir::FragmentSignature;
 use graphql_ir::FragmentSpread;
 use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
@@ -39,11 +38,12 @@ use graphql_ir::Selection;
 use graphql_ir::Transformed;
 use graphql_ir::Transformer;
 use graphql_ir::VariableName;
+use graphql_ir::associated_data_impl;
 use graphql_syntax::BooleanNode;
 use graphql_syntax::ConstantValue;
+use intern::Lookup;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
-use intern::Lookup;
 use relay_config::ProjectName;
 use schema::ArgumentValue;
 use schema::Field;
@@ -53,13 +53,13 @@ use schema::Schema;
 use schema::Type;
 
 use super::ValidationMessage;
-use crate::generate_relay_resolvers_operations_for_nested_objects::generate_name_for_nested_object_operation;
-use crate::ClientEdgeMetadata;
-use crate::FragmentAliasMetadata;
-use crate::RequiredMetadataDirective;
 use crate::CHILDREN_CAN_BUBBLE_METADATA_KEY;
 use crate::CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME;
+use crate::ClientEdgeMetadata;
+use crate::FragmentAliasMetadata;
 use crate::REQUIRED_DIRECTIVE_NAME;
+use crate::RequiredMetadataDirective;
+use crate::generate_relay_resolvers_operations_for_nested_objects::generate_name_for_nested_object_operation;
 
 /// Transform Relay Resolver fields. This is done in two passes.
 ///
@@ -104,9 +104,15 @@ impl ResolverOutputTypeInfo {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum FragmentDataInjectionMode {
     Field { name: StringKey, is_required: bool }, // TODO: Add Support for FullData
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub enum ResolverSchemaGenType {
+    ResolverModule,
+    PropertyLookup { property_name: StringKey },
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -120,6 +126,7 @@ pub struct RelayResolverFieldMetadata {
     live: bool,
     output_type_info: ResolverOutputTypeInfo,
     type_confirmed: bool,
+    resolver_type: ResolverSchemaGenType,
 }
 associated_data_impl!(RelayResolverFieldMetadata);
 
@@ -140,6 +147,7 @@ pub struct RelayResolverMetadata {
         FragmentDataInjectionMode,
     )>,
     pub type_confirmed: bool,
+    pub resolver_type: ResolverSchemaGenType,
 }
 associated_data_impl!(RelayResolverMetadata);
 
@@ -253,6 +261,7 @@ impl<'program> RelayResolverSpreadTransform<'program> {
                         )
                     }),
                 type_confirmed: field_metadata.type_confirmed,
+                resolver_type: field_metadata.resolver_type,
             };
 
             let mut new_directives: Vec<Directive> = vec![resolver_metadata.into()];
@@ -266,12 +275,7 @@ impl<'program> RelayResolverSpreadTransform<'program> {
                 Selection::FragmentSpread(Arc::new(FragmentSpread {
                     fragment: fragment_definition.name,
                     arguments: fragment_arguments,
-                    signature: Some(FragmentSignature {
-                        name: fragment_definition.name,
-                        variable_definitions: fragment_definition.variable_definitions.clone(),
-                        type_condition: fragment_definition.type_condition,
-                        directives: fragment_definition.directives.clone(),
-                    }),
+                    signature: Some(fragment_definition.as_ref().into()),
                     directives: new_directives,
                 }))
             } else {
@@ -286,7 +290,7 @@ impl<'program> RelayResolverSpreadTransform<'program> {
     }
 }
 
-impl<'program> Transformer for RelayResolverSpreadTransform<'program> {
+impl Transformer<'_> for RelayResolverSpreadTransform<'_> {
     const NAME: &'static str = "RelayResolversSpreadTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
@@ -312,7 +316,7 @@ impl<'program> Transformer for RelayResolverSpreadTransform<'program> {
         match ClientEdgeMetadata::find(fragment) {
             Some(client_edge_metadata) => {
                 let backing_id_field = self
-                    .transform_selection(&client_edge_metadata.backing_field)
+                    .transform_selection(client_edge_metadata.backing_field)
                     .unwrap_or_else(|| client_edge_metadata.backing_field.clone());
 
                 let selections_field = self
@@ -395,7 +399,8 @@ impl<'program> RelayResolverFieldTransform<'program> {
                     live,
                     has_output_type,
                     fragment_data_injection_mode,
-                    type_confirmed
+                    type_confirmed,
+                    resolver_type,
                 }) => {
                     let mut non_required_directives =
                         field.directives().iter().filter(|directive| {
@@ -404,6 +409,7 @@ impl<'program> RelayResolverFieldTransform<'program> {
                                 && directive.name.item != *REQUIRED_DIRECTIVE_NAME
                                 && directive.name.item != *CHILDREN_CAN_BUBBLE_METADATA_KEY
                                 && directive.name.item != *CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME
+                                && directive.name.item != crate::match_::MATCH_CONSTANTS.match_directive_name
                         });
                     if let Some(directive) = non_required_directives.next() {
                         self.errors.push(Diagnostic::error(
@@ -493,7 +499,8 @@ impl<'program> RelayResolverFieldTransform<'program> {
                         live,
                         output_type_info,
                         fragment_data_injection_mode,
-                        type_confirmed
+                        type_confirmed,
+                        resolver_type,
                     };
 
                     let mut directives: Vec<Directive> = field.directives().to_vec();
@@ -512,7 +519,7 @@ impl<'program> RelayResolverFieldTransform<'program> {
     }
 }
 
-impl Transformer for RelayResolverFieldTransform<'_> {
+impl Transformer<'_> for RelayResolverFieldTransform<'_> {
     const NAME: &'static str = "RelayResolversFieldTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
@@ -569,7 +576,7 @@ impl Transformer for RelayResolverFieldTransform<'_> {
         let transformed = match ClientEdgeMetadata::find(fragment) {
             Some(client_edge_metadata) => {
                 let backing_id_field = self
-                    .transform_selection(&client_edge_metadata.backing_field)
+                    .transform_selection(client_edge_metadata.backing_field)
                     .unwrap_or_else(|| client_edge_metadata.backing_field.clone());
 
                 let field_name = client_edge_metadata
@@ -602,15 +609,16 @@ impl Transformer for RelayResolverFieldTransform<'_> {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct ResolverInfo {
     pub fragment_name: Option<FragmentDefinitionName>,
-    fragment_data_injection_mode: Option<FragmentDataInjectionMode>,
+    pub fragment_data_injection_mode: Option<FragmentDataInjectionMode>,
     pub import_path: StringKey,
     pub import_name: Option<StringKey>,
     pub live: bool,
     has_output_type: bool,
-    type_confirmed: bool,
+    pub type_confirmed: bool,
+    pub resolver_type: ResolverSchemaGenType,
 }
 
 pub fn get_resolver_info(
@@ -645,6 +653,13 @@ pub fn get_resolver_info(
             .ok();
             let type_confirmed =
                 get_bool_argument_is_true(arguments, *TYPE_CONFIRMED_ARGUMENT_NAME);
+            let resolver_type =
+                match get_argument_value(arguments, *RESOLVER_PROPERTY_LOOKUP_NAME, error_location)
+                    .ok()
+                {
+                    Some(property_name) => ResolverSchemaGenType::PropertyLookup { property_name },
+                    None => ResolverSchemaGenType::ResolverModule,
+                };
 
             Ok(ResolverInfo {
                 fragment_name,
@@ -675,6 +690,7 @@ pub fn get_resolver_info(
                     }
                 }),
                 type_confirmed,
+                resolver_type,
             })
         })
 }

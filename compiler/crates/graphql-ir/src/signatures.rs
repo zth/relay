@@ -17,31 +17,33 @@ use common::SourceLocationKey;
 use common::WithLocation;
 use errors::par_try_map;
 use errors::try3;
+use intern::Lookup;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
-use intern::Lookup;
 use lazy_static::lazy_static;
-use schema::suggestion_list::GraphQLSuggestions;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
 use schema::TypeReference;
+use schema::suggestion_list::GraphQLSuggestions;
 
+use crate::VariableName;
 use crate::associated_data_impl;
+use crate::build::ValidationLevel;
 use crate::build::build_constant_value;
 use crate::build::build_directives;
 use crate::build::build_type_annotation;
 use crate::build::build_variable_definitions;
-use crate::build::ValidationLevel;
 use crate::build_directive;
 use crate::constants::ARGUMENT_DEFINITION;
+use crate::errors::MachineMetadataKey;
 use crate::errors::ValidationMessage;
 use crate::errors::ValidationMessageWithData;
 use crate::ir::ConstantValue;
+use crate::ir::FragmentDefinition;
 use crate::ir::FragmentDefinitionName;
 use crate::ir::FragmentDefinitionNameMap;
 use crate::ir::VariableDefinition;
-use crate::VariableName;
 
 lazy_static! {
     static ref TYPE: StringKey = "type".intern();
@@ -62,6 +64,15 @@ pub struct ProvidedVariableMetadata {
 }
 
 impl ProvidedVariableMetadata {
+    /// Returns true if the provider module's path is a bare identifier (i.e.
+    /// doesn't start with './' nor '../' nor '/'), otherwise false.
+    pub fn is_bare(&self) -> bool {
+        let module_name = self.module_name.lookup();
+        !(module_name.starts_with("./")
+            || module_name.starts_with("../")
+            || module_name.starts_with("/"))
+    }
+
     /// Return a path to the provider module, based on the fragment location
     /// where this provider is used.
     pub fn module_path(&self) -> PathBuf {
@@ -82,12 +93,23 @@ associated_data_impl!(ProvidedVariableMetadata);
 /// would depend on having checked its body! Since recursive fragments
 /// are allowed, we break the cycle by first computing signatures
 /// and using these to type check fragment spreads in selections.
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct FragmentSignature {
     pub name: WithLocation<FragmentDefinitionName>,
     pub variable_definitions: Vec<VariableDefinition>,
     pub type_condition: Type,
     pub directives: Vec<crate::Directive>,
+}
+
+impl From<&FragmentDefinition> for FragmentSignature {
+    fn from(fragment: &FragmentDefinition) -> Self {
+        Self {
+            name: fragment.name,
+            variable_definitions: fragment.variable_definitions.clone(),
+            type_condition: fragment.type_condition,
+            directives: fragment.directives.clone(),
+        }
+    }
 }
 
 pub fn build_signatures(
@@ -151,7 +173,7 @@ fn build_fragment_signature(
                 .location
                 .with_span(fragment.type_condition.type_.span),
         )
-        .metadata_for_machine("unknown_type", type_name.lookup())
+        .metadata_for_machine(MachineMetadataKey::UnknownType, type_name.lookup())
         .into()),
     };
     let argument_definition_directives = fragment

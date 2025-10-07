@@ -38,6 +38,9 @@ lazy_static! {
     /// a Relay Resolver model.
     pub static ref RELAY_RESOLVER_MODEL_DIRECTIVE_NAME: DirectiveName =
         DirectiveName("__RelayResolverModel".intern());
+    /// A field directive which indicates that the field is the generated ID field for a model type.
+    pub static ref RELAY_RESOLVER_MODEL_GENERATED_ID_FIELD_DIRECTIVE_NAME: DirectiveName =
+        DirectiveName("__RelayResolverModelGeneratedIDField".intern());
     /// If a field or model type has a @relay_resolver directive (see above)
     /// this argument name is used to track its @rootFragment (if any).
     pub static ref FRAGMENT_KEY_ARGUMENT_NAME: ArgumentName =
@@ -46,6 +49,10 @@ lazy_static! {
     /// has validated that its Flow/TypeScript type matches the GraphQL type.
     pub static ref TYPE_CONFIRMED_ARGUMENT_NAME: ArgumentName =
         ArgumentName("type_confirmed".intern());
+    /// Indicates that the resolver is just a property lookup on the underlying model (and we need to generate
+    /// code to do this lookup)
+    pub static ref RESOLVER_PROPERTY_LOOKUP_NAME: ArgumentName =
+        ArgumentName("property_lookup_name".intern());
     /// "Weak" resolver types are types which are backed by a JS model value, but which don't have a stable
     /// identity. Types in the generated schema are annotated with a directive using this name to signal
     /// to the rest of Relay that they are backed by a "weak" Relay Resolver model.

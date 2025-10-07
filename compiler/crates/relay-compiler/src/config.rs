@@ -51,24 +51,26 @@ pub use relay_config::TypegenLanguage;
 use relay_docblock::DocblockIr;
 use relay_saved_state_loader::SavedStateLoader;
 use relay_transforms::CustomTransformsConfig;
-use schemars::gen::SchemaSettings;
-use schemars::gen::{self};
 use schemars::JsonSchema;
-use serde::de::Error as DeError;
+use schemars::SchemaGenerator;
+use schemars::generate::SchemaSettings;
+use schemars::{self};
 use serde::Deserialize;
 use serde::Deserializer;
 use serde::Serialize;
+use serde::de::Error as DeError;
 use serde_json::Value;
 use sha1::Digest;
 use sha1::Sha1;
 use watchman_client::pdu::ScmAwareClockData;
 
+use crate::GraphQLAsts;
+use crate::build_project::AdditionalValidations;
 use crate::build_project::artifact_writer::ArtifactFileWriter;
 use crate::build_project::artifact_writer::ArtifactWriter;
 use crate::build_project::generate_extra_artifacts::GenerateExtraArtifactsFn;
 use crate::build_project::rescript_generate_extra_files::rescript_generate_extra_artifacts;
 use crate::build_project::get_artifacts_file_hash_map::GetArtifactsFileHashMapFn;
-use crate::build_project::AdditionalValidations;
 use crate::compiler_state::CompilerState;
 use crate::compiler_state::DeserializableProjectSet;
 use crate::compiler_state::ProjectSet;
@@ -78,7 +80,6 @@ use crate::errors::Result;
 use crate::source_control_for_root;
 use crate::status_reporter::ConsoleStatusReporter;
 use crate::status_reporter::StatusReporter;
-use crate::GraphQLAsts;
 
 pub type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 
@@ -190,7 +191,7 @@ pub struct Config {
     /// Runs in `try_saved_state` when the compiler state is initialized from saved state.
     pub update_compiler_state_from_saved_state: UpdateCompilerStateFromSavedState,
 
-    // Allow incremental build for some schema changes
+    /// Allow incremental build for some schema changes
     pub has_schema_change_incremental_build: bool,
 
     /// A custom function to extract resolver Dockblock IRs from sources
@@ -309,7 +310,7 @@ impl Config {
                 ),
             }),
             Err(error) => Err(Error::ConfigError {
-                details: format!("Error searching config: {}", error),
+                details: format!("Error searching config: {error}"),
             }),
         }
     }
@@ -431,6 +432,7 @@ impl Config {
                     ),
                     rollout: config_file_project.rollout,
                     js_module_format: config_file_project.js_module_format,
+                    relativize_js_module_paths: config_file_project.relativize_js_module_paths,
                     module_import_config: config_file_project.module_import_config,
                     diagnostic_report_config: config_file_project.diagnostic_report_config,
                     resolvers_schema_module: config_file_project.resolvers_schema_module,
@@ -616,6 +618,138 @@ impl Config {
             }
         }
     }
+
+    /// Compute all root paths that we need to query. All files relevant to the
+    /// compiler should be in these directories.
+    pub fn get_all_roots(&self) -> Vec<PathBuf> {
+        let source_roots = self.get_source_roots();
+        let extra_sources_roots = self.get_generated_sources_roots();
+        let output_roots = self.get_output_dir_paths();
+        let extension_roots = self.get_extension_roots();
+        let schema_file_roots = self.get_schema_file_roots();
+        let schema_dir_roots = self.get_schema_dir_paths();
+
+        unify_roots(
+            source_roots
+                .into_iter()
+                .chain(extra_sources_roots)
+                .chain(output_roots)
+                .chain(extension_roots)
+                .chain(schema_file_roots)
+                .chain(schema_dir_roots)
+                .collect(),
+        )
+    }
+
+    /// Returns all root directories of JS source files for the config.
+    pub fn get_source_roots(&self) -> Vec<PathBuf> {
+        self.sources.keys().cloned().collect()
+    }
+
+    /// Returns all root directories of JS source files for the config.
+    pub fn get_generated_sources_roots(&self) -> Vec<PathBuf> {
+        self.generated_sources.keys().cloned().collect()
+    }
+
+    /// Returns all root directories of GraphQL schema extension files for the
+    /// config.
+    pub fn get_extension_roots(&self) -> Vec<PathBuf> {
+        self.projects
+            .values()
+            .flat_map(|project_config| project_config.schema_extensions.iter().cloned())
+            .collect()
+    }
+
+    /// Returns all output and extra artifact output directories for the config.
+    pub fn get_output_dir_paths(&self) -> Vec<PathBuf> {
+        let output_dirs = self
+            .projects
+            .values()
+            .filter_map(|project_config| project_config.output.clone());
+
+        let extra_artifact_output_dirs = self
+            .projects
+            .values()
+            .filter_map(|project_config| project_config.extra_artifacts_output.clone());
+
+        output_dirs.chain(extra_artifact_output_dirs).collect()
+    }
+
+    /// Returns all paths that contain GraphQL schema files for the config.
+    pub fn get_schema_file_paths(&self) -> Vec<PathBuf> {
+        self.projects
+            .values()
+            .filter_map(|project_config| match &project_config.schema_location {
+                SchemaLocation::File(schema_file) => Some(schema_file.clone()),
+                SchemaLocation::Directory(_) => None,
+            })
+            .collect()
+    }
+
+    /// Returns all GraphQL schema directories for the config.
+    pub fn get_schema_dir_paths(&self) -> Vec<PathBuf> {
+        self.projects
+            .values()
+            .filter_map(|project_config| match &project_config.schema_location {
+                SchemaLocation::File(_) => None,
+                SchemaLocation::Directory(schema_dir) => Some(schema_dir.clone()),
+            })
+            .collect()
+    }
+
+    /// Returns root directories that contain GraphQL schema files.
+    pub fn get_schema_file_roots(&self) -> impl Iterator<Item = PathBuf> + use<> {
+        self.get_schema_file_paths().into_iter().map(|schema_path| {
+            schema_path
+                .parent()
+                .expect("A schema in the project root directory is currently not supported.")
+                .to_owned()
+        })
+    }
+}
+
+/// Finds the roots of a set of paths. This filters any paths
+/// that are a subdirectory of other paths in the input.
+fn unify_roots(mut paths: Vec<PathBuf>) -> Vec<PathBuf> {
+    paths.sort();
+    let mut roots = Vec::new();
+    for path in paths {
+        match roots.last() {
+            Some(prev) if path.starts_with(prev) => {
+                // skip
+            }
+            _ => {
+                roots.push(path);
+            }
+        }
+    }
+    roots
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_unify_roots() {
+        assert_eq!(unify_roots(vec![]).len(), 0);
+        assert_eq!(
+            unify_roots(vec!["Apps".into(), "Libraries".into()]),
+            &[PathBuf::from("Apps"), PathBuf::from("Libraries")]
+        );
+        assert_eq!(
+            unify_roots(vec!["Apps".into(), "Apps/Foo".into()]),
+            &[PathBuf::from("Apps")]
+        );
+        assert_eq!(
+            unify_roots(vec!["Apps/Foo".into(), "Apps".into()]),
+            &[PathBuf::from("Apps")]
+        );
+        assert_eq!(
+            unify_roots(vec!["Foo".into(), "Foo2".into()]),
+            &[PathBuf::from("Foo"), PathBuf::from("Foo2"),]
+        );
+    }
 }
 
 impl fmt::Debug for Config {
@@ -692,6 +826,10 @@ fn get_default_excludes() -> Vec<String> {
     ]
 }
 
+fn default_true() -> bool {
+    true
+}
+
 /// Schema of the compiler configuration JSON file.
 #[derive(Debug, Serialize, Deserialize, Default, JsonSchema)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
@@ -734,6 +872,8 @@ pub struct MultiProjectConfigFile {
     /// Configuration of projects to compile.
     projects: FnvIndexMap<ProjectName, ConfigFileProject>,
 
+    /// Enable and disable experimental or legacy behaviors.
+    /// WARNING! These are not stable and may change at any time.
     #[serde(default)]
     feature_flags: FeatureFlags,
 
@@ -788,24 +928,27 @@ pub struct SingleProjectConfigFile {
     /// This config option is here to define the name of that special variable
     pub is_dev_variable_name: Option<String>,
 
-    /// Name of the command that runs the relay compiler
+    /// Name of the command that runs the relay compiler. This will be added at
+    /// the top of generated code to let readers know how to regenerate the file.
     pub codegen_command: Option<String>,
 
-    /// Formatting style for generated files.
+    /// Import/export style to use in generated JavaScript modules.
     pub js_module_format: JsModuleFormat,
 
-    /// Extra configuration for the schema itself.
+    /// Whether to treat all JS module names as relative to './' (true) or not.
+    /// default: true
+    #[serde(default = "default_true")]
+    pub relativize_js_module_paths: bool,
+
+    /// Extra configuration for the GraphQL schema itself.
     pub schema_config: SchemaConfig,
 
     /// Configuration for @module
     #[serde(default)]
     pub module_import_config: ModuleImportConfig,
 
-    /// Added in 13.1.1 to customize Final/Compat mode in the single project config file
-    /// Removed in 14.0.0
-    #[serde(default)]
-    pub typegen_phase: Option<Value>,
-
+    /// Enable and disable experimental or legacy behaviors.
+    /// WARNING! These are not stable and may change at any time.
     #[serde(default)]
     pub feature_flags: Option<FeatureFlags>,
 
@@ -817,6 +960,10 @@ pub struct SingleProjectConfigFile {
     /// Opt out of source control checks/integration.
     #[serde(default)]
     pub no_source_control: Option<bool>,
+
+    /// A placeholder for allowing extra information in the config file
+    #[serde(default)]
+    pub extra: serde_json::Value,
 }
 
 impl Default for SingleProjectConfigFile {
@@ -834,13 +981,14 @@ impl Default for SingleProjectConfigFile {
             persist_config: None,
             is_dev_variable_name: None,
             codegen_command: None,
-            js_module_format: JsModuleFormat::Haste,
-            typegen_phase: None,
+            js_module_format: JsModuleFormat::CommonJS,
+            relativize_js_module_paths: true,
             feature_flags: None,
             module_import_config: Default::default(),
             resolvers_schema_module: Default::default(),
             input_unions: Default::default(),
             no_source_control: Some(false),
+            extra: Default::default(),
         }
     }
 }
@@ -873,12 +1021,12 @@ impl SingleProjectConfigFile {
                 }
             })?,
         );
-        for extension_dir in self.schema_extensions.iter() {
+        for extension_path in self.schema_extensions.iter() {
             paths.push(
-                canonicalize(root_dir.join(extension_dir.clone())).map_err(|_| {
-                    ConfigValidationError::ExtensionDirNotExistent {
+                canonicalize(root_dir.join(extension_path.clone())).map_err(|_| {
+                    ConfigValidationError::ExtensionPathNotExistent {
                         project_name: self.project_name,
-                        extension_dir: extension_dir.clone(),
+                        extension_path: extension_path.clone(),
                     }
                 })?,
             );
@@ -888,16 +1036,6 @@ impl SingleProjectConfigFile {
     }
 
     fn create_multi_project_config(self, config_path: &Path) -> Result<MultiProjectConfigFile> {
-        if self.typegen_phase.is_some() {
-            return Err(Error::ConfigFileValidation {
-                config_path: config_path.into(),
-                validation_errors: vec![ConfigValidationError::RemovedConfigField {
-                    name: "typegenPhase",
-                    action: "Please remove the option and update type imports from generated files to new names.",
-                }],
-            });
-        }
-
         let current_dir = std::env::current_dir().unwrap();
         let common_root_dir = self.get_common_root(current_dir.clone()).map_err(|err| {
             Error::ConfigFileValidation {
@@ -934,6 +1072,7 @@ impl SingleProjectConfigFile {
             module_import_config: self.module_import_config,
             resolvers_schema_module: self.resolvers_schema_module,
             input_unions: self.input_unions,
+            extra: self.extra,
             ..Default::default()
         };
 
@@ -958,8 +1097,14 @@ impl SingleProjectConfigFile {
     }
 }
 
+/// Relay's configuration file. Supports a single project config for simple use
+/// cases and a multi-project config for cases where multiple projects live in
+/// the same repository.
+///
+/// In general, start with the SingleProjectConfigFile.
 #[derive(Serialize, JsonSchema)]
 #[serde(untagged)]
+#[allow(clippy::large_enum_variant)]
 pub enum ConfigFile {
     /// Base case configuration (mostly of OSS) where the project
     /// have single schema, and single source directory
@@ -973,9 +1118,8 @@ pub enum ConfigFile {
 
 impl ConfigFile {
     pub fn json_schema() -> String {
-        let mut settings: SchemaSettings = Default::default();
-        settings.inline_subschemas = true;
-        let generator = gen::SchemaGenerator::from(settings);
+        let settings: SchemaSettings = Default::default();
+        let generator = SchemaGenerator::from(settings);
         let schema = generator.into_root_schema_for::<Self>();
         serde_json::to_string_pretty(&schema).unwrap()
     }
@@ -991,11 +1135,10 @@ impl<'de> Deserialize<'de> for ConfigFile {
                 Err(single_project_error) => {
                     let error_message = format!(
                         r#"The config file cannot be parsed as a single-project config file due to:
- - {:?}.
+ - {single_project_error:?}.
 
  It also cannot be a multi-project config file due to:
- - {:?}."#,
-                        single_project_error, multi_project_error,
+ - {multi_project_error:?}."#
                     );
 
                     Err(DeError::custom(error_message))
@@ -1079,6 +1222,8 @@ pub struct ConfigFileProject {
     #[serde(default)]
     extra: serde_json::Value,
 
+    /// Enable and disable experimental or legacy behaviors.
+    /// WARNING! These are not stable and may change at any time.
     #[serde(default)]
     pub feature_flags: Option<FeatureFlags>,
 
@@ -1087,21 +1232,34 @@ pub struct ConfigFileProject {
     #[serde(default)]
     pub rollout: Rollout,
 
+    /// Import/export style to use in generated JavaScript modules.
     #[serde(default)]
     pub js_module_format: JsModuleFormat,
 
+    /// Whether to treat all JS module names as relative to './' (true) or not.
+    /// default: true
+    #[serde(default = "default_true")]
+    pub relativize_js_module_paths: bool,
+
+    /// Extra configuration for the GraphQL schema itself.
     #[serde(default)]
     pub schema_config: SchemaConfig,
 
+    /// Configuration for the @module GraphQL directive.
     #[serde(default)]
     pub module_import_config: ModuleImportConfig,
 
+    /// Threshold for diagnostics to be critical to the compiler's execution.
+    /// All diagnostic with severities at and below this level will cause the
+    /// compiler to fatally exit.
     #[serde(default)]
     pub diagnostic_report_config: DiagnosticReportConfig,
 
     #[serde(default)]
     pub resolvers_schema_module: Option<ResolversSchemaModuleConfig>,
 
+    /// Name of the command that runs the relay compiler. This will be added at
+    /// the top of generated code to let readers know how to regenerate the file.
     #[serde(default)]
     pub codegen_command: Option<String>,
 
