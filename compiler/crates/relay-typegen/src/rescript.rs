@@ -3030,7 +3030,7 @@ impl Writer for ReScriptPrinter {
                                 // the keys, which means this works out.
                                 writeln!(
                                     generated_types,
-                                    "get: () => Internal.convertVariables(dict{{\"{}\": {}.get()}})-Dict.getUnsafe(\"{}\"),",
+                                    "get: () => Internal.convertVariables(Dict.fromArray([(\"{}\", {}.get())]))->Dict.getUnsafe(\"{}\"),",
                                     key, module_name, key
                                 )
                                 .unwrap();
