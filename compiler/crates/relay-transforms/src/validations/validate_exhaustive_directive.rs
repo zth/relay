@@ -18,10 +18,12 @@ use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 use relay_config::ProjectConfig;
+use schema::InterfaceID;
 use schema::ObjectID;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
+use schema::UnionID;
 
 use crate::ValidationMessage;
 
@@ -93,9 +95,9 @@ impl<'schema, 'program, 'pc> ExhaustiveDirectiveValidator<'schema, 'program, 'pc
         (ignored, disabled)
     }
 
-    fn check_exhaustive_coverage(
+    fn check_exhaustive_union_coverage(
         &self,
-        union_id: schema::UnionID,
+        union_id: UnionID,
         ignored: &std::collections::HashSet<StringKey>,
         has_selection_fn: impl Fn(ObjectID) -> bool,
     ) -> Vec<StringKey> {
@@ -107,6 +109,37 @@ impl<'schema, 'program, 'pc> ExhaustiveDirectiveValidator<'schema, 'program, 'pc
                 continue;
             }
             if !has_selection_fn(*member) {
+                missing_members.push(member_name);
+            }
+        }
+
+        missing_members
+    }
+
+    fn check_exhaustive_interface_coverage(
+        &self,
+        interface_id: InterfaceID,
+        ignored: &std::collections::HashSet<StringKey>,
+        has_selection_fn: impl Fn(ObjectID) -> bool,
+    ) -> Vec<StringKey> {
+        let mut implementing_objects = self
+            .schema
+            .interface(interface_id)
+            .recursively_implementing_objects(self.schema.as_ref())
+            .into_iter()
+            .collect::<Vec<_>>();
+        implementing_objects.sort_by_key(|object_id| {
+            self.schema.get_type_name(Type::Object(*object_id))
+        });
+
+        let mut missing_members = Vec::new();
+
+        for object_id in implementing_objects {
+            let member_name = self.schema.get_type_name(Type::Object(object_id));
+            if ignored.contains(&member_name) {
+                continue;
+            }
+            if !has_selection_fn(object_id) {
                 missing_members.push(member_name);
             }
         }
@@ -138,20 +171,27 @@ impl<'schema, 'program, 'pc> ExhaustiveDirectiveValidator<'schema, 'program, 'pc
 
         let field_def = self.schema.field(field.definition.item);
         let return_type = field_def.type_.inner();
-        let union_id = match return_type {
-            Type::Union(id) => id,
+        let (missing_members, type_description) = match return_type {
+            Type::Union(id) => (
+                self.check_exhaustive_union_coverage(id, &ignored, |object_id| {
+                    self.has_selection_for_object(field, object_id)
+                }),
+                "union members",
+            ),
+            Type::Interface(id) => (
+                self.check_exhaustive_interface_coverage(id, &ignored, |object_id| {
+                    self.has_selection_for_object(field, object_id)
+                }),
+                "interface implementations",
+            ),
             _ => {
                 self.errors.push(Diagnostic::error(
-                    ValidationMessage::ExhaustiveDirectiveOnNonUnionField,
+                    ValidationMessage::ExhaustiveDirectiveOnNonUnionOrInterfaceField,
                     field.definition.location,
                 ));
                 return;
             }
         };
-
-        let missing_members = self.check_exhaustive_coverage(union_id, &ignored, |object_id| {
-            self.has_selection_for_object(field, object_id)
-        });
 
         if !missing_members.is_empty() {
             let field_name = field.alias.map_or(field_def.name.item, |a| a.item);
@@ -162,9 +202,10 @@ impl<'schema, 'program, 'pc> ExhaustiveDirectiveValidator<'schema, 'program, 'pc
                 .join(", ");
 
             self.errors.push(Diagnostic::error(
-                ValidationMessage::MissingExhaustiveUnionMembersOnField {
+                ValidationMessage::MissingExhaustiveMembersOnField {
                     field_name,
                     member_names,
+                    type_description,
                 },
                 field.definition.location,
             ));
@@ -182,20 +223,27 @@ impl<'schema, 'program, 'pc> ExhaustiveDirectiveValidator<'schema, 'program, 'pc
             return;
         }
 
-        let union_id = match fragment.type_condition {
-            Type::Union(id) => id,
+        let (missing_members, type_description) = match fragment.type_condition {
+            Type::Union(id) => (
+                self.check_exhaustive_union_coverage(id, &ignored, |object_id| {
+                    self.has_selection_for_object_in_fragment(fragment, object_id)
+                }),
+                "union members",
+            ),
+            Type::Interface(id) => (
+                self.check_exhaustive_interface_coverage(id, &ignored, |object_id| {
+                    self.has_selection_for_object_in_fragment(fragment, object_id)
+                }),
+                "interface implementations",
+            ),
             _ => {
                 self.errors.push(Diagnostic::error(
-                    ValidationMessage::ExhaustiveDirectiveOnNonUnionField,
+                    ValidationMessage::ExhaustiveDirectiveOnNonUnionOrInterfaceField,
                     fragment.name.location,
                 ));
                 return;
             }
         };
-
-        let missing_members = self.check_exhaustive_coverage(union_id, &ignored, |object_id| {
-            self.has_selection_for_object_in_fragment(fragment, object_id)
-        });
 
         if !missing_members.is_empty() {
             let fragment_name = fragment.name.item.into();
@@ -206,9 +254,10 @@ impl<'schema, 'program, 'pc> ExhaustiveDirectiveValidator<'schema, 'program, 'pc
                 .join(", ");
 
             self.errors.push(Diagnostic::error(
-                ValidationMessage::MissingExhaustiveUnionMembersOnFragment {
+                ValidationMessage::MissingExhaustiveMembersOnFragment {
                     fragment_name,
                     member_names,
+                    type_description,
                 },
                 fragment.name.location,
             ));
@@ -295,7 +344,7 @@ impl Validator for ExhaustiveDirectiveValidator<'_, '_, '_> {
     fn validate_scalar_field(&mut self, field: &ScalarField) -> DiagnosticsResult<()> {
         if field.directives.named(*EXHAUSTIVE_DIRECTIVE_NAME).is_some() {
             self.errors.push(Diagnostic::error(
-                ValidationMessage::ExhaustiveDirectiveOnNonUnionField,
+                ValidationMessage::ExhaustiveDirectiveOnNonUnionOrInterfaceField,
                 field.definition.location,
             ));
         }

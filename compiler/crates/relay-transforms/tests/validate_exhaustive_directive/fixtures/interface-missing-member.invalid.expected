@@ -1,0 +1,17 @@
+==================================== INPUT ====================================
+#expected-to-throw
+fragment InterfaceMissingMember on User {
+  nameRenderable @exhaustive {
+    ... on PlainUserNameRenderer { __typename }
+    ... on MarkdownUserNameRenderer { __typename }
+    ... on ImplementsImplementsUserNameRenderable { __typename }
+  }
+}
+==================================== ERROR ====================================
+✖︎ Field 'nameRenderable' marked with @exhaustive is missing selection for interface implementations: 'ImplementsImplementsUserNameRenderableAndUserNameRenderable'.
+
+  interface-missing-member.invalid.graphql:3:3
+    2 │ fragment InterfaceMissingMember on User {
+    3 │   nameRenderable @exhaustive {
+      │   ^^^^^^^^^^^^^^
+    4 │     ... on PlainUserNameRenderer { __typename }

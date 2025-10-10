@@ -1,0 +1,34 @@
+==================================== INPUT ====================================
+fragment InterfaceAllMembersValid on User {
+  nameRenderable @exhaustive {
+    ... on PlainUserNameRenderer {
+      __typename
+    }
+    ... on MarkdownUserNameRenderer {
+      __typename
+    }
+    ... on ImplementsImplementsUserNameRenderable {
+      __typename
+    }
+    ... on ImplementsImplementsUserNameRenderableAndUserNameRenderable {
+      __typename
+    }
+  }
+}
+==================================== OUTPUT ===================================
+fragment InterfaceAllMembersValid on User {
+  nameRenderable @exhaustive {
+    ... on PlainUserNameRenderer {
+      __typename
+    }
+    ... on MarkdownUserNameRenderer {
+      __typename
+    }
+    ... on ImplementsImplementsUserNameRenderable {
+      __typename
+    }
+    ... on ImplementsImplementsUserNameRenderableAndUserNameRenderable {
+      __typename
+    }
+  }
+}
