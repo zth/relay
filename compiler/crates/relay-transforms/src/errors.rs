@@ -223,25 +223,27 @@ pub enum ValidationMessage {
     },
 
     #[error(
-        "Field '{field_name}' marked with @exhaustive is missing selection for union members: {member_names}."
+        "Field '{field_name}' marked with @exhaustive is missing selection for {type_description}: {member_names}."
     )]
-    MissingExhaustiveUnionMembersOnField {
+    MissingExhaustiveMembersOnField {
         field_name: StringKey,
         member_names: String,
+        type_description: &'static str,
     },
 
     #[error(
-        "Fragment '{fragment_name}' marked with @exhaustive is missing selection for union members: {member_names}."
+        "Fragment '{fragment_name}' marked with @exhaustive is missing selection for {type_description}: {member_names}."
     )]
-    MissingExhaustiveUnionMembersOnFragment {
+    MissingExhaustiveMembersOnFragment {
         fragment_name: StringKey,
         member_names: String,
+        type_description: &'static str,
     },
 
     #[error(
-        "The @exhaustive directive can only be applied to fields or fragment definitions returning union types."
+        "The @exhaustive directive can only be applied to fields or fragment definitions returning union or interface types."
     )]
-    ExhaustiveDirectiveOnNonUnionField,
+    ExhaustiveDirectiveOnNonUnionOrInterfaceField,
 }
 
 #[derive(
