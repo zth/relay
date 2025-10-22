@@ -2031,12 +2031,22 @@ fn write_get_connection_nodes_function(
         {
             match find_object_with_record_name(&edges_obj_type_name, state) {
                 None => {
-                    warn!("Could not find edges object.")
+                    warn!(
+                        "Could not find edges object with type name '{}' for connection '{}'",
+                        edges_obj_type_name,
+                        connection_field_name
+                    );
                 }
                 Some(edges_object) => {
                     // Find the node
                     match find_prop_at_key(&edges_object, &String::from("node")) {
-                        None => warn!("Could not find node"),
+                        None => {
+                            warn!(
+                                "Could not find 'node' field in edges object '{}' for connection '{}'",
+                                edges_obj_type_name,
+                                connection_field_name
+                            );
+                        }
                         Some(prop_value) => {
                             let (node_nullable, node_type_name) =
                                 match &prop_value.prop_type.as_ref() {
@@ -2046,8 +2056,12 @@ fn write_get_connection_nodes_function(
                                     PropType::UnionReference(node_union_reference) => {
                                         (prop_value.nullable, node_union_reference.to_string())
                                     }
-                                    _ => {
-                                        warn!("Unexpected node type");
+                                    other_type => {
+                                        warn!(
+                                            "Unexpected node type in connection '{}': expected RecordReference or UnionReference, got {:?}",
+                                            connection_field_name,
+                                            other_type
+                                        );
                                         (prop_value.nullable, String::from("invalid_node_type"))
                                     }
                                 };
