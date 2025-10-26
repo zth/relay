@@ -11,7 +11,7 @@ module Types = {
 
 module Internal = {
   @live
-  let variablesConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
+  let variablesConverter: dict<dict<dict<string>>> = %raw(
     json`{}`
   )
   @live
@@ -20,7 +20,7 @@ module Internal = {
   let convertVariables = v => v->RescriptRelay.convertObj(
     variablesConverter,
     variablesConverterMap,
-    Js.undefined
+    None
   )
 }
 module Utils = {
@@ -44,7 +44,7 @@ let node: operationType = %raw(json` {
 } `)
 
 let node = RescriptRelay_Internal.applyCodesplitMetadata(node, [
-  ("member.$$u$$User", (_variables: dict<Js.Json.t>) => {Js.import(UserAvatar.make)->ignore; Js.import(UserName.make)->ignore}), 
+  ("member.$$u$$User", (_variables: dict<JSON.t>) => {import(UserAvatar.make)->ignore; import(UserName.make)->ignore}), 
 ])
 @live let load: (
   ~environment: RescriptRelay.Environment.t,
