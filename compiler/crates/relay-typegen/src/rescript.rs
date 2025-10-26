@@ -2128,8 +2128,7 @@ fn write_get_connection_nodes_function(
                             local_indentation += 1;
                             if edges_nullable {
                                 write_indentation(str, local_indentation).unwrap();
-                                writeln!(str, "->Belt.Array.keepMap(edge => switch edge {{")
-                                    .unwrap();
+                                writeln!(str, "->Array.filterMap(edge => switch edge {{").unwrap();
 
                                 write_indentation(&mut ending_str, local_indentation).unwrap();
                                 writeln!(ending_str, "}})").unwrap();
@@ -2142,7 +2141,7 @@ fn write_get_connection_nodes_function(
                                 write!(str, "| Some(edge) => ").unwrap();
                             } else {
                                 write_indentation(str, local_indentation).unwrap();
-                                writeln!(str, "->Belt.Array.keepMap(edge => ").unwrap();
+                                writeln!(str, "->Array.filterMap(edge => ").unwrap();
 
                                 write_indentation(&mut ending_str, local_indentation).unwrap();
                                 writeln!(ending_str, ")").unwrap();
