@@ -50,7 +50,7 @@ let connectionKey = "TestConnectionsWithonstantValues_user_friendsConnection"
 )
 
 @live
-let makeConnectionId = (connectionParentDataId: RescriptRelay.dataId, ~onlineStatus: RelaySchemaAssets_graphql.enum_OnlineStatus, ~beforeDate: SomeModule.Datetime.t, ~datetime: Null.t<SomeModule.Datetime.t>=null, ~bool: option<bool>=?, ~flt: Null.t<float>=null, ~datetime2: option<SomeModule.Datetime.t>=?, ~datetime3: SomeModule.Datetime.t) => {
+let makeConnectionId = (connectionParentDataId: RescriptRelay.dataId, ~onlineStatus: RelaySchemaAssets_graphql.enum_OnlineStatus, ~beforeDate: SomeModule.Datetime.t, ~datetime: Null.t<SomeModule.Datetime.t>=Null.null, ~bool: option<bool>=?, ~flt: Null.t<float>=Null.null, ~datetime2: option<SomeModule.Datetime.t>=?, ~datetime3: SomeModule.Datetime.t) => {
   let onlineStatus = Some(onlineStatus)
   let beforeDate = Some(SomeModule.Datetime.serialize(beforeDate))
   let datetime = datetime->Null.toOption

@@ -837,16 +837,35 @@ pub fn get_connection_key_maker(
                         )
                     },
                     match (&default_value, &variable.type_) {
-                        (Some(default_value), _) => format!(
-                            "={}",
-                            match dig_type_ref(&variable.type_) {
-                                Type::InputObject(_) => format!(
-                                    "{}",
-                                    print_constant_value(&default_value.item, false, false, false)
+                        (Some(default_value), _) => {
+                            // If the default value is null and we've adjusted the type to Null.t<_>,
+                            // the default must be printed as Null.null (not bare null) for ReScript.
+                            match &default_value.item {
+                                ConstantValue::Null() if has_default_value_null => {
+                                    String::from("=Null.null")
+                                }
+                                _ => format!(
+                                    "={}",
+                                    match dig_type_ref(&variable.type_) {
+                                        Type::InputObject(_) => format!(
+                                            "{}",
+                                            print_constant_value(
+                                                &default_value.item,
+                                                false,
+                                                false,
+                                                false
+                                            )
+                                        ),
+                                        _ => print_constant_value(
+                                            &default_value.item,
+                                            false,
+                                            false,
+                                            false
+                                        ),
+                                    }
                                 ),
-                                _ => print_constant_value(&default_value.item, false, false, false),
                             }
-                        ),
+                        }
                         (None, TypeReference::List(_) | TypeReference::Named(_)) =>
                             String::from("=?"),
                         (None, TypeReference::NonNull(_)) => String::from(""),
