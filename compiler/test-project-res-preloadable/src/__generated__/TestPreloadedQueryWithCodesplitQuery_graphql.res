@@ -35,7 +35,7 @@ type queryRef
 
 module Internal = {
   @live
-  let variablesConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
+  let variablesConverter: dict<dict<dict<string>>> = %raw(
     json`{}`
   )
   @live
@@ -44,12 +44,12 @@ module Internal = {
   let convertVariables = v => v->RescriptRelay.convertObj(
     variablesConverter,
     variablesConverterMap,
-    Js.undefined
+    None
   )
   @live
   type wrapResponseRaw
   @live
-  let wrapResponseConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
+  let wrapResponseConverter: dict<dict<dict<string>>> = %raw(
     json`{"__root":{"member":{"u":"response_member"}}}`
   )
   @live
@@ -60,12 +60,12 @@ module Internal = {
   let convertWrapResponse = v => v->RescriptRelay.convertObj(
     wrapResponseConverter,
     wrapResponseConverterMap,
-    Js.null
+    null
   )
   @live
   type responseRaw
   @live
-  let responseConverter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(
+  let responseConverter: dict<dict<dict<string>>> = %raw(
     json`{"__root":{"member":{"u":"response_member"}}}`
   )
   @live
@@ -76,7 +76,7 @@ module Internal = {
   let convertResponse = v => v->RescriptRelay.convertObj(
     responseConverter,
     responseConverterMap,
-    Js.undefined
+    None
   )
   type wrapRawResponseRaw = wrapResponseRaw
   @live
@@ -84,7 +84,7 @@ module Internal = {
   type rawResponseRaw = responseRaw
   @live
   let convertRawResponse = convertResponse
-  type rawPreloadToken<'response> = {source: Js.Nullable.t<RescriptRelay.Observable.t<'response>>}
+  type rawPreloadToken<'response> = {source: Nullable.t<RescriptRelay.Observable.t<'response>>}
   external tokenToRaw: queryRef => rawPreloadToken<Types.response> = "%identity"
 }
 module Utils = {
@@ -94,7 +94,7 @@ module Utils = {
 
 module CodesplitComponents = {
   module UserAvatar = {
-    let make = React.lazy_(() => Js.import(UserAvatar.make))
+    let make = React.lazy_(() => import(UserAvatar.make))
   }
 }
 
@@ -244,19 +244,19 @@ return {
 })() `)
 
 let node = RescriptRelay_Internal.applyCodesplitMetadata(node, [
-  ("member.$$u$$User", (_variables: dict<Js.Json.t>) => {Js.import(UserAvatar.make)->ignore; Js.import(UserName.make)->ignore}), 
+  ("member.$$u$$User", (_variables: dict<JSON.t>) => {import(UserAvatar.make)->ignore; import(UserName.make)->ignore}), 
 ])
 
 
 @live
 let queryRefToObservable = token => {
   let raw = token->Internal.tokenToRaw
-  raw.source->Js.Nullable.toOption
+  raw.source->Nullable.toOption
 }
   
 @live
 let queryRefToPromise = token => {
-  Js.Promise.make((~resolve, ~reject as _) => {
+  Promise.make((resolve, _reject) => {
     switch token->queryRefToObservable {
     | None => resolve(Error())
     | Some(o) =>
