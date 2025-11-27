@@ -851,7 +851,7 @@ fn write_object_maker_for_refetch_variables(
         .enumerate()
         .for_each(|(index, prop_value)| {
             write_indentation(str, indentation + 1).unwrap();
-            write!(str, "{}: {}", prop_value.key, prop_value.key).unwrap();
+            write!(str, "{}: ?{}", prop_value.key, prop_value.key).unwrap();
             writeln!(str, "{}", if index + 1 == num_props { "" } else { "," }).unwrap();
         });
 
@@ -1558,7 +1558,9 @@ fn write_object_definition_body(
             },
             if write_as_mutable { "mutable " } else { "" },
             prop.key,
-            if state.operation_meta_data.is_updatable
+            if is_refetch_var {
+                "?"
+            } else if state.operation_meta_data.is_updatable
                 && can_apply_updatable_optionality
                 && use_safe_updatable
             {
@@ -1582,7 +1584,7 @@ fn write_object_definition_body(
             // opted to have some logic here I feel is clear, but maybe not the most efficient.
             match (prop.nullable, is_refetch_var) {
                 (true, true) => format!(
-                    "option<option<{}>>",
+                    "option<{}>",
                     get_object_prop_type_as_string(
                         state,
                         &prop.prop_type,
@@ -1591,7 +1593,7 @@ fn write_object_definition_body(
                         &field_path_name
                     )
                 ),
-                (true, false) | (false, true) => format!(
+                (true, false) => format!(
                     "{}",
                     if output_as_optional_fields
                         && prop.nullable
@@ -1618,7 +1620,7 @@ fn write_object_definition_body(
                         )
                     }
                 ),
-                (false, false) => format!(
+                (false, false) | (false, true) => format!(
                     "{}",
                     get_object_prop_type_as_string(
                         state,
@@ -2501,9 +2503,8 @@ impl Writer for ReScriptPrinter {
                     false,
                 ) => {
                     // Refetch variables are the regular variables, but with all
-                    // top level fields forced to be optional. Note: This is not
-                    // 100% and we'll need to revisit this at a later point in
-                    // order to support sending actual "null" values here.
+                    // top level fields emitted as optional fields so callers can
+                    // omit unchanged values while still allowing explicit nulls.
                     let variables_as_refetch_variables = Object {
                         comment: None,
                         at_path: vec![String::from("variables")],
@@ -2533,7 +2534,7 @@ impl Writer for ReScriptPrinter {
                         Some(String::from("refetchVariables")),
                         &Context::Variables,
                         true,
-                        false,
+                        true,
                     )
                     .unwrap();
 
