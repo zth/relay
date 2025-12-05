@@ -1225,8 +1225,8 @@ pub fn generate_operation_rescript(
         "{}",
         match typegen_operation.kind {
             graphql_syntax::OperationKind::Query => get_load_query_code(
-                !is_operation_preloadable(normalization_operation),
-                project_config.rescript_relay_mode == RescriptRelayMode::NonReact,
+                !is_operation_preloadable(normalization_operation)
+                    && project_config.rescript_relay_mode != RescriptRelayMode::NonReact,
             ),
             graphql_syntax::OperationKind::Mutation
             | graphql_syntax::OperationKind::Subscription => "".intern()
