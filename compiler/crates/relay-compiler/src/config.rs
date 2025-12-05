@@ -424,6 +424,7 @@ impl Config {
                     persist: config_file_project.persist,
                     variable_names_comment: config_file_project.variable_names_comment,
                     auto_exhaustive_mutations: config_file_project.auto_exhaustive_mutations,
+                    auto_exhaustive_types: config_file_project.auto_exhaustive_types.clone(),
                     test_path_regex,
                     feature_flags: Arc::new(
                         config_file_project
@@ -1217,6 +1218,10 @@ pub struct ConfigFileProject {
     /// returning union types.
     #[serde(default)]
     auto_exhaustive_mutations: bool,
+
+    /// Union/interface types that should be validated exhaustively without adding @exhaustive manually.
+    #[serde(default)]
+    auto_exhaustive_types: Vec<StringKey>,
 
     /// A placeholder for allowing extra information in the config file
     #[serde(default)]

@@ -1,0 +1,9 @@
+#expected-to-throw
+query AutoTypeMissing {
+  me {
+    nameRenderer {
+      ... on PlainUserNameRenderer { __typename }
+      ... on MarkdownUserNameRenderer { __typename }
+    }
+  }
+}

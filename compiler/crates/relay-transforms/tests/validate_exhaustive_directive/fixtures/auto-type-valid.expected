@@ -1,0 +1,32 @@
+==================================== INPUT ====================================
+query AutoTypeValid {
+  me {
+    nameRenderer {
+      ... on PlainUserNameRenderer {
+        __typename
+      }
+      ... on MarkdownUserNameRenderer {
+        __typename
+      }
+      ... on CustomNameRenderer {
+        __typename
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+query AutoTypeValid {
+  me {
+    nameRenderer {
+      ... on PlainUserNameRenderer {
+        __typename
+      }
+      ... on MarkdownUserNameRenderer {
+        __typename
+      }
+      ... on CustomNameRenderer {
+        __typename
+      }
+    }
+  }
+}
