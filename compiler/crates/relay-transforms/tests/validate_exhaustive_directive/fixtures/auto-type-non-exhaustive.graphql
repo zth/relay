@@ -1,0 +1,7 @@
+query AutoTypeNonExhaustive {
+  me {
+    nameRenderer @nonExhaustive {
+      ... on PlainUserNameRenderer { __typename }
+    }
+  }
+}

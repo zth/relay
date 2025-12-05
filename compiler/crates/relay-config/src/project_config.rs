@@ -297,6 +297,8 @@ pub struct ProjectConfig {
     /// Automatically enforce exhaustive union selections on mutation fields
     /// returning union types.
     pub auto_exhaustive_mutations: bool,
+    /// GraphQL union or interface type names that should always be exhaustively validated.
+    pub auto_exhaustive_types: Vec<StringKey>,
     /// Additional metadata for the project.
     pub extra: serde_json::Value,
     /// Feature flags for the project.
@@ -344,6 +346,7 @@ impl Default for ProjectConfig {
             persist: None,
             variable_names_comment: false,
             auto_exhaustive_mutations: false,
+            auto_exhaustive_types: vec![],
             extra: Default::default(),
             test_path_regex: None,
             rollout: Default::default(),
@@ -379,6 +382,7 @@ impl Debug for ProjectConfig {
             persist,
             variable_names_comment,
             auto_exhaustive_mutations,
+            auto_exhaustive_types,
             extra,
             feature_flags,
             test_path_regex,
@@ -410,6 +414,7 @@ impl Debug for ProjectConfig {
             .field("persist", persist)
             .field("variable_names_comment", variable_names_comment)
             .field("auto_exhaustive_mutations", auto_exhaustive_mutations)
+            .field("auto_exhaustive_types", auto_exhaustive_types)
             .field("extra", extra)
             .field("feature_flags", feature_flags)
             .field("test_path_regex", test_path_regex)

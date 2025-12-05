@@ -361,6 +361,13 @@ Marks a field as exhaustive.
 directive @exhaustive(ignore: [String!], disabled: Boolean) on FIELD | FRAGMENT_DEFINITION
 
 """
+(RescriptRelay only)
+
+Opt out of automatic exhaustive validation for a field or fragment.
+"""
+directive @nonExhaustive on FIELD | FRAGMENT_DEFINITION
+
+"""
 (Relay Only)
 
 **To resolve, replace `@dangerously_unaliased_fixme` with `@alias`**

@@ -18,6 +18,7 @@ use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 use relay_config::ProjectConfig;
+use schema::FieldID;
 use schema::InterfaceID;
 use schema::ObjectID;
 use schema::SDLSchema;
@@ -29,6 +30,8 @@ use crate::ValidationMessage;
 
 lazy_static! {
     pub static ref EXHAUSTIVE_DIRECTIVE_NAME: DirectiveName = DirectiveName("exhaustive".intern());
+    pub static ref NON_EXHAUSTIVE_DIRECTIVE_NAME: DirectiveName =
+        DirectiveName("nonExhaustive".intern());
     pub static ref IGNORE_ARG_NAME: ArgumentName = ArgumentName("ignore".intern());
     pub static ref DISABLED_ARG_NAME: ArgumentName = ArgumentName("disabled".intern());
 }
@@ -52,6 +55,7 @@ struct ExhaustiveDirectiveValidator<'schema, 'program, 'pc> {
     program: &'program Program,
     project_config: &'pc ProjectConfig,
     is_mutation: bool,
+    auto_exhaustive_types: std::collections::HashSet<StringKey>,
     errors: Vec<Diagnostic>,
 }
 
@@ -66,6 +70,11 @@ impl<'schema, 'program, 'pc> ExhaustiveDirectiveValidator<'schema, 'program, 'pc
             program,
             project_config,
             is_mutation: false,
+            auto_exhaustive_types: project_config
+                .auto_exhaustive_types
+                .iter()
+                .copied()
+                .collect(),
             errors: vec![],
         }
     }
@@ -128,9 +137,8 @@ impl<'schema, 'program, 'pc> ExhaustiveDirectiveValidator<'schema, 'program, 'pc
             .recursively_implementing_objects(self.schema.as_ref())
             .into_iter()
             .collect::<Vec<_>>();
-        implementing_objects.sort_by_key(|object_id| {
-            self.schema.get_type_name(Type::Object(*object_id))
-        });
+        implementing_objects
+            .sort_by_key(|object_id| self.schema.get_type_name(Type::Object(*object_id)));
 
         let mut missing_members = Vec::new();
 
@@ -151,6 +159,10 @@ impl<'schema, 'program, 'pc> ExhaustiveDirectiveValidator<'schema, 'program, 'pc
         let mut ignored = std::collections::HashSet::new();
         let mut has_directive = false;
         let mut disabled = false;
+        let has_non_exhaustive = field
+            .directives
+            .named(*NON_EXHAUSTIVE_DIRECTIVE_NAME)
+            .is_some();
 
         if let Some(directive) = field.directives.named(*EXHAUSTIVE_DIRECTIVE_NAME) {
             has_directive = true;
@@ -158,10 +170,14 @@ impl<'schema, 'program, 'pc> ExhaustiveDirectiveValidator<'schema, 'program, 'pc
                 Self::parse_exhaustive_directive_args(directive);
             ignored = parsed_ignored;
             disabled = parsed_disabled;
+        } else if has_non_exhaustive {
+            return;
         } else if self.project_config.auto_exhaustive_mutations
             && self.is_mutation
             && self.field_is_top_level_mutation(field)
         {
+            has_directive = true;
+        } else if self.field_return_type_is_auto_exhaustive(field.definition.item) {
             has_directive = true;
         }
 
@@ -213,13 +229,27 @@ impl<'schema, 'program, 'pc> ExhaustiveDirectiveValidator<'schema, 'program, 'pc
     }
 
     fn validate_exhaustive_fragment(&mut self, fragment: &FragmentDefinition) {
-        let Some(directive) = fragment.directives.named(*EXHAUSTIVE_DIRECTIVE_NAME) else {
+        let mut ignored = std::collections::HashSet::new();
+        let mut disabled = false;
+        let mut has_directive = false;
+        let has_non_exhaustive = fragment
+            .directives
+            .named(*NON_EXHAUSTIVE_DIRECTIVE_NAME)
+            .is_some();
+
+        if let Some(directive) = fragment.directives.named(*EXHAUSTIVE_DIRECTIVE_NAME) {
+            has_directive = true;
+            let (parsed_ignored, parsed_disabled) =
+                Self::parse_exhaustive_directive_args(directive);
+            ignored = parsed_ignored;
+            disabled = parsed_disabled;
+        } else if has_non_exhaustive {
             return;
-        };
+        } else if self.type_is_auto_exhaustive(fragment.type_condition) {
+            has_directive = true;
+        }
 
-        let (ignored, disabled) = Self::parse_exhaustive_directive_args(directive);
-
-        if disabled {
+        if !has_directive || disabled {
             return;
         }
 
@@ -319,6 +349,26 @@ impl<'schema, 'program, 'pc> ExhaustiveDirectiveValidator<'schema, 'program, 'pc
         ) {
             (Some(Type::Object(root)), Some(Type::Object(parent))) => root == parent,
             _ => false,
+        }
+    }
+
+    fn type_is_auto_exhaustive(&self, type_: Type) -> bool {
+        let Some(type_name) = self.get_auto_exhaustive_type_name(type_) else {
+            return false;
+        };
+        self.auto_exhaustive_types.contains(&type_name)
+    }
+
+    fn field_return_type_is_auto_exhaustive(&self, field_id: FieldID) -> bool {
+        let return_type = self.schema.field(field_id).type_.inner();
+        self.type_is_auto_exhaustive(return_type)
+    }
+
+    fn get_auto_exhaustive_type_name(&self, type_: Type) -> Option<StringKey> {
+        match type_ {
+            Type::Union(id) => Some(self.schema.get_type_name(Type::Union(id))),
+            Type::Interface(id) => Some(self.schema.get_type_name(Type::Interface(id))),
+            _ => None,
         }
     }
 }

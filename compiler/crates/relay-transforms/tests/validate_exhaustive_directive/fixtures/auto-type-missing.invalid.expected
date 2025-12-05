@@ -1,0 +1,19 @@
+==================================== INPUT ====================================
+#expected-to-throw
+query AutoTypeMissing {
+  me {
+    nameRenderer {
+      ... on PlainUserNameRenderer { __typename }
+      ... on MarkdownUserNameRenderer { __typename }
+    }
+  }
+}
+==================================== ERROR ====================================
+✖︎ Field 'nameRenderer' marked with @exhaustive is missing selection for union members: 'CustomNameRenderer'.
+
+  auto-type-missing.invalid.graphql:4:5
+    2 │ query AutoTypeMissing {
+    3 │   me {
+    4 │     nameRenderer {
+      │     ^^^^^^^^^^^^
+    5 │       ... on PlainUserNameRenderer { __typename }

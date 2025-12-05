@@ -1,0 +1,16 @@
+==================================== INPUT ====================================
+query AutoTypeNonExhaustive {
+  me {
+    nameRenderer @nonExhaustive {
+      ... on PlainUserNameRenderer { __typename }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+query AutoTypeNonExhaustive {
+  me {
+    nameRenderer @nonExhaustive {
+      ... on PlainUserNameRenderer { __typename }
+    }
+  }
+}
