@@ -35,7 +35,7 @@ pub fn get_load_fn_code() -> StringKey {
     .intern()
 }
 
-pub fn get_load_query_code(include_load_fn: bool, non_react: bool) -> StringKey {
+pub fn get_load_query_code(include_load_fn: bool) -> StringKey {
     format!(
         "{}
 
@@ -56,7 +56,7 @@ let queryRefToPromise = token => {{
     }}
   }})
 }}",
-        if include_load_fn && !non_react {
+        if include_load_fn {
             get_load_fn_code()
         } else {
             "".intern()
