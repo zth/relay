@@ -34,6 +34,7 @@ pub use project_config::LocalPersistAlgorithm;
 pub use project_config::LocalPersistConfig;
 pub use project_config::PersistConfig;
 pub use project_config::ProjectConfig;
+pub use project_config::RescriptRelayMode;
 pub use project_config::RemotePersistConfig;
 pub use project_config::SchemaConfig;
 pub use project_config::SchemaLocation;

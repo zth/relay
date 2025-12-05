@@ -47,6 +47,7 @@ use super::rescript_relay_utils::write_codesplit_components;
 use super::rescript_relay_utils::write_codesplits_node_modifier;
 use crate::config::Config;
 use crate::config::ProjectConfig;
+use crate::config::RescriptRelayMode;
 
 pub fn generate_preloadable_query_parameters(
     config: &Config,
@@ -1223,7 +1224,10 @@ pub fn generate_operation_rescript(
         section,
         "{}",
         match typegen_operation.kind {
-            graphql_syntax::OperationKind::Query => get_load_query_code(!is_operation_preloadable(normalization_operation)),
+            graphql_syntax::OperationKind::Query => get_load_query_code(
+                !is_operation_preloadable(normalization_operation),
+                project_config.rescript_relay_mode == RescriptRelayMode::NonReact,
+            ),
             graphql_syntax::OperationKind::Mutation
             | graphql_syntax::OperationKind::Subscription => "".intern()
         }

@@ -259,7 +259,7 @@ let node: operationType = makeNode(RescriptRelay.resolverDataInjector, TestRelay
   ~fetchKey=?,
   ~networkCacheConfig=?,
 ) =>
-  RescriptRelay.loadQuery(
+  RescriptRelayReact.loadQuery(
     environment,
     node,
     variables->Internal.convertVariables,
