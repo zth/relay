@@ -323,6 +323,9 @@ pub struct ProjectConfig {
     /// Treats JS module paths as relative to './' when true, and leaves JS
     /// module paths unmodified when false.
     pub relativize_js_module_paths: bool,
+    /// Mode for RescriptRelay-specific codegen tweaks.
+    /// Default: React-enabled (loadQuery emitted). NonReact: omit React helpers.
+    pub rescript_relay_mode: RescriptRelayMode,
 }
 
 impl Default for ProjectConfig {
@@ -358,6 +361,7 @@ impl Default for ProjectConfig {
             input_unions: Default::default(),
             get_custom_path_for_artifact: None,
             relativize_js_module_paths: true,
+            rescript_relay_mode: RescriptRelayMode::Default,
         }
     }
 }
@@ -395,6 +399,7 @@ impl Debug for ProjectConfig {
             input_unions,
             get_custom_path_for_artifact: _,
             relativize_js_module_paths,
+            rescript_relay_mode,
         } = self;
         f.debug_struct("ProjectConfig")
             .field("name", name)
@@ -426,6 +431,7 @@ impl Debug for ProjectConfig {
             .field("codegen_command", codegen_command)
             .field("input_unions", input_unions)
             .field("relativize_js_module_paths", relativize_js_module_paths)
+            .field("rescript_relay_mode", rescript_relay_mode)
             .finish()
     }
 }
@@ -551,4 +557,18 @@ fn format_normalized_path(path: &Path) -> String {
     path.to_string_lossy()
         .to_string()
         .replace(MAIN_SEPARATOR, "/")
+}
+#[derive(Debug, Serialize, Deserialize, JsonSchema, Clone, Copy, PartialEq, Eq)]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
+pub enum RescriptRelayMode {
+    #[serde(rename = "Default")]
+    Default,
+    #[serde(rename = "NonReact")]
+    NonReact,
+}
+
+impl Default for RescriptRelayMode {
+    fn default() -> Self {
+        RescriptRelayMode::Default
+    }
 }

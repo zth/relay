@@ -41,6 +41,7 @@ pub use relay_config::LocalPersistConfig;
 use relay_config::ModuleImportConfig;
 pub use relay_config::PersistConfig;
 pub use relay_config::ProjectConfig;
+pub use relay_config::RescriptRelayMode;
 use relay_config::ProjectName;
 pub use relay_config::RemotePersistConfig;
 use relay_config::ResolversSchemaModuleConfig;
@@ -440,6 +441,9 @@ impl Config {
                     codegen_command: config_file_project.codegen_command,
                     input_unions: config_file_project.input_unions,
                     get_custom_path_for_artifact: None,
+                    rescript_relay_mode: config_file_project
+                        .rescript_relay_mode
+                        .unwrap_or(RescriptRelayMode::Default),
                 };
                 Ok((project_name, project_config))
             })
@@ -965,6 +969,10 @@ pub struct SingleProjectConfigFile {
     /// A placeholder for allowing extra information in the config file
     #[serde(default)]
     pub extra: serde_json::Value,
+
+    /// RescriptRelay mode toggle (Default | NonReact). Default is React-enabled.
+    #[serde(default)]
+    pub rescript_relay_mode: Option<RescriptRelayMode>,
 }
 
 impl Default for SingleProjectConfigFile {
@@ -990,6 +998,7 @@ impl Default for SingleProjectConfigFile {
             input_unions: Default::default(),
             no_source_control: Some(false),
             extra: Default::default(),
+            rescript_relay_mode: Default::default(),
         }
     }
 }
@@ -1074,6 +1083,7 @@ impl SingleProjectConfigFile {
             resolvers_schema_module: self.resolvers_schema_module,
             input_unions: self.input_unions,
             extra: self.extra,
+            rescript_relay_mode: self.rescript_relay_mode,
             ..Default::default()
         };
 
@@ -1270,6 +1280,10 @@ pub struct ConfigFileProject {
 
     #[serde(default)]
     pub input_unions: Option<Vec<StringKey>>,
+
+    /// RescriptRelay mode toggle (Default | NonReact). Default is React-enabled.
+    #[serde(default)]
+    pub rescript_relay_mode: Option<RescriptRelayMode>,
 }
 
 pub type PersistId = String;
