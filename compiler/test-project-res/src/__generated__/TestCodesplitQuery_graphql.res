@@ -31,12 +31,12 @@ module Types = {
   }
   @live
   type refetchVariables = {
-    includeFriendAvatar: option<bool>,
+    includeFriendAvatar?: bool,
   }
   @live let makeRefetchVariables = (
     ~includeFriendAvatar=?,
   ): refetchVariables => {
-    includeFriendAvatar: includeFriendAvatar
+    includeFriendAvatar: ?includeFriendAvatar
   }
 
 }

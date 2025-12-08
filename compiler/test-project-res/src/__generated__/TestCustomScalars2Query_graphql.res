@@ -15,12 +15,12 @@ module Types = {
   }
   @live
   type refetchVariables = {
-    asArray: option<array<SomeModule.Datetime.t>>,
+    asArray?: array<SomeModule.Datetime.t>,
   }
   @live let makeRefetchVariables = (
     ~asArray=?,
   ): refetchVariables => {
-    asArray: asArray
+    asArray: ?asArray
   }
 
 }
