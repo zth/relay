@@ -207,3 +207,41 @@ async fn interface_missing_member() {
     )
     .await;
 }
+
+#[tokio::test]
+async fn inline_fragment_all_members_valid() {
+    let input = include_str!(
+        "validate_exhaustive_directive/fixtures/inline-fragment-all-members-valid.graphql"
+    );
+    let expected = include_str!(
+        "validate_exhaustive_directive/fixtures/inline-fragment-all-members-valid.expected"
+    );
+    test_fixture(
+        transform_fixture,
+        file!(),
+        "inline-fragment-all-members-valid.graphql",
+        "validate_exhaustive_directive/fixtures/inline-fragment-all-members-valid.expected",
+        input,
+        expected,
+    )
+    .await;
+}
+
+#[tokio::test]
+async fn inline_fragment_missing_member() {
+    let input = include_str!(
+        "validate_exhaustive_directive/fixtures/inline-fragment-missing-member.invalid.graphql"
+    );
+    let expected = include_str!(
+        "validate_exhaustive_directive/fixtures/inline-fragment-missing-member.invalid.expected"
+    );
+    test_fixture(
+        transform_fixture,
+        file!(),
+        "inline-fragment-missing-member.invalid.graphql",
+        "validate_exhaustive_directive/fixtures/inline-fragment-missing-member.invalid.expected",
+        input,
+        expected,
+    )
+    .await;
+}

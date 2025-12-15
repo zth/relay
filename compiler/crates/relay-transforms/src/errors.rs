@@ -241,7 +241,15 @@ pub enum ValidationMessage {
     },
 
     #[error(
-        "The @exhaustive directive can only be applied to fields or fragment definitions returning union or interface types."
+        "Inline fragment marked with @exhaustive is missing selection for {type_description}: {member_names}."
+    )]
+    MissingExhaustiveMembersOnInlineFragment {
+        member_names: String,
+        type_description: &'static str,
+    },
+
+    #[error(
+        "The @exhaustive directive can only be applied to fields, inline fragments, or fragment definitions returning union or interface types."
     )]
     ExhaustiveDirectiveOnNonUnionOrInterfaceField,
 }
