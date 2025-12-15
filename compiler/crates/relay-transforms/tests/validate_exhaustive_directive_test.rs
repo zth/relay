@@ -190,6 +190,25 @@ async fn interface_all_members_valid() {
 }
 
 #[tokio::test]
+async fn inline_fragment_with_alias_exhaustive() {
+    let input = include_str!(
+        "validate_exhaustive_directive/fixtures/inline-fragment-with-alias-exhaustive.graphql"
+    );
+    let expected = include_str!(
+        "validate_exhaustive_directive/fixtures/inline-fragment-with-alias-exhaustive.expected"
+    );
+    test_fixture(
+        transform_fixture,
+        file!(),
+        "inline-fragment-with-alias-exhaustive.graphql",
+        "validate_exhaustive_directive/fixtures/inline-fragment-with-alias-exhaustive.expected",
+        input,
+        expected,
+    )
+    .await;
+}
+
+#[tokio::test]
 async fn interface_missing_member() {
     let input = include_str!(
         "validate_exhaustive_directive/fixtures/interface-missing-member.invalid.graphql"
@@ -240,6 +259,25 @@ async fn inline_fragment_missing_member() {
         file!(),
         "inline-fragment-missing-member.invalid.graphql",
         "validate_exhaustive_directive/fixtures/inline-fragment-missing-member.invalid.expected",
+        input,
+        expected,
+    )
+    .await;
+}
+
+#[tokio::test]
+async fn inline_fragment_auto_type_missing() {
+    let input = include_str!(
+        "validate_exhaustive_directive/fixtures/inline-fragment-auto-type-missing.invalid.graphql"
+    );
+    let expected = include_str!(
+        "validate_exhaustive_directive/fixtures/inline-fragment-auto-type-missing.invalid.expected"
+    );
+    test_fixture(
+        transform_fixture,
+        file!(),
+        "inline-fragment-auto-type-missing.invalid.graphql",
+        "validate_exhaustive_directive/fixtures/inline-fragment-auto-type-missing.invalid.expected",
         input,
         expected,
     )

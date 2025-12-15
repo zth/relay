@@ -1,0 +1,20 @@
+==================================== INPUT ====================================
+#expected-to-throw
+query InlineFragmentAutoTypeMissing {
+  me {
+    nameRenderer @nonExhaustive {
+      ... {
+        ... on PlainUserNameRenderer { __typename }
+        ... on MarkdownUserNameRenderer { __typename }
+      }
+    }
+  }
+}
+==================================== ERROR ====================================
+✖︎ Inline fragment marked with @exhaustive is missing selection for union members: 'CustomNameRenderer'.
+
+  inline-fragment-auto-type-missing.invalid.graphql:5:7
+    4 │     nameRenderer @nonExhaustive {
+    5 │       ... {
+      │       ^^^
+    6 │         ... on PlainUserNameRenderer { __typename }

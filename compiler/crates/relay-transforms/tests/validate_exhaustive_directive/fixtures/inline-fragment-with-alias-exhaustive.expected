@@ -1,0 +1,30 @@
+==================================== INPUT ====================================
+query InlineFragmentWithAliasExhaustive {
+  me {
+    nameRenderer {
+      ... @alias(as: "widget") @exhaustive {
+        ... on PlainUserNameRenderer { __typename }
+        ... on MarkdownUserNameRenderer { __typename }
+        ... on CustomNameRenderer { __typename }
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+query InlineFragmentWithAliasExhaustive {
+  me {
+    nameRenderer {
+      ... @alias(as: "widget") @exhaustive {
+        ... on PlainUserNameRenderer {
+          __typename
+        }
+        ... on MarkdownUserNameRenderer {
+          __typename
+        }
+        ... on CustomNameRenderer {
+          __typename
+        }
+      }
+    }
+  }
+}

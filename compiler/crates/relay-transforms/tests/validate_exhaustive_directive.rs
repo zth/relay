@@ -13,7 +13,9 @@ use relay_transforms::validate_exhaustive_directive;
 
 pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     apply_transform_for_test(fixture, |program| {
-        let auto_exhaustive_types = if fixture.file_name.contains("auto-type") {
+        let auto_exhaustive_types = if fixture.file_name.contains("auto-type")
+            || fixture.file_name.contains("inline-fragment-auto-type")
+        {
             vec!["UserNameRenderer".intern()]
         } else {
             vec![]
