@@ -380,20 +380,6 @@ impl<'schema, 'program, 'pc> ExhaustiveDirectiveValidator<'schema, 'program, 'pc
             .named(*NON_EXHAUSTIVE_DIRECTIVE_NAME)
             .is_some();
 
-        if let Some(directive) = inline_fragment.directives.named(*EXHAUSTIVE_DIRECTIVE_NAME) {
-            has_directive = true;
-            let (parsed_ignored, parsed_disabled) =
-                Self::parse_exhaustive_directive_args(directive);
-            ignored = parsed_ignored;
-            disabled = parsed_disabled;
-        } else if has_non_exhaustive {
-            return;
-        }
-
-        if !has_directive || disabled {
-            return;
-        }
-
         // Determine the type against which to validate coverage.
         let target_type = if let Some(type_condition) = inline_fragment.type_condition {
             type_condition
@@ -403,6 +389,22 @@ impl<'schema, 'program, 'pc> ExhaustiveDirectiveValidator<'schema, 'program, 'pc
             // Should not happen in practice, but bail out safely.
             return;
         };
+
+        if let Some(directive) = inline_fragment.directives.named(*EXHAUSTIVE_DIRECTIVE_NAME) {
+            has_directive = true;
+            let (parsed_ignored, parsed_disabled) =
+                Self::parse_exhaustive_directive_args(directive);
+            ignored = parsed_ignored;
+            disabled = parsed_disabled;
+        } else if has_non_exhaustive {
+            return;
+        } else if self.type_is_auto_exhaustive(target_type) {
+            has_directive = true;
+        }
+
+        if !has_directive || disabled {
+            return;
+        }
 
         let (missing_members, type_description) = match target_type {
             Type::Union(id) => (

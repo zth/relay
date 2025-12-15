@@ -1,0 +1,11 @@
+#expected-to-throw
+query InlineFragmentAutoTypeMissing {
+  me {
+    nameRenderer @nonExhaustive {
+      ... {
+        ... on PlainUserNameRenderer { __typename }
+        ... on MarkdownUserNameRenderer { __typename }
+      }
+    }
+  }
+}
