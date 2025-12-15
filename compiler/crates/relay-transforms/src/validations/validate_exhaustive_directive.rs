@@ -7,6 +7,7 @@ use common::DirectiveName;
 use common::NamedItem;
 use graphql_ir::ConstantValue;
 use graphql_ir::FragmentDefinition;
+use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
 use graphql_ir::OperationDefinition;
 use graphql_ir::Program;
@@ -55,6 +56,7 @@ struct ExhaustiveDirectiveValidator<'schema, 'program, 'pc> {
     program: &'program Program,
     project_config: &'pc ProjectConfig,
     is_mutation: bool,
+    parent_type: Option<Type>,
     auto_exhaustive_types: std::collections::HashSet<StringKey>,
     errors: Vec<Diagnostic>,
 }
@@ -70,6 +72,7 @@ impl<'schema, 'program, 'pc> ExhaustiveDirectiveValidator<'schema, 'program, 'pc
             program,
             project_config,
             is_mutation: false,
+            parent_type: None,
             auto_exhaustive_types: project_config
                 .auto_exhaustive_types
                 .iter()
@@ -342,6 +345,104 @@ impl<'schema, 'program, 'pc> ExhaustiveDirectiveValidator<'schema, 'program, 'pc
         false
     }
 
+    fn has_selection_for_object_in_inline_fragment(
+        &self,
+        inline_fragment: &InlineFragment,
+        object_id: ObjectID,
+    ) -> bool {
+        let obj_type = Type::Object(object_id);
+        for selection in &inline_fragment.selections {
+            match selection {
+                Selection::InlineFragment(frag) => {
+                    if frag.type_condition == Some(obj_type) {
+                        return true;
+                    }
+                }
+                Selection::FragmentSpread(frag_spread) => {
+                    if let Some(frag_def) = self.program.fragment(frag_spread.fragment.item) {
+                        if frag_def.type_condition == obj_type {
+                            return true;
+                        }
+                    }
+                }
+                _ => {}
+            }
+        }
+        false
+    }
+
+    fn validate_exhaustive_inline_fragment(&mut self, inline_fragment: &InlineFragment) {
+        let mut ignored = std::collections::HashSet::new();
+        let mut disabled = false;
+        let mut has_directive = false;
+        let has_non_exhaustive = inline_fragment
+            .directives
+            .named(*NON_EXHAUSTIVE_DIRECTIVE_NAME)
+            .is_some();
+
+        if let Some(directive) = inline_fragment.directives.named(*EXHAUSTIVE_DIRECTIVE_NAME) {
+            has_directive = true;
+            let (parsed_ignored, parsed_disabled) =
+                Self::parse_exhaustive_directive_args(directive);
+            ignored = parsed_ignored;
+            disabled = parsed_disabled;
+        } else if has_non_exhaustive {
+            return;
+        }
+
+        if !has_directive || disabled {
+            return;
+        }
+
+        // Determine the type against which to validate coverage.
+        let target_type = if let Some(type_condition) = inline_fragment.type_condition {
+            type_condition
+        } else if let Some(parent_type) = self.parent_type {
+            parent_type
+        } else {
+            // Should not happen in practice, but bail out safely.
+            return;
+        };
+
+        let (missing_members, type_description) = match target_type {
+            Type::Union(id) => (
+                self.check_exhaustive_union_coverage(id, &ignored, |object_id| {
+                    self.has_selection_for_object_in_inline_fragment(inline_fragment, object_id)
+                }),
+                "union members",
+            ),
+            Type::Interface(id) => (
+                self.check_exhaustive_interface_coverage(id, &ignored, |object_id| {
+                    self.has_selection_for_object_in_inline_fragment(inline_fragment, object_id)
+                }),
+                "interface implementations",
+            ),
+            _ => {
+                self.errors.push(Diagnostic::error(
+                    ValidationMessage::ExhaustiveDirectiveOnNonUnionOrInterfaceField,
+                    inline_fragment.spread_location,
+                ));
+                return;
+            }
+        };
+
+        if !missing_members.is_empty() {
+            let member_names = missing_members
+                .iter()
+                .map(|name| format!("'{}'", name))
+                .collect::<Vec<_>>()
+                .join(", ");
+
+            self.errors.push(Diagnostic::error(
+                ValidationMessage::MissingExhaustiveMembersOnInlineFragment {
+                    member_names,
+                    type_description,
+                },
+                inline_fragment.spread_location,
+            ));
+        }
+    }
+
     fn field_is_top_level_mutation(&self, field: &LinkedField) -> bool {
         match (
             self.schema.mutation_type(),
@@ -380,13 +481,22 @@ impl Validator for ExhaustiveDirectiveValidator<'_, '_, '_> {
 
     fn validate_linked_field(&mut self, field: &LinkedField) -> DiagnosticsResult<()> {
         self.validate_exhaustive(field);
-        self.default_validate_linked_field(field)
+        // Set parent type to the field's return type while validating children.
+        let prev_parent_type = self.parent_type;
+        let field_def = self.schema.field(field.definition.item);
+        self.parent_type = Some(field_def.type_.inner());
+        let res = self.default_validate_linked_field(field);
+        self.parent_type = prev_parent_type;
+        res
     }
 
     fn validate_operation(&mut self, operation: &OperationDefinition) -> DiagnosticsResult<()> {
         let prev = self.is_mutation;
         self.is_mutation = operation.is_mutation();
+        let prev_parent_type = self.parent_type;
+        self.parent_type = Some(operation.type_);
         let result = self.default_validate_operation(operation);
+        self.parent_type = prev_parent_type;
         self.is_mutation = prev;
         result
     }
@@ -403,6 +513,22 @@ impl Validator for ExhaustiveDirectiveValidator<'_, '_, '_> {
 
     fn validate_fragment(&mut self, fragment: &FragmentDefinition) -> DiagnosticsResult<()> {
         self.validate_exhaustive_fragment(fragment);
-        self.default_validate_fragment(fragment)
+        let prev_parent_type = self.parent_type;
+        self.parent_type = Some(fragment.type_condition);
+        let res = self.default_validate_fragment(fragment);
+        self.parent_type = prev_parent_type;
+        res
+    }
+
+    fn validate_inline_fragment(&mut self, fragment: &InlineFragment) -> DiagnosticsResult<()> {
+        self.validate_exhaustive_inline_fragment(fragment);
+        // Update parent type context for nested selections within this inline fragment.
+        let prev_parent_type = self.parent_type;
+        if let Some(type_condition) = fragment.type_condition {
+            self.parent_type = Some(type_condition);
+        }
+        let res = self.default_validate_inline_fragment(fragment);
+        self.parent_type = prev_parent_type;
+        res
     }
 }

@@ -358,14 +358,14 @@ directive @codesplit on FRAGMENT_SPREAD
 
 Marks a field as exhaustive.
 """
-directive @exhaustive(ignore: [String!], disabled: Boolean) on FIELD | FRAGMENT_DEFINITION
+directive @exhaustive(ignore: [String!], disabled: Boolean) on FIELD | FRAGMENT_DEFINITION | INLINE_FRAGMENT
 
 """
 (RescriptRelay only)
 
 Opt out of automatic exhaustive validation for a field or fragment.
 """
-directive @nonExhaustive on FIELD | FRAGMENT_DEFINITION
+directive @nonExhaustive on FIELD | FRAGMENT_DEFINITION | INLINE_FRAGMENT
 
 """
 (Relay Only)
