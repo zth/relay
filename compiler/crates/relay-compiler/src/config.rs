@@ -929,6 +929,15 @@ pub struct SingleProjectConfigFile {
     /// with the request (think API_KEY, APP_ID, etc...)
     pub persist_config: Option<PersistConfig>,
 
+    /// Automatically enforce exhaustive union selections on mutation fields
+    /// returning union types.
+    #[serde(default)]
+    pub auto_exhaustive_mutations: bool,
+
+    /// Union/interface types that should be validated exhaustively without adding @exhaustive manually.
+    #[serde(default)]
+    pub auto_exhaustive_types: Vec<StringKey>,
+
     /// We may generate some content in the artifacts that's stripped in production if __DEV__ variable is set
     /// This config option is here to define the name of that special variable
     pub is_dev_variable_name: Option<String>,
@@ -988,6 +997,8 @@ impl Default for SingleProjectConfigFile {
             schema_config: Default::default(),
             typegen_config: Default::default(),
             persist_config: None,
+            auto_exhaustive_mutations: false,
+            auto_exhaustive_types: vec![],
             is_dev_variable_name: None,
             codegen_command: None,
             js_module_format: JsModuleFormat::CommonJS,
@@ -1076,6 +1087,8 @@ impl SingleProjectConfigFile {
                 })
                 .collect(),
             persist: self.persist_config,
+            auto_exhaustive_mutations: self.auto_exhaustive_mutations,
+            auto_exhaustive_types: self.auto_exhaustive_types,
             typegen_config: self.typegen_config,
             js_module_format: self.js_module_format,
             feature_flags: self.feature_flags,
@@ -1338,4 +1351,36 @@ pub struct SavedStateClockDataJsonSchemaDef {
     #[serde(rename = "commit-id")]
     pub commit: Option<String>,
     pub config: Option<Value>,
+}
+
+#[cfg(test)]
+mod tests {
+    use intern::string_key::Intern;
+
+    use super::Config;
+
+    #[test]
+    fn single_project_auto_exhaustive_types_are_applied_to_project_config() {
+        let manifest_dir = env!("CARGO_MANIFEST_DIR");
+        let schema_path = format!("{manifest_dir}/Cargo.toml");
+        let config = serde_json::json!({
+            "src": manifest_dir,
+            "schema": schema_path,
+            "autoExhaustiveMutations": true,
+            "autoExhaustiveTypes": ["UserNameRenderer"],
+        });
+
+        let parsed = Config::from_string_for_test(&config.to_string())
+            .expect("single-project config should parse");
+        let project_config = parsed
+            .enabled_projects()
+            .next()
+            .expect("expected one project config");
+
+        assert!(project_config.auto_exhaustive_mutations);
+        assert_eq!(
+            project_config.auto_exhaustive_types,
+            vec!["UserNameRenderer".intern()]
+        );
+    }
 }

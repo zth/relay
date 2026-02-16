@@ -196,6 +196,18 @@
           "type": "boolean",
           "default": false
         },
+        "rescriptRelayMode": {
+          "description": "RescriptRelay mode toggle (Default | NonReact). Default is React-enabled.",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RescriptRelayMode"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "resolverContextType": {
           "description": "Indicates the type to import and use as the context for Relay Resolvers.",
           "anyOf": [
@@ -1132,6 +1144,13 @@
         "url"
       ]
     },
+    "RescriptRelayMode": {
+      "type": "string",
+      "enum": [
+        "Default",
+        "NonReact"
+      ]
+    },
     "ResolverContextTypeInput": {
       "description": "Describes the type to import and use as the context for Relay Resolvers.",
       "anyOf": [
@@ -1354,6 +1373,19 @@
           ],
           "default": null
         },
+        "autoExhaustiveMutations": {
+          "description": "Automatically enforce exhaustive union selections on mutation fields\nreturning union types.",
+          "type": "boolean",
+          "default": false
+        },
+        "autoExhaustiveTypes": {
+          "description": "Union/interface types that should be validated exhaustively without adding @exhaustive manually.",
+          "type": "array",
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/StringKey"
+          }
+        },
         "codegenCommand": {
           "description": "Name of the command that runs the relay compiler. This will be added at\nthe top of generated code to let readers know how to regenerate the file.",
           "type": [
@@ -1502,6 +1534,18 @@
           "description": "Require all GraphQL scalar types mapping to be defined, will throw\nif a GraphQL scalar type doesn't have a JS type",
           "type": "boolean",
           "default": false
+        },
+        "rescriptRelayMode": {
+          "description": "RescriptRelay mode toggle (Default | NonReact). Default is React-enabled.",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RescriptRelayMode"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "resolverContextType": {
           "description": "Indicates the type to import and use as the context for Relay Resolvers.",
