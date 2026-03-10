@@ -148,6 +148,13 @@ pub struct TypegenConfig {
     #[serde(default)]
     pub no_future_proof_enums: bool,
 
+    /// This option controls whether or not a catch-all entry is added to union and interface
+    /// type definitions for values that may be added in the future. Enabling this means you will
+    /// have to update your application whenever the GraphQL server schema adds new union members
+    /// or interface implementations to prevent it from breaking.
+    #[serde(default)]
+    pub no_future_proof_unions: bool,
+
     /// This option enables opting out of emitting es modules artifacts. When
     /// set to false, Relay will emit CommonJS modules.
     #[serde(default = "get_true")]
@@ -182,6 +189,7 @@ impl Default for TypegenConfig {
             custom_scalar_types: Default::default(),
             require_custom_scalar_types: Default::default(),
             no_future_proof_enums: Default::default(),
+            no_future_proof_unions: Default::default(),
             eager_es_modules: Default::default(),
             typescript_exclude_undefined_from_nullable_union: Default::default(),
             custom_error_type: None,

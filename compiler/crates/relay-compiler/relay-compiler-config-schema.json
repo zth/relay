@@ -158,6 +158,11 @@
           "type": "boolean",
           "default": false
         },
+        "noFutureProofUnions": {
+          "description": "This option controls whether or not a catch-all entry is added to union and interface type definitions\nfor values that may be added in the future. Enabling this means you will have to update\nyour application whenever the GraphQL server schema adds new union members or interface implementations to prevent it\nfrom breaking.",
+          "type": "boolean",
+          "default": false
+        },
         "optionalInputFields": {
           "title": "For Flow type generation",
           "description": "When set, generated input types will have the listed fields optional\neven if the schema defines them as required.",
@@ -1493,6 +1498,11 @@
         },
         "noFutureProofEnums": {
           "description": "This option controls whether or not a catch-all entry is added to enum type definitions\nfor values that may be added in the future. Enabling this means you will have to update\nyour application whenever the GraphQL server schema adds new enum values to prevent it\nfrom breaking.",
+          "type": "boolean",
+          "default": false
+        },
+        "noFutureProofUnions": {
+          "description": "This option controls whether or not a catch-all entry is added to union and interface type definitions\nfor values that may be added in the future. Enabling this means you will have to update\nyour application whenever the GraphQL server schema adds new union members or interface implementations to prevent it\nfrom breaking.",
           "type": "boolean",
           "default": false
         },

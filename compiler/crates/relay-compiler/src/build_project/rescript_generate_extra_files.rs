@@ -63,45 +63,7 @@ pub(crate) fn rescript_generate_extra_artifacts(
 
     let mut content = String::from("/* @generated */\n@@warning(\"-30\")\n\n");
 
-    // Write all enums
-    schema.enums().for_each(|e| {
-        if let Some(desc) = e.description {
-            writeln!(content, "/** {} */", desc).unwrap();
-        }
-
-        writeln!(content, "@live @unboxed\ntype enum_{} = ", e.name.item).unwrap();
-        e.values.iter().for_each(|v| {
-            let capitalized = capitalize_string(&v.value.to_string()).intern();
-            if capitalized == v.value {
-                writeln!(content, "  | {}", v.value).unwrap();
-            } else {
-                writeln!(content, "  | @as(\"{}\") {}", v.value, capitalized).unwrap();
-            }
-        });
-        writeln!(content, "  | FutureAddedValue(string)").unwrap();
-        writeln!(content, "\n").unwrap();
-
-        if let Some(desc) = e.description {
-            writeln!(content, "/** {} */", desc).unwrap();
-        }
-
-        writeln!(
-            content,
-            "@live{}\ntype enum_{}_input = ",
-            if e.values.len() > 1 { " @unboxed" } else { "" },
-            e.name.item
-        )
-        .unwrap();
-        e.values.iter().for_each(|v| {
-            let capitalized = capitalize_string(&v.value.to_string()).intern();
-            if capitalized == v.value {
-                writeln!(content, "  | {}", v.value).unwrap();
-            } else {
-                writeln!(content, "  | @as(\"{}\") {}", v.value, capitalized).unwrap();
-            }
-        });
-        writeln!(content, "\n").unwrap();
-    });
+    write_schema_asset_enums(&mut content, project_config, schema);
 
     // Write the input object types
     let mut has_written_initial_input_obj = false;
@@ -445,4 +407,67 @@ pub(crate) fn rescript_generate_extra_artifacts(
     }
 
     extra_artifacts
+}
+
+fn write_schema_asset_enums(content: &mut String, project_config: &ProjectConfig, schema: &SDLSchema) {
+    schema.enums().for_each(|e| {
+        if let Some(desc) = e.description {
+            writeln!(content, "/** {} */", desc).unwrap();
+        }
+
+        writeln!(content, "@live @unboxed\ntype enum_{} = ", e.name.item).unwrap();
+        e.values.iter().for_each(|v| {
+            let capitalized = capitalize_string(&v.value.to_string()).intern();
+            if capitalized == v.value {
+                writeln!(content, "  | {}", v.value).unwrap();
+            } else {
+                writeln!(content, "  | @as(\"{}\") {}", v.value, capitalized).unwrap();
+            }
+        });
+        if !project_config.typegen_config.no_future_proof_enums {
+            writeln!(content, "  | FutureAddedValue(string)").unwrap();
+        }
+        writeln!(content, "\n").unwrap();
+
+        if let Some(desc) = e.description {
+            writeln!(content, "/** {} */", desc).unwrap();
+        }
+
+        writeln!(
+            content,
+            "@live{}\ntype enum_{}_input = ",
+            if e.values.len() > 1 { " @unboxed" } else { "" },
+            e.name.item
+        )
+        .unwrap();
+        e.values.iter().for_each(|v| {
+            let capitalized = capitalize_string(&v.value.to_string()).intern();
+            if capitalized == v.value {
+                writeln!(content, "  | {}", v.value).unwrap();
+            } else {
+                writeln!(content, "  | @as(\"{}\") {}", v.value, capitalized).unwrap();
+            }
+        });
+        writeln!(content, "\n").unwrap();
+    });
+}
+
+#[cfg(test)]
+mod tests {
+    use relay_config::ProjectConfig;
+    use relay_test_schema::get_test_schema;
+
+    use super::write_schema_asset_enums;
+
+    #[test]
+    fn schema_assets_omit_future_added_value_when_disabled() {
+        let schema = get_test_schema();
+        let mut project_config = ProjectConfig::default();
+        let mut content = String::new();
+        project_config.typegen_config.no_future_proof_enums = true;
+
+        write_schema_asset_enums(&mut content, &project_config, &schema);
+
+        assert!(!content.contains("FutureAddedValue(string)"));
+    }
 }

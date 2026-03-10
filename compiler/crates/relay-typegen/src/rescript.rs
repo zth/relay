@@ -127,6 +127,8 @@ pub struct ReScriptPrinter {
     pub provided_variables: Option<Vec<ProvidedVariable>>,
 
     pub is_preloadable_thin_file: Option<bool>,
+    pub no_future_proof_enums: bool,
+    pub no_future_proof_unions: bool,
 }
 
 impl Write for ReScriptPrinter {
@@ -531,7 +533,7 @@ fn extract_union_members(
                                 Some(typename.to_string())
                             }
                             ("__typename", AST::OtherTypename) => {
-                                has_catch_all = true;
+                                has_catch_all = !state.no_future_proof_unions;
                                 None
                             }
                             _ => None,
@@ -869,7 +871,7 @@ fn write_suppress_dead_code_warning_annotation(str: &mut String, indentation: us
     writeln!(str, "@live")
 }
 
-fn write_enum_util_functions(str: &mut String, indentation: usize, full_enum: &FullEnum) -> Result {
+fn write_enum_util_functions(state: &ReScriptPrinter, str: &mut String, indentation: usize, full_enum: &FullEnum) -> Result {
     let name_uncapitalized = uncapitalize_string(&full_enum.name);
     // First, we write toString functions, that are essentially type casts. This
     // is fine because we're sure the underlying type is a string, if it made it
@@ -904,8 +906,10 @@ fn write_enum_util_functions(str: &mut String, indentation: usize, full_enum: &F
     .unwrap();
     write_indentation(str, indentation + 1).unwrap();
     writeln!(str, "switch enum {{",).unwrap();
-    write_indentation(str, indentation + 2).unwrap();
-    writeln!(str, "| FutureAddedValue(_) => None",).unwrap();
+    if !state.no_future_proof_enums {
+        write_indentation(str, indentation + 2).unwrap();
+        writeln!(str, "| FutureAddedValue(_) => None",).unwrap();
+    }
     write_indentation(str, indentation + 2).unwrap();
     writeln!(str, "| valid => Some(Obj.magic(valid))").unwrap();
     write_indentation(str, indentation + 1).unwrap();
@@ -925,8 +929,27 @@ fn write_enum_util_functions(str: &mut String, indentation: usize, full_enum: &F
         name_uncapitalized, full_enum.name
     )
     .unwrap();
-    write_indentation(str, indentation + 1).unwrap();
-    writeln!(str, "{}_decode(Obj.magic(str))", name_uncapitalized,).unwrap();
+    if state.no_future_proof_enums {
+        write_indentation(str, indentation + 1).unwrap();
+        writeln!(str, "switch str {{").unwrap();
+        for enum_value in &full_enum.values {
+            write_indentation(str, indentation + 2).unwrap();
+            writeln!(
+                str,
+                "| \"{}\" => Some({})",
+                enum_value,
+                capitalize_string(enum_value),
+            )
+            .unwrap();
+        }
+        write_indentation(str, indentation + 2).unwrap();
+        writeln!(str, "| _ => None").unwrap();
+        write_indentation(str, indentation + 1).unwrap();
+        writeln!(str, "}}").unwrap();
+    } else {
+        write_indentation(str, indentation + 1).unwrap();
+        writeln!(str, "{}_decode(Obj.magic(str))", name_uncapitalized,).unwrap();
+    }
     write_indentation(str, indentation).unwrap();
     writeln!(str, "}}",).unwrap();
 
@@ -970,9 +993,7 @@ fn write_union_definition_body(
         writeln!(str, ")").unwrap();
     }
 
-    if state.operation_meta_data.is_updatable
-    /*|| union.include_catch_all == false TODO: Fix at some point*/
-    {
+    if state.operation_meta_data.is_updatable || !union.include_catch_all {
         ()
     } else {
         write_indentation(str, indentation + 1).unwrap();
@@ -1373,19 +1394,28 @@ fn write_union_converters(str: &mut String, indentation: usize, union: &Union) -
     // Relay into a ReScript union.
     write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
     write_indentation(str, indentation).unwrap();
-    writeln!(
-        str,
-        "let unwrap_{}: Types.{} => Types.{} = RescriptRelay_Internal.unwrapUnion(_, [{}])",
-        union.record_name,
-        union.record_name,
-        union.record_name,
-        union
-            .members
-            .iter()
-            .map(|member| { format!("\"{}\"", &member.typename) })
-            .join(", ")
-    )
-    .unwrap();
+    if union.include_catch_all {
+        writeln!(
+            str,
+            "let unwrap_{}: Types.{} => Types.{} = RescriptRelay_Internal.unwrapUnion(_, [{}])",
+            union.record_name,
+            union.record_name,
+            union.record_name,
+            union
+                .members
+                .iter()
+                .map(|member| { format!("\"{}\"", &member.typename) })
+                .join(", ")
+        )
+        .unwrap();
+    } else {
+        writeln!(
+            str,
+            "let unwrap_{}: Types.{} => Types.{} = RescriptRelay_Internal.wrapUnion",
+            union.record_name, union.record_name, union.record_name
+        )
+        .unwrap();
+    }
 
     // This prints the wrap function, which turns the ReScript union back into
     // its "raw" format.
@@ -2948,7 +2978,7 @@ impl Writer for ReScriptPrinter {
                         .iter()
                         .unique_by(|full_enum| &full_enum.name)
                         .for_each(|full_enum| {
-                            write_enum_util_functions(&mut generated_types, indentation, &full_enum)
+                            write_enum_util_functions(&self, &mut generated_types, indentation, &full_enum)
                                 .unwrap()
                         });
                 }
@@ -3562,6 +3592,8 @@ impl ReScriptPrinter {
         typegen_definition: DefinitionType,
         is_preloadable_thin_file: Option<bool>,
         client_extension_enums: FnvHashSet<String>,
+        no_future_proof_enums: bool,
+        no_future_proof_unions: bool,
     ) -> Self {
         Self {
             enums: vec![],
@@ -3579,6 +3611,121 @@ impl ReScriptPrinter {
             provided_variables: None,
             is_preloadable_thin_file,
             client_extension_enums,
+            no_future_proof_enums,
+            no_future_proof_unions,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use common::SourceLocationKey;
+    use fnv::FnvHashSet;
+    use graphql_ir::ExecutableDefinition;
+    use graphql_ir::build;
+    use graphql_syntax::parse_executable;
+    use relay_config::TypegenConfig;
+    use relay_test_schema::get_test_schema;
+
+    use super::*;
+    use crate::writer::ExactObject;
+    use crate::writer::StringLiteral;
+
+    fn make_printer(no_future_proof_enums: bool, no_future_proof_unions: bool) -> ReScriptPrinter {
+        let schema = get_test_schema();
+        let ast = parse_executable(
+            "fragment TestFragment on User { id }",
+            SourceLocationKey::standalone("TestFragment.graphql"),
+        )
+        .unwrap();
+        let ir = build(&schema, &ast.definitions).unwrap();
+        let fragment = ir
+            .into_iter()
+            .find_map(|definition| match definition {
+                ExecutableDefinition::Fragment(fragment) => Some(fragment),
+                ExecutableDefinition::Operation(_) => None,
+            })
+            .unwrap();
+        let definition = DefinitionType::Fragment(fragment);
+        let mut config = TypegenConfig::default();
+        config.no_future_proof_enums = no_future_proof_enums;
+        config.no_future_proof_unions = no_future_proof_unions;
+
+        ReScriptPrinter::new(
+            get_rescript_relay_meta_data(&schema, &definition, &config),
+            definition,
+            None,
+            FnvHashSet::default(),
+            no_future_proof_enums,
+            no_future_proof_unions,
+        )
+    }
+
+    #[test]
+    fn enum_utils_use_explicit_string_matching_when_future_proofing_is_disabled() {
+        let state = make_printer(true, false);
+        let full_enum = FullEnum {
+            name: "OnlineStatus".to_string(),
+            values: vec!["Online".to_string(), "offline".to_string()],
+        };
+        let mut output = String::new();
+
+        write_enum_util_functions(&state, &mut output, 0, &full_enum).unwrap();
+
+        assert!(!output.contains("FutureAddedValue"));
+        assert!(output.contains("| \"Online\" => Some(Online)"));
+        assert!(output.contains("| \"offline\" => Some(Offline)"));
+        assert!(output.contains("| _ => None"));
+        assert!(!output.contains("_decode(Obj.magic(str))"));
+    }
+
+    #[test]
+    fn union_codegen_omits_unselected_member_when_future_proofing_is_disabled() {
+        let mut state = Box::new(make_printer(false, true));
+        let members = vec![
+            AST::ExactObject(ExactObject::new(vec![Prop::KeyValuePair(
+                KeyValuePairProp {
+                    key: "__typename".intern(),
+                    value: AST::StringLiteral(StringLiteral("User".intern())),
+                    read_only: true,
+                    optional: false,
+                },
+            )])),
+            AST::ExactObject(ExactObject::new(vec![Prop::KeyValuePair(
+                KeyValuePairProp {
+                    key: "__typename".intern(),
+                    value: AST::OtherTypename,
+                    read_only: true,
+                    optional: false,
+                },
+            )])),
+        ];
+        let path = vec!["response".to_string()];
+        let (union_members, include_catch_all) =
+            extract_union_members(state.as_mut(), &path, &members, &Context::Response);
+        let union = Union {
+            include_catch_all,
+            record_name: "response_member".to_string(),
+            comment: None,
+            members: union_members,
+            at_path: path,
+        };
+        let mut definition_output = String::new();
+        let mut converter_output = String::new();
+
+        assert!(!union.include_catch_all);
+        write_union_definition_body(
+            &state,
+            &mut definition_output,
+            0,
+            &union,
+            &Context::Response,
+        )
+        .unwrap();
+        write_union_converters(&mut converter_output, 0, &union).unwrap();
+
+        assert!(!definition_output.contains("UnselectedUnionMember"));
+        assert!(!converter_output.contains("unwrapUnion(_,"));
+        assert!(converter_output.contains("RescriptRelay_Internal.wrapUnion"));
     }
 }
