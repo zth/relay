@@ -418,7 +418,6 @@ pub(crate) fn new_writer_from_config(
                 typegen_opts.is_preloadable_thin_file,
                 client_extension_enums,
                 config.no_future_proof_enums,
-                config.no_future_proof_unions,
             ))
         },
         TypegenLanguage::JavaScript => Box::<JavaScriptPrinter>::default(),

@@ -1369,7 +1369,6 @@ mod tests {
             "autoExhaustiveMutations": true,
             "autoExhaustiveTypes": ["UserNameRenderer"],
             "noFutureProofEnums": true,
-            "noFutureProofUnions": true,
         });
 
         let parsed = Config::from_string_for_test(&config.to_string())
@@ -1385,6 +1384,5 @@ mod tests {
             vec!["UserNameRenderer".intern()]
         );
         assert!(project_config.typegen_config.no_future_proof_enums);
-        assert!(project_config.typegen_config.no_future_proof_unions);
     }
 }
