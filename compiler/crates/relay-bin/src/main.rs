@@ -44,6 +44,7 @@ use simplelog::LevelFilter;
 use simplelog::TermLogger;
 use simplelog::TerminalMode;
 
+mod analyze_schema_dce;
 mod errors;
 
 use errors::Error;
@@ -153,6 +154,7 @@ enum Commands {
     Lsp(LspCommand),
     ConfigJsonSchema(ConfigJsonSchemaCommand),
     Codemod(CodemodCommand),
+    Analyze(analyze_schema_dce::AnalyzeCommand),
 }
 
 #[derive(ValueEnum, Clone, Copy)]
@@ -214,6 +216,7 @@ async fn main() {
             Ok(())
         }
         Commands::Codemod(command) => handle_codemod_command(command).await,
+        Commands::Analyze(command) => analyze_schema_dce::handle_analyze_command(command).await,
     };
 
     if let Err(err) = result {
