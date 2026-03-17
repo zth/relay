@@ -8,13 +8,20 @@ use graphql_ir::ExecutableDefinitionName;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::Selection;
 use intern::string_key::Intern;
-use relay_compiler::{source_for_location, get_programs, FsSourceReader, ProjectName};
+use relay_compiler::{get_programs, ProjectName};
 use serde::Serialize;
 
 use crate::errors::Error;
 use crate::{get_config, set_project_flag};
 
-use super::utils::{ensure_single_project_config, print_json_report};
+use super::utils::{
+    apply_limit,
+    ensure_single_project_config,
+    print_json_report,
+    source_line_for_reference,
+    source_location_to_analyze_location,
+    AnalyzeLocation,
+};
 
 #[derive(Parser)]
 #[clap(
@@ -75,15 +82,7 @@ struct AnalyzeFragmentDependentMatch {
     snippet: Option<String>,
 }
 
-#[derive(Debug, Serialize)]
-#[serde(rename_all = "camelCase")]
-struct AnalyzeFragmentDependentLocation {
-    filename: String,
-    start_line: u32,
-    start_column: u32,
-    end_line: u32,
-    end_column: u32,
-}
+type AnalyzeFragmentDependentLocation = AnalyzeLocation;
 
 #[derive(Debug, Clone)]
 struct FragmentDependentEdge {
@@ -194,9 +193,13 @@ fn analyze_project_fragment_dependents(
 
             distance_by_definition.insert(edge.parent, distance);
 
-            let location = location_from_reference(root_dir, &edge.location)?;
+            let location = source_location_to_analyze_location(
+                root_dir,
+                &edge.location,
+                "dependent reference",
+            )?;
             let snippet = if with_snippet {
-                Some(reference_line_snippet(root_dir, &edge.location)?)
+                Some(source_line_for_reference(root_dir, &edge.location, "dependent reference")?)
             } else {
                 None
             };
@@ -223,20 +226,18 @@ fn analyze_project_fragment_dependents(
             .then(a.containing_definition.cmp(&b.containing_definition))
             .then(a.distance.cmp(&b.distance))
     });
-    let total_count = dependents.len();
-    let truncated = total_count > limit;
-    dependents.truncate(limit);
+    let limited_dependents = apply_limit(dependents, limit);
 
     let report = AnalyzeFragmentDependentsReport {
         project: project_name.to_string(),
         fragment: root_fragment.to_string(),
         with_snippet,
         include_transitive,
-        match_count: dependents.len(),
-        total_count,
+        match_count: limited_dependents.match_count,
+        total_count: limited_dependents.total_count,
         limit,
-        truncated,
-        matches: dependents,
+        truncated: limited_dependents.truncated,
+        matches: limited_dependents.entries,
     };
 
     if json {
@@ -300,64 +301,6 @@ fn collect_fragment_spreads_from_selections(
             Selection::ScalarField(_) => {}
         }
     }
-}
-
-fn location_from_reference(
-    root_dir: &Path,
-    location: &Location,
-) -> Result<AnalyzeFragmentDependentLocation, Error> {
-    let source_location = location.source_location();
-    let source = source_for_location(root_dir, source_location, &FsSourceReader)
-        .ok_or_else(|| Error::AnalyzeError {
-            details: format!(
-                "Unable to load source location '{}' for dependent reference.",
-                source_location.path()
-            ),
-        })?;
-    let source_text = source.text_source();
-    let range = source_text.to_span_range(location.span());
-
-    Ok(AnalyzeFragmentDependentLocation {
-        filename: source_location.path().to_string(),
-        start_line: range.start.line + 1,
-        start_column: range.start.character + 1,
-        end_line: range.end.line + 1,
-        end_column: range.end.character + 1,
-    })
-}
-
-fn reference_line_snippet(root_dir: &Path, location: &Location) -> Result<String, Error> {
-    let source_location = location.source_location();
-    let source = source_for_location(root_dir, source_location, &FsSourceReader)
-        .ok_or_else(|| Error::AnalyzeError {
-            details: format!(
-                "Unable to load source location '{}' for snippet lookup.",
-                source_location.path()
-            ),
-        })?;
-    let source_text = source.text_source();
-
-    let range = source_text.to_span_range(location.span());
-    let local_line = range
-        .start
-        .line
-        .checked_sub(source_text.line_index as u32)
-        .ok_or_else(|| Error::AnalyzeError {
-            details: format!("Unable to resolve snippet line for {}.", source_location.path()),
-        })?;
-
-    source_text
-        .text
-        .lines()
-        .nth(local_line as usize)
-        .map(|line| line.to_string())
-        .ok_or_else(|| Error::AnalyzeError {
-            details: format!(
-                "Unable to resolve snippet line for {}:{}.",
-                source_location.path(),
-                range.start.line + 1
-            ),
-        })
 }
 
 fn print_analyze_fragment_dependents_text_report(report: &AnalyzeFragmentDependentsReport) {

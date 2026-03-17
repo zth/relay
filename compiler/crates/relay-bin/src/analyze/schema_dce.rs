@@ -18,7 +18,7 @@ use schema::Type;
 use crate::errors::Error;
 use crate::{get_config, set_project_flag};
 
-use super::utils::{ensure_single_project_config, print_json_report};
+use super::utils::{apply_limit, ensure_single_project_config, print_json_report};
 
 #[derive(Parser)]
 #[clap(
@@ -426,7 +426,7 @@ fn analyze_project_dead_fields(
         }
     }
 
-    let mut dead_fields = dead_fields_by_type
+    let dead_fields = dead_fields_by_type
         .into_values()
         .map(|mut entry| {
             entry.dead_fields.sort_unstable();
@@ -442,20 +442,18 @@ fn analyze_project_dead_fields(
         .iter()
         .map(|entry| entry.dead_union_members.len())
         .sum();
-    let total_count = dead_fields.len();
-    let truncated = total_count > limit;
-    dead_fields.truncate(limit);
+    let limited_dead_fields = apply_limit(dead_fields, limit);
 
     let mut report = AnalyzeSchemaDceReport {
         project: project_name.to_string(),
-        dead_fields,
+        dead_fields: limited_dead_fields.entries,
         dead_field_count: 0,
         dead_union_member_count: 0,
-        total_count,
+        total_count: limited_dead_fields.total_count,
         total_dead_field_count,
         total_dead_union_member_count,
         limit,
-        truncated,
+        truncated: limited_dead_fields.truncated,
     };
 
     report.dead_field_count = report

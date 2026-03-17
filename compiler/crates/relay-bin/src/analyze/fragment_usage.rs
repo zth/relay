@@ -2,18 +2,23 @@ use std::collections::HashMap;
 use std::path::Path;
 
 use clap::Parser;
-use common::{ConsoleLogger, Location};
+use common::ConsoleLogger;
 use graphql_ir::Selection;
 use graphql_ir::FragmentDefinitionName;
-use relay_compiler::source_for_location;
 use relay_compiler::ProjectName;
-use relay_compiler::{FsSourceReader, get_programs};
+use relay_compiler::{get_programs};
 use serde::Serialize;
 
 use crate::errors::Error;
 use crate::{get_config, set_project_flag};
 
-use super::utils::{ensure_single_project_config, print_json_report};
+use super::utils::{
+    apply_limit,
+    ensure_single_project_config,
+    print_json_report,
+    source_location_to_analyze_location,
+    AnalyzeLocation,
+};
 
 #[derive(Parser)]
 #[clap(
@@ -72,15 +77,7 @@ struct AnalyzeFragmentUsageMatch {
     location: AnalyzeFragmentUsageLocation,
 }
 
-#[derive(Debug, Serialize)]
-#[serde(rename_all = "camelCase")]
-struct AnalyzeFragmentUsageLocation {
-    filename: String,
-    start_line: u32,
-    start_column: u32,
-    end_line: u32,
-    end_column: u32,
-}
+type AnalyzeFragmentUsageLocation = AnalyzeLocation;
 
 pub(crate) async fn handle_analyze_fragment_usage_command(
     command: AnalyzeFragmentUsageCommand,
@@ -160,7 +157,11 @@ fn analyze_project_fragment_usage(
             .get(&fragment.name.item)
             .copied()
             .unwrap_or_default();
-        let location = location_from_reference(root_dir, &fragment.name.location)?;
+        let location = source_location_to_analyze_location(
+            root_dir,
+            &fragment.name.location,
+            "fragment usage",
+        )?;
         fragments.push(AnalyzeFragmentUsageMatch {
             fragment_name: fragment.name.item.to_string(),
             usage_count,
@@ -179,17 +180,15 @@ fn analyze_project_fragment_usage(
             .sort_by(|a, b| a.usage_count.cmp(&b.usage_count).then(a.fragment_name.cmp(&b.fragment_name))),
     }
 
-    let total_count = fragments.len();
-    let truncated = total_count > limit;
-    fragments.truncate(limit);
+    let limited_fragments = apply_limit(fragments, limit);
 
     let report = AnalyzeFragmentUsageReport {
         project: project_name.to_string(),
-        match_count: fragments.len(),
-        total_count,
+        match_count: limited_fragments.match_count,
+        total_count: limited_fragments.total_count,
         limit,
-        truncated,
-        fragments,
+        truncated: limited_fragments.truncated,
+        fragments: limited_fragments.entries,
     };
 
     if json {
@@ -223,30 +222,6 @@ fn collect_fragment_spread_usages(
             Selection::ScalarField(_) => {}
         }
     }
-}
-
-fn location_from_reference(
-    root_dir: &Path,
-    location: &Location,
-) -> Result<AnalyzeFragmentUsageLocation, Error> {
-    let source_location = location.source_location();
-    let source = source_for_location(root_dir, source_location, &FsSourceReader)
-        .ok_or_else(|| Error::AnalyzeError {
-            details: format!(
-                "Unable to load source location '{}' for fragment definition.",
-                source_location.path()
-            ),
-        })?;
-    let source_text = source.text_source();
-    let range = source_text.to_span_range(location.span());
-
-    Ok(AnalyzeFragmentUsageLocation {
-        filename: source_location.path().to_string(),
-        start_line: range.start.line + 1,
-        start_column: range.start.character + 1,
-        end_line: range.end.line + 1,
-        end_column: range.end.character + 1,
-    })
 }
 
 fn print_analyze_fragment_usage_text_report(report: &AnalyzeFragmentUsageReport) {

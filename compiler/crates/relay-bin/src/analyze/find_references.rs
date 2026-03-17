@@ -6,9 +6,8 @@ use common::{ConsoleLogger, Location};
 use graphql_ir::FragmentDefinition;
 use graphql_ir::Visitor;
 use intern::string_key::Intern;
-use relay_compiler::source_for_location;
 use relay_compiler::ProjectName;
-use relay_compiler::{FsSourceReader, get_programs};
+use relay_compiler::get_programs;
 use relay_lsp::find_field_usages::get_usages;
 use schema::Type;
 use schema::Schema;
@@ -17,7 +16,14 @@ use serde::Serialize;
 use crate::errors::Error;
 use crate::{get_config, set_project_flag};
 
-use super::utils::{ensure_single_project_config, print_json_report};
+use super::utils::{
+    apply_limit,
+    ensure_single_project_config,
+    print_json_report,
+    source_line_for_reference,
+    source_location_to_analyze_location,
+    AnalyzeLocation,
+};
 
 #[derive(Parser)]
 #[clap(
@@ -69,15 +75,7 @@ struct AnalyzeFindReferencesMatch {
     snippet: Option<String>,
 }
 
-#[derive(Debug, Serialize)]
-#[serde(rename_all = "camelCase")]
-struct AnalyzeFindReferencesLocation {
-    filename: String,
-    start_line: u32,
-    start_column: u32,
-    end_line: u32,
-    end_column: u32,
-}
+type AnalyzeFindReferencesLocation = AnalyzeLocation;
 
 #[derive(Debug)]
 struct AnalyzeFindReferenceItem {
@@ -206,9 +204,13 @@ fn analyze_project_find_references(
     let mut matches = items
         .into_iter()
         .map(|item| {
-            let location = location_from_reference(root_dir, &item.location)?;
+            let location = source_location_to_analyze_location(
+                root_dir,
+                &item.location,
+                "find reference location",
+            )?;
             let snippet = if with_snippet {
-                Some(reference_line_snippet(root_dir, &item.location)?)
+                Some(source_line_for_reference(root_dir, &item.location, "find reference location")?)
             } else {
                 None
             };
@@ -231,20 +233,18 @@ fn analyze_project_find_references(
             .then(a.location.end_column.cmp(&b.location.end_column))
             .then(a.containing_definition.cmp(&b.containing_definition))
     });
-    let total_count = matches.len();
-    let truncated = total_count > limit;
-    matches.truncate(limit);
+    let limited_matches = apply_limit(matches, limit);
 
     let report = AnalyzeFindReferencesReport {
         project: project_name.to_string(),
         target_type: payload.type_name,
         target_field: payload.field_name,
         with_snippet,
-        match_count: matches.len(),
-        total_count,
+        match_count: limited_matches.match_count,
+        total_count: limited_matches.total_count,
         limit,
-        truncated,
-        matches,
+        truncated: limited_matches.truncated,
+        matches: limited_matches.entries,
     };
 
     if json {
@@ -266,62 +266,6 @@ fn collect_type_condition_references(
     };
     visitor.visit_program(&programs.source);
     visitor.items
-}
-
-fn location_from_reference(
-    root_dir: &Path,
-    location: &Location,
-) -> Result<AnalyzeFindReferencesLocation, Error> {
-    let source_location = location.source_location();
-    let source = source_for_location(root_dir, source_location, &FsSourceReader)
-        .ok_or_else(|| Error::AnalyzeError {
-            details: format!(
-                "Unable to load source location '{}' for reference.",
-                source_location.path()
-            ),
-        })?;
-    let source_text = source.text_source();
-    let range = source_text.to_span_range(location.span());
-
-    Ok(AnalyzeFindReferencesLocation {
-        filename: source_location.path().to_string(),
-        start_line: range.start.line + 1,
-        start_column: range.start.character + 1,
-        end_line: range.end.line + 1,
-        end_column: range.end.character + 1,
-    })
-}
-
-fn reference_line_snippet(root_dir: &Path, location: &Location) -> Result<String, Error> {
-    let source_location = location.source_location();
-    let source = source_for_location(root_dir, source_location, &FsSourceReader)
-        .ok_or_else(|| Error::AnalyzeError {
-            details: format!(
-                "Unable to load source location '{}' for snippet lookup.",
-                source_location.path()
-            ),
-        })?;
-    let text_source = source.text_source();
-    let range = text_source.to_span_range(location.span());
-    let local_line = range
-        .start
-        .line
-        .checked_sub(text_source.line_index as u32)
-        .ok_or_else(|| Error::AnalyzeError {
-            details: format!("Unable to resolve snippet line for {}.", source_location.path()),
-        })?;
-    text_source
-        .text
-        .lines()
-        .nth(local_line as usize)
-        .map(|line| line.to_string())
-        .ok_or_else(|| Error::AnalyzeError {
-            details: format!(
-                "Unable to resolve snippet line for {}:{}.",
-                source_location.path(),
-                range.start.line + 1
-            ),
-        })
 }
 
 fn normalize_containing_definition(label: &str) -> String {

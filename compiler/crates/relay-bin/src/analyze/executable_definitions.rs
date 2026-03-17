@@ -12,7 +12,11 @@ use serde::Serialize;
 use crate::errors::Error;
 use crate::{get_config, set_project_flag};
 
-use super::utils::{ensure_single_project_config, print_json_report};
+use super::utils::{
+    apply_limit,
+    ensure_single_project_config,
+    print_json_report,
+};
 
 #[derive(Parser)]
 #[clap(
@@ -179,9 +183,7 @@ fn analyze_project_executable_definitions(
             .then(a.selection_lines.cmp(&b.selection_lines))
             .then(a.selection_depth.cmp(&b.selection_depth))
     });
-    let total_count = matches.len();
-    let truncated = total_count > limit;
-    matches.truncate(limit);
+    let limited_matches = apply_limit(matches, limit);
 
     let report = AnalyzeExecutableDefinitionsReport {
         project: project_name.to_string(),
@@ -189,11 +191,11 @@ fn analyze_project_executable_definitions(
         min_selection_depth,
         total_operations: programs.source.operations().count(),
         total_fragments: programs.source.fragments().count(),
-        match_count: matches.len(),
-        total_count,
+        match_count: limited_matches.match_count,
+        total_count: limited_matches.total_count,
         limit,
-        truncated,
-        matches,
+        truncated: limited_matches.truncated,
+        matches: limited_matches.entries,
     };
 
     if json {
