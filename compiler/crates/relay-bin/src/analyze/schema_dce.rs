@@ -31,6 +31,10 @@ pub(crate) struct AnalyzeSchemaDceCommand {
     #[clap(name = "project", long, short)]
     projects: Vec<String>,
 
+    /// Limit the number of types returned.
+    #[clap(long, default_value_t = 100)]
+    limit: usize,
+
     /// Emit JSON output.
     #[clap(long)]
     json: bool,
@@ -55,6 +59,11 @@ struct AnalyzeSchemaDceReport {
     dead_fields: Vec<AnalyzeSchemaDceTypeReport>,
     dead_field_count: usize,
     dead_union_member_count: usize,
+    total_count: usize,
+    total_dead_field_count: usize,
+    total_dead_union_member_count: usize,
+    limit: usize,
+    truncated: bool,
 }
 
 pub(crate) async fn handle_analyze_schema_dce_command(
@@ -62,6 +71,7 @@ pub(crate) async fn handle_analyze_schema_dce_command(
 ) -> Result<(), Error> {
     let mut config = get_config(None)?;
     let project_name = ensure_single_project_config(&config)?;
+    let limit = command.limit;
     let json = command.json;
     set_project_flag(&mut config, command.projects)?;
 
@@ -77,7 +87,7 @@ pub(crate) async fn handle_analyze_schema_dce_command(
         .ok_or_else(|| Error::AnalyzeError {
             details: format!("Project {project_name} was not built for analyze."),
         })?;
-    analyze_project_dead_fields(project_name, program.as_ref(), json)?;
+    analyze_project_dead_fields(project_name, program.as_ref(), limit, json)?;
     Ok(())
 }
 
@@ -273,6 +283,7 @@ fn should_ignore_internal_field(field_name: &str) -> bool {
 fn analyze_project_dead_fields(
     project_name: ProjectName,
     programs: &relay_transforms::Programs,
+    limit: usize,
     json: bool,
 ) -> Result<(), Error> {
     let (referenced_fields, mut referenced_types, referenced_union_members) =
@@ -415,18 +426,36 @@ fn analyze_project_dead_fields(
         }
     }
 
+    let mut dead_fields = dead_fields_by_type
+        .into_values()
+        .map(|mut entry| {
+            entry.dead_fields.sort_unstable();
+            entry.dead_union_members.sort_unstable();
+            entry
+        })
+        .collect::<Vec<_>>();
+    let total_dead_field_count: usize = dead_fields
+        .iter()
+        .map(|entry| entry.dead_fields.len())
+        .sum();
+    let total_dead_union_member_count: usize = dead_fields
+        .iter()
+        .map(|entry| entry.dead_union_members.len())
+        .sum();
+    let total_count = dead_fields.len();
+    let truncated = total_count > limit;
+    dead_fields.truncate(limit);
+
     let mut report = AnalyzeSchemaDceReport {
         project: project_name.to_string(),
-        dead_fields: dead_fields_by_type
-            .into_values()
-            .map(|mut entry| {
-                entry.dead_fields.sort_unstable();
-                entry.dead_union_members.sort_unstable();
-                entry
-            })
-            .collect(),
+        dead_fields,
         dead_field_count: 0,
         dead_union_member_count: 0,
+        total_count,
+        total_dead_field_count,
+        total_dead_union_member_count,
+        limit,
+        truncated,
     };
 
     report.dead_field_count = report
@@ -443,13 +472,13 @@ fn analyze_project_dead_fields(
     if json {
         print_json_report(&report)?;
     } else {
-        print_analyze_schema_dce_text_report(report)
+        print_analyze_schema_dce_text_report(&report)
     }
 
     Ok(())
 }
 
-fn print_analyze_schema_dce_text_report(report: AnalyzeSchemaDceReport) {
+fn print_analyze_schema_dce_text_report(report: &AnalyzeSchemaDceReport) {
     if report.dead_fields.is_empty() {
         println!(
             "Project {}: no dead schema fields or union members found",
@@ -465,7 +494,28 @@ fn print_analyze_schema_dce_text_report(report: AnalyzeSchemaDceReport) {
         report.dead_union_member_count,
         report.dead_fields.len()
     );
-    for entry in report.dead_fields {
+    println!(
+        "  total dead fields in project: {} ({} shown)",
+        report.total_dead_field_count,
+        report.dead_field_count
+    );
+    println!(
+        "  total unselected union members in project: {} ({} shown)",
+        report.total_dead_union_member_count,
+        report.dead_union_member_count
+    );
+    println!(
+        "  total dead type count in project: {}",
+        report.total_count
+    );
+    if report.truncated {
+        println!(
+            "  showing {} of {} types (use --limit to see more).",
+            report.dead_fields.len(),
+            report.total_count
+        );
+    }
+    for entry in &report.dead_fields {
         if entry.type_referenced {
             println!("  {} ({})", entry.type_name, entry.type_description);
         } else {

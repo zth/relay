@@ -1,6 +1,8 @@
 use clap::Parser;
 
 mod executable_definitions;
+mod fragment_dependents;
+mod fragment_usage;
 mod find_references;
 mod print_operation;
 mod schema_dce;
@@ -10,6 +12,8 @@ use crate::errors::Error;
 
 use executable_definitions::AnalyzeExecutableDefinitionsCommand;
 use find_references::AnalyzeFindReferencesCommand;
+use fragment_dependents::AnalyzeFragmentDependentsCommand;
+use fragment_usage::AnalyzeFragmentUsageCommand;
 use print_operation::AnalyzePrintOperationCommand;
 use schema_dce::AnalyzeSchemaDceCommand;
 
@@ -31,6 +35,14 @@ enum AnalyzeSubcommand {
     #[clap(name = "print-operation")]
     PrintOperation(AnalyzePrintOperationCommand),
 
+    /// Find all dependent operations and fragments for a fragment.
+    #[clap(name = "fragment-dependents")]
+    FragmentDependents(AnalyzeFragmentDependentsCommand),
+
+    /// List fragments by spread usage count (most used first).
+    #[clap(name = "fragment-usage")]
+    FragmentUsage(AnalyzeFragmentUsageCommand),
+
     /// Find unused schema fields in Relay operations.
     #[clap(name = "schema-dce")]
     SchemaDce(AnalyzeSchemaDceCommand),
@@ -50,6 +62,12 @@ pub async fn handle_analyze_command(command: AnalyzeCommand) -> Result<(), Error
         }
         AnalyzeSubcommand::SchemaDce(command) => {
             schema_dce::handle_analyze_schema_dce_command(command).await
+        }
+        AnalyzeSubcommand::FragmentDependents(command) => {
+            fragment_dependents::handle_analyze_fragment_dependents_command(command).await
+        }
+        AnalyzeSubcommand::FragmentUsage(command) => {
+            fragment_usage::handle_analyze_fragment_usage_command(command).await
         }
         AnalyzeSubcommand::ExecutableDefinitions(command) => {
             executable_definitions::handle_analyze_executable_definitions_command(command).await

@@ -25,6 +25,10 @@ pub(crate) struct AnalyzeExecutableDefinitionsCommand {
     #[clap(name = "project", long, short)]
     projects: Vec<String>,
 
+    /// Limit the number of matches returned.
+    #[clap(long, default_value_t = 100)]
+    limit: usize,
+
     /// Minimum number of line breaks covered by selections.
     #[clap(long = "min-selection-lines")]
     min_selection_lines: Option<usize>,
@@ -48,6 +52,9 @@ struct AnalyzeExecutableDefinitionsReport {
     total_fragments: usize,
     matches: Vec<AnalyzeExecutableDefinitionMatch>,
     match_count: usize,
+    total_count: usize,
+    limit: usize,
+    truncated: bool,
 }
 
 #[derive(Debug, Serialize)]
@@ -100,6 +107,7 @@ pub(crate) async fn handle_analyze_executable_definitions_command(
     let json = command.json;
     let min_selection_lines = command.min_selection_lines;
     let min_selection_depth = command.min_selection_depth;
+    let limit = command.limit;
 
     let (programs_by_project, _, config) = get_programs(config, Arc::new(ConsoleLogger)).await;
     if programs_by_project.is_empty() {
@@ -119,6 +127,7 @@ pub(crate) async fn handle_analyze_executable_definitions_command(
         &config.root_dir,
         min_selection_lines,
         min_selection_depth,
+        limit,
         json,
     )?;
     Ok(())
@@ -130,6 +139,7 @@ fn analyze_project_executable_definitions(
     root_dir: &Path,
     min_selection_lines: Option<usize>,
     min_selection_depth: Option<usize>,
+    limit: usize,
     json: bool,
 ) -> Result<(), Error> {
     let mut matches = Vec::new();
@@ -169,6 +179,9 @@ fn analyze_project_executable_definitions(
             .then(a.selection_lines.cmp(&b.selection_lines))
             .then(a.selection_depth.cmp(&b.selection_depth))
     });
+    let total_count = matches.len();
+    let truncated = total_count > limit;
+    matches.truncate(limit);
 
     let report = AnalyzeExecutableDefinitionsReport {
         project: project_name.to_string(),
@@ -177,6 +190,9 @@ fn analyze_project_executable_definitions(
         total_operations: programs.source.operations().count(),
         total_fragments: programs.source.fragments().count(),
         match_count: matches.len(),
+        total_count,
+        limit,
+        truncated,
         matches,
     };
 
@@ -337,5 +353,12 @@ fn print_analyze_executable_definitions_text_report(
             match_entry.selection_depth
         );
         println!("    violations: {}", match_entry.violations.join(", "));
+    }
+
+    if report.truncated {
+        println!(
+            "  showing {} of {} match(es) (use --limit to see more).",
+            report.match_count, report.total_count
+        );
     }
 }

@@ -37,6 +37,10 @@ pub(crate) struct AnalyzeFindReferencesCommand {
     #[clap(name = "project", long, short)]
     projects: Vec<String>,
 
+    /// Limit the number of matches returned.
+    #[clap(long, default_value_t = 100)]
+    limit: usize,
+
     /// Emit JSON output.
     #[clap(long)]
     json: bool,
@@ -51,6 +55,9 @@ struct AnalyzeFindReferencesReport {
     with_snippet: bool,
     matches: Vec<AnalyzeFindReferencesMatch>,
     match_count: usize,
+    total_count: usize,
+    limit: usize,
+    truncated: bool,
 }
 
 #[derive(Debug, Serialize)]
@@ -91,6 +98,7 @@ pub(crate) async fn handle_analyze_find_references_command(
     let project_name = ensure_single_project_config(&config)?;
     let payload = parse_find_references_payload(&command.payload)?;
     let with_snippet = command.with_snippet;
+    let limit = command.limit;
     let json = command.json;
     set_project_flag(&mut config, command.projects)?;
 
@@ -112,6 +120,7 @@ pub(crate) async fn handle_analyze_find_references_command(
         &config.root_dir,
         payload,
         with_snippet,
+        limit,
         json,
     )?;
     Ok(())
@@ -165,6 +174,7 @@ fn analyze_project_find_references(
     root_dir: &Path,
     payload: AnalyzeFindReferencesPayload,
     with_snippet: bool,
+    limit: usize,
     json: bool,
 ) -> Result<(), Error> {
     let schema = &programs.source.schema;
@@ -221,6 +231,9 @@ fn analyze_project_find_references(
             .then(a.location.end_column.cmp(&b.location.end_column))
             .then(a.containing_definition.cmp(&b.containing_definition))
     });
+    let total_count = matches.len();
+    let truncated = total_count > limit;
+    matches.truncate(limit);
 
     let report = AnalyzeFindReferencesReport {
         project: project_name.to_string(),
@@ -228,6 +241,9 @@ fn analyze_project_find_references(
         target_field: payload.field_name,
         with_snippet,
         match_count: matches.len(),
+        total_count,
+        limit,
+        truncated,
         matches,
     };
 
@@ -387,6 +403,12 @@ fn print_analyze_find_references_text_report(report: &AnalyzeFindReferencesRepor
             .map(|field| format!(".{}", field))
             .unwrap_or_default()
     );
+    if report.truncated {
+        println!(
+            "  showing {} of {} matches (use --limit to see more).",
+            report.match_count, report.total_count
+        );
+    }
     for reference in &report.matches {
         println!(
             "  {} {} @ {}:{}:{}-{}:{}",
