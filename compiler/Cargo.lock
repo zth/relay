@@ -1847,6 +1847,7 @@ dependencies = [
  "clap",
  "common",
  "graphql-ir",
+ "graphql-text-printer",
  "intern",
  "log",
  "relay-codemod",

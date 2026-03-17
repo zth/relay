@@ -8,20 +8,26 @@ use std::sync::Arc;
 
 use clap::Parser;
 use common::{ConsoleLogger, Location};
+use graphql_ir::OperationDefinitionName;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::Selection;
+use graphql_ir::Visitor;
 use intern::Lookup;
+use intern::string_key::Intern;
+use graphql_text_printer::print_full_operation;
 use relay_compiler::get_programs;
 use relay_compiler::source_for_location;
 use relay_compiler::ProjectName;
 use relay_compiler::FsSourceReader;
+use relay_lsp::find_field_usages::get_usages;
 use common::Span;
 use schema::Field;
 use schema::FieldID;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
+use relay_transforms::apply_transforms;
 use serde::Serialize;
 
 use crate::errors::Error;
@@ -37,6 +43,14 @@ pub struct AnalyzeCommand {
 
 #[derive(clap::Subcommand)]
 enum AnalyzeSubcommand {
+    /// Find references for a schema path.
+    #[clap(name = "find-references")]
+    FindReferences(AnalyzeFindReferencesCommand),
+
+    /// Print the full text for a named GraphQL operation.
+    #[clap(name = "print-operation")]
+    PrintOperation(AnalyzePrintOperationCommand),
+
     /// Find unused schema fields in Relay operations.
     #[clap(name = "schema-dce")]
     SchemaDce(AnalyzeSchemaDCECommand),
@@ -44,6 +58,58 @@ enum AnalyzeSubcommand {
     /// Find operations/fragments by selection size/depth.
     #[clap(name = "executable-definitions")]
     ExecutableDefinitions(AnalyzeExecutableDefinitionsCommand),
+}
+
+#[derive(Parser)]
+#[clap(
+    rename_all = "camel_case",
+    about = "Find references for schema type/field paths."
+)]
+pub struct AnalyzeFindReferencesCommand {
+    /// A schema path: either `Type` or `Type.field`.
+    payload: String,
+
+    /// Include the full line containing the reference for each match.
+    #[clap(long = "with-snippet")]
+    with_snippet: bool,
+
+    /// Analyze only this project. You can pass this argument multiple times.
+    /// Currently, only single-project configs are supported.
+    #[clap(name = "project", long, short)]
+    projects: Vec<String>,
+
+    /// Analyze using this config file. If not provided, searches for a config in
+    /// package.json under the `relay` key or `relay.config.json` files among other up
+    /// from the current working directory.
+    config: Option<PathBuf>,
+
+    /// Emit JSON output.
+    #[clap(long)]
+    json: bool,
+}
+
+#[derive(Parser)]
+#[clap(
+    rename_all = "camel_case",
+    about = "Print the full text for a named GraphQL operation."
+)]
+pub struct AnalyzePrintOperationCommand {
+    /// The name of the operation to print.
+    operation: String,
+
+    /// Analyze only this project. You can pass this argument multiple times.
+    /// Currently, only single-project configs are supported.
+    #[clap(name = "project", long, short)]
+    projects: Vec<String>,
+
+    /// Analyze using this config file. If not provided, searches for a config in
+    /// package.json under the `relay` key or `relay.config.json` files among other up
+    /// from the current working directory.
+    config: Option<PathBuf>,
+
+    /// Emit JSON output.
+    #[clap(long)]
+    json: bool,
 }
 
 #[derive(Parser)]
@@ -152,11 +218,549 @@ struct AnalyzeExecutableDefinitionLocation {
 
 pub async fn handle_analyze_command(command: AnalyzeCommand) -> Result<(), Error> {
     match command.command {
+        AnalyzeSubcommand::FindReferences(command) => {
+            handle_analyze_find_references_command(command).await
+        }
+        AnalyzeSubcommand::PrintOperation(command) => {
+            handle_analyze_print_operation_command(command).await
+        }
         AnalyzeSubcommand::SchemaDce(command) => {
             handle_analyze_schema_dce_command(command).await
         }
         AnalyzeSubcommand::ExecutableDefinitions(command) => {
             handle_analyze_executable_definitions_command(command).await
+        }
+    }
+}
+
+async fn handle_analyze_find_references_command(
+    command: AnalyzeFindReferencesCommand,
+) -> Result<(), Error> {
+    let mut config = get_config(command.config)?;
+    let project_name = ensure_single_project_config(&config)?;
+    let payload = parse_find_references_payload(&command.payload)?;
+    let with_snippet = command.with_snippet;
+    let json = command.json;
+    set_project_flag(&mut config, command.projects)?;
+
+    let (programs_by_project, _, config) = get_programs(config, Arc::new(ConsoleLogger)).await;
+    if programs_by_project.is_empty() {
+        return Err(Error::AnalyzeError {
+            details: "No programs were produced by analyze.".to_string(),
+        });
+    }
+
+    let program = programs_by_project
+        .get(&project_name)
+        .ok_or_else(|| Error::AnalyzeError {
+            details: format!("Project {project_name} was not built for analyze."),
+        })?;
+    analyze_project_find_references(
+        project_name,
+        program.as_ref(),
+        &config.root_dir,
+        payload,
+        with_snippet,
+        json,
+    )?;
+    Ok(())
+}
+
+async fn handle_analyze_print_operation_command(
+    command: AnalyzePrintOperationCommand,
+) -> Result<(), Error> {
+    let mut config = get_config(command.config)?;
+    let project_name = ensure_single_project_config(&config)?;
+    let operation_name = command.operation;
+    let json = command.json;
+    set_project_flag(&mut config, command.projects)?;
+
+    let (programs_by_project, _, config) = get_programs(config, Arc::new(ConsoleLogger)).await;
+    if programs_by_project.is_empty() {
+        return Err(Error::AnalyzeError {
+            details: "No programs were produced by analyze.".to_string(),
+        });
+    }
+
+    let program = programs_by_project
+        .get(&project_name)
+        .ok_or_else(|| Error::AnalyzeError {
+            details: format!("Project {project_name} was not built for analyze."),
+        })?;
+    analyze_project_print_operation(
+        project_name,
+        program.as_ref(),
+        &config,
+        operation_name,
+        json,
+    )?;
+    Ok(())
+}
+
+#[derive(Debug)]
+struct AnalyzeFindReferencesPayload {
+    type_name: String,
+    field_name: Option<String>,
+}
+
+fn parse_find_references_payload(payload: &str) -> Result<AnalyzeFindReferencesPayload, Error> {
+    let payload = payload.trim();
+    if payload.is_empty() {
+        return Err(Error::AnalyzeError {
+            details: "A payload is required, e.g. `User` or `User.name`.".to_string(),
+        });
+    }
+
+    let parts: Vec<&str> = payload.split('.').map(str::trim).collect();
+    match parts.as_slice() {
+        [] => Err(Error::AnalyzeError {
+            details: "A payload is required, e.g. `User` or `User.name`.".to_string(),
+        }),
+        [type_name] => {
+            if type_name.is_empty() {
+                return Err(Error::AnalyzeError {
+                    details: "Expected a type name, e.g. `User`.".to_string(),
+                });
+            }
+            Ok(AnalyzeFindReferencesPayload {
+                type_name: (*type_name).to_string(),
+                field_name: None,
+            })
+        }
+        [type_name, field_name] => {
+            if type_name.is_empty() || field_name.is_empty() {
+                return Err(Error::AnalyzeError {
+                    details: "Expected payload in the format `Type` or `Type.field`."
+                        .to_string(),
+                });
+            }
+            Ok(AnalyzeFindReferencesPayload {
+                type_name: (*type_name).to_string(),
+                field_name: Some((*field_name).to_string()),
+            })
+        }
+        _ => Err(Error::AnalyzeError {
+            details: "Expected payload in the format `Type` or `Type.field`.".to_string(),
+        }),
+    }
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct AnalyzeFindReferencesReport {
+    project: String,
+    target_type: String,
+    target_field: Option<String>,
+    with_snippet: bool,
+    matches: Vec<AnalyzeFindReferencesMatch>,
+    match_count: usize,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct AnalyzeFindReferencesMatch {
+    kind: String,
+    containing_definition: String,
+    location: AnalyzeFindReferencesLocation,
+    snippet: Option<String>,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct AnalyzeFindReferencesLocation {
+    filename: String,
+    start_line: u32,
+    start_column: u32,
+    end_line: u32,
+    end_column: u32,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct AnalyzePrintOperationReport {
+    project: String,
+    operation_name: String,
+    operation_text: String,
+}
+
+#[derive(Debug)]
+struct AnalyzeFindReferenceItem {
+    kind: String,
+    container: String,
+    location: Location,
+}
+
+fn analyze_project_find_references(
+    project_name: ProjectName,
+    programs: &relay_transforms::Programs,
+    root_dir: &Path,
+    payload: AnalyzeFindReferencesPayload,
+    with_snippet: bool,
+    json: bool,
+) -> Result<(), Error> {
+    let schema = &programs.source.schema;
+    let type_name = payload.type_name.clone();
+    let type_name_key = type_name.clone().intern();
+    let type_ = schema
+        .get_type(type_name_key)
+        .ok_or_else(|| Error::AnalyzeError {
+            details: format!("Type `{}` was not found in the schema.", type_name),
+        })?;
+
+    let mut items = Vec::new();
+    if let Some(field_name) = payload.field_name.as_deref() {
+        let usages = get_usages(&programs.source, schema, type_name_key, field_name.intern())
+            .map_err(|err| Error::AnalyzeError {
+                details: format!("Unable to find references: {err:?}"),
+            })?;
+        for (label, location) in usages {
+            items.push(AnalyzeFindReferenceItem {
+                kind: "field".to_string(),
+                container: normalize_containing_definition(&label),
+                location,
+            });
+        }
+    } else {
+        items = collect_type_condition_references(programs, type_);
+    }
+
+    let mut matches = items
+        .into_iter()
+        .map(|item| {
+            let location = location_from_reference(root_dir, &item.location)?;
+            let snippet = if with_snippet {
+                Some(reference_line_snippet(root_dir, &item.location)?)
+            } else {
+                None
+            };
+            Ok(AnalyzeFindReferencesMatch {
+                kind: item.kind,
+                containing_definition: item.container,
+                location,
+                snippet,
+            })
+        })
+        .collect::<Result<Vec<_>, Error>>()?;
+
+    matches.sort_by(|a, b| {
+        a.location
+            .filename
+            .cmp(&b.location.filename)
+            .then(a.location.start_line.cmp(&b.location.start_line))
+            .then(a.location.start_column.cmp(&b.location.start_column))
+            .then(a.location.end_line.cmp(&b.location.end_line))
+            .then(a.location.end_column.cmp(&b.location.end_column))
+            .then(a.containing_definition.cmp(&b.containing_definition))
+    });
+
+    let report = AnalyzeFindReferencesReport {
+        project: project_name.to_string(),
+        target_type: payload.type_name,
+        target_field: payload.field_name,
+        with_snippet,
+        match_count: matches.len(),
+        matches,
+    };
+
+    if json {
+        let json_output =
+            serde_json::to_string_pretty(&report).map_err(|err| Error::AnalyzeError {
+                details: format!("Unable to serialize analyze output: {err}"),
+            })?;
+        println!("{}", json_output);
+    } else {
+        print_analyze_find_references_text_report(&report);
+    }
+    Ok(())
+}
+
+fn analyze_project_print_operation(
+    project_name: ProjectName,
+    programs: &relay_transforms::Programs,
+    config: &relay_compiler::config::Config,
+    operation_name: String,
+    json: bool,
+) -> Result<(), Error> {
+    let operation_name = OperationDefinitionName(operation_name.clone().intern());
+    let operation = programs
+        .source
+        .operation(operation_name)
+        .ok_or_else(|| Error::AnalyzeError {
+            details: format!(
+                "Operation `{}` was not found in source documents.",
+                operation_name
+            ),
+        })?;
+
+    let project_config = config
+        .enabled_projects()
+        .find(|project_config| project_config.name == project_name)
+        .ok_or_else(|| Error::AnalyzeError {
+            details: format!("Unable to get project config for project {project_name}."),
+        })?;
+
+    let operation_only_program = get_operation_only_program(Arc::clone(&operation), vec![], &programs.source);
+    let transformed_programs = apply_transforms(
+        project_config,
+        Arc::new(operation_only_program),
+        Default::default(),
+        Arc::new(ConsoleLogger),
+        None,
+        config.custom_transforms.as_ref(),
+        config.transferrable_refetchable_query_directives.clone(),
+    )
+    .map_err(|errors| Error::AnalyzeError {
+        details: format!(
+            "Unable to run transforms for operation `{}`: {errors:?}",
+            operation_name
+        ),
+    })?;
+
+    let operation_to_print = transformed_programs
+        .operation_text
+        .operation(operation_name)
+        .ok_or_else(|| Error::AnalyzeError {
+            details: format!(
+                "Unable to print operation `{}` after transforms.",
+                operation_name
+            ),
+        })?;
+
+    let report = AnalyzePrintOperationReport {
+        project: project_name.to_string(),
+        operation_name: operation_name.to_string(),
+        operation_text: print_full_operation(
+            &transformed_programs.operation_text,
+            operation_to_print,
+            Default::default(),
+        ),
+    };
+
+    if json {
+        let json_output =
+            serde_json::to_string_pretty(&report).map_err(|err| Error::AnalyzeError {
+                details: format!("Unable to serialize analyze output: {err}"),
+            })?;
+        println!("{}", json_output);
+    } else {
+        print_analyze_print_operation_text_report(&report);
+    }
+    Ok(())
+}
+
+fn get_operation_only_program(
+    operation: std::sync::Arc<graphql_ir::OperationDefinition>,
+    fragments: Vec<std::sync::Arc<FragmentDefinition>>,
+    program: &graphql_ir::Program,
+) -> graphql_ir::Program {
+    use std::collections::HashSet;
+
+    let mut selections_to_visit: Vec<&[graphql_ir::Selection]> = vec![&operation.selections];
+    let mut next_program = graphql_ir::Program::new(program.schema.clone());
+    let mut visited_fragments: HashSet<graphql_ir::FragmentDefinitionName> = HashSet::default();
+
+    next_program.insert_operation(Arc::clone(&operation));
+    for fragment in fragments.iter() {
+        selections_to_visit.push(&fragment.selections);
+        next_program.insert_fragment(Arc::clone(fragment));
+    }
+
+    while let Some(current_selections) = selections_to_visit.pop() {
+        for selection in current_selections {
+            match selection {
+                graphql_ir::Selection::FragmentSpread(spread) => {
+                    if visited_fragments.contains(&spread.fragment.item) {
+                        continue;
+                    }
+                    visited_fragments.insert(spread.fragment.item);
+                    if let Some(fragment) = program.fragment(spread.fragment.item) {
+                        selections_to_visit.push(&fragment.selections);
+                        next_program.insert_fragment(Arc::clone(&fragment));
+                    }
+                }
+                graphql_ir::Selection::Condition(condition) => {
+                    selections_to_visit.push(&condition.selections);
+                }
+                graphql_ir::Selection::LinkedField(linked_field) => {
+                    selections_to_visit.push(&linked_field.selections);
+                }
+                graphql_ir::Selection::InlineFragment(inline_fragment) => {
+                    selections_to_visit.push(&inline_fragment.selections);
+                }
+                graphql_ir::Selection::ScalarField(_) => {}
+            }
+        }
+    }
+
+    next_program
+}
+
+fn print_analyze_print_operation_text_report(report: &AnalyzePrintOperationReport) {
+    println!("Project {}: operation {}.", report.project, report.operation_name);
+    println!("{}", report.operation_text);
+}
+
+fn collect_type_condition_references(
+    programs: &relay_transforms::Programs,
+    target_type: Type,
+) -> Vec<AnalyzeFindReferenceItem> {
+    let mut visitor = TypeReferenceFinder {
+        target_type,
+        container: None,
+        items: Vec::new(),
+    };
+    visitor.visit_program(&programs.source);
+    visitor.items
+}
+
+fn location_from_reference(
+    root_dir: &Path,
+    location: &Location,
+) -> Result<AnalyzeFindReferencesLocation, Error> {
+    let source_location = location.source_location();
+    let source = source_for_location(root_dir, source_location, &FsSourceReader)
+        .ok_or_else(|| Error::AnalyzeError {
+            details: format!(
+                "Unable to load source location '{}' for reference.",
+                source_location.path()
+            ),
+        })?;
+    let source_text = source.text_source();
+    let range = source_text.to_span_range(location.span());
+
+    Ok(AnalyzeFindReferencesLocation {
+        filename: source_location.path().to_string(),
+        start_line: range.start.line + 1,
+        start_column: range.start.character + 1,
+        end_line: range.end.line + 1,
+        end_column: range.end.character + 1,
+    })
+}
+
+fn reference_line_snippet(root_dir: &Path, location: &Location) -> Result<String, Error> {
+    let source_location = location.source_location();
+    let source = source_for_location(root_dir, source_location, &FsSourceReader)
+        .ok_or_else(|| Error::AnalyzeError {
+            details: format!(
+                "Unable to load source location '{}' for snippet lookup.",
+                source_location.path()
+            ),
+        })?;
+    let text_source = source.text_source();
+    let range = text_source.to_span_range(location.span());
+    let local_line = range
+        .start
+        .line
+        .checked_sub(text_source.line_index as u32)
+        .ok_or_else(|| Error::AnalyzeError {
+            details: format!("Unable to resolve snippet line for {}.", source_location.path()),
+        })?;
+    text_source
+        .text
+        .lines()
+        .nth(local_line as usize)
+        .map(|line| line.to_string())
+        .ok_or_else(|| Error::AnalyzeError {
+            details: format!(
+                "Unable to resolve snippet line for {}:{}.",
+                source_location.path(),
+                range.start.line + 1
+            ),
+        })
+}
+
+fn normalize_containing_definition(label: &str) -> String {
+    label.split(" - ").next().unwrap_or(label).to_string()
+}
+
+struct TypeReferenceFinder {
+    target_type: Type,
+    container: Option<String>,
+    items: Vec<AnalyzeFindReferenceItem>,
+}
+
+impl TypeReferenceFinder {
+    fn push_reference(&mut self, location: Location, kind: &str) {
+        if let Some(container) = &self.container {
+            self.items.push(AnalyzeFindReferenceItem {
+                kind: kind.to_string(),
+                container: container.clone(),
+                location,
+            });
+        }
+    }
+}
+
+impl Visitor for TypeReferenceFinder {
+    const NAME: &'static str = "TypeReferenceFinder";
+    const VISIT_ARGUMENTS: bool = false;
+    const VISIT_DIRECTIVES: bool = false;
+
+    fn visit_operation(&mut self, operation: &graphql_ir::OperationDefinition) {
+        let prev_container = self.container.replace(operation.name.item.0.to_string());
+        self.default_visit_operation(operation);
+        self.container = prev_container;
+    }
+
+    fn visit_fragment(&mut self, fragment: &FragmentDefinition) {
+        let prev_container = self.container.replace(fragment.name.item.0.to_string());
+        if fragment.type_condition == self.target_type {
+            self.push_reference(fragment.name.location, "fragment");
+        }
+        self.default_visit_fragment(fragment);
+        self.container = prev_container;
+    }
+
+    fn visit_inline_fragment(&mut self, inline_fragment: &graphql_ir::InlineFragment) {
+        if let Some(type_condition) = inline_fragment.type_condition {
+            if type_condition == self.target_type {
+                self.push_reference(inline_fragment.spread_location, "inline-fragment");
+            }
+        }
+        self.default_visit_inline_fragment(inline_fragment);
+    }
+}
+
+fn print_analyze_find_references_text_report(report: &AnalyzeFindReferencesReport) {
+    if report.matches.is_empty() {
+        if let Some(target_field) = &report.target_field {
+            println!(
+                "Project {}: no references found for {}.{}.",
+                report.project, report.target_type, target_field
+            );
+        } else {
+            println!(
+                "Project {}: no references found for {}.",
+                report.project, report.target_type
+            );
+        }
+        return;
+    }
+
+    println!(
+        "Project {}: {} match(es) found for {}{}.",
+        report.project,
+        report.match_count,
+        report.target_type,
+        report
+            .target_field
+            .as_ref()
+            .map(|field| format!(".{}", field))
+            .unwrap_or_default()
+    );
+    for reference in &report.matches {
+        println!(
+            "  {} {} @ {}:{}:{}-{}:{}",
+            reference.kind,
+            reference.containing_definition,
+            reference.location.filename,
+            reference.location.start_line,
+            reference.location.start_column,
+            reference.location.end_line,
+            reference.location.end_column
+        );
+        if let Some(snippet) = &reference.snippet {
+            println!("    line: {}", snippet);
         }
     }
 }
