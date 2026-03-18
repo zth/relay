@@ -11,6 +11,8 @@ use relay_compiler::ProjectName;
 use serde::Serialize;
 use schema::Field;
 use schema::FieldID;
+use schema::InterfaceID;
+use schema::ObjectID;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
@@ -260,16 +262,98 @@ fn mark_referenced_union_member(
     member_type: Type,
     referenced_union_members: &mut HashMap<String, HashSet<String>>,
 ) {
-    match (parent_type, member_type) {
-        (Type::Union(union_id), Type::Object(object_id)) => {
-            if schema.union(union_id).members.contains(&object_id) {
+    if let Type::Union(union_id) = parent_type {
+        for object_id in schema.union(union_id).members.iter().copied() {
+            if union_member_matches_type_condition(schema, object_id, member_type) {
                 referenced_union_members
                     .entry(schema.get_type_name(Type::Union(union_id)).to_string())
                     .or_default()
                     .insert(schema.get_type_name(Type::Object(object_id)).to_string());
             }
         }
-        _ => {}
+    }
+}
+
+fn union_member_matches_type_condition(
+    schema: &SDLSchema,
+    object_id: ObjectID,
+    type_condition: Type,
+) -> bool {
+    match type_condition {
+        Type::Object(type_object_id) => type_object_id == object_id,
+        Type::Interface(interface_id) => {
+            object_implements_interface(schema, object_id, interface_id)
+        }
+        Type::Union(union_id) => schema.union(union_id).members.contains(&object_id),
+        _ => false,
+    }
+}
+
+fn object_implements_interface(
+    schema: &SDLSchema,
+    object_id: ObjectID,
+    interface_id: InterfaceID,
+) -> bool {
+    let mut visited_interfaces: HashSet<InterfaceID> = HashSet::default();
+    let mut interface_queue = schema.object(object_id).interfaces.clone();
+
+    while let Some(current_interface_id) = interface_queue.pop() {
+        if !visited_interfaces.insert(current_interface_id) {
+            continue;
+        }
+        if current_interface_id == interface_id {
+            return true;
+        }
+        interface_queue.extend(
+            schema
+                .interface(current_interface_id)
+                .interfaces
+                .iter()
+                .copied(),
+        );
+    }
+
+    false
+}
+
+fn propagate_referenced_interface_field_ids(
+    schema: &SDLSchema,
+    referenced_fields: &mut HashSet<FieldID>,
+) {
+    let referenced_interface_fields = referenced_fields
+        .iter()
+        .copied()
+        .filter_map(|field_id| {
+            let field = schema.field(field_id);
+            match field.parent_type {
+                Some(Type::Interface(interface_id)) => Some((interface_id, field.name.item)),
+                _ => None,
+            }
+        })
+        .collect::<Vec<_>>();
+
+    for (interface_id, field_name) in referenced_interface_fields {
+        let mut visited_interfaces: HashSet<InterfaceID> = HashSet::default();
+        let mut interface_queue = vec![interface_id];
+
+        while let Some(current_interface_id) = interface_queue.pop() {
+            if !visited_interfaces.insert(current_interface_id) {
+                continue;
+            }
+
+            let interface = schema.interface(current_interface_id);
+            if let Some(field_id) = interface.named_field(field_name, schema) {
+                referenced_fields.insert(field_id);
+            }
+
+            for object_id in interface.implementing_objects.iter().copied() {
+                if let Some(field_id) = schema.object(object_id).named_field(field_name, schema) {
+                    referenced_fields.insert(field_id);
+                }
+            }
+
+            interface_queue.extend(interface.implementing_interfaces.iter().copied());
+        }
     }
 }
 
@@ -283,9 +367,27 @@ fn analyze_project_dead_fields(
     limit: usize,
     json: bool,
 ) -> Result<(), Error> {
-    let (referenced_fields, mut referenced_types, referenced_union_members) =
-        collect_referenced_field_ids_and_types(programs);
+    let report = build_analyze_schema_dce_report(project_name, programs, limit);
+
+    if json {
+        print_json_report(&report)?;
+    } else {
+        print_analyze_schema_dce_text_report(&report)
+    }
+
+    Ok(())
+}
+
+fn build_analyze_schema_dce_report(
+    project_name: ProjectName,
+    programs: &relay_transforms::Programs,
+    limit: usize,
+) -> AnalyzeSchemaDceReport {
     let schema = &programs.source.schema;
+    let (mut referenced_fields, mut referenced_types, referenced_union_members) =
+        collect_referenced_field_ids_and_types(programs);
+
+    propagate_referenced_interface_field_ids(schema, &mut referenced_fields);
 
     for field_id in referenced_fields.iter() {
         let field = schema.field(*field_id);
@@ -464,13 +566,7 @@ fn analyze_project_dead_fields(
         .map(|entry| entry.dead_union_members.len())
         .sum();
 
-    if json {
-        print_json_report(&report)?;
-    } else {
-        print_analyze_schema_dce_text_report(&report)
-    }
-
-    Ok(())
+    report
 }
 
 fn print_analyze_schema_dce_text_report(report: &AnalyzeSchemaDceReport) {
@@ -537,5 +633,147 @@ fn print_analyze_schema_dce_text_report(report: &AnalyzeSchemaDceReport) {
                 println!("      {member}");
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::sync::Arc;
+
+    use common::SourceLocationKey;
+    use graphql_ir::Program;
+    use graphql_ir::build;
+    use graphql_syntax::parse_executable;
+    use intern::string_key::Intern;
+    use relay_transforms::Programs;
+    use schema::build_schema_with_extensions;
+
+    use super::*;
+
+    fn build_test_programs(schema_text: &str, document_text: &str) -> Programs {
+        let schema = Arc::new(
+            build_schema_with_extensions::<_, &str>(
+                &[(schema_text, SourceLocationKey::standalone("schema.graphql"))],
+                &[],
+            )
+            .unwrap(),
+        );
+        let document = parse_executable(
+            document_text,
+            SourceLocationKey::standalone("query.graphql"),
+        )
+        .unwrap();
+        let ir = build(&schema, &document.definitions).unwrap();
+        let source = Arc::new(Program::from_definitions(Arc::clone(&schema), ir));
+
+        Programs {
+            source: Arc::clone(&source),
+            reader: Arc::clone(&source),
+            normalization: Arc::clone(&source),
+            operation_text: Arc::clone(&source),
+            typegen: Arc::clone(&source),
+        }
+    }
+
+    fn find_type_report<'a>(
+        report: &'a AnalyzeSchemaDceReport,
+        type_name: &str,
+    ) -> &'a AnalyzeSchemaDceTypeReport {
+        report
+            .dead_fields
+            .iter()
+            .find(|entry| entry.type_name == type_name)
+            .unwrap_or_else(|| panic!("Expected report entry for type '{type_name}'"))
+    }
+
+    #[test]
+    fn interface_field_usage_marks_implementing_object_fields_live() {
+        let programs = build_test_programs(
+            r#"
+                interface Node {
+                    id: ID!
+                    name: String
+                }
+
+                type User implements Node {
+                    id: ID!
+                    name: String
+                    age: Int
+                }
+
+                type Page implements Node {
+                    id: ID!
+                    name: String
+                    title: String
+                }
+
+                type Query {
+                    node: Node
+                }
+            "#,
+            r#"
+                query TestQuery {
+                    node {
+                        name
+                    }
+                }
+            "#,
+        );
+
+        let report =
+            build_analyze_schema_dce_report(ProjectName::from("test".intern()), &programs, 100);
+
+        let user = find_type_report(&report, "User");
+        assert_eq!(user.dead_fields, vec!["age"]);
+        assert!(user.type_referenced);
+
+        let page = find_type_report(&report, "Page");
+        assert_eq!(page.dead_fields, vec!["title"]);
+        assert!(page.type_referenced);
+    }
+
+    #[test]
+    fn interface_refinement_marks_matching_union_members_selected() {
+        let programs = build_test_programs(
+            r#"
+                interface Named {
+                    name: String
+                }
+
+                type User implements Named {
+                    name: String
+                }
+
+                type Page implements Named {
+                    name: String
+                }
+
+                type Comment {
+                    body: String
+                }
+
+                union SearchResult = User | Page | Comment
+
+                type Query {
+                    search: [SearchResult]
+                }
+            "#,
+            r#"
+                query TestQuery {
+                    search {
+                        ... on Named {
+                            name
+                        }
+                    }
+                }
+            "#,
+        );
+
+        let report =
+            build_analyze_schema_dce_report(ProjectName::from("test".intern()), &programs, 100);
+
+        let search_result = find_type_report(&report, "SearchResult");
+        assert_eq!(search_result.dead_union_members, vec!["Comment"]);
+        assert!(search_result.type_referenced);
     }
 }

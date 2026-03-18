@@ -8,10 +8,11 @@ use common::{ConsoleLogger, Location};
 use graphql_ir::FragmentDefinitionName;
 use graphql_syntax::parse_executable_with_error_recovery;
 use intern::string_key::Intern;
-use lsp_types::Range;
+use lsp_types::{Position, Range};
 use relay_compiler::{get_programs, FsSourceReader, ProjectName, source_for_location};
-use relay_lsp::rename::{create_rename_request, get_locations_for_rename};
-use relay_lsp::{position_to_offset, Feature};
+use relay_lsp::Feature;
+use relay_lsp::rename::create_rename_request;
+use relay_lsp::rename::get_locations_for_rename;
 use serde::Serialize;
 
 use crate::errors::Error;
@@ -209,9 +210,8 @@ fn analyze_project_rename_fragment(
 
         let mut replacements = Vec::with_capacity(ranges.len());
         for range in ranges.drain(..) {
-            let start = position_to_offset(&range.start, 0, 0, &source_text)
-                .and_then(|offset| usize::try_from(offset).ok())
-                .ok_or_else(|| Error::AnalyzeError {
+            let start = position_to_byte_offset(&range.start, &source_text).ok_or_else(|| {
+                Error::AnalyzeError {
                     details: format!(
                         "Unable to map rename target line/column in '{}': {}:{}-{}:{}",
                         filename,
@@ -220,11 +220,11 @@ fn analyze_project_rename_fragment(
                         range.end.line + 1,
                         range.end.character + 1
                     ),
-                })?;
+                }
+            })?;
 
-            let end = position_to_offset(&range.end, 0, 0, &source_text)
-                .and_then(|offset| usize::try_from(offset).ok())
-                .ok_or_else(|| Error::AnalyzeError {
+            let end = position_to_byte_offset(&range.end, &source_text).ok_or_else(|| {
+                Error::AnalyzeError {
                     details: format!(
                         "Unable to map rename target line/column in '{}': {}:{}-{}:{}",
                         filename,
@@ -233,7 +233,8 @@ fn analyze_project_rename_fragment(
                         range.end.line + 1,
                         range.end.character + 1
                     ),
-                })?;
+                }
+            })?;
 
             if start > end {
                 return Err(Error::AnalyzeError {
@@ -325,6 +326,42 @@ fn create_fragment_rename_request(
     })
 }
 
+fn position_to_byte_offset(position: &Position, source_text: &str) -> Option<usize> {
+    let mut line = 0u32;
+    let mut character = 0u32;
+    let mut chars = source_text.char_indices().peekable();
+
+    if position.line == 0 && position.character == 0 {
+        return Some(0);
+    }
+
+    while let Some((byte_index, chr)) = chars.next() {
+        if line == position.line && character == position.character {
+            return Some(byte_index);
+        }
+
+        let is_newline = match chr {
+            '\u{000A}' | '\u{000D}' | '\u{2028}' | '\u{2029}' => {
+                !matches!((chr, chars.peek()), ('\u{000D}', Some((_, '\u{000D}'))))
+            }
+            _ => false,
+        };
+
+        if is_newline {
+            line += 1;
+            character = 0;
+        } else {
+            character += 1;
+        }
+    }
+
+    if line == position.line && character == position.character {
+        Some(source_text.len())
+    } else {
+        None
+    }
+}
+
 fn print_analyze_rename_fragment_text_report(report: &AnalyzeRenameFragmentReport) {
     if report.match_count == 0 {
         println!(
@@ -363,5 +400,31 @@ fn print_analyze_rename_fragment_text_report(report: &AnalyzeRenameFragmentRepor
                 location.end_column
             );
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use common::Span;
+    use common::TextSource;
+
+    use super::*;
+
+    #[test]
+    fn position_to_byte_offset_handles_non_ascii_prefixes() {
+        let source_text = "const café = 1;\ngraphql`fragment OldFragment on User { id }`;\n";
+        let start = source_text.find("OldFragment").unwrap();
+        let end = start + "OldFragment".len();
+        let range = TextSource::from_whole_document(source_text)
+            .to_span_range(Span::new(start as u32, end as u32));
+
+        let start_offset = position_to_byte_offset(&range.start, source_text).unwrap();
+        let end_offset = position_to_byte_offset(&range.end, source_text).unwrap();
+
+        assert_eq!((start_offset, end_offset), (start, end));
+
+        let mut updated_source = source_text.to_string();
+        updated_source.replace_range(start_offset..end_offset, "NewFragment");
+        assert!(updated_source.contains("fragment NewFragment on User"));
     }
 }
