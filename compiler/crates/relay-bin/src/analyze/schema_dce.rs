@@ -21,13 +21,10 @@ use crate::{get_config, set_project_flag};
 use super::utils::{apply_limit, ensure_single_project_config, print_json_report};
 
 #[derive(Parser)]
-#[clap(
-    rename_all = "camel_case",
-    about = "Find unused schema fields in Relay operations."
-)]
+#[clap(rename_all = "camel_case")]
 pub(crate) struct AnalyzeSchemaDceCommand {
-    /// Analyze only this project. You can pass this argument multiple times.
-    /// Currently, only single-project configs are supported.
+    /// Analyze only this project.
+    /// This exists for compatibility with multi-project Relay configs.
     #[clap(name = "project", long, short)]
     projects: Vec<String>,
 
@@ -70,10 +67,10 @@ pub(crate) async fn handle_analyze_schema_dce_command(
     command: AnalyzeSchemaDceCommand,
 ) -> Result<(), Error> {
     let mut config = get_config(None)?;
+    set_project_flag(&mut config, command.projects)?;
     let project_name = ensure_single_project_config(&config)?;
     let limit = command.limit;
     let json = command.json;
-    set_project_flag(&mut config, command.projects)?;
 
     let (programs_by_project, _, _config) = get_programs(config, Arc::new(common::ConsoleLogger)).await;
     if programs_by_project.is_empty() {

@@ -154,6 +154,7 @@ enum Commands {
     Lsp(LspCommand),
     ConfigJsonSchema(ConfigJsonSchemaCommand),
     Codemod(CodemodCommand),
+    #[clap(name = "tools", alias = "analyze")]
     Analyze(analyze::AnalyzeCommand),
 }
 

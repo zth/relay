@@ -24,10 +24,7 @@ use super::utils::{
 };
 
 #[derive(Parser)]
-#[clap(
-    rename_all = "camel_case",
-    about = "Find direct dependents of a fragment (operations/fragments that spread it)."
-)]
+#[clap(rename_all = "camel_case")]
 pub(crate) struct AnalyzeFragmentDependentsCommand {
     /// The name of the fragment to find dependents for.
     fragment: String,
@@ -36,8 +33,8 @@ pub(crate) struct AnalyzeFragmentDependentsCommand {
     #[clap(long = "with-snippet")]
     with_snippet: bool,
 
-    /// Analyze only this project. You can pass this argument multiple times.
-    /// Currently, only single-project configs are supported.
+    /// Analyze only this project.
+    /// This exists for compatibility with multi-project Relay configs.
     #[clap(name = "project", long, short)]
     projects: Vec<String>,
 
@@ -94,13 +91,13 @@ pub(crate) async fn handle_analyze_fragment_dependents_command(
     command: AnalyzeFragmentDependentsCommand,
 ) -> Result<(), Error> {
     let mut config = get_config(None)?;
+    set_project_flag(&mut config, command.projects)?;
     let project_name = ensure_single_project_config(&config)?;
     let root_fragment = parse_fragment_name(&command.fragment)?;
     let with_snippet = command.with_snippet;
     let include_transitive = command.transitive;
     let limit = command.limit;
     let json = command.json;
-    set_project_flag(&mut config, command.projects)?;
 
     let (programs_by_project, _, config) = get_programs(config, std::sync::Arc::new(ConsoleLogger)).await;
     if programs_by_project.is_empty() {

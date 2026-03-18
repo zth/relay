@@ -17,16 +17,13 @@ use crate::{get_config, set_project_flag};
 use super::utils::{ensure_single_project_config, print_json_report};
 
 #[derive(Parser)]
-#[clap(
-    rename_all = "camel_case",
-    about = "Print the full text for a named GraphQL operation."
-)]
+#[clap(rename_all = "camel_case")]
 pub(crate) struct AnalyzePrintOperationCommand {
     /// The name of the operation to print.
     operation: String,
 
-    /// Analyze only this project. You can pass this argument multiple times.
-    /// Currently, only single-project configs are supported.
+    /// Analyze only this project.
+    /// This exists for compatibility with multi-project Relay configs.
     #[clap(name = "project", long, short)]
     projects: Vec<String>,
 
@@ -47,10 +44,10 @@ pub(crate) async fn handle_analyze_print_operation_command(
     command: AnalyzePrintOperationCommand,
 ) -> Result<(), Error> {
     let mut config = get_config(None)?;
+    set_project_flag(&mut config, command.projects)?;
     let project_name = ensure_single_project_config(&config)?;
     let operation_name = command.operation;
     let json = command.json;
-    set_project_flag(&mut config, command.projects)?;
 
     let (programs_by_project, _, config) = get_programs(config, Arc::new(ConsoleLogger)).await;
     if programs_by_project.is_empty() {

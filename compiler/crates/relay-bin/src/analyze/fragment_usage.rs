@@ -21,13 +21,10 @@ use super::utils::{
 };
 
 #[derive(Parser)]
-#[clap(
-    rename_all = "camel_case",
-    about = "List fragments sorted by spread usage count."
-)]
+#[clap(rename_all = "camel_case")]
 pub(crate) struct AnalyzeFragmentUsageCommand {
-    /// Analyze only this project. You can pass this argument multiple times.
-    /// Currently, only single-project configs are supported.
+    /// Analyze only this project.
+    /// This exists for compatibility with multi-project Relay configs.
     #[clap(name = "project", long, short)]
     projects: Vec<String>,
 
@@ -83,6 +80,7 @@ pub(crate) async fn handle_analyze_fragment_usage_command(
     command: AnalyzeFragmentUsageCommand,
 ) -> Result<(), Error> {
     let mut config = get_config(None)?;
+    set_project_flag(&mut config, command.projects)?;
     let project_name = ensure_single_project_config(&config)?;
     let sort = match command.sort.as_str() {
         "usage-desc" => AnalyzeFragmentUsageSort::UsageDesc,
@@ -101,7 +99,6 @@ pub(crate) async fn handle_analyze_fragment_usage_command(
             details: "min-usage must be greater than zero.".into(),
         });
     }
-    set_project_flag(&mut config, command.projects)?;
 
     let (programs_by_project, _, config) = get_programs(config, std::sync::Arc::new(ConsoleLogger)).await;
     if programs_by_project.is_empty() {

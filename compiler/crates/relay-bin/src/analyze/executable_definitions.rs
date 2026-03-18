@@ -19,13 +19,10 @@ use super::utils::{
 };
 
 #[derive(Parser)]
-#[clap(
-    rename_all = "camel_case",
-    about = "Find operations and fragments by selection size/depth."
-)]
+#[clap(rename_all = "camel_case")]
 pub(crate) struct AnalyzeExecutableDefinitionsCommand {
-    /// Analyze only this project. You can pass this argument multiple times.
-    /// Currently, only single-project configs are supported.
+    /// Analyze only this project.
+    /// This exists for compatibility with multi-project Relay configs.
     #[clap(name = "project", long, short)]
     projects: Vec<String>,
 
@@ -86,12 +83,12 @@ pub(crate) async fn handle_analyze_executable_definitions_command(
     command: AnalyzeExecutableDefinitionsCommand,
 ) -> Result<(), Error> {
     let mut config = get_config(None)?;
-    let project_name = ensure_single_project_config(&config)?;
     set_project_flag(&mut config, command.projects)?;
+    let project_name = ensure_single_project_config(&config)?;
 
     if command.min_selection_lines.is_none() && command.min_selection_depth.is_none() {
         return Err(Error::AnalyzeError {
-            details: "At least one executable-definitions criterion must be provided."
+            details: "At least one definition-audit criterion must be provided."
                 .into(),
         });
     }

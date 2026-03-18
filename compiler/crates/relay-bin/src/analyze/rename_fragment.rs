@@ -27,10 +27,7 @@ use super::utils::{
 type AnalyzeRenameFragmentLocation = AnalyzeRange;
 
 #[derive(Parser)]
-#[clap(
-    rename_all = "camel_case",
-    about = "Rename a fragment definition and all of its spread sites."
-)]
+#[clap(rename_all = "camel_case")]
 pub(crate) struct AnalyzeRenameFragmentCommand {
     /// The current fragment name.
     old_fragment: String,
@@ -38,8 +35,8 @@ pub(crate) struct AnalyzeRenameFragmentCommand {
     /// The new fragment name.
     new_fragment: String,
 
-    /// Analyze only this project. You can pass this argument multiple times.
-    /// Currently, only single-project configs are supported.
+    /// Analyze only this project.
+    /// This exists for compatibility with multi-project Relay configs.
     #[clap(name = "project", long, short)]
     projects: Vec<String>,
 
@@ -76,6 +73,7 @@ pub(crate) async fn handle_analyze_rename_fragment_command(
     command: AnalyzeRenameFragmentCommand,
 ) -> Result<(), Error> {
     let mut config = get_config(None)?;
+    set_project_flag(&mut config, command.projects)?;
     let project_name = ensure_single_project_config(&config)?;
     let old_fragment = parse_fragment_name(&command.old_fragment)?;
     let new_fragment = parse_fragment_name(&command.new_fragment)?;
@@ -87,8 +85,6 @@ pub(crate) async fn handle_analyze_rename_fragment_command(
             details: "old-fragment and new-fragment must be different.".to_string(),
         });
     }
-
-    set_project_flag(&mut config, command.projects)?;
 
     let (programs_by_project, _, config) = get_programs(config, Arc::new(ConsoleLogger)).await;
     if programs_by_project.is_empty() {
