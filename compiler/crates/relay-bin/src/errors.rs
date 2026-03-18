@@ -23,4 +23,7 @@ pub enum Error {
 
     #[error("Unable to run relay codemod. Error details: \n{details}")]
     CodemodError { details: String },
+
+    #[error("Unable to run relay analysis. Error details: \n{details}")]
+    AnalyzeError { details: String },
 }
