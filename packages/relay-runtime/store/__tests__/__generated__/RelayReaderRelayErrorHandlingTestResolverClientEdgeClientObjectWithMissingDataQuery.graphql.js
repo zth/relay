@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<adc4f43043604a80f67438c24005b3bf>>
+ * @generated SignedSource<<29fabebd06557e9326212f6a838352f9>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,25 +23,25 @@ import {astrological_sign as userAstrologicalSignResolverType} from "../resolver
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userAstrologicalSignResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userAstrologicalSignResolverType: (
+(userAstrologicalSignResolverType as (
   rootKey: UserAstrologicalSignResolver$key,
   args: void,
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
-export type RelayReaderRelayErrorHandlingTestResolverClientEdgeClientObjectWithMissingDataQuery$variables = {||};
-export type RelayReaderRelayErrorHandlingTestResolverClientEdgeClientObjectWithMissingDataQuery$data = {|
-  +me: ?{|
-    +astrological_sign: ?{|
-      +notes: ?string,
-    |},
-  |},
-|};
-export type RelayReaderRelayErrorHandlingTestResolverClientEdgeClientObjectWithMissingDataQuery = {|
+) => ?{
+  readonly id: DataID,
+});
+export type RelayReaderRelayErrorHandlingTestResolverClientEdgeClientObjectWithMissingDataQuery$variables = {};
+export type RelayReaderRelayErrorHandlingTestResolverClientEdgeClientObjectWithMissingDataQuery$data = {
+  readonly me: ?{
+    readonly astrological_sign: ?{
+      readonly notes: ?string,
+    },
+  },
+};
+export type RelayReaderRelayErrorHandlingTestResolverClientEdgeClientObjectWithMissingDataQuery = {
   response: RelayReaderRelayErrorHandlingTestResolverClientEdgeClientObjectWithMissingDataQuery$data,
   variables: RelayReaderRelayErrorHandlingTestResolverClientEdgeClientObjectWithMissingDataQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -82,6 +81,7 @@ return {
             "kind": "ClientEdgeToClientObject",
             "concreteType": "AstrologicalSign",
             "modelResolvers": null,
+            "serverObjectOperations": null,
             "backingField": {
               "alias": null,
               "args": null,
@@ -105,7 +105,7 @@ return {
               "selections": [
                 {
                   "kind": "CatchField",
-                  "field": (v0/*: any*/),
+                  "field": (v0/*:: as any*/),
                   "to": "NULL"
                 }
               ],
@@ -182,13 +182,13 @@ return {
               "name": "astrological_sign",
               "plural": false,
               "selections": [
-                (v0/*: any*/),
-                (v1/*: any*/)
+                (v0/*:: as any*/),
+                (v1/*:: as any*/)
               ],
               "storageKey": null
             }
           },
-          (v1/*: any*/)
+          (v1/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -206,10 +206,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "10b9776fee65d766ecdf6dec167c69da";
+  (node/*:: as any*/).hash = "10b9776fee65d766ecdf6dec167c69da";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderRelayErrorHandlingTestResolverClientEdgeClientObjectWithMissingDataQuery$variables,
   RelayReaderRelayErrorHandlingTestResolverClientEdgeClientObjectWithMissingDataQuery$data,
 >*/);

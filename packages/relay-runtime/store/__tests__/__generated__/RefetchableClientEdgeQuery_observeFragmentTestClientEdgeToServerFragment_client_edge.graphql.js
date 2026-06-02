@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4608f97266b711ada64b4d23c62b01ec>>
+ * @generated SignedSource<<10bcfefc5ae50df37e50804fbba1b897>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,14 +20,14 @@ import type { ReaderFragment, RefetchableFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RefetchableClientEdgeQuery_observeFragmentTestClientEdgeToServerFragment_client_edge$fragmentType: FragmentType;
 type ClientEdgeQuery_observeFragmentTestClientEdgeToServerFragment_client_edge$variables = any;
-export type RefetchableClientEdgeQuery_observeFragmentTestClientEdgeToServerFragment_client_edge$data = {|
-  +id: string,
-  +name: ?string,
-  +$fragmentType: RefetchableClientEdgeQuery_observeFragmentTestClientEdgeToServerFragment_client_edge$fragmentType,
-|};
+export type RefetchableClientEdgeQuery_observeFragmentTestClientEdgeToServerFragment_client_edge$data = {
+  readonly id: string,
+  readonly name: ?string,
+  readonly $fragmentType: RefetchableClientEdgeQuery_observeFragmentTestClientEdgeToServerFragment_client_edge$fragmentType,
+};
 export type RefetchableClientEdgeQuery_observeFragmentTestClientEdgeToServerFragment_client_edge$key = {
-  +$data?: RefetchableClientEdgeQuery_observeFragmentTestClientEdgeToServerFragment_client_edge$data,
-  +$fragmentSpreads: RefetchableClientEdgeQuery_observeFragmentTestClientEdgeToServerFragment_client_edge$fragmentType,
+  readonly $data?: RefetchableClientEdgeQuery_observeFragmentTestClientEdgeToServerFragment_client_edge$data,
+  readonly $fragmentSpreads: RefetchableClientEdgeQuery_observeFragmentTestClientEdgeToServerFragment_client_edge$fragmentType,
   ...
 };
 */
@@ -71,10 +70,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "145cd045d842ac7fe259d9f5210a67c1";
+  (node/*:: as any*/).hash = "145cd045d842ac7fe259d9f5210a67c1";
 }
 
-module.exports = ((node/*: any*/)/*: RefetchableFragment<
+module.exports = ((node/*:: as any*/)/*:: as RefetchableFragment<
   RefetchableClientEdgeQuery_observeFragmentTestClientEdgeToServerFragment_client_edge$fragmentType,
   RefetchableClientEdgeQuery_observeFragmentTestClientEdgeToServerFragment_client_edge$data,
   ClientEdgeQuery_observeFragmentTestClientEdgeToServerFragment_client_edge$variables,

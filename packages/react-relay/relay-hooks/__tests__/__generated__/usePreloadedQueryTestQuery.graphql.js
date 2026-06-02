@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3f100f98a3099a5421efe32211af1000>>
+ * @generated SignedSource<<336be05ebb0c11d7cc3d539f4d0a8e85>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,19 +17,19 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type usePreloadedQueryTestQuery$variables = {|
+export type usePreloadedQueryTestQuery$variables = {
   id: string,
-|};
-export type usePreloadedQueryTestQuery$data = {|
-  +node: ?{|
-    +id: string,
-    +name?: ?string,
-  |},
-|};
-export type usePreloadedQueryTestQuery = {|
+};
+export type usePreloadedQueryTestQuery$data = {
+  readonly node: ?{
+    readonly id: string,
+    readonly name?: ?string,
+  },
+};
+export type usePreloadedQueryTestQuery = {
   response: usePreloadedQueryTestQuery$data,
   variables: usePreloadedQueryTestQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -71,21 +70,21 @@ v3 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "usePreloadedQueryTestQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
-          (v3/*: any*/)
+          (v2/*:: as any*/),
+          (v3/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -95,13 +94,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "usePreloadedQueryTestQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -114,8 +113,8 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v2/*: any*/),
-          (v3/*: any*/)
+          (v2/*:: as any*/),
+          (v3/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -133,10 +132,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "7957e9c42a4dbad04f1c2fc97aed3bed";
+  (node/*:: as any*/).hash = "7957e9c42a4dbad04f1c2fc97aed3bed";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   usePreloadedQueryTestQuery$variables,
   usePreloadedQueryTestQuery$data,
 >*/);

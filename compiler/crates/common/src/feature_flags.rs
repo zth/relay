@@ -19,7 +19,7 @@ use serde::Serialize;
 use crate::Rollout;
 use crate::rollout::RolloutRange;
 
-#[derive(Default, Debug, Serialize, Deserialize, Clone, JsonSchema)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct FeatureFlags {
     #[serde(default)]
@@ -49,13 +49,16 @@ pub struct FeatureFlags {
     #[serde(default)]
     pub enable_3d_branch_arg_generation: bool,
 
-    #[serde(default)]
-    pub actor_change_support: FeatureFlag,
-
     /// Enable generation of text artifacts used to generate full query strings
     /// later.
     #[serde(default)]
     pub text_artifacts: FeatureFlag,
+
+    /// Shard generated extra artifacts into subdirectories under
+    /// `extraArtifactsOutput` that mirror the source file's relative path,
+    /// honoring `shardOutput` / `shardStripRegex`.
+    #[serde(default)]
+    pub shard_extra_artifacts: FeatureFlag,
 
     #[serde(default)]
     pub skip_printing_nulls: FeatureFlag,
@@ -179,9 +182,103 @@ pub struct FeatureFlags {
     /// across a number of diffs.
     #[serde(default)]
     pub legacy_include_path_in_required_reader_nodes: FeatureFlag,
+
+    /// Disallow @required action THROW on semantically nullable fields.
+    /// When enabled, this will prevent the use of THROW action on fields
+    /// that are semantically nullable (e.g., fields that can legitimately
+    /// be null in normal operation).
+    #[serde(default)]
+    pub disallow_required_action_throw_on_semantically_nullable_fields: FeatureFlag,
+
+    /// Enable experimental support for shadow resolvers. Shadow resolvers allow
+    /// defining a Relay Resolver that "shadows" an existing server field,
+    /// providing an alternative implementation that can be used during
+    /// migration or for client-side overrides.
+    #[serde(default)]
+    pub enable_shadow_resolvers: FeatureFlag,
+
+    /// When enabled for a given name, allows `@RelayResolver` as a legacy
+    /// alias for `@relayType` / `@relayField`.
+    #[serde(default)]
+    pub allow_legacy_relay_resolver_tag: FeatureFlag,
+
+    /// Enforce that GraphQL operation and fragment names start with the file
+    /// name. Haste projects have this enforcement automatically; this flag
+    /// is only needed for non-Haste projects that want the same validation.
+    #[serde(default)]
+    pub enforce_module_name_prefix_for_non_haste: bool,
+
+    /// Use modern Flow syntax for generated object types.
+    /// This enables gradual rollout of exact object type syntax and readonly
+    /// properties across files.
+    #[serde(default)]
+    pub flow_modern_syntax: FeatureFlag,
+
+    /// When enabled, the `@nogrep` annotation is included in the docblock
+    /// header of generated artifacts. This annotation was historically always
+    /// emitted but is no longer needed. This flag allows incremental removal
+    /// across projects using the rollout variant keyed on the artifact name.
+    #[serde(default)]
+    pub emit_nogrep_annotation: FeatureFlag,
+
+    /// Disable the generation of a more precise raw response type
+    /// for selections on abstract types.
+    #[serde(default)]
+    pub disable_more_precise_abstract_selection_raw_response_type: FeatureFlag,
 }
 
-#[derive(Debug, serde::Deserialize, Clone, Serialize, Default, JsonSchema)]
+impl Default for FeatureFlags {
+    fn default() -> Self {
+        FeatureFlags {
+            relay_resolver_enable_interface_output_type: Default::default(),
+            allow_output_type_resolvers: Default::default(),
+            no_inline: Default::default(),
+            enable_3d_branch_arg_generation: Default::default(),
+            text_artifacts: Default::default(),
+            shard_extra_artifacts: Default::default(),
+            skip_printing_nulls: Default::default(),
+            compact_query_text: Default::default(),
+            enable_resolver_normalization_ast: Default::default(),
+            enable_exec_time_resolvers_directive: Default::default(),
+            enable_relay_resolver_mutations: Default::default(),
+            enable_strict_custom_scalars: Default::default(),
+            allow_resolvers_in_mutation_response: Default::default(),
+            allow_required_in_mutation_response: Default::default(),
+            disable_resolver_reader_ast: Default::default(),
+            enable_fragment_argument_transform: Default::default(),
+            allow_resolver_non_nullable_return_type: Default::default(),
+            disable_schema_validation: Default::default(),
+            prefer_fetchable_in_refetch_queries: Default::default(),
+            disable_edge_type_name_validation_on_declerative_connection_directives:
+                Default::default(),
+            disable_full_argument_type_validation: Default::default(),
+            use_reader_module_imports: Default::default(),
+            omit_resolver_type_assertions_for_confirmed_types: Default::default(),
+            disable_deduping_common_structures_in_artifacts: Default::default(),
+            legacy_include_path_in_required_reader_nodes: Default::default(),
+            disallow_required_action_throw_on_semantically_nullable_fields: Default::default(),
+            enable_shadow_resolvers: Default::default(),
+            allow_legacy_relay_resolver_tag: Default::default(),
+            enforce_module_name_prefix_for_non_haste: Default::default(),
+            flow_modern_syntax: Default::default(),
+            emit_nogrep_annotation: Default::default(),
+            disable_more_precise_abstract_selection_raw_response_type: Default::default(),
+
+            // enabled-by-default
+            enforce_fragment_alias_where_ambiguous: FeatureFlag::Enabled,
+        }
+    }
+}
+
+#[derive(
+    Debug,
+    serde::Deserialize,
+    Clone,
+    Serialize,
+    Default,
+    PartialEq,
+    JsonSchema
+)]
 #[serde(tag = "kind", rename_all = "lowercase")]
 pub enum FeatureFlag {
     /// Fully disabled: developers may not use this feature
@@ -232,8 +329,32 @@ impl Display for FeatureFlag {
                 f.write_str("limited to: ")?;
                 f.write_str(&items.join(", "))
             }
-            FeatureFlag::Rollout { rollout } => write!(f, "Rollout: {:#?}", rollout),
-            FeatureFlag::RolloutRange { rollout } => write!(f, "RolloutRange: {:#?}", rollout),
+            FeatureFlag::Rollout { rollout } => write!(f, "Rollout: {rollout:#?}"),
+            FeatureFlag::RolloutRange { rollout } => write!(f, "RolloutRange: {rollout:#?}"),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn default_trait_sets_enforce_fragment_alias_enabled() {
+        let flags = FeatureFlags::default();
+        assert!(matches!(
+            flags.enforce_fragment_alias_where_ambiguous,
+            FeatureFlag::Enabled
+        ));
+        // A couple of quick sanity checks for other defaults
+        assert!(matches!(flags.no_inline, FeatureFlag::Disabled));
+        assert!(!flags.enable_resolver_normalization_ast);
+    }
+
+    #[test]
+    fn serde_empty_object_deserializes_to_default() {
+        // When deserializing from an empty JSON object, serde applies per-field defaults.
+        let flags: FeatureFlags = serde_json::from_str("{} ").expect("valid json");
+        assert_eq!(flags, FeatureFlags::default());
     }
 }

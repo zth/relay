@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d4c04a6124f07a4a0fdee505c7f0508c>>
+ * @generated SignedSource<<2e45452e788e401bbe52c35c1c99ac4d>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,19 +18,19 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { MultiActorEnvironmentExecuteMutationTestCommentFragment$fragmentType } from "./MultiActorEnvironmentExecuteMutationTestCommentFragment.graphql";
-export type MultiActorEnvironmentExecuteMutationTestCommentQuery$variables = {|
+export type MultiActorEnvironmentExecuteMutationTestCommentQuery$variables = {
   id: string,
-|};
-export type MultiActorEnvironmentExecuteMutationTestCommentQuery$data = {|
-  +node: ?{|
-    +id: string,
-    +$fragmentSpreads: MultiActorEnvironmentExecuteMutationTestCommentFragment$fragmentType,
-  |},
-|};
-export type MultiActorEnvironmentExecuteMutationTestCommentQuery = {|
+};
+export type MultiActorEnvironmentExecuteMutationTestCommentQuery$data = {
+  readonly node: ?{
+    readonly id: string,
+    readonly $fragmentSpreads: MultiActorEnvironmentExecuteMutationTestCommentFragment$fragmentType,
+  },
+};
+export type MultiActorEnvironmentExecuteMutationTestCommentQuery = {
   response: MultiActorEnvironmentExecuteMutationTestCommentQuery$data,
   variables: MultiActorEnvironmentExecuteMutationTestCommentQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -58,20 +57,20 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "MultiActorEnvironmentExecuteMutationTestCommentQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "args": null,
             "kind": "FragmentSpread",
@@ -86,13 +85,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "MultiActorEnvironmentExecuteMutationTestCommentQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -105,7 +104,7 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
@@ -148,10 +147,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "40c037e72d602053337597c799fb840d";
+  (node/*:: as any*/).hash = "40c037e72d602053337597c799fb840d";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   MultiActorEnvironmentExecuteMutationTestCommentQuery$variables,
   MultiActorEnvironmentExecuteMutationTestCommentQuery$data,
 >*/);

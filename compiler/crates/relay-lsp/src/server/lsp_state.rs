@@ -38,7 +38,7 @@ use lsp_server::Message;
 use lsp_types::Diagnostic;
 use lsp_types::Range;
 use lsp_types::TextDocumentPositionParams;
-use lsp_types::Url;
+use lsp_types::Uri;
 use relay_compiler::FileCategorizer;
 use relay_compiler::FileGroup;
 use relay_compiler::ProjectName;
@@ -79,7 +79,15 @@ pub type ProjectStatusMap = Arc<DashMap<StringKey, ProjectStatus, FnvBuildHasher
 
 #[derive(Eq, PartialEq)]
 pub enum ProjectStatus {
-    Activated,
+    /// The project was just activated, but not yet built.
+    Activated {
+        /// Can be awaited to wait for the project to be built.
+        /// The value is set to () the first time the schema project completed, even if it failed.
+        /// This should be safe to await as the first project to complete.
+        when_completed: Arc<tokio::sync::SetOnce<()>>,
+    },
+
+    /// The project was built at least once.
     Completed,
 }
 
@@ -115,16 +123,16 @@ pub trait GlobalState {
 
     fn resolve_executable_definitions(
         &self,
-        text_document_uri: &Url,
+        text_document_uri: &Uri,
     ) -> LSPRuntimeResult<Vec<ExecutableDefinition>>;
 
-    fn get_diagnostic_for_range(&self, url: &Url, range: Range) -> Option<Diagnostic>;
+    fn get_diagnostic_for_range(&self, uri: &Uri, range: Range) -> Option<Diagnostic>;
 
     /// For Relay - project_name is an human-readable identifier of a set of configurations,
     /// source files, schema extensions, etc, that are compiled together using a single GraphQL
     /// Schema. project_name typically the same as the schema name: facebook, intern, etc.
     /// For Native - it may be a BuildConfigName.
-    fn extract_project_name_from_url(&self, url: &Url) -> LSPRuntimeResult<StringKey>;
+    fn extract_project_name_from_uri(&self, uri: &Uri) -> LSPRuntimeResult<StringKey>;
 
     /// This is powering the functionality of executing GraphQL query from the IDE
     fn get_full_query_text(
@@ -139,11 +147,11 @@ pub trait GlobalState {
         project_name: &StringKey,
     ) -> LSPRuntimeResult<String>;
 
-    fn document_opened(&self, url: &Url, text: &str) -> LSPRuntimeResult<()>;
+    fn document_opened(&self, uri: &Uri, text: &str) -> LSPRuntimeResult<()>;
 
-    fn document_changed(&self, url: &Url, text: &str) -> LSPRuntimeResult<()>;
+    fn document_changed(&self, uri: &Uri, text: &str) -> LSPRuntimeResult<()>;
 
-    fn document_closed(&self, url: &Url) -> LSPRuntimeResult<()>;
+    fn document_closed(&self, uri: &Uri) -> LSPRuntimeResult<()>;
 
     /// To distinguish content, that we show to consumers
     /// we may need to know who's our current consumer.
@@ -177,8 +185,8 @@ pub struct LSPState<
     pub(crate) schemas: Schemas,
     schema_documentation_loader: Option<Box<dyn SchemaDocumentationLoader<TSchemaDocumentation>>>,
     pub(crate) source_programs: SourcePrograms,
-    synced_javascript_sources: DashMap<Url, Vec<JavaScriptSourceFeature>>,
-    synced_schema_sources: DashMap<Url, GraphQLSource>,
+    synced_javascript_sources: DashMap<Uri, Vec<JavaScriptSourceFeature>>,
+    synced_schema_sources: DashMap<Uri, GraphQLSource>,
     pub(crate) perf_logger: Arc<TPerfLogger>,
     pub(crate) diagnostic_reporter: Arc<DiagnosticReporter>,
     pub(crate) notify_lsp_state_resources: Arc<Notify>,
@@ -233,16 +241,19 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         lsp_state
     }
 
-    fn insert_synced_js_sources(&self, url: &Url, sources: Vec<JavaScriptSourceFeature>) {
-        self.synced_javascript_sources.insert(url.clone(), sources);
+    fn insert_synced_js_sources(&self, uri: &Uri, sources: Vec<JavaScriptSourceFeature>) {
+        self.synced_javascript_sources.insert(uri.clone(), sources);
     }
 
-    fn validate_synced_js_sources(&self, url: &Url) -> LSPRuntimeResult<()> {
+    fn validate_synced_js_sources(&self, uri: &Uri) -> LSPRuntimeResult<()> {
         let mut diagnostics = vec![];
-        let javascript_features = self.synced_javascript_sources.get(url).ok_or_else(|| {
-            LSPRuntimeError::UnexpectedError(format!("Expected GraphQL sources for URL {}", url))
+        let javascript_features = self.synced_javascript_sources.get(uri).ok_or_else(|| {
+            LSPRuntimeError::UnexpectedError(format!(
+                "Expected GraphQL sources for URI {}",
+                uri.as_str(),
+            ))
         })?;
-        let project_name = self.extract_project_name_from_url(url)?;
+        let project_name = self.extract_project_name_from_uri(uri)?;
         let project_config = self
             .config
             .projects
@@ -259,7 +270,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         for (index, feature) in javascript_features.iter().enumerate() {
             match feature {
                 JavaScriptSourceFeature::GraphQL(graphql_source) => {
-                    let source_location_key = SourceLocationKey::embedded(url.as_ref(), index);
+                    let source_location_key = SourceLocationKey::embedded(uri.as_str(), index);
                     let result = parse_executable_with_error_recovery_and_parser_features(
                         &graphql_source.text_source().text,
                         source_location_key,
@@ -303,7 +314,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         }
 
         for (index, docblock_source) in docblock_sources.iter().enumerate() {
-            let source_location_key = SourceLocationKey::embedded(url.as_ref(), index);
+            let source_location_key = SourceLocationKey::embedded(uri.as_str(), index);
             let text_source = docblock_source.text_source();
             let text = &text_source.text;
             let result = parse_docblock(text, source_location_key).and_then(|ast| {
@@ -318,6 +329,9 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                         allow_resolver_non_nullable_return_type: &project_config
                             .feature_flags
                             .allow_resolver_non_nullable_return_type,
+                        allow_legacy_relay_resolver_tag: &project_config
+                            .feature_flags
+                            .allow_legacy_relay_resolver_tag,
                     },
                 )
             });
@@ -330,16 +344,19 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             }
         }
         self.diagnostic_reporter
-            .update_quick_diagnostics_for_url(url, diagnostics);
+            .update_quick_diagnostics_for_uri(uri, diagnostics);
 
         Ok(())
     }
 
-    fn validate_synced_schema_source(&self, url: &Url) -> LSPRuntimeResult<()> {
-        let schema_source = self.synced_schema_sources.get(url).ok_or_else(|| {
-            LSPRuntimeError::UnexpectedError(format!("Expected schema source for URL {}", url))
+    fn validate_synced_schema_source(&self, uri: &Uri) -> LSPRuntimeResult<()> {
+        let schema_source = self.synced_schema_sources.get(uri).ok_or_else(|| {
+            LSPRuntimeError::UnexpectedError(format!(
+                "Expected schema source for URI {}",
+                uri.as_str(),
+            ))
         })?;
-        let project_name = self.extract_project_name_from_url(url)?;
+        let project_name = self.extract_project_name_from_uri(uri)?;
         let project_config = self
             .config
             .projects
@@ -350,7 +367,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             return Ok(());
         }
 
-        let source_location_key = SourceLocationKey::standalone(url.as_ref());
+        let source_location_key = SourceLocationKey::standalone(uri.as_str());
 
         let mut diagnostics = vec![];
         let text_source = schema_source.text_source();
@@ -369,7 +386,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         }
 
         self.diagnostic_reporter
-            .update_quick_diagnostics_for_url(url, diagnostics);
+            .update_quick_diagnostics_for_uri(uri, diagnostics);
 
         Ok(())
     }
@@ -388,37 +405,48 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         self.task_scheduler.schedule(super::Task::LSPState(task));
     }
 
-    fn process_synced_js_sources(&self, uri: &Url, sources: Vec<JavaScriptSourceFeature>) {
+    fn process_synced_js_sources(&self, uri: &Uri, sources: Vec<JavaScriptSourceFeature>) {
         self.insert_synced_js_sources(uri, sources);
         self.schedule_task(Task::SyncedSource(uri.clone()));
     }
 
-    fn remove_synced_js_sources(&self, url: &Url) {
-        self.synced_javascript_sources.remove(url);
+    fn remove_synced_js_sources(&self, uri: &Uri) {
+        self.synced_javascript_sources.remove(uri);
         self.diagnostic_reporter
-            .clear_quick_diagnostics_for_url(url);
+            .clear_quick_diagnostics_for_uri(uri);
     }
 
-    fn insert_synced_schema_source(&self, url: &Url, graphql_source: GraphQLSource) {
+    fn insert_synced_schema_source(&self, uri: &Uri, graphql_source: GraphQLSource) {
         self.synced_schema_sources
-            .insert(url.clone(), graphql_source);
+            .insert(uri.clone(), graphql_source);
     }
 
-    fn process_synced_schema_sources(&self, uri: &Url, graphql_source: GraphQLSource) {
+    fn process_synced_schema_sources(&self, uri: &Uri, graphql_source: GraphQLSource) {
         self.insert_synced_schema_source(uri, graphql_source);
         self.schedule_task(Task::SchemaSource(uri.clone()));
     }
 
-    fn remove_synced_schema_source(&self, url: &Url) {
-        self.synced_schema_sources.remove(url);
+    fn remove_synced_schema_source(&self, uri: &Uri) {
+        self.synced_schema_sources.remove(uri);
         self.diagnostic_reporter
-            .clear_quick_diagnostics_for_url(url);
+            .clear_quick_diagnostics_for_uri(uri);
     }
 
-    fn initialize_lsp_state_resources(&self, project_name: StringKey) {
+    /// Marks a project to be built. Returns a token that can be awaited for the project to complete building
+    /// the project schema (or error, then the schema would still not be set).
+    pub fn initialize_lsp_state_resources(
+        &self,
+        project_name: StringKey,
+    ) -> Option<Arc<tokio::sync::SetOnce<()>>> {
         if let Entry::Vacant(e) = self.project_status.entry(project_name) {
-            e.insert(ProjectStatus::Activated);
+            let when_completed = Arc::new(tokio::sync::SetOnce::new());
+            e.insert(ProjectStatus::Activated {
+                when_completed: Arc::clone(&when_completed),
+            });
             self.notify_lsp_state_resources.notify_one();
+            Some(when_completed)
+        } else {
+            None
         }
     }
 }
@@ -440,8 +468,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             .cloned()
             .ok_or_else(|| {
                 LSPRuntimeError::UnexpectedError(format!(
-                    "get_schema: schema is missing (or not ready, yet) for the `{}` project.",
-                    project_name
+                    "get_schema: schema is missing (or not ready, yet) for the `{project_name}` project."
                 ))
             })
     }
@@ -452,8 +479,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             .map(|p| p.value().clone())
             .ok_or_else(|| {
                 LSPRuntimeError::UnexpectedError(format!(
-                    "get_program: program is missing (or not ready, yet) for the `{}` project.",
-                    project_name
+                    "get_program: program is missing (or not ready, yet) for the `{project_name}` project."
                 ))
             })
     }
@@ -514,7 +540,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         index_offset: usize,
     ) -> LSPRuntimeResult<(Feature, Location)> {
         let project_name: ProjectName = self
-            .extract_project_name_from_url(&position.text_document.uri)?
+            .extract_project_name_from_uri(&position.text_document.uri)?
             .into();
         let project_config = self.config.projects.get(&project_name).unwrap();
 
@@ -540,14 +566,14 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         CombinedSchemaDocumentation::new(primary, secondary)
     }
 
-    fn extract_project_name_from_url(&self, url: &Url) -> LSPRuntimeResult<StringKey> {
+    fn extract_project_name_from_uri(&self, uri: &Uri) -> LSPRuntimeResult<StringKey> {
         let file_group =
-            get_file_group_from_uri(&self.file_categorizer, url, &self.root_dir, &self.config)?;
+            get_file_group_from_uri(&self.file_categorizer, uri, &self.root_dir, &self.config)?;
 
         get_project_name_from_file_group(&file_group).map_err(|msg| {
             LSPRuntimeError::UnexpectedError(format!(
-                "Could not determine project name for \"{}\": {}",
-                url, msg
+                "Could not determine project name for \"{}\": {msg}",
+                uri.as_str(),
             ))
         })
     }
@@ -558,10 +584,10 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
     fn resolve_executable_definitions(
         &self,
-        text_document_uri: &Url,
+        text_document_uri: &Uri,
     ) -> LSPRuntimeResult<Vec<ExecutableDefinition>> {
         let project_name: ProjectName = self
-            .extract_project_name_from_url(text_document_uri)?
+            .extract_project_name_from_uri(text_document_uri)?
             .into();
         let project_config = self.config.projects.get(&project_name).unwrap();
 
@@ -572,9 +598,9 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         )
     }
 
-    fn get_diagnostic_for_range(&self, url: &Url, range: Range) -> Option<Diagnostic> {
+    fn get_diagnostic_for_range(&self, uri: &Uri, range: Range) -> Option<Diagnostic> {
         self.diagnostic_reporter
-            .get_diagnostics_for_range(url, range)
+            .get_diagnostics_for_range(uri, range)
     }
 
     fn get_full_query_text(
@@ -596,8 +622,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             .find(|project_config| project_config.name == (*project_name).into())
             .ok_or_else(|| {
                 LSPRuntimeError::UnexpectedError(format!(
-                    "Unable to get project config for project {}.",
-                    project_name
+                    "Unable to get project config for project {project_name}."
                 ))
             })?;
 
@@ -637,13 +662,13 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         Ok(operation_text)
     }
 
-    fn document_opened(&self, uri: &Url, text: &str) -> LSPRuntimeResult<()> {
+    fn document_opened(&self, uri: &Uri, text: &str) -> LSPRuntimeResult<()> {
         let file_group =
             get_file_group_from_uri(&self.file_categorizer, uri, &self.root_dir, &self.config)?;
         let project_name = get_project_name_from_file_group(&file_group).map_err(|msg| {
             LSPRuntimeError::UnexpectedError(format!(
-                "Could not determine project name for \"{}\": {}",
-                uri, msg
+                "Could not determine project name for \"{}\": {msg}",
+                uri.as_str(),
             ))
         })?;
 
@@ -652,6 +677,10 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                 self.initialize_lsp_state_resources(project_name);
                 self.process_synced_schema_sources(uri, GraphQLSource::new(text, 0, 0));
 
+                Ok(())
+            }
+            FileGroup::CompactSchema { project_set: _ } => {
+                self.initialize_lsp_state_resources(project_name);
                 Ok(())
             }
             FileGroup::Source { project_set: _ } => {
@@ -672,7 +701,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         }
     }
 
-    fn document_changed(&self, uri: &Url, text: &str) -> LSPRuntimeResult<()> {
+    fn document_changed(&self, uri: &Uri, text: &str) -> LSPRuntimeResult<()> {
         let file_group =
             get_file_group_from_uri(&self.file_categorizer, uri, &self.root_dir, &self.config)?;
 
@@ -682,6 +711,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
                 Ok(())
             }
+            FileGroup::CompactSchema { project_set: _ } => Ok(()),
             FileGroup::Source { project_set: _ } => {
                 let mut embedded_sources = extract_graphql::extract(text);
                 if text.contains("relay:enable-new-relay-resolver") {
@@ -700,7 +730,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         }
     }
 
-    fn document_closed(&self, uri: &Url) -> LSPRuntimeResult<()> {
+    fn document_closed(&self, uri: &Uri) -> LSPRuntimeResult<()> {
         self.remove_synced_schema_source(uri);
         self.remove_synced_js_sources(uri);
         Ok(())
@@ -732,6 +762,7 @@ pub fn build_ir_for_lsp(
         definitions,
         &BuilderOptions {
             allow_undefined_fragment_spreads: true,
+            allow_non_overlapping_abstract_spreads: false,
             fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
             relay_mode: Some(RelayMode),
             default_anonymous_operation_name: None,
@@ -743,8 +774,8 @@ pub fn build_ir_for_lsp(
 #[derive(Debug)]
 pub enum Task {
     SyncedDocuments,
-    SyncedSource(Url),
-    SchemaSource(Url),
+    SyncedSource(Uri),
+    SchemaSource(Uri),
 }
 
 pub(crate) fn handle_lsp_state_tasks<
@@ -764,11 +795,11 @@ pub(crate) fn handle_lsp_state_tasks<
                 state.schedule_task(Task::SchemaSource(item.key().clone()));
             }
         }
-        Task::SyncedSource(url) => {
-            state.validate_synced_js_sources(&url).ok();
+        Task::SyncedSource(uri) => {
+            state.validate_synced_js_sources(&uri).ok();
         }
-        Task::SchemaSource(url) => {
-            state.validate_synced_schema_source(&url).ok();
+        Task::SchemaSource(uri) => {
+            state.validate_synced_schema_source(&uri).ok();
         }
     }
 }

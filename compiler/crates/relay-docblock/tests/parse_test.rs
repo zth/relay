@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<294590aede42b30342d8c0d2ca299310>>
+ * @generated SignedSource<<10491b62e84d0c18eb2bae50effc594f>>
  */
 
 mod parse;
@@ -13,38 +13,17 @@ use parse::transform_fixture;
 use fixture_tests::test_fixture;
 
 #[tokio::test]
-async fn edge_to_non_null_invalid() {
-    let input = include_str!("parse/fixtures/edge-to-non-null.invalid.js");
-    let expected = include_str!("parse/fixtures/edge-to-non-null.invalid.expected");
-    test_fixture(transform_fixture, file!(), "edge-to-non-null.invalid.js", "parse/fixtures/edge-to-non-null.invalid.expected", input, expected).await;
+async fn relay_field_tag_for_type_invalid() {
+    let input = include_str!("parse/fixtures/relay-field-tag-for-type.invalid.js");
+    let expected = include_str!("parse/fixtures/relay-field-tag-for-type.invalid.expected");
+    test_fixture(transform_fixture, file!(), "relay-field-tag-for-type.invalid.js", "parse/fixtures/relay-field-tag-for-type.invalid.expected", input, expected).await;
 }
 
 #[tokio::test]
-async fn edge_to_non_null_plural_item_invalid() {
-    let input = include_str!("parse/fixtures/edge-to-non-null-plural-item.invalid.js");
-    let expected = include_str!("parse/fixtures/edge-to-non-null-plural-item.invalid.expected");
-    test_fixture(transform_fixture, file!(), "edge-to-non-null-plural-item.invalid.js", "parse/fixtures/edge-to-non-null-plural-item.invalid.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn edge_to_not_identifier_invalid() {
-    let input = include_str!("parse/fixtures/edge-to-not-identifier.invalid.js");
-    let expected = include_str!("parse/fixtures/edge-to-not-identifier.invalid.expected");
-    test_fixture(transform_fixture, file!(), "edge-to-not-identifier.invalid.js", "parse/fixtures/edge-to-not-identifier.invalid.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn output_type_edge_to_invalid() {
-    let input = include_str!("parse/fixtures/output-type-edge-to-invalid.js");
-    let expected = include_str!("parse/fixtures/output-type-edge-to-invalid.expected");
-    test_fixture(transform_fixture, file!(), "output-type-edge-to-invalid.js", "parse/fixtures/output-type-edge-to-invalid.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn output_type_invalid_type() {
-    let input = include_str!("parse/fixtures/output-type-invalid-type.js");
-    let expected = include_str!("parse/fixtures/output-type-invalid-type.expected");
-    test_fixture(transform_fixture, file!(), "output-type-invalid-type.js", "parse/fixtures/output-type-invalid-type.expected", input, expected).await;
+async fn relay_field_tag_terse() {
+    let input = include_str!("parse/fixtures/relay-field-tag-terse.js");
+    let expected = include_str!("parse/fixtures/relay-field-tag-terse.expected");
+    test_fixture(transform_fixture, file!(), "relay-field-tag-terse.js", "parse/fixtures/relay-field-tag-terse.expected", input, expected).await;
 }
 
 #[tokio::test]
@@ -69,6 +48,13 @@ async fn relay_resolver_deprecated_no_description() {
 }
 
 #[tokio::test]
+async fn relay_resolver_field_new_tag_required_invalid() {
+    let input = include_str!("parse/fixtures/relay-resolver-field-new-tag-required.invalid.js");
+    let expected = include_str!("parse/fixtures/relay-resolver-field-new-tag-required.invalid.expected");
+    test_fixture(transform_fixture, file!(), "relay-resolver-field-new-tag-required.invalid.js", "parse/fixtures/relay-resolver-field-new-tag-required.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn relay_resolver_invalid_field_invalid() {
     let input = include_str!("parse/fixtures/relay-resolver-invalid-field.invalid.js");
     let expected = include_str!("parse/fixtures/relay-resolver-invalid-field.invalid.expected");
@@ -90,59 +76,10 @@ async fn relay_resolver_live_with_text_invalid() {
 }
 
 #[tokio::test]
-async fn relay_resolver_missing_field_invalid() {
-    let input = include_str!("parse/fixtures/relay-resolver-missing-field.invalid.js");
-    let expected = include_str!("parse/fixtures/relay-resolver-missing-field.invalid.expected");
-    test_fixture(transform_fixture, file!(), "relay-resolver-missing-field.invalid.js", "parse/fixtures/relay-resolver-missing-field.invalid.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn relay_resolver_missing_multiple_fields_invalid() {
-    let input = include_str!("parse/fixtures/relay-resolver-missing-multiple-fields.invalid.js");
-    let expected = include_str!("parse/fixtures/relay-resolver-missing-multiple-fields.invalid.expected");
-    test_fixture(transform_fixture, file!(), "relay-resolver-missing-multiple-fields.invalid.js", "parse/fixtures/relay-resolver-missing-multiple-fields.invalid.expected", input, expected).await;
-}
-
-#[tokio::test]
 async fn relay_resolver_named_export() {
     let input = include_str!("parse/fixtures/relay-resolver-named-export.js");
     let expected = include_str!("parse/fixtures/relay-resolver-named-export.expected");
     test_fixture(transform_fixture, file!(), "relay-resolver-named-export.js", "parse/fixtures/relay-resolver-named-export.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn relay_resolver_on_interface_mismatch_invalid() {
-    let input = include_str!("parse/fixtures/relay-resolver-on-interface-mismatch.invalid.js");
-    let expected = include_str!("parse/fixtures/relay-resolver-on-interface-mismatch.invalid.expected");
-    test_fixture(transform_fixture, file!(), "relay-resolver-on-interface-mismatch.invalid.js", "parse/fixtures/relay-resolver-on-interface-mismatch.invalid.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn relay_resolver_on_interface_no_value_invalid() {
-    let input = include_str!("parse/fixtures/relay-resolver-on-interface-no-value.invalid.js");
-    let expected = include_str!("parse/fixtures/relay-resolver-on-interface-no-value.invalid.expected");
-    test_fixture(transform_fixture, file!(), "relay-resolver-on-interface-no-value.invalid.js", "parse/fixtures/relay-resolver-on-interface-no-value.invalid.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn relay_resolver_on_type_and_on_interface_invalid() {
-    let input = include_str!("parse/fixtures/relay-resolver-on-type-and-on-interface.invalid.js");
-    let expected = include_str!("parse/fixtures/relay-resolver-on-type-and-on-interface.invalid.expected");
-    test_fixture(transform_fixture, file!(), "relay-resolver-on-type-and-on-interface.invalid.js", "parse/fixtures/relay-resolver-on-type-and-on-interface.invalid.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn relay_resolver_on_type_mismatch_invalid() {
-    let input = include_str!("parse/fixtures/relay-resolver-on-type-mismatch.invalid.js");
-    let expected = include_str!("parse/fixtures/relay-resolver-on-type-mismatch.invalid.expected");
-    test_fixture(transform_fixture, file!(), "relay-resolver-on-type-mismatch.invalid.js", "parse/fixtures/relay-resolver-on-type-mismatch.invalid.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn relay_resolver_on_type_no_value_invalid() {
-    let input = include_str!("parse/fixtures/relay-resolver-on-type-no-value.invalid.js");
-    let expected = include_str!("parse/fixtures/relay-resolver-on-type-no-value.invalid.expected");
-    test_fixture(transform_fixture, file!(), "relay-resolver-on-type-no-value.invalid.js", "parse/fixtures/relay-resolver-on-type-no-value.invalid.expected", input, expected).await;
 }
 
 #[tokio::test]
@@ -171,6 +108,13 @@ async fn relay_resolver_terse_invalid_type_name() {
     let input = include_str!("parse/fixtures/relay-resolver-terse-invalid-type-name.js");
     let expected = include_str!("parse/fixtures/relay-resolver-terse-invalid-type-name.expected");
     test_fixture(transform_fixture, file!(), "relay-resolver-terse-invalid-type-name.js", "parse/fixtures/relay-resolver-terse-invalid-type-name.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_resolver_type_new_tag_required_invalid() {
+    let input = include_str!("parse/fixtures/relay-resolver-type-new-tag-required.invalid.js");
+    let expected = include_str!("parse/fixtures/relay-resolver-type-new-tag-required.invalid.expected");
+    test_fixture(transform_fixture, file!(), "relay-resolver-type-new-tag-required.invalid.js", "parse/fixtures/relay-resolver-type-new-tag-required.invalid.expected", input, expected).await;
 }
 
 #[tokio::test]
@@ -248,6 +192,27 @@ async fn relay_resolver_with_fragment_invalid() {
     let input = include_str!("parse/fixtures/relay-resolver-with-fragment.invalid.js");
     let expected = include_str!("parse/fixtures/relay-resolver-with-fragment.invalid.expected");
     test_fixture(transform_fixture, file!(), "relay-resolver-with-fragment.invalid.js", "parse/fixtures/relay-resolver-with-fragment.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_type_tag_for_field_invalid() {
+    let input = include_str!("parse/fixtures/relay-type-tag-for-field.invalid.js");
+    let expected = include_str!("parse/fixtures/relay-type-tag-for-field.invalid.expected");
+    test_fixture(transform_fixture, file!(), "relay-type-tag-for-field.invalid.js", "parse/fixtures/relay-type-tag-for-field.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_type_tag_strong_object() {
+    let input = include_str!("parse/fixtures/relay-type-tag-strong-object.js");
+    let expected = include_str!("parse/fixtures/relay-type-tag-strong-object.expected");
+    test_fixture(transform_fixture, file!(), "relay-type-tag-strong-object.js", "parse/fixtures/relay-type-tag-strong-object.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_type_tag_weak_object() {
+    let input = include_str!("parse/fixtures/relay-type-tag-weak-object.js");
+    let expected = include_str!("parse/fixtures/relay-type-tag-weak-object.expected");
+    test_fixture(transform_fixture, file!(), "relay-type-tag-weak-object.js", "parse/fixtures/relay-type-tag-weak-object.expected", input, expected).await;
 }
 
 #[tokio::test]

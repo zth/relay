@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ec96c0898cc26999cc877d624cad9901>>
+ * @generated SignedSource<<c9ed972dfe708f59f1cce87150c0b468>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,28 +17,28 @@
 
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
-export type CommentCreateInput = {|
+export type CommentCreateInput = {
   feedback?: ?CommentfeedbackFeedback,
   feedbackId?: ?string,
-|};
-export type CommentfeedbackFeedback = {|
+};
+export type CommentfeedbackFeedback = {
   comment?: ?FeedbackcommentComment,
-|};
-export type FeedbackcommentComment = {|
+};
+export type FeedbackcommentComment = {
   feedback?: ?CommentfeedbackFeedback,
-|};
-export type RelayOperationTrackerTest1Mutation$variables = {|
+};
+export type RelayOperationTrackerTest1Mutation$variables = {
   input?: ?CommentCreateInput,
-|};
-export type RelayOperationTrackerTest1Mutation$data = {|
-  +commentCreate: ?{|
-    +__typename: "CommentCreateResponsePayload",
-  |},
-|};
-export type RelayOperationTrackerTest1Mutation = {|
+};
+export type RelayOperationTrackerTest1Mutation$data = {
+  readonly commentCreate: ?{
+    readonly __typename: "CommentCreateResponsePayload",
+  },
+};
+export type RelayOperationTrackerTest1Mutation = {
   response: RelayOperationTrackerTest1Mutation$data,
   variables: RelayOperationTrackerTest1Mutation$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -78,20 +77,20 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayOperationTrackerTest1Mutation",
-    "selections": (v1/*: any*/),
+    "selections": (v1/*:: as any*/),
     "type": "Mutation",
     "abstractKey": null
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayOperationTrackerTest1Mutation",
-    "selections": (v1/*: any*/)
+    "selections": (v1/*:: as any*/)
   },
   "params": {
     "cacheID": "e17c7ce2d5e426037d4264a98b978a9f",
@@ -105,10 +104,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "a8b4fecd1f7151d129643e38bba2bb6a";
+  (node/*:: as any*/).hash = "a8b4fecd1f7151d129643e38bba2bb6a";
 }
 
-module.exports = ((node/*: any*/)/*: Mutation<
+module.exports = ((node/*:: as any*/)/*:: as Mutation<
   RelayOperationTrackerTest1Mutation$variables,
   RelayOperationTrackerTest1Mutation$data,
 >*/);

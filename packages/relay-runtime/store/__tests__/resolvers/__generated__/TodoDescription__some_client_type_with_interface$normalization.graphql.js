@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<86c0dfdcb38df9033344f5db0904eb5e>>
+ * @generated SignedSource<<0f6b849291f122fa62b726720e1851eb>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,17 +18,17 @@
 /*::
 import type { NormalizationSplitOperation } from 'relay-runtime';
 
-export type TodoDescription__some_client_type_with_interface$normalization = {|
-  +client_interface: {|
-    +__typename: "ClientTypeImplementingClientInterface",
-    +description: ?string,
-  |} | {|
-    +__typename: "OtherClientTypeImplementingClientInterface",
-    +description: ?string,
-  |} | {|
-    +__typename: string,
-  |},
-|};
+export type TodoDescription__some_client_type_with_interface$normalization = {
+  readonly client_interface: {
+    readonly __typename: "ClientTypeImplementingClientInterface",
+    readonly description: ?string,
+  } | {
+    readonly __typename: "OtherClientTypeImplementingClientInterface",
+    readonly description: ?string,
+  } | {
+    readonly __typename: string,
+  },
+};
 
 */
 
@@ -68,13 +67,13 @@ return {
             },
             {
               "kind": "InlineFragment",
-              "selections": (v0/*: any*/),
+              "selections": (v0/*:: as any*/),
               "type": "ClientTypeImplementingClientInterface",
               "abstractKey": null
             },
             {
               "kind": "InlineFragment",
-              "selections": (v0/*: any*/),
+              "selections": (v0/*:: as any*/),
               "type": "OtherClientTypeImplementingClientInterface",
               "abstractKey": null
             }

@@ -106,7 +106,6 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
             allowlist: no_inline_allowlist.into_iter().collect(),
         },
         enable_3d_branch_arg_generation: true,
-        actor_change_support: FeatureFlag::Enabled,
         text_artifacts: FeatureFlag::Disabled,
         skip_printing_nulls: FeatureFlag::Disabled,
         compact_query_text: FeatureFlag::Disabled,
@@ -194,6 +193,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         &ast.definitions,
         &BuilderOptions {
             allow_undefined_fragment_spreads: false,
+            allow_non_overlapping_abstract_spreads: false,
             fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
             relay_mode: Some(RelayMode),
             default_anonymous_operation_name: None,

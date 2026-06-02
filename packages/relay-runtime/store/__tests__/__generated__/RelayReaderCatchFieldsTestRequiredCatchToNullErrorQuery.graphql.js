@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<cf6f425b65b3b9034d9461c3d8067059>>
+ * @generated SignedSource<<1ef99110d23dd808c873f5f175c81c91>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,16 +17,16 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayReaderCatchFieldsTestRequiredCatchToNullErrorQuery$variables = {||};
-export type RelayReaderCatchFieldsTestRequiredCatchToNullErrorQuery$data = {|
-  +me: ?{|
-    +firstName: string,
-  |},
-|};
-export type RelayReaderCatchFieldsTestRequiredCatchToNullErrorQuery = {|
+export type RelayReaderCatchFieldsTestRequiredCatchToNullErrorQuery$variables = {};
+export type RelayReaderCatchFieldsTestRequiredCatchToNullErrorQuery$data = {
+  readonly me: ?{
+    readonly firstName: string,
+  },
+};
+export type RelayReaderCatchFieldsTestRequiredCatchToNullErrorQuery = {
   response: RelayReaderCatchFieldsTestRequiredCatchToNullErrorQuery$data,
   variables: RelayReaderCatchFieldsTestRequiredCatchToNullErrorQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -57,7 +56,7 @@ return {
           "selections": [
             {
               "kind": "RequiredField",
-              "field": (v0/*: any*/),
+              "field": (v0/*:: as any*/),
               "action": "THROW"
             }
           ],
@@ -83,7 +82,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
+          (v0/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -108,10 +107,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "e2e7f15508ea30b034518ed121f0dba1";
+  (node/*:: as any*/).hash = "e2e7f15508ea30b034518ed121f0dba1";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderCatchFieldsTestRequiredCatchToNullErrorQuery$variables,
   RelayReaderCatchFieldsTestRequiredCatchToNullErrorQuery$data,
 >*/);

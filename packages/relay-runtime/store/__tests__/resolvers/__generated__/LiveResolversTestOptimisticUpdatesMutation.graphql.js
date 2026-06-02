@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<85f9faa018aea1d89b7078da32087e69>>
+ * @generated SignedSource<<7dfd26d63138d103873b92cd6d952e4e>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,23 +17,23 @@
 
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
-export type ActorNameChangeInput = {|
+export type ActorNameChangeInput = {
   newName?: ?string,
-|};
-export type LiveResolversTestOptimisticUpdatesMutation$variables = {|
+};
+export type LiveResolversTestOptimisticUpdatesMutation$variables = {
   input: ActorNameChangeInput,
-|};
-export type LiveResolversTestOptimisticUpdatesMutation$data = {|
-  +actorNameChange: ?{|
-    +actor: ?{|
-      +name: ?string,
-    |},
-  |},
-|};
-export type LiveResolversTestOptimisticUpdatesMutation = {|
+};
+export type LiveResolversTestOptimisticUpdatesMutation$data = {
+  readonly actorNameChange: ?{
+    readonly actor: ?{
+      readonly name: ?string,
+    },
+  },
+};
+export type LiveResolversTestOptimisticUpdatesMutation = {
   response: LiveResolversTestOptimisticUpdatesMutation$data,
   variables: LiveResolversTestOptimisticUpdatesMutation$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -61,14 +60,14 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "LiveResolversTestOptimisticUpdatesMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "ActorNameChangePayload",
         "kind": "LinkedField",
         "name": "actorNameChange",
@@ -82,7 +81,7 @@ return {
             "name": "actor",
             "plural": false,
             "selections": [
-              (v2/*: any*/)
+              (v2/*:: as any*/)
             ],
             "storageKey": null
           }
@@ -95,13 +94,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "LiveResolversTestOptimisticUpdatesMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "ActorNameChangePayload",
         "kind": "LinkedField",
         "name": "actorNameChange",
@@ -122,7 +121,7 @@ return {
                 "name": "__typename",
                 "storageKey": null
               },
-              (v2/*: any*/),
+              (v2/*:: as any*/),
               {
                 "alias": null,
                 "args": null,
@@ -150,10 +149,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "20e9fbf3d30d0cb68d3bf04faebfe769";
+  (node/*:: as any*/).hash = "20e9fbf3d30d0cb68d3bf04faebfe769";
 }
 
-module.exports = ((node/*: any*/)/*: Mutation<
+module.exports = ((node/*:: as any*/)/*:: as Mutation<
   LiveResolversTestOptimisticUpdatesMutation$variables,
   LiveResolversTestOptimisticUpdatesMutation$data,
 >*/);

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<12afcd92f37095de874b5df4df5a5c45>>
+ * @generated SignedSource<<d2a5b87c1e40b93b596434cb3effef0e>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,14 +20,14 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { RelayReaderTestReadsBasicFragmentUserProfilePicture$fragmentType } from "./RelayReaderTestReadsBasicFragmentUserProfilePicture.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayReaderTestReadsBasicFragmentUserProfile$fragmentType: FragmentType;
-export type RelayReaderTestReadsBasicFragmentUserProfile$data = {|
-  +id: string,
-  +$fragmentSpreads: RelayReaderTestReadsBasicFragmentUserProfilePicture$fragmentType,
-  +$fragmentType: RelayReaderTestReadsBasicFragmentUserProfile$fragmentType,
-|};
+export type RelayReaderTestReadsBasicFragmentUserProfile$data = {
+  readonly id: string,
+  readonly $fragmentSpreads: RelayReaderTestReadsBasicFragmentUserProfilePicture$fragmentType,
+  readonly $fragmentType: RelayReaderTestReadsBasicFragmentUserProfile$fragmentType,
+};
 export type RelayReaderTestReadsBasicFragmentUserProfile$key = {
-  +$data?: RelayReaderTestReadsBasicFragmentUserProfile$data,
-  +$fragmentSpreads: RelayReaderTestReadsBasicFragmentUserProfile$fragmentType,
+  readonly $data?: RelayReaderTestReadsBasicFragmentUserProfile$data,
+  readonly $fragmentSpreads: RelayReaderTestReadsBasicFragmentUserProfile$fragmentType,
   ...
 };
 */
@@ -84,10 +83,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "8d1b7989c67d3231e4ebdef30d598249";
+  (node/*:: as any*/).hash = "8d1b7989c67d3231e4ebdef30d598249";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayReaderTestReadsBasicFragmentUserProfile$fragmentType,
   RelayReaderTestReadsBasicFragmentUserProfile$data,
 >*/);

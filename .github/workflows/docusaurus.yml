@@ -18,26 +18,20 @@ jobs:
     name: Build Compiler Explorer
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: actions-rs/toolchain@v1
         with:
           # Should stay in sync with fbcode/buck2/rust-toolchain
           # And other similar references in this file and
           # ci.yml
-          # toolchain: nightly-2025-05-09
-
-          # Bug in rust causes wasm-pack to fail. Bug is fixed in
-          # https://github.com/rust-lang/rust/pull/139498 so we're temporarily
-          # ahead here while we wait for that fix to land in the common
-          # toolchain version used at Meta.
-          toolchain: nightly-2025-05-12
+          toolchain: nightly-2026-02-28
           override: true
       - name: Install wasm-pack
         run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
       - name: "Build Compiler Playground Wasm NPM package"
         run: wasm-pack build --target web
         working-directory: ./compiler/crates/relay-compiler-playground
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: compiler-playground-package
           path: compiler/crates/relay-compiler-playground/pkg/
@@ -47,20 +41,20 @@ jobs:
     needs: [build-compiler-explorer]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           persist-credentials: false
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: '20'
-          cache: 'yarn'
+          node-version: "20"
+          cache: "yarn"
           cache-dependency-path: website/yarn.lock
 
       - name: Set up Docusaurus Build Cache
         id: cache-docusaurus
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             website/node_modules/.cache
@@ -68,7 +62,7 @@ jobs:
           key: "docusaurus-build-${{ hashFiles('website/yarn.lock') }}"
 
       - name: Download Compiler Explorer
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: compiler-playground-package
           path: tmp/compiler-playground-package

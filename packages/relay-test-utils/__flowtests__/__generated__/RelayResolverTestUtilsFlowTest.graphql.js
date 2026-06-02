@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b888fe576f9a3c54121666e03d03d374>>
+ * @generated SignedSource<<87eafbdb3974dff26a13d0823be8fc7a>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,13 +19,13 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayResolverTestUtilsFlowTest$fragmentType: FragmentType;
-export type RelayResolverTestUtilsFlowTest$data = {|
-  +name: ?string,
-  +$fragmentType: RelayResolverTestUtilsFlowTest$fragmentType,
-|};
+export type RelayResolverTestUtilsFlowTest$data = {
+  readonly name: ?string,
+  readonly $fragmentType: RelayResolverTestUtilsFlowTest$fragmentType,
+};
 export type RelayResolverTestUtilsFlowTest$key = {
-  +$data?: RelayResolverTestUtilsFlowTest$data,
-  +$fragmentSpreads: RelayResolverTestUtilsFlowTest$fragmentType,
+  readonly $data?: RelayResolverTestUtilsFlowTest$data,
+  readonly $fragmentSpreads: RelayResolverTestUtilsFlowTest$fragmentType,
   ...
 };
 */
@@ -50,10 +49,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "f3f6718b7cf618c97293b5882ccc96c0";
+  (node/*:: as any*/).hash = "f3f6718b7cf618c97293b5882ccc96c0";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayResolverTestUtilsFlowTest$fragmentType,
   RelayResolverTestUtilsFlowTest$data,
 >*/);

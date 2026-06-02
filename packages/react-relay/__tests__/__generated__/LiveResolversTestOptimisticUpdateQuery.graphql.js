@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4ce8df86da9640f07c72fd372c91e70f>>
+ * @generated SignedSource<<b07e47803e009933fc3aa074f91a5239>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,19 +23,19 @@ import {counter as queryCounterResolverType} from "../../../relay-runtime/store/
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryCounterResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryCounterResolverType: (
+(queryCounterResolverType as (
   rootKey: LiveCounterResolver$key,
   args: void,
   context: TestResolverContextType,
 ) => LiveState<?number>);
-export type LiveResolversTestOptimisticUpdateQuery$variables = {||};
-export type LiveResolversTestOptimisticUpdateQuery$data = {|
-  +counter: ?number,
-|};
-export type LiveResolversTestOptimisticUpdateQuery = {|
+export type LiveResolversTestOptimisticUpdateQuery$variables = {};
+export type LiveResolversTestOptimisticUpdateQuery$data = {
+  readonly counter: ?number,
+};
+export type LiveResolversTestOptimisticUpdateQuery = {
   response: LiveResolversTestOptimisticUpdateQuery$data,
   variables: LiveResolversTestOptimisticUpdateQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {
@@ -126,10 +125,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "cef43fd1dc9ab3a4deb198c502d706ad";
+  (node/*:: as any*/).hash = "cef43fd1dc9ab3a4deb198c502d706ad";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   LiveResolversTestOptimisticUpdateQuery$variables,
   LiveResolversTestOptimisticUpdateQuery$data,
 >*/);

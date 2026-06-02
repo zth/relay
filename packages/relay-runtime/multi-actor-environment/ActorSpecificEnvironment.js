@@ -46,7 +46,7 @@ const RelayOperationTracker = require('../store/RelayOperationTracker');
 const RelayPublishQueue = require('../store/RelayPublishQueue');
 const registerEnvironmentWithDevTools = require('../util/registerEnvironmentWithDevTools');
 
-export type ActorSpecificEnvironmentConfig = $ReadOnly<{
+export type ActorSpecificEnvironmentConfig = Readonly<{
   actorIdentifier: ActorIdentifier,
   configName: ?string,
   defaultRenderPolicy: RenderPolicy,
@@ -56,20 +56,20 @@ export type ActorSpecificEnvironmentConfig = $ReadOnly<{
   network: INetwork,
   relayFieldLogger: RelayFieldLogger,
   store: Store,
-  missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>,
+  missingFieldHandlers: ReadonlyArray<MissingFieldHandler>,
 }>;
 
 class ActorSpecificEnvironment implements IActorEnvironment {
   __log: LogFunction;
-  +_defaultRenderPolicy: RenderPolicy;
-  +_network: INetwork;
-  +_operationTracker: OperationTracker;
-  +_publishQueue: RelayPublishQueue;
-  +_store: Store;
-  +actorIdentifier: ActorIdentifier;
-  +configName: ?string;
-  +multiActorEnvironment: IMultiActorEnvironment;
-  +options: mixed;
+  readonly _defaultRenderPolicy: RenderPolicy;
+  readonly _network: INetwork;
+  readonly _operationTracker: OperationTracker;
+  readonly _publishQueue: RelayPublishQueue;
+  readonly _store: Store;
+  readonly actorIdentifier: ActorIdentifier;
+  readonly configName: ?string;
+  readonly multiActorEnvironment: IMultiActorEnvironment;
+  readonly options: unknown;
   relayFieldLogger: RelayFieldLogger;
 
   constructor(config: ActorSpecificEnvironmentConfig) {
@@ -101,7 +101,7 @@ class ActorSpecificEnvironment implements IActorEnvironment {
 
     if (__DEV__) {
       const {inspect} = require('../store/StoreInspector');
-      (this: $FlowFixMe).DEBUG_inspect = (dataID: ?string) =>
+      (this as $FlowFixMe).DEBUG_inspect = (dataID: ?string) =>
         inspect(this, dataID);
     }
 
@@ -118,7 +118,7 @@ class ActorSpecificEnvironment implements IActorEnvironment {
     return this._defaultRenderPolicy;
   }
 
-  applyMutation<TMutation: MutationParameters>(
+  applyMutation<TMutation extends MutationParameters>(
     optimisticConfig: OptimisticResponseConfig<TMutation>,
   ): Disposable {
     return this.multiActorEnvironment.applyMutation(this, optimisticConfig);
@@ -202,14 +202,14 @@ class ActorSpecificEnvironment implements IActorEnvironment {
     return this.multiActorEnvironment.execute(this, config);
   }
 
-  executeSubscription<TMutation: MutationParameters>(config: {
+  executeSubscription<TMutation extends MutationParameters>(config: {
     operation: OperationDescriptor,
     updater?: ?SelectorStoreUpdater<TMutation['response']>,
   }): RelayObservable<GraphQLResponse> {
     return this.multiActorEnvironment.executeSubscription(this, config);
   }
 
-  executeMutation<TMutation: MutationParameters>(
+  executeMutation<TMutation extends MutationParameters>(
     options: ExecuteMutationConfig<TMutation>,
   ): RelayObservable<GraphQLResponse> {
     return this.multiActorEnvironment.executeMutation(this, options);

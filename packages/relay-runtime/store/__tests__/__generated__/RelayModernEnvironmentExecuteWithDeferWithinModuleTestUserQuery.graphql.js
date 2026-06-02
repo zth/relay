@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<cadd2d12cd12ebeb3d93c2f041b33250>>
+ * @generated SignedSource<<ce6908bdbd5d23cc01a78ca2ac3c1895>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -23,27 +22,27 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$fragmentType } from "./RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor.graphql";
 import type { RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$fragmentType } from "./RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user.graphql";
-export type RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery$variables = {|
+export type RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery$variables = {
   id: string,
-|};
-export type RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery$data = {|
-  +node: ?{|
-    +__fragmentPropName?: ?string,
-    +__module_component?: ?string,
-    +$fragmentSpreads: RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$fragmentType,
-  |},
-  +viewer: ?{|
-    +actor: ?{|
-      +__fragmentPropName?: ?string,
-      +__module_component?: ?string,
-      +$fragmentSpreads: RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$fragmentType,
-    |},
-  |},
-|};
-export type RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery = {|
+};
+export type RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery$data = {
+  readonly node: ?{
+    readonly __fragmentPropName?: ?string,
+    readonly __module_component?: ?string,
+    readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$fragmentType,
+  },
+  readonly viewer: ?{
+    readonly actor: ?{
+      readonly __fragmentPropName?: ?string,
+      readonly __module_component?: ?string,
+      readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$fragmentType,
+    },
+  },
+};
+export type RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery = {
   response: RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery$data,
   variables: RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -105,20 +104,20 @@ v5 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/)
+          (v2/*:: as any*/)
         ],
         "storageKey": null
       },
@@ -138,7 +137,7 @@ return {
             "name": "actor",
             "plural": false,
             "selections": [
-              (v3/*: any*/)
+              (v3/*:: as any*/)
             ],
             "storageKey": null
           }
@@ -151,21 +150,21 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v4/*: any*/),
-          (v2/*: any*/),
-          (v5/*: any*/)
+          (v4/*:: as any*/),
+          (v2/*:: as any*/),
+          (v5/*:: as any*/)
         ],
         "storageKey": null
       },
@@ -185,9 +184,9 @@ return {
             "name": "actor",
             "plural": false,
             "selections": [
-              (v4/*: any*/),
-              (v3/*: any*/),
-              (v5/*: any*/)
+              (v4/*:: as any*/),
+              (v3/*:: as any*/),
+              (v5/*:: as any*/)
             ],
             "storageKey": null
           }
@@ -208,10 +207,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "6fc860d6ca313fa0941c63838338854b";
+  (node/*:: as any*/).hash = "6fc860d6ca313fa0941c63838338854b";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery$variables,
   RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery$data,
 >*/);

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6620c21fdc16d53f3650b3330946b6ef>>
+ * @generated SignedSource<<d95ddbfa656da4d1dc02f15cc3ef9840>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,26 +23,26 @@ import {greeting as userGreetingResolverType} from "../UserGreetingResolver.js";
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userGreetingResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userGreetingResolverType: (
+(userGreetingResolverType as (
   rootKey: UserGreetingResolver$key,
   args: void,
   context: TestResolverContextType,
 ) => ?string);
 declare export opaque type UserBestFriendShoutedGreetingResolver$fragmentType: FragmentType;
-export type UserBestFriendShoutedGreetingResolver$data = {|
-  +friends: ?{|
-    +edges: ?$ReadOnlyArray<?{|
-      +cursor: ?string,
-      +node: ?{|
-        +greeting: ?string,
-      |},
-    |}>,
-  |},
-  +$fragmentType: UserBestFriendShoutedGreetingResolver$fragmentType,
-|};
+export type UserBestFriendShoutedGreetingResolver$data = {
+  readonly friends: ?{
+    readonly edges: ?ReadonlyArray<?{
+      readonly cursor: ?string,
+      readonly node: ?{
+        readonly greeting: ?string,
+      },
+    }>,
+  },
+  readonly $fragmentType: UserBestFriendShoutedGreetingResolver$fragmentType,
+};
 export type UserBestFriendShoutedGreetingResolver$key = {
-  +$data?: UserBestFriendShoutedGreetingResolver$data,
-  +$fragmentSpreads: UserBestFriendShoutedGreetingResolver$fragmentType,
+  readonly $data?: UserBestFriendShoutedGreetingResolver$data,
+  readonly $fragmentSpreads: UserBestFriendShoutedGreetingResolver$fragmentType,
   ...
 };
 */
@@ -119,10 +118,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "0c4d2b81e30f58d15cfe3f72d4c15452";
+  (node/*:: as any*/).hash = "0c4d2b81e30f58d15cfe3f72d4c15452";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   UserBestFriendShoutedGreetingResolver$fragmentType,
   UserBestFriendShoutedGreetingResolver$data,
 >*/);

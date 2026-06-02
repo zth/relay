@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<eddf92f1b738cd54b99cda640a1fafbb>>
+ * @generated SignedSource<<8f6dce77144a61178687af3bdb1f030a>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,52 +17,52 @@
 
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
-export type ActorNameChangeInput = {|
+export type ActorNameChangeInput = {
   newName?: ?string,
-|};
-export type validateMutationTestIsActorInlineMutation$variables = {|
+};
+export type validateMutationTestIsActorInlineMutation$variables = {
   input: ActorNameChangeInput,
-|};
-export type validateMutationTestIsActorInlineMutation$data = {|
-  +actorNameChange: ?{|
-    +actor: ?{|
-      +birthdate?: ?{|
-        +day: ?number,
-        +month: ?number,
-        +year: ?number,
-      |},
-      +username?: ?string,
-    |},
-  |},
-|};
-export type validateMutationTestIsActorInlineMutation$rawResponse = {|
-  +actorNameChange: ?{|
-    +actor: ?({|
-      +__typename: "Page",
-      +__isActor: "Page",
-      +id: string,
-      +username: ?string,
-    |} | {|
-      +__typename: "User",
-      +__isActor: "User",
-      +birthdate: ?{|
-        +day: ?number,
-        +month: ?number,
-        +year: ?number,
-      |},
-      +id: string,
-    |} | {|
-      +__typename: string,
-      +__isActor: string,
-      +id: string,
-    |}),
-  |},
-|};
-export type validateMutationTestIsActorInlineMutation = {|
+};
+export type validateMutationTestIsActorInlineMutation$data = {
+  readonly actorNameChange: ?{
+    readonly actor: ?{
+      readonly birthdate?: ?{
+        readonly day: ?number,
+        readonly month: ?number,
+        readonly year: ?number,
+      },
+      readonly username?: ?string,
+    },
+  },
+};
+export type validateMutationTestIsActorInlineMutation$rawResponse = {
+  readonly actorNameChange: ?{
+    readonly actor: ?({
+      readonly __typename: "Page",
+      readonly __isActor: "Page",
+      readonly id: string,
+      readonly username: ?string,
+    } | {
+      readonly __typename: "User",
+      readonly __isActor: "User",
+      readonly birthdate: ?{
+        readonly day: ?number,
+        readonly month: ?number,
+        readonly year: ?number,
+      },
+      readonly id: string,
+    } | {
+      readonly __typename: string,
+      readonly __isActor: string,
+      readonly id: string,
+    }),
+  },
+};
+export type validateMutationTestIsActorInlineMutation = {
   rawResponse: validateMutationTestIsActorInlineMutation$rawResponse,
   response: validateMutationTestIsActorInlineMutation$data,
   variables: validateMutationTestIsActorInlineMutation$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -136,14 +135,14 @@ v3 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "validateMutationTestIsActorInlineMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "ActorNameChangePayload",
         "kind": "LinkedField",
         "name": "actorNameChange",
@@ -157,8 +156,8 @@ return {
             "name": "actor",
             "plural": false,
             "selections": [
-              (v2/*: any*/),
-              (v3/*: any*/)
+              (v2/*:: as any*/),
+              (v3/*:: as any*/)
             ],
             "storageKey": null
           }
@@ -171,13 +170,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "validateMutationTestIsActorInlineMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "ActorNameChangePayload",
         "kind": "LinkedField",
         "name": "actorNameChange",
@@ -202,8 +201,8 @@ return {
                 "kind": "TypeDiscriminator",
                 "abstractKey": "__isActor"
               },
-              (v2/*: any*/),
-              (v3/*: any*/),
+              (v2/*:: as any*/),
+              (v3/*:: as any*/),
               {
                 "alias": null,
                 "args": null,
@@ -231,10 +230,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "cee27cf207bc3ae834b956c7dd0cd0e3";
+  (node/*:: as any*/).hash = "cee27cf207bc3ae834b956c7dd0cd0e3";
 }
 
-module.exports = ((node/*: any*/)/*: Mutation<
+module.exports = ((node/*:: as any*/)/*:: as Mutation<
   validateMutationTestIsActorInlineMutation$variables,
   validateMutationTestIsActorInlineMutation$data,
   validateMutationTestIsActorInlineMutation$rawResponse,

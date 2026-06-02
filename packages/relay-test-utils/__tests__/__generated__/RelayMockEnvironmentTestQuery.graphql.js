@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5831becf3edded27d13185b12b420457>>
+ * @generated SignedSource<<5d8ca6a8ebd1a0082f2f9b05f7d1cff1>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,19 +17,19 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayMockEnvironmentTestQuery$variables = {|
+export type RelayMockEnvironmentTestQuery$variables = {
   id: string,
-|};
-export type RelayMockEnvironmentTestQuery$data = {|
-  +node: ?{|
-    +id: string,
-    +name?: ?string,
-  |},
-|};
-export type RelayMockEnvironmentTestQuery = {|
+};
+export type RelayMockEnvironmentTestQuery$data = {
+  readonly node: ?{
+    readonly id: string,
+    readonly name?: ?string,
+  },
+};
+export type RelayMockEnvironmentTestQuery = {
   response: RelayMockEnvironmentTestQuery$data,
   variables: RelayMockEnvironmentTestQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -71,21 +70,21 @@ v3 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayMockEnvironmentTestQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
-          (v3/*: any*/)
+          (v2/*:: as any*/),
+          (v3/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -95,13 +94,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayMockEnvironmentTestQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -114,8 +113,8 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v2/*: any*/),
-          (v3/*: any*/)
+          (v2/*:: as any*/),
+          (v3/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -133,10 +132,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "d2298e0d993f39aafb1b6decb48f93e5";
+  (node/*:: as any*/).hash = "d2298e0d993f39aafb1b6decb48f93e5";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayMockEnvironmentTestQuery$variables,
   RelayMockEnvironmentTestQuery$data,
 >*/);

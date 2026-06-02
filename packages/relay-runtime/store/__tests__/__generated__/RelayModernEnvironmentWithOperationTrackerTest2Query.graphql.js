@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2b628fbc239ec67a1b70ae5cdae6d566>>
+ * @generated SignedSource<<a6f2f8eb40b9eee7bd490fcdeb0543d4>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,18 +17,18 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayModernEnvironmentWithOperationTrackerTest2Query$variables = {|
+export type RelayModernEnvironmentWithOperationTrackerTest2Query$variables = {
   id?: ?string,
-|};
-export type RelayModernEnvironmentWithOperationTrackerTest2Query$data = {|
-  +node: ?{|
-    +id: string,
-  |},
-|};
-export type RelayModernEnvironmentWithOperationTrackerTest2Query = {|
+};
+export type RelayModernEnvironmentWithOperationTrackerTest2Query$data = {
+  readonly node: ?{
+    readonly id: string,
+  },
+};
+export type RelayModernEnvironmentWithOperationTrackerTest2Query = {
   response: RelayModernEnvironmentWithOperationTrackerTest2Query$data,
   variables: RelayModernEnvironmentWithOperationTrackerTest2Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -56,20 +55,20 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentWithOperationTrackerTest2Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/)
+          (v2/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -79,13 +78,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentWithOperationTrackerTest2Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -98,7 +97,7 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v2/*: any*/)
+          (v2/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -137,10 +136,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "b8022f9f27b3ec83efc4c10454a3d999";
+  (node/*:: as any*/).hash = "b8022f9f27b3ec83efc4c10454a3d999";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentWithOperationTrackerTest2Query$variables,
   RelayModernEnvironmentWithOperationTrackerTest2Query$data,
 >*/);

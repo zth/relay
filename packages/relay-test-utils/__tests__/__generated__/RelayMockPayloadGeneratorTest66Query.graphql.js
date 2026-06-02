@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<fe99b75def4799767fc9dcc42192d9f4>>
+ * @generated SignedSource<<e11c57483e88b071c63228ab36783f3e>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,22 +18,22 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayMockPayloadGeneratorTest66Fragment$fragmentType } from "./RelayMockPayloadGeneratorTest66Fragment.graphql";
-export type RelayMockPayloadGeneratorTest66Query$variables = {||};
-export type RelayMockPayloadGeneratorTest66Query$data = {|
-  +me: ?{|
-    +friends: ?{|
-      +edges: ?$ReadOnlyArray<?{|
-        +node: ?{|
-          +$fragmentSpreads: RelayMockPayloadGeneratorTest66Fragment$fragmentType,
-        |},
-      |}>,
-    |},
-  |},
-|};
-export type RelayMockPayloadGeneratorTest66Query = {|
+export type RelayMockPayloadGeneratorTest66Query$variables = {};
+export type RelayMockPayloadGeneratorTest66Query$data = {
+  readonly me: ?{
+    readonly friends: ?{
+      readonly edges: ?ReadonlyArray<?{
+        readonly node: ?{
+          readonly $fragmentSpreads: RelayMockPayloadGeneratorTest66Fragment$fragmentType,
+        },
+      }>,
+    },
+  },
+};
+export type RelayMockPayloadGeneratorTest66Query = {
   response: RelayMockPayloadGeneratorTest66Query$data,
   variables: RelayMockPayloadGeneratorTest66Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -135,15 +134,15 @@ return {
                         "kind": "FragmentSpread",
                         "name": "RelayMockPayloadGeneratorTest66Fragment"
                       },
-                      (v0/*: any*/)
+                      (v0/*:: as any*/)
                     ],
                     "storageKey": null
                   },
-                  (v1/*: any*/)
+                  (v1/*:: as any*/)
                 ],
                 "storageKey": null
               },
-              (v2/*: any*/)
+              (v2/*:: as any*/)
             ],
             "storageKey": null
           }
@@ -170,7 +169,7 @@ return {
         "selections": [
           {
             "alias": null,
-            "args": (v3/*: any*/),
+            "args": (v3/*:: as any*/),
             "concreteType": "FriendsConnection",
             "kind": "LinkedField",
             "name": "friends",
@@ -192,29 +191,29 @@ return {
                     "name": "node",
                     "plural": false,
                     "selections": [
-                      (v4/*: any*/),
-                      (v0/*: any*/)
+                      (v4/*:: as any*/),
+                      (v0/*:: as any*/)
                     ],
                     "storageKey": null
                   },
-                  (v1/*: any*/)
+                  (v1/*:: as any*/)
                 ],
                 "storageKey": null
               },
-              (v2/*: any*/)
+              (v2/*:: as any*/)
             ],
             "storageKey": "friends(first:10)"
           },
           {
             "alias": null,
-            "args": (v3/*: any*/),
+            "args": (v3/*:: as any*/),
             "filters": null,
             "handle": "connection",
             "key": "test-66__friends",
             "kind": "LinkedHandle",
             "name": "friends"
           },
-          (v4/*: any*/)
+          (v4/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -245,10 +244,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "b92d71278394a4845d13fc6206966c02";
+  (node/*:: as any*/).hash = "b92d71278394a4845d13fc6206966c02";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayMockPayloadGeneratorTest66Query$variables,
   RelayMockPayloadGeneratorTest66Query$data,
 >*/);

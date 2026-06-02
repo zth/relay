@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e63c83a88446f74a26a324a57e1c753f>>
+ * @generated SignedSource<<c6127e4a75d5b9ab115a3327b32e71fe>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,15 +19,15 @@
 import type { InlineFragment, ReaderInlineDataFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type readInlineDataTestNestedQueryVariablesGrandchild$fragmentType: FragmentType;
-export type readInlineDataTestNestedQueryVariablesGrandchild$data = {|
-  +profile_picture: ?{|
-    +uri: ?string,
-  |},
-  +$fragmentType: readInlineDataTestNestedQueryVariablesGrandchild$fragmentType,
-|};
+export type readInlineDataTestNestedQueryVariablesGrandchild$data = {
+  readonly profile_picture: ?{
+    readonly uri: ?string,
+  },
+  readonly $fragmentType: readInlineDataTestNestedQueryVariablesGrandchild$fragmentType,
+};
 export type readInlineDataTestNestedQueryVariablesGrandchild$key = {
-  +$data?: readInlineDataTestNestedQueryVariablesGrandchild$data,
-  +$fragmentSpreads: readInlineDataTestNestedQueryVariablesGrandchild$fragmentType,
+  readonly $data?: readInlineDataTestNestedQueryVariablesGrandchild$data,
+  readonly $fragmentSpreads: readInlineDataTestNestedQueryVariablesGrandchild$fragmentType,
   ...
 };
 */
@@ -39,10 +38,10 @@ var node/*: ReaderInlineDataFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "88f25320204f0e57533953badb8c3928";
+  (node/*:: as any*/).hash = "88f25320204f0e57533953badb8c3928";
 }
 
-module.exports = ((node/*: any*/)/*: InlineFragment<
+module.exports = ((node/*:: as any*/)/*:: as InlineFragment<
   readInlineDataTestNestedQueryVariablesGrandchild$fragmentType,
   readInlineDataTestNestedQueryVariablesGrandchild$data,
 >*/);

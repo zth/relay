@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7268a9bb4ca135bfccb76bb523920054>>
+ * @generated SignedSource<<f9f985c1dc30f416a0c74c2f8ba82f77>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,20 +17,20 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayReaderRequiredFieldsTestBubbleToAliasedInlineFragmentWithoutTypeQuery$variables = {||};
-export type RelayReaderRequiredFieldsTestBubbleToAliasedInlineFragmentWithoutTypeQuery$data = {|
-  +me: ?{|
-    +requiredFields: ?{|
-      +backgroundImage: {|
-        +uri: string,
-      |},
-    |},
-  |},
-|};
-export type RelayReaderRequiredFieldsTestBubbleToAliasedInlineFragmentWithoutTypeQuery = {|
+export type RelayReaderRequiredFieldsTestBubbleToAliasedInlineFragmentWithoutTypeQuery$variables = {};
+export type RelayReaderRequiredFieldsTestBubbleToAliasedInlineFragmentWithoutTypeQuery$data = {
+  readonly me: ?{
+    readonly requiredFields: ?{
+      readonly backgroundImage: {
+        readonly uri: string,
+      },
+    },
+  },
+};
+export type RelayReaderRequiredFieldsTestBubbleToAliasedInlineFragmentWithoutTypeQuery = {
   response: RelayReaderRequiredFieldsTestBubbleToAliasedInlineFragmentWithoutTypeQuery$data,
   variables: RelayReaderRequiredFieldsTestBubbleToAliasedInlineFragmentWithoutTypeQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -73,7 +72,7 @@ return {
                     "selections": [
                       {
                         "kind": "RequiredField",
-                        "field": (v0/*: any*/),
+                        "field": (v0/*:: as any*/),
                         "action": "LOG"
                       }
                     ],
@@ -117,7 +116,7 @@ return {
             "name": "backgroundImage",
             "plural": false,
             "selections": [
-              (v0/*: any*/)
+              (v0/*:: as any*/)
             ],
             "storageKey": null
           },
@@ -145,10 +144,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "8ffc3f3576c04809264bbc5cf439e34d";
+  (node/*:: as any*/).hash = "8ffc3f3576c04809264bbc5cf439e34d";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderRequiredFieldsTestBubbleToAliasedInlineFragmentWithoutTypeQuery$variables,
   RelayReaderRequiredFieldsTestBubbleToAliasedInlineFragmentWithoutTypeQuery$data,
 >*/);

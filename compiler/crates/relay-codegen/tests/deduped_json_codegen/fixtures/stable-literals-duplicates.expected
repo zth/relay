@@ -50,22 +50,22 @@ return {
       "selections": [
         {
           "alias": null,
-          "args": (v0/*: any*/),
+          "args": (v0/*:: as any*/),
           "concreteType": "Comment",
           "kind": "LinkedField",
           "name": "storyCommentSearch",
           "plural": true,
-          "selections": (v1/*: any*/),
+          "selections": (v1/*:: as any*/),
           "storageKey": "storyCommentSearch(query:{\"limit\":2,\"offset\":10,\"text\":\"foo\"})"
         },
         {
           "alias": "aliased",
-          "args": (v0/*: any*/),
+          "args": (v0/*:: as any*/),
           "concreteType": "Comment",
           "kind": "LinkedField",
           "name": "storyCommentSearch",
           "plural": true,
-          "selections": (v1/*: any*/),
+          "selections": (v1/*:: as any*/),
           "storageKey": "storyCommentSearch(query:{\"limit\":2,\"offset\":10,\"text\":\"foo\"})"
         }
       ],

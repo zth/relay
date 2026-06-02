@@ -31,21 +31,28 @@ extend type Query {
 ==================================== OUTPUT ===================================
 fragment nestedConditionOnInlineFragmentOnInterfaceFragment on Cat {
   ... @include(if: $has_owner) {
-    name @include(if: $has_name)
+    ... on Tabby @include(if: $has_name) {
+      name
+    }
+    ... on Persian @include(if: $has_name) {
+      name
+    }
     ... on Tabby {
       __id @__RelayResolverMetadata
       # RelayResolverMetadata {
-      #     field_id: FieldID(528),
+      #     field_id: FieldID(532),
       #     import_path: "TabbyResolver",
       #     import_name: None,
       #     field_alias: None,
       #     field_path: "description",
       #     field_arguments: [],
+      #     fragment_arguments: [],
       #     live: false,
       #     output_type_info: Legacy,
       #     fragment_data_injection_mode: None,
       #     type_confirmed: false,
       #     resolver_type: ResolverModule,
+      #     return_fragment: None,
       # }
       
     }

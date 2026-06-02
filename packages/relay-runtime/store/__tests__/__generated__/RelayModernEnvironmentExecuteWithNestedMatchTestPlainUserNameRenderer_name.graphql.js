@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9c080bb69fdcdb362e1012e57f7b5ba5>>
+ * @generated SignedSource<<12d634c71d070fe82652909892165260>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,16 +19,16 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$fragmentType: FragmentType;
-export type RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$data = {|
-  +data: ?{|
-    +text: ?string,
-  |},
-  +plaintext: ?string,
-  +$fragmentType: RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$fragmentType,
-|};
+export type RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$data = {
+  readonly data: ?{
+    readonly text: ?string,
+  },
+  readonly plaintext: ?string,
+  readonly $fragmentType: RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$fragmentType,
+};
 export type RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$key = {
-  +$data?: RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$data,
-  +$fragmentSpreads: RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$fragmentType,
+  readonly $data?: RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$fragmentType,
   ...
 };
 */
@@ -71,10 +70,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "dd2b6c85ca9c2117be434b42864ff560";
+  (node/*:: as any*/).hash = "dd2b6c85ca9c2117be434b42864ff560";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$fragmentType,
   RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$data,
 >*/);

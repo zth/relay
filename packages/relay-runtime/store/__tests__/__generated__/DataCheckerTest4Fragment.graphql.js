@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<465e6f93772371c4d817178f3d463ad6>>
+ * @generated SignedSource<<af307be09442949c88aaa3bd0bcaa1bc>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,18 +23,18 @@ import type { DataCheckerTestMarkdownUserNameRenderer_nameFragment$fragmentType 
 import type { DataCheckerTestPlainUserNameRenderer_nameFragment$fragmentType } from "./DataCheckerTestPlainUserNameRenderer_nameFragment.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type DataCheckerTest4Fragment$fragmentType: FragmentType;
-export type DataCheckerTest4Fragment$data = {|
-  +id: string,
-  +nameRenderer: ?{|
-    +__fragmentPropName?: ?string,
-    +__module_component?: ?string,
-    +$fragmentSpreads: DataCheckerTestMarkdownUserNameRenderer_nameFragment$fragmentType & DataCheckerTestPlainUserNameRenderer_nameFragment$fragmentType,
-  |},
-  +$fragmentType: DataCheckerTest4Fragment$fragmentType,
-|};
+export type DataCheckerTest4Fragment$data = {
+  readonly id: string,
+  readonly nameRenderer: ?{
+    readonly __fragmentPropName?: ?string,
+    readonly __module_component?: ?string,
+    readonly $fragmentSpreads: DataCheckerTestMarkdownUserNameRenderer_nameFragment$fragmentType & DataCheckerTestPlainUserNameRenderer_nameFragment$fragmentType,
+  },
+  readonly $fragmentType: DataCheckerTest4Fragment$fragmentType,
+};
 export type DataCheckerTest4Fragment$key = {
-  +$data?: DataCheckerTest4Fragment$data,
-  +$fragmentSpreads: DataCheckerTest4Fragment$fragmentType,
+  readonly $data?: DataCheckerTest4Fragment$data,
+  readonly $fragmentSpreads: DataCheckerTest4Fragment$fragmentType,
   ...
 };
 */
@@ -104,10 +103,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "f20c2eee0a5b421d96944c9afdd2eb66";
+  (node/*:: as any*/).hash = "f20c2eee0a5b421d96944c9afdd2eb66";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   DataCheckerTest4Fragment$fragmentType,
   DataCheckerTest4Fragment$data,
 >*/);

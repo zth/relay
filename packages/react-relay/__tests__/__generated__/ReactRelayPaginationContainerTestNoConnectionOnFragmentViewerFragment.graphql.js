@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2dda5e1781a8e4ef36fa0cd9fbc5e5e7>>
+ * @generated SignedSource<<80960cfa172d9ed0ea013bac1c971100>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,15 +19,15 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type ReactRelayPaginationContainerTestNoConnectionOnFragmentViewerFragment$fragmentType: FragmentType;
-export type ReactRelayPaginationContainerTestNoConnectionOnFragmentViewerFragment$data = {|
-  +actor: ?{|
-    +id: string,
-  |},
-  +$fragmentType: ReactRelayPaginationContainerTestNoConnectionOnFragmentViewerFragment$fragmentType,
-|};
+export type ReactRelayPaginationContainerTestNoConnectionOnFragmentViewerFragment$data = {
+  readonly actor: ?{
+    readonly id: string,
+  },
+  readonly $fragmentType: ReactRelayPaginationContainerTestNoConnectionOnFragmentViewerFragment$fragmentType,
+};
 export type ReactRelayPaginationContainerTestNoConnectionOnFragmentViewerFragment$key = {
-  +$data?: ReactRelayPaginationContainerTestNoConnectionOnFragmentViewerFragment$data,
-  +$fragmentSpreads: ReactRelayPaginationContainerTestNoConnectionOnFragmentViewerFragment$fragmentType,
+  readonly $data?: ReactRelayPaginationContainerTestNoConnectionOnFragmentViewerFragment$data,
+  readonly $fragmentSpreads: ReactRelayPaginationContainerTestNoConnectionOnFragmentViewerFragment$fragmentType,
   ...
 };
 */
@@ -63,10 +62,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "57042a4c48161b75f6f8095dd0707876";
+  (node/*:: as any*/).hash = "57042a4c48161b75f6f8095dd0707876";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   ReactRelayPaginationContainerTestNoConnectionOnFragmentViewerFragment$fragmentType,
   ReactRelayPaginationContainerTestNoConnectionOnFragmentViewerFragment$data,
 >*/);

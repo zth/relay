@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<29f69a5c2b6c451ab3eba27c731ff0af>>
+ * @generated SignedSource<<07ff34b30d7be47e77a66a2b6e35246a>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,14 +19,14 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserProfile$fragmentType: FragmentType;
-export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserProfile$data = {|
-  +id: string,
-  +username: ?string,
-  +$fragmentType: RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserProfile$fragmentType,
-|};
+export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserProfile$data = {
+  readonly id: string,
+  readonly username: ?string,
+  readonly $fragmentType: RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserProfile$fragmentType,
+};
 export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserProfile$key = {
-  +$data?: RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserProfile$data,
-  +$fragmentSpreads: RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserProfile$fragmentType,
+  readonly $data?: RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserProfile$data,
+  readonly $fragmentSpreads: RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserProfile$fragmentType,
   ...
 };
 */
@@ -58,10 +57,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "e02035b1843ef7dc76c90e27f2d7e190";
+  (node/*:: as any*/).hash = "e02035b1843ef7dc76c90e27f2d7e190";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserProfile$fragmentType,
   RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserProfile$data,
 >*/);

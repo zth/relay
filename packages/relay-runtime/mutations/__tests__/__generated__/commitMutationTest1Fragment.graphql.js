@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0d63dbb3e37ffee571ed3b3b893518fb>>
+ * @generated SignedSource<<352c156ade0b62fdcccdd66f1088303c>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,16 +19,16 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type commitMutationTest1Fragment$fragmentType: FragmentType;
-export type commitMutationTest1Fragment$data = {|
-  +body: ?{|
-    +text: ?string,
-  |},
-  +id: string,
-  +$fragmentType: commitMutationTest1Fragment$fragmentType,
-|};
+export type commitMutationTest1Fragment$data = {
+  readonly body: ?{
+    readonly text: ?string,
+  },
+  readonly id: string,
+  readonly $fragmentType: commitMutationTest1Fragment$fragmentType,
+};
 export type commitMutationTest1Fragment$key = {
-  +$data?: commitMutationTest1Fragment$data,
-  +$fragmentSpreads: commitMutationTest1Fragment$fragmentType,
+  readonly $data?: commitMutationTest1Fragment$data,
+  readonly $fragmentSpreads: commitMutationTest1Fragment$fragmentType,
   ...
 };
 */
@@ -71,10 +70,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "5531c772eb51f5d19ad21d26c583105b";
+  (node/*:: as any*/).hash = "5531c772eb51f5d19ad21d26c583105b";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   commitMutationTest1Fragment$fragmentType,
   commitMutationTest1Fragment$data,
 >*/);

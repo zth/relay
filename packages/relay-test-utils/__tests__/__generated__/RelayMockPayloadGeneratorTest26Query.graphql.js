@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4e6124886cfbdebfdea90fc343214632>>
+ * @generated SignedSource<<41a5c1633c142d5290561a9c6d8701b3>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,16 +19,16 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayMockPayloadGeneratorTest29Fragment$fragmentType } from "./RelayMockPayloadGeneratorTest29Fragment.graphql";
 import type { RelayMockPayloadGeneratorTest30Fragment$fragmentType } from "./RelayMockPayloadGeneratorTest30Fragment.graphql";
-export type RelayMockPayloadGeneratorTest26Query$variables = {||};
-export type RelayMockPayloadGeneratorTest26Query$data = {|
-  +node: ?{|
-    +$fragmentSpreads: RelayMockPayloadGeneratorTest29Fragment$fragmentType & RelayMockPayloadGeneratorTest30Fragment$fragmentType,
-  |},
-|};
-export type RelayMockPayloadGeneratorTest26Query = {|
+export type RelayMockPayloadGeneratorTest26Query$variables = {};
+export type RelayMockPayloadGeneratorTest26Query$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: RelayMockPayloadGeneratorTest29Fragment$fragmentType & RelayMockPayloadGeneratorTest30Fragment$fragmentType,
+  },
+};
+export type RelayMockPayloadGeneratorTest26Query = {
   response: RelayMockPayloadGeneratorTest26Query$data,
   variables: RelayMockPayloadGeneratorTest26Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -55,7 +54,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -86,7 +85,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -162,8 +161,8 @@ return {
           "plural": false,
           "type": "ID"
         },
-        "node.pageName": (v1/*: any*/),
-        "node.userName": (v1/*: any*/)
+        "node.pageName": (v1/*:: as any*/),
+        "node.userName": (v1/*:: as any*/)
       }
     },
     "name": "RelayMockPayloadGeneratorTest26Query",
@@ -174,10 +173,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "e3566d23bc9b945b0bd9131af72fdde9";
+  (node/*:: as any*/).hash = "e3566d23bc9b945b0bd9131af72fdde9";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayMockPayloadGeneratorTest26Query$variables,
   RelayMockPayloadGeneratorTest26Query$data,
 >*/);

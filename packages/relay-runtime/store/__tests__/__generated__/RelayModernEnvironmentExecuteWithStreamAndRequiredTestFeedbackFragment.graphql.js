@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<fd02ee550420692088de2cfd60cbe6eb>>
+ * @generated SignedSource<<043bdf0f3bbc2b8b6cd78d2068be3085>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,16 +19,16 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment$fragmentType: FragmentType;
-export type RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment$data = ?{|
-  +actors: $ReadOnlyArray<?{|
-    +name: ?string,
-  |}>,
-  +id: string,
-  +$fragmentType: RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment$fragmentType,
-|};
+export type RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment$data = ?{
+  readonly actors: ReadonlyArray<?{
+    readonly name: ?string,
+  }>,
+  readonly id: string,
+  readonly $fragmentType: RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment$fragmentType,
+};
 export type RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment$key = {
-  +$data?: RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment$data,
-  +$fragmentSpreads: RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment$fragmentType,
+  readonly $data?: RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment$fragmentType,
   ...
 };
 */
@@ -85,10 +84,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "eafa3357931703c738a27fca219e0e48";
+  (node/*:: as any*/).hash = "eafa3357931703c738a27fca219e0e48";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment$fragmentType,
   RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment$data,
 >*/);

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8ed3e238203c49288429f434ff0ef253>>
+ * @generated SignedSource<<75a78173a39c083088ce307700112192>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,16 +18,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { observeFragmentTestPluralFragment$fragmentType } from "./observeFragmentTestPluralFragment.graphql";
-export type observeFragmentTestPluralQuery$variables = {||};
-export type observeFragmentTestPluralQuery$data = {|
-  +nodes: ?$ReadOnlyArray<?{|
-    +$fragmentSpreads: observeFragmentTestPluralFragment$fragmentType,
-  |}>,
-|};
-export type observeFragmentTestPluralQuery = {|
+export type observeFragmentTestPluralQuery$variables = {};
+export type observeFragmentTestPluralQuery$data = {
+  readonly nodes: ?ReadonlyArray<?{
+    readonly $fragmentSpreads: observeFragmentTestPluralFragment$fragmentType,
+  }>,
+};
+export type observeFragmentTestPluralQuery = {
   response: observeFragmentTestPluralQuery$data,
   variables: observeFragmentTestPluralQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -51,7 +50,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "nodes",
@@ -77,7 +76,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "nodes",
@@ -128,10 +127,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "c1a2f68df2ec25bc00b077d6cdecdce4";
+  (node/*:: as any*/).hash = "c1a2f68df2ec25bc00b077d6cdecdce4";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   observeFragmentTestPluralQuery$variables,
   observeFragmentTestPluralQuery$data,
 >*/);

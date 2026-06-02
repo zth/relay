@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f536c5788ce055c1f4690b13e606feaf>>
+ * @generated SignedSource<<127dbe42189db2e9f4f155ac2beccbbe>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,16 +19,16 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentExecuteSubscriptionWithMatchTestPlainUserNameRenderer_name$fragmentType: FragmentType;
-export type RelayModernEnvironmentExecuteSubscriptionWithMatchTestPlainUserNameRenderer_name$data = {|
-  +data: ?{|
-    +text: ?string,
-  |},
-  +plaintext: ?string,
-  +$fragmentType: RelayModernEnvironmentExecuteSubscriptionWithMatchTestPlainUserNameRenderer_name$fragmentType,
-|};
+export type RelayModernEnvironmentExecuteSubscriptionWithMatchTestPlainUserNameRenderer_name$data = {
+  readonly data: ?{
+    readonly text: ?string,
+  },
+  readonly plaintext: ?string,
+  readonly $fragmentType: RelayModernEnvironmentExecuteSubscriptionWithMatchTestPlainUserNameRenderer_name$fragmentType,
+};
 export type RelayModernEnvironmentExecuteSubscriptionWithMatchTestPlainUserNameRenderer_name$key = {
-  +$data?: RelayModernEnvironmentExecuteSubscriptionWithMatchTestPlainUserNameRenderer_name$data,
-  +$fragmentSpreads: RelayModernEnvironmentExecuteSubscriptionWithMatchTestPlainUserNameRenderer_name$fragmentType,
+  readonly $data?: RelayModernEnvironmentExecuteSubscriptionWithMatchTestPlainUserNameRenderer_name$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentExecuteSubscriptionWithMatchTestPlainUserNameRenderer_name$fragmentType,
   ...
 };
 */
@@ -71,10 +70,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "66782037b8711299a7b744a9ff2840c5";
+  (node/*:: as any*/).hash = "66782037b8711299a7b744a9ff2840c5";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayModernEnvironmentExecuteSubscriptionWithMatchTestPlainUserNameRenderer_name$fragmentType,
   RelayModernEnvironmentExecuteSubscriptionWithMatchTestPlainUserNameRenderer_name$data,
 >*/);

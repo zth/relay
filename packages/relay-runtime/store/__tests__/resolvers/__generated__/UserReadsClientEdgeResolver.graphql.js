@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<86cdc5e5257c9ebf2d6e0d08c6c8daf6>>
+ * @generated SignedSource<<d2f20f7869341fbbc1461ab72efa7672>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,23 +23,23 @@ import {client_edge as userClientEdgeResolverType} from "../UserClientEdgeResolv
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userClientEdgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userClientEdgeResolverType: (
+(userClientEdgeResolverType as (
   rootKey: UserClientEdgeResolver$key,
   args: void,
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
+) => ?{
+  readonly id: DataID,
+});
 declare export opaque type UserReadsClientEdgeResolver$fragmentType: FragmentType;
-export type UserReadsClientEdgeResolver$data = {|
-  +client_edge: ?{|
-    +name: ?string,
-  |},
-  +$fragmentType: UserReadsClientEdgeResolver$fragmentType,
-|};
+export type UserReadsClientEdgeResolver$data = {
+  readonly client_edge: ?{
+    readonly name: ?string,
+  },
+  readonly $fragmentType: UserReadsClientEdgeResolver$fragmentType,
+};
 export type UserReadsClientEdgeResolver$key = {
-  +$data?: UserReadsClientEdgeResolver$data,
-  +$fragmentSpreads: UserReadsClientEdgeResolver$fragmentType,
+  readonly $data?: UserReadsClientEdgeResolver$data,
+  readonly $fragmentSpreads: UserReadsClientEdgeResolver$fragmentType,
   ...
 };
 */
@@ -94,10 +93,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "e516986653910442a460b9755999c3e5";
+  (node/*:: as any*/).hash = "e516986653910442a460b9755999c3e5";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   UserReadsClientEdgeResolver$fragmentType,
   UserReadsClientEdgeResolver$data,
 >*/);

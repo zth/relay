@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0794561cff1453f31703ce695e38c6b2>>
+ * @generated SignedSource<<c7067e79b51fb7dde9cac883385c5b96>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,19 +23,19 @@ import {self as clientAccountSelfResolverType} from "../ClientEdgeToClientObject
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `clientAccountSelfResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(clientAccountSelfResolverType: (
+(clientAccountSelfResolverType as (
   rootKey: ClientEdgeToClientObjectTestClientRootFragment$key,
   args: void,
   context: TestResolverContextType,
-) => ?mixed);
+) => ?unknown);
 declare export opaque type ClientEdgeToClientObjectTestClientRootNameFragment$fragmentType: FragmentType;
-export type ClientEdgeToClientObjectTestClientRootNameFragment$data = {|
-  +self: ?ReturnType<typeof clientAccountSelfResolverType>,
-  +$fragmentType: ClientEdgeToClientObjectTestClientRootNameFragment$fragmentType,
-|};
+export type ClientEdgeToClientObjectTestClientRootNameFragment$data = {
+  readonly self: ?ReturnType<typeof clientAccountSelfResolverType>,
+  readonly $fragmentType: ClientEdgeToClientObjectTestClientRootNameFragment$fragmentType,
+};
 export type ClientEdgeToClientObjectTestClientRootNameFragment$key = {
-  +$data?: ClientEdgeToClientObjectTestClientRootNameFragment$data,
-  +$fragmentSpreads: ClientEdgeToClientObjectTestClientRootNameFragment$fragmentType,
+  readonly $data?: ClientEdgeToClientObjectTestClientRootNameFragment$data,
+  readonly $fragmentSpreads: ClientEdgeToClientObjectTestClientRootNameFragment$fragmentType,
   ...
 };
 */
@@ -66,10 +65,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "22c8af82f4599e2fe1b29ccf8da33b51";
+  (node/*:: as any*/).hash = "22c8af82f4599e2fe1b29ccf8da33b51";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   ClientEdgeToClientObjectTestClientRootNameFragment$fragmentType,
   ClientEdgeToClientObjectTestClientRootNameFragment$data,
 >*/);

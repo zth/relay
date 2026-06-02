@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<43483e4e89d5b81ea6f87af6b6f5157e>>
+ * @generated SignedSource<<4e90b6257c7cf5be4c61aeb06ef9b3b7>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,36 +17,36 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayReaderTestReadsQueryDataFooQuery$variables = {|
+export type RelayReaderTestReadsQueryDataFooQuery$variables = {
   id?: ?string,
-  size?: ?$ReadOnlyArray<?number>,
-|};
-export type RelayReaderTestReadsQueryDataFooQuery$data = {|
-  +node: ?{|
-    +__typename: string,
-    +actors?: ?$ReadOnlyArray<?{|
-      +name: ?string,
-    |}>,
-    +firstName?: ?string,
-    +friends?: ?{|
-      +edges: ?$ReadOnlyArray<?{|
-        +cursor: ?string,
-        +node: ?{|
-          +firstName: ?string,
-          +id: string,
-        |},
-      |}>,
-    |},
-    +id: string,
-    +profilePicture?: ?{|
-      +uri: ?string,
-    |},
-  |},
-|};
-export type RelayReaderTestReadsQueryDataFooQuery = {|
+  size?: ?ReadonlyArray<?number>,
+};
+export type RelayReaderTestReadsQueryDataFooQuery$data = {
+  readonly node: ?{
+    readonly __typename: string,
+    readonly actors?: ?ReadonlyArray<?{
+      readonly name: ?string,
+    }>,
+    readonly firstName?: ?string,
+    readonly friends?: ?{
+      readonly edges: ?ReadonlyArray<?{
+        readonly cursor: ?string,
+        readonly node: ?{
+          readonly firstName: ?string,
+          readonly id: string,
+        },
+      }>,
+    },
+    readonly id: string,
+    readonly profilePicture?: ?{
+      readonly uri: ?string,
+    },
+  },
+};
+export type RelayReaderTestReadsQueryDataFooQuery = {
   response: RelayReaderTestReadsQueryDataFooQuery$data,
   variables: RelayReaderTestReadsQueryDataFooQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -101,7 +100,7 @@ v5 = {
 v6 = {
   "kind": "InlineFragment",
   "selections": [
-    (v5/*: any*/),
+    (v5/*:: as any*/),
     {
       "alias": null,
       "args": [
@@ -139,8 +138,8 @@ v6 = {
               "name": "node",
               "plural": false,
               "selections": [
-                (v2/*: any*/),
-                (v5/*: any*/)
+                (v2/*:: as any*/),
+                (v5/*:: as any*/)
               ],
               "storageKey": null
             }
@@ -180,21 +179,21 @@ v6 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayReaderTestReadsQueryDataFooQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
-          (v3/*: any*/),
+          (v2/*:: as any*/),
+          (v3/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
@@ -206,7 +205,7 @@ return {
                 "name": "actors",
                 "plural": true,
                 "selections": [
-                  (v4/*: any*/)
+                  (v4/*:: as any*/)
                 ],
                 "storageKey": null
               }
@@ -214,7 +213,7 @@ return {
             "type": "Page",
             "abstractKey": null
           },
-          (v6/*: any*/)
+          (v6/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -224,20 +223,20 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayReaderTestReadsQueryDataFooQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
-          (v3/*: any*/),
+          (v2/*:: as any*/),
+          (v3/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
@@ -249,9 +248,9 @@ return {
                 "name": "actors",
                 "plural": true,
                 "selections": [
-                  (v3/*: any*/),
-                  (v4/*: any*/),
-                  (v2/*: any*/)
+                  (v3/*:: as any*/),
+                  (v4/*:: as any*/),
+                  (v2/*:: as any*/)
                 ],
                 "storageKey": null
               }
@@ -259,7 +258,7 @@ return {
             "type": "Page",
             "abstractKey": null
           },
-          (v6/*: any*/)
+          (v6/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -277,10 +276,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "a5843bfe2a9c884e36ae5a3472814fee";
+  (node/*:: as any*/).hash = "a5843bfe2a9c884e36ae5a3472814fee";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderTestReadsQueryDataFooQuery$variables,
   RelayReaderTestReadsQueryDataFooQuery$data,
 >*/);

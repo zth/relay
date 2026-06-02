@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<dca06c64c38428e1684a6b1af2b314a9>>
+ * @generated SignedSource<<457e660d83eb1d5bc41a92dcb625158e>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,16 +17,16 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayReaderRelayErrorHandlingTestInlineFragmentQuery$variables = {||};
-export type RelayReaderRelayErrorHandlingTestInlineFragmentQuery$data = {|
-  +node: ?{|
-    +name?: ?string,
-  |},
-|};
-export type RelayReaderRelayErrorHandlingTestInlineFragmentQuery = {|
+export type RelayReaderRelayErrorHandlingTestInlineFragmentQuery$variables = {};
+export type RelayReaderRelayErrorHandlingTestInlineFragmentQuery$data = {
+  readonly node: ?{
+    readonly name?: ?string,
+  },
+};
+export type RelayReaderRelayErrorHandlingTestInlineFragmentQuery = {
   response: RelayReaderRelayErrorHandlingTestInlineFragmentQuery$data,
   variables: RelayReaderRelayErrorHandlingTestInlineFragmentQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -63,13 +62,13 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v1/*: any*/)
+          (v1/*:: as any*/)
         ],
         "storageKey": "node(id:\"4\")"
       }
@@ -85,7 +84,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -98,7 +97,7 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v1/*: any*/),
+          (v1/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -123,10 +122,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "22d74b54975af4726245232e8820d0e2";
+  (node/*:: as any*/).hash = "22d74b54975af4726245232e8820d0e2";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderRelayErrorHandlingTestInlineFragmentQuery$variables,
   RelayReaderRelayErrorHandlingTestInlineFragmentQuery$data,
 >*/);

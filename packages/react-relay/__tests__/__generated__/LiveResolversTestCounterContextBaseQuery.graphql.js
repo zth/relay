@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<037817371343c160146009e57a039cfd>>
+ * @generated SignedSource<<996ccb250842939d00dca93833d399c6>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,7 +23,7 @@ import {count_plus_one as baseCounterCountPlusOneResolverType} from "../../../re
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `baseCounterCountPlusOneResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(baseCounterCountPlusOneResolverType: (
+(baseCounterCountPlusOneResolverType as (
   __relay_model_instance: BaseCounter____relay_model_instance$data['__relay_model_instance'],
   args: void,
   context: TestResolverContextType,
@@ -32,21 +31,21 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
 import {base_counter_context as queryBaseCounterContextResolverType} from "../../../relay-runtime/store/__tests__/resolvers/LiveCounterContextResolver.js";
 // Type assertion validating that `queryBaseCounterContextResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryBaseCounterContextResolverType: (
+(queryBaseCounterContextResolverType as (
   args: void,
   context: TestResolverContextType,
 ) => LiveState<?BaseCounter>);
 import type { BaseCounter } from "../../../relay-runtime/store/__tests__/resolvers/LiveCounterContextResolver.js";
-export type LiveResolversTestCounterContextBaseQuery$variables = {||};
-export type LiveResolversTestCounterContextBaseQuery$data = {|
-  +base_counter_context: ?{|
-    +count_plus_one: ?number,
-  |},
-|};
-export type LiveResolversTestCounterContextBaseQuery = {|
+export type LiveResolversTestCounterContextBaseQuery$variables = {};
+export type LiveResolversTestCounterContextBaseQuery$data = {
+  readonly base_counter_context: ?{
+    readonly count_plus_one: ?number,
+  },
+};
+export type LiveResolversTestCounterContextBaseQuery = {
   response: LiveResolversTestCounterContextBaseQuery$data,
   variables: LiveResolversTestCounterContextBaseQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = {
@@ -62,6 +61,7 @@ var node/*: ClientRequest*/ = {
         "kind": "ClientEdgeToClientObject",
         "concreteType": "BaseCounter",
         "modelResolvers": null,
+        "serverObjectOperations": null,
         "backingField": {
           "alias": null,
           "args": null,
@@ -167,10 +167,10 @@ var node/*: ClientRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "a7ba71ed7b3caaefa42c8686bc81819c";
+  (node/*:: as any*/).hash = "a7ba71ed7b3caaefa42c8686bc81819c";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   LiveResolversTestCounterContextBaseQuery$variables,
   LiveResolversTestCounterContextBaseQuery$data,
 >*/);

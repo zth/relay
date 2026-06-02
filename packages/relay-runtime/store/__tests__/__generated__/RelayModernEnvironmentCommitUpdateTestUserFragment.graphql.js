@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d3368500b14aa6eda9dfff6388eb270b>>
+ * @generated SignedSource<<1d0b3984beeb9967b2cf4c6bb2ca9ea2>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,14 +19,14 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentCommitUpdateTestUserFragment$fragmentType: FragmentType;
-export type RelayModernEnvironmentCommitUpdateTestUserFragment$data = {|
-  +id: string,
-  +name: ?string,
-  +$fragmentType: RelayModernEnvironmentCommitUpdateTestUserFragment$fragmentType,
-|};
+export type RelayModernEnvironmentCommitUpdateTestUserFragment$data = {
+  readonly id: string,
+  readonly name: ?string,
+  readonly $fragmentType: RelayModernEnvironmentCommitUpdateTestUserFragment$fragmentType,
+};
 export type RelayModernEnvironmentCommitUpdateTestUserFragment$key = {
-  +$data?: RelayModernEnvironmentCommitUpdateTestUserFragment$data,
-  +$fragmentSpreads: RelayModernEnvironmentCommitUpdateTestUserFragment$fragmentType,
+  readonly $data?: RelayModernEnvironmentCommitUpdateTestUserFragment$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentCommitUpdateTestUserFragment$fragmentType,
   ...
 };
 */
@@ -58,10 +57,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "b161821fe23ad015bfd2bcd62b919a9d";
+  (node/*:: as any*/).hash = "b161821fe23ad015bfd2bcd62b919a9d";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayModernEnvironmentCommitUpdateTestUserFragment$fragmentType,
   RelayModernEnvironmentCommitUpdateTestUserFragment$data,
 >*/);

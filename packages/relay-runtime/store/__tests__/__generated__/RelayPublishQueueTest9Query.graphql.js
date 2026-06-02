@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1a929d44ccb1c18055a0c89c1700263e>>
+ * @generated SignedSource<<732a7dab0da2788e96bc8a19caa19de0>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,20 +18,20 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayPublishQueueTest3Fragment$fragmentType } from "./RelayPublishQueueTest3Fragment.graphql";
-export type RelayPublishQueueTest9Query$variables = {||};
-export type RelayPublishQueueTest9Query$data = {|
-  +me: ?{|
-    +name: ?string,
-    +$fragmentSpreads: RelayPublishQueueTest3Fragment$fragmentType,
-  |},
-  +nodes: ?$ReadOnlyArray<?{|
-    +name: ?string,
-  |}>,
-|};
-export type RelayPublishQueueTest9Query = {|
+export type RelayPublishQueueTest9Query$variables = {};
+export type RelayPublishQueueTest9Query$data = {
+  readonly me: ?{
+    readonly name: ?string,
+    readonly $fragmentSpreads: RelayPublishQueueTest3Fragment$fragmentType,
+  },
+  readonly nodes: ?ReadonlyArray<?{
+    readonly name: ?string,
+  }>,
+};
+export type RelayPublishQueueTest9Query = {
   response: RelayPublishQueueTest9Query$data,
   variables: RelayPublishQueueTest9Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -74,7 +73,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
+          (v0/*:: as any*/),
           {
             "args": null,
             "kind": "FragmentSpread",
@@ -85,13 +84,13 @@ return {
       },
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "nodes",
         "plural": true,
         "selections": [
-          (v0/*: any*/)
+          (v0/*:: as any*/)
         ],
         "storageKey": "nodes(ids:[\"4\"])"
       }
@@ -113,7 +112,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
+          (v0/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -121,13 +120,13 @@ return {
             "name": "username",
             "storageKey": null
           },
-          (v2/*: any*/)
+          (v2/*:: as any*/)
         ],
         "storageKey": null
       },
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "nodes",
@@ -140,8 +139,8 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v0/*: any*/),
-          (v2/*: any*/)
+          (v0/*:: as any*/),
+          (v2/*:: as any*/)
         ],
         "storageKey": "nodes(ids:[\"4\"])"
       }
@@ -159,10 +158,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "8c6fb9aff9f2b1d57306984aeeaef2e7";
+  (node/*:: as any*/).hash = "8c6fb9aff9f2b1d57306984aeeaef2e7";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayPublishQueueTest9Query$variables,
   RelayPublishQueueTest9Query$data,
 >*/);

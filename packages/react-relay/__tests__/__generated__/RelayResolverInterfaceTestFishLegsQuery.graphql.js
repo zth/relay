@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0b4e5d9f1b6038fac312f7b010fff792>>
+ * @generated SignedSource<<ef6814b98f86e9c31d9211f0214fe794>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,22 +23,22 @@ import {fish as queryFishResolverType} from "../../../relay-runtime/store/__test
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryFishResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryFishResolverType: (
+(queryFishResolverType as (
   args: void,
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
-export type RelayResolverInterfaceTestFishLegsQuery$variables = {||};
-export type RelayResolverInterfaceTestFishLegsQuery$data = {|
-  +fish: ?{|
-    +$fragmentSpreads: RelayResolverInterfaceTestAnimalLegsFragment$fragmentType,
-  |},
-|};
-export type RelayResolverInterfaceTestFishLegsQuery = {|
+) => ?{
+  readonly id: DataID,
+});
+export type RelayResolverInterfaceTestFishLegsQuery$variables = {};
+export type RelayResolverInterfaceTestFishLegsQuery$data = {
+  readonly fish: ?{
+    readonly $fragmentSpreads: RelayResolverInterfaceTestAnimalLegsFragment$fragmentType,
+  },
+};
+export type RelayResolverInterfaceTestFishLegsQuery = {
   response: RelayResolverInterfaceTestFishLegsQuery$data,
   variables: RelayResolverInterfaceTestFishLegsQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){
@@ -51,7 +50,7 @@ var v0 = {
   "storageKey": null
 },
 v1 = [
-  (v0/*: any*/)
+  (v0/*:: as any*/)
 ];
 return {
   "fragment": {
@@ -80,6 +79,7 @@ return {
             "path": "fish.__relay_model_instance"
           }
         },
+        "serverObjectOperations": null,
         "backingField": {
           "alias": null,
           "args": null,
@@ -165,7 +165,7 @@ return {
                             "args": null,
                             "fragment": {
                               "kind": "InlineFragment",
-                              "selections": (v1/*: any*/),
+                              "selections": (v1/*:: as any*/),
                               "type": "Cat",
                               "abstractKey": null
                             },
@@ -199,7 +199,7 @@ return {
                             "args": null,
                             "fragment": {
                               "kind": "InlineFragment",
-                              "selections": (v1/*: any*/),
+                              "selections": (v1/*:: as any*/),
                               "type": "Fish",
                               "abstractKey": null
                             },
@@ -223,7 +223,7 @@ return {
               "type": "IAnimal",
               "abstractKey": "__isIAnimal"
             },
-            (v0/*: any*/)
+            (v0/*:: as any*/)
           ],
           "storageKey": null
         }
@@ -249,10 +249,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "91fa8cc8364ed0222107f376f8a072f9";
+  (node/*:: as any*/).hash = "91fa8cc8364ed0222107f376f8a072f9";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   RelayResolverInterfaceTestFishLegsQuery$variables,
   RelayResolverInterfaceTestFishLegsQuery$data,
 >*/);

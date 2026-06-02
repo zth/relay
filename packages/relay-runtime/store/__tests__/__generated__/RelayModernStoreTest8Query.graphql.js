@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<522c018c5bfa82564d9c5f2168892534>>
+ * @generated SignedSource<<216c97b7f517ffad38bf230437972b4f>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,18 +17,18 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayModernStoreTest8Query$variables = {|
+export type RelayModernStoreTest8Query$variables = {
   id: string,
-|};
-export type RelayModernStoreTest8Query$data = {|
-  +node: ?{|
-    +__typename: string,
-  |},
-|};
-export type RelayModernStoreTest8Query = {|
+};
+export type RelayModernStoreTest8Query$data = {
+  readonly node: ?{
+    readonly __typename: string,
+  },
+};
+export type RelayModernStoreTest8Query = {
   response: RelayModernStoreTest8Query$data,
   variables: RelayModernStoreTest8Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -56,20 +55,20 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernStoreTest8Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/)
+          (v2/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -79,19 +78,19 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernStoreTest8Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -116,10 +115,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "93de95be7a562f1ddc9b16593641a08d";
+  (node/*:: as any*/).hash = "93de95be7a562f1ddc9b16593641a08d";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernStoreTest8Query$variables,
   RelayModernStoreTest8Query$data,
 >*/);

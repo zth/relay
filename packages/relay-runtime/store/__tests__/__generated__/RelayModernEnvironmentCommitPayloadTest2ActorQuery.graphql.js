@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<488d9a3624a179301a76322d62aab7f6>>
+ * @generated SignedSource<<1f5f96dc1a6164f178ccd153b60e09c4>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,21 +17,21 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayModernEnvironmentCommitPayloadTest2ActorQuery$variables = {||};
-export type RelayModernEnvironmentCommitPayloadTest2ActorQuery$data = {|
-  +me: ?{|
-    +birthdate: ?{|
-      +day: ?number,
-      +month: ?number,
-      +year: ?number,
-    |},
-    +name: ?string,
-  |},
-|};
-export type RelayModernEnvironmentCommitPayloadTest2ActorQuery = {|
+export type RelayModernEnvironmentCommitPayloadTest2ActorQuery$variables = {};
+export type RelayModernEnvironmentCommitPayloadTest2ActorQuery$data = {
+  readonly me: ?{
+    readonly birthdate: ?{
+      readonly day: ?number,
+      readonly month: ?number,
+      readonly year: ?number,
+    },
+    readonly name: ?string,
+  },
+};
+export type RelayModernEnvironmentCommitPayloadTest2ActorQuery = {
   response: RelayModernEnvironmentCommitPayloadTest2ActorQuery$data,
   variables: RelayModernEnvironmentCommitPayloadTest2ActorQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -90,8 +89,8 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
-          (v1/*: any*/)
+          (v0/*:: as any*/),
+          (v1/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -113,8 +112,8 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
-          (v1/*: any*/),
+          (v0/*:: as any*/),
+          (v1/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -139,10 +138,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "84c121348a77eed6c5bd156f7d6f136e";
+  (node/*:: as any*/).hash = "84c121348a77eed6c5bd156f7d6f136e";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentCommitPayloadTest2ActorQuery$variables,
   RelayModernEnvironmentCommitPayloadTest2ActorQuery$data,
 >*/);

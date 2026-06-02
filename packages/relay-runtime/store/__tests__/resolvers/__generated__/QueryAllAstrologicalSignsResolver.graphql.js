@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a72fdcef45f4717cdc32e15180a1def6>>
+ * @generated SignedSource<<d1a02437004c1b60e7f93e633f5c3c86>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,15 +19,15 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type QueryAllAstrologicalSignsResolver$fragmentType: FragmentType;
-export type QueryAllAstrologicalSignsResolver$data = {|
-  +me: ?{|
-    +__typename: "User",
-  |},
-  +$fragmentType: QueryAllAstrologicalSignsResolver$fragmentType,
-|};
+export type QueryAllAstrologicalSignsResolver$data = {
+  readonly me: ?{
+    readonly __typename: "User",
+  },
+  readonly $fragmentType: QueryAllAstrologicalSignsResolver$fragmentType,
+};
 export type QueryAllAstrologicalSignsResolver$key = {
-  +$data?: QueryAllAstrologicalSignsResolver$data,
-  +$fragmentSpreads: QueryAllAstrologicalSignsResolver$fragmentType,
+  readonly $data?: QueryAllAstrologicalSignsResolver$data,
+  readonly $fragmentSpreads: QueryAllAstrologicalSignsResolver$fragmentType,
   ...
 };
 */
@@ -63,10 +62,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "6622a6153c0cf33340cb80928fe31728";
+  (node/*:: as any*/).hash = "6622a6153c0cf33340cb80928fe31728";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   QueryAllAstrologicalSignsResolver$fragmentType,
   QueryAllAstrologicalSignsResolver$data,
 >*/);

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1e7d62a97f7fd9493e545e9da3dfb270>>
+ * @generated SignedSource<<89eb52ac390e243a580b1eb462786784>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,20 +19,20 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserFragment$fragmentType } from "./RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserFragment.graphql";
 import type { RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragment$fragmentType } from "./RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragment.graphql";
-export type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQuery$variables = {|
+export type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQuery$variables = {
   fetchSize: boolean,
   id: string,
-  size?: ?$ReadOnlyArray<?number>,
-|};
-export type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQuery$data = {|
-  +node: ?{|
-    +$fragmentSpreads: RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserFragment$fragmentType & RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragment$fragmentType,
-  |},
-|};
-export type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQuery = {|
+  size?: ?ReadonlyArray<?number>,
+};
+export type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQuery$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserFragment$fragmentType & RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragment$fragmentType,
+  },
+};
+export type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQuery = {
   response: RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQuery$data,
   variables: RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -62,9 +61,9 @@ v3 = [
 return {
   "fragment": {
     "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/),
-      (v2/*: any*/)
+      (v0/*:: as any*/),
+      (v1/*:: as any*/),
+      (v2/*:: as any*/)
     ],
     "kind": "Fragment",
     "metadata": null,
@@ -72,7 +71,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v3/*: any*/),
+        "args": (v3/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -98,16 +97,16 @@ return {
   "kind": "Request",
   "operation": {
     "argumentDefinitions": [
-      (v1/*: any*/),
-      (v2/*: any*/),
-      (v0/*: any*/)
+      (v1/*:: as any*/),
+      (v2/*:: as any*/),
+      (v0/*:: as any*/)
     ],
     "kind": "Operation",
     "name": "RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v3/*: any*/),
+        "args": (v3/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -196,10 +195,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "011f30616d7a8c12b013883ec537f28c";
+  (node/*:: as any*/).hash = "011f30616d7a8c12b013883ec537f28c";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQuery$variables,
   RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQuery$data,
 >*/);

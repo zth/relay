@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<eccfcb051b7adeb2b1a6e188ebfd7a28>>
+ * @generated SignedSource<<7647da9df49c656edfe737a9313615a5>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,26 +19,26 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type DataCheckerTestFragment$fragmentType: FragmentType;
-export type DataCheckerTestFragment$data = {|
-  +firstName: ?string,
-  +friends: ?{|
-    +edges: ?$ReadOnlyArray<?{|
-      +cursor: ?string,
-      +node: ?{|
-        +firstName: ?string,
-        +id: string,
-      |},
-    |}>,
-  |},
-  +id: string,
-  +profilePicture: ?{|
-    +uri: ?string,
-  |},
-  +$fragmentType: DataCheckerTestFragment$fragmentType,
-|};
+export type DataCheckerTestFragment$data = {
+  readonly firstName: ?string,
+  readonly friends: ?{
+    readonly edges: ?ReadonlyArray<?{
+      readonly cursor: ?string,
+      readonly node: ?{
+        readonly firstName: ?string,
+        readonly id: string,
+      },
+    }>,
+  },
+  readonly id: string,
+  readonly profilePicture: ?{
+    readonly uri: ?string,
+  },
+  readonly $fragmentType: DataCheckerTestFragment$fragmentType,
+};
 export type DataCheckerTestFragment$key = {
-  +$data?: DataCheckerTestFragment$data,
-  +$fragmentSpreads: DataCheckerTestFragment$fragmentType,
+  readonly $data?: DataCheckerTestFragment$data,
+  readonly $fragmentSpreads: DataCheckerTestFragment$fragmentType,
   ...
 };
 */
@@ -71,8 +70,8 @@ return {
   "metadata": null,
   "name": "DataCheckerTestFragment",
   "selections": [
-    (v0/*: any*/),
-    (v1/*: any*/),
+    (v0/*:: as any*/),
+    (v1/*:: as any*/),
     {
       "alias": null,
       "args": [
@@ -110,8 +109,8 @@ return {
               "name": "node",
               "plural": false,
               "selections": [
-                (v0/*: any*/),
-                (v1/*: any*/)
+                (v0/*:: as any*/),
+                (v1/*:: as any*/)
               ],
               "storageKey": null
             }
@@ -152,10 +151,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "fed21d577ab464917a1de41052edf774";
+  (node/*:: as any*/).hash = "fed21d577ab464917a1de41052edf774";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   DataCheckerTestFragment$fragmentType,
   DataCheckerTestFragment$data,
 >*/);

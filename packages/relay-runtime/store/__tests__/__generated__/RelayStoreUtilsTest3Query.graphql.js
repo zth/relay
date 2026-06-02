@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0ed63088b3544b8b4e399663474c7a46>>
+ * @generated SignedSource<<a9c0e90c8edc7934e553ac78526583f1>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,18 +17,18 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayStoreUtilsTest3Query$variables = {||};
-export type RelayStoreUtilsTest3Query$data = {|
-  +me: ?{|
-    +profile_picture: ?{|
-      +uri: ?string,
-    |},
-  |},
-|};
-export type RelayStoreUtilsTest3Query = {|
+export type RelayStoreUtilsTest3Query$variables = {};
+export type RelayStoreUtilsTest3Query$data = {
+  readonly me: ?{
+    readonly profile_picture: ?{
+      readonly uri: ?string,
+    },
+  },
+};
+export type RelayStoreUtilsTest3Query = {
   response: RelayStoreUtilsTest3Query$data,
   variables: RelayStoreUtilsTest3Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -66,12 +65,12 @@ return {
         "selections": [
           {
             "alias": "profile_picture",
-            "args": (v0/*: any*/),
+            "args": (v0/*:: as any*/),
             "concreteType": "Image",
             "kind": "LinkedField",
             "name": "__UserQuery_profile_picture_photoHandler",
             "plural": false,
-            "selections": (v1/*: any*/),
+            "selections": (v1/*:: as any*/),
             "storageKey": "__UserQuery_profile_picture_photoHandler(scale:42)"
           }
         ],
@@ -97,17 +96,17 @@ return {
         "selections": [
           {
             "alias": null,
-            "args": (v0/*: any*/),
+            "args": (v0/*:: as any*/),
             "concreteType": "Image",
             "kind": "LinkedField",
             "name": "profile_picture",
             "plural": false,
-            "selections": (v1/*: any*/),
+            "selections": (v1/*:: as any*/),
             "storageKey": "profile_picture(scale:42)"
           },
           {
             "alias": null,
-            "args": (v0/*: any*/),
+            "args": (v0/*:: as any*/),
             "filters": [
               "scale"
             ],
@@ -140,10 +139,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "71c0909b2a64f3fef914d02dc95dd6fd";
+  (node/*:: as any*/).hash = "71c0909b2a64f3fef914d02dc95dd6fd";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayStoreUtilsTest3Query$variables,
   RelayStoreUtilsTest3Query$data,
 >*/);

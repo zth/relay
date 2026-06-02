@@ -14,9 +14,6 @@
 import type {PayloadData, PayloadError} from '../../network/RelayNetworkTypes';
 import type {RecordSourceJSON} from '../RelayStoreTypes';
 
-const {
-  getActorIdentifier,
-} = require('../../multi-actor-environment/ActorIdentifier');
 const {graphql} = require('../../query/GraphQLTag');
 const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const defaultGetDataID = require('../defaultGetDataID');
@@ -40,6 +37,7 @@ describe('RelayResponseNormalizer', () => {
   const defaultOptions = {
     getDataID: defaultGetDataID,
     treatMissingFieldsAsNull: false,
+    deferDeduplicatedFields: false,
     log: null,
   };
 
@@ -1848,8 +1846,8 @@ describe('RelayResponseNormalizer', () => {
 
     const getDataID = jest.fn(
       (
-        fieldValue: string | {+[string]: mixed},
-        typename: string | {+[string]: mixed},
+        fieldValue: string | {readonly [string]: unknown},
+        typename: string | {readonly [string]: unknown},
       ) => {
         return `${
           typeof fieldValue === 'string' ? fieldValue : String(fieldValue.id)
@@ -1859,8 +1857,8 @@ describe('RelayResponseNormalizer', () => {
 
     const getNullAsDataID = jest.fn(
       (
-        fieldValue: string | {+[string]: mixed},
-        typename: string | {+[string]: mixed},
+        fieldValue: string | {readonly [string]: unknown},
+        typename: string | {readonly [string]: unknown},
       ) => {
         return null;
       },
@@ -1954,7 +1952,12 @@ describe('RelayResponseNormalizer', () => {
             id: '1',
           }),
           fooPayload,
-          {getDataID, treatMissingFieldsAsNull: false, log: null},
+          {
+            getDataID,
+            treatMissingFieldsAsNull: false,
+            deferDeduplicatedFields: false,
+            log: null,
+          },
         );
         expect(recordSource.toJSON()).toEqual({
           'client:root': {
@@ -2027,7 +2030,12 @@ describe('RelayResponseNormalizer', () => {
             id: '1',
           }),
           fooPayload0,
-          {getDataID, treatMissingFieldsAsNull: false, log: null},
+          {
+            getDataID,
+            treatMissingFieldsAsNull: false,
+            deferDeduplicatedFields: false,
+            log: null,
+          },
         );
         normalize(
           recordSource,
@@ -2035,7 +2043,12 @@ describe('RelayResponseNormalizer', () => {
             id: '1',
           }),
           fooPayload1,
-          {getDataID, treatMissingFieldsAsNull: false, log: null},
+          {
+            getDataID,
+            treatMissingFieldsAsNull: false,
+            deferDeduplicatedFields: false,
+            log: null,
+          },
         );
         expect(recordSource.toJSON()).toEqual({
           'client:root': {
@@ -2075,7 +2088,12 @@ describe('RelayResponseNormalizer', () => {
             id: '1',
           }),
           payload,
-          {getDataID, treatMissingFieldsAsNull: false, log: null},
+          {
+            getDataID,
+            treatMissingFieldsAsNull: false,
+            deferDeduplicatedFields: false,
+            log: null,
+          },
         );
         expect(recordSource.toJSON()).toEqual({
           '1:Page': {
@@ -2147,6 +2165,7 @@ describe('RelayResponseNormalizer', () => {
           {
             getDataID: getNullAsDataID,
             treatMissingFieldsAsNull: false,
+            deferDeduplicatedFields: false,
             log: null,
           },
         );
@@ -2164,6 +2183,7 @@ describe('RelayResponseNormalizer', () => {
           {
             getDataID: getNullAsDataID,
             treatMissingFieldsAsNull: false,
+            deferDeduplicatedFields: false,
             log: null,
           },
         );
@@ -2241,7 +2261,12 @@ describe('RelayResponseNormalizer', () => {
             id: '1',
           }),
           payload,
-          {getDataID, treatMissingFieldsAsNull: false, log: null},
+          {
+            getDataID,
+            treatMissingFieldsAsNull: false,
+            deferDeduplicatedFields: false,
+            log: null,
+          },
         );
         expect(recordSource.toJSON()).toEqual({
           '1:Page': {
@@ -2315,6 +2340,7 @@ describe('RelayResponseNormalizer', () => {
           {
             getDataID: getNullAsDataID,
             treatMissingFieldsAsNull: false,
+            deferDeduplicatedFields: false,
             log: null,
           },
         );
@@ -2355,6 +2381,7 @@ describe('RelayResponseNormalizer', () => {
           {
             getDataID: getNullAsDataID,
             treatMissingFieldsAsNull: false,
+            deferDeduplicatedFields: false,
             log: null,
           },
         );
@@ -2388,6 +2415,7 @@ describe('RelayResponseNormalizer', () => {
           {
             getDataID: getNullAsDataID,
             treatMissingFieldsAsNull: false,
+            deferDeduplicatedFields: false,
             log: null,
           },
         );
@@ -2476,7 +2504,12 @@ describe('RelayResponseNormalizer', () => {
             id: '1',
           }),
           payload0,
-          {getDataID, treatMissingFieldsAsNull: false, log: null},
+          {
+            getDataID,
+            treatMissingFieldsAsNull: false,
+            deferDeduplicatedFields: false,
+            log: null,
+          },
         );
         normalize(
           recordSource,
@@ -2484,7 +2517,12 @@ describe('RelayResponseNormalizer', () => {
             id: '1',
           }),
           payload1,
-          {getDataID, treatMissingFieldsAsNull: false, log: null},
+          {
+            getDataID,
+            treatMissingFieldsAsNull: false,
+            deferDeduplicatedFields: false,
+            log: null,
+          },
         );
         expect(recordSource.toJSON()).toEqual({
           '1:Page': {
@@ -3697,483 +3735,63 @@ describe('RelayResponseNormalizer', () => {
     });
   });
 
-  describe('Actor Change', () => {
-    const query = graphql`
-      query RelayResponseNormalizerTestActorChangeQuery {
-        viewer {
-          actor @fb_actor_change {
-            ...RelayResponseNormalizerTestActorChangeFragment
-              @dangerously_unaliased_fixme
-          }
-        }
-      }
-    `;
-
+  it('records which concrete types implement which client schema extension interfaces', () => {
     graphql`
-      fragment RelayResponseNormalizerTestActorChangeFragment on User {
-        name
+      fragment RelayResponseNormalizerTestClientInterfaceFragment on ClientInterface {
+        description
+      }
+    `;
+    // This query contains abstract client types referenced in both named and
+    // inline fragments as well as including both interfaces and unions.
+    const query = graphql`
+      query RelayResponseNormalizerTestClientInterfaceQuery {
+        client_interface {
+          ...RelayResponseNormalizerTestClientInterfaceFragment
+        }
+        client_union {
+          ... on ClientUnion {
+            __typename
+          }
+        }
       }
     `;
 
-    it('should normalize data for the same actor', () => {
-      const payload = {
-        viewer: {
-          __typename: 'Viewer',
-          actor: {
-            __typename: 'User',
-            id: 'user-1234',
-            actor_key: 'actor-1234',
-            name: 'Antonio',
-          },
-        },
-      };
-      const recordSource = new RelayRecordSource();
-      recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+    const payload: PayloadData = {};
+    const recordSource = new RelayRecordSource();
+    recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
 
-      const result = normalize(
-        recordSource,
-        createNormalizationSelector(query.operation, ROOT_ID, {}),
-        payload,
-        {...defaultOptions, actorIdentifier: getActorIdentifier('actor-1234')},
-      );
+    const result = normalize(
+      recordSource,
+      createNormalizationSelector(query.operation, ROOT_ID, {}),
+      payload,
+      {...defaultOptions},
+    );
 
-      expect(result).toEqual({
-        errors: undefined,
-        fieldPayloads: [],
-        followupPayloads: [
-          {
-            actorIdentifier: 'actor-1234',
-            data: {
-              __typename: 'User',
-              actor_key: 'actor-1234',
-              id: 'user-1234',
-              name: 'Antonio',
-            },
-            dataID: 'user-1234',
-            kind: 'ActorPayload',
-            node: expect.objectContaining({
-              kind: 'LinkedField',
-              name: 'actor',
-            }),
-            path: ['viewer', 'actor'],
-            typeName: 'User',
-            variables: {},
-          },
-        ],
-        incrementalPlaceholders: [],
-        isFinal: false,
-        source: expect.any(RelayRecordSource),
-      });
-
-      expect(result.source.toJSON()).toEqual({
-        'client:root': {
-          __id: 'client:root',
-          __typename: '__Root',
-          viewer: {
-            __ref: 'client:root:viewer',
-          },
-        },
-        'client:root:viewer': {
-          __id: 'client:root:viewer',
-          __typename: 'Viewer',
-          actor: {
-            __actorIdentifier: 'actor-1234',
-            __ref: 'user-1234',
-          },
-        },
-      });
-    });
-
-    it('should normalize data for different actors.', () => {
-      const payload = {
-        viewer: {
-          __typename: 'Viewer',
-          actor: {
-            __typename: 'User',
-            id: 'user-1234',
-            actor_key: 'actor-4321',
-            name: 'Antonio',
-          },
-        },
-      };
-      const recordSource = new RelayRecordSource();
-      recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
-
-      const result = normalize(
-        recordSource,
-        createNormalizationSelector(query.operation, ROOT_ID, {}),
-        payload,
-        {...defaultOptions, actorIdentifier: getActorIdentifier('actor-1234')},
-      );
-      expect(result).toEqual({
-        errors: undefined,
-        fieldPayloads: [],
-        followupPayloads: [
-          {
-            actorIdentifier: 'actor-4321',
-            data: {
-              __typename: 'User',
-              actor_key: 'actor-4321',
-              id: 'user-1234',
-              name: 'Antonio',
-            },
-            dataID: 'user-1234',
-            kind: 'ActorPayload',
-            node: expect.objectContaining({
-              kind: 'LinkedField',
-              name: 'actor',
-            }),
-            path: ['viewer', 'actor'],
-            typeName: 'User',
-            variables: {},
-          },
-        ],
-        incrementalPlaceholders: [],
-        isFinal: false,
-        source: expect.any(RelayRecordSource),
-      });
-
-      expect(result.source.toJSON()).toEqual({
-        'client:root': {
-          __id: 'client:root',
-          __typename: '__Root',
-          viewer: {
-            __ref: 'client:root:viewer',
-          },
-        },
-        'client:root:viewer': {
-          __id: 'client:root:viewer',
-          __typename: 'Viewer',
-          actor: {
-            __actorIdentifier: 'actor-4321',
-            __ref: 'user-1234',
-          },
-        },
-      });
-    });
-
-    it('should normalize data for different actors with client ids.', () => {
-      const payload = {
-        viewer: {
-          __typename: 'Viewer',
-          actor: {
-            __typename: 'User',
-            // ID maybe missing/falsy
-            id: '',
-            actor_key: 'actor-4321',
-            name: 'Antonio',
-          },
-        },
-      };
-      const recordSource = new RelayRecordSource();
-      recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
-
-      const result = normalize(
-        recordSource,
-        createNormalizationSelector(query.operation, ROOT_ID, {}),
-        payload,
-        {...defaultOptions, actorIdentifier: getActorIdentifier('actor-1234')},
-      );
-      expect(result).toEqual({
-        errors: undefined,
-        fieldPayloads: [],
-        followupPayloads: [
-          {
-            actorIdentifier: 'actor-4321',
-            data: {
-              __typename: 'User',
-              actor_key: 'actor-4321',
-              id: '',
-              name: 'Antonio',
-            },
-            dataID: 'client:root:viewer:actor',
-            kind: 'ActorPayload',
-            node: expect.objectContaining({
-              kind: 'LinkedField',
-              name: 'actor',
-            }),
-            path: ['viewer', 'actor'],
-            typeName: 'User',
-            variables: {},
-          },
-        ],
-        incrementalPlaceholders: [],
-        isFinal: false,
-        source: expect.any(RelayRecordSource),
-      });
-
-      expect(result.source.toJSON()).toEqual({
-        'client:root': {
-          __id: 'client:root',
-          __typename: '__Root',
-          viewer: {
-            __ref: 'client:root:viewer',
-          },
-        },
-        'client:root:viewer': {
-          __id: 'client:root:viewer',
-          __typename: 'Viewer',
-          actor: {
-            __actorIdentifier: 'actor-4321',
-            __ref: 'client:root:viewer:actor',
-          },
-        },
-      });
-    });
-
-    it('should warn if `actor_key` is missing in the response', () => {
-      const payload = {
-        viewer: {
-          __typename: 'Viewer',
-          actor: {
-            __typename: 'User',
-            id: 'user-1234',
-            name: 'Antonio',
-          },
-        },
-      };
-      const recordSource = new RelayRecordSource();
-      recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
-      const result = expectToWarn(
-        'RelayResponseNormalizer: Payload did not contain a value for field `actor_key`. ' +
-          'Check that you are parsing with the same query that was used to fetch the payload. Payload is `' +
-          JSON.stringify(
-            {
-              __typename: 'User',
-              id: 'user-1234',
-              name: 'Antonio',
-            },
-            null,
-            2,
-          ) +
-          '`.',
-        () => {
-          return normalize(
-            recordSource,
-            createNormalizationSelector(query.operation, ROOT_ID, {}),
-            payload,
-            defaultOptions,
-          );
-        },
-      );
-      expect(result).toEqual({
-        errors: undefined,
-        fieldPayloads: [],
-        followupPayloads: [],
-        incrementalPlaceholders: [],
-        isFinal: false,
-        source: expect.any(RelayRecordSource),
-      });
-
-      expect(result.source.toJSON()).toEqual({
-        'client:root': {
-          __id: 'client:root',
-          __typename: '__Root',
-          viewer: {
-            __ref: 'client:root:viewer',
-          },
-        },
-        'client:root:viewer': {
-          __id: 'client:root:viewer',
-          __typename: 'Viewer',
-          actor: null,
-        },
-      });
-    });
-
-    it('should warn if data with actor specific data is missing in the response', () => {
-      const payload = {
-        viewer: {
-          __typename: 'Viewer',
-        },
-      };
-      const recordSource = new RelayRecordSource();
-      recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
-      const result = expectToWarn(
-        'RelayResponseNormalizer: Payload did not contain a value for field `actor: actor`. Check that you are parsing with the same query that was used to fetch the payload.',
-        () => {
-          return normalize(
-            recordSource,
-            createNormalizationSelector(query.operation, ROOT_ID, {}),
-            payload,
-            defaultOptions,
-          );
-        },
-      );
-      expect(result).toEqual({
-        errors: undefined,
-        fieldPayloads: [],
-        followupPayloads: [],
-        incrementalPlaceholders: [],
-        isFinal: false,
-        source: expect.any(RelayRecordSource),
-      });
-
-      expect(result.source.toJSON()).toEqual({
-        'client:root': {
-          __id: 'client:root',
-          __typename: '__Root',
-          viewer: {
-            __ref: 'client:root:viewer',
-          },
-        },
-        'client:root:viewer': {
-          __id: 'client:root:viewer',
-          __typename: 'Viewer',
-        },
-      });
-    });
-
-    it('should normalize fields with and without actor change', () => {
-      const queryWithAlias = graphql`
-        query RelayResponseNormalizerTestActorChangeWithAliasQuery {
-          viewer {
-            me: actor {
-              name
-            }
-            actor @fb_actor_change {
-              ...RelayResponseNormalizerTestActorChangeFragment
-                @dangerously_unaliased_fixme
-            }
-          }
-        }
-      `;
-
-      const payload = {
-        viewer: {
-          __typename: 'Viewer',
-          me: {
-            __typename: 'User',
-            id: 'user-1234',
-            name: 'Antonio',
-          },
-          actor: {
-            __typename: 'User',
-            id: 'user-1234',
-            actor_key: 'actor-4321',
-            name: 'Antonio',
-          },
-        },
-      };
-      const recordSource = new RelayRecordSource();
-      recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
-
-      const result = normalize(
-        recordSource,
-        createNormalizationSelector(queryWithAlias.operation, ROOT_ID, {}),
-        payload,
-        {...defaultOptions, actorIdentifier: getActorIdentifier('actor-1234')},
-      );
-      expect(result).toEqual({
-        errors: undefined,
-        fieldPayloads: [],
-        followupPayloads: [
-          {
-            actorIdentifier: 'actor-4321',
-            data: {
-              __typename: 'User',
-              actor_key: 'actor-4321',
-              id: 'user-1234',
-              name: 'Antonio',
-            },
-            dataID: 'user-1234',
-            kind: 'ActorPayload',
-            node: expect.objectContaining({
-              kind: 'LinkedField',
-              name: 'actor',
-            }),
-            path: ['viewer', 'actor'],
-            typeName: 'User',
-            variables: {},
-          },
-        ],
-        incrementalPlaceholders: [],
-        isFinal: false,
-        source: expect.any(RelayRecordSource),
-      });
-
-      expect(result.source.toJSON()).toEqual({
-        'client:root': {
-          __id: 'client:root',
-          __typename: '__Root',
-          viewer: {
-            __ref: 'client:root:viewer',
-          },
-        },
-        'client:root:viewer': {
-          __id: 'client:root:viewer',
-          __typename: 'Viewer',
-          actor: {
-            __actorIdentifier: 'actor-4321',
-            __ref: 'user-1234',
-          },
-        },
-        'user-1234': {
-          __id: 'user-1234',
-          __typename: 'User',
-          id: 'user-1234',
-          name: 'Antonio',
-        },
-      });
-    });
-    it('records which concrete types implement which client schema extension interfaces', () => {
-      graphql`
-        fragment RelayResponseNormalizerTestClientInterfaceFragment on ClientInterface {
-          description
-        }
-      `;
-      // This query contains abstract client types referenced in both named and
-      // inline fragments as well as including both interfaces and unions.
-      const query = graphql`
-        query RelayResponseNormalizerTestClientInterfaceQuery {
-          client_interface {
-            ...RelayResponseNormalizerTestClientInterfaceFragment
-          }
-          client_union {
-            ... on ClientUnion {
-              __typename
-            }
-          }
-        }
-      `;
-
-      const payload: PayloadData = {};
-      const recordSource = new RelayRecordSource();
-      recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
-
-      const result = normalize(
-        recordSource,
-        createNormalizationSelector(query.operation, ROOT_ID, {}),
-        payload,
-        {...defaultOptions},
-      );
-
-      expect(result.source.toJSON()).toEqual({
-        'client:__type:ClientTypeImplementingClientInterface': {
-          __id: 'client:__type:ClientTypeImplementingClientInterface',
-          __isClientInterface: true,
-          __typename: '__TypeSchema',
-        },
-        'client:__type:OtherClientTypeImplementingClientInterface': {
-          __id: 'client:__type:OtherClientTypeImplementingClientInterface',
-          __isClientInterface: true,
-          __typename: '__TypeSchema',
-        },
-        'client:__type:ClientTypeInUnion': {
-          __id: 'client:__type:ClientTypeInUnion',
-          __isClientUnion: true,
-          __typename: '__TypeSchema',
-        },
-        'client:__type:OtherClientTypeInUnion': {
-          __id: 'client:__type:OtherClientTypeInUnion',
-          __isClientUnion: true,
-          __typename: '__TypeSchema',
-        },
-        'client:root': {
-          __id: 'client:root',
-          __typename: '__Root',
-        },
-      });
+    expect(result.source.toJSON()).toEqual({
+      'client:__type:ClientTypeImplementingClientInterface': {
+        __id: 'client:__type:ClientTypeImplementingClientInterface',
+        __isClientInterface: true,
+        __typename: '__TypeSchema',
+      },
+      'client:__type:OtherClientTypeImplementingClientInterface': {
+        __id: 'client:__type:OtherClientTypeImplementingClientInterface',
+        __isClientInterface: true,
+        __typename: '__TypeSchema',
+      },
+      'client:__type:ClientTypeInUnion': {
+        __id: 'client:__type:ClientTypeInUnion',
+        __isClientUnion: true,
+        __typename: '__TypeSchema',
+      },
+      'client:__type:OtherClientTypeInUnion': {
+        __id: 'client:__type:OtherClientTypeInUnion',
+        __isClientUnion: true,
+        __typename: '__TypeSchema',
+      },
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+      },
     });
   });
 
@@ -4665,7 +4283,7 @@ describe('RelayResponseNormalizer', () => {
   });
 
   describe('Prototype-less objects (e.g., from graphql-js executor)', () => {
-    const createPrototypeLessObject = (data: {[string]: mixed}) => {
+    const createPrototypeLessObject = (data: {[string]: unknown}) => {
       const obj = Object.create(null);
       // $FlowFixMe[unsafe-object-assign] - assigning to prototype-less object
       Object.assign(obj, data);

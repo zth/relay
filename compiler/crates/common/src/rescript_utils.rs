@@ -22,7 +22,7 @@ pub fn get_load_fn_code() -> StringKey {
   ~fetchKey=?,
   ~networkCacheConfig=?,
 ) =>
-  RescriptRelayReact.loadQuery(
+  RescriptRelay.loadQuery(
     environment,
     node,
     variables->Internal.convertVariables,
@@ -42,17 +42,17 @@ pub fn get_load_query_code(include_load_fn: bool) -> StringKey {
 @live
 let queryRefToObservable = token => {{
   let raw = token->Internal.tokenToRaw
-  raw.source->Nullable.toOption
+  raw.source->Js.Nullable.toOption
 }}
   
 @live
 let queryRefToPromise = token => {{
-  Promise.make((resolve, _reject) => {{
+  Js.Promise.make((~resolve, ~reject as _) => {{
     switch token->queryRefToObservable {{
     | None => resolve(Error())
     | Some(o) =>
       open RescriptRelay.Observable
-      let _: subscription = o->subscribe(makeObserver(~complete=() => resolve(Ok())))
+      let _: subscription = o->subscribe(makeObserver(~complete=() => resolve(Ok()), ()))
     }}
   }})
 }}",

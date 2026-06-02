@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d439fe1703122a72375e7ab95242514d>>
+ * @generated SignedSource<<52a8f615ee9417e36e4b268ad80a8a71>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,33 +17,33 @@
 
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
-export type CommentCreateInput = {|
+export type CommentCreateInput = {
   feedback?: ?CommentfeedbackFeedback,
   feedbackId?: ?string,
-|};
-export type CommentfeedbackFeedback = {|
+};
+export type CommentfeedbackFeedback = {
   comment?: ?FeedbackcommentComment,
-|};
-export type FeedbackcommentComment = {|
+};
+export type FeedbackcommentComment = {
   feedback?: ?CommentfeedbackFeedback,
-|};
-export type RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCreateCommentMutation$variables = {|
+};
+export type RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCreateCommentMutation$variables = {
   input: CommentCreateInput,
-|};
-export type RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCreateCommentMutation$data = {|
-  +commentCreate: ?{|
-    +comment: ?{|
-      +body: ?{|
-        +text: ?string,
-      |},
-      +id: string,
-    |},
-  |},
-|};
-export type RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCreateCommentMutation = {|
+};
+export type RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCreateCommentMutation$data = {
+  readonly commentCreate: ?{
+    readonly comment: ?{
+      readonly body: ?{
+        readonly text: ?string,
+      },
+      readonly id: string,
+    },
+  },
+};
+export type RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCreateCommentMutation = {
   response: RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCreateCommentMutation$data,
   variables: RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCreateCommentMutation$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -112,20 +111,20 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCreateCommentMutation",
-    "selections": (v1/*: any*/),
+    "selections": (v1/*:: as any*/),
     "type": "Mutation",
     "abstractKey": null
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCreateCommentMutation",
-    "selections": (v1/*: any*/)
+    "selections": (v1/*:: as any*/)
   },
   "params": {
     "cacheID": "ea1d7df8f975ff7d645c6eb22022ebb3",
@@ -139,10 +138,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "5fe8d31255a57d03426f7ce2385e5910";
+  (node/*:: as any*/).hash = "5fe8d31255a57d03426f7ce2385e5910";
 }
 
-module.exports = ((node/*: any*/)/*: Mutation<
+module.exports = ((node/*:: as any*/)/*:: as Mutation<
   RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCreateCommentMutation$variables,
   RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCreateCommentMutation$data,
 >*/);

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<88fe93c5b9a904ac7103fa3166ecc584>>
+ * @generated SignedSource<<b79a923baca96720d2f9e450b3e22b44>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,14 +18,14 @@
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { OpaqueScalarType } from "../OpaqueScalarType";
-export type readUpdatableQueryTest2Query$variables = {||};
-export type readUpdatableQueryTest2Query$data = {|
-  +updatable_scalar_field: ?OpaqueScalarType,
-|};
-export type readUpdatableQueryTest2Query = {|
+export type readUpdatableQueryTest2Query$variables = {};
+export type readUpdatableQueryTest2Query$data = {
+  readonly updatable_scalar_field: ?OpaqueScalarType,
+};
+export type readUpdatableQueryTest2Query = {
   response: readUpdatableQueryTest2Query$data,
   variables: readUpdatableQueryTest2Query$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){
@@ -50,7 +49,7 @@ return {
     "kind": "Fragment",
     "metadata": null,
     "name": "readUpdatableQueryTest2Query",
-    "selections": (v0/*: any*/),
+    "selections": (v0/*:: as any*/),
     "type": "Query",
     "abstractKey": null
   },
@@ -59,7 +58,7 @@ return {
     "argumentDefinitions": [],
     "kind": "Operation",
     "name": "readUpdatableQueryTest2Query",
-    "selections": (v0/*: any*/)
+    "selections": (v0/*:: as any*/)
   },
   "params": {
     "cacheID": "dd26ecea75e3561a6784a7144142c864",
@@ -73,10 +72,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "17153fb9c11380ca4682cb0bf6f90711";
+  (node/*:: as any*/).hash = "17153fb9c11380ca4682cb0bf6f90711";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   readUpdatableQueryTest2Query$variables,
   readUpdatableQueryTest2Query$data,
 >*/);

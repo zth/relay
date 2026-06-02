@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8e213a4d6a95f1dc06a6bfd15e683992>>
+ * @generated SignedSource<<693e035bd21a7fc4ae0f98042dd3764f>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,26 +17,26 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayStoreUtilsTest4Query$variables = {|
+export type RelayStoreUtilsTest4Query$variables = {
   count: number,
   cursor?: ?string,
   dynamicKey: string,
-|};
-export type RelayStoreUtilsTest4Query$data = {|
-  +me: ?{|
-    +friends: ?{|
-      +edges: ?$ReadOnlyArray<?{|
-        +node: ?{|
-          +id: string,
-        |},
-      |}>,
-    |},
-  |},
-|};
-export type RelayStoreUtilsTest4Query = {|
+};
+export type RelayStoreUtilsTest4Query$data = {
+  readonly me: ?{
+    readonly friends: ?{
+      readonly edges: ?ReadonlyArray<?{
+        readonly node: ?{
+          readonly id: string,
+        },
+      }>,
+    },
+  },
+};
+export type RelayStoreUtilsTest4Query = {
   response: RelayStoreUtilsTest4Query$data,
   variables: RelayStoreUtilsTest4Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -87,7 +86,7 @@ v3 = [
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -148,7 +147,7 @@ v4 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayStoreUtilsTest4Query",
@@ -164,13 +163,13 @@ return {
           {
             "alias": "friends",
             "args": [
-              (v1/*: any*/)
+              (v1/*:: as any*/)
             ],
             "concreteType": "FriendsConnection",
             "kind": "LinkedField",
             "name": "__UserQuery_friends_connection",
             "plural": false,
-            "selections": (v3/*: any*/),
+            "selections": (v3/*:: as any*/),
             "storageKey": null
           }
         ],
@@ -182,7 +181,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayStoreUtilsTest4Query",
     "selections": [
@@ -196,25 +195,25 @@ return {
         "selections": [
           {
             "alias": null,
-            "args": (v4/*: any*/),
+            "args": (v4/*:: as any*/),
             "concreteType": "FriendsConnection",
             "kind": "LinkedField",
             "name": "friends",
             "plural": false,
-            "selections": (v3/*: any*/),
+            "selections": (v3/*:: as any*/),
             "storageKey": null
           },
           {
             "alias": null,
-            "args": (v4/*: any*/),
+            "args": (v4/*:: as any*/),
             "filters": null,
             "handle": "connection",
             "key": "UserQuery_friends",
             "kind": "LinkedHandle",
             "name": "friends",
-            "dynamicKey": (v1/*: any*/)
+            "dynamicKey": (v1/*:: as any*/)
           },
-          (v2/*: any*/)
+          (v2/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -244,10 +243,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "c1393b767a24cb0d54f4292c0bce6429";
+  (node/*:: as any*/).hash = "c1393b767a24cb0d54f4292c0bce6429";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayStoreUtilsTest4Query$variables,
   RelayStoreUtilsTest4Query$data,
 >*/);

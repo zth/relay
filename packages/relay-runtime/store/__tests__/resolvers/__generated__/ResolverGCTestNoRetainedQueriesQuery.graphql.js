@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<99f5ad9271fda6ef2e2726413f476a62>>
+ * @generated SignedSource<<afbfa7d8b8b5ba2817d4d4b31fdbeffa>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -23,18 +22,18 @@ import {counter_no_fragment as queryCounterNoFragmentResolverType} from "../Live
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryCounterNoFragmentResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryCounterNoFragmentResolverType: (
+(queryCounterNoFragmentResolverType as (
   args: void,
   context: TestResolverContextType,
 ) => LiveState<?number>);
-export type ResolverGCTestNoRetainedQueriesQuery$variables = {||};
-export type ResolverGCTestNoRetainedQueriesQuery$data = {|
-  +counter_no_fragment: ?number,
-|};
-export type ResolverGCTestNoRetainedQueriesQuery = {|
+export type ResolverGCTestNoRetainedQueriesQuery$variables = {};
+export type ResolverGCTestNoRetainedQueriesQuery$data = {
+  readonly counter_no_fragment: ?number,
+};
+export type ResolverGCTestNoRetainedQueriesQuery = {
   response: ResolverGCTestNoRetainedQueriesQuery$data,
   variables: ResolverGCTestNoRetainedQueriesQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = {
@@ -94,10 +93,10 @@ var node/*: ClientRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "c081f9d7220711c53528ae28f136ca80";
+  (node/*:: as any*/).hash = "c081f9d7220711c53528ae28f136ca80";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   ResolverGCTestNoRetainedQueriesQuery$variables,
   ResolverGCTestNoRetainedQueriesQuery$data,
 >*/);

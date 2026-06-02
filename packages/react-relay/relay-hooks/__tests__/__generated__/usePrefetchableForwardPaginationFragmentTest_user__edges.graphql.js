@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<cd23e87152132054c21d7b0c7c40aa70>>
+ * @generated SignedSource<<0b0f99b50e259a2256ba296cde505715>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,18 +19,18 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type usePrefetchableForwardPaginationFragmentTest_user__edges$fragmentType: FragmentType;
-export type usePrefetchableForwardPaginationFragmentTest_user__edges$data = $ReadOnlyArray<{|
-  +cursor: ?string,
-  +node: ?{|
-    +__typename: "User",
-    +id: string,
-    +name: ?string,
-  |},
-  +$fragmentType: usePrefetchableForwardPaginationFragmentTest_user__edges$fragmentType,
-|}>;
-export type usePrefetchableForwardPaginationFragmentTest_user__edges$key = $ReadOnlyArray<{
-  +$data?: usePrefetchableForwardPaginationFragmentTest_user__edges$data,
-  +$fragmentSpreads: usePrefetchableForwardPaginationFragmentTest_user__edges$fragmentType,
+export type usePrefetchableForwardPaginationFragmentTest_user__edges$data = ReadonlyArray<{
+  readonly cursor: ?string,
+  readonly node: ?{
+    readonly __typename: "User",
+    readonly id: string,
+    readonly name: ?string,
+  },
+  readonly $fragmentType: usePrefetchableForwardPaginationFragmentTest_user__edges$fragmentType,
+}>;
+export type usePrefetchableForwardPaginationFragmentTest_user__edges$key = ReadonlyArray<{
+  readonly $data?: usePrefetchableForwardPaginationFragmentTest_user__edges$data,
+  readonly $fragmentSpreads: usePrefetchableForwardPaginationFragmentTest_user__edges$fragmentType,
   ...
 }>;
 */
@@ -88,7 +87,7 @@ var node/*: ReaderFragment*/ = {
   "abstractKey": null
 };
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   usePrefetchableForwardPaginationFragmentTest_user__edges$fragmentType,
   usePrefetchableForwardPaginationFragmentTest_user__edges$data,
 >*/);

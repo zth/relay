@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3dca839a1a8ab27f9feec61f50f8c368>>
+ * @generated SignedSource<<9ba7a189c681d1cb61e84e2bd08e032d>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,14 +20,14 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfilePicture$fragmentType } from "./RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfilePicture.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfile$fragmentType: FragmentType;
-export type RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfile$data = {|
-  +id: string,
-  +$fragmentSpreads: RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfilePicture$fragmentType,
-  +$fragmentType: RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfile$fragmentType,
-|};
+export type RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfile$data = {
+  readonly id: string,
+  readonly $fragmentSpreads: RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfilePicture$fragmentType,
+  readonly $fragmentType: RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfile$fragmentType,
+};
 export type RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfile$key = {
-  +$data?: RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfile$data,
-  +$fragmentSpreads: RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfile$fragmentType,
+  readonly $data?: RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfile$data,
+  readonly $fragmentSpreads: RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfile$fragmentType,
   ...
 };
 */
@@ -69,10 +68,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "bd85ac2b22bc3ee38c9b93d0fd32ee60";
+  (node/*:: as any*/).hash = "bd85ac2b22bc3ee38c9b93d0fd32ee60";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfile$fragmentType,
   RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfile$data,
 >*/);

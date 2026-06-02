@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1c6073fbca944959eaf29bb7db96c582>>
+ * @generated SignedSource<<eacb6ca039fe28d012703c1d262a7ecc>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,36 +17,36 @@
 
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
-export type CommentCreateInput = {|
+export type CommentCreateInput = {
   feedback?: ?CommentfeedbackFeedback,
   feedbackId?: ?string,
-|};
-export type CommentfeedbackFeedback = {|
+};
+export type CommentfeedbackFeedback = {
   comment?: ?FeedbackcommentComment,
-|};
-export type FeedbackcommentComment = {|
+};
+export type FeedbackcommentComment = {
   feedback?: ?CommentfeedbackFeedback,
-|};
-export type useMutationTest1Mutation$variables = {|
+};
+export type useMutationTest1Mutation$variables = {
   input?: ?CommentCreateInput,
-|};
-export type useMutationTest1Mutation$data = {|
-  +commentCreate: ?{|
-    +feedbackCommentEdge: ?{|
-      +cursor: ?string,
-      +node: ?{|
-        +body: ?{|
-          +text: ?string,
-        |},
-        +id: string,
-      |},
-    |},
-  |},
-|};
-export type useMutationTest1Mutation = {|
+};
+export type useMutationTest1Mutation$data = {
+  readonly commentCreate: ?{
+    readonly feedbackCommentEdge: ?{
+      readonly cursor: ?string,
+      readonly node: ?{
+        readonly body: ?{
+          readonly text: ?string,
+        },
+        readonly id: string,
+      },
+    },
+  },
+};
+export type useMutationTest1Mutation = {
   response: useMutationTest1Mutation$data,
   variables: useMutationTest1Mutation$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -133,20 +132,20 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "useMutationTest1Mutation",
-    "selections": (v1/*: any*/),
+    "selections": (v1/*:: as any*/),
     "type": "Mutation",
     "abstractKey": null
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "useMutationTest1Mutation",
-    "selections": (v1/*: any*/)
+    "selections": (v1/*:: as any*/)
   },
   "params": {
     "cacheID": "418fd64122363e51f68b2b3881cbd098",
@@ -160,10 +159,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "c6270857d1a1e47844db06a7c9573271";
+  (node/*:: as any*/).hash = "c6270857d1a1e47844db06a7c9573271";
 }
 
-module.exports = ((node/*: any*/)/*: Mutation<
+module.exports = ((node/*:: as any*/)/*:: as Mutation<
   useMutationTest1Mutation$variables,
   useMutationTest1Mutation$data,
 >*/);

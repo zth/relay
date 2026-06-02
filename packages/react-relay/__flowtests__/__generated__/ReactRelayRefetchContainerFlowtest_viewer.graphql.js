@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6f9cebfabb127ad6db1de1705f8a9764>>
+ * @generated SignedSource<<4d406ae9a469dc1ecce27f606fab6aa4>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,21 +19,21 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type ReactRelayRefetchContainerFlowtest_viewer$fragmentType: FragmentType;
-export type ReactRelayRefetchContainerFlowtest_viewer$data = {|
-  +account_user: ?{|
-    +friends: ?{|
-      +edges: ?$ReadOnlyArray<?{|
-        +node: ?{|
-          +__typename: "User",
-        |},
-      |}>,
-    |},
-  |},
-  +$fragmentType: ReactRelayRefetchContainerFlowtest_viewer$fragmentType,
-|};
+export type ReactRelayRefetchContainerFlowtest_viewer$data = {
+  readonly account_user: ?{
+    readonly friends: ?{
+      readonly edges: ?ReadonlyArray<?{
+        readonly node: ?{
+          readonly __typename: "User",
+        },
+      }>,
+    },
+  },
+  readonly $fragmentType: ReactRelayRefetchContainerFlowtest_viewer$fragmentType,
+};
 export type ReactRelayRefetchContainerFlowtest_viewer$key = {
-  +$data?: ReactRelayRefetchContainerFlowtest_viewer$data,
-  +$fragmentSpreads: ReactRelayRefetchContainerFlowtest_viewer$fragmentType,
+  readonly $data?: ReactRelayRefetchContainerFlowtest_viewer$data,
+  readonly $fragmentSpreads: ReactRelayRefetchContainerFlowtest_viewer$fragmentType,
   ...
 };
 */
@@ -155,10 +154,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "cf098b4248d8ddfacfc0d356838697bb";
+  (node/*:: as any*/).hash = "cf098b4248d8ddfacfc0d356838697bb";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   ReactRelayRefetchContainerFlowtest_viewer$fragmentType,
   ReactRelayRefetchContainerFlowtest_viewer$data,
 >*/);

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<dce6cc80c101f2f926b21647beaa4f60>>
+ * @generated SignedSource<<b5992bcf2f14a233d1417417af9a1d80>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,23 +23,23 @@ import {all_astrological_signs as queryAllAstrologicalSignsResolverType} from ".
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryAllAstrologicalSignsResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryAllAstrologicalSignsResolverType: (
+(queryAllAstrologicalSignsResolverType as (
   rootKey: QueryAllAstrologicalSignsResolver$key,
   args: void,
   context: TestResolverContextType,
-) => ?$ReadOnlyArray<{|
-  +id: DataID,
-|}>);
-export type RelayReferenceMarkerTestResolverWithEdgeToClientQuery$variables = {||};
-export type RelayReferenceMarkerTestResolverWithEdgeToClientQuery$data = {|
-  +all_astrological_signs: ?$ReadOnlyArray<{|
-    +id: string,
-  |}>,
-|};
-export type RelayReferenceMarkerTestResolverWithEdgeToClientQuery = {|
+) => ?ReadonlyArray<{
+  readonly id: DataID,
+}>);
+export type RelayReferenceMarkerTestResolverWithEdgeToClientQuery$variables = {};
+export type RelayReferenceMarkerTestResolverWithEdgeToClientQuery$data = {
+  readonly all_astrological_signs: ?ReadonlyArray<{
+    readonly id: string,
+  }>,
+};
+export type RelayReferenceMarkerTestResolverWithEdgeToClientQuery = {
   response: RelayReferenceMarkerTestResolverWithEdgeToClientQuery$data,
   variables: RelayReferenceMarkerTestResolverWithEdgeToClientQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -59,7 +58,7 @@ v1 = {
   "name": "all_astrological_signs",
   "plural": true,
   "selections": [
-    (v0/*: any*/)
+    (v0/*:: as any*/)
   ],
   "storageKey": null
 };
@@ -76,6 +75,7 @@ return {
         "kind": "ClientEdgeToClientObject",
         "concreteType": "AstrologicalSign",
         "modelResolvers": null,
+        "serverObjectOperations": null,
         "backingField": {
           "alias": null,
           "args": null,
@@ -89,7 +89,7 @@ return {
           "resolverModule": require('../resolvers/QueryAllAstrologicalSignsResolver').all_astrological_signs,
           "path": "all_astrological_signs"
         },
-        "linkedField": (v1/*: any*/)
+        "linkedField": (v1/*:: as any*/)
       }
     ],
     "type": "Query",
@@ -124,7 +124,7 @@ return {
                     "name": "__typename",
                     "storageKey": null
                   },
-                  (v0/*: any*/)
+                  (v0/*:: as any*/)
                 ],
                 "storageKey": null
               }
@@ -136,7 +136,7 @@ return {
           "storageKey": null,
           "isOutputType": false
         },
-        "linkedField": (v1/*: any*/)
+        "linkedField": (v1/*:: as any*/)
       }
     ]
   },
@@ -152,10 +152,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "2ca79d027314a1a8e7f8c700d07c8fb0";
+  (node/*:: as any*/).hash = "2ca79d027314a1a8e7f8c700d07c8fb0";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReferenceMarkerTestResolverWithEdgeToClientQuery$variables,
   RelayReferenceMarkerTestResolverWithEdgeToClientQuery$data,
 >*/);

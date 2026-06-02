@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8becc1a8ce7b77e8e0c4d71b66d7450f>>
+ * @generated SignedSource<<9ed951d89e98616dfdd26d467c0ae12c>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -23,24 +22,24 @@ import type { FragmentType } from "relay-runtime";
 declare export opaque type usePrefetchableForwardPaginationFragmentTest_user$fragmentType: FragmentType;
 type usePrefetchableForwardPaginationFragmentRefetchQuery$variables = any;
 type usePrefetchableForwardPaginationFragmentTest_user__edges$data = any;
-export type usePrefetchableForwardPaginationFragmentTest_user$data = {|
-  +friends: ?{|
-    +edges: ?$ReadOnlyArray<?{|
-      +$fragmentSpreads: usePrefetchableForwardPaginationFragmentTest_user__edges$fragmentType,
-    |}>,
-    +pageInfo: ?{|
-      +endCursor: ?string,
-      +hasNextPage: ?boolean,
-      +hasPreviousPage: ?boolean,
-      +startCursor: ?string,
-    |},
-  |},
-  +id: string,
-  +$fragmentType: usePrefetchableForwardPaginationFragmentTest_user$fragmentType,
-|};
+export type usePrefetchableForwardPaginationFragmentTest_user$data = {
+  readonly friends: ?{
+    readonly edges: ?ReadonlyArray<?{
+      readonly $fragmentSpreads: usePrefetchableForwardPaginationFragmentTest_user__edges$fragmentType,
+    }>,
+    readonly pageInfo: ?{
+      readonly endCursor: ?string,
+      readonly hasNextPage: ?boolean,
+      readonly hasPreviousPage: ?boolean,
+      readonly startCursor: ?string,
+    },
+  },
+  readonly id: string,
+  readonly $fragmentType: usePrefetchableForwardPaginationFragmentTest_user$fragmentType,
+};
 export type usePrefetchableForwardPaginationFragmentTest_user$key = {
-  +$data?: usePrefetchableForwardPaginationFragmentTest_user$data,
-  +$fragmentSpreads: usePrefetchableForwardPaginationFragmentTest_user$fragmentType,
+  readonly $data?: usePrefetchableForwardPaginationFragmentTest_user$data,
+  readonly $fragmentSpreads: usePrefetchableForwardPaginationFragmentTest_user$fragmentType,
   ...
 };
 */
@@ -75,7 +74,7 @@ return {
         "count": null,
         "cursor": null,
         "direction": "bidirectional",
-        "path": (v0/*: any*/)
+        "path": (v0/*:: as any*/)
       }
     ],
     "refetch": {
@@ -88,7 +87,7 @@ return {
           "count": "last",
           "cursor": "before"
         },
-        "path": (v0/*: any*/)
+        "path": (v0/*:: as any*/)
       },
       "fragmentPathInResult": [
         "node"
@@ -183,10 +182,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "b556c89ea274871519ed4779f197956d";
+  (node/*:: as any*/).hash = "b556c89ea274871519ed4779f197956d";
 }
 
-module.exports = ((node/*: any*/)/*: PrefetchableRefetchableFragment<
+module.exports = ((node/*:: as any*/)/*:: as PrefetchableRefetchableFragment<
   usePrefetchableForwardPaginationFragmentTest_user$fragmentType,
   usePrefetchableForwardPaginationFragmentTest_user$data,
   usePrefetchableForwardPaginationFragmentTest_user__edges$data,

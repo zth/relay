@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<bad330a60489b68ec71d317bc0f1355a>>
+ * @generated SignedSource<<154e699ff79d825f082b33db712f5075>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,30 +18,30 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayResponseNormalizerTest_pvFragment$fragmentType } from "./RelayResponseNormalizerTest_pvFragment.graphql";
-export type RelayResponseNormalizerTest_pvQuery$variables = {|
+export type RelayResponseNormalizerTest_pvQuery$variables = {
   id: string,
-|};
-export type RelayResponseNormalizerTest_pvQuery$data = {|
-  +node: ?{|
-    +id: string,
-    +$fragmentSpreads: RelayResponseNormalizerTest_pvFragment$fragmentType,
-  |},
-|};
-export type RelayResponseNormalizerTest_pvQuery = {|
+};
+export type RelayResponseNormalizerTest_pvQuery$data = {
+  readonly node: ?{
+    readonly id: string,
+    readonly $fragmentSpreads: RelayResponseNormalizerTest_pvFragment$fragmentType,
+  },
+};
+export type RelayResponseNormalizerTest_pvQuery = {
   response: RelayResponseNormalizerTest_pvQuery$data,
   variables: RelayResponseNormalizerTest_pvQuery$variables,
-|};
+};
 ({
   "__relay_internal__pv__RelayProvider_returnsTruerelayprovider": require('../RelayProvider_returnsTrue.relayprovider'),
   "__relay_internal__pv__RelayProvider_returnsFalserelayprovider": require('../RelayProvider_returnsFalse.relayprovider')
-}: {|
-  +__relay_internal__pv__RelayProvider_returnsFalserelayprovider: {|
-    +get: () => boolean,
-  |},
-  +__relay_internal__pv__RelayProvider_returnsTruerelayprovider: {|
-    +get: () => boolean,
-  |},
-|});
+} as {
+  readonly __relay_internal__pv__RelayProvider_returnsFalserelayprovider: {
+    readonly get: () => boolean,
+  },
+  readonly __relay_internal__pv__RelayProvider_returnsTruerelayprovider: {
+    readonly get: () => boolean,
+  },
+});
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -68,7 +67,7 @@ v2 = {
 return {
   "fragment": {
     "argumentDefinitions": [
-      (v0/*: any*/)
+      (v0/*:: as any*/)
     ],
     "kind": "Fragment",
     "metadata": null,
@@ -76,13 +75,13 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "args": null,
             "kind": "FragmentSpread",
@@ -98,7 +97,7 @@ return {
   "kind": "Request",
   "operation": {
     "argumentDefinitions": [
-      (v0/*: any*/),
+      (v0/*:: as any*/),
       {
         "defaultValue": null,
         "kind": "LocalArgument",
@@ -115,7 +114,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -128,7 +127,7 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
@@ -213,10 +212,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "3d11c5d77a6b30dd28ee9a5eb421373d";
+  (node/*:: as any*/).hash = "3d11c5d77a6b30dd28ee9a5eb421373d";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayResponseNormalizerTest_pvQuery$variables,
   RelayResponseNormalizerTest_pvQuery$data,
 >*/);

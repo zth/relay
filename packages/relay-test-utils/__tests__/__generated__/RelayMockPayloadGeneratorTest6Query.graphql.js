@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f02b994c8a650630d7537c8c23338bda>>
+ * @generated SignedSource<<e96941e017a1f29087d2491c6096d58c>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,16 +18,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayMockPayloadGeneratorTest6Fragment$fragmentType } from "./RelayMockPayloadGeneratorTest6Fragment.graphql";
-export type RelayMockPayloadGeneratorTest6Query$variables = {||};
-export type RelayMockPayloadGeneratorTest6Query$data = {|
-  +node: ?{|
-    +$fragmentSpreads: RelayMockPayloadGeneratorTest6Fragment$fragmentType,
-  |},
-|};
-export type RelayMockPayloadGeneratorTest6Query = {|
+export type RelayMockPayloadGeneratorTest6Query$variables = {};
+export type RelayMockPayloadGeneratorTest6Query$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: RelayMockPayloadGeneratorTest6Fragment$fragmentType,
+  },
+};
+export type RelayMockPayloadGeneratorTest6Query = {
   response: RelayMockPayloadGeneratorTest6Query$data,
   variables: RelayMockPayloadGeneratorTest6Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -62,7 +61,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -88,7 +87,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -101,11 +100,11 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v1/*: any*/),
+          (v1/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
-              (v2/*: any*/),
+              (v2/*:: as any*/),
               {
                 "alias": null,
                 "args": null,
@@ -114,8 +113,8 @@ return {
                 "name": "author",
                 "plural": false,
                 "selections": [
-                  (v1/*: any*/),
-                  (v2/*: any*/)
+                  (v1/*:: as any*/),
+                  (v2/*:: as any*/)
                 ],
                 "storageKey": null
               }
@@ -140,10 +139,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "ff342d024fff5a4b1dcee5543c6aa2d4";
+  (node/*:: as any*/).hash = "ff342d024fff5a4b1dcee5543c6aa2d4";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayMockPayloadGeneratorTest6Query$variables,
   RelayMockPayloadGeneratorTest6Query$data,
 >*/);

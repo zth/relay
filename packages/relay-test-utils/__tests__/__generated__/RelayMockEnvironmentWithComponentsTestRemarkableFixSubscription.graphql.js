@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6bbf0362fdc99565cadec30678da43b1>>
+ * @generated SignedSource<<df5a9991cd849d34f262be2c77d5d149>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,24 +17,24 @@
 
 /*::
 import type { ConcreteRequest, GraphQLSubscription } from 'relay-runtime';
-export type FeedbackLikeInput = {|
+export type FeedbackLikeInput = {
   feedbackId?: ?string,
-|};
-export type RelayMockEnvironmentWithComponentsTestRemarkableFixSubscription$variables = {|
+};
+export type RelayMockEnvironmentWithComponentsTestRemarkableFixSubscription$variables = {
   input?: ?FeedbackLikeInput,
-|};
-export type RelayMockEnvironmentWithComponentsTestRemarkableFixSubscription$data = {|
-  +feedbackLikeSubscribe: ?{|
-    +feedback: ?{|
-      +doesViewerLike: ?boolean,
-      +id: string,
-    |},
-  |},
-|};
-export type RelayMockEnvironmentWithComponentsTestRemarkableFixSubscription = {|
+};
+export type RelayMockEnvironmentWithComponentsTestRemarkableFixSubscription$data = {
+  readonly feedbackLikeSubscribe: ?{
+    readonly feedback: ?{
+      readonly doesViewerLike: ?boolean,
+      readonly id: string,
+    },
+  },
+};
+export type RelayMockEnvironmentWithComponentsTestRemarkableFixSubscription = {
   response: RelayMockEnvironmentWithComponentsTestRemarkableFixSubscription$data,
   variables: RelayMockEnvironmentWithComponentsTestRemarkableFixSubscription$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -92,20 +91,20 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayMockEnvironmentWithComponentsTestRemarkableFixSubscription",
-    "selections": (v1/*: any*/),
+    "selections": (v1/*:: as any*/),
     "type": "Subscription",
     "abstractKey": null
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayMockEnvironmentWithComponentsTestRemarkableFixSubscription",
-    "selections": (v1/*: any*/)
+    "selections": (v1/*:: as any*/)
   },
   "params": {
     "cacheID": "c8544e6b2672010acbe98aa4c507fb30",
@@ -119,10 +118,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "682950a31d9df2be2d3759baf5d0e9fc";
+  (node/*:: as any*/).hash = "682950a31d9df2be2d3759baf5d0e9fc";
 }
 
-module.exports = ((node/*: any*/)/*: GraphQLSubscription<
+module.exports = ((node/*:: as any*/)/*:: as GraphQLSubscription<
   RelayMockEnvironmentWithComponentsTestRemarkableFixSubscription$variables,
   RelayMockEnvironmentWithComponentsTestRemarkableFixSubscription$data,
 >*/);

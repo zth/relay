@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0ee8f9cd4d1a4269af40172b0c55884d>>
+ * @generated SignedSource<<2257d9af88675d6d27631ca80da9bdcf>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,16 +18,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { observeFragmentTestMissingRequiredPluralFragment$fragmentType } from "./observeFragmentTestMissingRequiredPluralFragment.graphql";
-export type observeFragmentTestMissingRequiredPluralQuery$variables = {||};
-export type observeFragmentTestMissingRequiredPluralQuery$data = {|
-  +nodes: ?$ReadOnlyArray<?{|
-    +$fragmentSpreads: observeFragmentTestMissingRequiredPluralFragment$fragmentType,
-  |}>,
-|};
-export type observeFragmentTestMissingRequiredPluralQuery = {|
+export type observeFragmentTestMissingRequiredPluralQuery$variables = {};
+export type observeFragmentTestMissingRequiredPluralQuery$data = {
+  readonly nodes: ?ReadonlyArray<?{
+    readonly $fragmentSpreads: observeFragmentTestMissingRequiredPluralFragment$fragmentType,
+  }>,
+};
+export type observeFragmentTestMissingRequiredPluralQuery = {
   response: observeFragmentTestMissingRequiredPluralQuery$data,
   variables: observeFragmentTestMissingRequiredPluralQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -51,7 +50,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "nodes",
@@ -77,7 +76,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "nodes",
@@ -128,10 +127,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "1eb9c5256c37c4d0e28695bb4dd64fa8";
+  (node/*:: as any*/).hash = "1eb9c5256c37c4d0e28695bb4dd64fa8";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   observeFragmentTestMissingRequiredPluralQuery$variables,
   observeFragmentTestMissingRequiredPluralQuery$data,
 >*/);

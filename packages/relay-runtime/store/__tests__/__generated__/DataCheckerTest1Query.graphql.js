@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5ea4668997a0eae967c92dee23364d7a>>
+ * @generated SignedSource<<c47039f4aff16293156c38cda194364e>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,18 +17,18 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type DataCheckerTest1Query$variables = {||};
-export type DataCheckerTest1Query$data = {|
-  +me: ?{|
-    +profilePicture: ?{|
-      +uri: ?string,
-    |},
-  |},
-|};
-export type DataCheckerTest1Query = {|
+export type DataCheckerTest1Query$variables = {};
+export type DataCheckerTest1Query$data = {
+  readonly me: ?{
+    readonly profilePicture: ?{
+      readonly uri: ?string,
+    },
+  },
+};
+export type DataCheckerTest1Query = {
   response: DataCheckerTest1Query$data,
   variables: DataCheckerTest1Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -71,7 +70,7 @@ return {
             "kind": "LinkedField",
             "name": "__profilePicture_test",
             "plural": false,
-            "selections": (v0/*: any*/),
+            "selections": (v0/*:: as any*/),
             "storageKey": null
           }
         ],
@@ -97,17 +96,17 @@ return {
         "selections": [
           {
             "alias": null,
-            "args": (v1/*: any*/),
+            "args": (v1/*:: as any*/),
             "concreteType": "Image",
             "kind": "LinkedField",
             "name": "profilePicture",
             "plural": false,
-            "selections": (v0/*: any*/),
+            "selections": (v0/*:: as any*/),
             "storageKey": "profilePicture(size:32)"
           },
           {
             "alias": null,
-            "args": (v1/*: any*/),
+            "args": (v1/*:: as any*/),
             "filters": null,
             "handle": "test",
             "key": "",
@@ -138,10 +137,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "3f4b7b4bf9222b672e93525d69244696";
+  (node/*:: as any*/).hash = "3f4b7b4bf9222b672e93525d69244696";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   DataCheckerTest1Query$variables,
   DataCheckerTest1Query$data,
 >*/);

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d8790f47b067c7ed1b221c3d61261ec8>>
+ * @generated SignedSource<<7f68cf41e277d386e30370759a3cb224>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,18 +20,18 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { getFragmentIdentifierTestNestedUserFragment$fragmentType } from "./getFragmentIdentifierTestNestedUserFragment.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type getFragmentIdentifierTestUserFragment$fragmentType: FragmentType;
-export type getFragmentIdentifierTestUserFragment$data = {|
-  +id: string,
-  +name: ?string,
-  +profile_picture: ?{|
-    +uri: ?string,
-  |},
-  +$fragmentSpreads: getFragmentIdentifierTestNestedUserFragment$fragmentType,
-  +$fragmentType: getFragmentIdentifierTestUserFragment$fragmentType,
-|};
+export type getFragmentIdentifierTestUserFragment$data = {
+  readonly id: string,
+  readonly name: ?string,
+  readonly profile_picture: ?{
+    readonly uri: ?string,
+  },
+  readonly $fragmentSpreads: getFragmentIdentifierTestNestedUserFragment$fragmentType,
+  readonly $fragmentType: getFragmentIdentifierTestUserFragment$fragmentType,
+};
 export type getFragmentIdentifierTestUserFragment$key = {
-  +$data?: getFragmentIdentifierTestUserFragment$data,
-  +$fragmentSpreads: getFragmentIdentifierTestUserFragment$fragmentType,
+  readonly $data?: getFragmentIdentifierTestUserFragment$data,
+  readonly $fragmentSpreads: getFragmentIdentifierTestUserFragment$fragmentType,
   ...
 };
 */
@@ -97,10 +96,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "2944c736e496f4f838bfe90f6b265a0d";
+  (node/*:: as any*/).hash = "2944c736e496f4f838bfe90f6b265a0d";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   getFragmentIdentifierTestUserFragment$fragmentType,
   getFragmentIdentifierTestUserFragment$data,
 >*/);

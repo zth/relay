@@ -4,13 +4,20 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a6880296f247ee9d9d2e312d6c26b4a2>>
+ * @generated SignedSource<<c931e40fd0bb58bc4696840cab3661ce>>
  */
 
 mod extract;
 
 use extract::transform_fixture;
 use fixture_tests::test_fixture;
+
+#[tokio::test]
+async fn bare_graphql_token() {
+    let input = include_str!("extract/fixtures/bare_graphql_token.js");
+    let expected = include_str!("extract/fixtures/bare_graphql_token.expected");
+    test_fixture(transform_fixture, file!(), "bare_graphql_token.js", "extract/fixtures/bare_graphql_token.expected", input, expected).await;
+}
 
 #[tokio::test]
 async fn comments() {
@@ -80,6 +87,13 @@ async fn relay_resolver_and_graphql() {
     let input = include_str!("extract/fixtures/relay_resolver_and_graphql.js");
     let expected = include_str!("extract/fixtures/relay_resolver_and_graphql.expected");
     test_fixture(transform_fixture, file!(), "relay_resolver_and_graphql.js", "extract/fixtures/relay_resolver_and_graphql.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn rescript_relay() {
+    let input = include_str!("extract/fixtures/rescript_relay.js");
+    let expected = include_str!("extract/fixtures/rescript_relay.expected");
+    test_fixture(transform_fixture, file!(), "rescript_relay.js", "extract/fixtures/rescript_relay.expected", input, expected).await;
 }
 
 #[tokio::test]

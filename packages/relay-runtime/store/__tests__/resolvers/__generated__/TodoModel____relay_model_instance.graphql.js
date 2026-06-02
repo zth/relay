@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2cb83012c5cb177ed4233336f7dc2528>>
+ * @generated SignedSource<<6c6b22a62c4f92ed846982599301b288>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,19 +23,19 @@ import {TodoModel as todoModelRelayModelInstanceResolverType} from "../TodoModel
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `todoModelRelayModelInstanceResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(todoModelRelayModelInstanceResolverType: (
+(todoModelRelayModelInstanceResolverType as (
   id: TodoModel__id$data['id'],
   args: void,
   context: TestResolverContextType,
-) => LiveState<mixed>);
+) => LiveState<unknown>);
 declare export opaque type TodoModel____relay_model_instance$fragmentType: FragmentType;
-export type TodoModel____relay_model_instance$data = {|
-  +__relay_model_instance: $NonMaybeType<ReturnType<ReturnType<typeof todoModelRelayModelInstanceResolverType>["read"]>>,
-  +$fragmentType: TodoModel____relay_model_instance$fragmentType,
-|};
+export type TodoModel____relay_model_instance$data = {
+  readonly __relay_model_instance: NonNullable<ReturnType<ReturnType<typeof todoModelRelayModelInstanceResolverType>["read"]>>,
+  readonly $fragmentType: TodoModel____relay_model_instance$fragmentType,
+};
 export type TodoModel____relay_model_instance$key = {
-  +$data?: TodoModel____relay_model_instance$data,
-  +$fragmentSpreads: TodoModel____relay_model_instance$fragmentType,
+  readonly $data?: TodoModel____relay_model_instance$data,
+  readonly $fragmentSpreads: TodoModel____relay_model_instance$fragmentType,
   ...
 };
 */
@@ -65,7 +64,7 @@ var node/*: ReaderFragment*/ = {
   "abstractKey": null
 };
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   TodoModel____relay_model_instance$fragmentType,
   TodoModel____relay_model_instance$data,
 >*/);

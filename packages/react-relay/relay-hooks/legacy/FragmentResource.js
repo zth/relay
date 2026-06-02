@@ -45,8 +45,8 @@ export type FragmentResource = FragmentResourceImpl;
 type FragmentResourceCache = Cache<
   | {
       kind: 'pending',
-      pendingOperations: $ReadOnlyArray<RequestDescriptor>,
-      promise: Promise<mixed>,
+      pendingOperations: ReadonlyArray<RequestDescriptor>,
+      promise: Promise<unknown>,
       result: FragmentResult,
     }
   | {kind: 'done', result: FragmentResult}
@@ -63,11 +63,11 @@ interface IMap<K, V> {
   set(key: K, value: V): IMap<K, V>;
 }
 
-type SingularOrPluralSnapshot = Snapshot | $ReadOnlyArray<Snapshot>;
+type SingularOrPluralSnapshot = Snapshot | ReadonlyArray<Snapshot>;
 
-opaque type FragmentResult: {data: mixed, ...} = {
+opaque type FragmentResult: {data: unknown, ...} = {
   cacheKey: string,
-  data: mixed,
+  data: unknown,
   isMissingData: boolean,
   snapshot: SingularOrPluralSnapshot | null,
   storeEpoch: number,
@@ -97,7 +97,7 @@ function hasMissingClientEdges(snapshot: SingularOrPluralSnapshot): boolean {
 
 function missingLiveResolverFields(
   snapshot: SingularOrPluralSnapshot,
-): ?$ReadOnlyArray<DataID> {
+): ?ReadonlyArray<DataID> {
   if (Array.isArray(snapshot)) {
     return snapshot
       .map(s => s.missingLiveResolverFields)
@@ -217,7 +217,7 @@ class FragmentResourceImpl {
    */
   read(
     fragmentNode: ReaderFragment,
-    fragmentRef: mixed,
+    fragmentRef: unknown,
     componentDisplayName: string,
     fragmentKey?: string,
   ): FragmentResult {
@@ -237,7 +237,7 @@ class FragmentResourceImpl {
    */
   readWithIdentifier(
     fragmentNode: ReaderFragment,
-    fragmentRef: mixed,
+    fragmentRef: unknown,
     fragmentIdentifier: string,
     componentDisplayName: string,
     fragmentKey?: ?string,
@@ -307,7 +307,7 @@ class FragmentResourceImpl {
         !missingLiveResolverFields(cachedValue.result.snapshot)?.length
       ) {
         this._throwOrLogErrorsInSnapshot(
-          // $FlowFixMe[incompatible-call]
+          // $FlowFixMe[incompatible-type]
           cachedValue.result.snapshot,
         );
 
@@ -527,7 +527,7 @@ class FragmentResourceImpl {
   _performClientEdgeQuery(
     queryResource: QueryResource,
     fragmentNode: ReaderFragment,
-    fragmentRef: mixed,
+    fragmentRef: unknown,
     request: ConcreteRequest,
     clientEdgeDestinationID: DataID,
   ): {queryResult: QueryResult, requestDescriptor: RequestDescriptor} {
@@ -568,7 +568,7 @@ class FragmentResourceImpl {
 
   readSpec(
     fragmentNodes: {[string]: ReaderFragment, ...},
-    fragmentRefs: {[string]: mixed, ...},
+    fragmentRefs: {[string]: unknown, ...},
     componentDisplayName: string,
   ): {[string]: FragmentResult, ...} {
     const result: {[string]: FragmentResult} = {};
@@ -804,7 +804,7 @@ class FragmentResourceImpl {
     fragmentResult: FragmentResult,
   ): {
     promise: Promise<void>,
-    pendingOperations: $ReadOnlyArray<RequestDescriptor>,
+    pendingOperations: ReadonlyArray<RequestDescriptor>,
   } | null {
     const pendingOperationsResult = getPendingOperationsForFragment(
       this._environment,
@@ -840,7 +840,7 @@ class FragmentResourceImpl {
 
   _updatePluralSnapshot(
     cacheKey: string,
-    baseSnapshots: $ReadOnlyArray<Snapshot>,
+    baseSnapshots: ReadonlyArray<Snapshot>,
     latestSnapshot: Snapshot,
     idx: number,
     storeEpoch: number,

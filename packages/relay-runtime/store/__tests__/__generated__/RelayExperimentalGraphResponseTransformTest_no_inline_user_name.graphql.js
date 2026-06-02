@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<628598469e5c9bdb5d702dee8d651f6e>>
+ * @generated SignedSource<<99b22d6ae55d43b4d4b4dcd2dca0334a>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,13 +19,13 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayExperimentalGraphResponseTransformTest_no_inline_user_name$fragmentType: FragmentType;
-export type RelayExperimentalGraphResponseTransformTest_no_inline_user_name$data = {|
-  +name: ?string,
-  +$fragmentType: RelayExperimentalGraphResponseTransformTest_no_inline_user_name$fragmentType,
-|};
+export type RelayExperimentalGraphResponseTransformTest_no_inline_user_name$data = {
+  readonly name: ?string,
+  readonly $fragmentType: RelayExperimentalGraphResponseTransformTest_no_inline_user_name$fragmentType,
+};
 export type RelayExperimentalGraphResponseTransformTest_no_inline_user_name$key = {
-  +$data?: RelayExperimentalGraphResponseTransformTest_no_inline_user_name$data,
-  +$fragmentSpreads: RelayExperimentalGraphResponseTransformTest_no_inline_user_name$fragmentType,
+  readonly $data?: RelayExperimentalGraphResponseTransformTest_no_inline_user_name$data,
+  readonly $fragmentSpreads: RelayExperimentalGraphResponseTransformTest_no_inline_user_name$fragmentType,
   ...
 };
 */
@@ -50,10 +49,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "91394abbe5b69867a91202783e70a2a3";
+  (node/*:: as any*/).hash = "91394abbe5b69867a91202783e70a2a3";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayExperimentalGraphResponseTransformTest_no_inline_user_name$fragmentType,
   RelayExperimentalGraphResponseTransformTest_no_inline_user_name$data,
 >*/);

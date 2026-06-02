@@ -40,7 +40,7 @@ const {
 } = require('relay-runtime');
 const warning = require('warning');
 
-export type LoadMoreFn<TVariables: Variables> = (
+export type LoadMoreFn<TVariables extends Variables> = (
   count: number,
   options?: {
     onComplete?: (Error | null) => void,
@@ -51,10 +51,10 @@ export type LoadMoreFn<TVariables: Variables> = (
 export type UseLoadMoreFunctionArgs = {
   direction: Direction,
   fragmentNode: ReaderFragment,
-  fragmentRef: mixed,
+  fragmentRef: unknown,
   fragmentIdentifier: string,
-  fragmentData: mixed,
-  connectionPathInFragmentData: $ReadOnlyArray<string | number>,
+  fragmentData: unknown,
+  connectionPathInFragmentData: ReadonlyArray<string | number>,
   paginationRequest: ConcreteRequest,
   paginationMetadata: ReaderPaginationMetadata,
   componentDisplayName: string,
@@ -62,12 +62,13 @@ export type UseLoadMoreFunctionArgs = {
   onReset: () => void,
 };
 
-hook useLoadMoreFunction<TVariables: Variables>(
+hook useLoadMoreFunction<TVariables extends Variables>(
   args: UseLoadMoreFunctionArgs,
 ): [LoadMoreFn<TVariables>, boolean, () => void] {
   if (RelayFeatureFlags.ENABLE_ACTIVITY_COMPATIBILITY) {
     // $FlowFixMe[react-rule-hook] - the condition is static
     // $FlowFixMe[react-rule-hook-conditional]
+    // $FlowFixMe[incompatible-type]
     return useLoadMoreFunction_EXPERIMENTAL(args);
   }
   // $FlowFixMe[react-rule-hook] - the condition is static
@@ -75,7 +76,7 @@ hook useLoadMoreFunction<TVariables: Variables>(
   return useLoadMoreFunction_CURRENT(args);
 }
 
-hook useLoadMoreFunction_CURRENT<TVariables: Variables>(
+hook useLoadMoreFunction_CURRENT<TVariables extends Variables>(
   args: UseLoadMoreFunctionArgs,
 ): [LoadMoreFn<TVariables>, boolean, () => void] {
   const {

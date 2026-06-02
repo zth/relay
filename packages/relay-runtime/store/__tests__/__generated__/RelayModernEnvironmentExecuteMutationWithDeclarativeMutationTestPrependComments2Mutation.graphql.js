@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c39b323578be028d43c4e40087f62794>>
+ * @generated SignedSource<<465c565d18ed5208ade2687669872d01>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,34 +17,34 @@
 
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
-export type CommentsCreateInput = {|
-  feedback?: ?$ReadOnlyArray<?CommentfeedbackFeedback>,
+export type CommentsCreateInput = {
+  feedback?: ?ReadonlyArray<?CommentfeedbackFeedback>,
   feedbackId?: ?string,
-|};
-export type CommentfeedbackFeedback = {|
+};
+export type CommentfeedbackFeedback = {
   comment?: ?FeedbackcommentComment,
-|};
-export type FeedbackcommentComment = {|
+};
+export type FeedbackcommentComment = {
   feedback?: ?CommentfeedbackFeedback,
-|};
-export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrependComments2Mutation$variables = {|
-  connections: $ReadOnlyArray<string>,
+};
+export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrependComments2Mutation$variables = {
+  connections: ReadonlyArray<string>,
   input?: ?CommentsCreateInput,
-|};
-export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrependComments2Mutation$data = {|
-  +commentsCreate: ?{|
-    +feedbackCommentEdges: ?$ReadOnlyArray<?{|
-      +cursor: ?string,
-      +node: ?{|
-        +id: string,
-      |},
-    |}>,
-  |},
-|};
-export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrependComments2Mutation = {|
+};
+export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrependComments2Mutation$data = {
+  readonly commentsCreate: ?{
+    readonly feedbackCommentEdges: ?ReadonlyArray<?{
+      readonly cursor: ?string,
+      readonly node: ?{
+        readonly id: string,
+      },
+    }>,
+  },
+};
+export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrependComments2Mutation = {
   response: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrependComments2Mutation$data,
   variables: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrependComments2Mutation$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -106,20 +105,20 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrependComments2Mutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "CommentsCreateResponsePayload",
         "kind": "LinkedField",
         "name": "commentsCreate",
         "plural": false,
         "selections": [
-          (v2/*: any*/)
+          (v2/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -129,19 +128,19 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrependComments2Mutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "CommentsCreateResponsePayload",
         "kind": "LinkedField",
         "name": "commentsCreate",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -175,10 +174,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "e0642572a24c7ba9a34f890b6053eb98";
+  (node/*:: as any*/).hash = "e0642572a24c7ba9a34f890b6053eb98";
 }
 
-module.exports = ((node/*: any*/)/*: Mutation<
+module.exports = ((node/*:: as any*/)/*:: as Mutation<
   RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrependComments2Mutation$variables,
   RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrependComments2Mutation$data,
 >*/);

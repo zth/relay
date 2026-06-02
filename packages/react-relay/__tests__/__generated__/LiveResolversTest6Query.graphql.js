@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9dcf6c9ce34df52a5fbef93ae2d23fc7>>
+ * @generated SignedSource<<34cc9ecf23116e1aca41587322fe7593>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,14 +18,14 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { LiveResolversTest6Fragment$fragmentType } from "./LiveResolversTest6Fragment.graphql";
-export type LiveResolversTest6Query$variables = {||};
-export type LiveResolversTest6Query$data = {|
-  +$fragmentSpreads: LiveResolversTest6Fragment$fragmentType,
-|};
-export type LiveResolversTest6Query = {|
+export type LiveResolversTest6Query$variables = {};
+export type LiveResolversTest6Query$data = {
+  readonly $fragmentSpreads: LiveResolversTest6Fragment$fragmentType,
+};
+export type LiveResolversTest6Query = {
   response: LiveResolversTest6Query$data,
   variables: LiveResolversTest6Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -80,7 +79,7 @@ return {
                   "name": "name",
                   "storageKey": null
                 },
-                (v0/*: any*/)
+                (v0/*:: as any*/)
               ],
               "storageKey": null
             },
@@ -98,7 +97,7 @@ return {
                     "name": "me",
                     "plural": false,
                     "selections": [
-                      (v0/*: any*/),
+                      (v0/*:: as any*/),
                       {
                         "kind": "ClientExtension",
                         "selections": [
@@ -144,10 +143,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "36648bb2cbac6fe4fecb46c1d8926b74";
+  (node/*:: as any*/).hash = "36648bb2cbac6fe4fecb46c1d8926b74";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   LiveResolversTest6Query$variables,
   LiveResolversTest6Query$data,
 >*/);

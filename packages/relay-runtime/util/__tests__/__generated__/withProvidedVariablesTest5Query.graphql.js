@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<34bd9ffc955c782f7e5871d6d90ed2a0>>
+ * @generated SignedSource<<4142c76beaa020ff0c23deb081fc19ce>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,27 +18,27 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { withProvidedVariablesTest5Fragment$fragmentType } from "./withProvidedVariablesTest5Fragment.graphql";
-export type withProvidedVariablesTest5Query$variables = {||};
-export type withProvidedVariablesTest5Query$data = {|
-  +node: ?{|
-    +$fragmentSpreads: withProvidedVariablesTest5Fragment$fragmentType,
-  |},
-|};
-export type withProvidedVariablesTest5Query = {|
+export type withProvidedVariablesTest5Query$variables = {};
+export type withProvidedVariablesTest5Query$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: withProvidedVariablesTest5Fragment$fragmentType,
+  },
+};
+export type withProvidedVariablesTest5Query = {
   response: withProvidedVariablesTest5Query$data,
   variables: withProvidedVariablesTest5Query$variables,
-|};
+};
 ({
   "__relay_internal__pv__provideRandomNumber_invalid1relayprovider": require('../provideRandomNumber_invalid1.relayprovider'),
   "__relay_internal__pv__provideRandomNumber_invalid2relayprovider": require('../provideRandomNumber_invalid2.relayprovider')
-}: {|
-  +__relay_internal__pv__provideRandomNumber_invalid1relayprovider: {|
-    +get: () => number,
-  |},
-  +__relay_internal__pv__provideRandomNumber_invalid2relayprovider: {|
-    +get: () => number,
-  |},
-|});
+} as {
+  readonly __relay_internal__pv__provideRandomNumber_invalid1relayprovider: {
+    readonly get: () => number,
+  },
+  readonly __relay_internal__pv__provideRandomNumber_invalid2relayprovider: {
+    readonly get: () => number,
+  },
+});
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -68,7 +67,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -105,7 +104,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -134,7 +133,7 @@ return {
                 "kind": "LinkedField",
                 "name": "profile_picture",
                 "plural": false,
-                "selections": (v1/*: any*/),
+                "selections": (v1/*:: as any*/),
                 "storageKey": null
               },
               {
@@ -150,7 +149,7 @@ return {
                 "kind": "LinkedField",
                 "name": "profile_picture",
                 "plural": false,
-                "selections": (v1/*: any*/),
+                "selections": (v1/*:: as any*/),
                 "storageKey": null
               }
             ],
@@ -185,10 +184,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "fea93f1b453b7ed30e1b62dc0b32bc4e";
+  (node/*:: as any*/).hash = "fea93f1b453b7ed30e1b62dc0b32bc4e";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   withProvidedVariablesTest5Query$variables,
   withProvidedVariablesTest5Query$data,
 >*/);

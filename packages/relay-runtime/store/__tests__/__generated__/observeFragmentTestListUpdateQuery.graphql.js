@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4337e2999734809a390206fb499f653e>>
+ * @generated SignedSource<<f26f4236148d25800a9e6bef59613ab4>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,16 +18,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { observeFragmentTestListUpdateFragment$fragmentType } from "./observeFragmentTestListUpdateFragment.graphql";
-export type observeFragmentTestListUpdateQuery$variables = {||};
-export type observeFragmentTestListUpdateQuery$data = {|
-  +nodes: ?$ReadOnlyArray<?{|
-    +$fragmentSpreads: observeFragmentTestListUpdateFragment$fragmentType,
-  |}>,
-|};
-export type observeFragmentTestListUpdateQuery = {|
+export type observeFragmentTestListUpdateQuery$variables = {};
+export type observeFragmentTestListUpdateQuery$data = {
+  readonly nodes: ?ReadonlyArray<?{
+    readonly $fragmentSpreads: observeFragmentTestListUpdateFragment$fragmentType,
+  }>,
+};
+export type observeFragmentTestListUpdateQuery = {
   response: observeFragmentTestListUpdateQuery$data,
   variables: observeFragmentTestListUpdateQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -51,7 +50,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "nodes",
@@ -77,7 +76,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "nodes",
@@ -128,10 +127,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "493ccdbc127bfccc347fc16107f21b79";
+  (node/*:: as any*/).hash = "493ccdbc127bfccc347fc16107f21b79";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   observeFragmentTestListUpdateQuery$variables,
   observeFragmentTestListUpdateQuery$data,
 >*/);

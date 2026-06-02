@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<593b3030b73bbadda5607047611b5d02>>
+ * @generated SignedSource<<8d108fc93ef63b70ffeeff0127149cae>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,29 +18,29 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { preloadQueryDEPRECATEDTest_ProvidedVarFragment$fragmentType } from "./preloadQueryDEPRECATEDTest_ProvidedVarFragment.graphql";
-export type preloadQueryDEPRECATEDTest_ProvidedVarQuery$variables = {|
+export type preloadQueryDEPRECATEDTest_ProvidedVarQuery$variables = {
   id: string,
-|};
-export type preloadQueryDEPRECATEDTest_ProvidedVarQuery$data = {|
-  +node: ?{|
-    +$fragmentSpreads: preloadQueryDEPRECATEDTest_ProvidedVarFragment$fragmentType,
-  |},
-|};
-export type preloadQueryDEPRECATEDTest_ProvidedVarQuery = {|
+};
+export type preloadQueryDEPRECATEDTest_ProvidedVarQuery$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: preloadQueryDEPRECATEDTest_ProvidedVarFragment$fragmentType,
+  },
+};
+export type preloadQueryDEPRECATEDTest_ProvidedVarQuery = {
   response: preloadQueryDEPRECATEDTest_ProvidedVarQuery$data,
   variables: preloadQueryDEPRECATEDTest_ProvidedVarQuery$variables,
-|};
+};
 ({
   "__relay_internal__pv__RelayProvider_returnsTruerelayprovider": require('../RelayProvider_returnsTrue.relayprovider'),
   "__relay_internal__pv__RelayProvider_returnsFalserelayprovider": require('../RelayProvider_returnsFalse.relayprovider')
-}: {|
-  +__relay_internal__pv__RelayProvider_returnsFalserelayprovider: {|
-    +get: () => boolean,
-  |},
-  +__relay_internal__pv__RelayProvider_returnsTruerelayprovider: {|
-    +get: () => boolean,
-  |},
-|});
+} as {
+  readonly __relay_internal__pv__RelayProvider_returnsFalserelayprovider: {
+    readonly get: () => boolean,
+  },
+  readonly __relay_internal__pv__RelayProvider_returnsTruerelayprovider: {
+    readonly get: () => boolean,
+  },
+});
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -60,7 +59,7 @@ v1 = [
 return {
   "fragment": {
     "argumentDefinitions": [
-      (v0/*: any*/)
+      (v0/*:: as any*/)
     ],
     "kind": "Fragment",
     "metadata": null,
@@ -68,7 +67,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -89,7 +88,7 @@ return {
   "kind": "Request",
   "operation": {
     "argumentDefinitions": [
-      (v0/*: any*/),
+      (v0/*:: as any*/),
       {
         "defaultValue": null,
         "kind": "LocalArgument",
@@ -106,7 +105,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -210,10 +209,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "4979a880c3f4961191919f23c6de8c42";
+  (node/*:: as any*/).hash = "4979a880c3f4961191919f23c6de8c42";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   preloadQueryDEPRECATEDTest_ProvidedVarQuery$variables,
   preloadQueryDEPRECATEDTest_ProvidedVarQuery$data,
 >*/);

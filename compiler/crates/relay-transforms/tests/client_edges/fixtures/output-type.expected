@@ -33,20 +33,22 @@ fragment Foo_user on User {
   #     ),
   #     unique_id: 0,
   #     model_resolvers: [],
+  #     server_object_operations: [],
   # }
    {
     ...BestFriendResolverFragment_name @__RelayResolverMetadata
     # RelayResolverMetadata {
-    #     field_id: FieldID(527),
+    #     field_id: FieldID(531),
     #     import_path: "BestFriendResolver",
     #     import_name: None,
     #     field_alias: None,
     #     field_path: "best_friend",
     #     field_arguments: [],
+    #     fragment_arguments: [],
     #     live: false,
     #     output_type_info: Composite(
     #         ResolverNormalizationInfo {
-    #             inner_type: Object(82),
+    #             inner_type: Object(83),
     #             plural: false,
     #             normalization_operation: WithLocation {
     #                 location: <generated>:59:70,
@@ -60,6 +62,7 @@ fragment Foo_user on User {
     #     fragment_data_injection_mode: None,
     #     type_confirmed: false,
     #     resolver_type: ResolverModule,
+    #     return_fragment: None,
     # }
     
     best_friend {

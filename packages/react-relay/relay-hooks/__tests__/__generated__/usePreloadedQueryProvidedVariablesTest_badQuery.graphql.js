@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8c98dbf87be396aee280980643b58fe5>>
+ * @generated SignedSource<<52f5b26016dc43fa8fddd3c38d2c4558>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,25 +18,25 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { usePreloadedQueryProvidedVariablesTest_badFragment$fragmentType } from "./usePreloadedQueryProvidedVariablesTest_badFragment.graphql";
-export type usePreloadedQueryProvidedVariablesTest_badQuery$variables = {|
+export type usePreloadedQueryProvidedVariablesTest_badQuery$variables = {
   id: string,
-|};
-export type usePreloadedQueryProvidedVariablesTest_badQuery$data = {|
-  +node: ?{|
-    +$fragmentSpreads: usePreloadedQueryProvidedVariablesTest_badFragment$fragmentType,
-  |},
-|};
-export type usePreloadedQueryProvidedVariablesTest_badQuery = {|
+};
+export type usePreloadedQueryProvidedVariablesTest_badQuery$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: usePreloadedQueryProvidedVariablesTest_badFragment$fragmentType,
+  },
+};
+export type usePreloadedQueryProvidedVariablesTest_badQuery = {
   response: usePreloadedQueryProvidedVariablesTest_badQuery$data,
   variables: usePreloadedQueryProvidedVariablesTest_badQuery$variables,
-|};
+};
 ({
   "__relay_internal__pv__RelayProvider_impurerelayprovider": require('../RelayProvider_impure.relayprovider')
-}: {|
-  +__relay_internal__pv__RelayProvider_impurerelayprovider: {|
-    +get: () => number,
-  |},
-|});
+} as {
+  readonly __relay_internal__pv__RelayProvider_impurerelayprovider: {
+    readonly get: () => number,
+  },
+});
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -56,7 +55,7 @@ v1 = [
 return {
   "fragment": {
     "argumentDefinitions": [
-      (v0/*: any*/)
+      (v0/*:: as any*/)
     ],
     "kind": "Fragment",
     "metadata": null,
@@ -64,7 +63,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -85,7 +84,7 @@ return {
   "kind": "Request",
   "operation": {
     "argumentDefinitions": [
-      (v0/*: any*/),
+      (v0/*:: as any*/),
       {
         "defaultValue": null,
         "kind": "LocalArgument",
@@ -97,7 +96,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -168,10 +167,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "9f08a83ca6f077bedba106cc1674156d";
+  (node/*:: as any*/).hash = "9f08a83ca6f077bedba106cc1674156d";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   usePreloadedQueryProvidedVariablesTest_badQuery$variables,
   usePreloadedQueryProvidedVariablesTest_badQuery$data,
 >*/);

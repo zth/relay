@@ -17,7 +17,7 @@
  * For convenience, and for consistency with the behavior of `Object.freeze`,
  * returns the now-frozen original object.
  */
-function deepFreeze<T: {...}>(object: T): T {
+function deepFreeze<T extends {...}>(object: T): T {
   if (!shouldBeFrozen(object)) {
     return object;
   }
@@ -35,7 +35,7 @@ function deepFreeze<T: {...}>(object: T): T {
   return object;
 }
 
-function shouldBeFrozen(value: mixed): boolean {
+function shouldBeFrozen(value: unknown): boolean {
   // Only freeze plain JS arrays and objects
   return (
     value != null &&

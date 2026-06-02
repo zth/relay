@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<719793505eb30e605a8b4c8de4d1b73b>>
+ * @generated SignedSource<<4953b420d465f323acf8258184b0ab22>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,16 +18,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernStoreTestJoeFragment$fragmentType } from "./RelayModernStoreTestJoeFragment.graphql";
-export type RelayModernStoreTestJoeQuery$variables = {|
+export type RelayModernStoreTestJoeQuery$variables = {
   id: string,
-|};
-export type RelayModernStoreTestJoeQuery$data = {|
-  +$fragmentSpreads: RelayModernStoreTestJoeFragment$fragmentType,
-|};
-export type RelayModernStoreTestJoeQuery = {|
+};
+export type RelayModernStoreTestJoeQuery$data = {
+  readonly $fragmentSpreads: RelayModernStoreTestJoeFragment$fragmentType,
+};
+export type RelayModernStoreTestJoeQuery = {
   response: RelayModernStoreTestJoeQuery$data,
   variables: RelayModernStoreTestJoeQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -48,13 +47,13 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernStoreTestJoeQuery",
     "selections": [
       {
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "kind": "FragmentSpread",
         "name": "RelayModernStoreTestJoeFragment"
       }
@@ -64,13 +63,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernStoreTestJoeQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -121,10 +120,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "c01ec983d8c9bd25479b7ee0f87a097f";
+  (node/*:: as any*/).hash = "c01ec983d8c9bd25479b7ee0f87a097f";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernStoreTestJoeQuery$variables,
   RelayModernStoreTestJoeQuery$data,
 >*/);

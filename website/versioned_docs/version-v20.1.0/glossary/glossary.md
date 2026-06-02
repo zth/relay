@@ -497,7 +497,9 @@ A directive that, when used in combination with [@match](#match), allows users t
 
 ## Module
 
-TODO
+A ["Module"](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules) refers to a React component or a piece of JavaScript code.
+
+In the context of Relay, modules can by dynamically loaded with the @module directive. This directive allows developers to specify which JavaScript components should be downloaded (from a CDN for example) based on the type of a field decorated with the @match directive. This approach is part of Relay's [data-driven dependencies](#3d) strategy, where components are only loaded if they are actually needed for rendering.
 
 ## Mutation
 
@@ -599,15 +601,27 @@ A function taking an operation descriptor and returning a network response or er
 
 ## Operation Tracker
 
-TODO
+The Relay Operation Tracker is a component within the Relay runtime that manages and tracks the lifecycle of [operations](#operation) (queries, subscriptions and mutations), in the Relay store. It maintains mappings between operations and affected data owners, manages promises for asynchronous updates, and resolves dependencies by notifying subscribers when data changes, ensuring components render with the latest data. For more implementation details of the Operation Tracker, see the [OSS code here](https://github.com/facebook/relay/blob/main/packages/relay-runtime/store/RelayOperationTracker.js).
 
 ## Optimistic Update
 
-TODO
+An Optimistic Update in Relay is a technique used to immediately reflect the expected outcome of a mutation in the UI before the server response is received.
+
+This approach enhances user experience by providing instant feedback for actions, such as liking a post, without waiting for the server to confirm the change.
+
+Optimistic updates assume the mutation will succeed and temporarily update the store with the anticipated result. If the mutation fails, the optimistic update is rolled back to maintain data consistency. This is typically achieved by providing an optimisticResponse in the mutation configuration, which specifies the expected changes to the data.
+
+See the [documentation on optimistic updates](../guided-tour/updating-data/graphql-mutations/#optimistic-updates) for examples of how to use this feature.
 
 ## Optimistic Updater
 
-TODO
+An Optimistic Updater in Relay is a function that allows developers to imperatively modify the store's data in anticipation of a mutation's success.
+
+Unlike [optimistic responses](../guided-tour/updating-data/graphql-mutations/#optimistic-response), which are declarative, optimistic updaters provide more control and flexibility, enabling updates to data not directly selected in the mutation or complex changes that cannot be handled by declarative mutation directives.
+
+Optimistic updaters are executed when a mutation is triggered and are rolled back if the mutation fails. They are particularly useful for scenarios where multiple optimistic responses affect the same store value, and fine grained control is needed by the developer to ensure that the store remains consistent.
+
+See the documentation on [optimistic updaters](../guided-tour/updating-data/graphql-mutations/#optimistic-updaters) for examples of how to use them.
 
 ## Pagination
 
@@ -748,7 +762,8 @@ The pattern of keeping track of how many other objects can access a particular o
 
 ## Reference Marker
 
-TODO
+The Relay Reference Marker is a component within the Relay runtime responsible for traversing the data graph and marking references to data that should be retained in the Relay store. It ensures data consistency by preventing premature garbage collection of data required for operations or fragments. The marker handles various data selections, manages variables, and interacts with the operation loader to process module imports, ensuring that all necessary data dependencies are retained.
+See the [OSS code](https://github.com/facebook/relay/blob/main/packages/relay-runtime/store/RelayReferenceMarker.js) for implementation details.
 
 ## @refetchable
 
@@ -836,7 +851,14 @@ TODO
 
 ## Render Policy
 
-TODO
+The "Render Policy" in Relay determines how data is rendered in components, specifically whether to use "full" or "partial" rendering. This policy integrates with React's Suspense to manage when components should suspend based on data availability.
+* Full Rendering: This approach waits until all required data is available before rendering a component. It ensures that components do not render with incomplete data, which can prevent flickering or unexpected UI changes.
+* Partial Rendering: This approach allows components to render with the data that is currently available, even if some data is missing. It can improve perceived performance by displaying parts of the UI sooner, but may lead to components rendering with null or incomplete data.
+
+The choice between full and partial rendering can be configured per environment or query, allowing developers to optimize for specific use cases.
+<FbInternalOnly>
+For example, Comet defaults to partial rendering to accommodate certain product behaviors, while other environments may use full rendering to ensure data consistency.
+</FbInternalOnly>
 
 ## Revert
 
@@ -844,7 +866,7 @@ TODO
 
 ## Root Field
 
-TODO
+A root field is a top-level field on a GraphQL root type — Query, Mutation, or Subscription. These fields serve as entry points for GraphQL operations, allowing clients to fetch, modify, or subscribe to data.
 
 ## Root Type
 
@@ -858,7 +880,23 @@ Roots for entrypoints are referred to by the [`JSResource`](#JSResource) to the 
 
 ## Scalar
 
-TODO
+A scalar in GraphQL is a primitive, indivisible leaf value that cannot have subfields. Scalars represent basic data types, such as numbers, strings, booleans, and identifiers, which are returned directly to the client without further selection or nesting.
+
+GraphQL defines several built-in scalar types:
+* Int: A signed 32‐bit integer
+* Float: A signed double-precision floating-point value
+* String: A UTF‐8 character sequence
+* Boolean: true or false
+* ID: A unique identifier, often serialized as a string
+
+In addition to these built-in types, GraphQL servers may define custom scalars for values like dates, times, or other domain-specific primitive types.
+
+Relay represents GraphQL scalars as corresponding primitive JavaScript values (such as numbers, booleans, and strings). For custom scalars, Relay treats them as opaque values, providing support for their representation and use, but does not interpret their content.
+
+For more details, see:
+* [The GraphQL Specification on Scalars](https://spec.graphql.org/October2021/#sec-Scalars)
+* [Relay Return Types Guide](../guides/relay-resolvers/return-types/#scalar-types)
+
 
 ## Scheduler
 
@@ -881,10 +919,6 @@ If a field is removed from www, but is only used in fbsource, the application de
 For more info, look [here](https://www.internalfb.com/intern/wiki/GraphQL/Build_Infra/Schema_Sync/) and [here](https://www.internalfb.com/intern/wiki/Relay-team/GraphQL_Schema_Sync/).
 </FbInternalOnly>
 
-## Schema Extension
-
-TODO
-
 ## Selection
 
 A "selection of fields" refers to the fields you are requesting on an object that you are accessing, as part of a query, mutation, subscription or fragment.
@@ -903,11 +937,15 @@ The results of running a reader selector against the data currently in the store
 
 ## Stale
 
-TODO
+In Relay, "stale" describes cached data in the client store that is no longer considered fresh or up-to-date. By default, Relay treats cached data as valid indefinitely unless it is explicitly marked as stale through invalidation APIs (`invalidateRecord`, `invalidateStore`) or if it exceeds the configured query cache expiration time. When data is stale, Relay triggers a network refetch on the next query evaluation to ensure the UI reflects the most current information. Components can also subscribe to invalidation events to respond immediately when data becomes stale (`useSubscribeToInvalidationState` hook). This mechanism helps maintain data consistency and timely updates after changes such as mutations.
+
+For more details, see the [Relay Staleness of Data documentation](../guided-tour/reusing-cached-data/staleness-of-data.md).
 
 ## Store
 
-TODO
+The Relay Store is a local cache in the Relay runtime that manages the lifecycle of records fetched from a GraphQL server, as well as client-side data. It normalizes and de-dupes data, supports subscriptions and [optimistic updates](#optimistic-update), and handles garbage collection and data retention to ensure efficient data access and consistency.
+
+In addition to server-fetched data, the Relay Store can manage client-side data, including data from resolvers and local state. Client-side resolvers compute derived data based on existing records, allowing components to access both server and client data seamlessly. The store also supports the integration of local state by adding client-specific fields to the GraphQL schema, enabling developers to query and manage local state using Relay.
 
 ## @stream
 
@@ -956,7 +994,7 @@ There are four tree traversals that are core to understanding the internal behav
 * Using the normalization AST:
   * When Relay normalizes the payload it receives from the GraphQL server in the Response Normalizer;
   * When Relay reads determines whether there is enough data for to fulfill an operation, in the Data Checker; and
-  * When Relay determines what data is no longer accessible during garbage collection, in the Reference Marker.
+  * When Relay determines what data is no longer accessible during garbage collection, in the [Reference Marker](#reference-marker).
 * Using the reader AST:
   * When Relay reads data for rendering, in the Reader.
 
@@ -978,8 +1016,7 @@ See also [abstract type refinement](#abstract-type-refinement).
 
 A callback passed to `commitMutation`, which provides the application developer with imperative control over the data in the store.
 
-<!-- TODO make optimistic updater a link -->
-See [the documentation](../guided-tour/updating-data/introduction.md) and also optimistic updater.
+See [the documentation](../guided-tour/updating-data/introduction.md) and also [optimistic updater](#optimistic-updater).
 
 ## Value
 

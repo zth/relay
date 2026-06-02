@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c5db4aca80b100b6e401e73685e13e48>>
+ * @generated SignedSource<<fa2cb9b5a762f647ece63ae7cb506329>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,18 +18,18 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentExecuteWithDeferTestUserFragment$fragmentType } from "./RelayModernEnvironmentExecuteWithDeferTestUserFragment.graphql";
-export type RelayModernEnvironmentExecuteWithDeferTestResolverQuery$variables = {|
+export type RelayModernEnvironmentExecuteWithDeferTestResolverQuery$variables = {
   id: string,
-|};
-export type RelayModernEnvironmentExecuteWithDeferTestResolverQuery$data = {|
-  +node: ?{|
-    +$fragmentSpreads: RelayModernEnvironmentExecuteWithDeferTestUserFragment$fragmentType,
-  |},
-|};
-export type RelayModernEnvironmentExecuteWithDeferTestResolverQuery = {|
+};
+export type RelayModernEnvironmentExecuteWithDeferTestResolverQuery$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithDeferTestUserFragment$fragmentType,
+  },
+};
+export type RelayModernEnvironmentExecuteWithDeferTestResolverQuery = {
   response: RelayModernEnvironmentExecuteWithDeferTestResolverQuery$data,
   variables: RelayModernEnvironmentExecuteWithDeferTestResolverQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -57,14 +56,14 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentExecuteWithDeferTestResolverQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -89,13 +88,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentExecuteWithDeferTestResolverQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -116,7 +115,7 @@ return {
               {
                 "kind": "InlineFragment",
                 "selections": [
-                  (v2/*: any*/),
+                  (v2/*:: as any*/),
                   {
                     "alias": null,
                     "args": null,
@@ -139,7 +138,7 @@ return {
               }
             ]
           },
-          (v2/*: any*/)
+          (v2/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -158,10 +157,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "56440e2904f55cb46bcb26cb00575108";
+  (node/*:: as any*/).hash = "56440e2904f55cb46bcb26cb00575108";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentExecuteWithDeferTestResolverQuery$variables,
   RelayModernEnvironmentExecuteWithDeferTestResolverQuery$data,
 >*/);

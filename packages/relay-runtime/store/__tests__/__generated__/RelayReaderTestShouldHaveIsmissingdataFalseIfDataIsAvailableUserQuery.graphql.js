@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0e7b08d7afc7172ea3a005edfb27107f>>
+ * @generated SignedSource<<ab84d66c4e95790b99058d824b296124>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,18 +18,18 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableProfilePicture$fragmentType } from "./RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableProfilePicture.graphql";
-export type RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserQuery$variables = {|
-  size?: ?$ReadOnlyArray<?number>,
-|};
-export type RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserQuery$data = {|
-  +me: ?{|
-    +$fragmentSpreads: RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableProfilePicture$fragmentType,
-  |},
-|};
-export type RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserQuery = {|
+export type RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserQuery$variables = {
+  size?: ?ReadonlyArray<?number>,
+};
+export type RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserQuery$data = {
+  readonly me: ?{
+    readonly $fragmentSpreads: RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableProfilePicture$fragmentType,
+  },
+};
+export type RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserQuery = {
   response: RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserQuery$data,
   variables: RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -43,7 +42,7 @@ var v0 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserQuery",
@@ -70,7 +69,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserQuery",
     "selections": [
@@ -130,10 +129,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "e67bfc897e5efd72ca5ee4c64e78e016";
+  (node/*:: as any*/).hash = "e67bfc897e5efd72ca5ee4c64e78e016";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserQuery$variables,
   RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserQuery$data,
 >*/);

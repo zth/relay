@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<66373637d46c7080dd277569b7235e8f>>
+ * @generated SignedSource<<d8a7e86edb44bdf7aff749504c919be5>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -25,7 +24,7 @@ import {name as astrologicalSignNameResolverType} from "../resolvers/Astrologica
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `astrologicalSignNameResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(astrologicalSignNameResolverType: (
+(astrologicalSignNameResolverType as (
   rootKey: AstrologicalSignNameResolver$key,
   args: void,
   context: TestResolverContextType,
@@ -33,23 +32,23 @@ import type { TestResolverContextType } from "../../../mutations/__tests__/TestR
 import {all_astrological_signs as queryAllAstrologicalSignsResolverType} from "../resolvers/QueryAllAstrologicalSignsResolver.js";
 // Type assertion validating that `queryAllAstrologicalSignsResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryAllAstrologicalSignsResolverType: (
+(queryAllAstrologicalSignsResolverType as (
   rootKey: QueryAllAstrologicalSignsResolver$key,
   args: void,
   context: TestResolverContextType,
-) => ?$ReadOnlyArray<{|
-  +id: DataID,
-|}>);
-export type RelayReaderRequiredFieldsTest27Query$variables = {||};
-export type RelayReaderRequiredFieldsTest27Query$data = {|
-  +all_astrological_signs: $ReadOnlyArray<{|
-    +name: ?string,
-  |}>,
-|};
-export type RelayReaderRequiredFieldsTest27Query = {|
+) => ?ReadonlyArray<{
+  readonly id: DataID,
+}>);
+export type RelayReaderRequiredFieldsTest27Query$variables = {};
+export type RelayReaderRequiredFieldsTest27Query$data = {
+  readonly all_astrological_signs: ReadonlyArray<{
+    readonly name: ?string,
+  }>,
+};
+export type RelayReaderRequiredFieldsTest27Query = {
   response: RelayReaderRequiredFieldsTest27Query$data,
   variables: RelayReaderRequiredFieldsTest27Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -75,6 +74,7 @@ return {
           "kind": "ClientEdgeToClientObject",
           "concreteType": "AstrologicalSign",
           "modelResolvers": null,
+          "serverObjectOperations": null,
           "backingField": {
             "alias": null,
             "args": null,
@@ -148,7 +148,7 @@ return {
                     "name": "__typename",
                     "storageKey": null
                   },
-                  (v0/*: any*/)
+                  (v0/*:: as any*/)
                 ],
                 "storageKey": null
               }
@@ -180,7 +180,7 @@ return {
                     "fragment": {
                       "kind": "InlineFragment",
                       "selections": [
-                        (v0/*: any*/)
+                        (v0/*:: as any*/)
                       ],
                       "type": "AstrologicalSign",
                       "abstractKey": null
@@ -197,7 +197,7 @@ return {
               "storageKey": null,
               "isOutputType": true
             },
-            (v0/*: any*/)
+            (v0/*:: as any*/)
           ],
           "storageKey": null
         }
@@ -216,10 +216,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "2251dd1ef8dfb9d0586df501107b45be";
+  (node/*:: as any*/).hash = "2251dd1ef8dfb9d0586df501107b45be";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderRequiredFieldsTest27Query$variables,
   RelayReaderRequiredFieldsTest27Query$data,
 >*/);

@@ -16,6 +16,7 @@ use graphql_ir::FragmentDefinitionNameSet;
 use graphql_ir::Program;
 use raw_text::set_raw_text;
 use relay_config::ProjectConfig;
+use relay_config::TypegenLanguage;
 use validate_operation_variables::ValidateVariablesOptions;
 
 use super::*;
@@ -214,10 +215,6 @@ fn apply_common_transforms(
         )
     })?;
 
-    program = log_event.time("relay_actor_change_transform", || {
-        relay_actor_change_transform(&program, &project_config.feature_flags.actor_change_support)
-    })?;
-
     program = log_event.time("provided_variable_fragment_transform", || {
         provided_variable_fragment_transform(&program)
     })?;
@@ -277,16 +274,32 @@ fn apply_reader_transforms(
         None,
     )?;
 
-    program = log_event.time("required_directive", || required_directive(&program))?;
+    program = log_event.time("required_directive", || {
+        required_directive(&program, &project_config.feature_flags)
+    })?;
 
     program = log_event.time("catch_directive", || catch_directive(&program))?;
 
     program = log_event.time("client_edges", || {
-        client_edges(&program, project_config, &base_fragment_names)
+        client_edges(&program, project_config, &base_fragment_names, false)
     })?;
 
     program = log_event.time("relay_resolvers", || {
         relay_resolvers(project_config.name, &program)
+    })?;
+
+    if project_config.typegen_config.language == TypegenLanguage::ReScript {
+        program = log_event.time("rescript_relay_generate_typename", || {
+            rescript_relay_generate_typename(&program)
+        });
+
+        program = log_event.time("rescript_relay_transform_codesplit", || {
+            rescript_relay_transform_codesplit(&program)
+        });
+    }
+
+    log_event.time("shadow_resolvers_transform", || {
+        shadow_resolvers_transform(&program, &project_config.feature_flags)
     })?;
 
     program = log_event.time("client_extensions", || client_extensions(&program));
@@ -324,9 +337,6 @@ fn apply_reader_transforms(
         hash_supported_argument(&program)
     })?;
 
-    program = log_event.time("rescript_relay_generate_typename", || {
-        rescript_relay_generate_typename(&program)
-    });
     program = apply_after_custom_transforms(
         &program,
         custom_transforms,
@@ -372,11 +382,16 @@ fn apply_operation_transforms(
     });
 
     program = log_event.time("client_edges", || {
-        client_edges(&program, project_config, &base_fragment_names)
+        client_edges(&program, project_config, &base_fragment_names, true)
     })?;
     program = log_event.time("relay_resolvers", || {
         relay_resolvers(project_config.name, &program)
     })?;
+
+    log_event.time("shadow_resolvers_transform", || {
+        shadow_resolvers_transform(&program, &project_config.feature_flags)
+    })?;
+
     if project_config.resolvers_schema_module.is_some() {
         program = log_event.time(
             "generate_relay_resolvers_root_fragment_split_operation",
@@ -397,10 +412,6 @@ fn apply_operation_transforms(
             &project_config.feature_flags,
         )
     })?;
-
-    program = log_event.time("rescript_relay_generate_typename", || {
-        rescript_relay_generate_typename(&program)
-    });
 
     program = log_event.time("generate_live_query_metadata", || {
         generate_live_query_metadata(&program)
@@ -454,10 +465,6 @@ fn apply_normalization_transforms(
         &log_event,
         maybe_print_stats,
     )?;
-
-    program = log_event.time("rescript_relay_inline_codesplit", || {
-        rescript_relay_inline_codesplit(&program)
-    })?;
 
     program = log_event.time("apply_fragment_arguments", || {
         apply_fragment_arguments(
@@ -515,16 +522,21 @@ fn apply_normalization_transforms(
         print_stats("generate_typename", &program);
     }
 
-    program = log_event.time("rescript_relay_generate_typename", || {
-        rescript_relay_generate_typename(&program)
-    });
-    if let Some(print_stats) = maybe_print_stats {
-        print_stats("rescript_relay_generate_typename", &program);
-    }
+    if project_config.typegen_config.language == TypegenLanguage::ReScript {
+        program = log_event.time("rescript_relay_generate_typename", || {
+            rescript_relay_generate_typename(&program)
+        });
+        if let Some(print_stats) = maybe_print_stats {
+            print_stats("rescript_relay_generate_typename", &program);
+        }
 
-    program = log_event.time("rescript_relay_transform_codesplit", || {
-        rescript_relay_transform_codesplit(&program)
-    });
+        program = log_event.time("rescript_relay_transform_codesplit", || {
+            rescript_relay_transform_codesplit(&program)
+        });
+        if let Some(print_stats) = maybe_print_stats {
+            print_stats("rescript_relay_transform_codesplit", &program);
+        }
+    }
 
     log_event.time("flatten", || flatten(&mut program, true, false))?;
     if let Some(print_stats) = maybe_print_stats {
@@ -615,9 +627,6 @@ fn apply_operation_text_transforms(
             project_config.schema_config.defer_stream_interface,
         )
     })?;
-    program = log_event.time("rescript_relay_generate_typename", || {
-        rescript_relay_generate_typename(&program)
-    });
     program = log_event.time("skip_null_arguments_transform", || {
         skip_null_arguments_transform(&program)
     });
@@ -727,7 +736,9 @@ fn apply_typegen_transforms(
     program = log_event.time("transform_subscriptions", || {
         transform_subscriptions(&program)
     })?;
-    program = log_event.time("required_directive", || required_directive(&program))?;
+    program = log_event.time("required_directive", || {
+        required_directive(&program, &project_config.feature_flags)
+    })?;
     program = log_event.time("catch_directive", || catch_directive(&program))?;
     program = log_event.time("generate_relay_resolvers_model_fragments", || {
         generate_relay_resolvers_model_fragments(
@@ -761,12 +772,17 @@ fn apply_typegen_transforms(
     });
 
     program = log_event.time("client_edges", || {
-        client_edges(&program, project_config, &base_fragment_names)
+        client_edges(&program, project_config, &base_fragment_names, false)
     })?;
 
     program = log_event.time("relay_resolvers", || {
         relay_resolvers(project_config.name, &program)
     })?;
+
+    log_event.time("shadow_resolvers_transform", || {
+        shadow_resolvers_transform(&program, &project_config.feature_flags)
+    })?;
+
     log_event.time("flatten", || flatten(&mut program, false, false))?;
     program = log_event.time("transform_refetchable_fragment", || {
         transform_refetchable_fragment(
@@ -781,19 +797,6 @@ fn apply_typegen_transforms(
         remove_base_fragments(&program, &base_fragment_names)
     });
 
-    program = log_event.time("relay_actor_change_transform", || {
-        relay_actor_change_transform(&program, &project_config.feature_flags.actor_change_support)
-    })?;
-
-    // RescriptRelay Note: This ensures that `__typename` is selected in the
-    // Flow type generation of all abstract types, without the user needing to
-    // explicitly select it. This can be removed when we do _actual_ typegen
-    // here in Rust at some point. But, as long as our typegen operates on the
-    // generated Flow types, __typename needs to be present in them for the
-    // typegen to understand about unions/interfaces properly.
-    program = log_event.time("rescript_relay_generate_typename", || {
-        rescript_relay_generate_typename(&program)
-    });
     program = apply_after_custom_transforms(
         &program,
         custom_transforms,

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1d4e247dea3b7195e03e16e4673cf51c>>
+ * @generated SignedSource<<744788b56b721789c2efba4603edea1b>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,24 +18,24 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { ReactRelayPaginationContainerTestUserFragment$fragmentType } from "./ReactRelayPaginationContainerTestUserFragment.graphql";
-export type ReactRelayPaginationContainerTestUserQuery$variables = {|
+export type ReactRelayPaginationContainerTestUserQuery$variables = {
   after?: ?string,
   count: number,
   id: string,
   isViewerFriend?: ?boolean,
-  orderby?: ?$ReadOnlyArray<?string>,
-|};
-export type ReactRelayPaginationContainerTestUserQuery$data = {|
-  +node: ?{|
-    +__typename: string,
-    +id: string,
-    +$fragmentSpreads: ReactRelayPaginationContainerTestUserFragment$fragmentType,
-  |},
-|};
-export type ReactRelayPaginationContainerTestUserQuery = {|
+  orderby?: ?ReadonlyArray<?string>,
+};
+export type ReactRelayPaginationContainerTestUserQuery$data = {
+  readonly node: ?{
+    readonly __typename: string,
+    readonly id: string,
+    readonly $fragmentSpreads: ReactRelayPaginationContainerTestUserFragment$fragmentType,
+  },
+};
+export type ReactRelayPaginationContainerTestUserQuery = {
   response: ReactRelayPaginationContainerTestUserQuery$data,
   variables: ReactRelayPaginationContainerTestUserQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -107,16 +106,16 @@ v9 = [
     "name": "isViewerFriend",
     "variableName": "isViewerFriend"
   },
-  (v8/*: any*/)
+  (v8/*:: as any*/)
 ];
 return {
   "fragment": {
     "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/),
-      (v2/*: any*/),
-      (v3/*: any*/),
-      (v4/*: any*/)
+      (v0/*:: as any*/),
+      (v1/*:: as any*/),
+      (v2/*:: as any*/),
+      (v3/*:: as any*/),
+      (v4/*:: as any*/)
     ],
     "kind": "Fragment",
     "metadata": null,
@@ -124,14 +123,14 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v5/*: any*/),
+        "args": (v5/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v6/*: any*/),
-          (v7/*: any*/),
+          (v6/*:: as any*/),
+          (v7/*:: as any*/),
           {
             "args": [
               {
@@ -139,7 +138,7 @@ return {
                 "name": "isViewerFriendLocal",
                 "variableName": "isViewerFriend"
               },
-              (v8/*: any*/)
+              (v8/*:: as any*/)
             ],
             "kind": "FragmentSpread",
             "name": "ReactRelayPaginationContainerTestUserFragment"
@@ -154,31 +153,31 @@ return {
   "kind": "Request",
   "operation": {
     "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/),
-      (v2/*: any*/),
-      (v4/*: any*/),
-      (v3/*: any*/)
+      (v0/*:: as any*/),
+      (v1/*:: as any*/),
+      (v2/*:: as any*/),
+      (v4/*:: as any*/),
+      (v3/*:: as any*/)
     ],
     "kind": "Operation",
     "name": "ReactRelayPaginationContainerTestUserQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v5/*: any*/),
+        "args": (v5/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v6/*: any*/),
-          (v7/*: any*/),
+          (v6/*:: as any*/),
+          (v7/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
               {
                 "alias": null,
-                "args": (v9/*: any*/),
+                "args": (v9/*:: as any*/),
                 "concreteType": "FriendsConnection",
                 "kind": "LinkedField",
                 "name": "friends",
@@ -200,8 +199,8 @@ return {
                         "name": "node",
                         "plural": false,
                         "selections": [
-                          (v6/*: any*/),
-                          (v7/*: any*/)
+                          (v6/*:: as any*/),
+                          (v7/*:: as any*/)
                         ],
                         "storageKey": null
                       },
@@ -245,7 +244,7 @@ return {
               },
               {
                 "alias": null,
-                "args": (v9/*: any*/),
+                "args": (v9/*:: as any*/),
                 "filters": [
                   "orderby",
                   "isViewerFriend"
@@ -276,10 +275,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "f780c50ab163e4a29c81eb497cfd5d1b";
+  (node/*:: as any*/).hash = "f780c50ab163e4a29c81eb497cfd5d1b";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ReactRelayPaginationContainerTestUserQuery$variables,
   ReactRelayPaginationContainerTestUserQuery$data,
 >*/);

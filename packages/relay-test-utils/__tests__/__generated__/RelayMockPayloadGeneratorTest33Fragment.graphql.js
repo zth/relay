@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c67a403e07f35eedf0f5d7b4bae11868>>
+ * @generated SignedSource<<e31a82dacfb48de98b8ad8b774395a10>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -23,18 +22,18 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { RelayMockPayloadGeneratorTest4MarkdownUserNameRenderer_name$fragmentType } from "./RelayMockPayloadGeneratorTest4MarkdownUserNameRenderer_name.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayMockPayloadGeneratorTest33Fragment$fragmentType: FragmentType;
-export type RelayMockPayloadGeneratorTest33Fragment$data = {|
-  +id: string,
-  +nameRenderer: ?{|
-    +__fragmentPropName?: ?string,
-    +__module_component?: ?string,
-    +$fragmentSpreads: RelayMockPayloadGeneratorTest4MarkdownUserNameRenderer_name$fragmentType,
-  |},
-  +$fragmentType: RelayMockPayloadGeneratorTest33Fragment$fragmentType,
-|};
+export type RelayMockPayloadGeneratorTest33Fragment$data = {
+  readonly id: string,
+  readonly nameRenderer: ?{
+    readonly __fragmentPropName?: ?string,
+    readonly __module_component?: ?string,
+    readonly $fragmentSpreads: RelayMockPayloadGeneratorTest4MarkdownUserNameRenderer_name$fragmentType,
+  },
+  readonly $fragmentType: RelayMockPayloadGeneratorTest33Fragment$fragmentType,
+};
 export type RelayMockPayloadGeneratorTest33Fragment$key = {
-  +$data?: RelayMockPayloadGeneratorTest33Fragment$data,
-  +$fragmentSpreads: RelayMockPayloadGeneratorTest33Fragment$fragmentType,
+  readonly $data?: RelayMockPayloadGeneratorTest33Fragment$data,
+  readonly $fragmentSpreads: RelayMockPayloadGeneratorTest33Fragment$fragmentType,
   ...
 };
 */
@@ -83,10 +82,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "0a9f2a100bbe2b365105043522aa4c86";
+  (node/*:: as any*/).hash = "0a9f2a100bbe2b365105043522aa4c86";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayMockPayloadGeneratorTest33Fragment$fragmentType,
   RelayMockPayloadGeneratorTest33Fragment$data,
 >*/);

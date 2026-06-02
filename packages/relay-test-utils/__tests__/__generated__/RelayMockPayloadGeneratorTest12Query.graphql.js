@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<728a5cc924c2d86104460e09b75982d3>>
+ * @generated SignedSource<<cf6aa74a94df0413afcff3d0c57d0440>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,16 +18,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayMockPayloadGeneratorTest12Fragment$fragmentType } from "./RelayMockPayloadGeneratorTest12Fragment.graphql";
-export type RelayMockPayloadGeneratorTest12Query$variables = {||};
-export type RelayMockPayloadGeneratorTest12Query$data = {|
-  +node: ?{|
-    +$fragmentSpreads: RelayMockPayloadGeneratorTest12Fragment$fragmentType,
-  |},
-|};
-export type RelayMockPayloadGeneratorTest12Query = {|
+export type RelayMockPayloadGeneratorTest12Query$variables = {};
+export type RelayMockPayloadGeneratorTest12Query$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: RelayMockPayloadGeneratorTest12Fragment$fragmentType,
+  },
+};
+export type RelayMockPayloadGeneratorTest12Query = {
   response: RelayMockPayloadGeneratorTest12Query$data,
   variables: RelayMockPayloadGeneratorTest12Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -71,7 +70,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -97,7 +96,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -110,11 +109,11 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v1/*: any*/),
+          (v1/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
-              (v2/*: any*/),
+              (v2/*:: as any*/),
               {
                 "alias": null,
                 "args": null,
@@ -122,7 +121,7 @@ return {
                 "kind": "LinkedField",
                 "name": "body",
                 "plural": false,
-                "selections": (v3/*: any*/),
+                "selections": (v3/*:: as any*/),
                 "storageKey": null
               },
               {
@@ -133,8 +132,8 @@ return {
                 "name": "hometown",
                 "plural": false,
                 "selections": [
-                  (v1/*: any*/),
-                  (v2/*: any*/),
+                  (v1/*:: as any*/),
+                  (v2/*:: as any*/),
                   {
                     "alias": null,
                     "args": null,
@@ -187,7 +186,7 @@ return {
                                 "name": "node",
                                 "plural": false,
                                 "selections": [
-                                  (v1/*: any*/),
+                                  (v1/*:: as any*/),
                                   {
                                     "alias": null,
                                     "args": null,
@@ -195,7 +194,7 @@ return {
                                     "kind": "LinkedField",
                                     "name": "message",
                                     "plural": false,
-                                    "selections": (v3/*: any*/),
+                                    "selections": (v3/*:: as any*/),
                                     "storageKey": null
                                   },
                                   {
@@ -205,7 +204,7 @@ return {
                                     "kind": "LinkedField",
                                     "name": "likeSentence",
                                     "plural": false,
-                                    "selections": (v3/*: any*/),
+                                    "selections": (v3/*:: as any*/),
                                     "storageKey": null
                                   }
                                 ],
@@ -235,7 +234,7 @@ return {
                         ],
                         "storageKey": "comments(first:10)"
                       },
-                      (v1/*: any*/)
+                      (v1/*:: as any*/)
                     ],
                     "storageKey": null
                   }
@@ -263,10 +262,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "5ba52fe2450ad45a2106f09d013ef267";
+  (node/*:: as any*/).hash = "5ba52fe2450ad45a2106f09d013ef267";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayMockPayloadGeneratorTest12Query$variables,
   RelayMockPayloadGeneratorTest12Query$data,
 >*/);

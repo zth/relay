@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<751fc00d0d418c2e811a86dc7eed794a>>
+ * @generated SignedSource<<ad61d67e919f75b85125f9b56a49a99b>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,13 +20,13 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { RedOctopus } from "../RedOctopusResolvers.js";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RedOctopus____relay_model_instance$fragmentType: FragmentType;
-export type RedOctopus____relay_model_instance$data = {|
-  +__relay_model_instance: RedOctopus,
-  +$fragmentType: RedOctopus____relay_model_instance$fragmentType,
-|};
+export type RedOctopus____relay_model_instance$data = {
+  readonly __relay_model_instance: RedOctopus,
+  readonly $fragmentType: RedOctopus____relay_model_instance$fragmentType,
+};
 export type RedOctopus____relay_model_instance$key = {
-  +$data?: RedOctopus____relay_model_instance$data,
-  +$fragmentSpreads: RedOctopus____relay_model_instance$fragmentType,
+  readonly $data?: RedOctopus____relay_model_instance$data,
+  readonly $fragmentSpreads: RedOctopus____relay_model_instance$fragmentType,
   ...
 };
 */
@@ -55,7 +54,7 @@ var node/*: ReaderFragment*/ = {
   "abstractKey": null
 };
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RedOctopus____relay_model_instance$fragmentType,
   RedOctopus____relay_model_instance$data,
 >*/);

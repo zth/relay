@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b7afbf008690456338f4b50794a5edd1>>
+ * @generated SignedSource<<5ec697fc1f65aca75af2f07ffd5a0e96>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,18 +18,18 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernStoreSubscriptionsTest1Fragment$fragmentType } from "./RelayModernStoreSubscriptionsTest1Fragment.graphql";
-export type RelayModernStoreSubscriptionsTest1Query$variables = {|
-  size?: ?$ReadOnlyArray<?number>,
-|};
-export type RelayModernStoreSubscriptionsTest1Query$data = {|
-  +me: ?{|
-    +$fragmentSpreads: RelayModernStoreSubscriptionsTest1Fragment$fragmentType,
-  |},
-|};
-export type RelayModernStoreSubscriptionsTest1Query = {|
+export type RelayModernStoreSubscriptionsTest1Query$variables = {
+  size?: ?ReadonlyArray<?number>,
+};
+export type RelayModernStoreSubscriptionsTest1Query$data = {
+  readonly me: ?{
+    readonly $fragmentSpreads: RelayModernStoreSubscriptionsTest1Fragment$fragmentType,
+  },
+};
+export type RelayModernStoreSubscriptionsTest1Query = {
   response: RelayModernStoreSubscriptionsTest1Query$data,
   variables: RelayModernStoreSubscriptionsTest1Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -43,7 +42,7 @@ var v0 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernStoreSubscriptionsTest1Query",
@@ -70,7 +69,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernStoreSubscriptionsTest1Query",
     "selections": [
@@ -144,10 +143,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "6a870e1efbbf7359cfbdb0f5f6d8848e";
+  (node/*:: as any*/).hash = "6a870e1efbbf7359cfbdb0f5f6d8848e";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernStoreSubscriptionsTest1Query$variables,
   RelayModernStoreSubscriptionsTest1Query$data,
 >*/);

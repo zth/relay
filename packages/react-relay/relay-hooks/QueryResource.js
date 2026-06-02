@@ -41,9 +41,9 @@ export type QueryResource = QueryResourceImpl;
 
 type QueryResourceCache = Cache<QueryResourceCacheEntry>;
 type QueryResourceCacheEntry = {
-  +id: number,
-  +cacheIdentifier: string,
-  +operationAvailability: ?OperationAvailability,
+  readonly id: number,
+  readonly cacheIdentifier: string,
+  readonly operationAvailability: ?OperationAvailability,
   // The number of received payloads for the operation.
   // We want to differentiate the initial graphql response for the operation
   // from the incremental responses, so later we can choose how to handle errors
@@ -58,12 +58,12 @@ type QueryResourceCacheEntry = {
 };
 export opaque type QueryResult: {
   fragmentNode: ReaderFragment,
-  fragmentRef: mixed,
+  fragmentRef: unknown,
   ...
 } = {
   cacheIdentifier: string,
   fragmentNode: ReaderFragment,
-  fragmentRef: mixed,
+  fragmentRef: unknown,
   operation: OperationDescriptor,
 };
 
@@ -206,7 +206,7 @@ class QueryResourceImpl {
     maybeRenderPolicy: ?RenderPolicy,
     observer: ?Observer<Snapshot>,
     cacheBreaker: ?string | ?number,
-    profilerContext: mixed,
+    profilerContext: unknown,
   ): QueryResult {
     const cacheIdentifier = getQueryCacheIdentifier(
       this._environment,
@@ -238,7 +238,7 @@ class QueryResourceImpl {
     maybeFetchPolicy: ?FetchPolicy,
     maybeRenderPolicy: ?RenderPolicy,
     observer: ?Observer<Snapshot>,
-    profilerContext: mixed,
+    profilerContext: unknown,
   ): QueryResult {
     const environment = this._environment;
     const fetchPolicy =
@@ -313,7 +313,7 @@ class QueryResourceImpl {
    * (e.g. inside useEffect), in order to retain the operation in the Relay store
    * and transfer ownership of the operation to the component lifecycle.
    */
-  retain(queryResult: QueryResult, profilerContext: mixed): Disposable {
+  retain(queryResult: QueryResult, profilerContext: unknown): Disposable {
     const environment = this._environment;
     const {cacheIdentifier, operation} = queryResult;
     const cacheEntry = this._getOrCreateCacheEntry(
@@ -393,7 +393,7 @@ class QueryResourceImpl {
     fetchObservable: Observable<GraphQLResponse>,
     fetchPolicy: FetchPolicy,
     renderPolicy: RenderPolicy,
-    profilerContext: mixed,
+    profilerContext: unknown,
     observer: Observer<Snapshot>,
   ): QueryResourceCacheEntry {
     const environment = this._environment;

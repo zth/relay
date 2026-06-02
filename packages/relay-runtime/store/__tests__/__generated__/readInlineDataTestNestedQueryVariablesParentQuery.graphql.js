@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<269944c0064f8864b8b02cca18f57fe6>>
+ * @generated SignedSource<<edecf1b9c977a76b4dd4d38d40f7fc77>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,18 +18,18 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { readInlineDataTestNestedQueryVariablesChild$fragmentType } from "./readInlineDataTestNestedQueryVariablesChild.graphql";
-export type readInlineDataTestNestedQueryVariablesParentQuery$variables = {|
+export type readInlineDataTestNestedQueryVariablesParentQuery$variables = {
   scale?: ?number,
-|};
-export type readInlineDataTestNestedQueryVariablesParentQuery$data = {|
-  +me: ?{|
-    +$fragmentSpreads: readInlineDataTestNestedQueryVariablesChild$fragmentType,
-  |},
-|};
-export type readInlineDataTestNestedQueryVariablesParentQuery = {|
+};
+export type readInlineDataTestNestedQueryVariablesParentQuery$data = {
+  readonly me: ?{
+    readonly $fragmentSpreads: readInlineDataTestNestedQueryVariablesChild$fragmentType,
+  },
+};
+export type readInlineDataTestNestedQueryVariablesParentQuery = {
   response: readInlineDataTestNestedQueryVariablesParentQuery$data,
   variables: readInlineDataTestNestedQueryVariablesParentQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -43,7 +42,7 @@ var v0 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "readInlineDataTestNestedQueryVariablesParentQuery",
@@ -70,7 +69,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "readInlineDataTestNestedQueryVariablesParentQuery",
     "selections": [
@@ -130,10 +129,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "0895903561ebff4372478d30aaad6430";
+  (node/*:: as any*/).hash = "0895903561ebff4372478d30aaad6430";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   readInlineDataTestNestedQueryVariablesParentQuery$variables,
   readInlineDataTestNestedQueryVariablesParentQuery$data,
 >*/);

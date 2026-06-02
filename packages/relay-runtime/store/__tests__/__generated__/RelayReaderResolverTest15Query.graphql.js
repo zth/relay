@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<98c6563426ccf43f8cae68b86f433d24>>
+ * @generated SignedSource<<d87789b3bbecdeb2beb12a4d5b473deb>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -23,19 +22,19 @@ import {undefined_field as queryUndefinedFieldResolverType} from "../resolvers/U
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryUndefinedFieldResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryUndefinedFieldResolverType: (
+(queryUndefinedFieldResolverType as (
   rootKey: UndefinedFieldResolver$key,
   args: void,
   context: TestResolverContextType,
-) => ?mixed);
-export type RelayReaderResolverTest15Query$variables = {||};
-export type RelayReaderResolverTest15Query$data = {|
-  +undefined_field: ?ReturnType<typeof queryUndefinedFieldResolverType>,
-|};
-export type RelayReaderResolverTest15Query = {|
+) => ?unknown);
+export type RelayReaderResolverTest15Query$variables = {};
+export type RelayReaderResolverTest15Query$data = {
+  readonly undefined_field: ?ReturnType<typeof queryUndefinedFieldResolverType>,
+};
+export type RelayReaderResolverTest15Query = {
   response: RelayReaderResolverTest15Query$data,
   variables: RelayReaderResolverTest15Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {
@@ -125,10 +124,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "83f7dab79388f0374614e2ab5d69c2e6";
+  (node/*:: as any*/).hash = "83f7dab79388f0374614e2ab5d69c2e6";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderResolverTest15Query$variables,
   RelayReaderResolverTest15Query$data,
 >*/);

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a7de3a8d472befbbc0d67259ef636bb7>>
+ * @generated SignedSource<<824c2607d752e308866ff5c8ff666a97>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,16 +19,16 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentFragment$fragmentType: FragmentType;
-export type RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentFragment$data = {|
-  +body: ?{|
-    +text: ?string,
-  |},
-  +id: string,
-  +$fragmentType: RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentFragment$fragmentType,
-|};
+export type RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentFragment$data = {
+  readonly body: ?{
+    readonly text: ?string,
+  },
+  readonly id: string,
+  readonly $fragmentType: RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentFragment$fragmentType,
+};
 export type RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentFragment$key = {
-  +$data?: RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentFragment$data,
-  +$fragmentSpreads: RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentFragment$fragmentType,
+  readonly $data?: RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentFragment$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentFragment$fragmentType,
   ...
 };
 */
@@ -71,10 +70,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "0318fbc96ac921a3d0ac67803adb6399";
+  (node/*:: as any*/).hash = "0318fbc96ac921a3d0ac67803adb6399";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentFragment$fragmentType,
   RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentFragment$data,
 >*/);

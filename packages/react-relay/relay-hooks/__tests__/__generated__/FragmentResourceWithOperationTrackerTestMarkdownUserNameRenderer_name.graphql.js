@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<018b856ec367fbe4b0c834f949f6e8ae>>
+ * @generated SignedSource<<065681fd81ddedcac18b9ebbdc5039f3>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,16 +19,16 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type FragmentResourceWithOperationTrackerTestMarkdownUserNameRenderer_name$fragmentType: FragmentType;
-export type FragmentResourceWithOperationTrackerTestMarkdownUserNameRenderer_name$data = {|
-  +data: ?{|
-    +markup: ?string,
-  |},
-  +markdown: ?string,
-  +$fragmentType: FragmentResourceWithOperationTrackerTestMarkdownUserNameRenderer_name$fragmentType,
-|};
+export type FragmentResourceWithOperationTrackerTestMarkdownUserNameRenderer_name$data = {
+  readonly data: ?{
+    readonly markup: ?string,
+  },
+  readonly markdown: ?string,
+  readonly $fragmentType: FragmentResourceWithOperationTrackerTestMarkdownUserNameRenderer_name$fragmentType,
+};
 export type FragmentResourceWithOperationTrackerTestMarkdownUserNameRenderer_name$key = {
-  +$data?: FragmentResourceWithOperationTrackerTestMarkdownUserNameRenderer_name$data,
-  +$fragmentSpreads: FragmentResourceWithOperationTrackerTestMarkdownUserNameRenderer_name$fragmentType,
+  readonly $data?: FragmentResourceWithOperationTrackerTestMarkdownUserNameRenderer_name$data,
+  readonly $fragmentSpreads: FragmentResourceWithOperationTrackerTestMarkdownUserNameRenderer_name$fragmentType,
   ...
 };
 */
@@ -71,10 +70,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "b24e267fc49e1c18ab519d695f719894";
+  (node/*:: as any*/).hash = "b24e267fc49e1c18ab519d695f719894";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   FragmentResourceWithOperationTrackerTestMarkdownUserNameRenderer_name$fragmentType,
   FragmentResourceWithOperationTrackerTestMarkdownUserNameRenderer_name$data,
 >*/);

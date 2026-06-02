@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<30742386b99674a8389c0477b6392d7c>>
+ * @generated SignedSource<<3cd4c81a915b25ed7b2b44e2cef6dbf4>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -23,29 +22,29 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayReaderAliasedFragmentsTestModuleA_user$fragmentType } from "./RelayReaderAliasedFragmentsTestModuleA_user.graphql";
 import type { RelayReaderAliasedFragmentsTestModuleB_user$fragmentType } from "./RelayReaderAliasedFragmentsTestModuleB_user.graphql";
-export type RelayReaderAliasedFragmentsTestModuelAliasNamespacingQuery$variables = {|
+export type RelayReaderAliasedFragmentsTestModuelAliasNamespacingQuery$variables = {
   id: string,
-|};
-export type RelayReaderAliasedFragmentsTestModuelAliasNamespacingQuery$data = {|
-  +node: ?{|
-    +a_common_alias: ?{|
-      +__fragmentPropName: ?string,
-      +__module_component: ?string,
-      +$fragmentSpreads: RelayReaderAliasedFragmentsTestModuleA_user$fragmentType,
-    |},
-    +a_namespace_alias_that_prevents_collisions: {|
-      +a_common_alias: ?{|
-        +__fragmentPropName: ?string,
-        +__module_component: ?string,
-        +$fragmentSpreads: RelayReaderAliasedFragmentsTestModuleB_user$fragmentType,
-      |},
-    |},
-  |},
-|};
-export type RelayReaderAliasedFragmentsTestModuelAliasNamespacingQuery = {|
+};
+export type RelayReaderAliasedFragmentsTestModuelAliasNamespacingQuery$data = {
+  readonly node: ?{
+    readonly a_common_alias: ?{
+      readonly __fragmentPropName: ?string,
+      readonly __module_component: ?string,
+      readonly $fragmentSpreads: RelayReaderAliasedFragmentsTestModuleA_user$fragmentType,
+    },
+    readonly a_namespace_alias_that_prevents_collisions: {
+      readonly a_common_alias: ?{
+        readonly __fragmentPropName: ?string,
+        readonly __module_component: ?string,
+        readonly $fragmentSpreads: RelayReaderAliasedFragmentsTestModuleB_user$fragmentType,
+      },
+    },
+  },
+};
+export type RelayReaderAliasedFragmentsTestModuelAliasNamespacingQuery = {
   response: RelayReaderAliasedFragmentsTestModuelAliasNamespacingQuery$data,
   variables: RelayReaderAliasedFragmentsTestModuelAliasNamespacingQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -79,21 +78,21 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayReaderAliasedFragmentsTestModuelAliasNamespacingQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
           {
-            "fragment": (v2/*: any*/),
+            "fragment": (v2/*:: as any*/),
             "kind": "AliasedInlineFragmentSpread",
             "name": "a_common_alias"
           },
@@ -135,13 +134,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayReaderAliasedFragmentsTestModuelAliasNamespacingQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -154,7 +153,7 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "kind": "TypeDiscriminator",
             "abstractKey": "__isNode"
@@ -183,10 +182,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "8deb3de5ffb9bc595f8cc31652d4ce7a";
+  (node/*:: as any*/).hash = "8deb3de5ffb9bc595f8cc31652d4ce7a";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderAliasedFragmentsTestModuelAliasNamespacingQuery$variables,
   RelayReaderAliasedFragmentsTestModuelAliasNamespacingQuery$data,
 >*/);

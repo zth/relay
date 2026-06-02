@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3ac62fe0fdf41e34993af94308eec0b3>>
+ * @generated SignedSource<<1691d972ab50df27428f27127f005c56>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,22 +19,22 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentNoInlineTestWithArgs_noInline$fragmentType } from "./RelayModernEnvironmentNoInlineTestWithArgs_noInline.graphql";
 export type PhotoSize = "LARGE" | "SMALL" | "%future added value";
-export type RelayModernEnvironmentNoInlineTestWithArgsQuery$variables = {|
+export type RelayModernEnvironmentNoInlineTestWithArgsQuery$variables = {
   preset?: ?PhotoSize,
-  size?: ?$ReadOnlyArray<?number>,
-|};
-export type RelayModernEnvironmentNoInlineTestWithArgsQuery$data = {|
-  +me: ?{|
-    +$fragmentSpreads: RelayModernEnvironmentNoInlineTestWithArgs_noInline$fragmentType,
-  |},
-  +username: ?{|
-    +$fragmentSpreads: RelayModernEnvironmentNoInlineTestWithArgs_noInline$fragmentType,
-  |},
-|};
-export type RelayModernEnvironmentNoInlineTestWithArgsQuery = {|
+  size?: ?ReadonlyArray<?number>,
+};
+export type RelayModernEnvironmentNoInlineTestWithArgsQuery$data = {
+  readonly me: ?{
+    readonly $fragmentSpreads: RelayModernEnvironmentNoInlineTestWithArgs_noInline$fragmentType,
+  },
+  readonly username: ?{
+    readonly $fragmentSpreads: RelayModernEnvironmentNoInlineTestWithArgs_noInline$fragmentType,
+  },
+};
+export type RelayModernEnvironmentNoInlineTestWithArgsQuery = {
   response: RelayModernEnvironmentNoInlineTestWithArgsQuery$data,
   variables: RelayModernEnvironmentNoInlineTestWithArgsQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -66,8 +65,8 @@ v3 = {
 return {
   "fragment": {
     "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/)
+      (v0/*:: as any*/),
+      (v1/*:: as any*/)
     ],
     "kind": "Fragment",
     "metadata": null,
@@ -97,7 +96,7 @@ return {
       },
       {
         "alias": null,
-        "args": (v2/*: any*/),
+        "args": (v2/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "username",
@@ -124,8 +123,8 @@ return {
   "kind": "Request",
   "operation": {
     "argumentDefinitions": [
-      (v1/*: any*/),
-      (v0/*: any*/)
+      (v1/*:: as any*/),
+      (v0/*:: as any*/)
     ],
     "kind": "Operation",
     "name": "RelayModernEnvironmentNoInlineTestWithArgsQuery",
@@ -156,13 +155,13 @@ return {
             "type": "Actor",
             "abstractKey": "__isActor"
           },
-          (v3/*: any*/)
+          (v3/*:: as any*/)
         ],
         "storageKey": null
       },
       {
         "alias": null,
-        "args": (v2/*: any*/),
+        "args": (v2/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "username",
@@ -190,7 +189,7 @@ return {
             "fragment": require('./RelayModernEnvironmentNoInlineTestWithArgs_noInline$normalization.graphql'),
             "kind": "FragmentSpread"
           },
-          (v3/*: any*/)
+          (v3/*:: as any*/)
         ],
         "storageKey": "username(name:\"Zuck\")"
       }
@@ -208,10 +207,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "33033002af005dc1dfd32353c821dead";
+  (node/*:: as any*/).hash = "33033002af005dc1dfd32353c821dead";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentNoInlineTestWithArgsQuery$variables,
   RelayModernEnvironmentNoInlineTestWithArgsQuery$data,
 >*/);

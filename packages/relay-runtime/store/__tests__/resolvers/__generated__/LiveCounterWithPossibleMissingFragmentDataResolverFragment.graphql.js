@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1db67f48498bb45a1d24b35d730a7da8>>
+ * @generated SignedSource<<14c2f58b30a65e61b62709133cc76b22>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,15 +19,15 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type LiveCounterWithPossibleMissingFragmentDataResolverFragment$fragmentType: FragmentType;
-export type LiveCounterWithPossibleMissingFragmentDataResolverFragment$data = {|
-  +me: ?{|
-    +id: string,
-  |},
-  +$fragmentType: LiveCounterWithPossibleMissingFragmentDataResolverFragment$fragmentType,
-|};
+export type LiveCounterWithPossibleMissingFragmentDataResolverFragment$data = {
+  readonly me: ?{
+    readonly id: string,
+  },
+  readonly $fragmentType: LiveCounterWithPossibleMissingFragmentDataResolverFragment$fragmentType,
+};
 export type LiveCounterWithPossibleMissingFragmentDataResolverFragment$key = {
-  +$data?: LiveCounterWithPossibleMissingFragmentDataResolverFragment$data,
-  +$fragmentSpreads: LiveCounterWithPossibleMissingFragmentDataResolverFragment$fragmentType,
+  readonly $data?: LiveCounterWithPossibleMissingFragmentDataResolverFragment$data,
+  readonly $fragmentSpreads: LiveCounterWithPossibleMissingFragmentDataResolverFragment$fragmentType,
   ...
 };
 */
@@ -67,10 +66,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "4eea9963dd2f5e34f4d724ba13f41643";
+  (node/*:: as any*/).hash = "4eea9963dd2f5e34f4d724ba13f41643";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   LiveCounterWithPossibleMissingFragmentDataResolverFragment$fragmentType,
   LiveCounterWithPossibleMissingFragmentDataResolverFragment$data,
 >*/);

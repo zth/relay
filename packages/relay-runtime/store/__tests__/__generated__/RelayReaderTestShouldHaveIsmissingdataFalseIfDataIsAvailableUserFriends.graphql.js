@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<568b7f2d75dc02f5dc7e6a8a6bdace72>>
+ * @generated SignedSource<<c9b015c680dc355cb3c186e0a9df41a3>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,21 +19,21 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriends$fragmentType: FragmentType;
-export type RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriends$data = {|
-  +friends: ?{|
-    +edges: ?$ReadOnlyArray<?{|
-      +cursor: ?string,
-      +node: ?{|
-        +id: string,
-      |},
-    |}>,
-  |},
-  +id: string,
-  +$fragmentType: RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriends$fragmentType,
-|};
+export type RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriends$data = {
+  readonly friends: ?{
+    readonly edges: ?ReadonlyArray<?{
+      readonly cursor: ?string,
+      readonly node: ?{
+        readonly id: string,
+      },
+    }>,
+  },
+  readonly id: string,
+  readonly $fragmentType: RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriends$fragmentType,
+};
 export type RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriends$key = {
-  +$data?: RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriends$data,
-  +$fragmentSpreads: RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriends$fragmentType,
+  readonly $data?: RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriends$data,
+  readonly $fragmentSpreads: RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriends$fragmentType,
   ...
 };
 */
@@ -53,7 +52,7 @@ return {
   "metadata": null,
   "name": "RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriends",
   "selections": [
-    (v0/*: any*/),
+    (v0/*:: as any*/),
     {
       "alias": null,
       "args": [
@@ -91,7 +90,7 @@ return {
               "name": "node",
               "plural": false,
               "selections": [
-                (v0/*: any*/)
+                (v0/*:: as any*/)
               ],
               "storageKey": null
             }
@@ -108,10 +107,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "7ad43c68a307b4ff13f854acf3baeb28";
+  (node/*:: as any*/).hash = "7ad43c68a307b4ff13f854acf3baeb28";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriends$fragmentType,
   RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriends$data,
 >*/);

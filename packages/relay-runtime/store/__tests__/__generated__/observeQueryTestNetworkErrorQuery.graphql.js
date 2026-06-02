@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<09d0a1c478d35136e63afa2bc2653ad8>>
+ * @generated SignedSource<<7db982b6c5ad6ee981c49bb59133ac33>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,16 +17,16 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type observeQueryTestNetworkErrorQuery$variables = {||};
-export type observeQueryTestNetworkErrorQuery$data = {|
-  +me: ?{|
-    +name: ?string,
-  |},
-|};
-export type observeQueryTestNetworkErrorQuery = {|
+export type observeQueryTestNetworkErrorQuery$variables = {};
+export type observeQueryTestNetworkErrorQuery$data = {
+  readonly me: ?{
+    readonly name: ?string,
+  },
+};
+export type observeQueryTestNetworkErrorQuery = {
   response: observeQueryTestNetworkErrorQuery$data,
   variables: observeQueryTestNetworkErrorQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -53,7 +52,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/)
+          (v0/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -75,7 +74,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
+          (v0/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -100,10 +99,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "c4ad31bfcc15055941d25760eea785bf";
+  (node/*:: as any*/).hash = "c4ad31bfcc15055941d25760eea785bf";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   observeQueryTestNetworkErrorQuery$variables,
   observeQueryTestNetworkErrorQuery$data,
 >*/);

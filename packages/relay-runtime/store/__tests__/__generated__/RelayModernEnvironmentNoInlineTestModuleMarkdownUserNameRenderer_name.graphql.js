@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f9666a05a02bdbbb560de37a00c58846>>
+ * @generated SignedSource<<e098700fa4f211b35ccffa820ee3c07c>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,16 +19,16 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentNoInlineTestModuleMarkdownUserNameRenderer_name$fragmentType: FragmentType;
-export type RelayModernEnvironmentNoInlineTestModuleMarkdownUserNameRenderer_name$data = {|
-  +data?: ?{|
-    +markup: ?string,
-  |},
-  +markdown?: ?string,
-  +$fragmentType: RelayModernEnvironmentNoInlineTestModuleMarkdownUserNameRenderer_name$fragmentType,
-|};
+export type RelayModernEnvironmentNoInlineTestModuleMarkdownUserNameRenderer_name$data = {
+  readonly data?: ?{
+    readonly markup: ?string,
+  },
+  readonly markdown?: ?string,
+  readonly $fragmentType: RelayModernEnvironmentNoInlineTestModuleMarkdownUserNameRenderer_name$fragmentType,
+};
 export type RelayModernEnvironmentNoInlineTestModuleMarkdownUserNameRenderer_name$key = {
-  +$data?: RelayModernEnvironmentNoInlineTestModuleMarkdownUserNameRenderer_name$data,
-  +$fragmentSpreads: RelayModernEnvironmentNoInlineTestModuleMarkdownUserNameRenderer_name$fragmentType,
+  readonly $data?: RelayModernEnvironmentNoInlineTestModuleMarkdownUserNameRenderer_name$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentNoInlineTestModuleMarkdownUserNameRenderer_name$fragmentType,
   ...
 };
 */
@@ -91,10 +90,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "a27cd82f5213394626d01224a4f6ddf9";
+  (node/*:: as any*/).hash = "a27cd82f5213394626d01224a4f6ddf9";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayModernEnvironmentNoInlineTestModuleMarkdownUserNameRenderer_name$fragmentType,
   RelayModernEnvironmentNoInlineTestModuleMarkdownUserNameRenderer_name$data,
 >*/);

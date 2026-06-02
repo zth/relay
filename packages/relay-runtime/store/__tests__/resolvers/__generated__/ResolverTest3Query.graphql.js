@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6ab72fa477b974eaa74862e0957d7894>>
+ * @generated SignedSource<<f337e2577823b27f0c0904d2f44a1b25>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,25 +23,25 @@ import {client_edge as userClientEdgeResolverType} from "../UserClientEdgeResolv
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userClientEdgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userClientEdgeResolverType: (
+(userClientEdgeResolverType as (
   rootKey: UserClientEdgeResolver$key,
   args: void,
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
-export type ResolverTest3Query$variables = {||};
-export type ResolverTest3Query$data = {|
-  +me: ?{|
-    +client_edge: ?{|
-      +__typename: "User",
-    |},
-  |},
-|};
-export type ResolverTest3Query = {|
+) => ?{
+  readonly id: DataID,
+});
+export type ResolverTest3Query$variables = {};
+export type ResolverTest3Query$data = {
+  readonly me: ?{
+    readonly client_edge: ?{
+      readonly __typename: "User",
+    },
+  },
+};
+export type ResolverTest3Query = {
   response: ResolverTest3Query$data,
   variables: ResolverTest3Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {
@@ -162,10 +161,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "23af1732ca2b8848723c3de2d3c7231e";
+  (node/*:: as any*/).hash = "23af1732ca2b8848723c3de2d3c7231e";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ResolverTest3Query$variables,
   ResolverTest3Query$data,
 >*/);

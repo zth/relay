@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4d2ea4a7f825be91b9b872b750f8eb5e>>
+ * @generated SignedSource<<89e26b34c22d9918f9001ca4813f0744>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -25,7 +24,7 @@ import {name as astrologicalSignNameResolverType} from "../resolvers/Astrologica
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `astrologicalSignNameResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(astrologicalSignNameResolverType: (
+(astrologicalSignNameResolverType as (
   rootKey: AstrologicalSignNameResolver$key,
   args: void,
   context: TestResolverContextType,
@@ -33,25 +32,25 @@ import type { TestResolverContextType } from "../../../mutations/__tests__/TestR
 import {astrological_sign as userAstrologicalSignResolverType} from "../resolvers/UserAstrologicalSignResolver.js";
 // Type assertion validating that `userAstrologicalSignResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userAstrologicalSignResolverType: (
+(userAstrologicalSignResolverType as (
   rootKey: UserAstrologicalSignResolver$key,
   args: void,
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
-export type RelayReaderRequiredFieldsTest26Query$variables = {||};
-export type RelayReaderRequiredFieldsTest26Query$data = {|
-  +me: ?{|
-    +astrological_sign: {|
-      +name: ?string,
-    |},
-  |},
-|};
-export type RelayReaderRequiredFieldsTest26Query = {|
+) => ?{
+  readonly id: DataID,
+});
+export type RelayReaderRequiredFieldsTest26Query$variables = {};
+export type RelayReaderRequiredFieldsTest26Query$data = {
+  readonly me: ?{
+    readonly astrological_sign: {
+      readonly name: ?string,
+    },
+  },
+};
+export type RelayReaderRequiredFieldsTest26Query = {
   response: RelayReaderRequiredFieldsTest26Query$data,
   variables: RelayReaderRequiredFieldsTest26Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -85,6 +84,7 @@ return {
               "kind": "ClientEdgeToClientObject",
               "concreteType": "AstrologicalSign",
               "modelResolvers": null,
+              "serverObjectOperations": null,
               "backingField": {
                 "alias": null,
                 "args": null,
@@ -207,7 +207,7 @@ return {
                         "fragment": {
                           "kind": "InlineFragment",
                           "selections": [
-                            (v0/*: any*/)
+                            (v0/*:: as any*/)
                           ],
                           "type": "AstrologicalSign",
                           "abstractKey": null
@@ -224,12 +224,12 @@ return {
                   "storageKey": null,
                   "isOutputType": true
                 },
-                (v0/*: any*/)
+                (v0/*:: as any*/)
               ],
               "storageKey": null
             }
           },
-          (v0/*: any*/)
+          (v0/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -247,10 +247,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "5945ab813a6acb50eef24fffbe6bdc50";
+  (node/*:: as any*/).hash = "5945ab813a6acb50eef24fffbe6bdc50";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderRequiredFieldsTest26Query$variables,
   RelayReaderRequiredFieldsTest26Query$data,
 >*/);

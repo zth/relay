@@ -11,6 +11,7 @@
 
 'use strict';
 
+import type {LazyLoadQueryNodeParamsWithQuery} from './useLazyLoadQueryNode';
 import type {
   CacheConfig,
   FetchPolicy,
@@ -29,7 +30,10 @@ const {
 // This separate type export is only needed as long as we are injecting
 // a separate hooks implementation in ./HooksImplementation -- it can
 // be removed after we stop doing that.
-export type UseLazyLoadQueryHookType = hook <TVariables: Variables, TData>(
+export type UseLazyLoadQueryHookType = hook <
+  TVariables extends Variables,
+  TData,
+>(
   gqlQuery: Query<TVariables, TData>,
   variables: TVariables,
   options?: Options,
@@ -43,19 +47,19 @@ type Options = {
    *      * "network-only": *will* *not* reuse locally cached data, and will *always* send a network request to fetch the query, ignoring any data that might be locally cached in Relay.
    *      * "store-only": *will* *only* reuse locally cached data, and will *never* send a network request to fetch the query. In this case, the responsibility of fetching the query falls to the caller, but this policy could also be used to read and operate on data that is entirely [local](../../guided-tour/updating-data/local-data-updates).
    */
-  +fetchPolicy?: FetchPolicy,
+  readonly fetchPolicy?: FetchPolicy,
   /**
    * A `fetchKey` can be passed to force a re-evaluation of the current query and variables when the component re-renders, even if the variables didn't change, or even if the component isn't remounted (similarly to how passing a different `key` to a React component will cause it to remount). If the `fetchKey` is different from the one used in the previous render, the current query will be re-evaluated against the store, and it might be refetched depending on the current `fetchPolicy` and the state of the cache.
    */
-  +fetchKey?: string | number,
+  readonly fetchKey?: string | number,
   /**
    * Default value: `{force: true}`. Object containing cache config options for the *network layer*. Note that the network layer may contain an *additional* query response cache which will reuse network responses for identical queries. If you want to bypass this cache completely (which is the default behavior), pass `{force: true}` as the value for this option.
    */
-  +networkCacheConfig?: CacheConfig,
+  readonly networkCacheConfig?: CacheConfig,
   /**
    * Undocumented option.
    */
-  +UNSTABLE_renderPolicy?: RenderPolicy,
+  readonly UNSTABLE_renderPolicy?: RenderPolicy,
 };
 
 /**
@@ -85,7 +89,7 @@ type Options = {
  * @returns - `data`: Object that contains data which has been read out from the Relay store; the object matches the shape of specified query.
  *   - The Flow type for data will also match this shape, and contain types derived from the GraphQL Schema. For example, the type of `data` above is: `{| user: ?{| name: ?string |} |}`.
  */
-hook useLazyLoadQuery<TVariables: Variables, TData>(
+hook useLazyLoadQuery<TVariables extends Variables, TData>(
   /**
    * GraphQL query specified using a `graphql` template literal.
    */
@@ -108,7 +112,10 @@ hook useLazyLoadQuery<TVariables: Variables, TData>(
       ? options.networkCacheConfig
       : {force: true},
   );
-  const data = useLazyLoadQueryNode<$FlowFixMe>({
+  const data = useLazyLoadQueryNode<
+    $FlowFixMe,
+    LazyLoadQueryNodeParamsWithQuery,
+  >({
     componentDisplayName: 'useLazyLoadQuery()',
     fetchKey: options?.fetchKey,
     fetchObservable: fetchQuery(environment, query),

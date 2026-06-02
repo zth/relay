@@ -32,7 +32,7 @@ const {createOperationDescriptor} = require('./RelayModernOperationDescriptor');
  * This feature is still experimental and does not properly handle some resolver
  * features such as client-to-server edges.
  */
-function observeQuery<TVariables: Variables, TData>(
+function observeQuery<TVariables extends Variables, TData>(
   environment: IEnvironment,
   gqlQuery: Query<TVariables, TData>,
   variables: TVariables,
@@ -43,15 +43,15 @@ function observeQuery<TVariables: Variables, TData>(
   );
 
   const rootFragmentRef: $FlowFixMe = {
-    __id: operation.fragment.dataID,
+    __fragmentOwner: operation.request,
     __fragments: {
       [operation.fragment.node.name]: operation.request.variables,
     },
-    __fragmentOwner: operation.request,
+    __id: operation.fragment.dataID,
   };
 
-  const fragmentNode: Fragment<$FlowFixMe, TData> = (operation.request.node
-    .fragment: $FlowFixMe);
+  const fragmentNode: Fragment<$FlowFixMe, TData> = operation.request.node
+    .fragment as $FlowFixMe;
 
   return observeFragment(environment, fragmentNode, rootFragmentRef);
 }

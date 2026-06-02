@@ -4,27 +4,13 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1362eec89123512c826effa9bf3a99ec>>
+ * @generated SignedSource<<902ba7d30b889ac8e52b036c2f2bef08>>
  */
 
 mod generate_flow;
 
 use generate_flow::transform_fixture;
 use fixture_tests::test_fixture;
-
-#[tokio::test]
-async fn actor_change() {
-    let input = include_str!("generate_flow/fixtures/actor-change.graphql");
-    let expected = include_str!("generate_flow/fixtures/actor-change.expected");
-    test_fixture(transform_fixture, file!(), "actor-change.graphql", "generate_flow/fixtures/actor-change.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn actor_change_with_query() {
-    let input = include_str!("generate_flow/fixtures/actor-change-with-query.graphql");
-    let expected = include_str!("generate_flow/fixtures/actor-change-with-query.expected");
-    test_fixture(transform_fixture, file!(), "actor-change-with-query.graphql", "generate_flow/fixtures/actor-change-with-query.expected", input, expected).await;
-}
 
 #[tokio::test]
 async fn aliased_fragment_raw_response_type() {
@@ -314,6 +300,13 @@ async fn mutation_with_nested_fragments() {
 }
 
 #[tokio::test]
+async fn mutation_with_one_of() {
+    let input = include_str!("generate_flow/fixtures/mutation-with-one-of.graphql");
+    let expected = include_str!("generate_flow/fixtures/mutation-with-one-of.expected");
+    test_fixture(transform_fixture, file!(), "mutation-with-one-of.graphql", "generate_flow/fixtures/mutation-with-one-of.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn mutation_with_response_on_inline_fragments() {
     let input = include_str!("generate_flow/fixtures/mutation-with-response-on-inline-fragments.graphql");
     let expected = include_str!("generate_flow/fixtures/mutation-with-response-on-inline-fragments.expected");
@@ -384,6 +377,69 @@ async fn query_with_multiple_match_fields() {
 }
 
 #[tokio::test]
+async fn query_with_raw_response_abstract_in_catch_all() {
+    let input = include_str!("generate_flow/fixtures/query-with-raw-response-abstract-in-catch-all.graphql");
+    let expected = include_str!("generate_flow/fixtures/query-with-raw-response-abstract-in-catch-all.expected");
+    test_fixture(transform_fixture, file!(), "query-with-raw-response-abstract-in-catch-all.graphql", "generate_flow/fixtures/query-with-raw-response-abstract-in-catch-all.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn query_with_raw_response_concrete_and_interface_spreads() {
+    let input = include_str!("generate_flow/fixtures/query-with-raw-response-concrete-and-interface-spreads.graphql");
+    let expected = include_str!("generate_flow/fixtures/query-with-raw-response-concrete-and-interface-spreads.expected");
+    test_fixture(transform_fixture, file!(), "query-with-raw-response-concrete-and-interface-spreads.graphql", "generate_flow/fixtures/query-with-raw-response-concrete-and-interface-spreads.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn query_with_raw_response_interface() {
+    let input = include_str!("generate_flow/fixtures/query-with-raw-response-interface.graphql");
+    let expected = include_str!("generate_flow/fixtures/query-with-raw-response-interface.expected");
+    test_fixture(transform_fixture, file!(), "query-with-raw-response-interface.graphql", "generate_flow/fixtures/query-with-raw-response-interface.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn query_with_raw_response_interface_inline_fragment_on_interface() {
+    let input = include_str!("generate_flow/fixtures/query-with-raw-response-interface-inline-fragment-on-interface.graphql");
+    let expected = include_str!("generate_flow/fixtures/query-with-raw-response-interface-inline-fragment-on-interface.expected");
+    test_fixture(transform_fixture, file!(), "query-with-raw-response-interface-inline-fragment-on-interface.graphql", "generate_flow/fixtures/query-with-raw-response-interface-inline-fragment-on-interface.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn query_with_raw_response_linked_field_in_abstract_spread() {
+    let input = include_str!("generate_flow/fixtures/query-with-raw-response-linked-field-in-abstract-spread.graphql");
+    let expected = include_str!("generate_flow/fixtures/query-with-raw-response-linked-field-in-abstract-spread.expected");
+    test_fixture(transform_fixture, file!(), "query-with-raw-response-linked-field-in-abstract-spread.graphql", "generate_flow/fixtures/query-with-raw-response-linked-field-in-abstract-spread.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn query_with_raw_response_mixed_abstract_and_concrete_spreads() {
+    let input = include_str!("generate_flow/fixtures/query-with-raw-response-mixed-abstract-and-concrete-spreads.graphql");
+    let expected = include_str!("generate_flow/fixtures/query-with-raw-response-mixed-abstract-and-concrete-spreads.expected");
+    test_fixture(transform_fixture, file!(), "query-with-raw-response-mixed-abstract-and-concrete-spreads.graphql", "generate_flow/fixtures/query-with-raw-response-mixed-abstract-and-concrete-spreads.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn query_with_raw_response_nested_abstract_inline_fragments() {
+    let input = include_str!("generate_flow/fixtures/query-with-raw-response-nested-abstract-inline-fragments.graphql");
+    let expected = include_str!("generate_flow/fixtures/query-with-raw-response-nested-abstract-inline-fragments.expected");
+    test_fixture(transform_fixture, file!(), "query-with-raw-response-nested-abstract-inline-fragments.graphql", "generate_flow/fixtures/query-with-raw-response-nested-abstract-inline-fragments.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn query_with_raw_response_nested_different_abstract_inline_fragments() {
+    let input = include_str!("generate_flow/fixtures/query-with-raw-response-nested-different-abstract-inline-fragments.graphql");
+    let expected = include_str!("generate_flow/fixtures/query-with-raw-response-nested-different-abstract-inline-fragments.expected");
+    test_fixture(transform_fixture, file!(), "query-with-raw-response-nested-different-abstract-inline-fragments.graphql", "generate_flow/fixtures/query-with-raw-response-nested-different-abstract-inline-fragments.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn query_with_raw_response_object_inline_fragment_on_interface() {
+    let input = include_str!("generate_flow/fixtures/query-with-raw-response-object-inline-fragment-on-interface.graphql");
+    let expected = include_str!("generate_flow/fixtures/query-with-raw-response-object-inline-fragment-on-interface.expected");
+    test_fixture(transform_fixture, file!(), "query-with-raw-response-object-inline-fragment-on-interface.graphql", "generate_flow/fixtures/query-with-raw-response-object-inline-fragment-on-interface.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn query_with_raw_response_on_conditional() {
     let input = include_str!("generate_flow/fixtures/query-with-raw-response-on-conditional.graphql");
     let expected = include_str!("generate_flow/fixtures/query-with-raw-response-on-conditional.expected");
@@ -395,6 +451,27 @@ async fn query_with_raw_response_on_literal_conditional() {
     let input = include_str!("generate_flow/fixtures/query-with-raw-response-on-literal-conditional.graphql");
     let expected = include_str!("generate_flow/fixtures/query-with-raw-response-on-literal-conditional.expected");
     test_fixture(transform_fixture, file!(), "query-with-raw-response-on-literal-conditional.graphql", "generate_flow/fixtures/query-with-raw-response-on-literal-conditional.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn query_with_raw_response_union() {
+    let input = include_str!("generate_flow/fixtures/query-with-raw-response-union.graphql");
+    let expected = include_str!("generate_flow/fixtures/query-with-raw-response-union.expected");
+    test_fixture(transform_fixture, file!(), "query-with-raw-response-union.graphql", "generate_flow/fixtures/query-with-raw-response-union.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn query_with_raw_response_union_and_interface_spread_all_implement() {
+    let input = include_str!("generate_flow/fixtures/query-with-raw-response-union-and-interface-spread-all-implement.graphql");
+    let expected = include_str!("generate_flow/fixtures/query-with-raw-response-union-and-interface-spread-all-implement.expected");
+    test_fixture(transform_fixture, file!(), "query-with-raw-response-union-and-interface-spread-all-implement.graphql", "generate_flow/fixtures/query-with-raw-response-union-and-interface-spread-all-implement.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn query_with_raw_response_union_and_interface_spread_with_non_null_field() {
+    let input = include_str!("generate_flow/fixtures/query-with-raw-response-union-and-interface-spread-with-non-null-field.graphql");
+    let expected = include_str!("generate_flow/fixtures/query-with-raw-response-union-and-interface-spread-with-non-null-field.expected");
+    test_fixture(transform_fixture, file!(), "query-with-raw-response-union-and-interface-spread-with-non-null-field.graphql", "generate_flow/fixtures/query-with-raw-response-union-and-interface-spread-with-non-null-field.expected", input, expected).await;
 }
 
 #[tokio::test]

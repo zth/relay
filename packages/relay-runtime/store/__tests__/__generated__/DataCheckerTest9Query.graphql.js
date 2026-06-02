@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<036174fe99b28ff7cb858124f057acdd>>
+ * @generated SignedSource<<a98568dbcbfca0271316436ff7526946>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,18 +18,18 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { DataCheckerTest6Fragment$fragmentType } from "./DataCheckerTest6Fragment.graphql";
-export type DataCheckerTest9Query$variables = {|
+export type DataCheckerTest9Query$variables = {
   id: string,
-|};
-export type DataCheckerTest9Query$data = {|
-  +node: ?{|
-    +$fragmentSpreads: DataCheckerTest6Fragment$fragmentType,
-  |},
-|};
-export type DataCheckerTest9Query = {|
+};
+export type DataCheckerTest9Query$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: DataCheckerTest6Fragment$fragmentType,
+  },
+};
+export type DataCheckerTest9Query = {
   response: DataCheckerTest9Query$data,
   variables: DataCheckerTest9Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -57,14 +56,14 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "DataCheckerTest9Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -89,13 +88,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "DataCheckerTest9Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -116,7 +115,7 @@ return {
               {
                 "kind": "InlineFragment",
                 "selections": [
-                  (v2/*: any*/),
+                  (v2/*:: as any*/),
                   {
                     "alias": null,
                     "args": null,
@@ -130,7 +129,7 @@ return {
               }
             ]
           },
-          (v2/*: any*/)
+          (v2/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -148,10 +147,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "b046fd7374d1a7ea5d22b481c0edd547";
+  (node/*:: as any*/).hash = "b046fd7374d1a7ea5d22b481c0edd547";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   DataCheckerTest9Query$variables,
   DataCheckerTest9Query$data,
 >*/);

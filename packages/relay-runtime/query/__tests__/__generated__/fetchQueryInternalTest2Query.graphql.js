@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a97e49700b6c3c6de7a873ad3bf0db10>>
+ * @generated SignedSource<<3e766ae8e94f5042d8025c293c296cc0>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -22,22 +21,22 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { fetchQueryInternalTestMarkdownFragment_name$fragmentType } from "./fetchQueryInternalTestMarkdownFragment_name.graphql";
 import type { fetchQueryInternalTestPlainFragment_name$fragmentType } from "./fetchQueryInternalTestPlainFragment_name.graphql";
-export type fetchQueryInternalTest2Query$variables = {|
+export type fetchQueryInternalTest2Query$variables = {
   id: string,
-|};
-export type fetchQueryInternalTest2Query$data = {|
-  +node: ?{|
-    +nameRenderer?: ?{|
-      +__fragmentPropName?: ?string,
-      +__module_component?: ?string,
-      +$fragmentSpreads: fetchQueryInternalTestMarkdownFragment_name$fragmentType & fetchQueryInternalTestPlainFragment_name$fragmentType,
-    |},
-  |},
-|};
-export type fetchQueryInternalTest2Query = {|
+};
+export type fetchQueryInternalTest2Query$data = {
+  readonly node: ?{
+    readonly nameRenderer?: ?{
+      readonly __fragmentPropName?: ?string,
+      readonly __module_component?: ?string,
+      readonly $fragmentSpreads: fetchQueryInternalTestMarkdownFragment_name$fragmentType & fetchQueryInternalTestPlainFragment_name$fragmentType,
+    },
+  },
+};
+export type fetchQueryInternalTest2Query = {
   response: fetchQueryInternalTest2Query$data,
   variables: fetchQueryInternalTest2Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -92,14 +91,14 @@ v4 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "fetchQueryInternalTest2Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -116,8 +115,8 @@ return {
                 "name": "nameRenderer",
                 "plural": false,
                 "selections": [
-                  (v2/*: any*/),
-                  (v3/*: any*/)
+                  (v2/*:: as any*/),
+                  (v3/*:: as any*/)
                 ],
                 "storageKey": null
               }
@@ -134,19 +133,19 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "fetchQueryInternalTest2Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v4/*: any*/),
+          (v4/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
@@ -158,9 +157,9 @@ return {
                 "name": "nameRenderer",
                 "plural": false,
                 "selections": [
-                  (v4/*: any*/),
-                  (v2/*: any*/),
-                  (v3/*: any*/)
+                  (v4/*:: as any*/),
+                  (v2/*:: as any*/),
+                  (v3/*:: as any*/)
                 ],
                 "storageKey": null
               }
@@ -192,10 +191,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "8b4e8e582a315c7b0003b5f190341462";
+  (node/*:: as any*/).hash = "8b4e8e582a315c7b0003b5f190341462";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   fetchQueryInternalTest2Query$variables,
   fetchQueryInternalTest2Query$data,
 >*/);

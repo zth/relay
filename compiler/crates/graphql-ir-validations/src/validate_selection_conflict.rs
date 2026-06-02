@@ -128,13 +128,16 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
             }
         }
 
+        let mut all_errors = vec![];
         let dummy_hashset = HashSet::new();
         while let Some(visiting) = unclaimed_fragment_queue.pop_front() {
-            self.validate_and_collect_fragment(
+            if let Err(errors) = self.validate_and_collect_fragment(
                 program
                     .fragment(visiting)
                     .expect("fragment must have been registered"),
-            )?;
+            ) {
+                all_errors.extend(errors);
+            }
 
             for used_by in dag_used_by.get(&visiting).unwrap_or(&dummy_hashset) {
                 // fragment "used_by" now can assume "...now" cached.
@@ -145,7 +148,12 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
                 }
             }
         }
-        Ok(())
+        if all_errors.is_empty() {
+            Ok(())
+        } else {
+            all_errors.sort_by_key(|d| d.location());
+            Err(all_errors)
+        }
     }
 
     fn validate_operation(&self, operation: &'s OperationDefinition) -> DiagnosticsResult<()> {
@@ -217,10 +225,22 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
         if let Some(cached) = self.fragment_cache.get(&fragment.name.item.0) {
             return Ok(Arc::clone(&cached));
         }
-        let fields = Arc::new(self.validate_selections(&fragment.selections)?);
-        self.fragment_cache
-            .insert(fragment.name.item.0, Arc::clone(&fields));
-        Ok(fields)
+        match self.validate_selections(&fragment.selections) {
+            Ok(fields) => {
+                let fields = Arc::new(fields);
+                self.fragment_cache
+                    .insert(fragment.name.item.0, Arc::clone(&fields));
+                Ok(fields)
+            }
+            Err(errors) => {
+                // Cache empty fields to avoid redundant re-validation of this
+                // fragment by dependent fragments or operations.
+                let fields: Arc<Fields<'s>> = Arc::new(Default::default());
+                self.fragment_cache
+                    .insert(fragment.name.item.0, Arc::clone(&fields));
+                Err(errors)
+            }
+        }
     }
 
     fn validate_linked_field_selections(
@@ -297,16 +317,21 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
             match (existing_field, &field) {
                 (Field::LinkedField(l), Field::LinkedField(r)) => {
                     let fields_mutually_exclusive = is_parent_fields_mutually_exclusive();
-                    if !fields_mutually_exclusive {
-                        if let Err(err) = self.validate_same_field(
+                    if !fields_mutually_exclusive
+                        && let Err(err) = self.validate_same_field(
                             key,
                             l_definition.name.item,
                             r_definition.name.item,
                             *l,
                             *r,
-                        ) {
-                            errors.push(err);
-                        };
+                        )
+                    {
+                        errors.push(err);
+                    };
+                    if !fields_mutually_exclusive
+                        && let Err(err) = self.validate_match_conflict(key, l, r)
+                    {
+                        errors.push(err);
                     }
                     if has_same_type_reference_wrapping(&l_definition.type_, &r_definition.type_) {
                         let mut l_fields = self.validate_linked_field_selections(l)?;
@@ -468,6 +493,65 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
         }
     }
 
+    /// Check if two linked fields both have @match but with different matched
+    /// type sets.  When two fragments are composed in a query and both use
+    /// @match on the same field with different type configurations, the
+    /// resulting supported arguments or module selections will conflict.
+    fn validate_match_conflict(
+        &self,
+        response_key: StringKey,
+        l: &LinkedField,
+        r: &LinkedField,
+    ) -> Result<(), Diagnostic> {
+        let l_has_match = l
+            .directives
+            .iter()
+            .any(|d| d.name.item.0.lookup() == "match");
+        let r_has_match = r
+            .directives
+            .iter()
+            .any(|d| d.name.item.0.lookup() == "match");
+        if !l_has_match || !r_has_match {
+            return Ok(());
+        }
+
+        let l_types = Self::collect_match_types(self.program, &l.selections);
+        let r_types = Self::collect_match_types(self.program, &r.selections);
+
+        if l_types != r_types {
+            Err(Diagnostic::error(
+                ValidationMessage::MatchConflictUsedInMultiplePlaces { response_key },
+                l.definition.location,
+            )
+            .annotate("the other field", r.definition.location))
+        } else {
+            Ok(())
+        }
+    }
+
+    /// Collect the set of matched type conditions from a @match field's
+    /// selections.  Handles both pre-transform (FragmentSpread with @module)
+    /// and post-transform (InlineFragment with type_condition) IR.
+    fn collect_match_types(program: &Program, selections: &[Selection]) -> HashSet<Type> {
+        let mut types = HashSet::new();
+        for selection in selections {
+            match selection {
+                Selection::InlineFragment(f) => {
+                    if let Some(type_condition) = f.type_condition {
+                        types.insert(type_condition);
+                    }
+                }
+                Selection::FragmentSpread(spread) => {
+                    if let Some(fragment) = program.fragment(spread.fragment.item) {
+                        types.insert(fragment.type_condition);
+                    }
+                }
+                _ => {}
+            }
+        }
+        types
+    }
+
     fn create_conflicting_fields_error(
         &self,
         field_name: StringKey,
@@ -505,8 +589,8 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
         .metadata_for_machine("field_name", field_name.lookup())
         .metadata_for_machine("arg_a", arguments_a_printed)
         .metadata_for_machine("arg_b", arguments_b_printed)
-        .metadata_for_machine("loc_a", format!("{:?}", location_a))
-        .metadata_for_machine("loc_b", format!("{:?}", location_b))
+        .metadata_for_machine("loc_a", format!("{location_a:?}"))
+        .metadata_for_machine("loc_b", format!("{location_b:?}"))
     }
 }
 
@@ -642,7 +726,8 @@ enum ValidationMessage {
     },
 
     #[error(
-        "Expected all fields on the same parent with the name or alias `{field_name}` to have the same argument values after applying fragment arguments. This field has the applied argument values: {arguments_a}"
+        "Expected all fields on the same parent with the name or alias `{field_name}` to have the same argument values after applying fragment arguments. This field has the applied argument values: {arguments_a}. \
+        If the same field appears with different arguments, use an alias to distinguish them, e.g. `myAlias: {field_name}(...)`."
     )]
     InvalidSameFieldWithDifferentArguments {
         field_name: StringKey,
@@ -658,4 +743,9 @@ enum ValidationMessage {
         "Field '{response_key}' is marked with @stream in multiple places. Please use an alias to distinguish them."
     )]
     StreamConflictUsedInMultiplePlaces { response_key: StringKey },
+
+    #[error(
+        "Field '{response_key}' is marked with @match in multiple places. Please use an alias to distinguish them."
+    )]
+    MatchConflictUsedInMultiplePlaces { response_key: StringKey },
 }

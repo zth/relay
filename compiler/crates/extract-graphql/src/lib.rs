@@ -78,12 +78,11 @@ impl Iterator for CharReader<'_> {
                 // Line terminators: https://www.ecma-international.org/ecma-262/#sec-line-terminators
                 '\u{000A}' | '\u{000D}' | '\u{2028}' | '\u{2029}' => {
                     // <CRLF>
-                    if ch == '\u{000D}' {
-                        if let Some((_, ch)) = self.chars.peek() {
-                            if ch == &'\u{00A}' {
-                                return pair;
-                            }
-                        }
+                    if ch == '\u{000D}'
+                        && let Some((_, ch)) = self.chars.peek()
+                        && ch == &'\u{00A}'
+                    {
+                        return pair;
                     }
                     self.line_index += 1;
                     self.column_index = 0;
@@ -97,23 +96,43 @@ impl Iterator for CharReader<'_> {
     }
 }
 
-/// Extract graphql`text` literals and @RelayResolver comments from JS-like code.
+/// Check if a string contains any resolver docblock tag (`@RelayResolver`, `@relayType`, or `@relayField`).
+fn contains_resolver_tag(text: &str) -> bool {
+    let bytes = text.as_bytes();
+    let len = bytes.len();
+    let mut i = 0;
+    while i < len {
+        if bytes[i] == b'@' {
+            let remaining = &text[i + 1..];
+            if remaining.starts_with("RelayResolver")
+                || remaining.starts_with("relayType")
+                || remaining.starts_with("relayField")
+            {
+                return true;
+            }
+        }
+        i += 1;
+    }
+    false
+}
+
+/// Extract graphql`text` literals and Relay Resolver docblock comments from JS-like code.
 // This should work for Flow or TypeScript alike.
 pub fn extract(input: &str) -> Vec<JavaScriptSourceFeature> {
     let mut res = Vec::new();
-    if !input.contains("%relay") && !input.contains("@RelayResolver") {
+    if !input.contains("graphql") && !input.contains("%relay") && !contains_resolver_tag(input) {
         return res;
     }
     let mut it = CharReader::new(input);
     'code: while let Some((i, c)) = it.next() {
         match c {
-            '%' => {
-                for expected in ['r', 'e', 'l', 'a', 'y', '('] {
-                    if let Some((_, c)) = it.next() {
-                        if c != expected {
-                            consume_identifier(&mut it);
-                            continue 'code;
-                        }
+            'g' => {
+                for expected in ['r', 'a', 'p', 'h', 'q', 'l'] {
+                    if let Some((_, c)) = it.next()
+                        && c != expected
+                    {
+                        consume_identifier(&mut it);
+                        continue 'code;
                     }
                 }
 
@@ -133,6 +152,72 @@ pub fn extract(input: &str) -> Vec<JavaScriptSourceFeature> {
                                 continue 'code;
                             }
                         }
+                    } else {
+                        // EOF reached without finding a backtick
+                        continue 'code;
+                    }
+                }
+                let start = i;
+                let line_index = it.line_index;
+                let column_index = it.column_index;
+                let mut has_visited_first_char = false;
+                for (i, c) in &mut it {
+                    match c {
+                        '`' => {
+                            let end = i;
+                            let text = &input[start + (8 + whitespace_num)..end];
+                            res.push(JavaScriptSourceFeature::GraphQL(GraphQLSource::new(
+                                text,
+                                line_index,
+                                column_index,
+                            )));
+                            continue 'code;
+                        }
+                        ' ' | '\n' | '\r' | '\t' => {}
+                        'a'..='z' | 'A'..='Z' | '#' => {
+                            if !has_visited_first_char {
+                                has_visited_first_char = true;
+                            }
+                        }
+                        _ => {
+                            if !has_visited_first_char {
+                                continue 'code;
+                            }
+                        }
+                    }
+                }
+            }
+            '%' => {
+                for expected in ['r', 'e', 'l', 'a', 'y', '('] {
+                    if let Some((_, c)) = it.next() {
+                        if c != expected {
+                            consume_identifier(&mut it);
+                            continue 'code;
+                        }
+                    } else {
+                        continue 'code;
+                    }
+                }
+
+                let mut whitespace_num: usize = 0;
+
+                loop {
+                    if let Some((_, c)) = it.next() {
+                        match c {
+                            '`' => {
+                                break;
+                            }
+                            ' ' | '\n' | '\r' | '\t' => {
+                                whitespace_num += 1;
+                            }
+                            _ => {
+                                consume_identifier(&mut it);
+                                continue 'code;
+                            }
+                        }
+                    } else {
+                        // EOF reached without finding a backtick
+                        continue 'code;
                     }
                 }
                 let start = i;
@@ -209,7 +294,7 @@ pub fn extract(input: &str) -> Vec<JavaScriptSourceFeature> {
                             if prev_c == '*' && c == '/' {
                                 let end = i;
                                 let text = &input[start + 2..end - 1];
-                                if text.contains("@RelayResolver") {
+                                if contains_resolver_tag(text) {
                                     res.push(JavaScriptSourceFeature::Docblock(
                                         DocblockSource::new(text, line_index, column_index),
                                     ));

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c9ad0790681b53986fa8ee08cd902ef5>>
+ * @generated SignedSource<<d79524bf9d240f24cfcbb53114926051>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,19 +23,19 @@ import {inner as queryInnerResolverType} from "../InnerResolver.js";
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryInnerResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryInnerResolverType: (
+(queryInnerResolverType as (
   rootKey: InnerResolver$key,
   args: void,
   context: TestResolverContextType,
 ) => LiveState<?number>);
 declare export opaque type OuterResolver$fragmentType: FragmentType;
-export type OuterResolver$data = {|
-  +inner: ?number,
-  +$fragmentType: OuterResolver$fragmentType,
-|};
+export type OuterResolver$data = {
+  readonly inner: ?number,
+  readonly $fragmentType: OuterResolver$fragmentType,
+};
 export type OuterResolver$key = {
-  +$data?: OuterResolver$data,
-  +$fragmentSpreads: OuterResolver$fragmentType,
+  readonly $data?: OuterResolver$data,
+  readonly $fragmentSpreads: OuterResolver$fragmentType,
   ...
 };
 */
@@ -66,10 +65,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "95e62e0f7574f311e930c3bad24ff822";
+  (node/*:: as any*/).hash = "95e62e0f7574f311e930c3bad24ff822";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   OuterResolver$fragmentType,
   OuterResolver$data,
 >*/);

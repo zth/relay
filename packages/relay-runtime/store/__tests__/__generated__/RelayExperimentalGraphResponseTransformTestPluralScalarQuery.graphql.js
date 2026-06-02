@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7a71a8208e208e190d8f6f68b6221643>>
+ * @generated SignedSource<<59fa7543b3727edc76f35f2970227560>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,16 +17,16 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayExperimentalGraphResponseTransformTestPluralScalarQuery$variables = {||};
-export type RelayExperimentalGraphResponseTransformTestPluralScalarQuery$data = {|
-  +me: ?{|
-    +emailAddresses: ?$ReadOnlyArray<?string>,
-  |},
-|};
-export type RelayExperimentalGraphResponseTransformTestPluralScalarQuery = {|
+export type RelayExperimentalGraphResponseTransformTestPluralScalarQuery$variables = {};
+export type RelayExperimentalGraphResponseTransformTestPluralScalarQuery$data = {
+  readonly me: ?{
+    readonly emailAddresses: ?ReadonlyArray<?string>,
+  },
+};
+export type RelayExperimentalGraphResponseTransformTestPluralScalarQuery = {
   response: RelayExperimentalGraphResponseTransformTestPluralScalarQuery$data,
   variables: RelayExperimentalGraphResponseTransformTestPluralScalarQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -53,7 +52,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/)
+          (v0/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -75,7 +74,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
+          (v0/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -100,10 +99,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "cc42b530536583b2d3577d5fcd8d651e";
+  (node/*:: as any*/).hash = "cc42b530536583b2d3577d5fcd8d651e";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayExperimentalGraphResponseTransformTestPluralScalarQuery$variables,
   RelayExperimentalGraphResponseTransformTestPluralScalarQuery$data,
 >*/);

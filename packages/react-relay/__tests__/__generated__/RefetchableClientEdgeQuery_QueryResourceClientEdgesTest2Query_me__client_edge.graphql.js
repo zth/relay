@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1bbbb7efcf5b7be9c316b87d91fff210>>
+ * @generated SignedSource<<f97d479963e35644ff8969e83c4e27e3>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -23,14 +22,14 @@ import type { QueryResourceClientEdgesTestUser2Fragment$fragmentType } from "./Q
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RefetchableClientEdgeQuery_QueryResourceClientEdgesTest2Query_me__client_edge$fragmentType: FragmentType;
 type ClientEdgeQuery_QueryResourceClientEdgesTest2Query_me__client_edge$variables = any;
-export type RefetchableClientEdgeQuery_QueryResourceClientEdgesTest2Query_me__client_edge$data = {|
-  +id: string,
-  +$fragmentSpreads: QueryResourceClientEdgesTestUser1Fragment$fragmentType & QueryResourceClientEdgesTestUser2Fragment$fragmentType,
-  +$fragmentType: RefetchableClientEdgeQuery_QueryResourceClientEdgesTest2Query_me__client_edge$fragmentType,
-|};
+export type RefetchableClientEdgeQuery_QueryResourceClientEdgesTest2Query_me__client_edge$data = {
+  readonly id: string,
+  readonly $fragmentSpreads: QueryResourceClientEdgesTestUser1Fragment$fragmentType & QueryResourceClientEdgesTestUser2Fragment$fragmentType,
+  readonly $fragmentType: RefetchableClientEdgeQuery_QueryResourceClientEdgesTest2Query_me__client_edge$fragmentType,
+};
 export type RefetchableClientEdgeQuery_QueryResourceClientEdgesTest2Query_me__client_edge$key = {
-  +$data?: RefetchableClientEdgeQuery_QueryResourceClientEdgesTest2Query_me__client_edge$data,
-  +$fragmentSpreads: RefetchableClientEdgeQuery_QueryResourceClientEdgesTest2Query_me__client_edge$fragmentType,
+  readonly $data?: RefetchableClientEdgeQuery_QueryResourceClientEdgesTest2Query_me__client_edge$data,
+  readonly $fragmentSpreads: RefetchableClientEdgeQuery_QueryResourceClientEdgesTest2Query_me__client_edge$fragmentType,
   ...
 };
 */
@@ -76,10 +75,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "0e90f7bbad806fa00859d97367fe56b8";
+  (node/*:: as any*/).hash = "0e90f7bbad806fa00859d97367fe56b8";
 }
 
-module.exports = ((node/*: any*/)/*: RefetchableFragment<
+module.exports = ((node/*:: as any*/)/*:: as RefetchableFragment<
   RefetchableClientEdgeQuery_QueryResourceClientEdgesTest2Query_me__client_edge$fragmentType,
   RefetchableClientEdgeQuery_QueryResourceClientEdgesTest2Query_me__client_edge$data,
   ClientEdgeQuery_QueryResourceClientEdgesTest2Query_me__client_edge$variables,

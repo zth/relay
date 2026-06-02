@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f2064a3b2c8cf9665d0d9de963ac00b0>>
+ * @generated SignedSource<<5d6651ff3b72933018aca0fec0a77ad7>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,18 +19,18 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 import type { useRefetchableFragmentNodeTest1Fragment$fragmentType } from "./useRefetchableFragmentNodeTest1Fragment.graphql";
-export type useRefetchableFragmentNodeTest1FragmentRefetchQuery$variables = {|
+export type useRefetchableFragmentNodeTest1FragmentRefetchQuery$variables = {
   id: string,
-|};
-export type useRefetchableFragmentNodeTest1FragmentRefetchQuery$data = {|
-  +fetch__NonNodeStory: ?{|
-    +$fragmentSpreads: useRefetchableFragmentNodeTest1Fragment$fragmentType,
-  |},
-|};
-export type useRefetchableFragmentNodeTest1FragmentRefetchQuery = {|
+};
+export type useRefetchableFragmentNodeTest1FragmentRefetchQuery$data = {
+  readonly fetch__NonNodeStory: ?{
+    readonly $fragmentSpreads: useRefetchableFragmentNodeTest1Fragment$fragmentType,
+  },
+};
+export type useRefetchableFragmentNodeTest1FragmentRefetchQuery = {
   response: useRefetchableFragmentNodeTest1FragmentRefetchQuery$data,
   variables: useRefetchableFragmentNodeTest1FragmentRefetchQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -58,14 +57,14 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "useRefetchableFragmentNodeTest1FragmentRefetchQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "NonNodeStory",
         "kind": "LinkedField",
         "name": "fetch__NonNodeStory",
@@ -85,13 +84,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "useRefetchableFragmentNodeTest1FragmentRefetchQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "NonNodeStory",
         "kind": "LinkedField",
         "name": "fetch__NonNodeStory",
@@ -119,7 +118,7 @@ return {
                 "name": "name",
                 "storageKey": null
               },
-              (v2/*: any*/)
+              (v2/*:: as any*/)
             ],
             "storageKey": null
           },
@@ -130,7 +129,7 @@ return {
             "name": "fetch_id",
             "storageKey": null
           },
-          (v2/*: any*/)
+          (v2/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -148,10 +147,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "5edfb0ad9be0c72a1ba5d714bff331ae";
+  (node/*:: as any*/).hash = "5edfb0ad9be0c72a1ba5d714bff331ae";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   useRefetchableFragmentNodeTest1FragmentRefetchQuery$variables,
   useRefetchableFragmentNodeTest1FragmentRefetchQuery$data,
 >*/);

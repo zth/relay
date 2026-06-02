@@ -22,7 +22,7 @@ const {waitForFragmentData} = require('./store/waitForFragmentExperimental');
 // Annotates a strong object return type, where `A` is the GraphQL typename and `Typename` is the
 // `__typename` field for returning an interface
 // eslint-disable-next-line no-unused-vars
-export type IdOf<A: string, Typename: void | string = void> = [
+export type IdOf<A extends string, Typename extends void | string = void> = [
   Typename,
 ] extends [void]
   ? {id: DataID}
@@ -41,37 +41,37 @@ export type IdOf<A: string, Typename: void | string = void> = [
  * can return null or not. If the field is nullable, you can type it as
  * returning `?RelayResolverValue<T>`.
  */
-export type RelayResolverValue<A> = $NonMaybeType<A>;
+export type RelayResolverValue<A> = NonNullable<A>;
 
 type ErrorResult<Error> = {
-  +ok: false,
-  +errors: $ReadOnlyArray<Error>,
+  readonly ok: false,
+  readonly errors: ReadonlyArray<Error>,
 };
 
 type OkayResult<T> = {
-  +ok: true,
-  +value: T,
+  readonly ok: true,
+  readonly value: T,
 };
 
 export type Result<T, Error> = OkayResult<T> | ErrorResult<Error>;
 
-function isValueResult<T = mixed>(
+function isValueResult<T = unknown>(
   input: Result<T, Error>,
 ): input is OkayResult<T> {
   return input.ok === (true as const);
 }
 
-function isErrorResult<T = mixed>(
+function isErrorResult<T = unknown>(
   input: Result<T, Error>,
 ): input is ErrorResult<Error> {
   return input.ok === (false as const);
 }
 
 module.exports = {
-  resolverDataInjector,
-  isValueResult,
   isErrorResult,
-  observeQuery,
+  isValueResult,
   observeFragment,
+  observeQuery,
+  resolverDataInjector,
   waitForFragmentData,
 };

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c3c617904b619cc338f51661916c77ea>>
+ * @generated SignedSource<<a38c66a5ba793b30338a050843f096bd>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,16 +18,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayReaderRequiredFieldsTest2Fragment$fragmentType } from "./RelayReaderRequiredFieldsTest2Fragment.graphql";
-export type RelayReaderRequiredFieldsTest20Query$variables = {||};
-export type RelayReaderRequiredFieldsTest20Query$data = {|
-  +me: ?{|
-    +$fragmentSpreads: RelayReaderRequiredFieldsTest2Fragment$fragmentType,
-  |},
-|};
-export type RelayReaderRequiredFieldsTest20Query = {|
+export type RelayReaderRequiredFieldsTest20Query$variables = {};
+export type RelayReaderRequiredFieldsTest20Query$data = {
+  readonly me: ?{
+    readonly $fragmentSpreads: RelayReaderRequiredFieldsTest2Fragment$fragmentType,
+  },
+};
+export type RelayReaderRequiredFieldsTest20Query = {
   response: RelayReaderRequiredFieldsTest20Query$data,
   variables: RelayReaderRequiredFieldsTest20Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {
@@ -113,10 +112,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "b25cc3fddd27a175aefdaa8b729aaebb";
+  (node/*:: as any*/).hash = "b25cc3fddd27a175aefdaa8b729aaebb";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderRequiredFieldsTest20Query$variables,
   RelayReaderRequiredFieldsTest20Query$data,
 >*/);

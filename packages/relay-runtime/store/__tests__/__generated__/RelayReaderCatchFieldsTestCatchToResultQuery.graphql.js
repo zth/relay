@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8111705544793bdcb2fe1de2987e7160>>
+ * @generated SignedSource<<4c609bf9c31487256186451ced69e1ad>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,14 +18,14 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayReaderCatchFieldsTestCatchToResultFragment$fragmentType } from "./RelayReaderCatchFieldsTestCatchToResultFragment.graphql";
-export type RelayReaderCatchFieldsTestCatchToResultQuery$variables = {||};
-export type RelayReaderCatchFieldsTestCatchToResultQuery$data = {|
-  +$fragmentSpreads: RelayReaderCatchFieldsTestCatchToResultFragment$fragmentType,
-|};
-export type RelayReaderCatchFieldsTestCatchToResultQuery = {|
+export type RelayReaderCatchFieldsTestCatchToResultQuery$variables = {};
+export type RelayReaderCatchFieldsTestCatchToResultQuery$data = {
+  readonly $fragmentSpreads: RelayReaderCatchFieldsTestCatchToResultFragment$fragmentType,
+};
+export type RelayReaderCatchFieldsTestCatchToResultQuery = {
   response: RelayReaderCatchFieldsTestCatchToResultQuery$data,
   variables: RelayReaderCatchFieldsTestCatchToResultQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {
@@ -89,10 +88,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "e1dd60b678804c69e882a4f03bfe3bae";
+  (node/*:: as any*/).hash = "e1dd60b678804c69e882a4f03bfe3bae";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderCatchFieldsTestCatchToResultQuery$variables,
   RelayReaderCatchFieldsTestCatchToResultQuery$data,
 >*/);

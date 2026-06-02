@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b8eb71d272df6be4f73dbd843db3d6f0>>
+ * @generated SignedSource<<28410ebf64ee51ccfba092c7bf62d537>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -23,26 +22,26 @@ import {hello_world_with_provided_variable as queryHelloWorldWithProvidedVariabl
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryHelloWorldWithProvidedVariableResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryHelloWorldWithProvidedVariableResolverType: (
+(queryHelloWorldWithProvidedVariableResolverType as (
   rootKey: HelloWorldResolverWithProvidedVariable$key,
   args: void,
   context: TestResolverContextType,
 ) => ?string);
-export type LiveResolversTestWithProvidedVariablesQuery$variables = {||};
-export type LiveResolversTestWithProvidedVariablesQuery$data = {|
-  +hello_world_with_provided_variable: ?string,
-|};
-export type LiveResolversTestWithProvidedVariablesQuery = {|
+export type LiveResolversTestWithProvidedVariablesQuery$variables = {};
+export type LiveResolversTestWithProvidedVariablesQuery$data = {
+  readonly hello_world_with_provided_variable: ?string,
+};
+export type LiveResolversTestWithProvidedVariablesQuery = {
   response: LiveResolversTestWithProvidedVariablesQuery$data,
   variables: LiveResolversTestWithProvidedVariablesQuery$variables,
-|};
+};
 ({
   "__relay_internal__pv__HelloWorldProviderrelayprovider": require('../../../relay-runtime/store/__tests__/resolvers/HelloWorldProvider.relayprovider')
-}: {|
-  +__relay_internal__pv__HelloWorldProviderrelayprovider: {|
-    +get: () => string,
-  |},
-|});
+} as {
+  readonly __relay_internal__pv__HelloWorldProviderrelayprovider: {
+    readonly get: () => string,
+  },
+});
 */
 
 var node/*: ClientRequest*/ = {
@@ -130,10 +129,10 @@ var node/*: ClientRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "bcbd826ff5ff5e5c44b99ce303ce6686";
+  (node/*:: as any*/).hash = "bcbd826ff5ff5e5c44b99ce303ce6686";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   LiveResolversTestWithProvidedVariablesQuery$variables,
   LiveResolversTestWithProvidedVariablesQuery$data,
 >*/);

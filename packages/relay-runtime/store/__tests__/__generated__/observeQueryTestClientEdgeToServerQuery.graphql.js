@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<bdaed19055700e6f0681d927abcd88ec>>
+ * @generated SignedSource<<6a68e6815bd8e29ccc394d4b1cead973>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,25 +23,25 @@ import {client_edge as userClientEdgeResolverType} from "../resolvers/UserClient
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userClientEdgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userClientEdgeResolverType: (
+(userClientEdgeResolverType as (
   rootKey: UserClientEdgeResolver$key,
   args: void,
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
-export type observeQueryTestClientEdgeToServerQuery$variables = {||};
-export type observeQueryTestClientEdgeToServerQuery$data = {|
-  +me: ?{|
-    +client_edge: ?{|
-      +name: ?string,
-    |},
-  |},
-|};
-export type observeQueryTestClientEdgeToServerQuery = {|
+) => ?{
+  readonly id: DataID,
+});
+export type observeQueryTestClientEdgeToServerQuery$variables = {};
+export type observeQueryTestClientEdgeToServerQuery$data = {
+  readonly me: ?{
+    readonly client_edge: ?{
+      readonly name: ?string,
+    },
+  },
+};
+export type observeQueryTestClientEdgeToServerQuery = {
   response: observeQueryTestClientEdgeToServerQuery$data,
   variables: observeQueryTestClientEdgeToServerQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -95,7 +94,7 @@ return {
               "kind": "LinkedField",
               "name": "client_edge",
               "plural": false,
-              "selections": (v0/*: any*/),
+              "selections": (v0/*:: as any*/),
               "storageKey": null
             }
           }
@@ -125,7 +124,7 @@ return {
             "args": null,
             "fragment": {
               "kind": "InlineFragment",
-              "selections": (v0/*: any*/),
+              "selections": (v0/*:: as any*/),
               "type": "User",
               "abstractKey": null
             },
@@ -157,10 +156,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "ffa93f1454a0796bf5a92612348c1069";
+  (node/*:: as any*/).hash = "ffa93f1454a0796bf5a92612348c1069";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   observeQueryTestClientEdgeToServerQuery$variables,
   observeQueryTestClientEdgeToServerQuery$data,
 >*/);

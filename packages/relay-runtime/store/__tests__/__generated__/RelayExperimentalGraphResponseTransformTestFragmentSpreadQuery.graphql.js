@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7b62202591e6eb6fbb653a813be7e9b1>>
+ * @generated SignedSource<<714d6019b6ef988cfba7d1c73c4be0ea>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,16 +18,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayExperimentalGraphResponseTransformTest_user_name$fragmentType } from "./RelayExperimentalGraphResponseTransformTest_user_name.graphql";
-export type RelayExperimentalGraphResponseTransformTestFragmentSpreadQuery$variables = {||};
-export type RelayExperimentalGraphResponseTransformTestFragmentSpreadQuery$data = {|
-  +node: ?{|
-    +$fragmentSpreads: RelayExperimentalGraphResponseTransformTest_user_name$fragmentType,
-  |},
-|};
-export type RelayExperimentalGraphResponseTransformTestFragmentSpreadQuery = {|
+export type RelayExperimentalGraphResponseTransformTestFragmentSpreadQuery$variables = {};
+export type RelayExperimentalGraphResponseTransformTestFragmentSpreadQuery$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: RelayExperimentalGraphResponseTransformTest_user_name$fragmentType,
+  },
+};
+export type RelayExperimentalGraphResponseTransformTestFragmentSpreadQuery = {
   response: RelayExperimentalGraphResponseTransformTestFragmentSpreadQuery$data,
   variables: RelayExperimentalGraphResponseTransformTestFragmentSpreadQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -48,7 +47,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -74,7 +73,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -125,10 +124,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "106c74251d41691aaeeadf9000b01b0b";
+  (node/*:: as any*/).hash = "106c74251d41691aaeeadf9000b01b0b";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayExperimentalGraphResponseTransformTestFragmentSpreadQuery$variables,
   RelayExperimentalGraphResponseTransformTestFragmentSpreadQuery$data,
 >*/);

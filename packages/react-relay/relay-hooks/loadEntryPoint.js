@@ -23,19 +23,19 @@ import type {
 const {loadQuery} = require('./loadQuery');
 
 function loadEntryPoint<
-  TEntryPointParams: {...},
+  TEntryPointParams extends {...},
   // $FlowExpectedError[unclear-type] Need any to make it supertype of all PreloadedQuery
-  TPreloadedQueries: {+[string]: PreloadedQuery<any>},
-  TPreloadedEntryPoints: {...},
-  TRuntimeProps: {...},
+  TPreloadedQueries extends {readonly [string]: PreloadedQuery<any>},
+  TPreloadedEntryPoints extends {...},
+  TRuntimeProps extends {...},
   TExtraProps,
-  TEntryPointComponent: EntryPointComponent<
+  TEntryPointComponent extends EntryPointComponent<
     TPreloadedQueries,
     TPreloadedEntryPoints,
     TRuntimeProps,
     TExtraProps,
   >,
-  TEntryPoint: EntryPoint<TEntryPointParams, TEntryPointComponent>,
+  TEntryPoint extends EntryPoint<TEntryPointParams, TEntryPointComponent>,
 >(
   environmentProvider: IEnvironmentProvider<EnvironmentProviderOptions>,
   entryPoint: TEntryPoint,
@@ -78,9 +78,9 @@ function loadEntryPoint<
         parameters,
         variables,
         {
+          __nameForWarning: 'loadEntryPoint',
           fetchPolicy: options?.fetchPolicy,
           networkCacheConfig: options?.networkCacheConfig,
-          __nameForWarning: 'loadEntryPoint',
         },
         environmentProviderOptions,
       );
@@ -101,8 +101,8 @@ function loadEntryPoint<
         {},
         {...},
         {...},
-        mixed,
-        EntryPointComponent<{}, {...}, {...}, mixed>,
+        unknown,
+        EntryPointComponent<{}, {...}, {...}, unknown>,
         _,
       >(environmentProvider, nestedEntryPoint, nestedParams);
     });
@@ -130,7 +130,8 @@ function loadEntryPoint<
       }
       isDisposed = true;
     },
-    entryPoints: (preloadedEntryPoints: TPreloadedEntryPoints),
+    // $FlowFixMe[incompatible-type]
+    entryPoints: preloadedEntryPoints as TPreloadedEntryPoints,
     extraProps: extraProps ?? null,
     getComponent: () => {
       const componentModule = entryPoint.root.getModuleIfRequired();
@@ -148,14 +149,15 @@ function loadEntryPoint<
         componentModule.default != null
           ? componentModule.default
           : componentModule;
-      // $FlowFixMe[incompatible-cast] - trust me Flow, its entryPoint component
-      return (component: TEntryPointComponent);
+      // $FlowFixMe[incompatible-type] - trust me Flow, its entryPoint component
+      return component as TEntryPointComponent;
     },
     // $FlowFixMe[unsafe-getters-setters] - this has no side effects
     get isDisposed() {
       return isDisposed;
     },
-    queries: (preloadedQueries: TPreloadedQueries),
+    // $FlowFixMe[incompatible-type]
+    queries: preloadedQueries as TPreloadedQueries,
     rootModuleID: entryPoint.root.getModuleId(),
   };
 }

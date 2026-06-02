@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<fd377d5d3de24e2f1c670a344a8e7e6d>>
+ * @generated SignedSource<<179a696dd03ae59acb02c7a3a307e586>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -27,25 +26,25 @@ import {text as todoTextResolverType} from "../../../relay-runtime/store/__tests
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `todoTextResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(todoTextResolverType: (
+(todoTextResolverType as (
   rootKey: TodoTextResolverFragment$key,
   args: void,
   context: TestResolverContextType,
 ) => ?Todo__text$normalization);
 declare export opaque type RelayResolversWithOutputTypeTestFragment$fragmentType: FragmentType;
-export type RelayResolversWithOutputTypeTestFragment$data = {|
-  +text: ?{|
-    +content: string,
-    +style: ?{|
-      +$fragmentSpreads: RelayResolversWithOutputTypeTestTextStyleComponentFragment$fragmentType,
-    |},
-  |},
-  +$fragmentSpreads: RelayResolversWithOutputTypeTestTodoCompleteFragment$fragmentType,
-  +$fragmentType: RelayResolversWithOutputTypeTestFragment$fragmentType,
-|};
+export type RelayResolversWithOutputTypeTestFragment$data = {
+  readonly text: ?{
+    readonly content: string,
+    readonly style: ?{
+      readonly $fragmentSpreads: RelayResolversWithOutputTypeTestTextStyleComponentFragment$fragmentType,
+    },
+  },
+  readonly $fragmentSpreads: RelayResolversWithOutputTypeTestTodoCompleteFragment$fragmentType,
+  readonly $fragmentType: RelayResolversWithOutputTypeTestFragment$fragmentType,
+};
 export type RelayResolversWithOutputTypeTestFragment$key = {
-  +$data?: RelayResolversWithOutputTypeTestFragment$data,
-  +$fragmentSpreads: RelayResolversWithOutputTypeTestFragment$fragmentType,
+  readonly $data?: RelayResolversWithOutputTypeTestFragment$data,
+  readonly $fragmentSpreads: RelayResolversWithOutputTypeTestFragment$fragmentType,
   ...
 };
 */
@@ -62,6 +61,7 @@ var node/*: ReaderFragment*/ = {
       "kind": "ClientEdgeToClientObject",
       "concreteType": "TodoText",
       "modelResolvers": null,
+      "serverObjectOperations": null,
       "backingField": {
         "alias": null,
         "args": null,
@@ -127,10 +127,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "0665939c2e5e80d5cd035ded7188831a";
+  (node/*:: as any*/).hash = "0665939c2e5e80d5cd035ded7188831a";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayResolversWithOutputTypeTestFragment$fragmentType,
   RelayResolversWithOutputTypeTestFragment$data,
 >*/);

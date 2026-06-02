@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<555657342c11fea2591931ac5632f137>>
+ * @generated SignedSource<<24a3fd3eec38aca7524e727e15ae5c77>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,14 +18,14 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { LiveResolversTest5Fragment$fragmentType } from "./LiveResolversTest5Fragment.graphql";
-export type LiveResolversTest5Query$variables = {||};
-export type LiveResolversTest5Query$data = {|
-  +$fragmentSpreads: LiveResolversTest5Fragment$fragmentType,
-|};
-export type LiveResolversTest5Query = {|
+export type LiveResolversTest5Query$variables = {};
+export type LiveResolversTest5Query$data = {
+  readonly $fragmentSpreads: LiveResolversTest5Fragment$fragmentType,
+};
+export type LiveResolversTest5Query = {
   response: LiveResolversTest5Query$data,
   variables: LiveResolversTest5Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {
@@ -108,10 +107,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "f0599062c4e513473d1b863641056cd0";
+  (node/*:: as any*/).hash = "f0599062c4e513473d1b863641056cd0";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   LiveResolversTest5Query$variables,
   LiveResolversTest5Query$data,
 >*/);

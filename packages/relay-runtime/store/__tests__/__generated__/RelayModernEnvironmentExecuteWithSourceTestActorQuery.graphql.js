@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<875e55716e15f1edfa23487bfc3ff0b3>>
+ * @generated SignedSource<<1e4ab3d57913c3a6937789313a6791cf>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,21 +17,21 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayModernEnvironmentExecuteWithSourceTestActorQuery$variables = {|
+export type RelayModernEnvironmentExecuteWithSourceTestActorQuery$variables = {
   fetchSize: boolean,
-|};
-export type RelayModernEnvironmentExecuteWithSourceTestActorQuery$data = {|
-  +me: ?{|
-    +name: ?string,
-    +profilePicture?: ?{|
-      +uri: ?string,
-    |},
-  |},
-|};
-export type RelayModernEnvironmentExecuteWithSourceTestActorQuery = {|
+};
+export type RelayModernEnvironmentExecuteWithSourceTestActorQuery$data = {
+  readonly me: ?{
+    readonly name: ?string,
+    readonly profilePicture?: ?{
+      readonly uri: ?string,
+    },
+  },
+};
+export type RelayModernEnvironmentExecuteWithSourceTestActorQuery = {
   response: RelayModernEnvironmentExecuteWithSourceTestActorQuery$data,
   variables: RelayModernEnvironmentExecuteWithSourceTestActorQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -83,7 +82,7 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentExecuteWithSourceTestActorQuery",
@@ -96,8 +95,8 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v1/*: any*/),
-          (v2/*: any*/)
+          (v1/*:: as any*/),
+          (v2/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -107,7 +106,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentExecuteWithSourceTestActorQuery",
     "selections": [
@@ -119,8 +118,8 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v1/*: any*/),
-          (v2/*: any*/),
+          (v1/*:: as any*/),
+          (v2/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -145,10 +144,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "78fb2c73be5cfff78fc5749a4e9bbbdf";
+  (node/*:: as any*/).hash = "78fb2c73be5cfff78fc5749a4e9bbbdf";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentExecuteWithSourceTestActorQuery$variables,
   RelayModernEnvironmentExecuteWithSourceTestActorQuery$data,
 >*/);

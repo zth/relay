@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e7574c13f472404b0404189669397eff>>
+ * @generated SignedSource<<ce8e13f3a52f91572f027cbc9dc66126>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,24 +17,24 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayResponseNormalizerTest29Query$variables = {|
+export type RelayResponseNormalizerTest29Query$variables = {
   id?: ?string,
-  size?: ?$ReadOnlyArray<?number>,
-|};
-export type RelayResponseNormalizerTest29Query$data = {|
-  +node: ?{|
-    +__typename: string,
-    +firstName?: ?string,
-    +id: string,
-    +profilePicture?: ?{|
-      +uri: ?string,
-    |},
-  |},
-|};
-export type RelayResponseNormalizerTest29Query = {|
+  size?: ?ReadonlyArray<?number>,
+};
+export type RelayResponseNormalizerTest29Query$data = {
+  readonly node: ?{
+    readonly __typename: string,
+    readonly firstName?: ?string,
+    readonly id: string,
+    readonly profilePicture?: ?{
+      readonly uri: ?string,
+    },
+  },
+};
+export type RelayResponseNormalizerTest29Query = {
   response: RelayResponseNormalizerTest29Query$data,
   variables: RelayResponseNormalizerTest29Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -124,20 +123,20 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayResponseNormalizerTest29Query",
-    "selections": (v1/*: any*/),
+    "selections": (v1/*:: as any*/),
     "type": "Query",
     "abstractKey": null
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayResponseNormalizerTest29Query",
-    "selections": (v1/*: any*/)
+    "selections": (v1/*:: as any*/)
   },
   "params": {
     "cacheID": "deaa4eb6df12cd2e363e059269a2f896",
@@ -151,10 +150,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "def7aab0dc3da657c10fbc20c184dcb7";
+  (node/*:: as any*/).hash = "def7aab0dc3da657c10fbc20c184dcb7";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayResponseNormalizerTest29Query$variables,
   RelayResponseNormalizerTest29Query$data,
 >*/);

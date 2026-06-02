@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<bc0766812aab92265842a7856937ce70>>
+ * @generated SignedSource<<85cd6c4fd4d79c0ee366749041b5a6b8>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,17 +17,17 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayModernEnvironmentRetainTestQuery$variables = {||};
-export type RelayModernEnvironmentRetainTestQuery$data = {|
-  +me: ?{|
-    +id: string,
-    +name: ?string,
-  |},
-|};
-export type RelayModernEnvironmentRetainTestQuery = {|
+export type RelayModernEnvironmentRetainTestQuery$variables = {};
+export type RelayModernEnvironmentRetainTestQuery$data = {
+  readonly me: ?{
+    readonly id: string,
+    readonly name: ?string,
+  },
+};
+export type RelayModernEnvironmentRetainTestQuery = {
   response: RelayModernEnvironmentRetainTestQuery$data,
   variables: RelayModernEnvironmentRetainTestQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -65,7 +64,7 @@ return {
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentRetainTestQuery",
-    "selections": (v0/*: any*/),
+    "selections": (v0/*:: as any*/),
     "type": "Query",
     "abstractKey": null
   },
@@ -74,7 +73,7 @@ return {
     "argumentDefinitions": [],
     "kind": "Operation",
     "name": "RelayModernEnvironmentRetainTestQuery",
-    "selections": (v0/*: any*/)
+    "selections": (v0/*:: as any*/)
   },
   "params": {
     "cacheID": "4a303ac396520ddcaf020fcf6164a97e",
@@ -88,10 +87,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "c84966ac60d5dce4dde9b131ca32502b";
+  (node/*:: as any*/).hash = "c84966ac60d5dce4dde9b131ca32502b";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentRetainTestQuery$variables,
   RelayModernEnvironmentRetainTestQuery$data,
 >*/);

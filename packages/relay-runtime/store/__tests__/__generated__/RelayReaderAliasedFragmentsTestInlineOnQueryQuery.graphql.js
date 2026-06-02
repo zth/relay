@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c7c5a8f67d82143a556d6da4658e6372>>
+ * @generated SignedSource<<7ce5a6fb134554ca11e2ddde6ca70db9>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,18 +17,18 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayReaderAliasedFragmentsTestInlineOnQueryQuery$variables = {||};
-export type RelayReaderAliasedFragmentsTestInlineOnQueryQuery$data = {|
-  +aliased_fragment: {|
-    +me: ?{|
-      +name: string,
-    |},
-  |},
-|};
-export type RelayReaderAliasedFragmentsTestInlineOnQueryQuery = {|
+export type RelayReaderAliasedFragmentsTestInlineOnQueryQuery$variables = {};
+export type RelayReaderAliasedFragmentsTestInlineOnQueryQuery$data = {
+  readonly aliased_fragment: {
+    readonly me: ?{
+      readonly name: string,
+    },
+  },
+};
+export type RelayReaderAliasedFragmentsTestInlineOnQueryQuery = {
   response: RelayReaderAliasedFragmentsTestInlineOnQueryQuery$data,
   variables: RelayReaderAliasedFragmentsTestInlineOnQueryQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -61,7 +60,7 @@ return {
               "selections": [
                 {
                   "kind": "RequiredField",
-                  "field": (v0/*: any*/),
+                  "field": (v0/*:: as any*/),
                   "action": "NONE"
                 }
               ],
@@ -92,7 +91,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
+          (v0/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -117,10 +116,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "2f5cf13fece8ca972ccbc46bc8b1c758";
+  (node/*:: as any*/).hash = "2f5cf13fece8ca972ccbc46bc8b1c758";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderAliasedFragmentsTestInlineOnQueryQuery$variables,
   RelayReaderAliasedFragmentsTestInlineOnQueryQuery$data,
 >*/);

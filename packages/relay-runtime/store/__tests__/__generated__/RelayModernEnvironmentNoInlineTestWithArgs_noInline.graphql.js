@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9355ef70efb895879886c3eefbbb8e36>>
+ * @generated SignedSource<<e524fbbd12fa052d670da05e7da3fd6b>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,16 +20,16 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { RelayModernEnvironmentNoInlineTest_inner$fragmentType } from "./RelayModernEnvironmentNoInlineTest_inner.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentNoInlineTestWithArgs_noInline$fragmentType: FragmentType;
-export type RelayModernEnvironmentNoInlineTestWithArgs_noInline$data = {|
-  +profile_picture?: ?{|
-    +uri: ?string,
-  |},
-  +$fragmentSpreads: RelayModernEnvironmentNoInlineTest_inner$fragmentType,
-  +$fragmentType: RelayModernEnvironmentNoInlineTestWithArgs_noInline$fragmentType,
-|};
+export type RelayModernEnvironmentNoInlineTestWithArgs_noInline$data = {
+  readonly profile_picture?: ?{
+    readonly uri: ?string,
+  },
+  readonly $fragmentSpreads: RelayModernEnvironmentNoInlineTest_inner$fragmentType,
+  readonly $fragmentType: RelayModernEnvironmentNoInlineTestWithArgs_noInline$fragmentType,
+};
 export type RelayModernEnvironmentNoInlineTestWithArgs_noInline$key = {
-  +$data?: RelayModernEnvironmentNoInlineTestWithArgs_noInline$data,
-  +$fragmentSpreads: RelayModernEnvironmentNoInlineTestWithArgs_noInline$fragmentType,
+  readonly $data?: RelayModernEnvironmentNoInlineTestWithArgs_noInline$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentNoInlineTestWithArgs_noInline$fragmentType,
   ...
 };
 */
@@ -77,7 +76,7 @@ return {
               "name": "fileExtension",
               "value": "PNG"
             },
-            (v0/*: any*/),
+            (v0/*:: as any*/),
             {
               "kind": "Variable",
               "name": "size",
@@ -115,7 +114,7 @@ return {
           "name": "fileExtension",
           "variableName": "fileExtension"
         },
-        (v0/*: any*/)
+        (v0/*:: as any*/)
       ],
       "kind": "FragmentSpread",
       "name": "RelayModernEnvironmentNoInlineTest_inner"
@@ -127,10 +126,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "c176d8758682964446ea51b58b3a3f76";
+  (node/*:: as any*/).hash = "c176d8758682964446ea51b58b3a3f76";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayModernEnvironmentNoInlineTestWithArgs_noInline$fragmentType,
   RelayModernEnvironmentNoInlineTestWithArgs_noInline$data,
 >*/);

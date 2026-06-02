@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<934f432a53529976556c9a165632a554>>
+ * @generated SignedSource<<c33ad40df65db7bb4d2d949756a67233>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,18 +23,18 @@ import type { DataCheckerTest5MarkdownUserNameRenderer_name$fragmentType } from 
 import type { DataCheckerTest5PlainUserNameRenderer_name$fragmentType } from "./DataCheckerTest5PlainUserNameRenderer_name.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type DataCheckerTest5Fragment$fragmentType: FragmentType;
-export type DataCheckerTest5Fragment$data = {|
-  +id: string,
-  +nameRenderer: ?{|
-    +__fragmentPropName?: ?string,
-    +__module_component?: ?string,
-    +$fragmentSpreads: DataCheckerTest5MarkdownUserNameRenderer_name$fragmentType & DataCheckerTest5PlainUserNameRenderer_name$fragmentType,
-  |},
-  +$fragmentType: DataCheckerTest5Fragment$fragmentType,
-|};
+export type DataCheckerTest5Fragment$data = {
+  readonly id: string,
+  readonly nameRenderer: ?{
+    readonly __fragmentPropName?: ?string,
+    readonly __module_component?: ?string,
+    readonly $fragmentSpreads: DataCheckerTest5MarkdownUserNameRenderer_name$fragmentType & DataCheckerTest5PlainUserNameRenderer_name$fragmentType,
+  },
+  readonly $fragmentType: DataCheckerTest5Fragment$fragmentType,
+};
 export type DataCheckerTest5Fragment$key = {
-  +$data?: DataCheckerTest5Fragment$data,
-  +$fragmentSpreads: DataCheckerTest5Fragment$fragmentType,
+  readonly $data?: DataCheckerTest5Fragment$data,
+  readonly $fragmentSpreads: DataCheckerTest5Fragment$fragmentType,
   ...
 };
 */
@@ -98,10 +97,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "8a7920a2a8ae8065ddf4b46a76f2199c";
+  (node/*:: as any*/).hash = "8a7920a2a8ae8065ddf4b46a76f2199c";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   DataCheckerTest5Fragment$fragmentType,
   DataCheckerTest5Fragment$data,
 >*/);

@@ -1,5 +1,5 @@
 ==================================== INPUT ====================================
-query NodeQuery($id: ID!) @live_query(polling_interval: 1000) {
+query ClientPollingQuery($id: ID!) @client_polling(interval: 1000) {
   node(id: $id) {
     id
     ... on User {
@@ -12,9 +12,9 @@ query NodeQuery($id: ID!) @live_query(polling_interval: 1000) {
   }
 }
 ==================================== OUTPUT ===================================
-query NodeQuery(
+query ClientPollingQuery(
   $id: ID!
-) @live_query(polling_interval: 1000) @__metadata(live: {polling_interval: 1000}) {
+) @client_polling(interval: 1000) @__metadata(live: {polling_interval: 1000}) {
   node(id: $id) {
     id
     ... on User {

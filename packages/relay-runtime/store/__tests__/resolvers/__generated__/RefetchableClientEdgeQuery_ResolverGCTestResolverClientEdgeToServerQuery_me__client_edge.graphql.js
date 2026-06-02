@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ce4f1a36de7f23bca45c37b7108e333c>>
+ * @generated SignedSource<<ed9c2960c3fddd2cee3eddea81466e4b>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,18 +20,18 @@ import type { ReaderFragment, RefetchableFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RefetchableClientEdgeQuery_ResolverGCTestResolverClientEdgeToServerQuery_me__client_edge$fragmentType: FragmentType;
 type ClientEdgeQuery_ResolverGCTestResolverClientEdgeToServerQuery_me__client_edge$variables = any;
-export type RefetchableClientEdgeQuery_ResolverGCTestResolverClientEdgeToServerQuery_me__client_edge$data = {|
-  +id: string,
-  +name: ?string,
-  +nearest_neighbor: {|
-    +id: string,
-    +name: ?string,
-  |},
-  +$fragmentType: RefetchableClientEdgeQuery_ResolverGCTestResolverClientEdgeToServerQuery_me__client_edge$fragmentType,
-|};
+export type RefetchableClientEdgeQuery_ResolverGCTestResolverClientEdgeToServerQuery_me__client_edge$data = {
+  readonly id: string,
+  readonly name: ?string,
+  readonly nearest_neighbor: {
+    readonly id: string,
+    readonly name: ?string,
+  },
+  readonly $fragmentType: RefetchableClientEdgeQuery_ResolverGCTestResolverClientEdgeToServerQuery_me__client_edge$fragmentType,
+};
 export type RefetchableClientEdgeQuery_ResolverGCTestResolverClientEdgeToServerQuery_me__client_edge$key = {
-  +$data?: RefetchableClientEdgeQuery_ResolverGCTestResolverClientEdgeToServerQuery_me__client_edge$data,
-  +$fragmentSpreads: RefetchableClientEdgeQuery_ResolverGCTestResolverClientEdgeToServerQuery_me__client_edge$fragmentType,
+  readonly $data?: RefetchableClientEdgeQuery_ResolverGCTestResolverClientEdgeToServerQuery_me__client_edge$data,
+  readonly $fragmentSpreads: RefetchableClientEdgeQuery_ResolverGCTestResolverClientEdgeToServerQuery_me__client_edge$fragmentType,
   ...
 };
 */
@@ -70,8 +69,8 @@ return {
   },
   "name": "RefetchableClientEdgeQuery_ResolverGCTestResolverClientEdgeToServerQuery_me__client_edge",
   "selections": [
-    (v0/*: any*/),
-    (v1/*: any*/),
+    (v0/*:: as any*/),
+    (v1/*:: as any*/),
     {
       "alias": null,
       "args": null,
@@ -80,8 +79,8 @@ return {
       "name": "nearest_neighbor",
       "plural": false,
       "selections": [
-        (v0/*: any*/),
-        (v1/*: any*/)
+        (v0/*:: as any*/),
+        (v1/*:: as any*/)
       ],
       "storageKey": null
     }
@@ -92,10 +91,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "fe9d1d04537877d59f4905abc58c777f";
+  (node/*:: as any*/).hash = "fe9d1d04537877d59f4905abc58c777f";
 }
 
-module.exports = ((node/*: any*/)/*: RefetchableFragment<
+module.exports = ((node/*:: as any*/)/*:: as RefetchableFragment<
   RefetchableClientEdgeQuery_ResolverGCTestResolverClientEdgeToServerQuery_me__client_edge$fragmentType,
   RefetchableClientEdgeQuery_ResolverGCTestResolverClientEdgeToServerQuery_me__client_edge$data,
   ClientEdgeQuery_ResolverGCTestResolverClientEdgeToServerQuery_me__client_edge$variables,

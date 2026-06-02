@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<226a0cdb23eb7b5c221a6700e57968fb>>
+ * @generated SignedSource<<acf94980ff40e6e8c4f4826a63228fce>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,14 +20,14 @@ import type { ReaderFragment, RefetchableFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RefetchableClientEdgeQuery_observeQueryTestClientEdgeToServerQuery_me__client_edge$fragmentType: FragmentType;
 type ClientEdgeQuery_observeQueryTestClientEdgeToServerQuery_me__client_edge$variables = any;
-export type RefetchableClientEdgeQuery_observeQueryTestClientEdgeToServerQuery_me__client_edge$data = {|
-  +id: string,
-  +name: ?string,
-  +$fragmentType: RefetchableClientEdgeQuery_observeQueryTestClientEdgeToServerQuery_me__client_edge$fragmentType,
-|};
+export type RefetchableClientEdgeQuery_observeQueryTestClientEdgeToServerQuery_me__client_edge$data = {
+  readonly id: string,
+  readonly name: ?string,
+  readonly $fragmentType: RefetchableClientEdgeQuery_observeQueryTestClientEdgeToServerQuery_me__client_edge$fragmentType,
+};
 export type RefetchableClientEdgeQuery_observeQueryTestClientEdgeToServerQuery_me__client_edge$key = {
-  +$data?: RefetchableClientEdgeQuery_observeQueryTestClientEdgeToServerQuery_me__client_edge$data,
-  +$fragmentSpreads: RefetchableClientEdgeQuery_observeQueryTestClientEdgeToServerQuery_me__client_edge$fragmentType,
+  readonly $data?: RefetchableClientEdgeQuery_observeQueryTestClientEdgeToServerQuery_me__client_edge$data,
+  readonly $fragmentSpreads: RefetchableClientEdgeQuery_observeQueryTestClientEdgeToServerQuery_me__client_edge$fragmentType,
   ...
 };
 */
@@ -71,10 +70,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "ffa93f1454a0796bf5a92612348c1069";
+  (node/*:: as any*/).hash = "ffa93f1454a0796bf5a92612348c1069";
 }
 
-module.exports = ((node/*: any*/)/*: RefetchableFragment<
+module.exports = ((node/*:: as any*/)/*:: as RefetchableFragment<
   RefetchableClientEdgeQuery_observeQueryTestClientEdgeToServerQuery_me__client_edge$fragmentType,
   RefetchableClientEdgeQuery_observeQueryTestClientEdgeToServerQuery_me__client_edge$data,
   ClientEdgeQuery_observeQueryTestClientEdgeToServerQuery_me__client_edge$variables,

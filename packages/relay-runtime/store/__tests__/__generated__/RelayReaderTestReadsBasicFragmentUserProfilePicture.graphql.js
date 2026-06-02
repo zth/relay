@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f244131391701cb2c2e92325cc84061c>>
+ * @generated SignedSource<<f3143223e71da691448f585ae9cb5279>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,15 +19,15 @@
 import type { InlineFragment, ReaderInlineDataFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayReaderTestReadsBasicFragmentUserProfilePicture$fragmentType: FragmentType;
-export type RelayReaderTestReadsBasicFragmentUserProfilePicture$data = {|
-  +profilePicture: ?{|
-    +uri: ?string,
-  |},
-  +$fragmentType: RelayReaderTestReadsBasicFragmentUserProfilePicture$fragmentType,
-|};
+export type RelayReaderTestReadsBasicFragmentUserProfilePicture$data = {
+  readonly profilePicture: ?{
+    readonly uri: ?string,
+  },
+  readonly $fragmentType: RelayReaderTestReadsBasicFragmentUserProfilePicture$fragmentType,
+};
 export type RelayReaderTestReadsBasicFragmentUserProfilePicture$key = {
-  +$data?: RelayReaderTestReadsBasicFragmentUserProfilePicture$data,
-  +$fragmentSpreads: RelayReaderTestReadsBasicFragmentUserProfilePicture$fragmentType,
+  readonly $data?: RelayReaderTestReadsBasicFragmentUserProfilePicture$data,
+  readonly $fragmentSpreads: RelayReaderTestReadsBasicFragmentUserProfilePicture$fragmentType,
   ...
 };
 */
@@ -39,10 +38,10 @@ var node/*: ReaderInlineDataFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "80278b4c399cdd3b1d8aa66610fe163f";
+  (node/*:: as any*/).hash = "80278b4c399cdd3b1d8aa66610fe163f";
 }
 
-module.exports = ((node/*: any*/)/*: InlineFragment<
+module.exports = ((node/*:: as any*/)/*:: as InlineFragment<
   RelayReaderTestReadsBasicFragmentUserProfilePicture$fragmentType,
   RelayReaderTestReadsBasicFragmentUserProfilePicture$data,
 >*/);

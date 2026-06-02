@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d54bc97028846479f7e899cac792ab0f>>
+ * @generated SignedSource<<0f2e127c051c3328f2760f9e3cdd0dc8>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,17 +18,17 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { Result } from "relay-runtime";
-export type RelayReaderCatchFieldsTestSiblingErrorQuery$variables = {||};
-export type RelayReaderCatchFieldsTestSiblingErrorQuery$data = {|
-  +me: ?{|
-    +firstName: Result<?string, mixed>,
-    +lastName: ?string,
-  |},
-|};
-export type RelayReaderCatchFieldsTestSiblingErrorQuery = {|
+export type RelayReaderCatchFieldsTestSiblingErrorQuery$variables = {};
+export type RelayReaderCatchFieldsTestSiblingErrorQuery$data = {
+  readonly me: ?{
+    readonly firstName: Result<?string, unknown>,
+    readonly lastName: ?string,
+  },
+};
+export type RelayReaderCatchFieldsTestSiblingErrorQuery = {
   response: RelayReaderCatchFieldsTestSiblingErrorQuery$data,
   variables: RelayReaderCatchFieldsTestSiblingErrorQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -62,10 +61,10 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
+          (v0/*:: as any*/),
           {
             "kind": "CatchField",
-            "field": (v1/*: any*/),
+            "field": (v1/*:: as any*/),
             "to": "RESULT"
           }
         ],
@@ -89,8 +88,8 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
-          (v1/*: any*/),
+          (v0/*:: as any*/),
+          (v1/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -115,10 +114,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "ea27f25406b67900cda195af7c54fdf5";
+  (node/*:: as any*/).hash = "ea27f25406b67900cda195af7c54fdf5";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderCatchFieldsTestSiblingErrorQuery$variables,
   RelayReaderCatchFieldsTestSiblingErrorQuery$data,
 >*/);

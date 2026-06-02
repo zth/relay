@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<15e2562dfebf2861c59e06444940854d>>
+ * @generated SignedSource<<ddb4be09ccaff2ef2a03b3fe07054e79>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,19 +23,19 @@ import {self as todoSelfResolverType} from "../TodoSelfResolver.js";
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `todoSelfResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(todoSelfResolverType: (
+(todoSelfResolverType as (
   rootKey: TodoSelfResolverFragment$key,
   args: void,
   context: TestResolverContextType,
-) => LiveState<?mixed>);
+) => LiveState<?unknown>);
 declare export opaque type TodoCompleteResolverFragment$fragmentType: FragmentType;
-export type TodoCompleteResolverFragment$data = {|
-  +self: ?ReturnType<ReturnType<typeof todoSelfResolverType>["read"]>,
-  +$fragmentType: TodoCompleteResolverFragment$fragmentType,
-|};
+export type TodoCompleteResolverFragment$data = {
+  readonly self: ?ReturnType<ReturnType<typeof todoSelfResolverType>["read"]>,
+  readonly $fragmentType: TodoCompleteResolverFragment$fragmentType,
+};
 export type TodoCompleteResolverFragment$key = {
-  +$data?: TodoCompleteResolverFragment$data,
-  +$fragmentSpreads: TodoCompleteResolverFragment$fragmentType,
+  readonly $data?: TodoCompleteResolverFragment$data,
+  readonly $fragmentSpreads: TodoCompleteResolverFragment$fragmentType,
   ...
 };
 */
@@ -66,10 +65,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "38d40c980b2c5c00102b3db9e9615561";
+  (node/*:: as any*/).hash = "38d40c980b2c5c00102b3db9e9615561";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   TodoCompleteResolverFragment$fragmentType,
   TodoCompleteResolverFragment$data,
 >*/);

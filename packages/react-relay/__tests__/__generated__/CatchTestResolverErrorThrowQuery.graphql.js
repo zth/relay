@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<64b14cf1c22887a8a9fbbaa435865ec4>>
+ * @generated SignedSource<<51461a5cbaae6b2dab59efaff95b5ac8>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,21 +23,21 @@ import {always_throws as userAlwaysThrowsResolverType} from "../../../relay-runt
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userAlwaysThrowsResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userAlwaysThrowsResolverType: (
+(userAlwaysThrowsResolverType as (
   rootKey: UserAlwaysThrowsResolver$key,
   args: void,
   context: TestResolverContextType,
 ) => ?string);
-export type CatchTestResolverErrorThrowQuery$variables = {||};
-export type CatchTestResolverErrorThrowQuery$data = {|
-  +me: Result<?{|
-    +always_throws: ?string,
-  |}, mixed>,
-|};
-export type CatchTestResolverErrorThrowQuery = {|
+export type CatchTestResolverErrorThrowQuery$variables = {};
+export type CatchTestResolverErrorThrowQuery$data = {
+  readonly me: Result<?{
+    readonly always_throws: ?string,
+  }, unknown>,
+};
+export type CatchTestResolverErrorThrowQuery = {
   response: CatchTestResolverErrorThrowQuery$data,
   variables: CatchTestResolverErrorThrowQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {
@@ -140,10 +139,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "a543c7857488a65b428a63d2f1e4f29f";
+  (node/*:: as any*/).hash = "a543c7857488a65b428a63d2f1e4f29f";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   CatchTestResolverErrorThrowQuery$variables,
   CatchTestResolverErrorThrowQuery$data,
 >*/);

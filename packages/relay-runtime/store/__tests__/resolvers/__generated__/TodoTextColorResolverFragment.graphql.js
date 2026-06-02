@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<684b34b051376b40f9f01eff2fdb0e61>>
+ * @generated SignedSource<<da47f560935cb9ebc162736fbec714a8>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,13 +19,13 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type TodoTextColorResolverFragment$fragmentType: FragmentType;
-export type TodoTextColorResolverFragment$data = {|
-  +hex: ?string,
-  +$fragmentType: TodoTextColorResolverFragment$fragmentType,
-|};
+export type TodoTextColorResolverFragment$data = {
+  readonly hex: ?string,
+  readonly $fragmentType: TodoTextColorResolverFragment$fragmentType,
+};
 export type TodoTextColorResolverFragment$key = {
-  +$data?: TodoTextColorResolverFragment$data,
-  +$fragmentSpreads: TodoTextColorResolverFragment$fragmentType,
+  readonly $data?: TodoTextColorResolverFragment$data,
+  readonly $fragmentSpreads: TodoTextColorResolverFragment$fragmentType,
   ...
 };
 */
@@ -55,10 +54,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "90827e6d949c570b97d48215981743dd";
+  (node/*:: as any*/).hash = "90827e6d949c570b97d48215981743dd";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   TodoTextColorResolverFragment$fragmentType,
   TodoTextColorResolverFragment$data,
 >*/);

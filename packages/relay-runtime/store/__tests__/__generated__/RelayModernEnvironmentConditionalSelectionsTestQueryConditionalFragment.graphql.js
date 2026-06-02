@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e8e8a8aa6dd4934771eebd16fe4a970a>>
+ * @generated SignedSource<<786248e2bccd635c768056e95b56675f>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,20 +19,20 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$fragmentType: FragmentType;
-export type RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$data = {|
-  +me?: ?{|
-    +name: ?string,
-  |},
-  +viewer?: ?{|
-    +actor: ?{|
-      +name: ?string,
-    |},
-  |},
-  +$fragmentType: RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$fragmentType,
-|};
+export type RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$data = {
+  readonly me?: ?{
+    readonly name: ?string,
+  },
+  readonly viewer?: ?{
+    readonly actor: ?{
+      readonly name: ?string,
+    },
+  },
+  readonly $fragmentType: RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$fragmentType,
+};
 export type RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$key = {
-  +$data?: RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$data,
-  +$fragmentSpreads: RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$fragmentType,
+  readonly $data?: RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$fragmentType,
   ...
 };
 */
@@ -79,7 +78,7 @@ return {
               "kind": "LinkedField",
               "name": "actor",
               "plural": false,
-              "selections": (v0/*: any*/),
+              "selections": (v0/*:: as any*/),
               "storageKey": null
             }
           ],
@@ -99,7 +98,7 @@ return {
           "kind": "LinkedField",
           "name": "me",
           "plural": false,
-          "selections": (v0/*: any*/),
+          "selections": (v0/*:: as any*/),
           "storageKey": null
         }
       ]
@@ -111,10 +110,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "3e09cebb24166f50723abfb502abb690";
+  (node/*:: as any*/).hash = "3e09cebb24166f50723abfb502abb690";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$fragmentType,
   RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$data,
 >*/);

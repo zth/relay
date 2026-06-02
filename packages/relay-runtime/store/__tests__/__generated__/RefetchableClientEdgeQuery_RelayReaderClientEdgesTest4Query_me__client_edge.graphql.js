@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b971fd6f1a343fe3eda2235f3800c176>>
+ * @generated SignedSource<<03be714fd3804ef9a333ea60b54f43c3>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,25 +23,25 @@ import {another_client_edge as userAnotherClientEdgeResolverType} from "../resol
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userAnotherClientEdgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userAnotherClientEdgeResolverType: (
+(userAnotherClientEdgeResolverType as (
   rootKey: UserAnotherClientEdgeResolver$key,
   args: void,
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
+) => ?{
+  readonly id: DataID,
+});
 declare export opaque type RefetchableClientEdgeQuery_RelayReaderClientEdgesTest4Query_me__client_edge$fragmentType: FragmentType;
 type ClientEdgeQuery_RelayReaderClientEdgesTest4Query_me__client_edge$variables = any;
-export type RefetchableClientEdgeQuery_RelayReaderClientEdgesTest4Query_me__client_edge$data = {|
-  +another_client_edge: ?{|
-    +name: ?string,
-  |},
-  +id: string,
-  +$fragmentType: RefetchableClientEdgeQuery_RelayReaderClientEdgesTest4Query_me__client_edge$fragmentType,
-|};
+export type RefetchableClientEdgeQuery_RelayReaderClientEdgesTest4Query_me__client_edge$data = {
+  readonly another_client_edge: ?{
+    readonly name: ?string,
+  },
+  readonly id: string,
+  readonly $fragmentType: RefetchableClientEdgeQuery_RelayReaderClientEdgesTest4Query_me__client_edge$fragmentType,
+};
 export type RefetchableClientEdgeQuery_RelayReaderClientEdgesTest4Query_me__client_edge$key = {
-  +$data?: RefetchableClientEdgeQuery_RelayReaderClientEdgesTest4Query_me__client_edge$data,
-  +$fragmentSpreads: RefetchableClientEdgeQuery_RelayReaderClientEdgesTest4Query_me__client_edge$fragmentType,
+  readonly $data?: RefetchableClientEdgeQuery_RelayReaderClientEdgesTest4Query_me__client_edge$data,
+  readonly $fragmentSpreads: RefetchableClientEdgeQuery_RelayReaderClientEdgesTest4Query_me__client_edge$fragmentType,
   ...
 };
 */
@@ -114,10 +113,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "f12dcfffcc6bbf929b4fad3a4eb5602d";
+  (node/*:: as any*/).hash = "f12dcfffcc6bbf929b4fad3a4eb5602d";
 }
 
-module.exports = ((node/*: any*/)/*: RefetchableFragment<
+module.exports = ((node/*:: as any*/)/*:: as RefetchableFragment<
   RefetchableClientEdgeQuery_RelayReaderClientEdgesTest4Query_me__client_edge$fragmentType,
   RefetchableClientEdgeQuery_RelayReaderClientEdgesTest4Query_me__client_edge$data,
   ClientEdgeQuery_RelayReaderClientEdgesTest4Query_me__client_edge$variables,

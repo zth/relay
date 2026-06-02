@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e6e12005a35bb2cacc4e12bf70a963db>>
+ * @generated SignedSource<<dac20c85431fffe39e5efd3106e0cd8d>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,27 +23,27 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestMarkdownUserNameRenderer_name$fragmentType } from "./RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestMarkdownUserNameRenderer_name.graphql";
 import type { RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestPlainUserNameRenderer_name$fragmentType } from "./RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestPlainUserNameRenderer_name.graphql";
-export type RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestUserQuery$variables = {|
+export type RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestUserQuery$variables = {
   id: string,
-|};
-export type RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestUserQuery$data = {|
-  +node: ?{|
-    +outerRendererA?: ?{|
-      +__fragmentPropName?: ?string,
-      +__module_component?: ?string,
-      +$fragmentSpreads: RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestMarkdownUserNameRenderer_name$fragmentType,
-    |},
-    +outerRendererB?: ?{|
-      +__fragmentPropName?: ?string,
-      +__module_component?: ?string,
-      +$fragmentSpreads: RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestPlainUserNameRenderer_name$fragmentType,
-    |},
-  |},
-|};
-export type RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestUserQuery = {|
+};
+export type RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestUserQuery$data = {
+  readonly node: ?{
+    readonly outerRendererA?: ?{
+      readonly __fragmentPropName?: ?string,
+      readonly __module_component?: ?string,
+      readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestMarkdownUserNameRenderer_name$fragmentType,
+    },
+    readonly outerRendererB?: ?{
+      readonly __fragmentPropName?: ?string,
+      readonly __module_component?: ?string,
+      readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestPlainUserNameRenderer_name$fragmentType,
+    },
+  },
+};
+export type RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestUserQuery = {
   response: RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestUserQuery$data,
   variables: RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestUserQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -113,14 +112,14 @@ v6 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestUserQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -131,25 +130,25 @@ return {
             "selections": [
               {
                 "alias": "outerRendererA",
-                "args": (v2/*: any*/),
+                "args": (v2/*:: as any*/),
                 "concreteType": null,
                 "kind": "LinkedField",
                 "name": "nameRenderer",
                 "plural": false,
                 "selections": [
-                  (v3/*: any*/)
+                  (v3/*:: as any*/)
                 ],
                 "storageKey": "nameRenderer(supported:\"2aTHRe\")"
               },
               {
                 "alias": "outerRendererB",
-                "args": (v4/*: any*/),
+                "args": (v4/*:: as any*/),
                 "concreteType": null,
                 "kind": "LinkedField",
                 "name": "nameRenderer",
                 "plural": false,
                 "selections": [
-                  (v5/*: any*/)
+                  (v5/*:: as any*/)
                 ],
                 "storageKey": "nameRenderer(supported:\"1AwQS7\")"
               }
@@ -166,45 +165,45 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestUserQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v6/*: any*/),
+          (v6/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
               {
                 "alias": "outerRendererA",
-                "args": (v2/*: any*/),
+                "args": (v2/*:: as any*/),
                 "concreteType": null,
                 "kind": "LinkedField",
                 "name": "nameRenderer",
                 "plural": false,
                 "selections": [
-                  (v6/*: any*/),
-                  (v3/*: any*/)
+                  (v6/*:: as any*/),
+                  (v3/*:: as any*/)
                 ],
                 "storageKey": "nameRenderer(supported:\"2aTHRe\")"
               },
               {
                 "alias": "outerRendererB",
-                "args": (v4/*: any*/),
+                "args": (v4/*:: as any*/),
                 "concreteType": null,
                 "kind": "LinkedField",
                 "name": "nameRenderer",
                 "plural": false,
                 "selections": [
-                  (v6/*: any*/),
-                  (v5/*: any*/)
+                  (v6/*:: as any*/),
+                  (v5/*:: as any*/)
                 ],
                 "storageKey": "nameRenderer(supported:\"1AwQS7\")"
               }
@@ -236,10 +235,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "a3fcd2161f88d8217243730132ccda42";
+  (node/*:: as any*/).hash = "a3fcd2161f88d8217243730132ccda42";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestUserQuery$variables,
   RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestUserQuery$data,
 >*/);

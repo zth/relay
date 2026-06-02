@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<05d194cca070f3188165bc19a6238c96>>
+ * @generated SignedSource<<15ccff7181ef6a999470df42b9a7d22a>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,15 +20,15 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfilePhotoWrapper$fragmentType } from "./RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfilePhotoWrapper.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile$fragmentType: FragmentType;
-export type RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile$data = {|
-  +id: string,
-  +name: ?string,
-  +$fragmentSpreads: RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfilePhotoWrapper$fragmentType,
-  +$fragmentType: RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile$fragmentType,
-|};
+export type RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile$data = {
+  readonly id: string,
+  readonly name: ?string,
+  readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfilePhotoWrapper$fragmentType,
+  readonly $fragmentType: RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile$fragmentType,
+};
 export type RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile$key = {
-  +$data?: RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile$data,
-  +$fragmentSpreads: RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile$fragmentType,
+  readonly $data?: RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile$fragmentType,
   ...
 };
 */
@@ -76,10 +75,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "1f320a4cef6478336086b37f5db239ee";
+  (node/*:: as any*/).hash = "1f320a4cef6478336086b37f5db239ee";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile$fragmentType,
   RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile$data,
 >*/);

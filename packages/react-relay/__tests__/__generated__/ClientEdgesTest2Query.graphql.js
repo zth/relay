@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0a4203e6a549343a8efede75168d8328>>
+ * @generated SignedSource<<09161d34f4d096e85d342dd98798afcd>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -23,28 +22,28 @@ import {client_node as userClientNodeResolverType} from "../../../relay-runtime/
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userClientNodeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userClientNodeResolverType: (
-  args: {|
+(userClientNodeResolverType as (
+  args: {
     id: string,
-  |},
+  },
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
-export type ClientEdgesTest2Query$variables = {|
+) => ?{
+  readonly id: DataID,
+});
+export type ClientEdgesTest2Query$variables = {
   id: string,
-|};
-export type ClientEdgesTest2Query$data = {|
-  +me: ?{|
-    +client_node: ?{|
-      +name?: ?string,
-    |},
-  |},
-|};
-export type ClientEdgesTest2Query = {|
+};
+export type ClientEdgesTest2Query$data = {
+  readonly me: ?{
+    readonly client_node: ?{
+      readonly name?: ?string,
+    },
+  },
+};
+export type ClientEdgesTest2Query = {
   response: ClientEdgesTest2Query$data,
   variables: ClientEdgesTest2Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -64,7 +63,7 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": {
       "hasClientEdges": true
@@ -84,7 +83,7 @@ return {
             "operation": require('./ClientEdgeQuery_ClientEdgesTest2Query_me__client_node.graphql'),
             "backingField": {
               "alias": null,
-              "args": (v1/*: any*/),
+              "args": (v1/*:: as any*/),
               "fragment": null,
               "kind": "RelayResolver",
               "name": "client_node",
@@ -93,7 +92,7 @@ return {
             },
             "linkedField": {
               "alias": null,
-              "args": (v1/*: any*/),
+              "args": (v1/*:: as any*/),
               "concreteType": null,
               "kind": "LinkedField",
               "name": "client_node",
@@ -126,7 +125,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "ClientEdgesTest2Query",
     "selections": [
@@ -140,7 +139,7 @@ return {
         "selections": [
           {
             "name": "client_node",
-            "args": (v1/*: any*/),
+            "args": (v1/*:: as any*/),
             "fragment": null,
             "kind": "RelayResolver",
             "storageKey": null,
@@ -170,10 +169,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "eba9115dcb295cf32d8aacc9a815da6b";
+  (node/*:: as any*/).hash = "eba9115dcb295cf32d8aacc9a815da6b";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ClientEdgesTest2Query$variables,
   ClientEdgesTest2Query$data,
 >*/);

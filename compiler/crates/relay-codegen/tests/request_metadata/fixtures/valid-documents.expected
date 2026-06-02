@@ -9,7 +9,9 @@ query QueryWithMetadata {
   "fragment": {
     "argumentDefinitions": [],
     "kind": "Fragment",
-    "metadata": null,
+    "metadata": {
+      "metadataKey": "Hello world!"
+    },
     "name": "QueryWithMetadata",
     "selections": [
       {

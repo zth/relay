@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<078500eba8f406d0ee02284389661bd5>>
+ * @generated SignedSource<<d2263159e6214d6fba2f2ed49f4beb0d>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,18 +17,18 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayReaderAliasedFragmentsTest6Query$variables = {||};
-export type RelayReaderAliasedFragmentsTest6Query$data = {|
-  +me: ?{|
-    +aliased_fragment: ?{|
-      +name: string,
-    |},
-  |},
-|};
-export type RelayReaderAliasedFragmentsTest6Query = {|
+export type RelayReaderAliasedFragmentsTest6Query$variables = {};
+export type RelayReaderAliasedFragmentsTest6Query$data = {
+  readonly me: ?{
+    readonly aliased_fragment: ?{
+      readonly name: string,
+    },
+  },
+};
+export type RelayReaderAliasedFragmentsTest6Query = {
   response: RelayReaderAliasedFragmentsTest6Query$data,
   variables: RelayReaderAliasedFragmentsTest6Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -61,7 +60,7 @@ return {
               "selections": [
                 {
                   "kind": "RequiredField",
-                  "field": (v0/*: any*/),
+                  "field": (v0/*:: as any*/),
                   "action": "NONE"
                 }
               ],
@@ -92,7 +91,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
+          (v0/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -117,10 +116,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "24fe7d5478a70415faf6e8ae31989c84";
+  (node/*:: as any*/).hash = "24fe7d5478a70415faf6e8ae31989c84";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderAliasedFragmentsTest6Query$variables,
   RelayReaderAliasedFragmentsTest6Query$data,
 >*/);

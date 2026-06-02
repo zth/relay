@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7a18458e8e74a97968fd3346963dee05>>
+ * @generated SignedSource<<4996a7e1f2d3176c63f816fb09a7a29b>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,13 +20,13 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { BaseCounter } from "../LiveCounterContextResolver.js";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type BaseCounter____relay_model_instance$fragmentType: FragmentType;
-export type BaseCounter____relay_model_instance$data = {|
-  +__relay_model_instance: BaseCounter,
-  +$fragmentType: BaseCounter____relay_model_instance$fragmentType,
-|};
+export type BaseCounter____relay_model_instance$data = {
+  readonly __relay_model_instance: BaseCounter,
+  readonly $fragmentType: BaseCounter____relay_model_instance$fragmentType,
+};
 export type BaseCounter____relay_model_instance$key = {
-  +$data?: BaseCounter____relay_model_instance$data,
-  +$fragmentSpreads: BaseCounter____relay_model_instance$fragmentType,
+  readonly $data?: BaseCounter____relay_model_instance$data,
+  readonly $fragmentSpreads: BaseCounter____relay_model_instance$fragmentType,
   ...
 };
 */
@@ -55,7 +54,7 @@ var node/*: ReaderFragment*/ = {
   "abstractKey": null
 };
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   BaseCounter____relay_model_instance$fragmentType,
   BaseCounter____relay_model_instance$data,
 >*/);

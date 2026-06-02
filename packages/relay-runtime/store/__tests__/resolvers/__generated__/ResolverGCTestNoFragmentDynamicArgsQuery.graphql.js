@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<65407fd3e9a25762831384ff01c6d07a>>
+ * @generated SignedSource<<d88bda12155d3bb5899e2c6cd1b9ad8a>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -22,22 +21,22 @@ import {hello as queryHelloResolverType} from "../HelloWorldResolver.js";
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryHelloResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryHelloResolverType: (
-  args: {|
+(queryHelloResolverType as (
+  args: {
     world: string,
-  |},
+  },
   context: TestResolverContextType,
 ) => ?string);
-export type ResolverGCTestNoFragmentDynamicArgsQuery$variables = {|
+export type ResolverGCTestNoFragmentDynamicArgsQuery$variables = {
   world: string,
-|};
-export type ResolverGCTestNoFragmentDynamicArgsQuery$data = {|
-  +hello: ?string,
-|};
-export type ResolverGCTestNoFragmentDynamicArgsQuery = {|
+};
+export type ResolverGCTestNoFragmentDynamicArgsQuery$data = {
+  readonly hello: ?string,
+};
+export type ResolverGCTestNoFragmentDynamicArgsQuery = {
   response: ResolverGCTestNoFragmentDynamicArgsQuery$data,
   variables: ResolverGCTestNoFragmentDynamicArgsQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){
@@ -57,7 +56,7 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "ResolverGCTestNoFragmentDynamicArgsQuery",
@@ -67,7 +66,7 @@ return {
         "selections": [
           {
             "alias": null,
-            "args": (v1/*: any*/),
+            "args": (v1/*:: as any*/),
             "fragment": null,
             "kind": "RelayResolver",
             "name": "hello",
@@ -82,7 +81,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "ResolverGCTestNoFragmentDynamicArgsQuery",
     "selections": [
@@ -91,7 +90,7 @@ return {
         "selections": [
           {
             "name": "hello",
-            "args": (v1/*: any*/),
+            "args": (v1/*:: as any*/),
             "fragment": null,
             "kind": "RelayResolver",
             "storageKey": null,
@@ -113,10 +112,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "c37df8787a01c657da905bd28983769b";
+  (node/*:: as any*/).hash = "c37df8787a01c657da905bd28983769b";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   ResolverGCTestNoFragmentDynamicArgsQuery$variables,
   ResolverGCTestNoFragmentDynamicArgsQuery$data,
 >*/);

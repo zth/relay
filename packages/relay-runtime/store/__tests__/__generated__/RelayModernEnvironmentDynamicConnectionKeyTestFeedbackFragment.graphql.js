@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<231849626f3fe9f4711e597fd34dd80c>>
+ * @generated SignedSource<<635ceb04845fc7db51121aac4e000618>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,20 +19,20 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment$fragmentType: FragmentType;
-export type RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment$data = {|
-  +comments: ?{|
-    +edges: ?$ReadOnlyArray<?{|
-      +node: ?{|
-        +id: string,
-      |},
-    |}>,
-  |},
-  +id: string,
-  +$fragmentType: RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment$fragmentType,
-|};
+export type RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment$data = {
+  readonly comments: ?{
+    readonly edges: ?ReadonlyArray<?{
+      readonly node: ?{
+        readonly id: string,
+      },
+    }>,
+  },
+  readonly id: string,
+  readonly $fragmentType: RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment$fragmentType,
+};
 export type RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment$key = {
-  +$data?: RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment$data,
-  +$fragmentSpreads: RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment$fragmentType,
+  readonly $data?: RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment$fragmentType,
   ...
 };
 */
@@ -78,7 +77,7 @@ return {
   },
   "name": "RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment",
   "selections": [
-    (v0/*: any*/),
+    (v0/*:: as any*/),
     {
       "alias": "comments",
       "args": [
@@ -114,7 +113,7 @@ return {
               "name": "node",
               "plural": false,
               "selections": [
-                (v0/*: any*/),
+                (v0/*:: as any*/),
                 {
                   "alias": null,
                   "args": null,
@@ -170,10 +169,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "b83415f7ddaf726ca9c8853aa433bf33";
+  (node/*:: as any*/).hash = "b83415f7ddaf726ca9c8853aa433bf33";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment$fragmentType,
   RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment$data,
 >*/);

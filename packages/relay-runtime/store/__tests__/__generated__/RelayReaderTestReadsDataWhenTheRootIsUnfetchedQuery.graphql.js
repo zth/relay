@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4fee02550f5fafef4f0cda9f1a2148da>>
+ * @generated SignedSource<<932300e4320b90c15db3f98e4b39eb4c>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,16 +18,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile$fragmentType } from "./RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile.graphql";
-export type RelayReaderTestReadsDataWhenTheRootIsUnfetchedQuery$variables = {||};
-export type RelayReaderTestReadsDataWhenTheRootIsUnfetchedQuery$data = {|
-  +me: ?{|
-    +$fragmentSpreads: RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile$fragmentType,
-  |},
-|};
-export type RelayReaderTestReadsDataWhenTheRootIsUnfetchedQuery = {|
+export type RelayReaderTestReadsDataWhenTheRootIsUnfetchedQuery$variables = {};
+export type RelayReaderTestReadsDataWhenTheRootIsUnfetchedQuery$data = {
+  readonly me: ?{
+    readonly $fragmentSpreads: RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile$fragmentType,
+  },
+};
+export type RelayReaderTestReadsDataWhenTheRootIsUnfetchedQuery = {
   response: RelayReaderTestReadsDataWhenTheRootIsUnfetchedQuery$data,
   variables: RelayReaderTestReadsDataWhenTheRootIsUnfetchedQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {
@@ -102,10 +101,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "265eedaf609b353b309c79fdabfdb31e";
+  (node/*:: as any*/).hash = "265eedaf609b353b309c79fdabfdb31e";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderTestReadsDataWhenTheRootIsUnfetchedQuery$variables,
   RelayReaderTestReadsDataWhenTheRootIsUnfetchedQuery$data,
 >*/);

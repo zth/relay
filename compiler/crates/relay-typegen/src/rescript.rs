@@ -159,6 +159,24 @@ fn ast_to_prop_value(
     let mut new_at_path = current_path.clone();
     new_at_path.push(key.to_string());
 
+    if let Some(original_key) = &original_key {
+        if original_key != &safe_key {
+            state.conversion_instructions.push(InstructionContainer {
+                context: context.clone(),
+                at_path: new_at_path.clone(),
+                instruction: ConverterInstructions::RenameKey(safe_key.clone()),
+            });
+
+            let mut safe_key_path = current_path.clone();
+            safe_key_path.push(safe_key.clone());
+            state.conversion_instructions.push(InstructionContainer {
+                context: context.clone(),
+                at_path: safe_key_path,
+                instruction: ConverterInstructions::RenameKey(original_key.clone()),
+            });
+        }
+    }
+
     // The catch result type in Relay is shaped as `{ok: true, value: 'value} | {ok: false, errors: array<catchErrors>}`.
     // This sets the path up here to follow into `value`, which is where the OK result will be located if it's an OK
     // response.
@@ -501,7 +519,7 @@ fn ast_to_prop_value(
                 None
             }
         }
-        AST::OtherTypename | AST::Local3DPayload(_, _) | AST::ActorChangePoint(_) => {
+        AST::OtherTypename | AST::Local3DPayload(_, _) | AST::Empty => {
             // These are ignored for now, but might be supported in the future.
             None
         }
@@ -853,6 +871,68 @@ fn write_object_maker_for_refetch_variables(
         .for_each(|(index, prop_value)| {
             write_indentation(str, indentation + 1).unwrap();
             write!(str, "{}: ?{}", prop_value.key, prop_value.key).unwrap();
+            writeln!(str, "{}", if index + 1 == num_props { "" } else { "," }).unwrap();
+        });
+
+    write_indentation(str, indentation).unwrap();
+    writeln!(str, "}}\n").unwrap();
+
+    Ok(())
+}
+
+fn write_object_maker_for_variables(
+    state: &Box<ReScriptPrinter>,
+    str: &mut String,
+    indentation: usize,
+    definition: &Object,
+) -> Result {
+    write_indentation(str, indentation).unwrap();
+    write!(str, "@live let makeVariables = (").unwrap();
+
+    let num_props = definition.values.len();
+
+    if num_props == 0 {
+        writeln!(str, ") => ()").unwrap();
+        return Ok(());
+    } else {
+        writeln!(str, "").unwrap();
+    }
+
+    definition.values.iter().for_each(|prop_value| {
+        write_indentation(str, indentation + 1).unwrap();
+        if prop_value.nullable {
+            writeln!(str, "~{}=?,", prop_value.key).unwrap();
+        } else {
+            writeln!(
+                str,
+                "~{}: {},",
+                prop_value.key,
+                get_object_prop_type_as_string(
+                    state,
+                    &prop_value.prop_type,
+                    &Context::Variables,
+                    indentation + 1,
+                    &vec![String::from("variables"), prop_value.key.clone()],
+                )
+            )
+            .unwrap();
+        }
+    });
+
+    write_indentation(str, indentation).unwrap();
+    writeln!(str, "): variables => {{").unwrap();
+
+    definition
+        .values
+        .iter()
+        .enumerate()
+        .for_each(|(index, prop_value)| {
+            write_indentation(str, indentation + 1).unwrap();
+            if prop_value.nullable {
+                write!(str, "{}: ?{}", prop_value.key, prop_value.key).unwrap();
+            } else {
+                write!(str, "{}: {}", prop_value.key, prop_value.key).unwrap();
+            }
             writeln!(str, "{}", if index + 1 == num_props { "" } else { "," }).unwrap();
         });
 
@@ -1288,7 +1368,7 @@ fn write_internal_assets(
     write_indentation(str, indentation).unwrap();
     writeln!(
         str,
-        "let {}Converter: dict<dict<dict<string>>> = %raw(",
+        "let {}Converter: Js.Dict.t<Js.Dict.t<Js.Dict.t<string>>> = %raw(",
         name
     )
     .unwrap();
@@ -1380,7 +1460,7 @@ fn write_internal_assets(
         "{}",
         match nullable_type {
             NullableType::Undefined => "None",
-            NullableType::Null => "null",
+            NullableType::Null => "Js.Nullable.null",
         }
     )
     .unwrap();
@@ -2152,7 +2232,7 @@ fn write_get_connection_nodes_function(
                             local_indentation += 1;
                             if edges_nullable {
                                 write_indentation(str, local_indentation).unwrap();
-                                writeln!(str, "->Array.filterMap(edge => switch edge {{").unwrap();
+                                writeln!(str, "->Belt.Array.keepMap(edge => switch edge {{").unwrap();
 
                                 write_indentation(&mut ending_str, local_indentation).unwrap();
                                 writeln!(ending_str, "}})").unwrap();
@@ -2165,7 +2245,7 @@ fn write_get_connection_nodes_function(
                                 write!(str, "| Some(edge) => ").unwrap();
                             } else {
                                 write_indentation(str, local_indentation).unwrap();
-                                writeln!(str, "->Array.filterMap(edge => ").unwrap();
+                                writeln!(str, "->Belt.Array.keepMap(edge => ").unwrap();
 
                                 write_indentation(&mut ending_str, local_indentation).unwrap();
                                 writeln!(ending_str, ")").unwrap();
@@ -2505,6 +2585,8 @@ impl Writer for ReScriptPrinter {
                 true,
             )
             .unwrap();
+            write_object_maker_for_variables(&self, &mut generated_types, indentation, variables)
+                .unwrap();
 
             // And, if we're in a query, print the refetch variables assets as
             // well.
@@ -2810,7 +2892,7 @@ impl Writer for ReScriptPrinter {
             (_, DefinitionType::Operation((op, _))) => match &op.kind {
                 OperationKind::Query => {
                     if !self.operation_meta_data.is_updatable {
-                        writeln!(generated_types, "  type rawPreloadToken<'response> = {{source: Nullable.t<RescriptRelay.Observable.t<'response>>}}").unwrap();
+                        writeln!(generated_types, "  type rawPreloadToken<'response> = {{source: Js.Nullable.t<RescriptRelay.Observable.t<'response>>}}").unwrap();
                         writeln!(generated_types, "  external tokenToRaw: queryRef => rawPreloadToken<Types.response> = \"%identity\"").unwrap();
                     }
                 }
@@ -3066,7 +3148,7 @@ impl Writer for ReScriptPrinter {
                                 // the keys, which means this works out.
                                 writeln!(
                                     generated_types,
-                                    "get: () => Internal.convertVariables(Dict.fromArray([(\"{}\", {}.get())]))->Dict.getUnsafe(\"{}\"),",
+                                    "get: () => Internal.convertVariables(Js.Dict.fromArray([(\"{}\", {}.get())]))->Js.Dict.get(\"{}\")->Belt.Option.getExn,",
                                     key, module_name, key
                                 )
                                 .unwrap();

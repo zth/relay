@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<91d44758d902aaf69f7d20d4b88712de>>
+ * @generated SignedSource<<a5a327ab052f1ef1963a61c2c159f022>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,18 +18,18 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RefetchableClientEdgeQuery_ClientEdgesTest2Query_me__client_node$fragmentType } from "./RefetchableClientEdgeQuery_ClientEdgesTest2Query_me__client_node.graphql";
-export type ClientEdgeQuery_ClientEdgesTest2Query_me__client_node$variables = {|
+export type ClientEdgeQuery_ClientEdgesTest2Query_me__client_node$variables = {
   id: string,
-|};
-export type ClientEdgeQuery_ClientEdgesTest2Query_me__client_node$data = {|
-  +node: ?{|
-    +$fragmentSpreads: RefetchableClientEdgeQuery_ClientEdgesTest2Query_me__client_node$fragmentType,
-  |},
-|};
-export type ClientEdgeQuery_ClientEdgesTest2Query_me__client_node = {|
+};
+export type ClientEdgeQuery_ClientEdgesTest2Query_me__client_node$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: RefetchableClientEdgeQuery_ClientEdgesTest2Query_me__client_node$fragmentType,
+  },
+};
+export type ClientEdgeQuery_ClientEdgesTest2Query_me__client_node = {
   response: ClientEdgeQuery_ClientEdgesTest2Query_me__client_node$data,
   variables: ClientEdgeQuery_ClientEdgesTest2Query_me__client_node$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -50,14 +49,14 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "ClientEdgeQuery_ClientEdgesTest2Query_me__client_node",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -77,13 +76,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "ClientEdgeQuery_ClientEdgesTest2Query_me__client_node",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -138,10 +137,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "eba9115dcb295cf32d8aacc9a815da6b";
+  (node/*:: as any*/).hash = "eba9115dcb295cf32d8aacc9a815da6b";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ClientEdgeQuery_ClientEdgesTest2Query_me__client_node$variables,
   ClientEdgeQuery_ClientEdgesTest2Query_me__client_node$data,
 >*/);

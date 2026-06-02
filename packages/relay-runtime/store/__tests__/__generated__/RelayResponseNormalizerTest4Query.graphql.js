@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<aaf1027467b947e25ace263b29bf6cef>>
+ * @generated SignedSource<<6ea9f0a75de8a7c0f5ec820f2528ac58>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,18 +20,18 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayResponseNormalizerTestFragment$fragmentType } from "./RelayResponseNormalizerTestFragment.graphql";
-export type RelayResponseNormalizerTest4Query$variables = {|
+export type RelayResponseNormalizerTest4Query$variables = {
   id: string,
-|};
-export type RelayResponseNormalizerTest4Query$data = {|
-  +node: ?{|
-    +$fragmentSpreads: RelayResponseNormalizerTestFragment$fragmentType,
-  |},
-|};
-export type RelayResponseNormalizerTest4Query = {|
+};
+export type RelayResponseNormalizerTest4Query$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: RelayResponseNormalizerTestFragment$fragmentType,
+  },
+};
+export type RelayResponseNormalizerTest4Query = {
   response: RelayResponseNormalizerTest4Query$data,
   variables: RelayResponseNormalizerTest4Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -59,14 +58,14 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayResponseNormalizerTest4Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -86,19 +85,19 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayResponseNormalizerTest4Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -123,7 +122,7 @@ return {
                 "name": "nameRenderer",
                 "plural": false,
                 "selections": [
-                  (v2/*: any*/),
+                  (v2/*:: as any*/),
                   {
                     "kind": "InlineFragment",
                     "selections": [
@@ -176,10 +175,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "89fbaf152e9bd6bab74a5baad7e66dd1";
+  (node/*:: as any*/).hash = "89fbaf152e9bd6bab74a5baad7e66dd1";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayResponseNormalizerTest4Query$variables,
   RelayResponseNormalizerTest4Query$data,
 >*/);

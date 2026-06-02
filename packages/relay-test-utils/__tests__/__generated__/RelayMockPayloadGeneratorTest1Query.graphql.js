@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<962a482ff8b12e8fc6717c65227e869e>>
+ * @generated SignedSource<<f86a4c4c136ad07d2b8a30df7779adde>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,16 +18,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayMockPayloadGeneratorTestFragment$fragmentType } from "./RelayMockPayloadGeneratorTestFragment.graphql";
-export type RelayMockPayloadGeneratorTest1Query$variables = {||};
-export type RelayMockPayloadGeneratorTest1Query$data = {|
-  +node: ?{|
-    +$fragmentSpreads: RelayMockPayloadGeneratorTestFragment$fragmentType,
-  |},
-|};
-export type RelayMockPayloadGeneratorTest1Query = {|
+export type RelayMockPayloadGeneratorTest1Query$variables = {};
+export type RelayMockPayloadGeneratorTest1Query$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: RelayMockPayloadGeneratorTestFragment$fragmentType,
+  },
+};
+export type RelayMockPayloadGeneratorTest1Query = {
   response: RelayMockPayloadGeneratorTest1Query$data,
   variables: RelayMockPayloadGeneratorTest1Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -48,7 +47,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -74,7 +73,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -157,10 +156,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "da022d676ffde7b720c5358afc35d31d";
+  (node/*:: as any*/).hash = "da022d676ffde7b720c5358afc35d31d";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayMockPayloadGeneratorTest1Query$variables,
   RelayMockPayloadGeneratorTest1Query$data,
 >*/);

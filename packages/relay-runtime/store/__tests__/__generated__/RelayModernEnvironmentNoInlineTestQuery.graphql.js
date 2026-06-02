@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<be170ac2e92517ba5112a26b59e59625>>
+ * @generated SignedSource<<ab30afb33f7a1ea8973f57a0b93134b7>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,19 +19,19 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentNoInlineTest_noInline$fragmentType } from "./RelayModernEnvironmentNoInlineTest_noInline.graphql";
 export type PhotoSize = "LARGE" | "SMALL" | "%future added value";
-export type RelayModernEnvironmentNoInlineTestQuery$variables = {|
+export type RelayModernEnvironmentNoInlineTestQuery$variables = {
   preset?: ?PhotoSize,
-  size?: ?$ReadOnlyArray<?number>,
-|};
-export type RelayModernEnvironmentNoInlineTestQuery$data = {|
-  +me: ?{|
-    +$fragmentSpreads: RelayModernEnvironmentNoInlineTest_noInline$fragmentType,
-  |},
-|};
-export type RelayModernEnvironmentNoInlineTestQuery = {|
+  size?: ?ReadonlyArray<?number>,
+};
+export type RelayModernEnvironmentNoInlineTestQuery$data = {
+  readonly me: ?{
+    readonly $fragmentSpreads: RelayModernEnvironmentNoInlineTest_noInline$fragmentType,
+  },
+};
+export type RelayModernEnvironmentNoInlineTestQuery = {
   response: RelayModernEnvironmentNoInlineTestQuery$data,
   variables: RelayModernEnvironmentNoInlineTestQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -49,8 +48,8 @@ v1 = {
 return {
   "fragment": {
     "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/)
+      (v0/*:: as any*/),
+      (v1/*:: as any*/)
     ],
     "kind": "Fragment",
     "metadata": null,
@@ -79,8 +78,8 @@ return {
   "kind": "Request",
   "operation": {
     "argumentDefinitions": [
-      (v1/*: any*/),
-      (v0/*: any*/)
+      (v1/*:: as any*/),
+      (v0/*:: as any*/)
     ],
     "kind": "Operation",
     "name": "RelayModernEnvironmentNoInlineTestQuery",
@@ -129,10 +128,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "3a7cd297670bd45aeb18f860defe23bc";
+  (node/*:: as any*/).hash = "3a7cd297670bd45aeb18f860defe23bc";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentNoInlineTestQuery$variables,
   RelayModernEnvironmentNoInlineTestQuery$data,
 >*/);

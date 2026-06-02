@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<27746dd29c86f0077ba7d158bb70a1f0>>
+ * @generated SignedSource<<908e32f73ecbd4eca8200804d7853646>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,16 +17,16 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayModernEnvironmentExecuteWithHandlerAndUpdaterTestActorQuery$variables = {||};
-export type RelayModernEnvironmentExecuteWithHandlerAndUpdaterTestActorQuery$data = {|
-  +me: ?{|
-    +name: ?string,
-  |},
-|};
-export type RelayModernEnvironmentExecuteWithHandlerAndUpdaterTestActorQuery = {|
+export type RelayModernEnvironmentExecuteWithHandlerAndUpdaterTestActorQuery$variables = {};
+export type RelayModernEnvironmentExecuteWithHandlerAndUpdaterTestActorQuery$data = {
+  readonly me: ?{
+    readonly name: ?string,
+  },
+};
+export type RelayModernEnvironmentExecuteWithHandlerAndUpdaterTestActorQuery = {
   response: RelayModernEnvironmentExecuteWithHandlerAndUpdaterTestActorQuery$data,
   variables: RelayModernEnvironmentExecuteWithHandlerAndUpdaterTestActorQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {
@@ -112,10 +111,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "6d9f8375f8d7b1f2c54baa8d057d7c07";
+  (node/*:: as any*/).hash = "6d9f8375f8d7b1f2c54baa8d057d7c07";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentExecuteWithHandlerAndUpdaterTestActorQuery$variables,
   RelayModernEnvironmentExecuteWithHandlerAndUpdaterTestActorQuery$data,
 >*/);

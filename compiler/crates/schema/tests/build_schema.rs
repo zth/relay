@@ -16,7 +16,7 @@ use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
 use schema::build_schema_from_flat_buffer;
-use schema::build_schema_with_extensions;
+use schema::build_schema_with_extensions_parallel;
 use schema::serialize_as_flatbuffer;
 
 const SCHEMA_SEPARATOR: &str = "%extensions%";
@@ -24,7 +24,7 @@ const SCHEMA_SEPARATOR: &str = "%extensions%";
 pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts: Vec<_> = fixture.content.split(SCHEMA_SEPARATOR).collect();
     let result = match parts.as_slice() {
-        [base] => build_schema_with_extensions::<_, &str>(
+        [base] => build_schema_with_extensions_parallel::<_, &str>(
             &[(base, SourceLocationKey::standalone(fixture.file_name))],
             &[],
         ),
@@ -34,7 +34,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
             let nchars_base = base.chars().count() + SCHEMA_SEPARATOR.chars().count();
             assert!(nchars_base > 0);
             let prepended_extension = format!("{}\n{}", "#".repeat(nchars_base - 1), extensions);
-            build_schema_with_extensions(
+            build_schema_with_extensions_parallel(
                 &[(base, SourceLocationKey::standalone(fixture.file_name))],
                 &[(
                     prepended_extension,
@@ -51,7 +51,6 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
 }
 
 fn print_schema_and_flat_buffer_schema(schema: SDLSchema) -> String {
-    let schema = schema.unwrap_in_memory_impl();
     let bytes = serialize_as_flatbuffer(&schema);
     let fb_schema = build_schema_from_flat_buffer(&bytes).unwrap();
     let mut objects = Vec::new();

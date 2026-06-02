@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9cc64844620c01c989c82c8ba68c819c>>
+ * @generated SignedSource<<9143c2521baaee4f94b7a9f2bc4a03e8>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,24 +17,24 @@
 
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
-export type FeedbackLikeInput = {|
+export type FeedbackLikeInput = {
   feedbackId?: ?string,
-|};
-export type validateMutationTest19FeedbackLikeMutation$variables = {|
+};
+export type validateMutationTest19FeedbackLikeMutation$variables = {
   input?: ?FeedbackLikeInput,
-|};
-export type validateMutationTest19FeedbackLikeMutation$data = {|
-  +feedbackLike: ?{|
-    +feedback: ?{|
-      +doesViewerLike: ?boolean,
-      +isSavingLike: ?boolean,
-    |},
-  |},
-|};
-export type validateMutationTest19FeedbackLikeMutation = {|
+};
+export type validateMutationTest19FeedbackLikeMutation$data = {
+  readonly feedbackLike: ?{
+    readonly feedback: ?{
+      readonly doesViewerLike: ?boolean,
+      readonly isSavingLike: ?boolean,
+    },
+  },
+};
+export type validateMutationTest19FeedbackLikeMutation = {
   response: validateMutationTest19FeedbackLikeMutation$data,
   variables: validateMutationTest19FeedbackLikeMutation$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -74,14 +73,14 @@ v3 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "validateMutationTest19FeedbackLikeMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "FeedbackLikeResponsePayload",
         "kind": "LinkedField",
         "name": "feedbackLike",
@@ -95,8 +94,8 @@ return {
             "name": "feedback",
             "plural": false,
             "selections": [
-              (v2/*: any*/),
-              (v3/*: any*/)
+              (v2/*:: as any*/),
+              (v3/*:: as any*/)
             ],
             "storageKey": null
           }
@@ -109,13 +108,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "validateMutationTest19FeedbackLikeMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "FeedbackLikeResponsePayload",
         "kind": "LinkedField",
         "name": "feedbackLike",
@@ -129,7 +128,7 @@ return {
             "name": "feedback",
             "plural": false,
             "selections": [
-              (v2/*: any*/),
+              (v2/*:: as any*/),
               {
                 "alias": null,
                 "args": null,
@@ -137,7 +136,7 @@ return {
                 "name": "id",
                 "storageKey": null
               },
-              (v3/*: any*/)
+              (v3/*:: as any*/)
             ],
             "storageKey": null
           }
@@ -158,10 +157,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "cb1650d795ec969789e398422323459a";
+  (node/*:: as any*/).hash = "cb1650d795ec969789e398422323459a";
 }
 
-module.exports = ((node/*: any*/)/*: Mutation<
+module.exports = ((node/*:: as any*/)/*:: as Mutation<
   validateMutationTest19FeedbackLikeMutation$variables,
   validateMutationTest19FeedbackLikeMutation$data,
 >*/);

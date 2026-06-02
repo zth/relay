@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<778663a0ddbc20c886dfd863bb68b217>>
+ * @generated SignedSource<<9d6704fc5b013ae2ad2764e076c0cb08>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,16 +17,16 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingVariablesProfilePictureQuery$variables = {||};
-export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingVariablesProfilePictureQuery$data = {|
-  +me: ?{|
-    +id: string,
-  |},
-|};
-export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingVariablesProfilePictureQuery = {|
+export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingVariablesProfilePictureQuery$variables = {};
+export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingVariablesProfilePictureQuery$data = {
+  readonly me: ?{
+    readonly id: string,
+  },
+};
+export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingVariablesProfilePictureQuery = {
   response: RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingVariablesProfilePictureQuery$data,
   variables: RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingVariablesProfilePictureQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -57,7 +56,7 @@ return {
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingVariablesProfilePictureQuery",
-    "selections": (v0/*: any*/),
+    "selections": (v0/*:: as any*/),
     "type": "Query",
     "abstractKey": null
   },
@@ -66,7 +65,7 @@ return {
     "argumentDefinitions": [],
     "kind": "Operation",
     "name": "RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingVariablesProfilePictureQuery",
-    "selections": (v0/*: any*/)
+    "selections": (v0/*:: as any*/)
   },
   "params": {
     "cacheID": "aba03ad31bc3122c807d8d4f51828637",
@@ -80,10 +79,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "3b3b10704291421f33fcda5e9ed0ac7c";
+  (node/*:: as any*/).hash = "3b3b10704291421f33fcda5e9ed0ac7c";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingVariablesProfilePictureQuery$variables,
   RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingVariablesProfilePictureQuery$data,
 >*/);

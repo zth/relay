@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<af7fce71cc8861a718baa27a90404b9e>>
+ * @generated SignedSource<<cd2cbb6f2b87176834bec9d4cf8d49a5>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,25 +17,25 @@
 
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
-export type ActorNameChangeInput = {|
+export type ActorNameChangeInput = {
   newName?: ?string,
-|};
-export type validateMutationTest13ChangeNamePhonesMutation$variables = {|
+};
+export type validateMutationTest13ChangeNamePhonesMutation$variables = {
   input: ActorNameChangeInput,
-|};
-export type validateMutationTest13ChangeNamePhonesMutation$data = {|
-  +actorNameChange: ?{|
-    +actor: ?{|
-      +allPhones: ?$ReadOnlyArray<?{|
-        +isVerified: ?boolean,
-      |}>,
-    |},
-  |},
-|};
-export type validateMutationTest13ChangeNamePhonesMutation = {|
+};
+export type validateMutationTest13ChangeNamePhonesMutation$data = {
+  readonly actorNameChange: ?{
+    readonly actor: ?{
+      readonly allPhones: ?ReadonlyArray<?{
+        readonly isVerified: ?boolean,
+      }>,
+    },
+  },
+};
+export type validateMutationTest13ChangeNamePhonesMutation = {
   response: validateMutationTest13ChangeNamePhonesMutation$data,
   variables: validateMutationTest13ChangeNamePhonesMutation$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -74,14 +73,14 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "validateMutationTest13ChangeNamePhonesMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "ActorNameChangePayload",
         "kind": "LinkedField",
         "name": "actorNameChange",
@@ -95,7 +94,7 @@ return {
             "name": "actor",
             "plural": false,
             "selections": [
-              (v2/*: any*/)
+              (v2/*:: as any*/)
             ],
             "storageKey": null
           }
@@ -108,13 +107,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "validateMutationTest13ChangeNamePhonesMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "ActorNameChangePayload",
         "kind": "LinkedField",
         "name": "actorNameChange",
@@ -135,7 +134,7 @@ return {
                 "name": "__typename",
                 "storageKey": null
               },
-              (v2/*: any*/),
+              (v2/*:: as any*/),
               {
                 "alias": null,
                 "args": null,
@@ -163,10 +162,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "f10959f75417be0cee3c3711dd9b4766";
+  (node/*:: as any*/).hash = "f10959f75417be0cee3c3711dd9b4766";
 }
 
-module.exports = ((node/*: any*/)/*: Mutation<
+module.exports = ((node/*:: as any*/)/*:: as Mutation<
   validateMutationTest13ChangeNamePhonesMutation$variables,
   validateMutationTest13ChangeNamePhonesMutation$data,
 >*/);

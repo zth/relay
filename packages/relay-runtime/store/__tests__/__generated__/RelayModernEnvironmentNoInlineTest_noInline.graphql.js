@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<cfe11a41b3ff3620f7c46268a16e8406>>
+ * @generated SignedSource<<e7d000b44608ec1d0d336183e151561d>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,16 +20,16 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { RelayModernEnvironmentNoInlineTest_inner$fragmentType } from "./RelayModernEnvironmentNoInlineTest_inner.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentNoInlineTest_noInline$fragmentType: FragmentType;
-export type RelayModernEnvironmentNoInlineTest_noInline$data = {|
-  +profile_picture?: ?{|
-    +uri: ?string,
-  |},
-  +$fragmentSpreads: RelayModernEnvironmentNoInlineTest_inner$fragmentType,
-  +$fragmentType: RelayModernEnvironmentNoInlineTest_noInline$fragmentType,
-|};
+export type RelayModernEnvironmentNoInlineTest_noInline$data = {
+  readonly profile_picture?: ?{
+    readonly uri: ?string,
+  },
+  readonly $fragmentSpreads: RelayModernEnvironmentNoInlineTest_inner$fragmentType,
+  readonly $fragmentType: RelayModernEnvironmentNoInlineTest_noInline$fragmentType,
+};
 export type RelayModernEnvironmentNoInlineTest_noInline$key = {
-  +$data?: RelayModernEnvironmentNoInlineTest_noInline$data,
-  +$fragmentSpreads: RelayModernEnvironmentNoInlineTest_noInline$fragmentType,
+  readonly $data?: RelayModernEnvironmentNoInlineTest_noInline$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentNoInlineTest_noInline$fragmentType,
   ...
 };
 */
@@ -67,7 +66,7 @@ return {
               "name": "fileExtension",
               "value": "PNG"
             },
-            (v0/*: any*/),
+            (v0/*:: as any*/),
             {
               "kind": "Variable",
               "name": "size",
@@ -105,7 +104,7 @@ return {
           "name": "fileExtension",
           "value": "JPG"
         },
-        (v0/*: any*/)
+        (v0/*:: as any*/)
       ],
       "kind": "FragmentSpread",
       "name": "RelayModernEnvironmentNoInlineTest_inner"
@@ -117,10 +116,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "e69851050102bb98a80e11aa48993f20";
+  (node/*:: as any*/).hash = "e69851050102bb98a80e11aa48993f20";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayModernEnvironmentNoInlineTest_noInline$fragmentType,
   RelayModernEnvironmentNoInlineTest_noInline$data,
 >*/);

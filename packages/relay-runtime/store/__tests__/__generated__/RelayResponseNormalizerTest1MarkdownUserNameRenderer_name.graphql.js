@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a35953a33a7b46173fb991393f17b6ae>>
+ * @generated SignedSource<<d15032311d7df0f62461a1f7265380f9>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,16 +19,16 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayResponseNormalizerTest1MarkdownUserNameRenderer_name$fragmentType: FragmentType;
-export type RelayResponseNormalizerTest1MarkdownUserNameRenderer_name$data = {|
-  +data: ?{|
-    +markup: ?string,
-  |},
-  +markdown: ?string,
-  +$fragmentType: RelayResponseNormalizerTest1MarkdownUserNameRenderer_name$fragmentType,
-|};
+export type RelayResponseNormalizerTest1MarkdownUserNameRenderer_name$data = {
+  readonly data: ?{
+    readonly markup: ?string,
+  },
+  readonly markdown: ?string,
+  readonly $fragmentType: RelayResponseNormalizerTest1MarkdownUserNameRenderer_name$fragmentType,
+};
 export type RelayResponseNormalizerTest1MarkdownUserNameRenderer_name$key = {
-  +$data?: RelayResponseNormalizerTest1MarkdownUserNameRenderer_name$data,
-  +$fragmentSpreads: RelayResponseNormalizerTest1MarkdownUserNameRenderer_name$fragmentType,
+  readonly $data?: RelayResponseNormalizerTest1MarkdownUserNameRenderer_name$data,
+  readonly $fragmentSpreads: RelayResponseNormalizerTest1MarkdownUserNameRenderer_name$fragmentType,
   ...
 };
 */
@@ -71,10 +70,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "0664dafd5e47ea16f70ed265f10ae379";
+  (node/*:: as any*/).hash = "0664dafd5e47ea16f70ed265f10ae379";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayResponseNormalizerTest1MarkdownUserNameRenderer_name$fragmentType,
   RelayResponseNormalizerTest1MarkdownUserNameRenderer_name$data,
 >*/);

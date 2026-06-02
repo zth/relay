@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1e7d015c558af2a0b2bb7d03376c83b2>>
+ * @generated SignedSource<<a46b8f848154033fc229f3eb939f6879>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,33 +17,33 @@
 
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
-export type FeedbackLikeInput = {|
+export type FeedbackLikeInput = {
   feedbackId?: ?string,
-|};
-export type validateMutationTestIsNodeInlineFragmentMutation$variables = {|
+};
+export type validateMutationTestIsNodeInlineFragmentMutation$variables = {
   input?: ?FeedbackLikeInput,
-|};
-export type validateMutationTestIsNodeInlineFragmentMutation$data = {|
-  +feedbackLike: ?{|
-    +feedback: ?{|
-      +name?: ?string,
-    |},
-  |},
-|};
-export type validateMutationTestIsNodeInlineFragmentMutation$rawResponse = {|
-  +feedbackLike: ?{|
-    +feedback: ?{|
-      +__isNode: "Feedback",
-      +id: string,
-      +name: ?string,
-    |},
-  |},
-|};
-export type validateMutationTestIsNodeInlineFragmentMutation = {|
+};
+export type validateMutationTestIsNodeInlineFragmentMutation$data = {
+  readonly feedbackLike: ?{
+    readonly feedback: ?{
+      readonly name?: ?string,
+    },
+  },
+};
+export type validateMutationTestIsNodeInlineFragmentMutation$rawResponse = {
+  readonly feedbackLike: ?{
+    readonly feedback: ?{
+      readonly __isNode: "Feedback",
+      readonly id: string,
+      readonly name: ?string,
+    },
+  },
+};
+export type validateMutationTestIsNodeInlineFragmentMutation = {
   rawResponse: validateMutationTestIsNodeInlineFragmentMutation$rawResponse,
   response: validateMutationTestIsNodeInlineFragmentMutation$data,
   variables: validateMutationTestIsNodeInlineFragmentMutation$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -78,14 +77,14 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "validateMutationTestIsNodeInlineFragmentMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "FeedbackLikeResponsePayload",
         "kind": "LinkedField",
         "name": "feedbackLike",
@@ -99,7 +98,7 @@ return {
             "name": "feedback",
             "plural": false,
             "selections": [
-              (v2/*: any*/)
+              (v2/*:: as any*/)
             ],
             "storageKey": null
           }
@@ -112,13 +111,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "validateMutationTestIsNodeInlineFragmentMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "FeedbackLikeResponsePayload",
         "kind": "LinkedField",
         "name": "feedbackLike",
@@ -132,7 +131,7 @@ return {
             "name": "feedback",
             "plural": false,
             "selections": [
-              (v2/*: any*/),
+              (v2/*:: as any*/),
               {
                 "alias": null,
                 "args": null,
@@ -160,10 +159,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "5c268338fe3276b5eec605fa563c73d3";
+  (node/*:: as any*/).hash = "5c268338fe3276b5eec605fa563c73d3";
 }
 
-module.exports = ((node/*: any*/)/*: Mutation<
+module.exports = ((node/*:: as any*/)/*:: as Mutation<
   validateMutationTestIsNodeInlineFragmentMutation$variables,
   validateMutationTestIsNodeInlineFragmentMutation$data,
   validateMutationTestIsNodeInlineFragmentMutation$rawResponse,

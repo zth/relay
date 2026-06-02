@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<62b25462ab1aae33b9653d6b2e2f92df>>
+ * @generated SignedSource<<35db3ed50a2b379b01d80df312ec05b2>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,18 +18,18 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RefetchableClientEdgeQuery_LiveExternalGreetingFragment_user$fragmentType } from "./RefetchableClientEdgeQuery_LiveExternalGreetingFragment_user.graphql";
-export type ClientEdgeQuery_LiveExternalGreetingFragment_user$variables = {|
+export type ClientEdgeQuery_LiveExternalGreetingFragment_user$variables = {
   id: string,
-|};
-export type ClientEdgeQuery_LiveExternalGreetingFragment_user$data = {|
-  +node: ?{|
-    +$fragmentSpreads: RefetchableClientEdgeQuery_LiveExternalGreetingFragment_user$fragmentType,
-  |},
-|};
-export type ClientEdgeQuery_LiveExternalGreetingFragment_user = {|
+};
+export type ClientEdgeQuery_LiveExternalGreetingFragment_user$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: RefetchableClientEdgeQuery_LiveExternalGreetingFragment_user$fragmentType,
+  },
+};
+export type ClientEdgeQuery_LiveExternalGreetingFragment_user = {
   response: ClientEdgeQuery_LiveExternalGreetingFragment_user$data,
   variables: ClientEdgeQuery_LiveExternalGreetingFragment_user$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -50,14 +49,14 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "ClientEdgeQuery_LiveExternalGreetingFragment_user",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -77,13 +76,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "ClientEdgeQuery_LiveExternalGreetingFragment_user",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -134,10 +133,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "d99958d995a71b9db58b73932515179f";
+  (node/*:: as any*/).hash = "d99958d995a71b9db58b73932515179f";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ClientEdgeQuery_LiveExternalGreetingFragment_user$variables,
   ClientEdgeQuery_LiveExternalGreetingFragment_user$data,
 >*/);

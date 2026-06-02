@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<fbf9971b5daca178baa6d4f484b133de>>
+ * @generated SignedSource<<d7f8cb7262b41fef5ea7f222e7f7f2cd>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,17 +17,17 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayReaderRequiredFieldsTest13Query$variables = {||};
-export type RelayReaderRequiredFieldsTest13Query$data = {|
-  +maybeNodeInterface: ?{|
-    +lastName?: string,
-    +name: ?string,
-  |},
-|};
-export type RelayReaderRequiredFieldsTest13Query = {|
+export type RelayReaderRequiredFieldsTest13Query$variables = {};
+export type RelayReaderRequiredFieldsTest13Query$data = {
+  readonly maybeNodeInterface: ?{
+    readonly lastName?: string,
+    readonly name: ?string,
+  },
+};
+export type RelayReaderRequiredFieldsTest13Query = {
   response: RelayReaderRequiredFieldsTest13Query$data,
   variables: RelayReaderRequiredFieldsTest13Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -66,14 +65,14 @@ return {
             "selections": [
               {
                 "kind": "RequiredField",
-                "field": (v0/*: any*/),
+                "field": (v0/*:: as any*/),
                 "action": "LOG"
               }
             ],
             "type": "Story",
             "abstractKey": null
           },
-          (v1/*: any*/)
+          (v1/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -105,12 +104,12 @@ return {
           {
             "kind": "InlineFragment",
             "selections": [
-              (v0/*: any*/)
+              (v0/*:: as any*/)
             ],
             "type": "Story",
             "abstractKey": null
           },
-          (v1/*: any*/),
+          (v1/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
@@ -142,10 +141,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "18341e049af32096dfb61320b3f823d8";
+  (node/*:: as any*/).hash = "18341e049af32096dfb61320b3f823d8";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderRequiredFieldsTest13Query$variables,
   RelayReaderRequiredFieldsTest13Query$data,
 >*/);

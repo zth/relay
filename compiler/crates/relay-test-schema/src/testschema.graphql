@@ -12,9 +12,11 @@ directive @credentials(
   token: String
 ) on FIELD
 
-directive @live_query(polling_interval: Int, config_id: String) on QUERY
+directive @live_query(config_id: String) on QUERY
 
-directive @live on FIELD
+directive @client_polling(interval: Int) on QUERY
+
+directive @live on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
 directive @customDirective(level: Int!) on FIELD | FRAGMENT_SPREAD
 
@@ -23,8 +25,6 @@ directive @fixme_fat_interface on FIELD
 directive @configurable on VARIABLE_DEFINITION
 
 directive @_auto_hoisted on VARIABLE_DEFINITION
-
-directive @fb_actor_change on FIELD
 
 directive @defer(
   label: String!
@@ -40,7 +40,10 @@ directive @stream(
 
 directive @fetchable(field_name: String!) on OBJECT
 
+directive @vulture(name: String!) on QUERY | FRAGMENT_DEFINITION
+
 type Query {
+  bicycle: Bicycle
   checkinSearchQuery(query: CheckinSearchInput): CheckinSearchResult
   defaultSettings: Settings
   route(waypoints: [WayPoint!]!): Route
@@ -136,6 +139,7 @@ type Mutation {
   ): ViewerNotificationsUpdateAllSeenStateResponsePayload
   setLocation(input: LocationInput): setLocationResponsePayload
   setName(name: String!): User
+  setCommentBody(commentID: ID!, body: CommentBodyInput): Comment
 }
 
 type Subscription {
@@ -155,6 +159,11 @@ input ActorNameChangeInput {
 
 input ApplicationRequestDeleteAllInput {
   deletedRequestIds: [ID]
+}
+
+input CommentBodyInput @oneOf {
+  plain: String
+  markdown: String
 }
 
 input CommentCreateInput {
@@ -248,6 +257,11 @@ type PlainCommentBody {
 
 type MarkdownCommentBody {
   text: Text
+}
+
+type Bicycle implements Node {
+  id: ID!
+  wheels: Int
 }
 
 union CommentBody = PlainCommentBody | MarkdownCommentBody

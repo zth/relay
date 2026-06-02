@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7393f3d9c615092dcb869ca43ab236e2>>
+ * @generated SignedSource<<16622e6be1991cb4be45a4f9b95244c6>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,18 +23,18 @@ import type { RelayMockPayloadGeneratorTest3MarkdownUserNameRenderer_name$fragme
 import type { RelayMockPayloadGeneratorTest3PlainUserNameRenderer_name$fragmentType } from "./RelayMockPayloadGeneratorTest3PlainUserNameRenderer_name.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayMockPayloadGeneratorTest32Fragment$fragmentType: FragmentType;
-export type RelayMockPayloadGeneratorTest32Fragment$data = {|
-  +id: string,
-  +nameRenderer: ?{|
-    +__fragmentPropName?: ?string,
-    +__module_component?: ?string,
-    +$fragmentSpreads: RelayMockPayloadGeneratorTest3MarkdownUserNameRenderer_name$fragmentType & RelayMockPayloadGeneratorTest3PlainUserNameRenderer_name$fragmentType,
-  |},
-  +$fragmentType: RelayMockPayloadGeneratorTest32Fragment$fragmentType,
-|};
+export type RelayMockPayloadGeneratorTest32Fragment$data = {
+  readonly id: string,
+  readonly nameRenderer: ?{
+    readonly __fragmentPropName?: ?string,
+    readonly __module_component?: ?string,
+    readonly $fragmentSpreads: RelayMockPayloadGeneratorTest3MarkdownUserNameRenderer_name$fragmentType & RelayMockPayloadGeneratorTest3PlainUserNameRenderer_name$fragmentType,
+  },
+  readonly $fragmentType: RelayMockPayloadGeneratorTest32Fragment$fragmentType,
+};
 export type RelayMockPayloadGeneratorTest32Fragment$key = {
-  +$data?: RelayMockPayloadGeneratorTest32Fragment$data,
-  +$fragmentSpreads: RelayMockPayloadGeneratorTest32Fragment$fragmentType,
+  readonly $data?: RelayMockPayloadGeneratorTest32Fragment$data,
+  readonly $fragmentSpreads: RelayMockPayloadGeneratorTest32Fragment$fragmentType,
   ...
 };
 */
@@ -104,10 +103,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "9528806b54e9146150a42d893d0f8541";
+  (node/*:: as any*/).hash = "9528806b54e9146150a42d893d0f8541";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayMockPayloadGeneratorTest32Fragment$fragmentType,
   RelayMockPayloadGeneratorTest32Fragment$data,
 >*/);

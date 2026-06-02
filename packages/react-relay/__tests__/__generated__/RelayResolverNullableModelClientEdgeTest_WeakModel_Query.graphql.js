@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<86e78e986e692e1e021ded761a9a0389>>
+ * @generated SignedSource<<a546aac3d2b7916c1965f9870ce6a74c>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -23,29 +22,29 @@ import {edge_to_null_weak_model as queryEdgeToNullWeakModelResolverType} from ".
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryEdgeToNullWeakModelResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryEdgeToNullWeakModelResolverType: (
+(queryEdgeToNullWeakModelResolverType as (
   args: void,
   context: TestResolverContextType,
 ) => ?WeakModel);
 import {first_name as weakModelFirstNameResolverType} from "../RelayResolverNullableModelClientEdge-test.js";
 // Type assertion validating that `weakModelFirstNameResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(weakModelFirstNameResolverType: (
+(weakModelFirstNameResolverType as (
   __relay_model_instance: WeakModel____relay_model_instance$data['__relay_model_instance'],
   args: void,
   context: TestResolverContextType,
 ) => ?string);
 import type { WeakModel } from "../RelayResolverNullableModelClientEdge-test.js";
-export type RelayResolverNullableModelClientEdgeTest_WeakModel_Query$variables = {||};
-export type RelayResolverNullableModelClientEdgeTest_WeakModel_Query$data = {|
-  +edge_to_null_weak_model: ?{|
-    +first_name: ?string,
-  |},
-|};
-export type RelayResolverNullableModelClientEdgeTest_WeakModel_Query = {|
+export type RelayResolverNullableModelClientEdgeTest_WeakModel_Query$variables = {};
+export type RelayResolverNullableModelClientEdgeTest_WeakModel_Query$data = {
+  readonly edge_to_null_weak_model: ?{
+    readonly first_name: ?string,
+  },
+};
+export type RelayResolverNullableModelClientEdgeTest_WeakModel_Query = {
   response: RelayResolverNullableModelClientEdgeTest_WeakModel_Query$data,
   variables: RelayResolverNullableModelClientEdgeTest_WeakModel_Query$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = {
@@ -61,6 +60,7 @@ var node/*: ClientRequest*/ = {
         "kind": "ClientEdgeToClientObject",
         "concreteType": "WeakModel",
         "modelResolvers": null,
+        "serverObjectOperations": null,
         "backingField": {
           "alias": null,
           "args": null,
@@ -166,10 +166,10 @@ var node/*: ClientRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "e3560014bc230453c5e68fddb617537e";
+  (node/*:: as any*/).hash = "e3560014bc230453c5e68fddb617537e";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   RelayResolverNullableModelClientEdgeTest_WeakModel_Query$variables,
   RelayResolverNullableModelClientEdgeTest_WeakModel_Query$data,
 >*/);

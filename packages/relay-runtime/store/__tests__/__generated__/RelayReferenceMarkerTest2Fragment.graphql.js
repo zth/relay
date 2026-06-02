@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<552ce2a58a396829addc370dfef97587>>
+ * @generated SignedSource<<c54168fc68055bd48094a3a96c9aacf5>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,31 +19,31 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayReferenceMarkerTest2Fragment$fragmentType: FragmentType;
-export type RelayReferenceMarkerTest2Fragment$data = {|
-  +best_friends: ?{|
-    +client_friends_connection_field: ?string,
-    +edges: ?$ReadOnlyArray<?{|
-      +client_friend_edge_field: ?string,
-      +cursor: ?string,
-      +node: ?{|
-        +firstName: ?string,
-        +id: string,
-      |},
-    |}>,
-  |},
-  +client_foo: ?{|
-    +client_name: ?string,
-    +profile_picture: ?{|
-      +uri: ?string,
-    |},
-  |},
-  +firstName: ?string,
-  +nickname: ?string,
-  +$fragmentType: RelayReferenceMarkerTest2Fragment$fragmentType,
-|};
+export type RelayReferenceMarkerTest2Fragment$data = {
+  readonly best_friends: ?{
+    readonly client_friends_connection_field: ?string,
+    readonly edges: ?ReadonlyArray<?{
+      readonly client_friend_edge_field: ?string,
+      readonly cursor: ?string,
+      readonly node: ?{
+        readonly firstName: ?string,
+        readonly id: string,
+      },
+    }>,
+  },
+  readonly client_foo: ?{
+    readonly client_name: ?string,
+    readonly profile_picture: ?{
+      readonly uri: ?string,
+    },
+  },
+  readonly firstName: ?string,
+  readonly nickname: ?string,
+  readonly $fragmentType: RelayReferenceMarkerTest2Fragment$fragmentType,
+};
 export type RelayReferenceMarkerTest2Fragment$key = {
-  +$data?: RelayReferenceMarkerTest2Fragment$data,
-  +$fragmentSpreads: RelayReferenceMarkerTest2Fragment$fragmentType,
+  readonly $data?: RelayReferenceMarkerTest2Fragment$data,
+  readonly $fragmentSpreads: RelayReferenceMarkerTest2Fragment$fragmentType,
   ...
 };
 */
@@ -63,7 +62,7 @@ return {
   "metadata": null,
   "name": "RelayReferenceMarkerTest2Fragment",
   "selections": [
-    (v0/*: any*/),
+    (v0/*:: as any*/),
     {
       "kind": "ClientExtension",
       "selections": [
@@ -126,7 +125,7 @@ return {
                       "name": "id",
                       "storageKey": null
                     },
-                    (v0/*: any*/)
+                    (v0/*:: as any*/)
                   ],
                   "storageKey": null
                 }
@@ -187,10 +186,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "34600dc24690307d95ea58d1ef1e180c";
+  (node/*:: as any*/).hash = "34600dc24690307d95ea58d1ef1e180c";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayReferenceMarkerTest2Fragment$fragmentType,
   RelayReferenceMarkerTest2Fragment$data,
 >*/);

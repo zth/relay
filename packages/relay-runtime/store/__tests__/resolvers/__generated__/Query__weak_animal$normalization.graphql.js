@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<31d6ff1e0c9d59015ae3c217b6c8de59>>
+ * @generated SignedSource<<bba534f4c3953cd0e5dc7d1f1104b2ac>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,13 +20,13 @@ import type { NormalizationSplitOperation } from 'relay-runtime';
 
 import type { PurpleOctopus } from "../PurpleOctopusResolvers.js";
 import type { RedOctopus } from "../RedOctopusResolvers.js";
-export type Query__weak_animal$normalization = {|
-  +__typename: "PurpleOctopus",
-  +__relay_model_instance: PurpleOctopus,
-|} | {|
-  +__typename: "RedOctopus",
-  +__relay_model_instance: RedOctopus,
-|};
+export type Query__weak_animal$normalization = {
+  readonly __typename: "PurpleOctopus",
+  readonly __relay_model_instance: PurpleOctopus,
+} | {
+  readonly __typename: "RedOctopus",
+  readonly __relay_model_instance: RedOctopus,
+};
 
 */
 
@@ -58,13 +57,13 @@ return {
       "selections": [
         {
           "kind": "InlineFragment",
-          "selections": (v0/*: any*/),
+          "selections": (v0/*:: as any*/),
           "type": "PurpleOctopus",
           "abstractKey": null
         },
         {
           "kind": "InlineFragment",
-          "selections": (v0/*: any*/),
+          "selections": (v0/*:: as any*/),
           "type": "RedOctopus",
           "abstractKey": null
         }

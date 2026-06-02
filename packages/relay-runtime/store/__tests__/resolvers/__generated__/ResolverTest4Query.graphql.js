@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<482e1bf9f224d1e562feb8d57dfd9158>>
+ * @generated SignedSource<<d6669b6d3421aaaa91b1b5038c3c066d>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -22,20 +21,20 @@ import {hello_optional_world as queryHelloOptionalWorldResolverType} from "../He
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryHelloOptionalWorldResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryHelloOptionalWorldResolverType: (
-  args: {|
+(queryHelloOptionalWorldResolverType as (
+  args: {
     world: ?string,
-  |},
+  },
   context: TestResolverContextType,
 ) => ?string);
-export type ResolverTest4Query$variables = {||};
-export type ResolverTest4Query$data = {|
-  +hello_optional_world: ?string,
-|};
-export type ResolverTest4Query = {|
+export type ResolverTest4Query$variables = {};
+export type ResolverTest4Query$data = {
+  readonly hello_optional_world: ?string,
+};
+export type ResolverTest4Query = {
   response: ResolverTest4Query$data,
   variables: ResolverTest4Query$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = {
@@ -95,10 +94,10 @@ var node/*: ClientRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "9f62459f73e4ec513cae290b387e5e13";
+  (node/*:: as any*/).hash = "9f62459f73e4ec513cae290b387e5e13";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   ResolverTest4Query$variables,
   ResolverTest4Query$data,
 >*/);

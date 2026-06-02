@@ -6,6 +6,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+// relay:allow_legacy_relay_resolver_tag
+
 /**
  * @RelayResolver User.mandatory_greeting: [String!]
  * Non-nullable
@@ -76,6 +78,7 @@ Field(
                 item: "User",
             },
             root_fragment: None,
+            return_fragment: None,
             deprecated: None,
             semantic_non_null: None,
             live: None,

@@ -91,12 +91,30 @@ pub fn rescript_make_operation_type_and_node_text(
     lazy_static! {
         static ref PREFIX_GRAPHQL_IMPORT: String = String::from("rescript_graphql_node_");
         static ref PREFIX_CODE_IMPORT: String = String::from("rescript_module_");
+        static ref RE_BARE_GRAPHQL_OPERATION: Regex =
+            Regex::new(r#""operation":\s*([A-Za-z0-9_]+)_graphql"#).unwrap();
+        static ref RE_BARE_RESOLVER_MODULE: Regex = Regex::new(
+            r#"(?s)("fragment":\s*\{[^}]*"name":\s*"([A-Za-z0-9_]+)"[^}]*\}[^}]*"resolverModule":\s*)([A-Za-z0-9_]+)([^}]*"path":\s*"([A-Za-z0-9_]+)")"#
+        )
+        .unwrap();
     }
 
     let mut str = String::new();
 
-    let mut referenced_imports = rescript_find_code_import_references(&concrete_text);
-    let mut replaced_text = concrete_text.to_string();
+    let normalized_text = RE_BARE_GRAPHQL_OPERATION.replace_all(concrete_text, |captures: &regex::Captures<'_>| {
+        format!("\"operation\": rescript_graphql_node_{}", &captures[1])
+    });
+    let normalized_text = RE_BARE_RESOLVER_MODULE.replace_all(&normalized_text, |captures: &regex::Captures<'_>| {
+        format!(
+            "{}rescript_module_{}.{}{}",
+            &captures[1],
+            &captures[2],
+            &captures[5],
+            &captures[4]
+        )
+    });
+    let mut referenced_imports = rescript_find_code_import_references(&normalized_text);
+    let mut replaced_text = normalized_text.replace("/*:: as any*/", "");
     for imp in &referenced_imports {
         match imp {
             ImportType::ModuleImport(module_name, Some(path)) => {

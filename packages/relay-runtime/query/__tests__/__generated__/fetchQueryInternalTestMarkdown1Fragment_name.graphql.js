@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5d683d2473eb1e6a9e6dd534dcabeed5>>
+ * @generated SignedSource<<607d0b54d3b12ed9c8ce94abadee6a14>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,17 +19,17 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type fetchQueryInternalTestMarkdown1Fragment_name$fragmentType: FragmentType;
-export type fetchQueryInternalTestMarkdown1Fragment_name$data = {|
-  +__typename: "MarkdownUserNameRenderer",
-  +data: ?{|
-    +markup: ?string,
-  |},
-  +markdown: ?string,
-  +$fragmentType: fetchQueryInternalTestMarkdown1Fragment_name$fragmentType,
-|};
+export type fetchQueryInternalTestMarkdown1Fragment_name$data = {
+  readonly __typename: "MarkdownUserNameRenderer",
+  readonly data: ?{
+    readonly markup: ?string,
+  },
+  readonly markdown: ?string,
+  readonly $fragmentType: fetchQueryInternalTestMarkdown1Fragment_name$fragmentType,
+};
 export type fetchQueryInternalTestMarkdown1Fragment_name$key = {
-  +$data?: fetchQueryInternalTestMarkdown1Fragment_name$data,
-  +$fragmentSpreads: fetchQueryInternalTestMarkdown1Fragment_name$fragmentType,
+  readonly $data?: fetchQueryInternalTestMarkdown1Fragment_name$data,
+  readonly $fragmentSpreads: fetchQueryInternalTestMarkdown1Fragment_name$fragmentType,
   ...
 };
 */
@@ -79,10 +78,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "c23b64d2c536a5ff15a088b0ad49e3b9";
+  (node/*:: as any*/).hash = "c23b64d2c536a5ff15a088b0ad49e3b9";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   fetchQueryInternalTestMarkdown1Fragment_name$fragmentType,
   fetchQueryInternalTestMarkdown1Fragment_name$data,
 >*/);

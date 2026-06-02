@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4c502d58be4f765622e5610e1a77c28f>>
+ * @generated SignedSource<<4753475bbf5ed4eca7492bb4d3cc1f41>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -23,21 +22,21 @@ import {reads_client_edge as userReadsClientEdgeResolverType} from "../resolvers
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userReadsClientEdgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userReadsClientEdgeResolverType: (
+(userReadsClientEdgeResolverType as (
   rootKey: UserReadsClientEdgeResolver$key,
   args: void,
   context: TestResolverContextType,
 ) => ?string);
-export type RelayReaderClientEdgesTestMissingClientEdgeDataQuery$variables = {||};
-export type RelayReaderClientEdgesTestMissingClientEdgeDataQuery$data = {|
-  +me: ?{|
-    +reads_client_edge: ?string,
-  |},
-|};
-export type RelayReaderClientEdgesTestMissingClientEdgeDataQuery = {|
+export type RelayReaderClientEdgesTestMissingClientEdgeDataQuery$variables = {};
+export type RelayReaderClientEdgesTestMissingClientEdgeDataQuery$data = {
+  readonly me: ?{
+    readonly reads_client_edge: ?string,
+  },
+};
+export type RelayReaderClientEdgesTestMissingClientEdgeDataQuery = {
   response: RelayReaderClientEdgesTestMissingClientEdgeDataQuery$data,
   variables: RelayReaderClientEdgesTestMissingClientEdgeDataQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {
@@ -147,10 +146,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "1ded8560a2e31ffeb0290644418eaed3";
+  (node/*:: as any*/).hash = "1ded8560a2e31ffeb0290644418eaed3";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderClientEdgesTestMissingClientEdgeDataQuery$variables,
   RelayReaderClientEdgesTestMissingClientEdgeDataQuery$data,
 >*/);

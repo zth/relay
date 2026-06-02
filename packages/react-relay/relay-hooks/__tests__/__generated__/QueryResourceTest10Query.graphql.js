@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a0198d6c7584366d159ba93c7f3343a9>>
+ * @generated SignedSource<<98d6fa6f1e3112b33b48eb799806574c>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,19 +17,19 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type QueryResourceTest10Query$variables = {|
+export type QueryResourceTest10Query$variables = {
   id: string,
-|};
-export type QueryResourceTest10Query$data = {|
-  +node: ?{|
-    +id?: string,
-    +name?: ?string,
-  |},
-|};
-export type QueryResourceTest10Query = {|
+};
+export type QueryResourceTest10Query$data = {
+  readonly node: ?{
+    readonly id?: string,
+    readonly name?: ?string,
+  },
+};
+export type QueryResourceTest10Query = {
   response: QueryResourceTest10Query$data,
   variables: QueryResourceTest10Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -64,14 +63,14 @@ v3 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "QueryResourceTest10Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -80,8 +79,8 @@ return {
           {
             "kind": "InlineFragment",
             "selections": [
-              (v2/*: any*/),
-              (v3/*: any*/)
+              (v2/*:: as any*/),
+              (v3/*:: as any*/)
             ],
             "type": "User",
             "abstractKey": null
@@ -95,13 +94,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "QueryResourceTest10Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -114,11 +113,11 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
-              (v3/*: any*/)
+              (v3/*:: as any*/)
             ],
             "type": "User",
             "abstractKey": null
@@ -129,7 +128,7 @@ return {
     ]
   },
   "params": {
-    "cacheID": "10d320882105a1e63c81594970d204b9",
+    "cacheID": "3efb76839ccbd9e8343e85015bf033c8",
     "id": null,
     "metadata": {
       "live": {
@@ -138,16 +137,16 @@ return {
     },
     "name": "QueryResourceTest10Query",
     "operationKind": "query",
-    "text": "query QueryResourceTest10Query(\n  $id: ID!\n) @live_query(polling_interval: 10000) {\n  node(id: $id) {\n    __typename\n    ... on User {\n      id\n      name\n    }\n    id\n  }\n}\n"
+    "text": "query QueryResourceTest10Query(\n  $id: ID!\n) @client_polling(interval: 10000) {\n  node(id: $id) {\n    __typename\n    ... on User {\n      id\n      name\n    }\n    id\n  }\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "b6e7de763bbf313af519ad7d1fd3d18c";
+  (node/*:: as any*/).hash = "328dc46b1450a768302544f587610c18";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   QueryResourceTest10Query$variables,
   QueryResourceTest10Query$data,
 >*/);

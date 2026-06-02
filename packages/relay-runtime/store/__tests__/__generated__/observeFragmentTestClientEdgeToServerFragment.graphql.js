@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<47f818db2f3c03fb471e6c9dee98d892>>
+ * @generated SignedSource<<6fae309667881bda628fbf05d0dda3be>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,23 +23,23 @@ import {client_edge as userClientEdgeResolverType} from "../resolvers/UserClient
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userClientEdgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userClientEdgeResolverType: (
+(userClientEdgeResolverType as (
   rootKey: UserClientEdgeResolver$key,
   args: void,
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
+) => ?{
+  readonly id: DataID,
+});
 declare export opaque type observeFragmentTestClientEdgeToServerFragment$fragmentType: FragmentType;
-export type observeFragmentTestClientEdgeToServerFragment$data = {|
-  +client_edge: ?{|
-    +name: ?string,
-  |},
-  +$fragmentType: observeFragmentTestClientEdgeToServerFragment$fragmentType,
-|};
+export type observeFragmentTestClientEdgeToServerFragment$data = {
+  readonly client_edge: ?{
+    readonly name: ?string,
+  },
+  readonly $fragmentType: observeFragmentTestClientEdgeToServerFragment$fragmentType,
+};
 export type observeFragmentTestClientEdgeToServerFragment$key = {
-  +$data?: observeFragmentTestClientEdgeToServerFragment$data,
-  +$fragmentSpreads: observeFragmentTestClientEdgeToServerFragment$fragmentType,
+  readonly $data?: observeFragmentTestClientEdgeToServerFragment$data,
+  readonly $fragmentSpreads: observeFragmentTestClientEdgeToServerFragment$fragmentType,
   ...
 };
 */
@@ -94,10 +93,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "145cd045d842ac7fe259d9f5210a67c1";
+  (node/*:: as any*/).hash = "145cd045d842ac7fe259d9f5210a67c1";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   observeFragmentTestClientEdgeToServerFragment$fragmentType,
   observeFragmentTestClientEdgeToServerFragment$data,
 >*/);

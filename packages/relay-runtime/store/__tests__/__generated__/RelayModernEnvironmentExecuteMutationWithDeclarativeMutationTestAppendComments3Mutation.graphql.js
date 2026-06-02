@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<cb8bab4f880b0c1324e7ea646621a2fb>>
+ * @generated SignedSource<<cc94cb3ff11da7bfb3d2183598c94a3d>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,34 +17,34 @@
 
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
-export type CommentsCreateInput = {|
-  feedback?: ?$ReadOnlyArray<?CommentfeedbackFeedback>,
+export type CommentsCreateInput = {
+  feedback?: ?ReadonlyArray<?CommentfeedbackFeedback>,
   feedbackId?: ?string,
-|};
-export type CommentfeedbackFeedback = {|
+};
+export type CommentfeedbackFeedback = {
   comment?: ?FeedbackcommentComment,
-|};
-export type FeedbackcommentComment = {|
+};
+export type FeedbackcommentComment = {
   feedback?: ?CommentfeedbackFeedback,
-|};
-export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendComments3Mutation$variables = {|
-  connections: $ReadOnlyArray<string>,
+};
+export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendComments3Mutation$variables = {
+  connections: ReadonlyArray<string>,
   input?: ?CommentsCreateInput,
-|};
-export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendComments3Mutation$data = {|
-  +commentsCreate: ?{|
-    +feedbackCommentEdges: ?$ReadOnlyArray<?{|
-      +cursor: ?string,
-      +node: ?{|
-        +id: string,
-      |},
-    |}>,
-  |},
-|};
-export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendComments3Mutation = {|
+};
+export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendComments3Mutation$data = {
+  readonly commentsCreate: ?{
+    readonly feedbackCommentEdges: ?ReadonlyArray<?{
+      readonly cursor: ?string,
+      readonly node: ?{
+        readonly id: string,
+      },
+    }>,
+  },
+};
+export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendComments3Mutation = {
   response: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendComments3Mutation$data,
   variables: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendComments3Mutation$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -106,20 +105,20 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendComments3Mutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "CommentsCreateResponsePayload",
         "kind": "LinkedField",
         "name": "commentsCreate",
         "plural": false,
         "selections": [
-          (v2/*: any*/)
+          (v2/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -129,19 +128,19 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendComments3Mutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "CommentsCreateResponsePayload",
         "kind": "LinkedField",
         "name": "commentsCreate",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -175,10 +174,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "975c794bccf4fcb2c483d9947130d999";
+  (node/*:: as any*/).hash = "975c794bccf4fcb2c483d9947130d999";
 }
 
-module.exports = ((node/*: any*/)/*: Mutation<
+module.exports = ((node/*:: as any*/)/*:: as Mutation<
   RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendComments3Mutation$variables,
   RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendComments3Mutation$data,
 >*/);

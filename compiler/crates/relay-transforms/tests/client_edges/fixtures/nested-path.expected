@@ -39,21 +39,24 @@ fragment Foo_user on ClientUser {
   #     ),
   #     unique_id: 1,
   #     model_resolvers: [],
+  #     server_object_operations: [],
   # }
    {
     ...BestFriendFragment @__RelayResolverMetadata
     # RelayResolverMetadata {
-    #     field_id: FieldID(527),
+    #     field_id: FieldID(531),
     #     import_path: "BestFriendResolver",
     #     import_name: None,
     #     field_alias: None,
     #     field_path: "best_friend",
     #     field_arguments: [],
+    #     fragment_arguments: [],
     #     live: false,
     #     output_type_info: EdgeTo,
     #     fragment_data_injection_mode: None,
     #     type_confirmed: false,
     #     resolver_type: ResolverModule,
+    #     return_fragment: None,
     # }
     
     best_friend {
@@ -66,21 +69,24 @@ fragment Foo_user on ClientUser {
       #     ),
       #     unique_id: 0,
       #     model_resolvers: [],
+      #     server_object_operations: [],
       # }
        {
         ...BestFriendFragment @__RelayResolverMetadata
         # RelayResolverMetadata {
-        #     field_id: FieldID(527),
+        #     field_id: FieldID(531),
         #     import_path: "BestFriendResolver",
         #     import_name: None,
         #     field_alias: None,
         #     field_path: "best_friend.best_friend",
         #     field_arguments: [],
+        #     fragment_arguments: [],
         #     live: false,
         #     output_type_info: EdgeTo,
         #     fragment_data_injection_mode: None,
         #     type_confirmed: false,
         #     resolver_type: ResolverModule,
+        #     return_fragment: None,
         # }
         
         best_friend {

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d09424e7c8fc4045a7828cac752ef6f2>>
+ * @generated SignedSource<<53427211ba73d49fb80b0841a193249f>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,19 +23,19 @@ import {color as todoDescriptionColorResolverType} from "../TodoDescription.js";
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `todoDescriptionColorResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(todoDescriptionColorResolverType: (
+(todoDescriptionColorResolverType as (
   __relay_model_instance: TodoDescription____relay_model_instance$data['__relay_model_instance'],
   args: void,
   context: TestResolverContextType,
-) => ?mixed);
+) => ?unknown);
 declare export opaque type TodoDescription_text_style$fragmentType: FragmentType;
-export type TodoDescription_text_style$data = {|
-  +color: $NonMaybeType<ReturnType<typeof todoDescriptionColorResolverType>>,
-  +$fragmentType: TodoDescription_text_style$fragmentType,
-|};
+export type TodoDescription_text_style$data = {
+  readonly color: NonNullable<ReturnType<typeof todoDescriptionColorResolverType>>,
+  readonly $fragmentType: TodoDescription_text_style$fragmentType,
+};
 export type TodoDescription_text_style$key = {
-  +$data?: TodoDescription_text_style$data,
-  +$fragmentSpreads: TodoDescription_text_style$fragmentType,
+  readonly $data?: TodoDescription_text_style$data,
+  readonly $fragmentSpreads: TodoDescription_text_style$fragmentType,
   ...
 };
 */
@@ -70,10 +69,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "52e426266439c85da8dce2dda6133fe2";
+  (node/*:: as any*/).hash = "52e426266439c85da8dce2dda6133fe2";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   TodoDescription_text_style$fragmentType,
   TodoDescription_text_style$data,
 >*/);

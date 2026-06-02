@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<bb6924948dfdb9fc53f21eeb8b587b1e>>
+ * @generated SignedSource<<8fac0cc3a47214e815ebedcfc484b5ca>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,19 +18,19 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentNoInlineTestDeferredStreamParent$fragmentType } from "./RelayModernEnvironmentNoInlineTestDeferredStreamParent.graphql";
-export type RelayModernEnvironmentNoInlineTestDeferredStreamQuery$variables = {|
+export type RelayModernEnvironmentNoInlineTestDeferredStreamQuery$variables = {
   cond: boolean,
   enableStream?: ?boolean,
-|};
-export type RelayModernEnvironmentNoInlineTestDeferredStreamQuery$data = {|
-  +viewer: ?{|
-    +$fragmentSpreads: RelayModernEnvironmentNoInlineTestDeferredStreamParent$fragmentType,
-  |},
-|};
-export type RelayModernEnvironmentNoInlineTestDeferredStreamQuery = {|
+};
+export type RelayModernEnvironmentNoInlineTestDeferredStreamQuery$data = {
+  readonly viewer: ?{
+    readonly $fragmentSpreads: RelayModernEnvironmentNoInlineTestDeferredStreamParent$fragmentType,
+  },
+};
+export type RelayModernEnvironmentNoInlineTestDeferredStreamQuery = {
   response: RelayModernEnvironmentNoInlineTestDeferredStreamQuery$data,
   variables: RelayModernEnvironmentNoInlineTestDeferredStreamQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -49,7 +48,7 @@ var v0 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentNoInlineTestDeferredStreamQuery",
@@ -87,7 +86,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentNoInlineTestDeferredStreamQuery",
     "selections": [
@@ -139,10 +138,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "bbd7ede751091238fba6e4da25d3237b";
+  (node/*:: as any*/).hash = "bbd7ede751091238fba6e4da25d3237b";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentNoInlineTestDeferredStreamQuery$variables,
   RelayModernEnvironmentNoInlineTestDeferredStreamQuery$data,
 >*/);

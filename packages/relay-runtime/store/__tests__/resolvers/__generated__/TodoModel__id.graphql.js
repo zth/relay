@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7d9f3bc4473c46e16ae85d22bc971bf8>>
+ * @generated SignedSource<<431857502313ed7d59516fe2d12d4491>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,13 +19,13 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type TodoModel__id$fragmentType: FragmentType;
-export type TodoModel__id$data = {|
-  +id: string,
-  +$fragmentType: TodoModel__id$fragmentType,
-|};
+export type TodoModel__id$data = {
+  readonly id: string,
+  readonly $fragmentType: TodoModel__id$fragmentType,
+};
 export type TodoModel__id$key = {
-  +$data?: TodoModel__id$data,
-  +$fragmentSpreads: TodoModel__id$fragmentType,
+  readonly $data?: TodoModel__id$data,
+  readonly $fragmentSpreads: TodoModel__id$fragmentType,
   ...
 };
 */
@@ -54,7 +53,7 @@ var node/*: ReaderFragment*/ = {
   "abstractKey": null
 };
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   TodoModel__id$fragmentType,
   TodoModel__id$data,
 >*/);

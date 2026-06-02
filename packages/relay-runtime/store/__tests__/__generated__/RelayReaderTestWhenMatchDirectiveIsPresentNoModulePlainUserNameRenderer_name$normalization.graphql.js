@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e7672e8babe648351ffdbe43608627f0>>
+ * @generated SignedSource<<219cb97653006360a6a363328927abac>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -37,7 +36,7 @@ var node/*: NormalizationSplitOperation*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "697959d3dac695bfeaf9707ba01b0f7e";
+  (node/*:: as any*/).hash = "697959d3dac695bfeaf9707ba01b0f7e";
 }
 
 module.exports = node;

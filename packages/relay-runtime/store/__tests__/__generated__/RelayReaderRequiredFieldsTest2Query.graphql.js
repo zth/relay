@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<607ac3e3528b4d77f67e2f31c393a9c9>>
+ * @generated SignedSource<<764ae64870ac9d0bdd9b1209626558d3>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,17 +17,17 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayReaderRequiredFieldsTest2Query$variables = {||};
-export type RelayReaderRequiredFieldsTest2Query$data = {|
-  +me: ?{|
-    +firstName: ?string,
-    +lastName: string,
-  |},
-|};
-export type RelayReaderRequiredFieldsTest2Query = {|
+export type RelayReaderRequiredFieldsTest2Query$variables = {};
+export type RelayReaderRequiredFieldsTest2Query$data = {
+  readonly me: ?{
+    readonly firstName: ?string,
+    readonly lastName: string,
+  },
+};
+export type RelayReaderRequiredFieldsTest2Query = {
   response: RelayReaderRequiredFieldsTest2Query$data,
   variables: RelayReaderRequiredFieldsTest2Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -61,10 +60,10 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
+          (v0/*:: as any*/),
           {
             "kind": "RequiredField",
-            "field": (v1/*: any*/),
+            "field": (v1/*:: as any*/),
             "action": "LOG"
           }
         ],
@@ -88,8 +87,8 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
-          (v1/*: any*/),
+          (v0/*:: as any*/),
+          (v1/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -114,10 +113,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "72f30114def75faa8eaacbb70e93d486";
+  (node/*:: as any*/).hash = "72f30114def75faa8eaacbb70e93d486";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderRequiredFieldsTest2Query$variables,
   RelayReaderRequiredFieldsTest2Query$data,
 >*/);

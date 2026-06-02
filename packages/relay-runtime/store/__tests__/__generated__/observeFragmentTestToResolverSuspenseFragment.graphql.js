@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6972b1a399382269a5fecc1a666eb5d4>>
+ * @generated SignedSource<<8fa99c7196dce6026f3752c567fa61a9>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -23,18 +22,18 @@ import {counter_suspends_when_odd as userCounterSuspendsWhenOddResolverType} fro
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userCounterSuspendsWhenOddResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userCounterSuspendsWhenOddResolverType: (
+(userCounterSuspendsWhenOddResolverType as (
   args: void,
   context: TestResolverContextType,
 ) => LiveState<?number>);
 declare export opaque type observeFragmentTestToResolverSuspenseFragment$fragmentType: FragmentType;
-export type observeFragmentTestToResolverSuspenseFragment$data = {|
-  +counter_suspends_when_odd: ?number,
-  +$fragmentType: observeFragmentTestToResolverSuspenseFragment$fragmentType,
-|};
+export type observeFragmentTestToResolverSuspenseFragment$data = {
+  readonly counter_suspends_when_odd: ?number,
+  readonly $fragmentType: observeFragmentTestToResolverSuspenseFragment$fragmentType,
+};
 export type observeFragmentTestToResolverSuspenseFragment$key = {
-  +$data?: observeFragmentTestToResolverSuspenseFragment$data,
-  +$fragmentSpreads: observeFragmentTestToResolverSuspenseFragment$fragmentType,
+  readonly $data?: observeFragmentTestToResolverSuspenseFragment$data,
+  readonly $fragmentSpreads: observeFragmentTestToResolverSuspenseFragment$fragmentType,
   ...
 };
 */
@@ -65,10 +64,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "cc94ae0928244500f6c0d7f5cefbe3c4";
+  (node/*:: as any*/).hash = "cc94ae0928244500f6c0d7f5cefbe3c4";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   observeFragmentTestToResolverSuspenseFragment$fragmentType,
   observeFragmentTestToResolverSuspenseFragment$data,
 >*/);

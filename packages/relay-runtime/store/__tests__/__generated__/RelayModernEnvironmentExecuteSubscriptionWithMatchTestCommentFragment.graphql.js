@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9b956e78be808809ccfe725ba1b108fc>>
+ * @generated SignedSource<<22cb1085f15a6f79ea785b7c57e199ff>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,21 +23,21 @@ import type { RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUser
 import type { RelayModernEnvironmentExecuteSubscriptionWithMatchTestPlainUserNameRenderer_name$fragmentType } from "./RelayModernEnvironmentExecuteSubscriptionWithMatchTestPlainUserNameRenderer_name.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentFragment$fragmentType: FragmentType;
-export type RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentFragment$data = {|
-  +actor: ?{|
-    +name: ?string,
-    +nameRenderer: ?{|
-      +__fragmentPropName?: ?string,
-      +__module_component?: ?string,
-      +$fragmentSpreads: RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name$fragmentType & RelayModernEnvironmentExecuteSubscriptionWithMatchTestPlainUserNameRenderer_name$fragmentType,
-    |},
-  |},
-  +id: string,
-  +$fragmentType: RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentFragment$fragmentType,
-|};
+export type RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentFragment$data = {
+  readonly actor: ?{
+    readonly name: ?string,
+    readonly nameRenderer: ?{
+      readonly __fragmentPropName?: ?string,
+      readonly __module_component?: ?string,
+      readonly $fragmentSpreads: RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name$fragmentType & RelayModernEnvironmentExecuteSubscriptionWithMatchTestPlainUserNameRenderer_name$fragmentType,
+    },
+  },
+  readonly id: string,
+  readonly $fragmentType: RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentFragment$fragmentType,
+};
 export type RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentFragment$key = {
-  +$data?: RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentFragment$data,
-  +$fragmentSpreads: RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentFragment$fragmentType,
+  readonly $data?: RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentFragment$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentFragment$fragmentType,
   ...
 };
 */
@@ -125,10 +124,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "c6eda812d553cb45a1f53cfb2577d5ed";
+  (node/*:: as any*/).hash = "c6eda812d553cb45a1f53cfb2577d5ed";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentFragment$fragmentType,
   RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentFragment$data,
 >*/);

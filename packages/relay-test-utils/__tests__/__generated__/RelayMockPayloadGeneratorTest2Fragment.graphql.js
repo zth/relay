@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<584340e529e49ec5c42d57fb2a39a634>>
+ * @generated SignedSource<<86992013807d215331e0241766bad719>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,28 +19,28 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayMockPayloadGeneratorTest2Fragment$fragmentType: FragmentType;
-export type RelayMockPayloadGeneratorTest2Fragment$data = {|
-  +author: ?{|
-    +authorID?: string,
-    +birthdate: ?{|
-      +day: ?number,
-      +month: ?number,
-      +year: ?number,
-    |},
-    +emailAddresses: ?$ReadOnlyArray<?string>,
-    +id?: string,
-    +myId: string,
-    +myUsername: ?string,
-    +name?: ?string,
-    +username?: ?string,
-  |},
-  +id: string,
-  +name: ?string,
-  +$fragmentType: RelayMockPayloadGeneratorTest2Fragment$fragmentType,
-|};
+export type RelayMockPayloadGeneratorTest2Fragment$data = {
+  readonly author: ?{
+    readonly authorID?: string,
+    readonly birthdate: ?{
+      readonly day: ?number,
+      readonly month: ?number,
+      readonly year: ?number,
+    },
+    readonly emailAddresses: ?ReadonlyArray<?string>,
+    readonly id?: string,
+    readonly myId: string,
+    readonly myUsername: ?string,
+    readonly name?: ?string,
+    readonly username?: ?string,
+  },
+  readonly id: string,
+  readonly name: ?string,
+  readonly $fragmentType: RelayMockPayloadGeneratorTest2Fragment$fragmentType,
+};
 export type RelayMockPayloadGeneratorTest2Fragment$key = {
-  +$data?: RelayMockPayloadGeneratorTest2Fragment$data,
-  +$fragmentSpreads: RelayMockPayloadGeneratorTest2Fragment$fragmentType,
+  readonly $data?: RelayMockPayloadGeneratorTest2Fragment$data,
+  readonly $fragmentSpreads: RelayMockPayloadGeneratorTest2Fragment$fragmentType,
   ...
 };
 */
@@ -72,8 +71,8 @@ return {
   "metadata": null,
   "name": "RelayMockPayloadGeneratorTest2Fragment",
   "selections": [
-    (v0/*: any*/),
-    (v1/*: any*/),
+    (v0/*:: as any*/),
+    (v1/*:: as any*/),
     {
       "alias": null,
       "args": null,
@@ -82,8 +81,8 @@ return {
       "name": "author",
       "plural": false,
       "selections": [
-        (v0/*: any*/),
-        (v1/*: any*/),
+        (v0/*:: as any*/),
+        (v1/*:: as any*/),
         {
           "alias": "authorID",
           "args": null,
@@ -179,10 +178,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "43d399ac3305ca0e9ca98f78e8f3f014";
+  (node/*:: as any*/).hash = "43d399ac3305ca0e9ca98f78e8f3f014";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayMockPayloadGeneratorTest2Fragment$fragmentType,
   RelayMockPayloadGeneratorTest2Fragment$data,
 >*/);

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f967766b23c9106f6ca8607a2b006d12>>
+ * @generated SignedSource<<2117a7bc59ce0f501ec5f925c4924b2f>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,24 +19,24 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayMockEnvironmentWithComponentsTestRobustAwesomenessFragment$fragmentType: FragmentType;
-export type RelayMockEnvironmentWithComponentsTestRobustAwesomenessFragment$data = {|
-  +friends: ?{|
-    +edges: ?$ReadOnlyArray<?{|
-      +node: ?{|
-        +id: string,
-        +name: ?string,
-        +profile_picture: ?{|
-          +uri: ?string,
-        |},
-      |},
-    |}>,
-  |},
-  +id: string,
-  +$fragmentType: RelayMockEnvironmentWithComponentsTestRobustAwesomenessFragment$fragmentType,
-|};
+export type RelayMockEnvironmentWithComponentsTestRobustAwesomenessFragment$data = {
+  readonly friends: ?{
+    readonly edges: ?ReadonlyArray<?{
+      readonly node: ?{
+        readonly id: string,
+        readonly name: ?string,
+        readonly profile_picture: ?{
+          readonly uri: ?string,
+        },
+      },
+    }>,
+  },
+  readonly id: string,
+  readonly $fragmentType: RelayMockEnvironmentWithComponentsTestRobustAwesomenessFragment$fragmentType,
+};
 export type RelayMockEnvironmentWithComponentsTestRobustAwesomenessFragment$key = {
-  +$data?: RelayMockEnvironmentWithComponentsTestRobustAwesomenessFragment$data,
-  +$fragmentSpreads: RelayMockEnvironmentWithComponentsTestRobustAwesomenessFragment$fragmentType,
+  readonly $data?: RelayMockEnvironmentWithComponentsTestRobustAwesomenessFragment$data,
+  readonly $fragmentSpreads: RelayMockEnvironmentWithComponentsTestRobustAwesomenessFragment$fragmentType,
   ...
 };
 */
@@ -76,7 +75,7 @@ return {
   },
   "name": "RelayMockEnvironmentWithComponentsTestRobustAwesomenessFragment",
   "selections": [
-    (v0/*: any*/),
+    (v0/*:: as any*/),
     {
       "alias": "friends",
       "args": null,
@@ -101,7 +100,7 @@ return {
               "name": "node",
               "plural": false,
               "selections": [
-                (v0/*: any*/),
+                (v0/*:: as any*/),
                 {
                   "alias": null,
                   "args": null,
@@ -182,10 +181,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "3ad1b3b5a8159577804b378532ab767d";
+  (node/*:: as any*/).hash = "3ad1b3b5a8159577804b378532ab767d";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayMockEnvironmentWithComponentsTestRobustAwesomenessFragment$fragmentType,
   RelayMockEnvironmentWithComponentsTestRobustAwesomenessFragment$data,
 >*/);

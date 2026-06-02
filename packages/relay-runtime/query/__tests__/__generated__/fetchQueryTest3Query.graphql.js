@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<29fd920c882b58fdf27881227b4c83ba>>
+ * @generated SignedSource<<0ef9f2278cce2bce71ddba1ec7c3a869>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,16 +17,16 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type fetchQueryTest3Query$variables = {||};
-export type fetchQueryTest3Query$data = {|
-  +me: ?{|
-    +name: string,
-  |},
-|};
-export type fetchQueryTest3Query = {|
+export type fetchQueryTest3Query$variables = {};
+export type fetchQueryTest3Query$data = {
+  readonly me: ?{
+    readonly name: string,
+  },
+};
+export type fetchQueryTest3Query = {
   response: fetchQueryTest3Query$data,
   variables: fetchQueryTest3Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -55,7 +54,7 @@ return {
         "selections": [
           {
             "kind": "RequiredField",
-            "field": (v0/*: any*/),
+            "field": (v0/*:: as any*/),
             "action": "THROW"
           }
         ],
@@ -79,7 +78,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
+          (v0/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -104,10 +103,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "9e2929836073e3407ad2df12c1618ff7";
+  (node/*:: as any*/).hash = "9e2929836073e3407ad2df12c1618ff7";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   fetchQueryTest3Query$variables,
   fetchQueryTest3Query$data,
 >*/);

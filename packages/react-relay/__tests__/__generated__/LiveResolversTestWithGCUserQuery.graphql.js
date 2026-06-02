@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d5b4622300a406f82a03e6cdf15ccbca>>
+ * @generated SignedSource<<4e32016d9183a74280c3794199e191dd>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,16 +17,16 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type LiveResolversTestWithGCUserQuery$variables = {||};
-export type LiveResolversTestWithGCUserQuery$data = {|
-  +me: ?{|
-    +id: string,
-  |},
-|};
-export type LiveResolversTestWithGCUserQuery = {|
+export type LiveResolversTestWithGCUserQuery$variables = {};
+export type LiveResolversTestWithGCUserQuery$data = {
+  readonly me: ?{
+    readonly id: string,
+  },
+};
+export type LiveResolversTestWithGCUserQuery = {
   response: LiveResolversTestWithGCUserQuery$data,
   variables: LiveResolversTestWithGCUserQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -57,7 +56,7 @@ return {
     "kind": "Fragment",
     "metadata": null,
     "name": "LiveResolversTestWithGCUserQuery",
-    "selections": (v0/*: any*/),
+    "selections": (v0/*:: as any*/),
     "type": "Query",
     "abstractKey": null
   },
@@ -66,7 +65,7 @@ return {
     "argumentDefinitions": [],
     "kind": "Operation",
     "name": "LiveResolversTestWithGCUserQuery",
-    "selections": (v0/*: any*/)
+    "selections": (v0/*:: as any*/)
   },
   "params": {
     "cacheID": "ff92e813e833002678a8f48ca7382b3e",
@@ -80,10 +79,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "aa6a9402484f9565a635ead00203176b";
+  (node/*:: as any*/).hash = "aa6a9402484f9565a635ead00203176b";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   LiveResolversTestWithGCUserQuery$variables,
   LiveResolversTestWithGCUserQuery$data,
 >*/);

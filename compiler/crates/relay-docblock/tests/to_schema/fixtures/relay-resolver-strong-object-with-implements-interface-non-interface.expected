@@ -7,6 +7,7 @@
  */
 
 // expected-to-throw
+// relay:allow_legacy_relay_resolver_tag
 
 /**
  * @RelayResolver ClientUser implements User
@@ -32,4 +33,4 @@ interface IFoo {
   ℹ︎ the other type is defined here
 
   <generated>:1:1
-Internal error: Unable to print source, start index (19544) out of range.
+Internal error: Unable to print source, start index (19850) out of range.

@@ -19,18 +19,17 @@ const {fbContent} = require('docusaurus-plugin-internaldocs-fb/internal');
 
 const Guides = {
   'Fetching Data': [
-    'guided-tour/list-data/introduction',
-    ...fbContent({
-      internal: [
-        {
-          Pagination: [
-            'guided-tour/list-data/advanced-pagination',
-            'guided-tour/list-data/fb/blocking-pagination',
-          ],
-        },
+    {
+      Pagination: [
+        'guided-tour/list-data/connections',
+        'guided-tour/list-data/pagination',
+        'guided-tour/list-data/advanced-pagination',
+        ...fbContent({
+          internal: ['guided-tour/list-data/fb/blocking-pagination'],
+          external: [],
+        }),
       ],
-      external: ['guided-tour/list-data/advanced-pagination'],
-    }),
+    },
     ...fbContent({
       internal: [
         {
@@ -43,6 +42,14 @@ const Guides = {
       external: ['guided-tour/updating-data/graphql-subscriptions'],
     }),
     'guides/alias-directive',
+    {
+      'Data Driven Dependencies': [
+        'guides/data-driven-dependencies/introduction',
+        'guides/data-driven-dependencies/server-3d',
+        'guides/data-driven-dependencies/client-3d',
+        'guides/data-driven-dependencies/configuration',
+      ],
+    },
     ...fbContent({
       internal: [
         {
@@ -56,14 +63,6 @@ const Guides = {
           ],
           'Web-Only': [
             'guides/fb/incremental-data-delivery',
-            {
-              'Data Driven Dependencies': [
-                'guides/data-driven-dependencies/introduction',
-                'guides/data-driven-dependencies/server-3d',
-                'guides/data-driven-dependencies/client-3d',
-                'guides/data-driven-dependencies/configuration',
-              ],
-            },
             'guides/fb/image-prefetching',
             'guides/fb/web-query-preloading',
             'guides/fb/production-graphql-endpoint-in-sandboxes',
@@ -140,6 +139,7 @@ const Guides = {
     'guides/type-emission',
   ],
   Codemods: ['guides/codemods'],
+  'Document Comparison': ['guides/document-comparison'],
   // TODO(T84797602) release incremental data delivery externally
   // 'guides/incremental-data-delivery',
   // TODO release these in OSS
@@ -160,7 +160,12 @@ module.exports = {
         'getting-started/compiler-config',
         'getting-started/lint-rules',
         'editor-support',
-        'getting-started/production',
+        {
+          'Best Practices': [
+            'getting-started/production',
+            'tutorial/organizing-mutations-queries-and-subscriptions',
+          ],
+        },
       ],
       Tutorial: [
         'tutorial/intro',
@@ -175,9 +180,6 @@ module.exports = {
           label: 'Interfaces & Polymorphism',
         },
         'tutorial/refetchable-fragments',
-        'tutorial/connections-pagination',
-        'tutorial/mutations-updates',
-        'tutorial/organizing-mutations-queries-and-subscriptions',
       ],
       'Feature Guides': Guides,
       'API Reference': [

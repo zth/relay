@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<aac93c16b88e49e062920e739f7935f2>>
+ * @generated SignedSource<<7253a3fc6f93e9160282ee622aba05bb>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -23,29 +22,29 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayReaderAliasedFragmentsTestModuleA_user$fragmentType } from "./RelayReaderAliasedFragmentsTestModuleA_user.graphql";
 import type { RelayReaderAliasedFragmentsTestModuleB_user$fragmentType } from "./RelayReaderAliasedFragmentsTestModuleB_user.graphql";
-export type RelayReaderAliasedFragmentsTestMultipleModulesInInlineFragmentsQuery$variables = {|
+export type RelayReaderAliasedFragmentsTestMultipleModulesInInlineFragmentsQuery$variables = {
   conditionA: boolean,
   conditionB: boolean,
   id: string,
-|};
-export type RelayReaderAliasedFragmentsTestMultipleModulesInInlineFragmentsQuery$data = {|
-  +node: ?{|
-    +alias_a?: ?{|
-      +__fragmentPropName?: ?string,
-      +__module_component?: ?string,
-      +$fragmentSpreads: RelayReaderAliasedFragmentsTestModuleA_user$fragmentType,
-    |},
-    +alias_b?: ?{|
-      +__fragmentPropName?: ?string,
-      +__module_component?: ?string,
-      +$fragmentSpreads: RelayReaderAliasedFragmentsTestModuleB_user$fragmentType,
-    |},
-  |},
-|};
-export type RelayReaderAliasedFragmentsTestMultipleModulesInInlineFragmentsQuery = {|
+};
+export type RelayReaderAliasedFragmentsTestMultipleModulesInInlineFragmentsQuery$data = {
+  readonly node: ?{
+    readonly alias_a?: ?{
+      readonly __fragmentPropName?: ?string,
+      readonly __module_component?: ?string,
+      readonly $fragmentSpreads: RelayReaderAliasedFragmentsTestModuleA_user$fragmentType,
+    },
+    readonly alias_b?: ?{
+      readonly __fragmentPropName?: ?string,
+      readonly __module_component?: ?string,
+      readonly $fragmentSpreads: RelayReaderAliasedFragmentsTestModuleB_user$fragmentType,
+    },
+  },
+};
+export type RelayReaderAliasedFragmentsTestMultipleModulesInInlineFragmentsQuery = {
   response: RelayReaderAliasedFragmentsTestMultipleModulesInInlineFragmentsQuery$data,
   variables: RelayReaderAliasedFragmentsTestMultipleModulesInInlineFragmentsQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -106,9 +105,9 @@ v6 = {
 return {
   "fragment": {
     "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/),
-      (v2/*: any*/)
+      (v0/*:: as any*/),
+      (v1/*:: as any*/),
+      (v2/*:: as any*/)
     ],
     "kind": "Fragment",
     "metadata": null,
@@ -116,7 +115,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v3/*: any*/),
+        "args": (v3/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -131,7 +130,7 @@ return {
                 "fragment": {
                   "kind": "InlineFragment",
                   "selections": [
-                    (v4/*: any*/)
+                    (v4/*:: as any*/)
                   ],
                   "type": null,
                   "abstractKey": null
@@ -150,7 +149,7 @@ return {
                 "fragment": {
                   "kind": "InlineFragment",
                   "selections": [
-                    (v5/*: any*/)
+                    (v5/*:: as any*/)
                   ],
                   "type": null,
                   "abstractKey": null
@@ -170,16 +169,16 @@ return {
   "kind": "Request",
   "operation": {
     "argumentDefinitions": [
-      (v2/*: any*/),
-      (v0/*: any*/),
-      (v1/*: any*/)
+      (v2/*:: as any*/),
+      (v0/*:: as any*/),
+      (v1/*:: as any*/)
     ],
     "kind": "Operation",
     "name": "RelayReaderAliasedFragmentsTestMultipleModulesInInlineFragmentsQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v3/*: any*/),
+        "args": (v3/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -197,8 +196,8 @@ return {
             "kind": "Condition",
             "passingValue": true,
             "selections": [
-              (v6/*: any*/),
-              (v4/*: any*/)
+              (v6/*:: as any*/),
+              (v4/*:: as any*/)
             ]
           },
           {
@@ -206,8 +205,8 @@ return {
             "kind": "Condition",
             "passingValue": true,
             "selections": [
-              (v6/*: any*/),
-              (v5/*: any*/)
+              (v6/*:: as any*/),
+              (v5/*:: as any*/)
             ]
           },
           {
@@ -234,10 +233,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "f307853eb13bf7597c45d4189e881c15";
+  (node/*:: as any*/).hash = "f307853eb13bf7597c45d4189e881c15";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderAliasedFragmentsTestMultipleModulesInInlineFragmentsQuery$variables,
   RelayReaderAliasedFragmentsTestMultipleModulesInInlineFragmentsQuery$data,
 >*/);

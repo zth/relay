@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<278d9b1e89a80b5ae4ced17c29a015ff>>
+ * @generated SignedSource<<da82e2f737d39e3d5f7aa8b37bf90f13>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,18 +17,18 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayReaderCatchFieldsTestCatchMissingInInlineFragmentToNullErrorQuery$variables = {||};
-export type RelayReaderCatchFieldsTestCatchMissingInInlineFragmentToNullErrorQuery$data = {|
-  +me: ?{|
-    +myAlias?: {|
-      +firstName: ?string,
-    |},
-  |},
-|};
-export type RelayReaderCatchFieldsTestCatchMissingInInlineFragmentToNullErrorQuery = {|
+export type RelayReaderCatchFieldsTestCatchMissingInInlineFragmentToNullErrorQuery$variables = {};
+export type RelayReaderCatchFieldsTestCatchMissingInInlineFragmentToNullErrorQuery$data = {
+  readonly me: ?{
+    readonly myAlias?: {
+      readonly firstName: ?string,
+    },
+  },
+};
+export type RelayReaderCatchFieldsTestCatchMissingInInlineFragmentToNullErrorQuery = {
   response: RelayReaderCatchFieldsTestCatchMissingInInlineFragmentToNullErrorQuery$data,
   variables: RelayReaderCatchFieldsTestCatchMissingInInlineFragmentToNullErrorQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -61,7 +60,7 @@ return {
               "fragment": {
                 "kind": "InlineFragment",
                 "selections": [
-                  (v0/*: any*/)
+                  (v0/*:: as any*/)
                 ],
                 "type": null,
                 "abstractKey": null
@@ -92,7 +91,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
+          (v0/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -117,10 +116,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "6d744c6b81261213c472eb1cb90e661f";
+  (node/*:: as any*/).hash = "6d744c6b81261213c472eb1cb90e661f";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderCatchFieldsTestCatchMissingInInlineFragmentToNullErrorQuery$variables,
   RelayReaderCatchFieldsTestCatchMissingInInlineFragmentToNullErrorQuery$data,
 >*/);

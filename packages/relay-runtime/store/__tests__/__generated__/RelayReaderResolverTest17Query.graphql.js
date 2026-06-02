@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<dc63f9f02761ccd8b142d07ee26eff82>>
+ * @generated SignedSource<<725ff2b5434d532283d15016ab6e4c77>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -23,23 +22,23 @@ import {user_profile_picture_uri_with_scale_and_default_value as userUserProfile
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userUserProfilePictureUriWithScaleAndDefaultValueResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userUserProfilePictureUriWithScaleAndDefaultValueResolverType: (
+(userUserProfilePictureUriWithScaleAndDefaultValueResolverType as (
   rootKey: UserProfilePictureWithDefaultValueResolver$key,
-  args: {|
+  args: {
     scale: ?number,
-  |},
+  },
   context: TestResolverContextType,
 ) => ?string);
-export type RelayReaderResolverTest17Query$variables = {||};
-export type RelayReaderResolverTest17Query$data = {|
-  +me: ?{|
-    +user_profile_picture_uri_with_scale_and_default_value: ?string,
-  |},
-|};
-export type RelayReaderResolverTest17Query = {|
+export type RelayReaderResolverTest17Query$variables = {};
+export type RelayReaderResolverTest17Query$data = {
+  readonly me: ?{
+    readonly user_profile_picture_uri_with_scale_and_default_value: ?string,
+  },
+};
+export type RelayReaderResolverTest17Query = {
   response: RelayReaderResolverTest17Query$data,
   variables: RelayReaderResolverTest17Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {
@@ -152,10 +151,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "e3d82e53a530e186384e70fb3ee90c42";
+  (node/*:: as any*/).hash = "e3d82e53a530e186384e70fb3ee90c42";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderResolverTest17Query$variables,
   RelayReaderResolverTest17Query$data,
 >*/);

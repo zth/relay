@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<917615fb2bcdd1bee8054f922fcf509f>>
+ * @generated SignedSource<<5d90bf73dbd482ae6718289bf7d562e0>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,16 +18,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayReaderRequiredFieldsTest6Fragment$fragmentType } from "./RelayReaderRequiredFieldsTest6Fragment.graphql";
-export type RelayReaderRequiredFieldsTest24Query$variables = {||};
-export type RelayReaderRequiredFieldsTest24Query$data = {|
-  +nodes: ?$ReadOnlyArray<?{|
-    +$fragmentSpreads: RelayReaderRequiredFieldsTest6Fragment$fragmentType,
-  |}>,
-|};
-export type RelayReaderRequiredFieldsTest24Query = {|
+export type RelayReaderRequiredFieldsTest24Query$variables = {};
+export type RelayReaderRequiredFieldsTest24Query$data = {
+  readonly nodes: ?ReadonlyArray<?{
+    readonly $fragmentSpreads: RelayReaderRequiredFieldsTest6Fragment$fragmentType,
+  }>,
+};
+export type RelayReaderRequiredFieldsTest24Query = {
   response: RelayReaderRequiredFieldsTest24Query$data,
   variables: RelayReaderRequiredFieldsTest24Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -51,7 +50,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "nodes",
@@ -77,7 +76,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "nodes",
@@ -128,10 +127,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "9ac143a6a63180abd74a237cb422c2a8";
+  (node/*:: as any*/).hash = "9ac143a6a63180abd74a237cb422c2a8";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderRequiredFieldsTest24Query$variables,
   RelayReaderRequiredFieldsTest24Query$data,
 >*/);

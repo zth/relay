@@ -26,7 +26,7 @@ use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 use lsp_types::PrepareRenameResponse;
 use lsp_types::TextEdit;
-use lsp_types::Url;
+use lsp_types::Uri;
 use lsp_types::WorkspaceEdit;
 use lsp_types::request::PrepareRenameRequest;
 use lsp_types::request::Rename;
@@ -69,7 +69,7 @@ pub fn on_rename(
     let uri = &params.text_document_position.text_document.uri;
     let (feature, location) = state.extract_feature_from_text(&params.text_document_position, 1)?;
 
-    let program = &state.get_program(&state.extract_project_name_from_url(uri)?)?;
+    let program = &state.get_program(&state.extract_project_name_from_uri(uri)?)?;
     let root_dir = &state.root_dir();
 
     let rename_request = create_rename_request(feature, location)?;
@@ -326,9 +326,7 @@ fn is_variable_defined_in_variable_definitions(
     fragment_definition
         .variable_definitions
         .as_ref()
-        .map_or(false, |variables| {
-            variables.items.iter().any(|v| v.name.name == variable_name)
-        })
+        .is_some_and(|variables| variables.items.iter().any(|v| v.name.name == variable_name))
 }
 
 fn is_argument_defined_in_argument_definitions(
@@ -339,10 +337,11 @@ fn is_argument_defined_in_argument_definitions(
         .directives
         .named(*ARGUMENTDEFINITIONS_DIRECTIVE)
         .as_ref()
-        .map_or(false, |directive| {
-            directive.arguments.as_ref().map_or(false, |args| {
-                args.items.iter().any(|v| v.name.value == variable_name)
-            })
+        .is_some_and(|directive| {
+            directive
+                .arguments
+                .as_ref()
+                .is_some_and(|args| args.items.iter().any(|v| v.name.value == variable_name))
         })
 }
 
@@ -372,9 +371,7 @@ fn get_rename_kind_for_variable_identifier(
             if !operation_definition
                 .variable_definitions
                 .as_ref()
-                .map_or(false, |defs| {
-                    defs.items.iter().any(|v| v.name.name == variable_name)
-                })
+                .is_some_and(|defs| defs.items.iter().any(|v| v.name.name == variable_name))
             {
                 return Err(LSPRuntimeError::UnexpectedError(
                     "Couldn't find variable definition for variable".into(),
@@ -398,8 +395,8 @@ fn map_locations_to_text_edits(
     locations: Vec<IRLocation>,
     new_text: String,
     root_dir: &Path,
-) -> HashMap<Url, Vec<TextEdit>> {
-    let vec_res: Vec<(Url, TextEdit)> = locations
+) -> HashMap<Uri, Vec<TextEdit>> {
+    let vec_res: Vec<(Uri, TextEdit)> = locations
         .par_iter()
         .flat_map(|location| {
             let transformed = transform_relay_location_on_disk_to_lsp_location(root_dir, *location);
@@ -413,7 +410,7 @@ fn map_locations_to_text_edits(
         })
         .collect();
 
-    let mut changes: HashMap<Url, Vec<TextEdit>> = HashMap::new();
+    let mut changes: HashMap<Uri, Vec<TextEdit>> = HashMap::new();
     for (uri, text_edit) in vec_res {
         changes.entry(uri).or_default().push(text_edit);
     }
@@ -518,14 +515,12 @@ impl Visitor for FragmentArgumentFinder {
     }
 
     fn visit_argument(&mut self, argument: &graphql_ir::Argument) {
-        if let Some(fragment_name) = self.current_scope.fragment_name {
-            if fragment_name == self.fragment_name {
-                if let graphql_ir::Value::Variable(variable) = &argument.value.item {
-                    if variable.name.item.0 == self.argument_name {
-                        self.add_argument_location(variable.name.location);
-                    }
-                }
-            }
+        if let Some(fragment_name) = self.current_scope.fragment_name
+            && fragment_name == self.fragment_name
+            && let graphql_ir::Value::Variable(variable) = &argument.value.item
+            && variable.name.item.0 == self.argument_name
+        {
+            self.add_argument_location(variable.name.location);
         }
     }
 
@@ -562,10 +557,11 @@ impl Visitor for FragmentArgumentFinder {
 
     // This is necessary to visit variable usages within conditionals like @skip.
     fn visit_variable(&mut self, value: &graphql_ir::Variable) {
-        if let Some(fragment_name) = self.current_scope.fragment_name {
-            if fragment_name == self.fragment_name && value.name.item.0 == self.argument_name {
-                self.add_argument_location(value.name.location);
-            }
+        if let Some(fragment_name) = self.current_scope.fragment_name
+            && fragment_name == self.fragment_name
+            && value.name.item.0 == self.argument_name
+        {
+            self.add_argument_location(value.name.location);
         }
     }
 }

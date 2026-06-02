@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<64502aba61fde822f8bd4288691ff4bf>>
+ * @generated SignedSource<<dfac05b972dd6d6c679bbeb2ab21f5f9>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -25,29 +24,29 @@ import type { RelayModernEnvironmentWithOperationTrackerTestMarkdownUserNameRend
 import type { RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name$fragmentType } from "./RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$fragmentType: FragmentType;
-export type RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$data = {|
-  +author: ?{|
-    +__typename: "User",
-    +nameRenderer: ?{|
-      +__fragmentPropName?: ?string,
-      +__module_component?: ?string,
-      +$fragmentSpreads: RelayModernEnvironmentWithOperationTrackerTestMarkdownUserNameRenderer_name$fragmentType & RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name$fragmentType,
-    |},
-    +plainNameRenderer: ?{|
-      +__fragmentPropName?: ?string,
-      +__module_component?: ?string,
-      +$fragmentSpreads: RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name$fragmentType,
-    |},
-  |},
-  +body: ?{|
-    +text: ?string,
-  |},
-  +id: string,
-  +$fragmentType: RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$fragmentType,
-|};
+export type RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$data = {
+  readonly author: ?{
+    readonly __typename: "User",
+    readonly nameRenderer: ?{
+      readonly __fragmentPropName?: ?string,
+      readonly __module_component?: ?string,
+      readonly $fragmentSpreads: RelayModernEnvironmentWithOperationTrackerTestMarkdownUserNameRenderer_name$fragmentType & RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name$fragmentType,
+    },
+    readonly plainNameRenderer: ?{
+      readonly __fragmentPropName?: ?string,
+      readonly __module_component?: ?string,
+      readonly $fragmentSpreads: RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name$fragmentType,
+    },
+  },
+  readonly body: ?{
+    readonly text: ?string,
+  },
+  readonly id: string,
+  readonly $fragmentType: RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$fragmentType,
+};
 export type RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$key = {
-  +$data?: RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$data,
-  +$fragmentSpreads: RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$fragmentType,
+  readonly $data?: RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$fragmentType,
   ...
 };
 */
@@ -183,10 +182,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "e135d9b0559cedee19c4ccccd85dc5be";
+  (node/*:: as any*/).hash = "e135d9b0559cedee19c4ccccd85dc5be";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$fragmentType,
   RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$data,
 >*/);

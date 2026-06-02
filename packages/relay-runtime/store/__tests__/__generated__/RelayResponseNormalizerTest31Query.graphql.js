@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<fe82e7411965bd392dbb48b670e7c688>>
+ * @generated SignedSource<<bedef4c814fc77b9ceb8118d9140a876>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,18 +17,18 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayResponseNormalizerTest31Query$variables = {||};
-export type RelayResponseNormalizerTest31Query$data = {|
-  +me: ?{|
-    +actors: ?$ReadOnlyArray<?{|
-      +id: string,
-    |}>,
-  |},
-|};
-export type RelayResponseNormalizerTest31Query = {|
+export type RelayResponseNormalizerTest31Query$variables = {};
+export type RelayResponseNormalizerTest31Query$data = {
+  readonly me: ?{
+    readonly actors: ?ReadonlyArray<?{
+      readonly id: string,
+    }>,
+  },
+};
+export type RelayResponseNormalizerTest31Query = {
   response: RelayResponseNormalizerTest31Query$data,
   variables: RelayResponseNormalizerTest31Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -63,7 +62,7 @@ return {
             "name": "actors",
             "plural": true,
             "selections": [
-              (v0/*: any*/)
+              (v0/*:: as any*/)
             ],
             "storageKey": null
           }
@@ -103,11 +102,11 @@ return {
                 "name": "__typename",
                 "storageKey": null
               },
-              (v0/*: any*/)
+              (v0/*:: as any*/)
             ],
             "storageKey": null
           },
-          (v0/*: any*/)
+          (v0/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -125,10 +124,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "26c7124e297d6fd6bcb59cba366c0f6c";
+  (node/*:: as any*/).hash = "26c7124e297d6fd6bcb59cba366c0f6c";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayResponseNormalizerTest31Query$variables,
   RelayResponseNormalizerTest31Query$data,
 >*/);

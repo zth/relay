@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e72932e9d1803e30569edd529e772754>>
+ * @generated SignedSource<<dbd533e9ffdb58b2de9a321639beca1b>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -23,18 +22,18 @@ import {field_that_throws as queryFieldThatThrowsResolverType} from "../useFragm
 import type { TestResolverContextType } from "../../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryFieldThatThrowsResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryFieldThatThrowsResolverType: (
+(queryFieldThatThrowsResolverType as (
   args: void,
   context: TestResolverContextType,
 ) => number);
 declare export opaque type useFragmentNullabilityTestFragmentWithFieldThatThrows$fragmentType: FragmentType;
-export type useFragmentNullabilityTestFragmentWithFieldThatThrows$data = {|
-  +field_that_throws: number,
-  +$fragmentType: useFragmentNullabilityTestFragmentWithFieldThatThrows$fragmentType,
-|};
+export type useFragmentNullabilityTestFragmentWithFieldThatThrows$data = {
+  readonly field_that_throws: number,
+  readonly $fragmentType: useFragmentNullabilityTestFragmentWithFieldThatThrows$fragmentType,
+};
 export type useFragmentNullabilityTestFragmentWithFieldThatThrows$key = {
-  +$data?: useFragmentNullabilityTestFragmentWithFieldThatThrows$data,
-  +$fragmentSpreads: useFragmentNullabilityTestFragmentWithFieldThatThrows$fragmentType,
+  readonly $data?: useFragmentNullabilityTestFragmentWithFieldThatThrows$data,
+  readonly $fragmentSpreads: useFragmentNullabilityTestFragmentWithFieldThatThrows$fragmentType,
   ...
 };
 */
@@ -67,10 +66,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "dea9fca9b23eeb0d2dccfe5c68da7c2c";
+  (node/*:: as any*/).hash = "dea9fca9b23eeb0d2dccfe5c68da7c2c";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   useFragmentNullabilityTestFragmentWithFieldThatThrows$fragmentType,
   useFragmentNullabilityTestFragmentWithFieldThatThrows$data,
 >*/);

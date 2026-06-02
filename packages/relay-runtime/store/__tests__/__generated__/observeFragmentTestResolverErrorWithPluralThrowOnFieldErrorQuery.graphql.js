@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<88f631a8a727158afc72c5ed15b804a4>>
+ * @generated SignedSource<<3086fe547397b8fa5128a3a5475e321e>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,16 +18,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorFragment$fragmentType } from "./observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorFragment.graphql";
-export type observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorQuery$variables = {||};
-export type observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorQuery$data = {|
-  +nodes: ?$ReadOnlyArray<?{|
-    +$fragmentSpreads: observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorFragment$fragmentType,
-  |}>,
-|};
-export type observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorQuery = {|
+export type observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorQuery$variables = {};
+export type observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorQuery$data = {
+  readonly nodes: ?ReadonlyArray<?{
+    readonly $fragmentSpreads: observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorFragment$fragmentType,
+  }>,
+};
+export type observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorQuery = {
   response: observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorQuery$data,
   variables: observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -58,7 +57,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "nodes",
@@ -84,13 +83,13 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "nodes",
         "plural": true,
         "selections": [
-          (v1/*: any*/),
+          (v1/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
@@ -100,7 +99,7 @@ return {
                 "fragment": {
                   "kind": "InlineFragment",
                   "selections": [
-                    (v1/*: any*/)
+                    (v1/*:: as any*/)
                   ],
                   "type": "User",
                   "abstractKey": null
@@ -137,10 +136,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "412492582875c8c7b44e67794ed55763";
+  (node/*:: as any*/).hash = "412492582875c8c7b44e67794ed55763";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorQuery$variables,
   observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorQuery$data,
 >*/);

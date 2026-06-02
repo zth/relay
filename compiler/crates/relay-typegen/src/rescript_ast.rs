@@ -100,6 +100,7 @@ pub struct FullEnum {
 pub enum ConverterInstructions {
     ConvertUnion(String),
     ConvertCustomField(String, bool),
+    RenameKey(String),
     HasFragments,
     BlockTraversal(bool),
     RootObject(String), // TODO: Rename

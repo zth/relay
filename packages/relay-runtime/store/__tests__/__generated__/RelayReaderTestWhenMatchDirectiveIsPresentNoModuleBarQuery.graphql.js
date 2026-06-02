@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4f98a38884f201aca56eb746b30872a3>>
+ * @generated SignedSource<<f9c58976dd29a2269a59059a59d7322e>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,16 +20,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$fragmentType } from "./RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment.graphql";
-export type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarQuery$variables = {||};
-export type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarQuery$data = {|
-  +me: ?{|
-    +$fragmentSpreads: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$fragmentType,
-  |},
-|};
-export type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarQuery = {|
+export type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarQuery$variables = {};
+export type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarQuery$data = {
+  readonly me: ?{
+    readonly $fragmentSpreads: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$fragmentType,
+  },
+};
+export type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarQuery = {
   response: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarQuery$data,
   variables: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {
@@ -143,10 +142,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "52e8fb8b490569a5a7125ef7dac411f1";
+  (node/*:: as any*/).hash = "52e8fb8b490569a5a7125ef7dac411f1";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarQuery$variables,
   RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarQuery$data,
 >*/);

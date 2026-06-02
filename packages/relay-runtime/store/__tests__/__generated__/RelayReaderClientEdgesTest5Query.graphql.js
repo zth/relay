@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e24350d4653f30adb8ee0b44e68117c1>>
+ * @generated SignedSource<<822b981f0a58c8ec1f90b85fb5f1d198>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,27 +23,27 @@ import {client_edge as userClientEdgeResolverType} from "../resolvers/UserClient
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userClientEdgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userClientEdgeResolverType: (
+(userClientEdgeResolverType as (
   rootKey: UserClientEdgeResolver$key,
   args: void,
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
-export type RelayReaderClientEdgesTest5Query$variables = {||};
-export type RelayReaderClientEdgesTest5Query$data = {|
-  +me: ?{|
-    +client_extension_linked_field: ?{|
-      +client_edge: ?{|
-        +name: ?string,
-      |},
-    |},
-  |},
-|};
-export type RelayReaderClientEdgesTest5Query = {|
+) => ?{
+  readonly id: DataID,
+});
+export type RelayReaderClientEdgesTest5Query$variables = {};
+export type RelayReaderClientEdgesTest5Query$data = {
+  readonly me: ?{
+    readonly client_extension_linked_field: ?{
+      readonly client_edge: ?{
+        readonly name: ?string,
+      },
+    },
+  },
+};
+export type RelayReaderClientEdgesTest5Query = {
   response: RelayReaderClientEdgesTest5Query$data,
   variables: RelayReaderClientEdgesTest5Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -115,7 +114,7 @@ return {
                       "kind": "LinkedField",
                       "name": "client_edge",
                       "plural": false,
-                      "selections": (v0/*: any*/),
+                      "selections": (v0/*:: as any*/),
                       "storageKey": null
                     }
                   }
@@ -145,7 +144,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v1/*: any*/),
+          (v1/*:: as any*/),
           {
             "kind": "ClientExtension",
             "selections": [
@@ -162,7 +161,7 @@ return {
                     "args": null,
                     "fragment": {
                       "kind": "InlineFragment",
-                      "selections": (v0/*: any*/),
+                      "selections": (v0/*:: as any*/),
                       "type": "User",
                       "abstractKey": null
                     },
@@ -170,7 +169,7 @@ return {
                     "storageKey": null,
                     "isOutputType": false
                   },
-                  (v1/*: any*/)
+                  (v1/*:: as any*/)
                 ],
                 "storageKey": null
               }
@@ -193,10 +192,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "9b811ee5e147084d125230990142a40e";
+  (node/*:: as any*/).hash = "9b811ee5e147084d125230990142a40e";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderClientEdgesTest5Query$variables,
   RelayReaderClientEdgesTest5Query$data,
 >*/);

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<cda3338d599339d3bc257b06fed91d06>>
+ * @generated SignedSource<<09423fa8d66c28701fb061650760d933>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,21 +20,21 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { RelayModernEnvironmentNoInlineTest_nestedNoInline$fragmentType } from "./RelayModernEnvironmentNoInlineTest_nestedNoInline.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentNoInlineTest_nestedNoInlineParent$fragmentType: FragmentType;
-export type RelayModernEnvironmentNoInlineTest_nestedNoInlineParent$data = {|
-  +joe: ?{|
-    +$fragmentSpreads: RelayModernEnvironmentNoInlineTest_nestedNoInline$fragmentType,
-  |},
-  +mark: ?{|
-    +$fragmentSpreads: RelayModernEnvironmentNoInlineTest_nestedNoInline$fragmentType,
-  |},
-  +zuck: ?{|
-    +$fragmentSpreads: RelayModernEnvironmentNoInlineTest_nestedNoInline$fragmentType,
-  |},
-  +$fragmentType: RelayModernEnvironmentNoInlineTest_nestedNoInlineParent$fragmentType,
-|};
+export type RelayModernEnvironmentNoInlineTest_nestedNoInlineParent$data = {
+  readonly joe: ?{
+    readonly $fragmentSpreads: RelayModernEnvironmentNoInlineTest_nestedNoInline$fragmentType,
+  },
+  readonly mark: ?{
+    readonly $fragmentSpreads: RelayModernEnvironmentNoInlineTest_nestedNoInline$fragmentType,
+  },
+  readonly zuck: ?{
+    readonly $fragmentSpreads: RelayModernEnvironmentNoInlineTest_nestedNoInline$fragmentType,
+  },
+  readonly $fragmentType: RelayModernEnvironmentNoInlineTest_nestedNoInlineParent$fragmentType,
+};
 export type RelayModernEnvironmentNoInlineTest_nestedNoInlineParent$key = {
-  +$data?: RelayModernEnvironmentNoInlineTest_nestedNoInlineParent$data,
-  +$fragmentSpreads: RelayModernEnvironmentNoInlineTest_nestedNoInlineParent$fragmentType,
+  readonly $data?: RelayModernEnvironmentNoInlineTest_nestedNoInlineParent$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentNoInlineTest_nestedNoInlineParent$fragmentType,
   ...
 };
 */
@@ -146,10 +145,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "80e0fda8b8d8bb4e7200ea5387229c4c";
+  (node/*:: as any*/).hash = "80e0fda8b8d8bb4e7200ea5387229c4c";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayModernEnvironmentNoInlineTest_nestedNoInlineParent$fragmentType,
   RelayModernEnvironmentNoInlineTest_nestedNoInlineParent$data,
 >*/);

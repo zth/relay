@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<98e4bfbb28332b751e6a803728b28fde>>
+ * @generated SignedSource<<84d8e58093bba6e90e135a037acdb374>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -23,21 +22,21 @@ import {best_friend_shouted_greeting as userBestFriendShoutedGreetingResolverTyp
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userBestFriendShoutedGreetingResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userBestFriendShoutedGreetingResolverType: (
+(userBestFriendShoutedGreetingResolverType as (
   rootKey: UserBestFriendShoutedGreetingResolver$key,
   args: void,
   context: TestResolverContextType,
 ) => ?string);
-export type RelayReaderResolverTest6Query$variables = {||};
-export type RelayReaderResolverTest6Query$data = {|
-  +me: ?{|
-    +best_friend_shouted_greeting: ?string,
-  |},
-|};
-export type RelayReaderResolverTest6Query = {|
+export type RelayReaderResolverTest6Query$variables = {};
+export type RelayReaderResolverTest6Query$data = {
+  readonly me: ?{
+    readonly best_friend_shouted_greeting: ?string,
+  },
+};
+export type RelayReaderResolverTest6Query = {
   response: RelayReaderResolverTest6Query$data,
   variables: RelayReaderResolverTest6Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -161,7 +160,7 @@ return {
                               "storageKey": null,
                               "isOutputType": true
                             },
-                            (v0/*: any*/)
+                            (v0/*:: as any*/)
                           ],
                           "storageKey": null
                         }
@@ -179,7 +178,7 @@ return {
             "storageKey": null,
             "isOutputType": true
           },
-          (v0/*: any*/)
+          (v0/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -197,10 +196,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "80dc5662e3d0136fc0079c60f0bf0caf";
+  (node/*:: as any*/).hash = "80dc5662e3d0136fc0079c60f0bf0caf";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderResolverTest6Query$variables,
   RelayReaderResolverTest6Query$data,
 >*/);

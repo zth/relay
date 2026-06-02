@@ -80,7 +80,8 @@ pub fn categorize_files(
                             }
                             FileGroup::Source { project_set }
                             | FileGroup::Schema { project_set }
-                            | FileGroup::Extension { project_set } => !project_set
+                            | FileGroup::Extension { project_set }
+                            | FileGroup::CompactSchema { project_set } => !project_set
                                 .iter()
                                 .any(|name| relevant_projects.contains(name)),
                             FileGroup::Ignore => false,
@@ -143,6 +144,7 @@ pub struct FileCategorizer {
     generated_sources: Vec<PathBuf>,
     source_mapping: PathMapping<ProjectSet>,
     schema_file_mapping: HashMap<PathBuf, ProjectSet>,
+    compact_schema_file_mapping: HashMap<PathBuf, ProjectSet>,
     schema_dir_mapping: PathMapping<ProjectSet>,
 }
 
@@ -166,8 +168,8 @@ impl FileCategorizer {
 
         let mut extensions_map: HashMap<PathBuf, ProjectSet> = Default::default();
         for (&project_name, project_config) in &config.projects {
-            for extension_dir in &project_config.schema_extensions {
-                match extensions_map.entry(extension_dir.clone()) {
+            for extension_path in &project_config.schema_extensions {
+                match extensions_map.entry(extension_path.clone()) {
                     Entry::Vacant(entry) => {
                         entry.insert(ProjectSet::of(project_name));
                     }
@@ -179,29 +181,27 @@ impl FileCategorizer {
         }
 
         let mut schema_file_mapping: HashMap<PathBuf, ProjectSet> = Default::default();
-        for (&project_name, project_config) in &config.projects {
-            if let SchemaLocation::File(schema_file) = &project_config.schema_location {
-                match schema_file_mapping.entry(schema_file.clone()) {
-                    Entry::Vacant(entry) => {
-                        entry.insert(ProjectSet::of(project_name));
-                    }
-                    Entry::Occupied(mut entry) => {
-                        entry.get_mut().insert(project_name);
-                    }
-                }
-            }
-        }
-
+        let mut compact_schema_file_mapping: HashMap<PathBuf, ProjectSet> = Default::default();
         let mut schema_dir_mapping_map: HashMap<PathBuf, ProjectSet> = Default::default();
         for (&project_name, project_config) in &config.projects {
-            if let SchemaLocation::Directory(directory) = &project_config.schema_location {
-                match schema_dir_mapping_map.entry(directory.clone()) {
-                    Entry::Vacant(entry) => {
-                        entry.insert(ProjectSet::of(project_name));
-                    }
-                    Entry::Occupied(mut entry) => {
-                        entry.get_mut().insert(project_name);
-                    }
+            match &project_config.schema_location {
+                SchemaLocation::CompactFile(schema_file) => {
+                    compact_schema_file_mapping
+                        .entry(schema_file.clone())
+                        .and_modify(|project_set| project_set.insert(project_name))
+                        .or_insert_with(|| ProjectSet::of(project_name));
+                }
+                SchemaLocation::File(schema_file) => {
+                    schema_file_mapping
+                        .entry(schema_file.clone())
+                        .and_modify(|project_set| project_set.insert(project_name))
+                        .or_insert_with(|| ProjectSet::of(project_name));
+                }
+                SchemaLocation::Directory(directory) => {
+                    schema_dir_mapping_map
+                        .entry(directory.clone())
+                        .and_modify(|project_set| project_set.insert(project_name))
+                        .or_insert_with(|| ProjectSet::of(project_name));
                 }
             }
         }
@@ -235,6 +235,7 @@ impl FileCategorizer {
             generated_dir_mapping: PathMapping::new(generated_dir_mapping),
             generated_sources,
             schema_file_mapping,
+            compact_schema_file_mapping,
             schema_dir_mapping: PathMapping::new(schema_dir_mapping),
             source_mapping: PathMapping::new(source_mapping),
         }
@@ -245,6 +246,13 @@ impl FileCategorizer {
     /// `FileCategorizer`.
     pub fn categorize(&self, path: &Path, config: &Config) -> Result<FileGroup, Cow<'static, str>> {
         let extension = path.extension();
+
+        // Check if this is a compact schema file (matched by exact path, not extension)
+        if let Some(project_set) = self.compact_schema_file_mapping.get(path) {
+            return Ok(FileGroup::CompactSchema {
+                project_set: project_set.clone(),
+            });
+        }
 
         let in_generated_sources = self
             .generated_sources
@@ -283,8 +291,7 @@ impl FileCategorizer {
                     if project_set.has_multiple_projects() {
                         Err(Cow::Owned(format!(
                             "Overlapping input sources are incompatible with relative generated \
-                        directories. Got file in a relative generated directory with source set {:?}.",
-                            project_set,
+                        directories. Got file in a relative generated directory with source set {project_set:?}.",
                         )))
                     } else {
                         let project_name = project_set.into_iter().next().unwrap();
@@ -330,14 +337,11 @@ impl FileCategorizer {
         path: &Path,
     ) -> bool {
         for project_name in project_set.iter() {
-            if let Some(language) = self.source_language.get(project_name) {
-                if !is_valid_source_code_extension(language, extension) {
-                    warn!(
-                        "Unexpected file `{:?}` for language `{:?}`.",
-                        path, language
-                    );
-                    return false;
-                }
+            if let Some(language) = self.source_language.get(project_name)
+                && !is_valid_source_code_extension(language, extension)
+            {
+                warn!("Unexpected file `{path:?}` for language `{language:?}`.");
+                return false;
             }
         }
         true
@@ -444,7 +448,8 @@ mod tests {
                         "src/typescript": "typescript",
                         "src/custom_overlapping": ["with_custom_generated_dir", "overlapping_generated_dir"],
                         "src/react_native.native.js": ["public"],
-                        "src/component.react.native.js": ["public"]
+                        "src/component.react.native.js": ["public"],
+                        "src/flatbuffer": "flatbuffer_project"
                     },
                     "generatedSources": {
                         "src/resolver_codegen/__generated__": "public"
@@ -472,6 +477,10 @@ mod tests {
                         },
                         "overlapping_generated_dir": {
                             "schema": "graphql/__generated__/custom.graphql",
+                            "language": "flow"
+                        },
+                        "flatbuffer_project": {
+                            "schemaCompact": "schema/fb_schema.bin",
                             "language": "flow"
                         }
                     }
@@ -585,6 +594,14 @@ mod tests {
                 .unwrap(),
             FileGroup::Source {
                 project_set: ProjectSet::of("typescript".intern().into()),
+            },
+        );
+        assert_eq!(
+            categorizer
+                .categorize(&PathBuf::from("schema/fb_schema.bin"), &config)
+                .unwrap(),
+            FileGroup::CompactSchema {
+                project_set: ProjectSet::of("flatbuffer_project".intern().into()),
             },
         );
     }

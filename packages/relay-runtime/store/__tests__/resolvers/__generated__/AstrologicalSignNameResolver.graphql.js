@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4fadd9f926486d3b17d9d8c0b0131f26>>
+ * @generated SignedSource<<c5f4d37e8e09c8c281d19ca3786c6b9f>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,19 +23,19 @@ import {self as astrologicalSignSelfResolverType} from "../AstrologicalSignSelfR
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `astrologicalSignSelfResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(astrologicalSignSelfResolverType: (
+(astrologicalSignSelfResolverType as (
   rootKey: AstrologicalSignSelfResolver$key,
   args: void,
   context: TestResolverContextType,
-) => ?mixed);
+) => ?unknown);
 declare export opaque type AstrologicalSignNameResolver$fragmentType: FragmentType;
-export type AstrologicalSignNameResolver$data = {|
-  +self: ?ReturnType<typeof astrologicalSignSelfResolverType>,
-  +$fragmentType: AstrologicalSignNameResolver$fragmentType,
-|};
+export type AstrologicalSignNameResolver$data = {
+  readonly self: ?ReturnType<typeof astrologicalSignSelfResolverType>,
+  readonly $fragmentType: AstrologicalSignNameResolver$fragmentType,
+};
 export type AstrologicalSignNameResolver$key = {
-  +$data?: AstrologicalSignNameResolver$data,
-  +$fragmentSpreads: AstrologicalSignNameResolver$fragmentType,
+  readonly $data?: AstrologicalSignNameResolver$data,
+  readonly $fragmentSpreads: AstrologicalSignNameResolver$fragmentType,
   ...
 };
 */
@@ -66,10 +65,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "9ad858ddaec8b65cd26583a45087ea88";
+  (node/*:: as any*/).hash = "9ad858ddaec8b65cd26583a45087ea88";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   AstrologicalSignNameResolver$fragmentType,
   AstrologicalSignNameResolver$data,
 >*/);

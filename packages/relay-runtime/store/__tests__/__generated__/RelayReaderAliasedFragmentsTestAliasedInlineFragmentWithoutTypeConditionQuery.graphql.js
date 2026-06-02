@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<70e8d3e11aa27a34d595ac1f1215d8fc>>
+ * @generated SignedSource<<1c20a6e7a84ddbcbb956b4226405bfc2>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,18 +17,18 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayReaderAliasedFragmentsTestAliasedInlineFragmentWithoutTypeConditionQuery$variables = {||};
-export type RelayReaderAliasedFragmentsTestAliasedInlineFragmentWithoutTypeConditionQuery$data = {|
-  +me: ?{|
-    +aliased_fragment: ?{|
-      +name: string,
-    |},
-  |},
-|};
-export type RelayReaderAliasedFragmentsTestAliasedInlineFragmentWithoutTypeConditionQuery = {|
+export type RelayReaderAliasedFragmentsTestAliasedInlineFragmentWithoutTypeConditionQuery$variables = {};
+export type RelayReaderAliasedFragmentsTestAliasedInlineFragmentWithoutTypeConditionQuery$data = {
+  readonly me: ?{
+    readonly aliased_fragment: ?{
+      readonly name: string,
+    },
+  },
+};
+export type RelayReaderAliasedFragmentsTestAliasedInlineFragmentWithoutTypeConditionQuery = {
   response: RelayReaderAliasedFragmentsTestAliasedInlineFragmentWithoutTypeConditionQuery$data,
   variables: RelayReaderAliasedFragmentsTestAliasedInlineFragmentWithoutTypeConditionQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -61,7 +60,7 @@ return {
               "selections": [
                 {
                   "kind": "RequiredField",
-                  "field": (v0/*: any*/),
+                  "field": (v0/*:: as any*/),
                   "action": "NONE"
                 }
               ],
@@ -92,7 +91,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
+          (v0/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -117,10 +116,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "2e11b67dd1bbc6f668f878ea40e358e7";
+  (node/*:: as any*/).hash = "2e11b67dd1bbc6f668f878ea40e358e7";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderAliasedFragmentsTestAliasedInlineFragmentWithoutTypeConditionQuery$variables,
   RelayReaderAliasedFragmentsTestAliasedInlineFragmentWithoutTypeConditionQuery$data,
 >*/);

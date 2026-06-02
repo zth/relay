@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b7335107eae9ad9be9c6134c22759e1b>>
+ * @generated SignedSource<<5d4e966b97cc8d08d8dff2384f5580b9>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,34 +18,34 @@
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
 import type { validateMutationTestEntityFragement$fragmentType } from "./validateMutationTestEntityFragement.graphql";
-export type ActorNameChangeInput = {|
+export type ActorNameChangeInput = {
   newName?: ?string,
-|};
-export type validateMutationTestIsEntitySpreadFragmentMutation$variables = {|
+};
+export type validateMutationTestIsEntitySpreadFragmentMutation$variables = {
   input: ActorNameChangeInput,
-|};
-export type validateMutationTestIsEntitySpreadFragmentMutation$data = {|
-  +actorNameChange: ?{|
-    +actor: ?{|
-      +$fragmentSpreads: validateMutationTestEntityFragement$fragmentType,
-    |},
-  |},
-|};
-export type validateMutationTestIsEntitySpreadFragmentMutation$rawResponse = {|
-  +actorNameChange: ?{|
-    +actor: ?{|
-      +__typename: string,
-      +__isEntity: string,
-      +id: string,
-      +url: ?string,
-    |},
-  |},
-|};
-export type validateMutationTestIsEntitySpreadFragmentMutation = {|
+};
+export type validateMutationTestIsEntitySpreadFragmentMutation$data = {
+  readonly actorNameChange: ?{
+    readonly actor: ?{
+      readonly $fragmentSpreads: validateMutationTestEntityFragement$fragmentType,
+    },
+  },
+};
+export type validateMutationTestIsEntitySpreadFragmentMutation$rawResponse = {
+  readonly actorNameChange: ?{
+    readonly actor: ?{
+      readonly __typename: string,
+      readonly __isEntity?: string,
+      readonly id: string,
+      readonly url?: ?string,
+    },
+  },
+};
+export type validateMutationTestIsEntitySpreadFragmentMutation = {
   rawResponse: validateMutationTestIsEntitySpreadFragmentMutation$rawResponse,
   response: validateMutationTestIsEntitySpreadFragmentMutation$data,
   variables: validateMutationTestIsEntitySpreadFragmentMutation$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -66,14 +65,14 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "validateMutationTestIsEntitySpreadFragmentMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "ActorNameChangePayload",
         "kind": "LinkedField",
         "name": "actorNameChange",
@@ -104,13 +103,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "validateMutationTestIsEntitySpreadFragmentMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "ActorNameChangePayload",
         "kind": "LinkedField",
         "name": "actorNameChange",
@@ -172,10 +171,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "91935f764b37e5a36ce360731e9f75ed";
+  (node/*:: as any*/).hash = "91935f764b37e5a36ce360731e9f75ed";
 }
 
-module.exports = ((node/*: any*/)/*: Mutation<
+module.exports = ((node/*:: as any*/)/*:: as Mutation<
   validateMutationTestIsEntitySpreadFragmentMutation$variables,
   validateMutationTestIsEntitySpreadFragmentMutation$data,
   validateMutationTestIsEntitySpreadFragmentMutation$rawResponse,

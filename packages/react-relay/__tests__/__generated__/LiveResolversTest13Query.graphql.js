@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<dd599da1bbfe4bcc1890d96e1ce8235f>>
+ * @generated SignedSource<<1f360d92db46a32a1e4cb34d9eebafd8>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -23,22 +22,22 @@ import {live_constant_client_edge as queryLiveConstantClientEdgeResolverType} fr
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryLiveConstantClientEdgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryLiveConstantClientEdgeResolverType: (
+(queryLiveConstantClientEdgeResolverType as (
   args: void,
   context: TestResolverContextType,
-) => LiveState<?{|
-  +id: DataID,
-|}>);
-export type LiveResolversTest13Query$variables = {||};
-export type LiveResolversTest13Query$data = {|
-  +live_constant_client_edge: ?{|
-    +name: ?string,
-  |},
-|};
-export type LiveResolversTest13Query = {|
+) => LiveState<?{
+  readonly id: DataID,
+}>);
+export type LiveResolversTest13Query$variables = {};
+export type LiveResolversTest13Query$data = {
+  readonly live_constant_client_edge: ?{
+    readonly name: ?string,
+  },
+};
+export type LiveResolversTest13Query = {
   response: LiveResolversTest13Query$data,
   variables: LiveResolversTest13Query$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = {
@@ -112,10 +111,10 @@ var node/*: ClientRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "5e0a692af3d1acd9f3fbcb5fe00b0e77";
+  (node/*:: as any*/).hash = "5e0a692af3d1acd9f3fbcb5fe00b0e77";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   LiveResolversTest13Query$variables,
   LiveResolversTest13Query$data,
 >*/);

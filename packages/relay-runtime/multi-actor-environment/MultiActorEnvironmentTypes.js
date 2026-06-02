@@ -46,12 +46,12 @@ export interface IActorEnvironment extends IEnvironment {
    * Reference to the main MultiActorEnvironment that handles
    * the network execution/and responsible for network integration
    */
-  +multiActorEnvironment: IMultiActorEnvironment;
+  readonly multiActorEnvironment: IMultiActorEnvironment;
 
   /**
    * Identifier of the actor for the current active environment
    */
-  +actorIdentifier: ActorIdentifier;
+  readonly actorIdentifier: ActorIdentifier;
 
   /**
    * TODO: this needs to move the the MultiActorEnvironment with different API.
@@ -62,7 +62,7 @@ export interface IActorEnvironment extends IEnvironment {
    * Optional. A human-readable identifier of the environment.
    * This value should be visible in the dev tools.
    */
-  +configName: ?string;
+  readonly configName: ?string;
 }
 
 /**
@@ -140,7 +140,7 @@ export interface IMultiActorEnvironment {
    * Apply an optimistic mutation response and/or updater. The mutation can be
    * reverted by calling `dispose()` on the returned value.
    */
-  applyMutation<TMutation: MutationParameters>(
+  applyMutation<TMutation extends MutationParameters>(
     actorEnvironment: IActorEnvironment,
     optimisticConfig: OptimisticResponseConfig<TMutation>,
   ): Disposable;
@@ -203,7 +203,7 @@ export interface IMultiActorEnvironment {
    * Note: Observables are lazy, so calling this method will do nothing until
    * the result is subscribed to: environment.executeSubscription({...}).subscribe({...}).
    */
-  executeSubscription<TMutation: MutationParameters>(
+  executeSubscription<TMutation extends MutationParameters>(
     actorEnvironment: IActorEnvironment,
     config: {
       operation: OperationDescriptor,
@@ -221,7 +221,7 @@ export interface IMultiActorEnvironment {
    * the result is subscribed to:
    * environment.executeMutation({...}).subscribe({...}).
    */
-  executeMutation<TMutation: MutationParameters>(
+  executeMutation<TMutation extends MutationParameters>(
     actorEnvironment: IActorEnvironment,
     config: ExecuteMutationConfig<TMutation>,
   ): RelayObservable<GraphQLResponse>;

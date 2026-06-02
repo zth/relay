@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5dbfe9a1ca28a6e36ee7f05b2f4717f3>>
+ * @generated SignedSource<<325537902414b2f506540e251f95264d>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,16 +18,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentTypeRefinementTest9Fragment$fragmentType } from "./RelayModernEnvironmentTypeRefinementTest9Fragment.graphql";
-export type RelayModernEnvironmentTypeRefinementTest5Query$variables = {||};
-export type RelayModernEnvironmentTypeRefinementTest5Query$data = {|
-  +userOrPage: ?{|
-    +$fragmentSpreads: RelayModernEnvironmentTypeRefinementTest9Fragment$fragmentType,
-  |},
-|};
-export type RelayModernEnvironmentTypeRefinementTest5Query = {|
+export type RelayModernEnvironmentTypeRefinementTest5Query$variables = {};
+export type RelayModernEnvironmentTypeRefinementTest5Query$data = {
+  readonly userOrPage: ?{
+    readonly $fragmentSpreads: RelayModernEnvironmentTypeRefinementTest9Fragment$fragmentType,
+  },
+};
+export type RelayModernEnvironmentTypeRefinementTest5Query = {
   response: RelayModernEnvironmentTypeRefinementTest5Query$data,
   variables: RelayModernEnvironmentTypeRefinementTest5Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -55,7 +54,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "userOrPage",
@@ -81,7 +80,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "userOrPage",
@@ -97,7 +96,7 @@ return {
           {
             "kind": "InlineFragment",
             "selections": [
-              (v1/*: any*/),
+              (v1/*:: as any*/),
               {
                 "alias": null,
                 "args": null,
@@ -126,7 +125,7 @@ return {
           {
             "kind": "InlineFragment",
             "selections": [
-              (v1/*: any*/)
+              (v1/*:: as any*/)
             ],
             "type": "Node",
             "abstractKey": "__isNode"
@@ -148,10 +147,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "550955aca4916dc529f623ad058f3149";
+  (node/*:: as any*/).hash = "550955aca4916dc529f623ad058f3149";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentTypeRefinementTest5Query$variables,
   RelayModernEnvironmentTypeRefinementTest5Query$data,
 >*/);

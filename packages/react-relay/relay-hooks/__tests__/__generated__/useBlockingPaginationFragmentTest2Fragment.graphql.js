@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b9c6a3c760ea59a6e6dc8a1cd6d00f86>>
+ * @generated SignedSource<<0053e7ac14256c562161ed5c7960c981>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,20 +20,20 @@ import type { ReaderFragment, RefetchableFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type useBlockingPaginationFragmentTest2Fragment$fragmentType: FragmentType;
 type useBlockingPaginationFragmentTest2FragmentPaginationQuery$variables = any;
-export type useBlockingPaginationFragmentTest2Fragment$data = {|
-  +friends: ?{|
-    +edges: ?$ReadOnlyArray<?{|
-      +node: ?{|
-        +id: string,
-      |},
-    |}>,
-  |},
-  +id: string,
-  +$fragmentType: useBlockingPaginationFragmentTest2Fragment$fragmentType,
-|};
+export type useBlockingPaginationFragmentTest2Fragment$data = {
+  readonly friends: ?{
+    readonly edges: ?ReadonlyArray<?{
+      readonly node: ?{
+        readonly id: string,
+      },
+    }>,
+  },
+  readonly id: string,
+  readonly $fragmentType: useBlockingPaginationFragmentTest2Fragment$fragmentType,
+};
 export type useBlockingPaginationFragmentTest2Fragment$key = {
-  +$data?: useBlockingPaginationFragmentTest2Fragment$data,
-  +$fragmentSpreads: useBlockingPaginationFragmentTest2Fragment$fragmentType,
+  readonly $data?: useBlockingPaginationFragmentTest2Fragment$data,
+  readonly $fragmentSpreads: useBlockingPaginationFragmentTest2Fragment$fragmentType,
   ...
 };
 */
@@ -84,7 +83,7 @@ return {
         "count": null,
         "cursor": null,
         "direction": "bidirectional",
-        "path": (v0/*: any*/),
+        "path": (v0/*:: as any*/),
         "stream": true
       }
     ],
@@ -98,7 +97,7 @@ return {
           "count": "last",
           "cursor": "before"
         },
-        "path": (v0/*: any*/)
+        "path": (v0/*:: as any*/)
       },
       "fragmentPathInResult": [
         "node"
@@ -112,7 +111,7 @@ return {
   },
   "name": "useBlockingPaginationFragmentTest2Fragment",
   "selections": [
-    (v1/*: any*/),
+    (v1/*:: as any*/),
     {
       "alias": "friends",
       "args": [
@@ -151,7 +150,7 @@ return {
                   "name": "node",
                   "plural": false,
                   "selections": [
-                    (v1/*: any*/),
+                    (v1/*:: as any*/),
                     {
                       "alias": null,
                       "args": null,
@@ -228,10 +227,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "5f8e9317f3d4ea9a22cd368f8b8d0c4d";
+  (node/*:: as any*/).hash = "5f8e9317f3d4ea9a22cd368f8b8d0c4d";
 }
 
-module.exports = ((node/*: any*/)/*: RefetchableFragment<
+module.exports = ((node/*:: as any*/)/*:: as RefetchableFragment<
   useBlockingPaginationFragmentTest2Fragment$fragmentType,
   useBlockingPaginationFragmentTest2Fragment$data,
   useBlockingPaginationFragmentTest2FragmentPaginationQuery$variables,

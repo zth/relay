@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e11c7f98b64607e8f4d2d6eb400cbc50>>
+ * @generated SignedSource<<a19ef9dd3901359e2f8682f9cb71cac6>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -25,36 +24,36 @@ import {todo as queryTodoResolverType} from "../../../relay-runtime/store/__test
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryTodoResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryTodoResolverType: (
-  args: {|
+(queryTodoResolverType as (
+  args: {
     todoID: string,
-  |},
+  },
   context: TestResolverContextType,
 ) => LiveState<?Query__todo$normalization>);
 import {blocked_by as todoBlockedByResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoBlockedByResolver.js";
 // Type assertion validating that `todoBlockedByResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(todoBlockedByResolverType: (
+(todoBlockedByResolverType as (
   rootKey: TodoBlockedByResolverFragment$key,
   args: void,
   context: TestResolverContextType,
-) => ?$ReadOnlyArray<?Todo__blocked_by$normalization>);
+) => ?ReadonlyArray<?Todo__blocked_by$normalization>);
 import type { Query__todo$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__todo$normalization.graphql";
 import type { Todo__blocked_by$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Todo__blocked_by$normalization.graphql";
-export type RelayResolversWithOutputTypeTestTodoWithBlockedQuery$variables = {|
+export type RelayResolversWithOutputTypeTestTodoWithBlockedQuery$variables = {
   id: string,
-|};
-export type RelayResolversWithOutputTypeTestTodoWithBlockedQuery$data = {|
-  +todo: ?{|
-    +blocked_by: ?$ReadOnlyArray<?{|
-      +$fragmentSpreads: RelayResolversWithOutputTypeTestFragment$fragmentType,
-    |}>,
-  |},
-|};
-export type RelayResolversWithOutputTypeTestTodoWithBlockedQuery = {|
+};
+export type RelayResolversWithOutputTypeTestTodoWithBlockedQuery$data = {
+  readonly todo: ?{
+    readonly blocked_by: ?ReadonlyArray<?{
+      readonly $fragmentSpreads: RelayResolversWithOutputTypeTestFragment$fragmentType,
+    }>,
+  },
+};
+export type RelayResolversWithOutputTypeTestTodoWithBlockedQuery = {
   response: RelayResolversWithOutputTypeTestTodoWithBlockedQuery$data,
   variables: RelayResolversWithOutputTypeTestTodoWithBlockedQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){
@@ -102,7 +101,7 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": {
       "hasClientEdges": true
@@ -113,9 +112,10 @@ return {
         "kind": "ClientEdgeToClientObject",
         "concreteType": "Todo",
         "modelResolvers": null,
+        "serverObjectOperations": null,
         "backingField": {
           "alias": null,
-          "args": (v1/*: any*/),
+          "args": (v1/*:: as any*/),
           "fragment": null,
           "kind": "RelayLiveResolver",
           "name": "todo",
@@ -130,7 +130,7 @@ return {
         },
         "linkedField": {
           "alias": null,
-          "args": (v1/*: any*/),
+          "args": (v1/*:: as any*/),
           "concreteType": "Todo",
           "kind": "LinkedField",
           "name": "todo",
@@ -140,6 +140,7 @@ return {
               "kind": "ClientEdgeToClientObject",
               "concreteType": "Todo",
               "modelResolvers": null,
+              "serverObjectOperations": null,
               "backingField": {
                 "alias": null,
                 "args": null,
@@ -186,7 +187,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayResolversWithOutputTypeTestTodoWithBlockedQuery",
     "selections": [
@@ -194,7 +195,7 @@ return {
         "kind": "ClientEdgeToClientObject",
         "backingField": {
           "name": "todo",
-          "args": (v1/*: any*/),
+          "args": (v1/*:: as any*/),
           "fragment": null,
           "kind": "RelayResolver",
           "storageKey": null,
@@ -202,7 +203,7 @@ return {
         },
         "linkedField": {
           "alias": null,
-          "args": (v1/*: any*/),
+          "args": (v1/*:: as any*/),
           "concreteType": "Todo",
           "kind": "LinkedField",
           "name": "todo",
@@ -213,7 +214,7 @@ return {
               "backingField": {
                 "name": "blocked_by",
                 "args": null,
-                "fragment": (v2/*: any*/),
+                "fragment": (v2/*:: as any*/),
                 "kind": "RelayResolver",
                 "storageKey": null,
                 "isOutputType": true
@@ -231,7 +232,7 @@ return {
                     "backingField": {
                       "name": "text",
                       "args": null,
-                      "fragment": (v2/*: any*/),
+                      "fragment": (v2/*:: as any*/),
                       "kind": "RelayResolver",
                       "storageKey": null,
                       "isOutputType": true
@@ -308,7 +309,7 @@ return {
                   {
                     "name": "complete",
                     "args": null,
-                    "fragment": (v2/*: any*/),
+                    "fragment": (v2/*:: as any*/),
                     "kind": "RelayResolver",
                     "storageKey": null,
                     "isOutputType": true
@@ -335,10 +336,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "d5a707f4998bc00708ebdfeb8a168508";
+  (node/*:: as any*/).hash = "d5a707f4998bc00708ebdfeb8a168508";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   RelayResolversWithOutputTypeTestTodoWithBlockedQuery$variables,
   RelayResolversWithOutputTypeTestTodoWithBlockedQuery$data,
 >*/);

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a170dd64854ef14a004f5fe4ed21e381>>
+ * @generated SignedSource<<90ad9399e8b03215724dd7edd4db9a2c>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,18 +20,18 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { getFragmentIdentifierTest1NestedUserFragment$fragmentType } from "./getFragmentIdentifierTest1NestedUserFragment.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type getFragmentIdentifierTest1UserFragment$fragmentType: FragmentType;
-export type getFragmentIdentifierTest1UserFragment$data = {|
-  +id: string,
-  +name: ?string,
-  +profile_picture: ?{|
-    +uri: ?string,
-  |},
-  +$fragmentSpreads: getFragmentIdentifierTest1NestedUserFragment$fragmentType,
-  +$fragmentType: getFragmentIdentifierTest1UserFragment$fragmentType,
-|};
+export type getFragmentIdentifierTest1UserFragment$data = {
+  readonly id: string,
+  readonly name: ?string,
+  readonly profile_picture: ?{
+    readonly uri: ?string,
+  },
+  readonly $fragmentSpreads: getFragmentIdentifierTest1NestedUserFragment$fragmentType,
+  readonly $fragmentType: getFragmentIdentifierTest1UserFragment$fragmentType,
+};
 export type getFragmentIdentifierTest1UserFragment$key = {
-  +$data?: getFragmentIdentifierTest1UserFragment$data,
-  +$fragmentSpreads: getFragmentIdentifierTest1UserFragment$fragmentType,
+  readonly $data?: getFragmentIdentifierTest1UserFragment$data,
+  readonly $fragmentSpreads: getFragmentIdentifierTest1UserFragment$fragmentType,
   ...
 };
 */
@@ -97,10 +96,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "6ce99bf04f9f04381026f4e525ea79bd";
+  (node/*:: as any*/).hash = "6ce99bf04f9f04381026f4e525ea79bd";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   getFragmentIdentifierTest1UserFragment$fragmentType,
   getFragmentIdentifierTest1UserFragment$data,
 >*/);

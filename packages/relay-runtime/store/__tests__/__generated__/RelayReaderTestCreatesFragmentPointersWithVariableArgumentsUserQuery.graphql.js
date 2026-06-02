@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6b58a3b6c6f99f19abc948c17794f533>>
+ * @generated SignedSource<<4c87a9b260acbae2e827586376a81f26>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,16 +18,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfile$fragmentType } from "./RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfile.graphql";
-export type RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserQuery$variables = {||};
-export type RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserQuery$data = {|
-  +me: ?{|
-    +$fragmentSpreads: RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfile$fragmentType,
-  |},
-|};
-export type RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserQuery = {|
+export type RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserQuery$variables = {};
+export type RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserQuery$data = {
+  readonly me: ?{
+    readonly $fragmentSpreads: RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfile$fragmentType,
+  },
+};
+export type RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserQuery = {
   response: RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserQuery$data,
   variables: RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {
@@ -113,10 +112,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "7a9eaa1476798159533ae048a3ff048a";
+  (node/*:: as any*/).hash = "7a9eaa1476798159533ae048a3ff048a";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserQuery$variables,
   RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserQuery$data,
 >*/);

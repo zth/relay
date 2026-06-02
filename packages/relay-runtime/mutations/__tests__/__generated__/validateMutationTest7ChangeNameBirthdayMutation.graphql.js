@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3224d473d7576ddd0e17e5d8463b546b>>
+ * @generated SignedSource<<a32d8c354c69153fee95c378f374bc94>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,28 +17,28 @@
 
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
-export type ActorNameChangeInput = {|
+export type ActorNameChangeInput = {
   newName?: ?string,
-|};
-export type validateMutationTest7ChangeNameBirthdayMutation$variables = {|
+};
+export type validateMutationTest7ChangeNameBirthdayMutation$variables = {
   input: ActorNameChangeInput,
-|};
-export type validateMutationTest7ChangeNameBirthdayMutation$data = {|
-  +actorNameChange: ?{|
-    +actor: ?{|
-      +birthdate?: ?{|
-        +day: ?number,
-        +month: ?number,
-        +year: ?number,
-      |},
-      +username?: ?string,
-    |},
-  |},
-|};
-export type validateMutationTest7ChangeNameBirthdayMutation = {|
+};
+export type validateMutationTest7ChangeNameBirthdayMutation$data = {
+  readonly actorNameChange: ?{
+    readonly actor: ?{
+      readonly birthdate?: ?{
+        readonly day: ?number,
+        readonly month: ?number,
+        readonly year: ?number,
+      },
+      readonly username?: ?string,
+    },
+  },
+};
+export type validateMutationTest7ChangeNameBirthdayMutation = {
   response: validateMutationTest7ChangeNameBirthdayMutation$data,
   variables: validateMutationTest7ChangeNameBirthdayMutation$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -112,14 +111,14 @@ v3 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "validateMutationTest7ChangeNameBirthdayMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "ActorNameChangePayload",
         "kind": "LinkedField",
         "name": "actorNameChange",
@@ -133,8 +132,8 @@ return {
             "name": "actor",
             "plural": false,
             "selections": [
-              (v2/*: any*/),
-              (v3/*: any*/)
+              (v2/*:: as any*/),
+              (v3/*:: as any*/)
             ],
             "storageKey": null
           }
@@ -147,13 +146,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "validateMutationTest7ChangeNameBirthdayMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "ActorNameChangePayload",
         "kind": "LinkedField",
         "name": "actorNameChange",
@@ -174,8 +173,8 @@ return {
                 "name": "__typename",
                 "storageKey": null
               },
-              (v2/*: any*/),
-              (v3/*: any*/),
+              (v2/*:: as any*/),
+              (v3/*:: as any*/),
               {
                 "alias": null,
                 "args": null,
@@ -203,10 +202,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "5b57fac42b5dc59d5b54535a5a02ba96";
+  (node/*:: as any*/).hash = "5b57fac42b5dc59d5b54535a5a02ba96";
 }
 
-module.exports = ((node/*: any*/)/*: Mutation<
+module.exports = ((node/*:: as any*/)/*:: as Mutation<
   validateMutationTest7ChangeNameBirthdayMutation$variables,
   validateMutationTest7ChangeNameBirthdayMutation$data,
 >*/);

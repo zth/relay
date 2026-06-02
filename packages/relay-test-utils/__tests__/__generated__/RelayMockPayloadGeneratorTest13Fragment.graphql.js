@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4ef5d99248bed451fb59a3a2349e908f>>
+ * @generated SignedSource<<cfcb097c21885c18a76fb2ebd131dad1>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,22 +20,22 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 export type PersonalityTraits = "CHEERFUL" | "DERISIVE" | "HELPFUL" | "SNARKY" | "%future added value";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayMockPayloadGeneratorTest13Fragment$fragmentType: FragmentType;
-export type RelayMockPayloadGeneratorTest13Fragment$data = {|
-  +actor: ?{|
-    +id?: string,
-    +name?: ?string,
-    +profile_picture?: ?{|
-      +height: ?number,
-      +uri: ?string,
-    |},
-    +traits?: ?$ReadOnlyArray<?PersonalityTraits>,
-    +websites?: ?$ReadOnlyArray<?string>,
-  |},
-  +$fragmentType: RelayMockPayloadGeneratorTest13Fragment$fragmentType,
-|};
+export type RelayMockPayloadGeneratorTest13Fragment$data = {
+  readonly actor: ?{
+    readonly id?: string,
+    readonly name?: ?string,
+    readonly profile_picture?: ?{
+      readonly height: ?number,
+      readonly uri: ?string,
+    },
+    readonly traits?: ?ReadonlyArray<?PersonalityTraits>,
+    readonly websites?: ?ReadonlyArray<?string>,
+  },
+  readonly $fragmentType: RelayMockPayloadGeneratorTest13Fragment$fragmentType,
+};
 export type RelayMockPayloadGeneratorTest13Fragment$key = {
-  +$data?: RelayMockPayloadGeneratorTest13Fragment$data,
-  +$fragmentSpreads: RelayMockPayloadGeneratorTest13Fragment$fragmentType,
+  readonly $data?: RelayMockPayloadGeneratorTest13Fragment$data,
+  readonly $fragmentSpreads: RelayMockPayloadGeneratorTest13Fragment$fragmentType,
   ...
 };
 */
@@ -73,8 +72,8 @@ return {
         {
           "kind": "InlineFragment",
           "selections": [
-            (v0/*: any*/),
-            (v1/*: any*/),
+            (v0/*:: as any*/),
+            (v1/*:: as any*/),
             {
               "alias": null,
               "args": null,
@@ -114,8 +113,8 @@ return {
         {
           "kind": "InlineFragment",
           "selections": [
-            (v0/*: any*/),
-            (v1/*: any*/),
+            (v0/*:: as any*/),
+            (v1/*:: as any*/),
             {
               "alias": null,
               "args": null,
@@ -137,10 +136,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "332df3c74993ca1c29f668545faa608a";
+  (node/*:: as any*/).hash = "332df3c74993ca1c29f668545faa608a";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayMockPayloadGeneratorTest13Fragment$fragmentType,
   RelayMockPayloadGeneratorTest13Fragment$data,
 >*/);

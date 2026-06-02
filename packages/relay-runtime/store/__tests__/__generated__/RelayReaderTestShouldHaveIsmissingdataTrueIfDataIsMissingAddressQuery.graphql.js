@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ecc931b23457c6629cb8770394e9f427>>
+ * @generated SignedSource<<10f339d5d73aa87281c9fb366f72bb22>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,16 +18,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingAddress$fragmentType } from "./RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingAddress.graphql";
-export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingAddressQuery$variables = {||};
-export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingAddressQuery$data = {|
-  +me: ?{|
-    +$fragmentSpreads: RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingAddress$fragmentType,
-  |},
-|};
-export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingAddressQuery = {|
+export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingAddressQuery$variables = {};
+export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingAddressQuery$data = {
+  readonly me: ?{
+    readonly $fragmentSpreads: RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingAddress$fragmentType,
+  },
+};
+export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingAddressQuery = {
   response: RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingAddressQuery$data,
   variables: RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingAddressQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {
@@ -113,10 +112,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "e2b438be35501b207af8251c304dc7ef";
+  (node/*:: as any*/).hash = "e2b438be35501b207af8251c304dc7ef";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingAddressQuery$variables,
   RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingAddressQuery$data,
 >*/);

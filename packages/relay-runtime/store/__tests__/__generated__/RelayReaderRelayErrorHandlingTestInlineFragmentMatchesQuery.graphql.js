@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ac84fe2fe44c8d19a9d454523bef2f1d>>
+ * @generated SignedSource<<2ba72ceadefcb8360c5aaf6bfd22e554>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,16 +17,16 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayReaderRelayErrorHandlingTestInlineFragmentMatchesQuery$variables = {||};
-export type RelayReaderRelayErrorHandlingTestInlineFragmentMatchesQuery$data = {|
-  +node: ?{|
-    +name?: ?string,
-  |},
-|};
-export type RelayReaderRelayErrorHandlingTestInlineFragmentMatchesQuery = {|
+export type RelayReaderRelayErrorHandlingTestInlineFragmentMatchesQuery$variables = {};
+export type RelayReaderRelayErrorHandlingTestInlineFragmentMatchesQuery$data = {
+  readonly node: ?{
+    readonly name?: ?string,
+  },
+};
+export type RelayReaderRelayErrorHandlingTestInlineFragmentMatchesQuery = {
   response: RelayReaderRelayErrorHandlingTestInlineFragmentMatchesQuery$data,
   variables: RelayReaderRelayErrorHandlingTestInlineFragmentMatchesQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -63,13 +62,13 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v1/*: any*/)
+          (v1/*:: as any*/)
         ],
         "storageKey": "node(id:\"4\")"
       }
@@ -85,7 +84,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -98,7 +97,7 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v1/*: any*/),
+          (v1/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -123,10 +122,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "5a20c30977bc87aac1a6449bc034610e";
+  (node/*:: as any*/).hash = "5a20c30977bc87aac1a6449bc034610e";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderRelayErrorHandlingTestInlineFragmentMatchesQuery$variables,
   RelayReaderRelayErrorHandlingTestInlineFragmentMatchesQuery$data,
 >*/);

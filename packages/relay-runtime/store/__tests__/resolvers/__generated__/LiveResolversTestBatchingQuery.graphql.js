@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<63e044290b65a580283f699c8952f0fb>>
+ * @generated SignedSource<<31ba2913b11c3b3c5652e3df61444421>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -23,28 +22,28 @@ import {counter_no_fragment as queryCounterNoFragmentResolverType} from "../Live
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryCounterNoFragmentResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryCounterNoFragmentResolverType: (
+(queryCounterNoFragmentResolverType as (
   args: void,
   context: TestResolverContextType,
 ) => LiveState<?number>);
 import {counter_no_fragment_with_arg as queryCounterNoFragmentWithArgResolverType} from "../LiveCounterNoFragmentWithArg.js";
 // Type assertion validating that `queryCounterNoFragmentWithArgResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryCounterNoFragmentWithArgResolverType: (
-  args: {|
+(queryCounterNoFragmentWithArgResolverType as (
+  args: {
     prefix: string,
-  |},
+  },
   context: TestResolverContextType,
 ) => LiveState<?string>);
-export type LiveResolversTestBatchingQuery$variables = {||};
-export type LiveResolversTestBatchingQuery$data = {|
-  +counter_no_fragment: ?number,
-  +counter_no_fragment_with_arg: ?string,
-|};
-export type LiveResolversTestBatchingQuery = {|
+export type LiveResolversTestBatchingQuery$variables = {};
+export type LiveResolversTestBatchingQuery$data = {
+  readonly counter_no_fragment: ?number,
+  readonly counter_no_fragment_with_arg: ?string,
+};
+export type LiveResolversTestBatchingQuery = {
   response: LiveResolversTestBatchingQuery$data,
   variables: LiveResolversTestBatchingQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){
@@ -76,7 +75,7 @@ return {
           },
           {
             "alias": null,
-            "args": (v0/*: any*/),
+            "args": (v0/*:: as any*/),
             "fragment": null,
             "kind": "RelayLiveResolver",
             "name": "counter_no_fragment_with_arg",
@@ -108,7 +107,7 @@ return {
           },
           {
             "name": "counter_no_fragment_with_arg",
-            "args": (v0/*: any*/),
+            "args": (v0/*:: as any*/),
             "fragment": null,
             "kind": "RelayResolver",
             "storageKey": "counter_no_fragment_with_arg(prefix:\"sup\")",
@@ -130,10 +129,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "8610c66cde712c9fa62ec0312041a564";
+  (node/*:: as any*/).hash = "8610c66cde712c9fa62ec0312041a564";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   LiveResolversTestBatchingQuery$variables,
   LiveResolversTestBatchingQuery$data,
 >*/);

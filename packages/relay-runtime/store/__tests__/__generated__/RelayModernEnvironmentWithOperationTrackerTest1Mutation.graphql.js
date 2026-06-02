@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4ed5f99cf70e4f1f44b9cc579229be03>>
+ * @generated SignedSource<<980ec4682fa0c7d07041670a864f6bf9>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,40 +17,40 @@
 
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
-export type CommentCreateInput = {|
+export type CommentCreateInput = {
   feedback?: ?CommentfeedbackFeedback,
   feedbackId?: ?string,
-|};
-export type CommentfeedbackFeedback = {|
+};
+export type CommentfeedbackFeedback = {
   comment?: ?FeedbackcommentComment,
-|};
-export type FeedbackcommentComment = {|
+};
+export type FeedbackcommentComment = {
   feedback?: ?CommentfeedbackFeedback,
-|};
-export type RelayModernEnvironmentWithOperationTrackerTest1Mutation$variables = {|
+};
+export type RelayModernEnvironmentWithOperationTrackerTest1Mutation$variables = {
   input?: ?CommentCreateInput,
-|};
-export type RelayModernEnvironmentWithOperationTrackerTest1Mutation$data = {|
-  +commentCreate: ?{|
-    +comment: ?{|
-      +id: string,
-      +message: ?{|
-        +text: ?string,
-      |},
-    |},
-    +feedback: ?{|
-      +body: ?{|
-        +text: ?string,
-      |},
-      +id: string,
-      +lastName: ?string,
-    |},
-  |},
-|};
-export type RelayModernEnvironmentWithOperationTrackerTest1Mutation = {|
+};
+export type RelayModernEnvironmentWithOperationTrackerTest1Mutation$data = {
+  readonly commentCreate: ?{
+    readonly comment: ?{
+      readonly id: string,
+      readonly message: ?{
+        readonly text: ?string,
+      },
+    },
+    readonly feedback: ?{
+      readonly body: ?{
+        readonly text: ?string,
+      },
+      readonly id: string,
+      readonly lastName: ?string,
+    },
+  },
+};
+export type RelayModernEnvironmentWithOperationTrackerTest1Mutation = {
   response: RelayModernEnvironmentWithOperationTrackerTest1Mutation$data,
   variables: RelayModernEnvironmentWithOperationTrackerTest1Mutation$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -101,7 +100,7 @@ v3 = [
         "name": "comment",
         "plural": false,
         "selections": [
-          (v1/*: any*/),
+          (v1/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -109,7 +108,7 @@ v3 = [
             "kind": "LinkedField",
             "name": "message",
             "plural": false,
-            "selections": (v2/*: any*/),
+            "selections": (v2/*:: as any*/),
             "storageKey": null
           }
         ],
@@ -123,7 +122,7 @@ v3 = [
         "name": "feedback",
         "plural": false,
         "selections": [
-          (v1/*: any*/),
+          (v1/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -138,7 +137,7 @@ v3 = [
             "kind": "LinkedField",
             "name": "body",
             "plural": false,
-            "selections": (v2/*: any*/),
+            "selections": (v2/*:: as any*/),
             "storageKey": null
           }
         ],
@@ -168,20 +167,20 @@ v6 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentWithOperationTrackerTest1Mutation",
-    "selections": (v3/*: any*/),
+    "selections": (v3/*:: as any*/),
     "type": "Mutation",
     "abstractKey": null
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentWithOperationTrackerTest1Mutation",
-    "selections": (v3/*: any*/)
+    "selections": (v3/*:: as any*/)
   },
   "params": {
     "cacheID": "bc860715cdbb5c16bfec84cccf10eb67",
@@ -200,19 +199,19 @@ return {
           "plural": false,
           "type": "Comment"
         },
-        "commentCreate.comment.id": (v4/*: any*/),
-        "commentCreate.comment.message": (v5/*: any*/),
-        "commentCreate.comment.message.text": (v6/*: any*/),
+        "commentCreate.comment.id": (v4/*:: as any*/),
+        "commentCreate.comment.message": (v5/*:: as any*/),
+        "commentCreate.comment.message.text": (v6/*:: as any*/),
         "commentCreate.feedback": {
           "enumValues": null,
           "nullable": true,
           "plural": false,
           "type": "Feedback"
         },
-        "commentCreate.feedback.body": (v5/*: any*/),
-        "commentCreate.feedback.body.text": (v6/*: any*/),
-        "commentCreate.feedback.id": (v4/*: any*/),
-        "commentCreate.feedback.lastName": (v6/*: any*/)
+        "commentCreate.feedback.body": (v5/*:: as any*/),
+        "commentCreate.feedback.body.text": (v6/*:: as any*/),
+        "commentCreate.feedback.id": (v4/*:: as any*/),
+        "commentCreate.feedback.lastName": (v6/*:: as any*/)
       }
     },
     "name": "RelayModernEnvironmentWithOperationTrackerTest1Mutation",
@@ -223,10 +222,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "6a10ff9c1fc045181ae2f8edcaf0e88a";
+  (node/*:: as any*/).hash = "6a10ff9c1fc045181ae2f8edcaf0e88a";
 }
 
-module.exports = ((node/*: any*/)/*: Mutation<
+module.exports = ((node/*:: as any*/)/*:: as Mutation<
   RelayModernEnvironmentWithOperationTrackerTest1Mutation$variables,
   RelayModernEnvironmentWithOperationTrackerTest1Mutation$data,
 >*/);

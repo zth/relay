@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d303319c6bb0949c830ac5570fac55d8>>
+ * @generated SignedSource<<6d3ec96ba30500d73706197c2600c6a5>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,18 +18,18 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RefetchableClientEdgeQuery_observeFragmentTestClientEdgeToServerFragment_client_edge$fragmentType } from "./RefetchableClientEdgeQuery_observeFragmentTestClientEdgeToServerFragment_client_edge.graphql";
-export type ClientEdgeQuery_observeFragmentTestClientEdgeToServerFragment_client_edge$variables = {|
+export type ClientEdgeQuery_observeFragmentTestClientEdgeToServerFragment_client_edge$variables = {
   id: string,
-|};
-export type ClientEdgeQuery_observeFragmentTestClientEdgeToServerFragment_client_edge$data = {|
-  +node: ?{|
-    +$fragmentSpreads: RefetchableClientEdgeQuery_observeFragmentTestClientEdgeToServerFragment_client_edge$fragmentType,
-  |},
-|};
-export type ClientEdgeQuery_observeFragmentTestClientEdgeToServerFragment_client_edge = {|
+};
+export type ClientEdgeQuery_observeFragmentTestClientEdgeToServerFragment_client_edge$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: RefetchableClientEdgeQuery_observeFragmentTestClientEdgeToServerFragment_client_edge$fragmentType,
+  },
+};
+export type ClientEdgeQuery_observeFragmentTestClientEdgeToServerFragment_client_edge = {
   response: ClientEdgeQuery_observeFragmentTestClientEdgeToServerFragment_client_edge$data,
   variables: ClientEdgeQuery_observeFragmentTestClientEdgeToServerFragment_client_edge$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -50,14 +49,14 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "ClientEdgeQuery_observeFragmentTestClientEdgeToServerFragment_client_edge",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -77,13 +76,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "ClientEdgeQuery_observeFragmentTestClientEdgeToServerFragment_client_edge",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -134,10 +133,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "145cd045d842ac7fe259d9f5210a67c1";
+  (node/*:: as any*/).hash = "145cd045d842ac7fe259d9f5210a67c1";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ClientEdgeQuery_observeFragmentTestClientEdgeToServerFragment_client_edge$variables,
   ClientEdgeQuery_observeFragmentTestClientEdgeToServerFragment_client_edge$data,
 >*/);

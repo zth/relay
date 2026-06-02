@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4c8f71814d406e87ff29593bc0a61082>>
+ * @generated SignedSource<<71b829c99de5b7956ceb584cc305cb91>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,20 +19,20 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernFragmentSpecResolverTestQueryUserFragment$fragmentType } from "./RelayModernFragmentSpecResolverTestQueryUserFragment.graphql";
 import type { RelayModernFragmentSpecResolverTestQueryUsersFragment$fragmentType } from "./RelayModernFragmentSpecResolverTestQueryUsersFragment.graphql";
-export type RelayModernFragmentSpecResolverTestAffectingQuery$variables = {|
+export type RelayModernFragmentSpecResolverTestAffectingQuery$variables = {
   fetchSize: boolean,
   id: string,
-  size?: ?$ReadOnlyArray<?number>,
-|};
-export type RelayModernFragmentSpecResolverTestAffectingQuery$data = {|
-  +node: ?{|
-    +$fragmentSpreads: RelayModernFragmentSpecResolverTestQueryUserFragment$fragmentType & RelayModernFragmentSpecResolverTestQueryUsersFragment$fragmentType,
-  |},
-|};
-export type RelayModernFragmentSpecResolverTestAffectingQuery = {|
+  size?: ?ReadonlyArray<?number>,
+};
+export type RelayModernFragmentSpecResolverTestAffectingQuery$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: RelayModernFragmentSpecResolverTestQueryUserFragment$fragmentType & RelayModernFragmentSpecResolverTestQueryUsersFragment$fragmentType,
+  },
+};
+export type RelayModernFragmentSpecResolverTestAffectingQuery = {
   response: RelayModernFragmentSpecResolverTestAffectingQuery$data,
   variables: RelayModernFragmentSpecResolverTestAffectingQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -62,9 +61,9 @@ v3 = [
 return {
   "fragment": {
     "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/),
-      (v2/*: any*/)
+      (v0/*:: as any*/),
+      (v1/*:: as any*/),
+      (v2/*:: as any*/)
     ],
     "kind": "Fragment",
     "metadata": null,
@@ -72,7 +71,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v3/*: any*/),
+        "args": (v3/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -98,16 +97,16 @@ return {
   "kind": "Request",
   "operation": {
     "argumentDefinitions": [
-      (v1/*: any*/),
-      (v2/*: any*/),
-      (v0/*: any*/)
+      (v1/*:: as any*/),
+      (v2/*:: as any*/),
+      (v0/*:: as any*/)
     ],
     "kind": "Operation",
     "name": "RelayModernFragmentSpecResolverTestAffectingQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v3/*: any*/),
+        "args": (v3/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -189,10 +188,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "503f6130ff2642a6155862ad71840e2b";
+  (node/*:: as any*/).hash = "503f6130ff2642a6155862ad71840e2b";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernFragmentSpecResolverTestAffectingQuery$variables,
   RelayModernFragmentSpecResolverTestAffectingQuery$data,
 >*/);

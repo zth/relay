@@ -21,16 +21,16 @@ import type {UpdatableQuery, Variables} from '../util/RelayRuntimeTypes';
 const {getUpdatableQuery} = require('../query/GraphQLTag');
 const {createUpdatableProxy} = require('./createUpdatableProxy');
 
-function readUpdatableQuery<TVariables: Variables, TData>(
+function readUpdatableQuery<TVariables extends Variables, TData>(
   query: UpdatableQuery<TVariables, TData>,
   variables: TVariables,
   proxy: RecordSourceProxy,
-  missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>,
+  missingFieldHandlers: ReadonlyArray<MissingFieldHandler>,
 ): UpdatableData<TData> {
   const updatableQuery = getUpdatableQuery(query);
 
   return {
-    // $FlowFixMe[incompatible-call]
+    // $FlowFixMe[incompatible-type]
     updatableData: createUpdatableProxy<TData>(
       proxy.getRoot(),
       variables,

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e40d3168f7a341e0f295df61907d251f>>
+ * @generated SignedSource<<64cecac9b0cf296898d280553609f7c1>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,15 +19,15 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type usePreloadedQueryProvidedVariablesTest_badFragment$fragmentType: FragmentType;
-export type usePreloadedQueryProvidedVariablesTest_badFragment$data = {|
-  +profile_picture: ?{|
-    +uri: ?string,
-  |},
-  +$fragmentType: usePreloadedQueryProvidedVariablesTest_badFragment$fragmentType,
-|};
+export type usePreloadedQueryProvidedVariablesTest_badFragment$data = {
+  readonly profile_picture: ?{
+    readonly uri: ?string,
+  },
+  readonly $fragmentType: usePreloadedQueryProvidedVariablesTest_badFragment$fragmentType,
+};
 export type usePreloadedQueryProvidedVariablesTest_badFragment$key = {
-  +$data?: usePreloadedQueryProvidedVariablesTest_badFragment$data,
-  +$fragmentSpreads: usePreloadedQueryProvidedVariablesTest_badFragment$fragmentType,
+  readonly $data?: usePreloadedQueryProvidedVariablesTest_badFragment$data,
+  readonly $fragmentSpreads: usePreloadedQueryProvidedVariablesTest_badFragment$fragmentType,
   ...
 };
 */
@@ -74,10 +73,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "4594eb0f383c9fbdcc36fa2acc8fc79c";
+  (node/*:: as any*/).hash = "4594eb0f383c9fbdcc36fa2acc8fc79c";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   usePreloadedQueryProvidedVariablesTest_badFragment$fragmentType,
   usePreloadedQueryProvidedVariablesTest_badFragment$data,
 >*/);

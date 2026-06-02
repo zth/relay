@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<dab109b745bd54450be060705ac8addc>>
+ * @generated SignedSource<<e34806f2ef767123a136bbba3f942845>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,18 +18,18 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RefetchableClientEdgeQuery_LiveResolversTestUnsubscribesWhenSuspendsQuery_user$fragmentType } from "./RefetchableClientEdgeQuery_LiveResolversTestUnsubscribesWhenSuspendsQuery_user.graphql";
-export type ClientEdgeQuery_LiveResolversTestUnsubscribesWhenSuspendsQuery_user$variables = {|
+export type ClientEdgeQuery_LiveResolversTestUnsubscribesWhenSuspendsQuery_user$variables = {
   id: string,
-|};
-export type ClientEdgeQuery_LiveResolversTestUnsubscribesWhenSuspendsQuery_user$data = {|
-  +node: ?{|
-    +$fragmentSpreads: RefetchableClientEdgeQuery_LiveResolversTestUnsubscribesWhenSuspendsQuery_user$fragmentType,
-  |},
-|};
-export type ClientEdgeQuery_LiveResolversTestUnsubscribesWhenSuspendsQuery_user = {|
+};
+export type ClientEdgeQuery_LiveResolversTestUnsubscribesWhenSuspendsQuery_user$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: RefetchableClientEdgeQuery_LiveResolversTestUnsubscribesWhenSuspendsQuery_user$fragmentType,
+  },
+};
+export type ClientEdgeQuery_LiveResolversTestUnsubscribesWhenSuspendsQuery_user = {
   response: ClientEdgeQuery_LiveResolversTestUnsubscribesWhenSuspendsQuery_user$data,
   variables: ClientEdgeQuery_LiveResolversTestUnsubscribesWhenSuspendsQuery_user$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -50,14 +49,14 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "ClientEdgeQuery_LiveResolversTestUnsubscribesWhenSuspendsQuery_user",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -77,13 +76,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "ClientEdgeQuery_LiveResolversTestUnsubscribesWhenSuspendsQuery_user",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -120,10 +119,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "06f9d01a4042d27c7e069bc35d4694c1";
+  (node/*:: as any*/).hash = "06f9d01a4042d27c7e069bc35d4694c1";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ClientEdgeQuery_LiveResolversTestUnsubscribesWhenSuspendsQuery_user$variables,
   ClientEdgeQuery_LiveResolversTestUnsubscribesWhenSuspendsQuery_user$data,
 >*/);

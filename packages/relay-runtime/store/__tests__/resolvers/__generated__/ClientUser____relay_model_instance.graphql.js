@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<998f0e30a31dea1cee6c27f9fdee2997>>
+ * @generated SignedSource<<b0edf784dfe129a59dc8c20a4fee5169>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,19 +23,19 @@ import {ClientUser as clientUserRelayModelInstanceResolverType} from "../Client3
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `clientUserRelayModelInstanceResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(clientUserRelayModelInstanceResolverType: (
+(clientUserRelayModelInstanceResolverType as (
   id: ClientUser__id$data['id'],
   args: void,
   context: TestResolverContextType,
-) => mixed);
+) => unknown);
 declare export opaque type ClientUser____relay_model_instance$fragmentType: FragmentType;
-export type ClientUser____relay_model_instance$data = {|
-  +__relay_model_instance: $NonMaybeType<ReturnType<typeof clientUserRelayModelInstanceResolverType>>,
-  +$fragmentType: ClientUser____relay_model_instance$fragmentType,
-|};
+export type ClientUser____relay_model_instance$data = {
+  readonly __relay_model_instance: NonNullable<ReturnType<typeof clientUserRelayModelInstanceResolverType>>,
+  readonly $fragmentType: ClientUser____relay_model_instance$fragmentType,
+};
 export type ClientUser____relay_model_instance$key = {
-  +$data?: ClientUser____relay_model_instance$data,
-  +$fragmentSpreads: ClientUser____relay_model_instance$fragmentType,
+  readonly $data?: ClientUser____relay_model_instance$data,
+  readonly $fragmentSpreads: ClientUser____relay_model_instance$fragmentType,
   ...
 };
 */
@@ -65,7 +64,7 @@ var node/*: ReaderFragment*/ = {
   "abstractKey": null
 };
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   ClientUser____relay_model_instance$fragmentType,
   ClientUser____relay_model_instance$data,
 >*/);

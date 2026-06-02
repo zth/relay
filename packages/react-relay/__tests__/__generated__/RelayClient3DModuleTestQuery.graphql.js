@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<623769945819d176c24e3232659b0b2c>>
+ * @generated SignedSource<<54a7ca6b08d8d8537f7f4cc56a327d4c>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,16 +20,16 @@
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { RelayClient3DModuleTestFragment2BasicUser$fragmentType } from "./RelayClient3DModuleTestFragment2BasicUser.graphql";
-export type RelayClient3DModuleTestQuery$variables = {||};
-export type RelayClient3DModuleTestQuery$data = {|
-  +persona: ?{|
-    +$fragmentSpreads: RelayClient3DModuleTestFragment2BasicUser$fragmentType,
-  |},
-|};
-export type RelayClient3DModuleTestQuery = {|
+export type RelayClient3DModuleTestQuery$variables = {};
+export type RelayClient3DModuleTestQuery$data = {
+  readonly persona: ?{
+    readonly $fragmentSpreads: RelayClient3DModuleTestFragment2BasicUser$fragmentType,
+  },
+};
+export type RelayClient3DModuleTestQuery = {
   response: RelayClient3DModuleTestQuery$data,
   variables: RelayClient3DModuleTestQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){
@@ -137,11 +136,11 @@ return {
                     "type": "SpecialUser",
                     "abstractKey": null
                   },
-                  (v0/*: any*/)
+                  (v0/*:: as any*/)
                 ],
                 "storageKey": null
               },
-              (v0/*: any*/)
+              (v0/*:: as any*/)
             ],
             "storageKey": null
           }
@@ -161,10 +160,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "8dbcbcf741954b447de47b29ffdc8244";
+  (node/*:: as any*/).hash = "8dbcbcf741954b447de47b29ffdc8244";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   RelayClient3DModuleTestQuery$variables,
   RelayClient3DModuleTestQuery$data,
 >*/);

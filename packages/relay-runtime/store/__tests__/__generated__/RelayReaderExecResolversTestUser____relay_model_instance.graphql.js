@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b0a5f088d0bcc40e47b18c75843ab1ca>>
+ * @generated SignedSource<<147f26a04ce1f92cb8d683a176a7dd52>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,19 +23,19 @@ import {RelayReaderExecResolversTestUser as relayReaderExecResolversTestUserRela
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `relayReaderExecResolversTestUserRelayModelInstanceResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(relayReaderExecResolversTestUserRelayModelInstanceResolverType: (
+(relayReaderExecResolversTestUserRelayModelInstanceResolverType as (
   id: RelayReaderExecResolversTestUser__id$data['id'],
   args: void,
   context: TestResolverContextType,
-) => mixed);
+) => unknown);
 declare export opaque type RelayReaderExecResolversTestUser____relay_model_instance$fragmentType: FragmentType;
-export type RelayReaderExecResolversTestUser____relay_model_instance$data = {|
-  +__relay_model_instance: $NonMaybeType<ReturnType<typeof relayReaderExecResolversTestUserRelayModelInstanceResolverType>>,
-  +$fragmentType: RelayReaderExecResolversTestUser____relay_model_instance$fragmentType,
-|};
+export type RelayReaderExecResolversTestUser____relay_model_instance$data = {
+  readonly __relay_model_instance: NonNullable<ReturnType<typeof relayReaderExecResolversTestUserRelayModelInstanceResolverType>>,
+  readonly $fragmentType: RelayReaderExecResolversTestUser____relay_model_instance$fragmentType,
+};
 export type RelayReaderExecResolversTestUser____relay_model_instance$key = {
-  +$data?: RelayReaderExecResolversTestUser____relay_model_instance$data,
-  +$fragmentSpreads: RelayReaderExecResolversTestUser____relay_model_instance$fragmentType,
+  readonly $data?: RelayReaderExecResolversTestUser____relay_model_instance$data,
+  readonly $fragmentSpreads: RelayReaderExecResolversTestUser____relay_model_instance$fragmentType,
   ...
 };
 */
@@ -65,7 +64,7 @@ var node/*: ReaderFragment*/ = {
   "abstractKey": null
 };
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayReaderExecResolversTestUser____relay_model_instance$fragmentType,
   RelayReaderExecResolversTestUser____relay_model_instance$data,
 >*/);

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<57a0cca54701d5c3202b324f85c19182>>
+ * @generated SignedSource<<5c0ce12824213e40b79aebb8274e9dc3>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,16 +19,16 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment$fragmentType: FragmentType;
-export type RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment$data = {|
-  +body: ?{|
-    +text: ?string,
-  |},
-  +id: string,
-  +$fragmentType: RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment$fragmentType,
-|};
+export type RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment$data = {
+  readonly body: ?{
+    readonly text: ?string,
+  },
+  readonly id: string,
+  readonly $fragmentType: RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment$fragmentType,
+};
 export type RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment$key = {
-  +$data?: RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment$data,
-  +$fragmentSpreads: RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment$fragmentType,
+  readonly $data?: RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment$fragmentType,
   ...
 };
 */
@@ -71,10 +70,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "bc14e8d2677d8a33ad9d1cfa5411894d";
+  (node/*:: as any*/).hash = "bc14e8d2677d8a33ad9d1cfa5411894d";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment$fragmentType,
   RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment$data,
 >*/);

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f27f0860de83e97215b7c8c594fad303>>
+ * @generated SignedSource<<27c53c484ff856f3c5cbfeeaced2e2eb>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,16 +18,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { observeFragmentTestThrowOnFieldErrorFragment$fragmentType } from "./observeFragmentTestThrowOnFieldErrorFragment.graphql";
-export type observeFragmentTestThrowOnFieldErrorQuery$variables = {||};
-export type observeFragmentTestThrowOnFieldErrorQuery$data = {|
-  +me: ?{|
-    +$fragmentSpreads: observeFragmentTestThrowOnFieldErrorFragment$fragmentType,
-  |},
-|};
-export type observeFragmentTestThrowOnFieldErrorQuery = {|
+export type observeFragmentTestThrowOnFieldErrorQuery$variables = {};
+export type observeFragmentTestThrowOnFieldErrorQuery$data = {
+  readonly me: ?{
+    readonly $fragmentSpreads: observeFragmentTestThrowOnFieldErrorFragment$fragmentType,
+  },
+};
+export type observeFragmentTestThrowOnFieldErrorQuery = {
   response: observeFragmentTestThrowOnFieldErrorQuery$data,
   variables: observeFragmentTestThrowOnFieldErrorQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {
@@ -102,10 +101,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "de4107f5e9d2a343acdb5ac2009abdee";
+  (node/*:: as any*/).hash = "de4107f5e9d2a343acdb5ac2009abdee";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   observeFragmentTestThrowOnFieldErrorQuery$variables,
   observeFragmentTestThrowOnFieldErrorQuery$data,
 >*/);

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<66f2f4cb2e7758234edd6848ddef9acf>>
+ * @generated SignedSource<<debd75410f1246683b00bc099b5ae3d8>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,23 +17,23 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayMockPayloadGeneratorTest20Query$variables = {||};
-export type RelayMockPayloadGeneratorTest20Query$data = {|
-  +me: ?{|
-    +emailAddresses: ?$ReadOnlyArray<?string>,
-    +id: string,
-    +name: ?string,
-    +profile_picture: ?{|
-      +height: ?number,
-      +uri: ?string,
-      +width: ?number,
-    |},
-  |},
-|};
-export type RelayMockPayloadGeneratorTest20Query = {|
+export type RelayMockPayloadGeneratorTest20Query$variables = {};
+export type RelayMockPayloadGeneratorTest20Query$data = {
+  readonly me: ?{
+    readonly emailAddresses: ?ReadonlyArray<?string>,
+    readonly id: string,
+    readonly name: ?string,
+    readonly profile_picture: ?{
+      readonly height: ?number,
+      readonly uri: ?string,
+      readonly width: ?number,
+    },
+  },
+};
+export type RelayMockPayloadGeneratorTest20Query = {
   response: RelayMockPayloadGeneratorTest20Query$data,
   variables: RelayMockPayloadGeneratorTest20Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -128,7 +127,7 @@ return {
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayMockPayloadGeneratorTest20Query",
-    "selections": (v0/*: any*/),
+    "selections": (v0/*:: as any*/),
     "type": "Query",
     "abstractKey": null
   },
@@ -137,7 +136,7 @@ return {
     "argumentDefinitions": [],
     "kind": "Operation",
     "name": "RelayMockPayloadGeneratorTest20Query",
-    "selections": (v0/*: any*/)
+    "selections": (v0/*:: as any*/)
   },
   "params": {
     "cacheID": "e3c605af3e0f446bb15989e90814ba9d",
@@ -162,16 +161,16 @@ return {
           "plural": false,
           "type": "ID"
         },
-        "me.name": (v1/*: any*/),
+        "me.name": (v1/*:: as any*/),
         "me.profile_picture": {
           "enumValues": null,
           "nullable": true,
           "plural": false,
           "type": "Image"
         },
-        "me.profile_picture.height": (v2/*: any*/),
-        "me.profile_picture.uri": (v1/*: any*/),
-        "me.profile_picture.width": (v2/*: any*/)
+        "me.profile_picture.height": (v2/*:: as any*/),
+        "me.profile_picture.uri": (v1/*:: as any*/),
+        "me.profile_picture.width": (v2/*:: as any*/)
       }
     },
     "name": "RelayMockPayloadGeneratorTest20Query",
@@ -182,10 +181,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "3e2952398f2727b26b7dda64597486e0";
+  (node/*:: as any*/).hash = "3e2952398f2727b26b7dda64597486e0";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayMockPayloadGeneratorTest20Query$variables,
   RelayMockPayloadGeneratorTest20Query$data,
 >*/);

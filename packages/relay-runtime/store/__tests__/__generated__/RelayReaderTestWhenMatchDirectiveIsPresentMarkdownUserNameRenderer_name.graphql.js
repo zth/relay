@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<503090e7e07a98ea5ec54c9717f255ef>>
+ * @generated SignedSource<<5d46c9173ea0a507212ca41f5b4a404e>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,13 +19,13 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayReaderTestWhenMatchDirectiveIsPresentMarkdownUserNameRenderer_name$fragmentType: FragmentType;
-export type RelayReaderTestWhenMatchDirectiveIsPresentMarkdownUserNameRenderer_name$data = {|
-  +markdown: ?string,
-  +$fragmentType: RelayReaderTestWhenMatchDirectiveIsPresentMarkdownUserNameRenderer_name$fragmentType,
-|};
+export type RelayReaderTestWhenMatchDirectiveIsPresentMarkdownUserNameRenderer_name$data = {
+  readonly markdown: ?string,
+  readonly $fragmentType: RelayReaderTestWhenMatchDirectiveIsPresentMarkdownUserNameRenderer_name$fragmentType,
+};
 export type RelayReaderTestWhenMatchDirectiveIsPresentMarkdownUserNameRenderer_name$key = {
-  +$data?: RelayReaderTestWhenMatchDirectiveIsPresentMarkdownUserNameRenderer_name$data,
-  +$fragmentSpreads: RelayReaderTestWhenMatchDirectiveIsPresentMarkdownUserNameRenderer_name$fragmentType,
+  readonly $data?: RelayReaderTestWhenMatchDirectiveIsPresentMarkdownUserNameRenderer_name$data,
+  readonly $fragmentSpreads: RelayReaderTestWhenMatchDirectiveIsPresentMarkdownUserNameRenderer_name$fragmentType,
   ...
 };
 */
@@ -50,10 +49,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "8c5cb86e103cc3a4b7208e689373c037";
+  (node/*:: as any*/).hash = "8c5cb86e103cc3a4b7208e689373c037";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayReaderTestWhenMatchDirectiveIsPresentMarkdownUserNameRenderer_name$fragmentType,
   RelayReaderTestWhenMatchDirectiveIsPresentMarkdownUserNameRenderer_name$data,
 >*/);

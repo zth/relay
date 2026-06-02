@@ -1,0 +1,48 @@
+//- Remaining.js
+graphql`
+  query RemainingQuery {
+    me { name }
+  }
+`;
+
+//- Foo.js
+// Test: deleting both the query and fragment files when the fragment is spread
+// via @module. The @module directive causes the fragment to be treated as a
+// SplitOperation with a separate $normalization artifact.
+graphql`
+  query FooQuery {
+    me {
+      ...Bar_user @module(name: "Bar.react")
+    }
+  }
+`;
+
+//- Bar.js
+graphql`
+  fragment Bar_user on User {
+    name
+  }
+`;
+
+//- relay.config.json
+{
+  "language": "typescript",
+  "schema": "./schema.graphql",
+  "moduleImportConfig": {
+    "dynamicModuleProvider": {
+      "mode": "JSResource"
+    }
+  },
+  "featureFlags": {
+    "no_inline": {
+      "kind": "enabled"
+    }
+  }
+}
+
+//- schema.graphql
+type Query { me: User }
+type User { name: String }
+
+//-xx Foo.js
+//-xx Bar.js

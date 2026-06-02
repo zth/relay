@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b20479502bee7aa3b51ac271ec8efce0>>
+ * @generated SignedSource<<a96379170b2f7a697648821c90a0826e>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,20 +19,20 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 import type { usePaginationFragmentTestStoryFragment$fragmentType } from "./usePaginationFragmentTestStoryFragment.graphql";
-export type usePaginationFragmentTestStoryFragmentRefetchQuery$variables = {|
+export type usePaginationFragmentTestStoryFragmentRefetchQuery$variables = {
   count?: ?number,
   cursor?: ?string,
   id: string,
-|};
-export type usePaginationFragmentTestStoryFragmentRefetchQuery$data = {|
-  +fetch__NonNodeStory: ?{|
-    +$fragmentSpreads: usePaginationFragmentTestStoryFragment$fragmentType,
-  |},
-|};
-export type usePaginationFragmentTestStoryFragmentRefetchQuery = {|
+};
+export type usePaginationFragmentTestStoryFragmentRefetchQuery$data = {
+  readonly fetch__NonNodeStory: ?{
+    readonly $fragmentSpreads: usePaginationFragmentTestStoryFragment$fragmentType,
+  },
+};
+export type usePaginationFragmentTestStoryFragmentRefetchQuery = {
   response: usePaginationFragmentTestStoryFragmentRefetchQuery$data,
   variables: usePaginationFragmentTestStoryFragmentRefetchQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -82,14 +81,14 @@ v3 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "usePaginationFragmentTestStoryFragmentRefetchQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "NonNodeStory",
         "kind": "LinkedField",
         "name": "fetch__NonNodeStory",
@@ -120,13 +119,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "usePaginationFragmentTestStoryFragmentRefetchQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "NonNodeStory",
         "kind": "LinkedField",
         "name": "fetch__NonNodeStory",
@@ -134,7 +133,7 @@ return {
         "selections": [
           {
             "alias": null,
-            "args": (v2/*: any*/),
+            "args": (v2/*:: as any*/),
             "concreteType": "CommentsConnection",
             "kind": "LinkedField",
             "name": "comments",
@@ -156,7 +155,7 @@ return {
                     "name": "node",
                     "plural": false,
                     "selections": [
-                      (v3/*: any*/),
+                      (v3/*:: as any*/),
                       {
                         "alias": null,
                         "args": null,
@@ -207,7 +206,7 @@ return {
           },
           {
             "alias": null,
-            "args": (v2/*: any*/),
+            "args": (v2/*:: as any*/),
             "filters": null,
             "handle": "connection",
             "key": "StoryFragment_comments",
@@ -221,7 +220,7 @@ return {
             "name": "fetch_id",
             "storageKey": null
           },
-          (v3/*: any*/)
+          (v3/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -239,10 +238,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "f32695b1b41c05ed8de7a6abfa8583a0";
+  (node/*:: as any*/).hash = "f32695b1b41c05ed8de7a6abfa8583a0";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   usePaginationFragmentTestStoryFragmentRefetchQuery$variables,
   usePaginationFragmentTestStoryFragmentRefetchQuery$data,
 >*/);

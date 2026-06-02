@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<254582f28198d4bbe66d50aa37920232>>
+ * @generated SignedSource<<ad2c240849e378c2511f07dcd5f6cf0f>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -23,21 +22,21 @@ import {greeting as userGreetingResolverType} from "../UserGreetingResolver.js";
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userGreetingResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userGreetingResolverType: (
+(userGreetingResolverType as (
   rootKey: UserGreetingResolver$key,
   args: void,
   context: TestResolverContextType,
 ) => ?string);
-export type ResolverGCTestNonLiveWithFragmentQuery$variables = {||};
-export type ResolverGCTestNonLiveWithFragmentQuery$data = {|
-  +me: ?{|
-    +greeting: ?string,
-  |},
-|};
-export type ResolverGCTestNonLiveWithFragmentQuery = {|
+export type ResolverGCTestNonLiveWithFragmentQuery$variables = {};
+export type ResolverGCTestNonLiveWithFragmentQuery$data = {
+  readonly me: ?{
+    readonly greeting: ?string,
+  },
+};
+export type ResolverGCTestNonLiveWithFragmentQuery = {
   response: ResolverGCTestNonLiveWithFragmentQuery$data,
   variables: ResolverGCTestNonLiveWithFragmentQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {
@@ -133,10 +132,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "355f7731e98bac22eab689ac7885394c";
+  (node/*:: as any*/).hash = "355f7731e98bac22eab689ac7885394c";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ResolverGCTestNonLiveWithFragmentQuery$variables,
   ResolverGCTestNonLiveWithFragmentQuery$data,
 >*/);

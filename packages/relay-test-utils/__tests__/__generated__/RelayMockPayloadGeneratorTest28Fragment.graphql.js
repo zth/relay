@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3b2c2ea5d0777c7b742a0ef5b6328b0b>>
+ * @generated SignedSource<<66a5b549a5c4e1b62ef1ba1bc5ad6131>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,19 +19,19 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayMockPayloadGeneratorTest28Fragment$fragmentType: FragmentType;
-export type RelayMockPayloadGeneratorTest28Fragment$data = {|
-  +id: string,
-  +name: ?string,
-  +profile_picture: ?{|
-    +height: ?number,
-    +uri: ?string,
-    +width: ?number,
-  |},
-  +$fragmentType: RelayMockPayloadGeneratorTest28Fragment$fragmentType,
-|};
+export type RelayMockPayloadGeneratorTest28Fragment$data = {
+  readonly id: string,
+  readonly name: ?string,
+  readonly profile_picture: ?{
+    readonly height: ?number,
+    readonly uri: ?string,
+    readonly width: ?number,
+  },
+  readonly $fragmentType: RelayMockPayloadGeneratorTest28Fragment$fragmentType,
+};
 export type RelayMockPayloadGeneratorTest28Fragment$key = {
-  +$data?: RelayMockPayloadGeneratorTest28Fragment$data,
-  +$fragmentSpreads: RelayMockPayloadGeneratorTest28Fragment$fragmentType,
+  readonly $data?: RelayMockPayloadGeneratorTest28Fragment$data,
+  readonly $fragmentSpreads: RelayMockPayloadGeneratorTest28Fragment$fragmentType,
   ...
 };
 */
@@ -95,10 +94,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "d8def67d724eec4688b6524f536f5946";
+  (node/*:: as any*/).hash = "d8def67d724eec4688b6524f536f5946";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayMockPayloadGeneratorTest28Fragment$fragmentType,
   RelayMockPayloadGeneratorTest28Fragment$data,
 >*/);

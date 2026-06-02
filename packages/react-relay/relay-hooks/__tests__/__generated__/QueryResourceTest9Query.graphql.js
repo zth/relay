@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<72a3048b3087bfa60a0e59ca6241cbe0>>
+ * @generated SignedSource<<f13b33db9da96f7522c976e15300c8a9>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,18 +17,18 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type QueryResourceTest9Query$variables = {|
+export type QueryResourceTest9Query$variables = {
   id: string,
-|};
-export type QueryResourceTest9Query$data = {|
-  +node: ?{|
-    +id?: string,
-  |},
-|};
-export type QueryResourceTest9Query = {|
+};
+export type QueryResourceTest9Query$data = {
+  readonly node: ?{
+    readonly id?: string,
+  },
+};
+export type QueryResourceTest9Query = {
   response: QueryResourceTest9Query$data,
   variables: QueryResourceTest9Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -56,14 +55,14 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "QueryResourceTest9Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -72,7 +71,7 @@ return {
           {
             "kind": "InlineFragment",
             "selections": [
-              (v2/*: any*/)
+              (v2/*:: as any*/)
             ],
             "type": "User",
             "abstractKey": null
@@ -86,13 +85,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "QueryResourceTest9Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -105,7 +104,7 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v2/*: any*/)
+          (v2/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -123,10 +122,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "94aed4d9aea7df74dd4418bfd32a48bc";
+  (node/*:: as any*/).hash = "94aed4d9aea7df74dd4418bfd32a48bc";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   QueryResourceTest9Query$variables,
   QueryResourceTest9Query$data,
 >*/);

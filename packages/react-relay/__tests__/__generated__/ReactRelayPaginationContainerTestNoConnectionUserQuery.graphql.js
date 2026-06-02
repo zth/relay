@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<05b2793371ff21dc1a2523949eaedeeb>>
+ * @generated SignedSource<<b0f1995abf9377f0107f2da95321610a>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,22 +18,22 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { ReactRelayPaginationContainerTestNoConnectionUserFragment$fragmentType } from "./ReactRelayPaginationContainerTestNoConnectionUserFragment.graphql";
-export type ReactRelayPaginationContainerTestNoConnectionUserQuery$variables = {|
+export type ReactRelayPaginationContainerTestNoConnectionUserQuery$variables = {
   after?: ?string,
   count: number,
   id: string,
-  orderby?: ?$ReadOnlyArray<?string>,
-|};
-export type ReactRelayPaginationContainerTestNoConnectionUserQuery$data = {|
-  +node: ?{|
-    +id: string,
-    +$fragmentSpreads: ReactRelayPaginationContainerTestNoConnectionUserFragment$fragmentType,
-  |},
-|};
-export type ReactRelayPaginationContainerTestNoConnectionUserQuery = {|
+  orderby?: ?ReadonlyArray<?string>,
+};
+export type ReactRelayPaginationContainerTestNoConnectionUserQuery$data = {
+  readonly node: ?{
+    readonly id: string,
+    readonly $fragmentSpreads: ReactRelayPaginationContainerTestNoConnectionUserFragment$fragmentType,
+  },
+};
+export type ReactRelayPaginationContainerTestNoConnectionUserQuery = {
   response: ReactRelayPaginationContainerTestNoConnectionUserQuery$data,
   variables: ReactRelayPaginationContainerTestNoConnectionUserQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -76,20 +75,20 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "ReactRelayPaginationContainerTestNoConnectionUserQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "args": null,
             "kind": "FragmentSpread",
@@ -104,13 +103,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "ReactRelayPaginationContainerTestNoConnectionUserQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -123,7 +122,7 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
@@ -167,7 +166,7 @@ return {
                         "name": "node",
                         "plural": false,
                         "selections": [
-                          (v2/*: any*/)
+                          (v2/*:: as any*/)
                         ],
                         "storageKey": null
                       }
@@ -223,10 +222,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "0c78e21bfeadc7de224add3a607c917f";
+  (node/*:: as any*/).hash = "0c78e21bfeadc7de224add3a607c917f";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ReactRelayPaginationContainerTestNoConnectionUserQuery$variables,
   ReactRelayPaginationContainerTestNoConnectionUserQuery$data,
 >*/);

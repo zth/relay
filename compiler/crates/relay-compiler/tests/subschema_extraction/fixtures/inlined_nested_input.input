@@ -1,0 +1,41 @@
+# Test empty input type extraction via inlined nested input.
+# When an input type is passed as empty {}, it should print as `input Foo {}`
+
+//- src/FooQuery.js
+graphql`
+  query FooQuery {
+    node(input: { nested: {} }) {
+      id
+    }
+  }
+`;
+
+//- relay.config.json
+{
+   "language": "typescript",
+   "schema": "./schema.graphql",
+   "src": "./src"
+}
+
+//- schema.graphql
+type Query { _: ID }
+
+//- full_schema.graphql
+type Query {
+  node(input: OuterInput!): Node
+}
+
+type Node {
+  id: ID!
+  name: String
+}
+
+input OuterInput {
+  nested: InnerInput
+  value: String
+}
+
+input InnerInput {
+  value: String
+  count: Int
+}

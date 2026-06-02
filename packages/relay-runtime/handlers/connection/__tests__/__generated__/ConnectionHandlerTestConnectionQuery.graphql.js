@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8cc4854e82405fcc76107eb01931e51f>>
+ * @generated SignedSource<<95cc6da9804c658bc8cfb9576e2ce5b5>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,36 +17,36 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type ConnectionHandlerTestConnectionQuery$variables = {|
+export type ConnectionHandlerTestConnectionQuery$variables = {
   after?: ?string,
   before?: ?string,
   count?: ?number,
   id: string,
-  orderby?: ?$ReadOnlyArray<?string>,
-|};
-export type ConnectionHandlerTestConnectionQuery$data = {|
-  +node: ?{|
-    +friends?: ?{|
-      +count: ?number,
-      +edges: ?$ReadOnlyArray<?{|
-        +cursor: ?string,
-        +node: ?{|
-          +id: string,
-        |},
-      |}>,
-      +pageInfo: ?{|
-        +endCursor: ?string,
-        +hasNextPage: ?boolean,
-        +hasPreviousPage: ?boolean,
-        +startCursor: ?string,
-      |},
-    |},
-  |},
-|};
-export type ConnectionHandlerTestConnectionQuery = {|
+  orderby?: ?ReadonlyArray<?string>,
+};
+export type ConnectionHandlerTestConnectionQuery$data = {
+  readonly node: ?{
+    readonly friends?: ?{
+      readonly count: ?number,
+      readonly edges: ?ReadonlyArray<?{
+        readonly cursor: ?string,
+        readonly node: ?{
+          readonly id: string,
+        },
+      }>,
+      readonly pageInfo: ?{
+        readonly endCursor: ?string,
+        readonly hasNextPage: ?boolean,
+        readonly hasPreviousPage: ?boolean,
+        readonly startCursor: ?string,
+      },
+    },
+  },
+};
+export type ConnectionHandlerTestConnectionQuery = {
   response: ConnectionHandlerTestConnectionQuery$data,
   variables: ConnectionHandlerTestConnectionQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -126,7 +125,7 @@ v8 = [
         "name": "node",
         "plural": false,
         "selections": [
-          (v7/*: any*/)
+          (v7/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -189,16 +188,16 @@ v9 = [
     "name": "first",
     "variableName": "count"
   },
-  (v6/*: any*/)
+  (v6/*:: as any*/)
 ];
 return {
   "fragment": {
     "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/),
-      (v2/*: any*/),
-      (v3/*: any*/),
-      (v4/*: any*/)
+      (v0/*:: as any*/),
+      (v1/*:: as any*/),
+      (v2/*:: as any*/),
+      (v3/*:: as any*/),
+      (v4/*:: as any*/)
     ],
     "kind": "Fragment",
     "metadata": null,
@@ -206,7 +205,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v5/*: any*/),
+        "args": (v5/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -218,13 +217,13 @@ return {
               {
                 "alias": "friends",
                 "args": [
-                  (v6/*: any*/)
+                  (v6/*:: as any*/)
                 ],
                 "concreteType": "FriendsConnection",
                 "kind": "LinkedField",
                 "name": "__ConnectionQuery_friends_connection",
                 "plural": false,
-                "selections": (v8/*: any*/),
+                "selections": (v8/*:: as any*/),
                 "storageKey": null
               }
             ],
@@ -241,18 +240,18 @@ return {
   "kind": "Request",
   "operation": {
     "argumentDefinitions": [
-      (v3/*: any*/),
-      (v1/*: any*/),
-      (v2/*: any*/),
-      (v0/*: any*/),
-      (v4/*: any*/)
+      (v3/*:: as any*/),
+      (v1/*:: as any*/),
+      (v2/*:: as any*/),
+      (v0/*:: as any*/),
+      (v4/*:: as any*/)
     ],
     "kind": "Operation",
     "name": "ConnectionHandlerTestConnectionQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v5/*: any*/),
+        "args": (v5/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -270,17 +269,17 @@ return {
             "selections": [
               {
                 "alias": null,
-                "args": (v9/*: any*/),
+                "args": (v9/*:: as any*/),
                 "concreteType": "FriendsConnection",
                 "kind": "LinkedField",
                 "name": "friends",
                 "plural": false,
-                "selections": (v8/*: any*/),
+                "selections": (v8/*:: as any*/),
                 "storageKey": null
               },
               {
                 "alias": null,
-                "args": (v9/*: any*/),
+                "args": (v9/*:: as any*/),
                 "filters": [
                   "orderby"
                 ],
@@ -293,7 +292,7 @@ return {
             "type": "User",
             "abstractKey": null
           },
-          (v7/*: any*/)
+          (v7/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -311,10 +310,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "0dda113c23c6abae873e5b369d657031";
+  (node/*:: as any*/).hash = "0dda113c23c6abae873e5b369d657031";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ConnectionHandlerTestConnectionQuery$variables,
   ConnectionHandlerTestConnectionQuery$data,
 >*/);

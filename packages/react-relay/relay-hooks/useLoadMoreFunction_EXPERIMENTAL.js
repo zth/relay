@@ -38,7 +38,7 @@ const {
 } = require('relay-runtime');
 const warning = require('warning');
 
-export type LoadMoreFn<TVariables: Variables> = (
+export type LoadMoreFn<TVariables extends Variables> = (
   count: number,
   options?: {
     onComplete?: (Error | null) => void,
@@ -49,10 +49,10 @@ export type LoadMoreFn<TVariables: Variables> = (
 export type UseLoadMoreFunctionArgs = {
   direction: Direction,
   fragmentNode: ReaderFragment,
-  fragmentRef: mixed,
+  fragmentRef: unknown,
   fragmentIdentifier: string,
-  fragmentData: mixed,
-  connectionPathInFragmentData: $ReadOnlyArray<string | number>,
+  fragmentData: unknown,
+  connectionPathInFragmentData: ReadonlyArray<string | number>,
   paginationRequest: ConcreteRequest,
   paginationMetadata: ReaderPaginationMetadata,
   componentDisplayName: string,
@@ -60,7 +60,7 @@ export type UseLoadMoreFunctionArgs = {
   onReset: () => void,
 };
 
-hook useLoadMoreFunction_EXPERIMENTAL<TVariables: Variables>(
+hook useLoadMoreFunction_EXPERIMENTAL<TVariables extends Variables>(
   args: UseLoadMoreFunctionArgs,
 ): [
   // Function to load more data

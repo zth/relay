@@ -59,7 +59,7 @@ const {
 const warning = require('warning');
 
 type ContainerState = {
-  data: {[key: string]: mixed, ...},
+  data: {[key: string]: unknown, ...},
   relayProp: RelayPaginationProp,
   prevContext: RelayContext,
   contextForChildren: RelayContext,
@@ -91,8 +91,8 @@ export type ConnectionConfig = {
   ...
 };
 export type ConnectionData = {
-  +edges?: ?$ReadOnlyArray<any>,
-  +pageInfo?: ?PageInfo,
+  readonly edges?: ?ReadonlyArray<any>,
+  readonly pageInfo?: ?PageInfo,
   ...
 };
 
@@ -258,7 +258,7 @@ function createGetFragmentVariables(
   );
   return (prevVars: Variables, totalCount: number): Variables => ({
     ...prevVars,
-    [(countVariable: string)]: totalCount,
+    [countVariable as string]: totalCount,
   });
 }
 
@@ -272,7 +272,7 @@ function findConnectionMetadata(
   for (const fragmentName in fragments) {
     const fragment = fragments[fragmentName];
     const connectionMetadata: ?Array<ConnectionMetadata> = (fragment.metadata &&
-      fragment.metadata.connection: any);
+      fragment.metadata.connection) as any;
     // HACK: metadata is always set to `undefined` in classic. In modern, even
     // if empty, it is set to null (never undefined). We use that knowlege to
     // check if we're dealing with classic or modern
@@ -302,24 +302,24 @@ function findConnectionMetadata(
     !isRelayModern || foundConnectionMetadata !== null,
     'ReactRelayPaginationContainer: A @connection directive must be present.',
   );
-  return foundConnectionMetadata || ({}: any);
+  return foundConnectionMetadata || ({} as any);
 }
 
 function toObserver(observerOrCallback: ?ObserverOrCallback): Observer<void> {
   return typeof observerOrCallback === 'function'
     ? {
-        error: observerOrCallback,
         complete: observerOrCallback,
+        error: observerOrCallback,
         unsubscribe: (subscription: Subscription) => {
           typeof observerOrCallback === 'function' && observerOrCallback();
         },
       }
-    : observerOrCallback || ({}: any);
+    : observerOrCallback || ({} as any);
 }
 
 function createContainerWithFragments<
-  Props: {...},
-  TComponent: component(...Props),
+  Props extends {...},
+  TComponent extends component(...Props),
 >(
   Component: TComponent,
   fragments: FragmentMap,
@@ -386,9 +386,9 @@ function createContainerWithFragments<
         );
       }
       this.state = {
+        contextForChildren: relayContext,
         data: this._resolver.resolve(),
         prevContext: relayContext,
-        contextForChildren: relayContext,
         relayProp: this._buildRelayProp(relayContext),
         resolverGeneration: 0,
       };
@@ -463,8 +463,8 @@ function createContainerWithFragments<
           );
         }
         this.setState(prevState => ({
-          prevContext: relayContext,
           contextForChildren: relayContext,
+          prevContext: relayContext,
           relayProp: this._buildRelayProp(relayContext),
           resolverGeneration: prevState.resolverGeneration + 1,
         }));
@@ -499,6 +499,8 @@ function createContainerWithFragments<
       const keys = Object.keys(nextProps);
       for (let ii = 0; ii < keys.length; ii++) {
         const key = keys[ii];
+        /* $FlowFixMe[invalid-compare] Error discovered during Constant
+         * Condition roll out. See https://fburl.com/workplace/4oq3zi07. */
         if (key === '__relayContext') {
           if (
             nextState.prevContext.environment !==
@@ -520,11 +522,11 @@ function createContainerWithFragments<
 
     _buildRelayProp(relayContext: RelayContext): RelayPaginationProp {
       return {
+        environment: relayContext.environment,
         hasMore: this._hasMore,
         isLoading: this._isLoading,
         loadMore: this._loadMore,
         refetchConnection: this._refetchConnection,
-        environment: relayContext.environment,
       };
     }
 
@@ -717,7 +719,7 @@ function createContainerWithFragments<
       );
       const paginatingVariables = {
         count: pageSize,
-        cursor: cursor,
+        cursor,
         totalCount,
       };
       const fetch = this._fetchPage(paginatingVariables, observer, options);
@@ -750,12 +752,12 @@ function createContainerWithFragments<
     }
 
     _fetchPage(
-      paginatingVariables: {
+      paginatingVariables: Readonly<{
         count: number,
         cursor: ?string,
         totalCount: number,
         ...
-      },
+      }>,
       observer: Observer<void>,
       options: ?RefetchOptions,
     ): Subscription {
@@ -790,20 +792,22 @@ function createContainerWithFragments<
         fragmentVariables,
       );
       invariant(
+        /* $FlowFixMe[invalid-compare] Error discovered during Constant
+         * Condition roll out. See https://fburl.com/workplace/5whu3i34. */
         typeof fetchVariables === 'object' && fetchVariables !== null,
         'ReactRelayPaginationContainer: Expected `getVariables()` to ' +
           'return an object, got `%s` in `%s`.',
         fetchVariables,
         componentName,
       );
-      fetchVariables = ({
+      fetchVariables = {
         ...fetchVariables,
         ...this._refetchVariables,
-      }: Variables);
-      fragmentVariables = ({
+      } as Variables;
+      fragmentVariables = {
         ...fetchVariables,
         ...fragmentVariables,
-      }: Variables);
+      } as Variables;
 
       const cacheConfig: ?{...CacheConfig} = options
         ? {force: !!options.force}
@@ -825,7 +829,7 @@ function createContainerWithFragments<
       }
       this._hasFetched = true;
 
-      const onNext = (payload: mixed, complete: () => void) => {
+      const onNext = (payload: unknown, complete: () => void) => {
         const prevData = this._resolver.resolve();
         this._resolver.setVariables(
           getFragmentVariables(
@@ -848,10 +852,10 @@ function createContainerWithFragments<
         if (!areEqual(prevData, nextData)) {
           this.setState(
             {
-              data: nextData,
               contextForChildren: {
                 environment: this.props.__relayContext.environment,
               },
+              data: nextData,
             },
             complete,
           );
@@ -884,8 +888,8 @@ function createContainerWithFragments<
         )
         // use do instead of finally so that observer's `complete` fires after cleanup
         .do({
-          error: cleanup,
           complete: cleanup,
+          error: cleanup,
           unsubscribe: cleanup,
         })
         .subscribe(observer || {});
@@ -937,14 +941,17 @@ function createContainerWithFragments<
  * `fragmentSpec` is memoized once per environment, rather than once per
  * instance of the container constructed/rendered.
  */
-function createContainer<Props: {...}, TComponent: component(...Props)>(
+function createContainer<
+  Props extends {...},
+  TComponent extends component(...Props),
+>(
   Component: TComponent,
   fragmentSpec: GeneratedNodeMap,
   connectionConfig: ConnectionConfig,
 ): component(
   ...$RelayProps<React.ElementConfig<TComponent>, RelayPaginationProp>
 ) {
-  // $FlowFixMe[incompatible-return]
+  // $FlowFixMe[incompatible-type]
   return buildReactRelayContainer(
     Component,
     fragmentSpec,

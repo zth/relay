@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<96c3ffb47638b01931d8b0504df03a24>>
+ * @generated SignedSource<<0e35c79e8626b599f85353bb922c791d>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -23,21 +22,21 @@ import {shouted_greeting as userShoutedGreetingResolverType} from "../resolvers/
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userShoutedGreetingResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userShoutedGreetingResolverType: (
+(userShoutedGreetingResolverType as (
   rootKey: UserShoutedGreetingResolver$key,
   args: void,
   context: TestResolverContextType,
 ) => ?string);
-export type RelayReaderResolverTest5Query$variables = {||};
-export type RelayReaderResolverTest5Query$data = {|
-  +me: ?{|
-    +shouted_greeting: ?string,
-  |},
-|};
-export type RelayReaderResolverTest5Query = {|
+export type RelayReaderResolverTest5Query$variables = {};
+export type RelayReaderResolverTest5Query$data = {
+  readonly me: ?{
+    readonly shouted_greeting: ?string,
+  },
+};
+export type RelayReaderResolverTest5Query = {
   response: RelayReaderResolverTest5Query$data,
   variables: RelayReaderResolverTest5Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {
@@ -147,10 +146,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "ffe920eb282ee34cabda32437c7bdd3d";
+  (node/*:: as any*/).hash = "ffe920eb282ee34cabda32437c7bdd3d";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderResolverTest5Query$variables,
   RelayReaderResolverTest5Query$data,
 >*/);

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<92cc9594a0bef06e65284b017af367ac>>
+ * @generated SignedSource<<f52a4a966783eebfdd3ced461bb3728a>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,17 +19,17 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernFragmentSpecResolverTestQueryUsersFragment$fragmentType: FragmentType;
-export type RelayModernFragmentSpecResolverTestQueryUsersFragment$data = $ReadOnlyArray<{|
-  +id: string,
-  +name: ?string,
-  +profilePicture?: ?{|
-    +uri: ?string,
-  |},
-  +$fragmentType: RelayModernFragmentSpecResolverTestQueryUsersFragment$fragmentType,
-|}>;
-export type RelayModernFragmentSpecResolverTestQueryUsersFragment$key = $ReadOnlyArray<{
-  +$data?: RelayModernFragmentSpecResolverTestQueryUsersFragment$data,
-  +$fragmentSpreads: RelayModernFragmentSpecResolverTestQueryUsersFragment$fragmentType,
+export type RelayModernFragmentSpecResolverTestQueryUsersFragment$data = ReadonlyArray<{
+  readonly id: string,
+  readonly name: ?string,
+  readonly profilePicture?: ?{
+    readonly uri: ?string,
+  },
+  readonly $fragmentType: RelayModernFragmentSpecResolverTestQueryUsersFragment$fragmentType,
+}>;
+export type RelayModernFragmentSpecResolverTestQueryUsersFragment$key = ReadonlyArray<{
+  readonly $data?: RelayModernFragmentSpecResolverTestQueryUsersFragment$data,
+  readonly $fragmentSpreads: RelayModernFragmentSpecResolverTestQueryUsersFragment$fragmentType,
   ...
 }>;
 */
@@ -103,10 +102,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "d549c518f9f88f95d48fe6419cc1f5ca";
+  (node/*:: as any*/).hash = "d549c518f9f88f95d48fe6419cc1f5ca";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayModernFragmentSpecResolverTestQueryUsersFragment$fragmentType,
   RelayModernFragmentSpecResolverTestQueryUsersFragment$data,
 >*/);

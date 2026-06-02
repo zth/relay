@@ -13,7 +13,7 @@
 
 import type {IEnvironment, RecordSource} from '../store/RelayStoreTypes';
 
-type InspectFn = (environment: IEnvironment, dataID?: ?string) => mixed;
+type InspectFn = (environment: IEnvironment, dataID?: ?string) => unknown;
 
 let inspect: InspectFn = () => {};
 
@@ -80,9 +80,9 @@ if (__DEV__) {
     const isRecord = (o: $FlowFixMe) => o != null && typeof o.__id === 'string';
 
     class RecordEntry {
-      +key: string;
-      +value: mixed;
-      constructor(key: string, value: mixed) {
+      readonly key: string;
+      readonly value: unknown;
+      constructor(key: string, value: unknown) {
         this.key = key;
         this.value = value;
       }
@@ -138,14 +138,13 @@ if (__DEV__) {
   const getWrappedRecord = (
     source: RecordSource,
     dataID: string,
-  ): ?{[string]: mixed} => {
+  ): ?{[string]: unknown} => {
     const record = source.get(dataID);
     if (record == null) {
-      // $FlowFixMe[incompatible-return]
+      // $FlowFixMe[incompatible-type]
       return record;
     }
     return new Proxy(
-      // $FlowFixMe: Do not assume that record is an object
       {...record},
       {
         get(target, prop) {
@@ -159,7 +158,7 @@ if (__DEV__) {
               return getWrappedRecord(source, value.__ref);
             }
             if (Array.isArray(value.__refs)) {
-              // $FlowFixMe[incompatible-call]
+              // $FlowFixMe[incompatible-type]
               return value.__refs.map((ref: string) =>
                 getWrappedRecord(source, ref),
               );

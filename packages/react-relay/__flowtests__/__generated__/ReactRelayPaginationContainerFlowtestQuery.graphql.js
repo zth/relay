@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<073d1d174775daaac06d462623886192>>
+ * @generated SignedSource<<9d2374c78d2c1fcb1e9a71e478fa94ec>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,19 +18,19 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { ReactRelayPaginationContainerFlowtest_viewer$fragmentType } from "./ReactRelayPaginationContainerFlowtest_viewer.graphql";
-export type ReactRelayPaginationContainerFlowtestQuery$variables = {|
+export type ReactRelayPaginationContainerFlowtestQuery$variables = {
   count: number,
   cursor?: ?string,
-|};
-export type ReactRelayPaginationContainerFlowtestQuery$data = {|
-  +viewer: ?{|
-    +$fragmentSpreads: ReactRelayPaginationContainerFlowtest_viewer$fragmentType,
-  |},
-|};
-export type ReactRelayPaginationContainerFlowtestQuery = {|
+};
+export type ReactRelayPaginationContainerFlowtestQuery$data = {
+  readonly viewer: ?{
+    readonly $fragmentSpreads: ReactRelayPaginationContainerFlowtest_viewer$fragmentType,
+  },
+};
+export type ReactRelayPaginationContainerFlowtestQuery = {
   response: ReactRelayPaginationContainerFlowtestQuery$data,
   variables: ReactRelayPaginationContainerFlowtestQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -68,7 +67,7 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "ReactRelayPaginationContainerFlowtestQuery",
@@ -95,7 +94,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "ReactRelayPaginationContainerFlowtestQuery",
     "selections": [
@@ -117,7 +116,7 @@ return {
             "selections": [
               {
                 "alias": null,
-                "args": (v1/*: any*/),
+                "args": (v1/*:: as any*/),
                 "concreteType": "FriendsConnection",
                 "kind": "LinkedField",
                 "name": "friends",
@@ -146,7 +145,7 @@ return {
                             "name": "__typename",
                             "storageKey": null
                           },
-                          (v2/*: any*/)
+                          (v2/*:: as any*/)
                         ],
                         "storageKey": null
                       },
@@ -190,14 +189,14 @@ return {
               },
               {
                 "alias": null,
-                "args": (v1/*: any*/),
+                "args": (v1/*:: as any*/),
                 "filters": null,
                 "handle": "connection",
                 "key": "ReactRelayPaginationContainerFlowtest_viewer__friends",
                 "kind": "LinkedHandle",
                 "name": "friends"
               },
-              (v2/*: any*/)
+              (v2/*:: as any*/)
             ],
             "storageKey": null
           }
@@ -218,10 +217,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "712afeafa1f51bfe391719629a0fcea0";
+  (node/*:: as any*/).hash = "712afeafa1f51bfe391719629a0fcea0";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ReactRelayPaginationContainerFlowtestQuery$variables,
   ReactRelayPaginationContainerFlowtestQuery$data,
 >*/);

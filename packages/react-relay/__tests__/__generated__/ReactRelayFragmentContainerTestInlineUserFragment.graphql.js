@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9b2676827b63d91aa96456d18c8e0b81>>
+ * @generated SignedSource<<688dcd0d29314918b03a90cffcfa8835>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,13 +19,13 @@
 import type { InlineFragment, ReaderInlineDataFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type ReactRelayFragmentContainerTestInlineUserFragment$fragmentType: FragmentType;
-export type ReactRelayFragmentContainerTestInlineUserFragment$data = {|
-  +id: string,
-  +$fragmentType: ReactRelayFragmentContainerTestInlineUserFragment$fragmentType,
-|};
+export type ReactRelayFragmentContainerTestInlineUserFragment$data = {
+  readonly id: string,
+  readonly $fragmentType: ReactRelayFragmentContainerTestInlineUserFragment$fragmentType,
+};
 export type ReactRelayFragmentContainerTestInlineUserFragment$key = {
-  +$data?: ReactRelayFragmentContainerTestInlineUserFragment$data,
-  +$fragmentSpreads: ReactRelayFragmentContainerTestInlineUserFragment$fragmentType,
+  readonly $data?: ReactRelayFragmentContainerTestInlineUserFragment$data,
+  readonly $fragmentSpreads: ReactRelayFragmentContainerTestInlineUserFragment$fragmentType,
   ...
 };
 */
@@ -37,10 +36,10 @@ var node/*: ReaderInlineDataFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "79a8de44a6a06befa843c6acbecd87cf";
+  (node/*:: as any*/).hash = "79a8de44a6a06befa843c6acbecd87cf";
 }
 
-module.exports = ((node/*: any*/)/*: InlineFragment<
+module.exports = ((node/*:: as any*/)/*:: as InlineFragment<
   ReactRelayFragmentContainerTestInlineUserFragment$fragmentType,
   ReactRelayFragmentContainerTestInlineUserFragment$data,
 >*/);

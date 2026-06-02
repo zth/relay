@@ -18,10 +18,10 @@ const {GLOBAL_STORE, Selectors} = require('./ExampleExternalStateStore');
 const {suspenseSentinel} = require('relay-runtime');
 
 /**
- * @RelayResolver Query.live_user_suspends_when_odd: User
+ * @relayField Query.live_user_suspends_when_odd: User
  * @live
  */
-function live_user_suspends_when_odd(): LiveState<{|+id: DataID|}> {
+function live_user_suspends_when_odd(): LiveState<{|readonly id: DataID|}> {
   return {
     read() {
       const number = Selectors.getNumber(GLOBAL_STORE.getState());

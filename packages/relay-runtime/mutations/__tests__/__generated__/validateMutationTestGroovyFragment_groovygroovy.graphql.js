@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<76b15b0bdf2afce1b50c5a674f22422d>>
+ * @generated SignedSource<<6519ddb8f2d55614892f0a4baf11a966>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,13 +19,13 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type validateMutationTestGroovyFragment_groovygroovy$fragmentType: FragmentType;
-export type validateMutationTestGroovyFragment_groovygroovy$data = {|
-  +doesViewerLike: ?boolean,
-  +$fragmentType: validateMutationTestGroovyFragment_groovygroovy$fragmentType,
-|};
+export type validateMutationTestGroovyFragment_groovygroovy$data = {
+  readonly doesViewerLike: ?boolean,
+  readonly $fragmentType: validateMutationTestGroovyFragment_groovygroovy$fragmentType,
+};
 export type validateMutationTestGroovyFragment_groovygroovy$key = {
-  +$data?: validateMutationTestGroovyFragment_groovygroovy$data,
-  +$fragmentSpreads: validateMutationTestGroovyFragment_groovygroovy$fragmentType,
+  readonly $data?: validateMutationTestGroovyFragment_groovygroovy$data,
+  readonly $fragmentSpreads: validateMutationTestGroovyFragment_groovygroovy$fragmentType,
   ...
 };
 */
@@ -50,10 +49,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "83e864f783acac747c40b6b623186a80";
+  (node/*:: as any*/).hash = "83e864f783acac747c40b6b623186a80";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   validateMutationTestGroovyFragment_groovygroovy$fragmentType,
   validateMutationTestGroovyFragment_groovygroovy$data,
 >*/);

@@ -79,19 +79,14 @@ impl DeferStreamTransform<'_> {
         self.current_document_name = Some(document_name)
     }
 
-    fn record_label(
-        &mut self,
-        label: StringKey,
-        directive: &Directive,
-        defer_stream_interface: &DeferStreamInterface,
-    ) {
+    fn record_label(&mut self, label: StringKey, directive: &Directive) {
         let prev_directive = self.labels.get(&label);
         match prev_directive {
             Some(prev) => {
                 self.errors.push(
                     Diagnostic::error(
                         ValidationMessage::LabelNotUniqueForDeferStream {
-                            directive_name: defer_stream_interface.defer_name,
+                            directive_name: directive.name.item,
                         },
                         prev.name.location,
                     )
@@ -132,7 +127,7 @@ impl DeferStreamTransform<'_> {
             defer_stream_interface.defer_name,
             label,
         );
-        self.record_label(transformed_label, defer, defer_stream_interface);
+        self.record_label(transformed_label, defer);
         let next_label_value = Value::Constant(ConstantValue::String(transformed_label));
         let next_label_arg = Argument {
             name: WithLocation {
@@ -236,7 +231,7 @@ impl DeferStreamTransform<'_> {
             defer_stream_interface.stream_name,
             label,
         );
-        self.record_label(transformed_label, stream, defer_stream_interface);
+        self.record_label(transformed_label, stream);
         let next_label_value = Value::Constant(ConstantValue::String(transformed_label));
         let next_label_arg = Argument {
             name: WithLocation {
@@ -309,12 +304,10 @@ impl Transformer<'_> for DeferStreamTransform<'_> {
             if let Some(label) = directive
                 .arguments
                 .named(self.defer_stream_interface.label_arg)
+                && let Some(label) = label.value.item.get_string_literal()
+                && label.lookup().contains("$defer$")
             {
-                if let Some(label) = label.value.item.get_string_literal() {
-                    if label.lookup().contains("$defer$") {
-                        return self.default_transform_inline_fragment(inline_fragment);
-                    }
-                }
+                return self.default_transform_inline_fragment(inline_fragment);
             }
             self.errors.push(Diagnostic::error(
                 ValidationMessage::InvalidDeferOnInlineFragment,
@@ -394,7 +387,7 @@ fn transform_label(
     directive_name: DirectiveName,
     label: StringKey,
 ) -> StringKey {
-    format!("{}${}${}", parent_name, directive_name, label).intern()
+    format!("{parent_name}${directive_name}${label}").intern()
 }
 
 fn get_literal_string_argument(

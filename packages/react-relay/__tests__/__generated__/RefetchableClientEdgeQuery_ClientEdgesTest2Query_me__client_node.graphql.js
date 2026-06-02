@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9172cd1c8f829c7dce78fbd22a72f555>>
+ * @generated SignedSource<<a62fd1da6f4bcb72a99bc9a91d743573>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,14 +20,14 @@ import type { ReaderFragment, RefetchableFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RefetchableClientEdgeQuery_ClientEdgesTest2Query_me__client_node$fragmentType: FragmentType;
 type ClientEdgeQuery_ClientEdgesTest2Query_me__client_node$variables = any;
-export type RefetchableClientEdgeQuery_ClientEdgesTest2Query_me__client_node$data = {|
-  +id: string,
-  +name?: ?string,
-  +$fragmentType: RefetchableClientEdgeQuery_ClientEdgesTest2Query_me__client_node$fragmentType,
-|};
+export type RefetchableClientEdgeQuery_ClientEdgesTest2Query_me__client_node$data = {
+  readonly id: string,
+  readonly name?: ?string,
+  readonly $fragmentType: RefetchableClientEdgeQuery_ClientEdgesTest2Query_me__client_node$fragmentType,
+};
 export type RefetchableClientEdgeQuery_ClientEdgesTest2Query_me__client_node$key = {
-  +$data?: RefetchableClientEdgeQuery_ClientEdgesTest2Query_me__client_node$data,
-  +$fragmentSpreads: RefetchableClientEdgeQuery_ClientEdgesTest2Query_me__client_node$fragmentType,
+  readonly $data?: RefetchableClientEdgeQuery_ClientEdgesTest2Query_me__client_node$data,
+  readonly $fragmentSpreads: RefetchableClientEdgeQuery_ClientEdgesTest2Query_me__client_node$fragmentType,
   ...
 };
 */
@@ -78,10 +77,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "eba9115dcb295cf32d8aacc9a815da6b";
+  (node/*:: as any*/).hash = "eba9115dcb295cf32d8aacc9a815da6b";
 }
 
-module.exports = ((node/*: any*/)/*: RefetchableFragment<
+module.exports = ((node/*:: as any*/)/*:: as RefetchableFragment<
   RefetchableClientEdgeQuery_ClientEdgesTest2Query_me__client_node$fragmentType,
   RefetchableClientEdgeQuery_ClientEdgesTest2Query_me__client_node$data,
   ClientEdgeQuery_ClientEdgesTest2Query_me__client_node$variables,

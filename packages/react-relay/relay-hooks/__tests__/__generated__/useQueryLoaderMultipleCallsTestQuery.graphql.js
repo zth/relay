@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<64696a99b746c231aa0bad842eef78ae>>
+ * @generated SignedSource<<86b129db7a9f2381662a3bc392007479>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,18 +17,18 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type useQueryLoaderMultipleCallsTestQuery$variables = {|
+export type useQueryLoaderMultipleCallsTestQuery$variables = {
   id: string,
-|};
-export type useQueryLoaderMultipleCallsTestQuery$data = {|
-  +node: ?{|
-    +id: string,
-  |},
-|};
-export type useQueryLoaderMultipleCallsTestQuery = {|
+};
+export type useQueryLoaderMultipleCallsTestQuery$data = {
+  readonly node: ?{
+    readonly id: string,
+  },
+};
+export type useQueryLoaderMultipleCallsTestQuery = {
   response: useQueryLoaderMultipleCallsTestQuery$data,
   variables: useQueryLoaderMultipleCallsTestQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -56,20 +55,20 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "useQueryLoaderMultipleCallsTestQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/)
+          (v2/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -79,13 +78,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "useQueryLoaderMultipleCallsTestQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -98,7 +97,7 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v2/*: any*/)
+          (v2/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -116,10 +115,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "83dbf5a0d9545095fdb85f7ed368e897";
+  (node/*:: as any*/).hash = "83dbf5a0d9545095fdb85f7ed368e897";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   useQueryLoaderMultipleCallsTestQuery$variables,
   useQueryLoaderMultipleCallsTestQuery$data,
 >*/);

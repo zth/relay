@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<25d516731ff8d6871063f2816fe6257e>>
+ * @generated SignedSource<<e887b9da8ba284710711b7cb475c900e>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,20 +18,20 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { useLazyLoadQueryNodeFastRefreshTestUserFragment$fragmentType } from "./useLazyLoadQueryNodeFastRefreshTestUserFragment.graphql";
-export type useLazyLoadQueryNodeFastRefreshTestUserQuery$variables = {|
+export type useLazyLoadQueryNodeFastRefreshTestUserQuery$variables = {
   id?: ?string,
-|};
-export type useLazyLoadQueryNodeFastRefreshTestUserQuery$data = {|
-  +node: ?{|
-    +id: string,
-    +name: ?string,
-    +$fragmentSpreads: useLazyLoadQueryNodeFastRefreshTestUserFragment$fragmentType,
-  |},
-|};
-export type useLazyLoadQueryNodeFastRefreshTestUserQuery = {|
+};
+export type useLazyLoadQueryNodeFastRefreshTestUserQuery$data = {
+  readonly node: ?{
+    readonly id: string,
+    readonly name: ?string,
+    readonly $fragmentSpreads: useLazyLoadQueryNodeFastRefreshTestUserFragment$fragmentType,
+  },
+};
+export type useLazyLoadQueryNodeFastRefreshTestUserQuery = {
   response: useLazyLoadQueryNodeFastRefreshTestUserQuery$data,
   variables: useLazyLoadQueryNodeFastRefreshTestUserQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -66,21 +65,21 @@ v3 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "useLazyLoadQueryNodeFastRefreshTestUserQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
-          (v3/*: any*/),
+          (v2/*:: as any*/),
+          (v3/*:: as any*/),
           {
             "args": null,
             "kind": "FragmentSpread",
@@ -95,13 +94,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "useLazyLoadQueryNodeFastRefreshTestUserQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -114,8 +113,8 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v2/*: any*/),
-          (v3/*: any*/)
+          (v2/*:: as any*/),
+          (v3/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -133,10 +132,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "bccaba4f51a130fa4e7c4a7c52677c9e";
+  (node/*:: as any*/).hash = "bccaba4f51a130fa4e7c4a7c52677c9e";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   useLazyLoadQueryNodeFastRefreshTestUserQuery$variables,
   useLazyLoadQueryNodeFastRefreshTestUserQuery$data,
 >*/);

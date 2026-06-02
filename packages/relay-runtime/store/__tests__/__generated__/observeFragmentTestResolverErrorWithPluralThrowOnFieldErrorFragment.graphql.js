@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d1ab2ac01257e7fb230cb6e34eb3767b>>
+ * @generated SignedSource<<4b8b04f29eb77dbacb86c5c335e68a42>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,19 +23,19 @@ import {always_throws as userAlwaysThrowsResolverType} from "../resolvers/UserAl
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userAlwaysThrowsResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userAlwaysThrowsResolverType: (
+(userAlwaysThrowsResolverType as (
   rootKey: UserAlwaysThrowsResolver$key,
   args: void,
   context: TestResolverContextType,
 ) => ?string);
 declare export opaque type observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorFragment$fragmentType: FragmentType;
-export type observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorFragment$data = $ReadOnlyArray<{|
-  +always_throws: ?string,
-  +$fragmentType: observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorFragment$fragmentType,
-|}>;
-export type observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorFragment$key = $ReadOnlyArray<{
-  +$data?: observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorFragment$data,
-  +$fragmentSpreads: observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorFragment$fragmentType,
+export type observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorFragment$data = ReadonlyArray<{
+  readonly always_throws: ?string,
+  readonly $fragmentType: observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorFragment$fragmentType,
+}>;
+export type observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorFragment$key = ReadonlyArray<{
+  readonly $data?: observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorFragment$data,
+  readonly $fragmentSpreads: observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorFragment$fragmentType,
   ...
 }>;
 */
@@ -69,10 +68,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "59a6f5ddf61e54affd5726b8cf322183";
+  (node/*:: as any*/).hash = "59a6f5ddf61e54affd5726b8cf322183";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorFragment$fragmentType,
   observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorFragment$data,
 >*/);

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<96f66fcf8bb432a16fd9d81f37fd05cf>>
+ * @generated SignedSource<<abe50631b38596bfeaac6534bd5b84ef>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -23,21 +22,21 @@ import {always_throws_transitively as userAlwaysThrowsTransitivelyResolverType} 
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userAlwaysThrowsTransitivelyResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userAlwaysThrowsTransitivelyResolverType: (
+(userAlwaysThrowsTransitivelyResolverType as (
   rootKey: UserAlwaysThrowsTransitivelyResolver$key,
   args: void,
   context: TestResolverContextType,
 ) => ?string);
-export type RelayReaderResolverTest13Query$variables = {||};
-export type RelayReaderResolverTest13Query$data = {|
-  +me: ?{|
-    +always_throws_transitively: ?string,
-  |},
-|};
-export type RelayReaderResolverTest13Query = {|
+export type RelayReaderResolverTest13Query$variables = {};
+export type RelayReaderResolverTest13Query$data = {
+  readonly me: ?{
+    readonly always_throws_transitively: ?string,
+  },
+};
+export type RelayReaderResolverTest13Query = {
   response: RelayReaderResolverTest13Query$data,
   variables: RelayReaderResolverTest13Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {
@@ -147,10 +146,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "a1ee24e63b8d0d4ad72a9cdebac45fe9";
+  (node/*:: as any*/).hash = "a1ee24e63b8d0d4ad72a9cdebac45fe9";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderResolverTest13Query$variables,
   RelayReaderResolverTest13Query$data,
 >*/);

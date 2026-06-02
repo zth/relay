@@ -9,7 +9,7 @@ use std::collections::HashSet;
 use std::fmt;
 
 use graphql_syntax::OperationKind;
-use rand::seq::SliceRandom;
+use rand::seq::IndexedRandom;
 use relay_transforms::extract_module_name;
 
 #[derive(Clone, Copy, Debug)]
@@ -31,7 +31,7 @@ impl From<&OperationKind> for DefinitionNameSuffix {
 
 impl fmt::Display for DefinitionNameSuffix {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{:?}", self)
+        write!(f, "{self:?}")
     }
 }
 
@@ -43,7 +43,7 @@ pub fn create_default_name(file_name: &str, suffix: DefinitionNameSuffix) -> Opt
     if module_name.ends_with(&suffix.to_string()) {
         Some(module_name)
     } else {
-        Some(format!("{}{}", module_name, suffix))
+        Some(format!("{module_name}{suffix}"))
     }
 }
 
@@ -64,7 +64,7 @@ pub fn create_default_name_with_index(
     let module_name = extract_module_name(file_name)?;
     let mut index = 1;
     loop {
-        let new_name = format!("{}{}{}", module_name, index, suffix);
+        let new_name = format!("{module_name}{index}{suffix}");
         if used_names.contains(&new_name) {
             index += 1;
         } else {
@@ -80,7 +80,7 @@ pub fn create_default_fragment_name_with_index(
     let module_name = extract_module_name(file_name)?;
     let mut index = 1;
     loop {
-        let new_name = format!("{}{}", module_name, index);
+        let new_name = format!("{module_name}{index}");
         if used_names.contains(&new_name) {
             index += 1;
         } else {
@@ -135,7 +135,7 @@ pub fn create_impactful_name(file_name: &str, suffix: DefinitionNameSuffix) -> O
     // This will make your query/fragment more impactful
     let impact = create_impactful_part();
 
-    Some(format!("{}{}{}", module_name, impact, suffix))
+    Some(format!("{module_name}{impact}{suffix}"))
 }
 
 fn create_impactful_part() -> String {
@@ -193,11 +193,11 @@ fn create_impactful_part() -> String {
         "Solution",
     ];
     let adjective: &str = adjectives
-        .choose(&mut rand::thread_rng())
+        .choose(&mut rand::rng())
         .unwrap_or(&adjectives[0]);
-    let noun: &str = nouns.choose(&mut rand::thread_rng()).unwrap_or(&nouns[0]);
+    let noun: &str = nouns.choose(&mut rand::rng()).unwrap_or(&nouns[0]);
 
-    format!("{}{}", adjective, noun)
+    format!("{adjective}{noun}")
 }
 
 #[cfg(not(windows))]

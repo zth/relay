@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<83945f9aceac6841415079eb09d657a7>>
+ * @generated SignedSource<<faaee6004d9307ab61e49f298aedfdc2>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,26 +17,26 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayStoreUtilsTest5Query$variables = {|
+export type RelayStoreUtilsTest5Query$variables = {
   count: number,
   cursor?: ?string,
   dynamicKey: string,
-|};
-export type RelayStoreUtilsTest5Query$data = {|
-  +me: ?{|
-    +friends: ?{|
-      +edges: ?$ReadOnlyArray<?{|
-        +node: ?{|
-          +id: string,
-        |},
-      |}>,
-    |},
-  |},
-|};
-export type RelayStoreUtilsTest5Query = {|
+};
+export type RelayStoreUtilsTest5Query$data = {
+  readonly me: ?{
+    readonly friends: ?{
+      readonly edges: ?ReadonlyArray<?{
+        readonly node: ?{
+          readonly id: string,
+        },
+      }>,
+    },
+  },
+};
+export type RelayStoreUtilsTest5Query = {
   response: RelayStoreUtilsTest5Query$data,
   variables: RelayStoreUtilsTest5Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -94,7 +93,7 @@ v4 = [
         "name": "node",
         "plural": false,
         "selections": [
-          (v3/*: any*/),
+          (v3/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -152,11 +151,11 @@ v5 = [
     "name": "first",
     "variableName": "count"
   },
-  (v2/*: any*/)
+  (v2/*:: as any*/)
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayStoreUtilsTest5Query",
@@ -172,14 +171,14 @@ return {
           {
             "alias": "friends",
             "args": [
-              (v1/*: any*/),
-              (v2/*: any*/)
+              (v1/*:: as any*/),
+              (v2/*:: as any*/)
             ],
             "concreteType": "FriendsConnection",
             "kind": "LinkedField",
             "name": "__UserQuery_friends_connection",
             "plural": false,
-            "selections": (v4/*: any*/),
+            "selections": (v4/*:: as any*/),
             "storageKey": null
           }
         ],
@@ -191,7 +190,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayStoreUtilsTest5Query",
     "selections": [
@@ -205,17 +204,17 @@ return {
         "selections": [
           {
             "alias": null,
-            "args": (v5/*: any*/),
+            "args": (v5/*:: as any*/),
             "concreteType": "FriendsConnection",
             "kind": "LinkedField",
             "name": "friends",
             "plural": false,
-            "selections": (v4/*: any*/),
+            "selections": (v4/*:: as any*/),
             "storageKey": null
           },
           {
             "alias": null,
-            "args": (v5/*: any*/),
+            "args": (v5/*:: as any*/),
             "filters": [
               "orderby"
             ],
@@ -223,9 +222,9 @@ return {
             "key": "UserQuery_friends",
             "kind": "LinkedHandle",
             "name": "friends",
-            "dynamicKey": (v1/*: any*/)
+            "dynamicKey": (v1/*:: as any*/)
           },
-          (v3/*: any*/)
+          (v3/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -255,10 +254,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "e644d9c61083f0eb6074881df797b11f";
+  (node/*:: as any*/).hash = "e644d9c61083f0eb6074881df797b11f";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayStoreUtilsTest5Query$variables,
   RelayStoreUtilsTest5Query$data,
 >*/);

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c9463a06d124d351228dc9319a05059b>>
+ * @generated SignedSource<<4869242d4a86529c9fd3269ab140c492>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,16 +19,16 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayMockEnvironmentWithComponentsTestProminentSolutionFragment$fragmentType: FragmentType;
-export type RelayMockEnvironmentWithComponentsTestProminentSolutionFragment$data = {|
-  +name: ?string,
-  +profile_picture: ?{|
-    +uri: ?string,
-  |},
-  +$fragmentType: RelayMockEnvironmentWithComponentsTestProminentSolutionFragment$fragmentType,
-|};
+export type RelayMockEnvironmentWithComponentsTestProminentSolutionFragment$data = {
+  readonly name: ?string,
+  readonly profile_picture: ?{
+    readonly uri: ?string,
+  },
+  readonly $fragmentType: RelayMockEnvironmentWithComponentsTestProminentSolutionFragment$fragmentType,
+};
 export type RelayMockEnvironmentWithComponentsTestProminentSolutionFragment$key = {
-  +$data?: RelayMockEnvironmentWithComponentsTestProminentSolutionFragment$data,
-  +$fragmentSpreads: RelayMockEnvironmentWithComponentsTestProminentSolutionFragment$fragmentType,
+  readonly $data?: RelayMockEnvironmentWithComponentsTestProminentSolutionFragment$data,
+  readonly $fragmentSpreads: RelayMockEnvironmentWithComponentsTestProminentSolutionFragment$fragmentType,
   ...
 };
 */
@@ -82,10 +81,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "c2b81707cf4c3d10cee30467951ddf99";
+  (node/*:: as any*/).hash = "c2b81707cf4c3d10cee30467951ddf99";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayMockEnvironmentWithComponentsTestProminentSolutionFragment$fragmentType,
   RelayMockEnvironmentWithComponentsTestProminentSolutionFragment$data,
 >*/);

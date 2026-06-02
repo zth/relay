@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3cf7cc03c0c45280c53acf73153e3215>>
+ * @generated SignedSource<<1ee4b2f8bcf693cf168787ea8ad1f1ef>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,19 +18,19 @@
 /*::
 import type { ConcreteRequest, GraphQLSubscription } from 'relay-runtime';
 import type { requestSubscriptionTestExtraFragment$fragmentType } from "./requestSubscriptionTestExtraFragment.graphql";
-export type requestSubscriptionTestConfigCreateSubscription$variables = {||};
-export type requestSubscriptionTestConfigCreateSubscription$data = {|
-  +configCreateSubscribe: ?{|
-    +config: ?{|
-      +name: ?string,
-      +$fragmentSpreads: requestSubscriptionTestExtraFragment$fragmentType,
-    |},
-  |},
-|};
-export type requestSubscriptionTestConfigCreateSubscription = {|
+export type requestSubscriptionTestConfigCreateSubscription$variables = {};
+export type requestSubscriptionTestConfigCreateSubscription$data = {
+  readonly configCreateSubscribe: ?{
+    readonly config: ?{
+      readonly name: ?string,
+      readonly $fragmentSpreads: requestSubscriptionTestExtraFragment$fragmentType,
+    },
+  },
+};
+export type requestSubscriptionTestConfigCreateSubscription = {
   response: requestSubscriptionTestConfigCreateSubscription$data,
   variables: requestSubscriptionTestConfigCreateSubscription$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -65,7 +64,7 @@ return {
             "name": "config",
             "plural": false,
             "selections": [
-              (v0/*: any*/),
+              (v0/*:: as any*/),
               {
                 "args": null,
                 "kind": "FragmentSpread",
@@ -103,7 +102,7 @@ return {
             "name": "config",
             "plural": false,
             "selections": [
-              (v0/*: any*/),
+              (v0/*:: as any*/),
               {
                 "alias": null,
                 "args": null,
@@ -131,10 +130,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "6b2edf520dcf571dde1465c394f0a52e";
+  (node/*:: as any*/).hash = "6b2edf520dcf571dde1465c394f0a52e";
 }
 
-module.exports = ((node/*: any*/)/*: GraphQLSubscription<
+module.exports = ((node/*:: as any*/)/*:: as GraphQLSubscription<
   requestSubscriptionTestConfigCreateSubscription$variables,
   requestSubscriptionTestConfigCreateSubscription$data,
 >*/);

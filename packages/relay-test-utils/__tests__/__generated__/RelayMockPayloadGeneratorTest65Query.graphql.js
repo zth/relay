@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<080a1211044f9ff3052b965393cde290>>
+ * @generated SignedSource<<7c0075c70f182e015332424b6f0e137f>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,22 +18,22 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayMockPayloadGeneratorTest65Fragment$fragmentType } from "./RelayMockPayloadGeneratorTest65Fragment.graphql";
-export type RelayMockPayloadGeneratorTest65Query$variables = {||};
-export type RelayMockPayloadGeneratorTest65Query$data = {|
-  +me: ?{|
-    +friends: ?{|
-      +edges: ?$ReadOnlyArray<?{|
-        +node: ?{|
-          +$fragmentSpreads: RelayMockPayloadGeneratorTest65Fragment$fragmentType,
-        |},
-      |}>,
-    |},
-  |},
-|};
-export type RelayMockPayloadGeneratorTest65Query = {|
+export type RelayMockPayloadGeneratorTest65Query$variables = {};
+export type RelayMockPayloadGeneratorTest65Query$data = {
+  readonly me: ?{
+    readonly friends: ?{
+      readonly edges: ?ReadonlyArray<?{
+        readonly node: ?{
+          readonly $fragmentSpreads: RelayMockPayloadGeneratorTest65Fragment$fragmentType,
+        },
+      }>,
+    },
+  },
+};
+export type RelayMockPayloadGeneratorTest65Query = {
   response: RelayMockPayloadGeneratorTest65Query$data,
   variables: RelayMockPayloadGeneratorTest65Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -140,11 +139,11 @@ return {
                             "kind": "FragmentSpread",
                             "name": "RelayMockPayloadGeneratorTest65Fragment"
                           },
-                          (v0/*: any*/)
+                          (v0/*:: as any*/)
                         ],
                         "storageKey": null
                       },
-                      (v1/*: any*/)
+                      (v1/*:: as any*/)
                     ],
                     "storageKey": null
                   }
@@ -152,7 +151,7 @@ return {
               },
               {
                 "kind": "Defer",
-                "selections": (v2/*: any*/)
+                "selections": (v2/*:: as any*/)
               }
             ],
             "storageKey": null
@@ -180,7 +179,7 @@ return {
         "selections": [
           {
             "alias": null,
-            "args": (v3/*: any*/),
+            "args": (v3/*:: as any*/),
             "concreteType": "FriendsConnection",
             "kind": "LinkedField",
             "name": "friends",
@@ -207,12 +206,12 @@ return {
                         "name": "node",
                         "plural": false,
                         "selections": [
-                          (v4/*: any*/),
-                          (v0/*: any*/)
+                          (v4/*:: as any*/),
+                          (v0/*:: as any*/)
                         ],
                         "storageKey": null
                       },
-                      (v1/*: any*/)
+                      (v1/*:: as any*/)
                     ],
                     "storageKey": null
                   }
@@ -222,21 +221,21 @@ return {
                 "if": null,
                 "kind": "Defer",
                 "label": "RelayMockPayloadGeneratorTest65Query$defer$test-65__friends$pageInfo",
-                "selections": (v2/*: any*/)
+                "selections": (v2/*:: as any*/)
               }
             ],
             "storageKey": "friends(first:10)"
           },
           {
             "alias": null,
-            "args": (v3/*: any*/),
+            "args": (v3/*:: as any*/),
             "filters": null,
             "handle": "connection",
             "key": "test-65__friends",
             "kind": "LinkedHandle",
             "name": "friends"
           },
-          (v4/*: any*/)
+          (v4/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -267,10 +266,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "3fb480ea57361c868a4a0f0cfbc91aab";
+  (node/*:: as any*/).hash = "3fb480ea57361c868a4a0f0cfbc91aab";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayMockPayloadGeneratorTest65Query$variables,
   RelayMockPayloadGeneratorTest65Query$data,
 >*/);

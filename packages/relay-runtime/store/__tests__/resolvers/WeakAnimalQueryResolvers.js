@@ -18,7 +18,7 @@ type IWeakAnimal = RedOctopus | PurpleOctopus;
 /**
  * Defines greeting of a `IWeakAnimal`.
  *
- * @RelayResolver IWeakAnimal.greeting: String
+ * @relayField IWeakAnimal.greeting: String
  */
 function greeting(instance: IWeakAnimal): string {
   return `Hello, ${instance.name}!`;
@@ -27,7 +27,7 @@ function greeting(instance: IWeakAnimal): string {
 /**
  * Returns a single `IWeakAnimal` of a given type.
  *
- * @RelayResolver Query.weak_animal(request: WeakAnimalRequest!): IWeakAnimal
+ * @relayField Query.weak_animal(request: WeakAnimalRequest!): IWeakAnimal
  */
 function weak_animal(args: {
   request: {ofType: string},
@@ -55,10 +55,10 @@ function weak_animal(args: {
 /**
  * Returns a list of `IWeakAnimal` of a given type.
  *
- * @RelayResolver Query.weak_animals(requests: [WeakAnimalRequest!]!): [IWeakAnimal]
+ * @relayField Query.weak_animals(requests: [WeakAnimalRequest!]!): [IWeakAnimal]
  */
 function weak_animals(args: {
-  requests: $ReadOnlyArray<{ofType: string}>,
+  requests: ReadonlyArray<{ofType: string}>,
 }): Array<Query__weak_animal$normalization> {
   return args.requests.map(request => {
     return weak_animal({request});

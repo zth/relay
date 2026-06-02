@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<482934cded369211b5d8c3468652e5d9>>
+ * @generated SignedSource<<566581ab4299d17ed5ced1c21fd41e55>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,18 +18,18 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$fragmentType } from "./RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment.graphql";
-export type RelayModernEnvironmentConnectionAndRequiredTestFeedbackQuery$variables = {|
+export type RelayModernEnvironmentConnectionAndRequiredTestFeedbackQuery$variables = {
   id: string,
-|};
-export type RelayModernEnvironmentConnectionAndRequiredTestFeedbackQuery$data = {|
-  +node: ?{|
-    +$fragmentSpreads: RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$fragmentType,
-  |},
-|};
-export type RelayModernEnvironmentConnectionAndRequiredTestFeedbackQuery = {|
+};
+export type RelayModernEnvironmentConnectionAndRequiredTestFeedbackQuery$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$fragmentType,
+  },
+};
+export type RelayModernEnvironmentConnectionAndRequiredTestFeedbackQuery = {
   response: RelayModernEnvironmentConnectionAndRequiredTestFeedbackQuery$data,
   variables: RelayModernEnvironmentConnectionAndRequiredTestFeedbackQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -76,14 +75,14 @@ v4 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentConnectionAndRequiredTestFeedbackQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -103,26 +102,26 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentConnectionAndRequiredTestFeedbackQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
-          (v3/*: any*/),
+          (v2/*:: as any*/),
+          (v3/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
               {
                 "alias": null,
-                "args": (v4/*: any*/),
+                "args": (v4/*:: as any*/),
                 "concreteType": "CommentsConnection",
                 "kind": "LinkedField",
                 "name": "comments",
@@ -144,8 +143,8 @@ return {
                         "name": "node",
                         "plural": false,
                         "selections": [
-                          (v3/*: any*/),
-                          (v2/*: any*/)
+                          (v3/*:: as any*/),
+                          (v2/*:: as any*/)
                         ],
                         "storageKey": null
                       },
@@ -189,7 +188,7 @@ return {
               },
               {
                 "alias": null,
-                "args": (v4/*: any*/),
+                "args": (v4/*:: as any*/),
                 "filters": [
                   "orderby"
                 ],
@@ -219,10 +218,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "97edae9a405d1bc18c11c249c60d9972";
+  (node/*:: as any*/).hash = "97edae9a405d1bc18c11c249c60d9972";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentConnectionAndRequiredTestFeedbackQuery$variables,
   RelayModernEnvironmentConnectionAndRequiredTestFeedbackQuery$data,
 >*/);

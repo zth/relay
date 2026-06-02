@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5ff1e82833c06194393dc49ed9f99f63>>
+ * @generated SignedSource<<e8d3ba37988d928ed73a0abc82fec5c8>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,20 +20,20 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$fragmentType } from "./RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user.graphql";
-export type RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery$variables = {|
+export type RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery$variables = {
   id: string,
-|};
-export type RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery$data = {|
-  +node: ?{|
-    +__fragmentPropName?: ?string,
-    +__module_component?: ?string,
-    +$fragmentSpreads: RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$fragmentType,
-  |},
-|};
-export type RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery = {|
+};
+export type RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery$data = {
+  readonly node: ?{
+    readonly __fragmentPropName?: ?string,
+    readonly __module_component?: ?string,
+    readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$fragmentType,
+  },
+};
+export type RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery = {
   response: RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery$data,
   variables: RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -70,14 +69,14 @@ v2 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -85,7 +84,7 @@ return {
         "selections": [
           {
             "kind": "Defer",
-            "selections": (v2/*: any*/)
+            "selections": (v2/*:: as any*/)
           }
         ],
         "storageKey": null
@@ -96,13 +95,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -119,7 +118,7 @@ return {
             "if": null,
             "kind": "Defer",
             "label": "RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery$defer$RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user",
-            "selections": (v2/*: any*/)
+            "selections": (v2/*:: as any*/)
           },
           {
             "alias": null,
@@ -145,10 +144,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "e1e0184ec7d619431104e6bada8a3318";
+  (node/*:: as any*/).hash = "e1e0184ec7d619431104e6bada8a3318";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery$variables,
   RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery$data,
 >*/);

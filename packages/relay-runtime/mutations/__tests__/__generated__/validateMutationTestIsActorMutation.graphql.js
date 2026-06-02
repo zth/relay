@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6b55951139d7a4062e53a976d6d3c1f5>>
+ * @generated SignedSource<<ed317a82033fe35c4df2ee3303aefe6d>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,47 +18,47 @@
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
 import type { validateMutationTestActorFragment$fragmentType } from "./validateMutationTestActorFragment.graphql";
-export type ActorNameChangeInput = {|
+export type ActorNameChangeInput = {
   newName?: ?string,
-|};
-export type validateMutationTestIsActorMutation$variables = {|
+};
+export type validateMutationTestIsActorMutation$variables = {
   input: ActorNameChangeInput,
-|};
-export type validateMutationTestIsActorMutation$data = {|
-  +actorNameChange: ?{|
-    +actor: ?{|
-      +$fragmentSpreads: validateMutationTestActorFragment$fragmentType,
-    |},
-  |},
-|};
-export type validateMutationTestIsActorMutation$rawResponse = {|
-  +actorNameChange: ?{|
-    +actor: ?({|
-      +__typename: "Page",
-      +__isActor: "Page",
-      +id: string,
-      +username: ?string,
-    |} | {|
-      +__typename: "User",
-      +__isActor: "User",
-      +birthdate: ?{|
-        +day: ?number,
-        +month: ?number,
-        +year: ?number,
-      |},
-      +id: string,
-    |} | {|
-      +__typename: string,
-      +__isActor: string,
-      +id: string,
-    |}),
-  |},
-|};
-export type validateMutationTestIsActorMutation = {|
+};
+export type validateMutationTestIsActorMutation$data = {
+  readonly actorNameChange: ?{
+    readonly actor: ?{
+      readonly $fragmentSpreads: validateMutationTestActorFragment$fragmentType,
+    },
+  },
+};
+export type validateMutationTestIsActorMutation$rawResponse = {
+  readonly actorNameChange: ?{
+    readonly actor: ?({
+      readonly __typename: "Page",
+      readonly __isActor: "Page",
+      readonly id: string,
+      readonly username: ?string,
+    } | {
+      readonly __typename: "User",
+      readonly __isActor: "User",
+      readonly birthdate: ?{
+        readonly day: ?number,
+        readonly month: ?number,
+        readonly year: ?number,
+      },
+      readonly id: string,
+    } | {
+      readonly __typename: string,
+      readonly __isActor: string,
+      readonly id: string,
+    }),
+  },
+};
+export type validateMutationTestIsActorMutation = {
   rawResponse: validateMutationTestIsActorMutation$rawResponse,
   response: validateMutationTestIsActorMutation$data,
   variables: validateMutationTestIsActorMutation$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -79,14 +78,14 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "validateMutationTestIsActorMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "ActorNameChangePayload",
         "kind": "LinkedField",
         "name": "actorNameChange",
@@ -117,13 +116,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "validateMutationTestIsActorMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "ActorNameChangePayload",
         "kind": "LinkedField",
         "name": "actorNameChange",
@@ -228,10 +227,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "201e5bccf88df1d121c0eaf414a5a85e";
+  (node/*:: as any*/).hash = "201e5bccf88df1d121c0eaf414a5a85e";
 }
 
-module.exports = ((node/*: any*/)/*: Mutation<
+module.exports = ((node/*:: as any*/)/*:: as Mutation<
   validateMutationTestIsActorMutation$variables,
   validateMutationTestIsActorMutation$data,
   validateMutationTestIsActorMutation$rawResponse,

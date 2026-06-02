@@ -120,4 +120,13 @@ impl WalkDirFileSource {
 
         Ok(compiler_state)
     }
+
+    /// Query all files in the configured roots.
+    /// This is used by the test file source subscription for rescanning.
+    pub fn query_files(&self) -> Result<WalkDirFileSourceResult> {
+        Ok(WalkDirFileSourceResult {
+            files: self.find_files(),
+            resolved_root: self.config.root_dir.clone(),
+        })
+    }
 }

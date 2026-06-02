@@ -33,12 +33,12 @@ const {observeFragment} = require('./observeFragmentExperimental');
  * you might choose to @defer a fragment that you only need to access inside an
  * event handler and then await its value inside the handler if/when it is triggered.
  */
-async function waitForFragmentData<TFragmentType: FragmentType, TData>(
+async function waitForFragmentData<TFragmentType extends FragmentType, TData>(
   environment: IEnvironment,
   fragment: Fragment<TFragmentType, TData>,
   fragmentRef:
     | HasSpread<TFragmentType>
-    | $ReadOnlyArray<HasSpread<TFragmentType>>,
+    | ReadonlyArray<HasSpread<TFragmentType>>,
 ): Promise<TData> {
   let subscription: ?Subscription;
 
@@ -60,7 +60,7 @@ async function waitForFragmentData<TFragmentType: FragmentType, TData>(
     });
     subscription?.unsubscribe();
     return data;
-  } catch (e: mixed) {
+  } catch (e: unknown) {
     subscription?.unsubscribe();
     throw e;
   }

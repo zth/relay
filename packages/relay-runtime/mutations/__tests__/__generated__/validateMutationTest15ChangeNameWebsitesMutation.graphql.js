@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<145903ecbc135e42adcd993597e5afc5>>
+ * @generated SignedSource<<34867d61eef5e2a85a8c8430c873419b>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,23 +17,23 @@
 
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
-export type ActorNameChangeInput = {|
+export type ActorNameChangeInput = {
   newName?: ?string,
-|};
-export type validateMutationTest15ChangeNameWebsitesMutation$variables = {|
+};
+export type validateMutationTest15ChangeNameWebsitesMutation$variables = {
   input: ActorNameChangeInput,
-|};
-export type validateMutationTest15ChangeNameWebsitesMutation$data = {|
-  +actorNameChange: ?{|
-    +actor: ?{|
-      +websites: ?$ReadOnlyArray<?string>,
-    |},
-  |},
-|};
-export type validateMutationTest15ChangeNameWebsitesMutation = {|
+};
+export type validateMutationTest15ChangeNameWebsitesMutation$data = {
+  readonly actorNameChange: ?{
+    readonly actor: ?{
+      readonly websites: ?ReadonlyArray<?string>,
+    },
+  },
+};
+export type validateMutationTest15ChangeNameWebsitesMutation = {
   response: validateMutationTest15ChangeNameWebsitesMutation$data,
   variables: validateMutationTest15ChangeNameWebsitesMutation$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -61,14 +60,14 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "validateMutationTest15ChangeNameWebsitesMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "ActorNameChangePayload",
         "kind": "LinkedField",
         "name": "actorNameChange",
@@ -82,7 +81,7 @@ return {
             "name": "actor",
             "plural": false,
             "selections": [
-              (v2/*: any*/)
+              (v2/*:: as any*/)
             ],
             "storageKey": null
           }
@@ -95,13 +94,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "validateMutationTest15ChangeNameWebsitesMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "ActorNameChangePayload",
         "kind": "LinkedField",
         "name": "actorNameChange",
@@ -122,7 +121,7 @@ return {
                 "name": "__typename",
                 "storageKey": null
               },
-              (v2/*: any*/),
+              (v2/*:: as any*/),
               {
                 "alias": null,
                 "args": null,
@@ -150,10 +149,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "a8a63aaea0cd5e20ff4d743c04102462";
+  (node/*:: as any*/).hash = "a8a63aaea0cd5e20ff4d743c04102462";
 }
 
-module.exports = ((node/*: any*/)/*: Mutation<
+module.exports = ((node/*:: as any*/)/*:: as Mutation<
   validateMutationTest15ChangeNameWebsitesMutation$variables,
   validateMutationTest15ChangeNameWebsitesMutation$data,
 >*/);

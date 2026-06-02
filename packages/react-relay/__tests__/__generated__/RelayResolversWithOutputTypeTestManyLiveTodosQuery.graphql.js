@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<cc2831553102ef56b482e4d17a3ff512>>
+ * @generated SignedSource<<329b05edcc7b53b8a81ce3bf697e71f6>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,21 +23,21 @@ import {many_live_todos as queryManyLiveTodosResolverType} from "../../../relay-
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryManyLiveTodosResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryManyLiveTodosResolverType: (
+(queryManyLiveTodosResolverType as (
   args: void,
   context: TestResolverContextType,
-) => LiveState<?$ReadOnlyArray<?Query__many_live_todos$normalization>>);
+) => LiveState<?ReadonlyArray<?Query__many_live_todos$normalization>>);
 import type { Query__many_live_todos$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__many_live_todos$normalization.graphql";
-export type RelayResolversWithOutputTypeTestManyLiveTodosQuery$variables = {||};
-export type RelayResolversWithOutputTypeTestManyLiveTodosQuery$data = {|
-  +many_live_todos: ?$ReadOnlyArray<?{|
-    +$fragmentSpreads: RelayResolversWithOutputTypeTestFragment$fragmentType,
-  |}>,
-|};
-export type RelayResolversWithOutputTypeTestManyLiveTodosQuery = {|
+export type RelayResolversWithOutputTypeTestManyLiveTodosQuery$variables = {};
+export type RelayResolversWithOutputTypeTestManyLiveTodosQuery$data = {
+  readonly many_live_todos: ?ReadonlyArray<?{
+    readonly $fragmentSpreads: RelayResolversWithOutputTypeTestFragment$fragmentType,
+  }>,
+};
+export type RelayResolversWithOutputTypeTestManyLiveTodosQuery = {
   response: RelayResolversWithOutputTypeTestManyLiveTodosQuery$data,
   variables: RelayResolversWithOutputTypeTestManyLiveTodosQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){
@@ -83,6 +82,7 @@ return {
         "kind": "ClientEdgeToClientObject",
         "concreteType": "Todo",
         "modelResolvers": null,
+        "serverObjectOperations": null,
         "backingField": {
           "alias": null,
           "args": null,
@@ -148,7 +148,7 @@ return {
               "backingField": {
                 "name": "text",
                 "args": null,
-                "fragment": (v0/*: any*/),
+                "fragment": (v0/*:: as any*/),
                 "kind": "RelayResolver",
                 "storageKey": null,
                 "isOutputType": true
@@ -225,7 +225,7 @@ return {
             {
               "name": "complete",
               "args": null,
-              "fragment": (v0/*: any*/),
+              "fragment": (v0/*:: as any*/),
               "kind": "RelayResolver",
               "storageKey": null,
               "isOutputType": true
@@ -248,10 +248,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "f42ffca5f81738e839984490939acc31";
+  (node/*:: as any*/).hash = "f42ffca5f81738e839984490939acc31";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   RelayResolversWithOutputTypeTestManyLiveTodosQuery$variables,
   RelayResolversWithOutputTypeTestManyLiveTodosQuery$data,
 >*/);

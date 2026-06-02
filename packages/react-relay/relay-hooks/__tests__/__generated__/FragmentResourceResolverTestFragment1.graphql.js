@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<668fccd4d0035a3fcbae78463b67958b>>
+ * @generated SignedSource<<3e263bd5b46a6a42e81e7d02db06ddc1>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,19 +23,19 @@ import {always_throws as userAlwaysThrowsResolverType} from "../../../../relay-r
 import type { TestResolverContextType } from "../../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userAlwaysThrowsResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userAlwaysThrowsResolverType: (
+(userAlwaysThrowsResolverType as (
   rootKey: UserAlwaysThrowsResolver$key,
   args: void,
   context: TestResolverContextType,
 ) => ?string);
 declare export opaque type FragmentResourceResolverTestFragment1$fragmentType: FragmentType;
-export type FragmentResourceResolverTestFragment1$data = {|
-  +always_throws: ?string,
-  +$fragmentType: FragmentResourceResolverTestFragment1$fragmentType,
-|};
+export type FragmentResourceResolverTestFragment1$data = {
+  readonly always_throws: ?string,
+  readonly $fragmentType: FragmentResourceResolverTestFragment1$fragmentType,
+};
 export type FragmentResourceResolverTestFragment1$key = {
-  +$data?: FragmentResourceResolverTestFragment1$data,
-  +$fragmentSpreads: FragmentResourceResolverTestFragment1$fragmentType,
+  readonly $data?: FragmentResourceResolverTestFragment1$data,
+  readonly $fragmentSpreads: FragmentResourceResolverTestFragment1$fragmentType,
   ...
 };
 */
@@ -66,10 +65,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "26b091667810d9dd43454b017d58fd0c";
+  (node/*:: as any*/).hash = "26b091667810d9dd43454b017d58fd0c";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   FragmentResourceResolverTestFragment1$fragmentType,
   FragmentResourceResolverTestFragment1$data,
 >*/);

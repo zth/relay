@@ -20,14 +20,14 @@ const {graphql} = require('relay-runtime');
 const {readFragment} = require('relay-runtime/store/ResolverFragments');
 
 /**
- * @RelayResolver Query.all_astrological_signs: [AstrologicalSign!]
+ * @relayField Query.all_astrological_signs: [AstrologicalSign!]
  * @rootFragment QueryAllAstrologicalSignsResolver
  *
  * A client edge to a plural client object
  */
 function all_astrological_signs(
   rootKey: QueryAllAstrologicalSignsResolver$key,
-): $ReadOnlyArray<ConcreteClientEdgeResolverReturnType<AstrologicalSignID>> {
+): ReadonlyArray<ConcreteClientEdgeResolverReturnType<AstrologicalSignID>> {
   readFragment(
     graphql`
       fragment QueryAllAstrologicalSignsResolver on Query {

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<764aecb8d549d4ed946140c6da3f60e0>>
+ * @generated SignedSource<<1bd6452eca2fdf784baf1d68ff9b0059>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,16 +17,16 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayPublishQueueTest6Query$variables = {||};
-export type RelayPublishQueueTest6Query$data = {|
-  +me: ?{|
-    +name: ?string,
-  |},
-|};
-export type RelayPublishQueueTest6Query = {|
+export type RelayPublishQueueTest6Query$variables = {};
+export type RelayPublishQueueTest6Query$data = {
+  readonly me: ?{
+    readonly name: ?string,
+  },
+};
+export type RelayPublishQueueTest6Query = {
   response: RelayPublishQueueTest6Query$data,
   variables: RelayPublishQueueTest6Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -53,7 +52,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/)
+          (v0/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -75,7 +74,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
+          (v0/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -100,10 +99,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "995ca39ae8c20ede1b1bab43af698550";
+  (node/*:: as any*/).hash = "995ca39ae8c20ede1b1bab43af698550";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayPublishQueueTest6Query$variables,
   RelayPublishQueueTest6Query$data,
 >*/);

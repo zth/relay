@@ -24,10 +24,10 @@ path = "tests/print_schema_test.rs"
 fnv = "1.0"
 intern = { path = "../intern" }
 itertools = "0.14.0"
-rayon = "1.9.0"
+rayon = "1.11.0"
 schema = { path = "../schema" }
 
 [dev-dependencies]
-diff = "0.1"
+diff = "0.1.13"
 fixture-tests = { path = "../fixture-tests" }
-tokio = { version = "1.46.1", features = ["full", "test-util", "tracing"] }
+tokio = { version = "1.52.3", features = ["full", "test-util", "tracing"] }

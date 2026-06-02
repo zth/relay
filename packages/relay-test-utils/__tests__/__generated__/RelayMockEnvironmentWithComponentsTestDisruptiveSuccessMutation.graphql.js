@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a3c90da813da886f475e0c533eaebf26>>
+ * @generated SignedSource<<9debd81e422f17a2ba48503ce15dfc11>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,24 +17,24 @@
 
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
-export type FeedbackLikeInput = {|
+export type FeedbackLikeInput = {
   feedbackId?: ?string,
-|};
-export type RelayMockEnvironmentWithComponentsTestDisruptiveSuccessMutation$variables = {|
+};
+export type RelayMockEnvironmentWithComponentsTestDisruptiveSuccessMutation$variables = {
   input?: ?FeedbackLikeInput,
-|};
-export type RelayMockEnvironmentWithComponentsTestDisruptiveSuccessMutation$data = {|
-  +feedbackLike: ?{|
-    +feedback: ?{|
-      +doesViewerLike: ?boolean,
-      +id: string,
-    |},
-  |},
-|};
-export type RelayMockEnvironmentWithComponentsTestDisruptiveSuccessMutation = {|
+};
+export type RelayMockEnvironmentWithComponentsTestDisruptiveSuccessMutation$data = {
+  readonly feedbackLike: ?{
+    readonly feedback: ?{
+      readonly doesViewerLike: ?boolean,
+      readonly id: string,
+    },
+  },
+};
+export type RelayMockEnvironmentWithComponentsTestDisruptiveSuccessMutation = {
   response: RelayMockEnvironmentWithComponentsTestDisruptiveSuccessMutation$data,
   variables: RelayMockEnvironmentWithComponentsTestDisruptiveSuccessMutation$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -92,20 +91,20 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayMockEnvironmentWithComponentsTestDisruptiveSuccessMutation",
-    "selections": (v1/*: any*/),
+    "selections": (v1/*:: as any*/),
     "type": "Mutation",
     "abstractKey": null
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayMockEnvironmentWithComponentsTestDisruptiveSuccessMutation",
-    "selections": (v1/*: any*/)
+    "selections": (v1/*:: as any*/)
   },
   "params": {
     "cacheID": "e784d3cd9b2e3a60a06d2baae1fd1468",
@@ -119,10 +118,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "0673467bdc3067b482da4f9b0f971cf1";
+  (node/*:: as any*/).hash = "0673467bdc3067b482da4f9b0f971cf1";
 }
 
-module.exports = ((node/*: any*/)/*: Mutation<
+module.exports = ((node/*:: as any*/)/*:: as Mutation<
   RelayMockEnvironmentWithComponentsTestDisruptiveSuccessMutation$variables,
   RelayMockEnvironmentWithComponentsTestDisruptiveSuccessMutation$data,
 >*/);

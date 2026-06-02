@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7fdcdf176c19910c82d6e84e2c3613a1>>
+ * @generated SignedSource<<420b8783150c6f2fe6e0776590ddf660>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,18 +19,18 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1$fragmentType: FragmentType;
-export type RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1$data = {|
-  +id: string,
-  +name?: ?string,
-  +profilePicture: ?{|
-    +uri: ?string,
-  |},
-  +username?: ?string,
-  +$fragmentType: RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1$fragmentType,
-|};
+export type RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1$data = {
+  readonly id: string,
+  readonly name?: ?string,
+  readonly profilePicture: ?{
+    readonly uri: ?string,
+  },
+  readonly username?: ?string,
+  readonly $fragmentType: RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1$fragmentType,
+};
 export type RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1$key = {
-  +$data?: RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1$data,
-  +$fragmentSpreads: RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1$fragmentType,
+  readonly $data?: RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1$fragmentType,
   ...
 };
 */
@@ -43,8 +42,8 @@ var v0 = {
 };
 return {
   "argumentDefinitions": [
-    (v0/*: any*/),
-    (v0/*: any*/)
+    (v0/*:: as any*/),
+    (v0/*:: as any*/)
   ],
   "kind": "Fragment",
   "metadata": null,
@@ -110,10 +109,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "a8cd2ff5195aca1bd249ef38ba569f3f";
+  (node/*:: as any*/).hash = "a8cd2ff5195aca1bd249ef38ba569f3f";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1$fragmentType,
   RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1$data,
 >*/);

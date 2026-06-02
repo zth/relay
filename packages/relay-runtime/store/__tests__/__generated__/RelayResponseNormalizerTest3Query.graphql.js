@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f63d62f172d9fb2dffab82d25428a1ed>>
+ * @generated SignedSource<<c8c045c3692a32b797e498d17283241d>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,33 +17,33 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayResponseNormalizerTest3Query$variables = {|
+export type RelayResponseNormalizerTest3Query$variables = {
   id: string,
   isViewerFriend?: ?boolean,
-  orderBy?: ?$ReadOnlyArray<?string>,
-|};
-export type RelayResponseNormalizerTest3Query$data = {|
-  +node: ?{|
-    +__typename: string,
-    +friends?: ?{|
-      +edges: ?$ReadOnlyArray<?{|
-        +cursor: ?string,
-        +node: ?{|
-          +id: string,
-        |},
-      |}>,
-      +pageInfo: ?{|
-        +endCursor: ?string,
-        +hasNextPage: ?boolean,
-      |},
-    |},
-    +id: string,
-  |},
-|};
-export type RelayResponseNormalizerTest3Query = {|
+  orderBy?: ?ReadonlyArray<?string>,
+};
+export type RelayResponseNormalizerTest3Query$data = {
+  readonly node: ?{
+    readonly __typename: string,
+    readonly friends?: ?{
+      readonly edges: ?ReadonlyArray<?{
+        readonly cursor: ?string,
+        readonly node: ?{
+          readonly id: string,
+        },
+      }>,
+      readonly pageInfo: ?{
+        readonly endCursor: ?string,
+        readonly hasNextPage: ?boolean,
+      },
+    },
+    readonly id: string,
+  },
+};
+export type RelayResponseNormalizerTest3Query = {
   response: RelayResponseNormalizerTest3Query$data,
   variables: RelayResponseNormalizerTest3Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -118,7 +117,7 @@ v8 = [
         "name": "node",
         "plural": false,
         "selections": [
-          (v4/*: any*/)
+          (v4/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -157,15 +156,15 @@ v9 = [
     "name": "first",
     "value": 1
   },
-  (v6/*: any*/),
-  (v7/*: any*/)
+  (v6/*:: as any*/),
+  (v7/*:: as any*/)
 ];
 return {
   "fragment": {
     "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/),
-      (v2/*: any*/)
+      (v0/*:: as any*/),
+      (v1/*:: as any*/),
+      (v2/*:: as any*/)
     ],
     "kind": "Fragment",
     "metadata": null,
@@ -173,28 +172,28 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v3/*: any*/),
+        "args": (v3/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v4/*: any*/),
-          (v5/*: any*/),
+          (v4/*:: as any*/),
+          (v5/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
               {
                 "alias": "friends",
                 "args": [
-                  (v6/*: any*/),
-                  (v7/*: any*/)
+                  (v6/*:: as any*/),
+                  (v7/*:: as any*/)
                 ],
                 "concreteType": "FriendsConnection",
                 "kind": "LinkedField",
                 "name": "__UserFriends_friends_bestFriends",
                 "plural": false,
-                "selections": (v8/*: any*/),
+                "selections": (v8/*:: as any*/),
                 "storageKey": null
               }
             ],
@@ -211,39 +210,39 @@ return {
   "kind": "Request",
   "operation": {
     "argumentDefinitions": [
-      (v0/*: any*/),
-      (v2/*: any*/),
-      (v1/*: any*/)
+      (v0/*:: as any*/),
+      (v2/*:: as any*/),
+      (v1/*:: as any*/)
     ],
     "kind": "Operation",
     "name": "RelayResponseNormalizerTest3Query",
     "selections": [
       {
         "alias": null,
-        "args": (v3/*: any*/),
+        "args": (v3/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v4/*: any*/),
-          (v5/*: any*/),
+          (v4/*:: as any*/),
+          (v5/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
               {
                 "alias": null,
-                "args": (v9/*: any*/),
+                "args": (v9/*:: as any*/),
                 "concreteType": "FriendsConnection",
                 "kind": "LinkedField",
                 "name": "friends",
                 "plural": false,
-                "selections": (v8/*: any*/),
+                "selections": (v8/*:: as any*/),
                 "storageKey": null
               },
               {
                 "alias": null,
-                "args": (v9/*: any*/),
+                "args": (v9/*:: as any*/),
                 "filters": [
                   "orderby",
                   "isViewerFriend"
@@ -274,10 +273,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "551218ce1d354f656b656ac1af62fe4d";
+  (node/*:: as any*/).hash = "551218ce1d354f656b656ac1af62fe4d";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayResponseNormalizerTest3Query$variables,
   RelayResponseNormalizerTest3Query$data,
 >*/);

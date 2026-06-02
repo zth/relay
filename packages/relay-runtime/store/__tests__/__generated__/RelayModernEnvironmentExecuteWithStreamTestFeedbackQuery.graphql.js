@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<82b783bb63411bd4c967ef938e0e55a6>>
+ * @generated SignedSource<<942aa28c473661fda934e3cdf6f2e103>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,19 +18,19 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$fragmentType } from "./RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment.graphql";
-export type RelayModernEnvironmentExecuteWithStreamTestFeedbackQuery$variables = {|
+export type RelayModernEnvironmentExecuteWithStreamTestFeedbackQuery$variables = {
   enableStream: boolean,
   id: string,
-|};
-export type RelayModernEnvironmentExecuteWithStreamTestFeedbackQuery$data = {|
-  +node: ?{|
-    +$fragmentSpreads: RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$fragmentType,
-  |},
-|};
-export type RelayModernEnvironmentExecuteWithStreamTestFeedbackQuery = {|
+};
+export type RelayModernEnvironmentExecuteWithStreamTestFeedbackQuery$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$fragmentType,
+  },
+};
+export type RelayModernEnvironmentExecuteWithStreamTestFeedbackQuery = {
   response: RelayModernEnvironmentExecuteWithStreamTestFeedbackQuery$data,
   variables: RelayModernEnvironmentExecuteWithStreamTestFeedbackQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -69,8 +68,8 @@ v4 = {
 return {
   "fragment": {
     "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/)
+      (v0/*:: as any*/),
+      (v1/*:: as any*/)
     ],
     "kind": "Fragment",
     "metadata": null,
@@ -78,7 +77,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v2/*: any*/),
+        "args": (v2/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -99,22 +98,22 @@ return {
   "kind": "Request",
   "operation": {
     "argumentDefinitions": [
-      (v1/*: any*/),
-      (v0/*: any*/)
+      (v1/*:: as any*/),
+      (v0/*:: as any*/)
     ],
     "kind": "Operation",
     "name": "RelayModernEnvironmentExecuteWithStreamTestFeedbackQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v2/*: any*/),
+        "args": (v2/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v3/*: any*/),
-          (v4/*: any*/),
+          (v3/*:: as any*/),
+          (v4/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
@@ -131,7 +130,7 @@ return {
                     "name": "actors",
                     "plural": true,
                     "selections": [
-                      (v3/*: any*/),
+                      (v3/*:: as any*/),
                       {
                         "alias": null,
                         "args": null,
@@ -148,7 +147,7 @@ return {
                         "kind": "ScalarHandle",
                         "name": "name"
                       },
-                      (v4/*: any*/)
+                      (v4/*:: as any*/)
                     ],
                     "storageKey": null
                   }
@@ -175,10 +174,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "f5dbd4f27aae2c8c13d4b0978ad92446";
+  (node/*:: as any*/).hash = "f5dbd4f27aae2c8c13d4b0978ad92446";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentExecuteWithStreamTestFeedbackQuery$variables,
   RelayModernEnvironmentExecuteWithStreamTestFeedbackQuery$data,
 >*/);

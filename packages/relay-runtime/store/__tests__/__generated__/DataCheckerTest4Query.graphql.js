@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<63df037fd0f87eebae863494a08cb57f>>
+ * @generated SignedSource<<d1d9d2a465b2aa69d94d87cf28603829>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,18 +20,18 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { DataCheckerTest4Fragment$fragmentType } from "./DataCheckerTest4Fragment.graphql";
-export type DataCheckerTest4Query$variables = {|
+export type DataCheckerTest4Query$variables = {
   id: string,
-|};
-export type DataCheckerTest4Query$data = {|
-  +node: ?{|
-    +$fragmentSpreads: DataCheckerTest4Fragment$fragmentType,
-  |},
-|};
-export type DataCheckerTest4Query = {|
+};
+export type DataCheckerTest4Query$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: DataCheckerTest4Fragment$fragmentType,
+  },
+};
+export type DataCheckerTest4Query = {
   response: DataCheckerTest4Query$data,
   variables: DataCheckerTest4Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -59,14 +58,14 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "DataCheckerTest4Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -86,19 +85,19 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "DataCheckerTest4Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -123,7 +122,7 @@ return {
                 "name": "nameRenderer",
                 "plural": false,
                 "selections": [
-                  (v2/*: any*/),
+                  (v2/*:: as any*/),
                   {
                     "kind": "InlineFragment",
                     "selections": [
@@ -176,10 +175,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "15016c70d2233156a2b3cfba19ebded8";
+  (node/*:: as any*/).hash = "15016c70d2233156a2b3cfba19ebded8";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   DataCheckerTest4Query$variables,
   DataCheckerTest4Query$data,
 >*/);

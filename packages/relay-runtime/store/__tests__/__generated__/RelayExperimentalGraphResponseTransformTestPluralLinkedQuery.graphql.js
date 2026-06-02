@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<adc1096490036cbe41a91d3a0bdba9f0>>
+ * @generated SignedSource<<63eec8d0b11edeedd0a74bbf4ca8c6b5>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,18 +17,18 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayExperimentalGraphResponseTransformTestPluralLinkedQuery$variables = {||};
-export type RelayExperimentalGraphResponseTransformTestPluralLinkedQuery$data = {|
-  +me: ?{|
-    +allPhones: ?$ReadOnlyArray<?{|
-      +isVerified: ?boolean,
-    |}>,
-  |},
-|};
-export type RelayExperimentalGraphResponseTransformTestPluralLinkedQuery = {|
+export type RelayExperimentalGraphResponseTransformTestPluralLinkedQuery$variables = {};
+export type RelayExperimentalGraphResponseTransformTestPluralLinkedQuery$data = {
+  readonly me: ?{
+    readonly allPhones: ?ReadonlyArray<?{
+      readonly isVerified: ?boolean,
+    }>,
+  },
+};
+export type RelayExperimentalGraphResponseTransformTestPluralLinkedQuery = {
   response: RelayExperimentalGraphResponseTransformTestPluralLinkedQuery$data,
   variables: RelayExperimentalGraphResponseTransformTestPluralLinkedQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -66,7 +65,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/)
+          (v0/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -88,7 +87,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
+          (v0/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -113,10 +112,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "ec4c6e2929cb42544002f6387b010d31";
+  (node/*:: as any*/).hash = "ec4c6e2929cb42544002f6387b010d31";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayExperimentalGraphResponseTransformTestPluralLinkedQuery$variables,
   RelayExperimentalGraphResponseTransformTestPluralLinkedQuery$data,
 >*/);

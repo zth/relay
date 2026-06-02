@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<34539f71f610e0639e8dd0eeee091643>>
+ * @generated SignedSource<<aa6816bafcf3be6ea3f86a0d68f30a43>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,20 +18,20 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { QueryResourceTest6Fragment$fragmentType } from "./QueryResourceTest6Fragment.graphql";
-export type QueryResourceTest8Query$variables = {|
+export type QueryResourceTest8Query$variables = {
   id: string,
-|};
-export type QueryResourceTest8Query$data = {|
-  +node: ?{|
-    +__typename: string,
-    +id: string,
-    +$fragmentSpreads: QueryResourceTest6Fragment$fragmentType,
-  |},
-|};
-export type QueryResourceTest8Query = {|
+};
+export type QueryResourceTest8Query$data = {
+  readonly node: ?{
+    readonly __typename: string,
+    readonly id: string,
+    readonly $fragmentSpreads: QueryResourceTest6Fragment$fragmentType,
+  },
+};
+export type QueryResourceTest8Query = {
   response: QueryResourceTest8Query$data,
   variables: QueryResourceTest8Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -66,21 +65,21 @@ v3 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "QueryResourceTest8Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
-          (v3/*: any*/),
+          (v2/*:: as any*/),
+          (v3/*:: as any*/),
           {
             "kind": "Defer",
             "selections": [
@@ -100,20 +99,20 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "QueryResourceTest8Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
-          (v3/*: any*/),
+          (v2/*:: as any*/),
+          (v3/*:: as any*/),
           {
             "if": null,
             "kind": "Defer",
@@ -122,7 +121,7 @@ return {
               {
                 "kind": "InlineFragment",
                 "selections": [
-                  (v3/*: any*/),
+                  (v3/*:: as any*/),
                   {
                     "alias": null,
                     "args": null,
@@ -153,10 +152,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "5e0f54bce33d434141c59d68d5c52013";
+  (node/*:: as any*/).hash = "5e0f54bce33d434141c59d68d5c52013";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   QueryResourceTest8Query$variables,
   QueryResourceTest8Query$data,
 >*/);

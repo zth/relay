@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6e1039059f1c88ea8e6e5c3c64cbec32>>
+ * @generated SignedSource<<733778bac98acd2441c7b6cc05a2240d>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,20 +19,20 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernSelectorTestUserFragment$fragmentType } from "./RelayModernSelectorTestUserFragment.graphql";
 import type { RelayModernSelectorTestUsersFragment$fragmentType } from "./RelayModernSelectorTestUsersFragment.graphql";
-export type RelayModernSelectorTestUserQuery$variables = {|
+export type RelayModernSelectorTestUserQuery$variables = {
   cond: boolean,
   id: string,
-  size?: ?$ReadOnlyArray<?number>,
-|};
-export type RelayModernSelectorTestUserQuery$data = {|
-  +node: ?{|
-    +$fragmentSpreads: RelayModernSelectorTestUserFragment$fragmentType & RelayModernSelectorTestUsersFragment$fragmentType,
-  |},
-|};
-export type RelayModernSelectorTestUserQuery = {|
+  size?: ?ReadonlyArray<?number>,
+};
+export type RelayModernSelectorTestUserQuery$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: RelayModernSelectorTestUserFragment$fragmentType & RelayModernSelectorTestUsersFragment$fragmentType,
+  },
+};
+export type RelayModernSelectorTestUserQuery = {
   response: RelayModernSelectorTestUserQuery$data,
   variables: RelayModernSelectorTestUserQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -62,9 +61,9 @@ v3 = [
 return {
   "fragment": {
     "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/),
-      (v2/*: any*/)
+      (v0/*:: as any*/),
+      (v1/*:: as any*/),
+      (v2/*:: as any*/)
     ],
     "kind": "Fragment",
     "metadata": null,
@@ -72,7 +71,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v3/*: any*/),
+        "args": (v3/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -98,16 +97,16 @@ return {
   "kind": "Request",
   "operation": {
     "argumentDefinitions": [
-      (v1/*: any*/),
-      (v2/*: any*/),
-      (v0/*: any*/)
+      (v1/*:: as any*/),
+      (v2/*:: as any*/),
+      (v0/*:: as any*/)
     ],
     "kind": "Operation",
     "name": "RelayModernSelectorTestUserQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v3/*: any*/),
+        "args": (v3/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -189,10 +188,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "56dee97a569ea3090f0026337129c6e2";
+  (node/*:: as any*/).hash = "56dee97a569ea3090f0026337129c6e2";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernSelectorTestUserQuery$variables,
   RelayModernSelectorTestUserQuery$data,
 >*/);

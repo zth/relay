@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1bf677c2dce1ab8d280c6c13a30fdc6c>>
+ * @generated SignedSource<<f457228d77cd8e2c1ccb5214e226ec1e>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,22 +17,22 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayModernEnvironmentCheckWithGlobalInvalidationTest1ParentQuery$variables = {|
-  size: $ReadOnlyArray<?number>,
-|};
-export type RelayModernEnvironmentCheckWithGlobalInvalidationTest1ParentQuery$data = {|
-  +me: ?{|
-    +id: string,
-    +name: ?string,
-    +profilePicture: ?{|
-      +uri: ?string,
-    |},
-  |},
-|};
-export type RelayModernEnvironmentCheckWithGlobalInvalidationTest1ParentQuery = {|
+export type RelayModernEnvironmentCheckWithGlobalInvalidationTest1ParentQuery$variables = {
+  size: ReadonlyArray<?number>,
+};
+export type RelayModernEnvironmentCheckWithGlobalInvalidationTest1ParentQuery$data = {
+  readonly me: ?{
+    readonly id: string,
+    readonly name: ?string,
+    readonly profilePicture: ?{
+      readonly uri: ?string,
+    },
+  },
+};
+export type RelayModernEnvironmentCheckWithGlobalInvalidationTest1ParentQuery = {
   response: RelayModernEnvironmentCheckWithGlobalInvalidationTest1ParentQuery$data,
   variables: RelayModernEnvironmentCheckWithGlobalInvalidationTest1ParentQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -97,20 +96,20 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentCheckWithGlobalInvalidationTest1ParentQuery",
-    "selections": (v1/*: any*/),
+    "selections": (v1/*:: as any*/),
     "type": "Query",
     "abstractKey": null
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentCheckWithGlobalInvalidationTest1ParentQuery",
-    "selections": (v1/*: any*/)
+    "selections": (v1/*:: as any*/)
   },
   "params": {
     "cacheID": "30e182693f9e70cc1484744d0c4dd3ba",
@@ -124,10 +123,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "6b6025e9bbd2d6277cea03a606e6b573";
+  (node/*:: as any*/).hash = "6b6025e9bbd2d6277cea03a606e6b573";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentCheckWithGlobalInvalidationTest1ParentQuery$variables,
   RelayModernEnvironmentCheckWithGlobalInvalidationTest1ParentQuery$data,
 >*/);

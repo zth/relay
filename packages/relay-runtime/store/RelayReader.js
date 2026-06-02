@@ -37,6 +37,7 @@ import type {
   DataIDSet,
   FieldError,
   FieldErrors,
+  LogFunction,
   MissingClientEdgeRequestInfo,
   Record,
   RecordSource,
@@ -57,6 +58,7 @@ const RelayConcreteVariables = require('./RelayConcreteVariables');
 const RelayModernRecord = require('./RelayModernRecord');
 const {
   CLIENT_EDGE_TRAVERSAL_PATH,
+  FIELD_GRANULAR_NOTIFICATIONS_KEY,
   FRAGMENT_OWNER_KEY,
   FRAGMENT_PROP_NAME_KEY,
   FRAGMENTS_KEY,
@@ -64,6 +66,7 @@ const {
   MODULE_COMPONENT_KEY,
   ROOT_ID,
   getArgumentValues,
+  getFieldNotificationKey,
   getModuleComponentKey,
   getStorageKey,
 } = require('./RelayStoreUtils');
@@ -78,12 +81,14 @@ const invariant = require('invariant');
 function read(
   recordSource: RecordSource,
   selector: SingularReaderSelector,
+  log: ?LogFunction,
   resolverCache?: ResolverCache,
   resolverContext?: ResolverContext,
 ): Snapshot {
   const reader = new RelayReader(
     recordSource,
     selector,
+    log,
     resolverCache ?? new NoopResolverCache(),
     resolverContext,
   );
@@ -100,6 +105,7 @@ class RelayReader {
   _missingLiveResolverFields: Array<DataID>;
   _isWithinUnmatchedTypeRefinement: boolean;
   _fieldErrors: ?FieldErrors;
+  _fieldGranularNotificationDataID: ?DataID;
   _owner: RequestDescriptor;
   // Exec time resolvers are run before reaching the Relay store so the store already contains
   // the normalized data; the same as if the data were sent from the server. However, since a
@@ -115,10 +121,15 @@ class RelayReader {
   _resolverCache: ResolverCache;
   _fragmentName: string;
   _resolverContext: ?ResolverContext;
+  // The log function currently is only used to log fragment spread accesses for unused
+  // fragments detection, so it is not passed in from all callsites. If we decide to
+  // extend the logging, this needs to be updated.
+  _log: ?LogFunction;
 
   constructor(
     recordSource: RecordSource,
     selector: SingularReaderSelector,
+    log: ?LogFunction,
     resolverCache: ResolverCache,
     resolverContext: ?ResolverContext,
   ) {
@@ -130,6 +141,7 @@ class RelayReader {
     this._isMissingData = false;
     this._isWithinUnmatchedTypeRefinement = false;
     this._fieldErrors = null;
+    this._fieldGranularNotificationDataID = null;
     this._owner = selector.owner;
     this._useExecTimeResolvers =
       this._owner.node.operation.use_exec_time_resolvers ??
@@ -144,6 +156,7 @@ class RelayReader {
     this._fragmentName = selector.node.name;
     this._updatedDataIDs = new Set();
     this._resolverContext = resolverContext;
+    this._log = log;
   }
 
   read(): Snapshot {
@@ -200,8 +213,17 @@ class RelayReader {
       this._resolverCache.notifyUpdatedSubscribers(this._updatedDataIDs);
       this._updatedDataIDs.clear();
     }
+
+    if (RelayFeatureFlags.ENABLE_READER_FRAGMENTS_LOGGING) {
+      this._log?.({
+        name: 'reader.read',
+        selector: this._selector,
+      });
+    }
+
     return {
       data,
+      fieldErrors: this._fieldErrors,
       isMissingData: this._isMissingData && isDataExpectedToBePresent,
       missingClientEdges: this._missingClientEdges.length
         ? this._missingClientEdges
@@ -209,7 +231,6 @@ class RelayReader {
       missingLiveResolverFields: this._missingLiveResolverFields,
       seenRecords: this._seenRecords,
       selector: this._selector,
-      fieldErrors: this._fieldErrors,
     };
   }
 
@@ -227,12 +248,12 @@ class RelayReader {
     for (let i = 0; i < errors.length; i++) {
       const error = errors[i];
       this._fieldErrors.push({
+        error,
+        fieldPath: (error.path ?? []).join('.'),
+        handled: false,
         kind: 'relay_field_payload.error',
         owner,
-        fieldPath: (error.path ?? []).join('.'),
-        error,
         shouldThrow: this._selector.node.metadata?.throwOnFieldError ?? false,
-        handled: false,
         // the uiContext is always undefined here.
         // the loggingContext is provided by hooks - and assigned to uiContext in handlePotentialSnapshotErrors
         uiContext: undefined,
@@ -254,18 +275,18 @@ class RelayReader {
     this._fieldErrors.push(
       (this._selector.node.metadata?.throwOnFieldError ?? false)
         ? {
-            kind: 'missing_expected_data.throw',
-            owner,
             fieldPath: fieldName,
             handled: false,
+            kind: 'missing_expected_data.throw',
+            owner,
             // the uiContext is always undefined here.
             // the loggingContext is provided by hooks - and assigned to uiContext in handlePotentialSnapshotErrors
             uiContext: undefined,
           }
         : {
+            fieldPath: fieldName,
             kind: 'missing_expected_data.log',
             owner,
-            fieldPath: fieldName,
             // the uiContext is always undefined here.
             // the loggingContext is provided by hooks - and assigned to uiContext in handlePotentialSnapshotErrors
             uiContext: undefined,
@@ -282,8 +303,8 @@ class RelayReader {
       // data off of a client extension field.
       if (top !== null) {
         this._missingClientEdges.push({
-          request: top.readerClientEdge.operation,
           clientEdgeDestinationID: top.clientEdgeDestinationID,
+          request: top.readerClientEdge.operation,
         });
       }
     }
@@ -295,12 +316,22 @@ class RelayReader {
     prevData: ?SelectorData,
   ): ?SelectorData {
     const record = this._recordSource.get(dataID);
-    this._seenRecords.add(dataID);
+    const prevFieldGranularDataID = this._fieldGranularNotificationDataID;
+    if (
+      record != null &&
+      RelayModernRecord.getValue(record, FIELD_GRANULAR_NOTIFICATIONS_KEY)
+    ) {
+      this._fieldGranularNotificationDataID = dataID;
+    } else {
+      this._seenRecords.add(dataID);
+      this._fieldGranularNotificationDataID = null;
+    }
     if (record == null) {
       if (record === undefined) {
         this._markDataAsMissing('<record>');
       }
-      // $FlowFixMe[incompatible-return]
+      this._fieldGranularNotificationDataID = prevFieldGranularDataID;
+      // $FlowFixMe[incompatible-type]
       return record;
     }
     const data = prevData || {};
@@ -309,10 +340,11 @@ class RelayReader {
       record,
       data,
     );
+    this._fieldGranularNotificationDataID = prevFieldGranularDataID;
     return hadRequiredData ? data : null;
   }
 
-  _getVariableValue(name: string): mixed {
+  _getVariableValue(name: string): unknown {
     invariant(
       this._variables.hasOwnProperty(name),
       'RelayReader(): Undefined variable `%s`.',
@@ -342,10 +374,10 @@ class RelayReader {
     switch (selection.action) {
       case 'THROW':
         this._fieldErrors.push({
-          kind: 'missing_required_field.throw',
           fieldPath: fieldName,
-          owner,
           handled: false,
+          kind: 'missing_required_field.throw',
+          owner,
           // the uiContext is always undefined here.
           // the loggingContext is provided by hooks - and assigned to uiContext in handlePotentialSnapshotErrors
           uiContext: undefined,
@@ -353,8 +385,8 @@ class RelayReader {
         return;
       case 'LOG':
         this._fieldErrors.push({
-          kind: 'missing_required_field.log',
           fieldPath: fieldName,
+          kind: 'missing_required_field.log',
           owner,
           // the uiContext is always undefined here.
           // the loggingContext is provided by hooks - and assigned to uiContext in handlePotentialSnapshotErrors
@@ -362,13 +394,13 @@ class RelayReader {
         });
         return;
       default:
-        (selection.action: empty);
+        selection.action as empty;
     }
   }
 
   _handleRequiredFieldValue(
     selection: ReaderRequiredField,
-    value: mixed,
+    value: unknown,
   ): boolean /*should continue to siblings*/ {
     if (value == null) {
       this._maybeReportUnexpectedNull(selection);
@@ -402,8 +434,8 @@ class RelayReader {
     _value: T,
     to: CatchFieldTo,
     previousResponseFields: ?FieldErrors,
-  ): ?T | Result<T, mixed> {
-    let value: T | null | Result<T, mixed> = _value;
+  ): ?T | Result<T, unknown> {
+    let value: T | null | Result<T, unknown> = _value;
     switch (to) {
       case 'RESULT':
         value = this._asResult(_value);
@@ -414,7 +446,7 @@ class RelayReader {
         }
         break;
       default:
-        (to: empty);
+        to as empty;
     }
 
     const childrenFieldErrors = this._fieldErrors;
@@ -446,7 +478,7 @@ class RelayReader {
    * **Note**: This method does _not_ mark errors as handled. It is the caller's
    * responsibility to ensure that errors are marked as handled.
    */
-  _asResult<T>(value: T): Result<T, mixed> {
+  _asResult<T>(value: T): Result<T, unknown> {
     if (this._fieldErrors == null || this._fieldErrors.length === 0) {
       return {ok: true, value};
     }
@@ -477,7 +509,7 @@ class RelayReader {
             // For backwards compatibility, we don't surface log level missing required fields
             return null;
           default:
-            (error.kind: empty);
+            error.kind as empty;
             invariant(
               false,
               'Unexpected error fieldError kind: %s',
@@ -487,11 +519,11 @@ class RelayReader {
       })
       .filter(Boolean);
 
-    return {ok: false, errors};
+    return {errors, ok: false};
   }
 
   _traverseSelections(
-    selections: $ReadOnlyArray<ReaderSelection>,
+    selections: ReadonlyArray<ReaderSelection>,
     record: Record,
     data: SelectorData,
   ): boolean /* had all expected data */ {
@@ -656,7 +688,7 @@ class RelayReader {
           }
           break;
         default:
-          (selection: empty);
+          selection as empty;
           invariant(
             false,
             'RelayReader(): Unexpected ast kind `%s`.',
@@ -671,7 +703,7 @@ class RelayReader {
     selection: ReaderRequiredField | ReaderCatchField,
     record: Record,
     data: SelectorData,
-  ): ?mixed {
+  ): ?unknown {
     switch (selection.field.kind) {
       case 'ScalarField':
         return this._readScalar(selection.field, record, data);
@@ -709,7 +741,7 @@ class RelayReader {
       case 'AliasedInlineFragmentSpread':
         return this._readAliasedInlineFragment(selection.field, record, data);
       default:
-        (selection.field.kind: empty);
+        selection.field.kind as empty;
         invariant(
           false,
           'RelayReader(): Unexpected ast kind `%s`.',
@@ -722,7 +754,7 @@ class RelayReader {
     field: ReaderRelayResolver | ReaderRelayLiveResolver,
     record: Record,
     data: SelectorData,
-  ): mixed {
+  ): unknown {
     const parentRecordID = RelayModernRecord.getDataID(record);
     const prevErrors = this._fieldErrors;
     this._fieldErrors = null;
@@ -737,7 +769,7 @@ class RelayReader {
   _readResolverFieldImpl(
     field: ReaderRelayResolver | ReaderRelayLiveResolver,
     parentRecordID: DataID,
-  ): mixed {
+  ): unknown {
     const {fragment} = field;
 
     // Found when reading the resolver fragment, which can happen either when
@@ -762,21 +794,26 @@ class RelayReader {
         // already been set and will still be used in this case.
         return {
           data: snapshot.data,
-          isMissingData: snapshot.isMissingData,
           fieldErrors: snapshot.fieldErrors,
+          isMissingData: snapshot.isMissingData,
         };
       }
 
       snapshot = read(
         this._recordSource,
         singularReaderSelector,
+        // This reads data for a rootFragment in read time resolvers. There is no fragment
+        // spread created for it so the existing fragment spread logger can't be used to log
+        // unused rootFragments. Thus we skip passing the logger here for now.
+        null,
         this._resolverCache,
+        undefined,
       );
 
       return {
         data: snapshot.data,
-        isMissingData: snapshot.isMissingData,
         fieldErrors: snapshot.fieldErrors,
+        isMissingData: snapshot.isMissingData,
       };
     };
 
@@ -786,16 +823,16 @@ class RelayReader {
     // * `snapshot` The snapshot returned when reading the resolver's root fragment (if it has one)
     // * `error` If the resolver throws, its error is caught (inside
     //   `getResolverValue`) and converted into an error object.
-    const evaluate = (): EvaluationResult<mixed> => {
+    const evaluate = (): EvaluationResult<unknown> => {
       if (fragment != null) {
         const key: SelectorData = {
-          __id: parentRecordID,
           __fragmentOwner: this._owner,
           __fragments: {
             [fragment.name]: fragment.args
               ? getArgumentValues(fragment.args, this._variables)
               : {},
           },
+          __id: parentRecordID,
         };
         if (
           this._clientEdgeTraversalPath.length > 0 &&
@@ -806,6 +843,7 @@ class RelayReader {
           key[CLIENT_EDGE_TRAVERSAL_PATH] = [...this._clientEdgeTraversalPath];
         }
         const resolverContext = {getDataForResolverFragment};
+        // $FlowFixMe[incompatible-type]
         return withResolverContext(resolverContext, () => {
           const [resolverResult, resolverError] = getResolverValue(
             field,
@@ -813,7 +851,7 @@ class RelayReader {
             key,
             this._resolverContext,
           );
-          return {resolverResult, snapshot, error: resolverError};
+          return {error: resolverError, resolverResult, snapshot};
         });
       } else {
         const [resolverResult, resolverError] = getResolverValue(
@@ -822,7 +860,7 @@ class RelayReader {
           null,
           this._resolverContext,
         );
-        return {resolverResult, snapshot: undefined, error: resolverError};
+        return {error: resolverError, resolverResult, snapshot: undefined};
       }
     };
 
@@ -918,12 +956,12 @@ class RelayReader {
     // to be logged.
     if (resolverError) {
       const errorEvent: FieldError = {
-        kind: 'relay_resolver.error',
-        fieldPath,
-        owner: this._fragmentName,
         error: resolverError,
-        shouldThrow: this._selector.node.metadata?.throwOnFieldError ?? false,
+        fieldPath,
         handled: false,
+        kind: 'relay_resolver.error',
+        owner: this._fragmentName,
+        shouldThrow: this._selector.node.metadata?.throwOnFieldError ?? false,
         // the uiContext is always undefined here.
         // the loggingContext is provided by hooks - and assigned to uiContext in handlePotentialSnapshotErrors
         uiContext: undefined,
@@ -964,7 +1002,7 @@ class RelayReader {
     field: ReaderClientEdge,
     record: Record,
     data: SelectorData,
-  ): ?mixed {
+  ): ?unknown {
     const backingField = field.backingField;
 
     // Because ReaderClientExtension doesn't have `alias` or `name` and so I don't know
@@ -997,7 +1035,7 @@ class RelayReader {
         backingField.path,
         this._owner.identifier,
       );
-      let storeIDs: $ReadOnlyArray<DataID>;
+      let storeIDs: ReadonlyArray<DataID>;
       invariant(
         field.kind === 'ClientEdgeToClientObject',
         'Unexpected Client Edge to plural server type `%s`. This should be prevented by the compiler.',
@@ -1084,8 +1122,8 @@ class RelayReader {
       } else {
         storeID = id;
         traversalPathSegment = {
-          readerClientEdge: field,
           clientEdgeDestinationID: id,
+          readerClientEdge: field,
         };
       }
 
@@ -1145,9 +1183,17 @@ class RelayReader {
     field: ReaderScalarField | ReaderRelayResolver | ReaderRelayLiveResolver,
     record: Record,
     data: SelectorData,
-  ): ?mixed {
+  ): ?unknown {
     const fieldName = field.alias ?? field.name;
     const storageKey = getStorageKey(field, this._variables);
+    if (this._fieldGranularNotificationDataID != null) {
+      this._seenRecords.add(
+        getFieldNotificationKey(
+          this._fieldGranularNotificationDataID,
+          storageKey,
+        ),
+      );
+    }
     const value = RelayModernRecord.getValue(record, storageKey);
     if (
       value === null ||
@@ -1167,9 +1213,17 @@ class RelayReader {
     field: ReaderLinkedField,
     record: Record,
     data: SelectorData,
-  ): ?mixed {
+  ): ?unknown {
     const fieldName = field.alias ?? field.name;
     const storageKey = getStorageKey(field, this._variables);
+    if (this._fieldGranularNotificationDataID != null) {
+      this._seenRecords.add(
+        getFieldNotificationKey(
+          this._fieldGranularNotificationDataID,
+          storageKey,
+        ),
+      );
+    }
     const linkedID = RelayModernRecord.getLinkedRecordID(record, storageKey);
     if (linkedID == null) {
       data[fieldName] = linkedID;
@@ -1265,7 +1319,7 @@ class RelayReader {
     field: ReaderActorChange,
     record: Record,
     data: SelectorData,
-  ): ?mixed {
+  ): ?unknown {
     const fieldName = field.alias ?? field.name;
     const storageKey = getStorageKey(field, this._variables);
     const externalRef = RelayModernRecord.getActorLinkedRecordID(
@@ -1303,8 +1357,16 @@ class RelayReader {
     field: ReaderLinkedField,
     record: Record,
     data: SelectorData,
-  ): ?mixed {
+  ): ?unknown {
     const storageKey = getStorageKey(field, this._variables);
+    if (this._fieldGranularNotificationDataID != null) {
+      this._seenRecords.add(
+        getFieldNotificationKey(
+          this._fieldGranularNotificationDataID,
+          storageKey,
+        ),
+      );
+    }
     const linkedIDs = RelayModernRecord.getLinkedRecordIDs(record, storageKey);
     if (
       linkedIDs === null ||
@@ -1319,10 +1381,10 @@ class RelayReader {
 
   _readLinkedIds(
     field: ReaderLinkedField,
-    linkedIDs: ?$ReadOnlyArray<?DataID>,
+    linkedIDs: ?ReadonlyArray<?DataID>,
     record: Record,
     data: SelectorData,
-  ): ?mixed {
+  ): ?unknown {
     const fieldName = field.alias ?? field.name;
 
     if (linkedIDs == null) {
@@ -1410,9 +1472,9 @@ class RelayReader {
     // - For the matched module, create a reference to the module
     this._createFragmentPointer(
       {
+        args: moduleImport.args,
         kind: 'FragmentSpread',
         name: moduleImport.fragmentName,
-        args: moduleImport.args,
       },
       record,
       data,
@@ -1438,7 +1500,7 @@ class RelayReader {
     aliasedInlineFragment: ReaderAliasedInlineFragmentSpread,
     record: Record,
     data: SelectorData,
-  ) {
+  ): ?unknown {
     const prevErrors = this._fieldErrors;
     this._fieldErrors = null;
     let fieldValue = this._readInlineFragment(
@@ -1452,6 +1514,7 @@ class RelayReader {
       fieldValue = null;
     }
     data[aliasedInlineFragment.name] = fieldValue;
+    return fieldValue;
   }
 
   // Has three possible return values:
@@ -1569,9 +1632,9 @@ class RelayReader {
   ): void {
     let fragmentPointers = data[FRAGMENTS_KEY];
     if (fragmentPointers == null) {
-      fragmentPointers = data[FRAGMENTS_KEY] = ({}: {
+      fragmentPointers = data[FRAGMENTS_KEY] = {} as {
         [string]: Arguments,
-      });
+      };
     }
     invariant(
       typeof fragmentPointers === 'object' && fragmentPointers != null,
@@ -1582,12 +1645,13 @@ class RelayReader {
     if (data[ID_KEY] == null) {
       data[ID_KEY] = RelayModernRecord.getDataID(record);
     }
-    // $FlowFixMe[cannot-write] - writing into read-only field
-    fragmentPointers[fragmentSpread.name] = getArgumentValues(
+    const args = getArgumentValues(
       fragmentSpread.args,
       this._variables,
       this._isWithinUnmatchedTypeRefinement,
     );
+    // $FlowFixMe[cannot-write] - writing into read-only field
+    fragmentPointers[fragmentSpread.name] = args;
     data[FRAGMENT_OWNER_KEY] = this._owner;
 
     if (
@@ -1598,6 +1662,14 @@ class RelayReader {
     ) {
       data[CLIENT_EDGE_TRAVERSAL_PATH] = [...this._clientEdgeTraversalPath];
     }
+
+    if (RelayFeatureFlags.ENABLE_READER_FRAGMENTS_LOGGING) {
+      this._log?.({
+        name: 'reader.fragmentSpread',
+        fragmentName: fragmentSpread.name,
+        data,
+      });
+    }
   }
 
   _createInlineDataOrResolverFragmentPointer(
@@ -1607,7 +1679,7 @@ class RelayReader {
   ): void {
     let fragmentPointers = data[FRAGMENTS_KEY];
     if (fragmentPointers == null) {
-      fragmentPointers = data[FRAGMENTS_KEY] = ({}: {[string]: {...}});
+      fragmentPointers = data[FRAGMENTS_KEY] = {} as {[string]: {...}};
     }
     invariant(
       typeof fragmentPointers === 'object' && fragmentPointers != null,
@@ -1665,7 +1737,7 @@ class RelayReader {
       // still in flight.
       this._markDataAsMissing('<abstract-type-hint>');
     }
-    // $FlowFixMe Casting record value
+    // $FlowFixMe[incompatible-type] Casting record value
     return implementsInterface;
   }
 }
@@ -1696,9 +1768,9 @@ function markFieldErrorHasHandled(event: FieldError): FieldError {
 function getResolverValue(
   field: ReaderRelayResolver | ReaderRelayLiveResolver,
   variables: Variables,
-  fragmentKey: mixed,
+  fragmentKey: unknown,
   resolverContext: ?ResolverContext,
-): [mixed, ?Error] {
+): [unknown, ?Error] {
   // Support for languages that work (best) with ES6 modules, such as TypeScript.
   const resolverFunction =
     typeof field.resolverModule === 'function'
@@ -1734,7 +1806,7 @@ function getResolverValue(
 }
 
 function extractIdFromResponse(
-  individualResponse: mixed,
+  individualResponse: unknown,
   path: string,
   owner: string,
 ): string {

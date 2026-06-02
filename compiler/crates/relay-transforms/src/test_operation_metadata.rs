@@ -99,29 +99,26 @@ impl Transformer<'_> for GenerateTestOperationMetadata<'_> {
         if let Some(test_operation_directive) =
             operation.directives.named(*TEST_OPERATION_DIRECTIVE)
         {
-            if let Some(test_path_regex) = self.test_path_regex {
-                if !test_path_regex.is_match(operation.name.location.source_location().path())
-                    && test_operation_directive
-                        .arguments
-                        .named(*DO_NOT_USE_USE_IN_PRODUCTION_ARG)
-                        .is_none_or(|arg| {
-                            if let Value::Constant(ConstantValue::Boolean(arg_value)) =
-                                arg.value.item
-                            {
-                                !arg_value
-                            } else {
-                                true
-                            }
-                        })
-                {
-                    self.errors.push(Diagnostic::error(
-                        ValidationMessage::TestOperationOutsideTestDirectory {
-                            test_path_regex: test_path_regex.to_string(),
-                        },
-                        test_operation_directive.location,
-                    ));
-                    return Transformed::Keep;
-                }
+            if let Some(test_path_regex) = self.test_path_regex
+                && !test_path_regex.is_match(operation.name.location.source_location().path())
+                && test_operation_directive
+                    .arguments
+                    .named(*DO_NOT_USE_USE_IN_PRODUCTION_ARG)
+                    .is_none_or(|arg| {
+                        if let Value::Constant(ConstantValue::Boolean(arg_value)) = arg.value.item {
+                            !arg_value
+                        } else {
+                            true
+                        }
+                    })
+            {
+                self.errors.push(Diagnostic::error(
+                    ValidationMessage::TestOperationOutsideTestDirectory {
+                        test_path_regex: test_path_regex.to_string(),
+                    },
+                    test_operation_directive.location,
+                ));
+                return Transformed::Keep;
             }
 
             let mut next_directives = Vec::with_capacity(operation.directives.len());
@@ -294,6 +291,6 @@ impl RelayTestOperationMetadata {
 fn next_path(current_path: Option<StringKey>, field_alias_or_name: StringKey) -> StringKey {
     match current_path {
         None => field_alias_or_name,
-        Some(path) => format!("{}.{}", path, field_alias_or_name).intern(),
+        Some(path) => format!("{path}.{field_alias_or_name}").intern(),
     }
 }

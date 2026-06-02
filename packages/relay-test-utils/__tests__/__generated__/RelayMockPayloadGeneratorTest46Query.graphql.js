@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b1d7597c9dde1cda2b36c0446a5e7f16>>
+ * @generated SignedSource<<cef452ba73f085cff846c12812b48e56>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,16 +20,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayMockPayloadGeneratorTest32Fragment$fragmentType } from "./RelayMockPayloadGeneratorTest32Fragment.graphql";
-export type RelayMockPayloadGeneratorTest46Query$variables = {||};
-export type RelayMockPayloadGeneratorTest46Query$data = {|
-  +node: ?{|
-    +$fragmentSpreads: RelayMockPayloadGeneratorTest32Fragment$fragmentType,
-  |},
-|};
-export type RelayMockPayloadGeneratorTest46Query = {|
+export type RelayMockPayloadGeneratorTest46Query$variables = {};
+export type RelayMockPayloadGeneratorTest46Query$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: RelayMockPayloadGeneratorTest32Fragment$fragmentType,
+  },
+};
+export type RelayMockPayloadGeneratorTest46Query = {
   response: RelayMockPayloadGeneratorTest46Query$data,
   variables: RelayMockPayloadGeneratorTest46Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -75,7 +74,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -101,13 +100,13 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v1/*: any*/),
+          (v1/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -132,7 +131,7 @@ return {
                 "name": "nameRenderer",
                 "plural": false,
                 "selections": [
-                  (v1/*: any*/),
+                  (v1/*:: as any*/),
                   {
                     "kind": "InlineFragment",
                     "selections": [
@@ -184,7 +183,7 @@ return {
           "plural": false,
           "type": "Node"
         },
-        "node.__typename": (v2/*: any*/),
+        "node.__typename": (v2/*:: as any*/),
         "node.id": {
           "enumValues": null,
           "nullable": false,
@@ -197,9 +196,9 @@ return {
           "plural": false,
           "type": "UserNameRenderer"
         },
-        "node.nameRenderer.__module_component_RelayMockPayloadGeneratorTest32Fragment": (v3/*: any*/),
-        "node.nameRenderer.__module_operation_RelayMockPayloadGeneratorTest32Fragment": (v3/*: any*/),
-        "node.nameRenderer.__typename": (v2/*: any*/),
+        "node.nameRenderer.__module_component_RelayMockPayloadGeneratorTest32Fragment": (v3/*:: as any*/),
+        "node.nameRenderer.__module_operation_RelayMockPayloadGeneratorTest32Fragment": (v3/*:: as any*/),
+        "node.nameRenderer.__typename": (v2/*:: as any*/),
         "node.nameRenderer.data": {
           "enumValues": null,
           "nullable": true,
@@ -212,10 +211,10 @@ return {
           "plural": false,
           "type": "ID"
         },
-        "node.nameRenderer.data.markup": (v4/*: any*/),
-        "node.nameRenderer.data.text": (v4/*: any*/),
-        "node.nameRenderer.markdown": (v4/*: any*/),
-        "node.nameRenderer.plaintext": (v4/*: any*/)
+        "node.nameRenderer.data.markup": (v4/*:: as any*/),
+        "node.nameRenderer.data.text": (v4/*:: as any*/),
+        "node.nameRenderer.markdown": (v4/*:: as any*/),
+        "node.nameRenderer.plaintext": (v4/*:: as any*/)
       }
     },
     "name": "RelayMockPayloadGeneratorTest46Query",
@@ -226,10 +225,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "3a294329388e7e030970e11891ed7b00";
+  (node/*:: as any*/).hash = "3a294329388e7e030970e11891ed7b00";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayMockPayloadGeneratorTest46Query$variables,
   RelayMockPayloadGeneratorTest46Query$data,
 >*/);

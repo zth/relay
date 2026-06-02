@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6523c180ad17f819d7fc6ca1b41d7b20>>
+ * @generated SignedSource<<3df1ca5fc9033e9fa6b50a7ac27649a0>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,26 +23,26 @@ import {todo_model as queryTodoModelResolverType} from "../../../relay-runtime/s
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryTodoModelResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryTodoModelResolverType: (
-  args: {|
+(queryTodoModelResolverType as (
+  args: {
     todoID: string,
-  |},
+  },
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
-export type RelayResolverModelTestTodoWithInterfaceQuery$variables = {|
+) => ?{
+  readonly id: DataID,
+});
+export type RelayResolverModelTestTodoWithInterfaceQuery$variables = {
   id: string,
-|};
-export type RelayResolverModelTestTodoWithInterfaceQuery$data = {|
-  +todo_model: ?{|
-    +$fragmentSpreads: RelayResolverModelTestInterfaceFragment$fragmentType,
-  |},
-|};
-export type RelayResolverModelTestTodoWithInterfaceQuery = {|
+};
+export type RelayResolverModelTestTodoWithInterfaceQuery$data = {
+  readonly todo_model: ?{
+    readonly $fragmentSpreads: RelayResolverModelTestInterfaceFragment$fragmentType,
+  },
+};
+export type RelayResolverModelTestTodoWithInterfaceQuery = {
   response: RelayResolverModelTestTodoWithInterfaceQuery$data,
   variables: RelayResolverModelTestTodoWithInterfaceQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){
@@ -87,20 +86,34 @@ v4 = [
     "alias": null,
     "args": null,
     "kind": "ScalarField",
-    "name": "__typename",
+    "name": "description",
     "storageKey": null
-  },
+  }
+],
+v5 = [
   {
     "alias": null,
     "args": null,
     "kind": "ScalarField",
-    "name": "description",
+    "name": "__typename",
     "storageKey": null
+  },
+  {
+    "kind": "InlineFragment",
+    "selections": (v4/*:: as any*/),
+    "type": "ClientTypeImplementingClientInterface",
+    "abstractKey": null
+  },
+  {
+    "kind": "InlineFragment",
+    "selections": (v4/*:: as any*/),
+    "type": "OtherClientTypeImplementingClientInterface",
+    "abstractKey": null
   }
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": {
       "hasClientEdges": true
@@ -125,9 +138,10 @@ return {
             "path": "todo_model.__relay_model_instance"
           }
         },
+        "serverObjectOperations": null,
         "backingField": {
           "alias": null,
-          "args": (v1/*: any*/),
+          "args": (v1/*:: as any*/),
           "fragment": null,
           "kind": "RelayResolver",
           "name": "todo_model",
@@ -136,7 +150,7 @@ return {
         },
         "linkedField": {
           "alias": null,
-          "args": (v1/*: any*/),
+          "args": (v1/*:: as any*/),
           "concreteType": "TodoModel",
           "kind": "LinkedField",
           "name": "todo_model",
@@ -157,7 +171,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayResolverModelTestTodoWithInterfaceQuery",
     "selections": [
@@ -165,7 +179,7 @@ return {
         "kind": "ClientEdgeToClientObject",
         "backingField": {
           "name": "todo_model",
-          "args": (v1/*: any*/),
+          "args": (v1/*:: as any*/),
           "fragment": null,
           "kind": "RelayResolver",
           "storageKey": null,
@@ -173,7 +187,7 @@ return {
         },
         "linkedField": {
           "alias": null,
-          "args": (v1/*: any*/),
+          "args": (v1/*:: as any*/),
           "concreteType": "TodoModel",
           "kind": "LinkedField",
           "name": "todo_model",
@@ -193,7 +207,7 @@ return {
                       "fragment": {
                         "kind": "InlineFragment",
                         "selections": [
-                          (v2/*: any*/)
+                          (v2/*:: as any*/)
                         ],
                         "type": "TodoModel",
                         "abstractKey": null
@@ -223,7 +237,7 @@ return {
                     "backingField": {
                       "name": "some_interface",
                       "args": null,
-                      "fragment": (v3/*: any*/),
+                      "fragment": (v3/*:: as any*/),
                       "kind": "RelayResolver",
                       "storageKey": null,
                       "isOutputType": true
@@ -235,7 +249,7 @@ return {
                       "kind": "LinkedField",
                       "name": "some_interface",
                       "plural": false,
-                      "selections": (v4/*: any*/),
+                      "selections": (v5/*:: as any*/),
                       "storageKey": null
                     }
                   },
@@ -244,7 +258,7 @@ return {
                     "backingField": {
                       "name": "some_client_type_with_interface",
                       "args": null,
-                      "fragment": (v3/*: any*/),
+                      "fragment": (v3/*:: as any*/),
                       "kind": "RelayResolver",
                       "storageKey": null,
                       "isOutputType": true
@@ -264,7 +278,7 @@ return {
                           "kind": "LinkedField",
                           "name": "client_interface",
                           "plural": false,
-                          "selections": (v4/*: any*/),
+                          "selections": (v5/*:: as any*/),
                           "storageKey": null
                         }
                       ],
@@ -275,7 +289,7 @@ return {
                 "storageKey": null
               }
             },
-            (v2/*: any*/)
+            (v2/*:: as any*/)
           ],
           "storageKey": null
         }
@@ -294,10 +308,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "a8b583e7d4f18358def854c5ee431bba";
+  (node/*:: as any*/).hash = "a8b583e7d4f18358def854c5ee431bba";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   RelayResolverModelTestTodoWithInterfaceQuery$variables,
   RelayResolverModelTestTodoWithInterfaceQuery$data,
 >*/);

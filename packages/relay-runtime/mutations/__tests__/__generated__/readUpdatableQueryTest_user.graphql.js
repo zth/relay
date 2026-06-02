@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<efcae8ad115150120e5c4d68976a4309>>
+ * @generated SignedSource<<e12321e45ef125aa2cfd85a682cc3c1e>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,21 +23,21 @@ declare export opaque type readUpdatableQueryTest_user$fragmentType: FragmentTyp
 var node/*: any*/ = {};
 
 if (__DEV__) {
-  (node/*: any*/).hash = "b4c3265697d01e4f38a505ed5bb58bf7";
+  (node/*:: as any*/).hash = "b4c3265697d01e4f38a505ed5bb58bf7";
 }
 
 module.exports = node;
 
 module.exports.validate = function validate(value/*: {
-  +__typename: string,
-  +__id: string,
-  +$fragmentSpreads: readUpdatableQueryTest_user$fragmentType,
+  readonly __typename: string,
+  readonly __id: string,
+  readonly $fragmentSpreads: readUpdatableQueryTest_user$fragmentType,
   ...
 }*/)/*: false | {
-  +__typename: "User",
-  +__id: string,
-  +$fragmentSpreads: readUpdatableQueryTest_user$fragmentType,
+  readonly __typename: "User",
+  readonly __id: string,
+  readonly $fragmentSpreads: readUpdatableQueryTest_user$fragmentType,
   ...
 }*/ {
-  return value.__typename === 'User' ? (value/*: any*/) : false;
+  return value.__typename === 'User' ? (value/*:: as any*/) : false;
 };

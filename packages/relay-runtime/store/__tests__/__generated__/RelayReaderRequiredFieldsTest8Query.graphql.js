@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ac62b955afdbd47a32c1c8e6bb5ba5d9>>
+ * @generated SignedSource<<0aa72cb38b429461ed3c67b1623e1697>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,19 +17,19 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayReaderRequiredFieldsTest8Query$variables = {||};
-export type RelayReaderRequiredFieldsTest8Query$data = {|
-  +me: ?{|
-    +screennames: ?$ReadOnlyArray<?{|
-      +name: ?string,
-      +service: string,
-    |}>,
-  |},
-|};
-export type RelayReaderRequiredFieldsTest8Query = {|
+export type RelayReaderRequiredFieldsTest8Query$variables = {};
+export type RelayReaderRequiredFieldsTest8Query$data = {
+  readonly me: ?{
+    readonly screennames: ?ReadonlyArray<?{
+      readonly name: ?string,
+      readonly service: string,
+    }>,
+  },
+};
+export type RelayReaderRequiredFieldsTest8Query = {
   response: RelayReaderRequiredFieldsTest8Query$data,
   variables: RelayReaderRequiredFieldsTest8Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -71,10 +70,10 @@ return {
             "name": "screennames",
             "plural": true,
             "selections": [
-              (v0/*: any*/),
+              (v0/*:: as any*/),
               {
                 "kind": "RequiredField",
-                "field": (v1/*: any*/),
+                "field": (v1/*:: as any*/),
                 "action": "LOG"
               }
             ],
@@ -109,8 +108,8 @@ return {
             "name": "screennames",
             "plural": true,
             "selections": [
-              (v0/*: any*/),
-              (v1/*: any*/)
+              (v0/*:: as any*/),
+              (v1/*:: as any*/)
             ],
             "storageKey": null
           },
@@ -138,10 +137,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "0e92cecb5b49ee10cf1f34d6463613d6";
+  (node/*:: as any*/).hash = "0e92cecb5b49ee10cf1f34d6463613d6";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderRequiredFieldsTest8Query$variables,
   RelayReaderRequiredFieldsTest8Query$data,
 >*/);

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9f3d88adc49b815fd50009e9b952b278>>
+ * @generated SignedSource<<f63c1c2c580a2f20ca68a1300616b3fd>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,17 +20,17 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$fragmentType } from "./RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$fragmentType: FragmentType;
-export type RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$data = {|
-  +actors: ?$ReadOnlyArray<?{|
-    +name: ?string,
-  |}>,
-  +id: string,
-  +$fragmentSpreads: RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$fragmentType,
-  +$fragmentType: RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$fragmentType,
-|};
+export type RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$data = {
+  readonly actors: ?ReadonlyArray<?{
+    readonly name: ?string,
+  }>,
+  readonly id: string,
+  readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$fragmentType,
+  readonly $fragmentType: RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$fragmentType,
+};
 export type RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$key = {
-  +$data?: RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$data,
-  +$fragmentSpreads: RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$fragmentType,
+  readonly $data?: RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$fragmentType,
   ...
 };
 */
@@ -93,10 +92,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "aa95f24c1b87abaaa8da5bc4f20bed07";
+  (node/*:: as any*/).hash = "aa95f24c1b87abaaa8da5bc4f20bed07";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$fragmentType,
   RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$data,
 >*/);

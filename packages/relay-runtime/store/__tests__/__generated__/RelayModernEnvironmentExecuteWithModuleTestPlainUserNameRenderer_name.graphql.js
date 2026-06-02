@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<840d7499d8667294d1f710c9ddcad8c1>>
+ * @generated SignedSource<<f4499b1b893f93c92aed4dbc3d2aa7d4>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,16 +19,16 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentExecuteWithModuleTestPlainUserNameRenderer_name$fragmentType: FragmentType;
-export type RelayModernEnvironmentExecuteWithModuleTestPlainUserNameRenderer_name$data = {|
-  +data: ?{|
-    +text: ?string,
-  |},
-  +plaintext: ?string,
-  +$fragmentType: RelayModernEnvironmentExecuteWithModuleTestPlainUserNameRenderer_name$fragmentType,
-|};
+export type RelayModernEnvironmentExecuteWithModuleTestPlainUserNameRenderer_name$data = {
+  readonly data: ?{
+    readonly text: ?string,
+  },
+  readonly plaintext: ?string,
+  readonly $fragmentType: RelayModernEnvironmentExecuteWithModuleTestPlainUserNameRenderer_name$fragmentType,
+};
 export type RelayModernEnvironmentExecuteWithModuleTestPlainUserNameRenderer_name$key = {
-  +$data?: RelayModernEnvironmentExecuteWithModuleTestPlainUserNameRenderer_name$data,
-  +$fragmentSpreads: RelayModernEnvironmentExecuteWithModuleTestPlainUserNameRenderer_name$fragmentType,
+  readonly $data?: RelayModernEnvironmentExecuteWithModuleTestPlainUserNameRenderer_name$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithModuleTestPlainUserNameRenderer_name$fragmentType,
   ...
 };
 */
@@ -71,10 +70,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "b26eedaf9a301741f224ad486c5af66f";
+  (node/*:: as any*/).hash = "b26eedaf9a301741f224ad486c5af66f";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayModernEnvironmentExecuteWithModuleTestPlainUserNameRenderer_name$fragmentType,
   RelayModernEnvironmentExecuteWithModuleTestPlainUserNameRenderer_name$data,
 >*/);

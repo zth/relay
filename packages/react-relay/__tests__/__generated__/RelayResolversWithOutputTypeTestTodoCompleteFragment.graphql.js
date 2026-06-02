@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<05930bea2e8d0c7e9dec0c6ac85deb11>>
+ * @generated SignedSource<<d856ea25b433c71bff2ad24316c97f8d>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,19 +23,19 @@ import {complete as todoCompleteResolverType} from "../../../relay-runtime/store
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `todoCompleteResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(todoCompleteResolverType: (
+(todoCompleteResolverType as (
   rootKey: TodoCompleteResolverFragment$key,
   args: void,
   context: TestResolverContextType,
 ) => ?boolean);
 declare export opaque type RelayResolversWithOutputTypeTestTodoCompleteFragment$fragmentType: FragmentType;
-export type RelayResolversWithOutputTypeTestTodoCompleteFragment$data = {|
-  +complete: ?boolean,
-  +$fragmentType: RelayResolversWithOutputTypeTestTodoCompleteFragment$fragmentType,
-|};
+export type RelayResolversWithOutputTypeTestTodoCompleteFragment$data = {
+  readonly complete: ?boolean,
+  readonly $fragmentType: RelayResolversWithOutputTypeTestTodoCompleteFragment$fragmentType,
+};
 export type RelayResolversWithOutputTypeTestTodoCompleteFragment$key = {
-  +$data?: RelayResolversWithOutputTypeTestTodoCompleteFragment$data,
-  +$fragmentSpreads: RelayResolversWithOutputTypeTestTodoCompleteFragment$fragmentType,
+  readonly $data?: RelayResolversWithOutputTypeTestTodoCompleteFragment$data,
+  readonly $fragmentSpreads: RelayResolversWithOutputTypeTestTodoCompleteFragment$fragmentType,
   ...
 };
 */
@@ -66,10 +65,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "1aaa83d77ddf1c6f117c512c48a014e4";
+  (node/*:: as any*/).hash = "1aaa83d77ddf1c6f117c512c48a014e4";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayResolversWithOutputTypeTestTodoCompleteFragment$fragmentType,
   RelayResolversWithOutputTypeTestTodoCompleteFragment$data,
 >*/);

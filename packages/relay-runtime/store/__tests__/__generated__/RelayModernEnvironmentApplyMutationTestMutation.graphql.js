@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7786f28276308b2db9908c9b670f6fc0>>
+ * @generated SignedSource<<07ab5bbe85668791b0c2ad89991e44d3>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,33 +17,33 @@
 
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
-export type CommentCreateInput = {|
+export type CommentCreateInput = {
   feedback?: ?CommentfeedbackFeedback,
   feedbackId?: ?string,
-|};
-export type CommentfeedbackFeedback = {|
+};
+export type CommentfeedbackFeedback = {
   comment?: ?FeedbackcommentComment,
-|};
-export type FeedbackcommentComment = {|
+};
+export type FeedbackcommentComment = {
   feedback?: ?CommentfeedbackFeedback,
-|};
-export type RelayModernEnvironmentApplyMutationTestMutation$variables = {|
+};
+export type RelayModernEnvironmentApplyMutationTestMutation$variables = {
   input: CommentCreateInput,
-|};
-export type RelayModernEnvironmentApplyMutationTestMutation$data = {|
-  +commentCreate: ?{|
-    +comment: ?{|
-      +body: ?{|
-        +text: ?string,
-      |},
-      +id: string,
-    |},
-  |},
-|};
-export type RelayModernEnvironmentApplyMutationTestMutation = {|
+};
+export type RelayModernEnvironmentApplyMutationTestMutation$data = {
+  readonly commentCreate: ?{
+    readonly comment: ?{
+      readonly body: ?{
+        readonly text: ?string,
+      },
+      readonly id: string,
+    },
+  },
+};
+export type RelayModernEnvironmentApplyMutationTestMutation = {
   response: RelayModernEnvironmentApplyMutationTestMutation$data,
   variables: RelayModernEnvironmentApplyMutationTestMutation$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -112,20 +111,20 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentApplyMutationTestMutation",
-    "selections": (v1/*: any*/),
+    "selections": (v1/*:: as any*/),
     "type": "Mutation",
     "abstractKey": null
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentApplyMutationTestMutation",
-    "selections": (v1/*: any*/)
+    "selections": (v1/*:: as any*/)
   },
   "params": {
     "cacheID": "f1dc28df73a54b116d8f3e830198176c",
@@ -139,10 +138,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "8f6539466374b4a84e29c1ff8cf94b75";
+  (node/*:: as any*/).hash = "8f6539466374b4a84e29c1ff8cf94b75";
 }
 
-module.exports = ((node/*: any*/)/*: Mutation<
+module.exports = ((node/*:: as any*/)/*:: as Mutation<
   RelayModernEnvironmentApplyMutationTestMutation$variables,
   RelayModernEnvironmentApplyMutationTestMutation$data,
 >*/);

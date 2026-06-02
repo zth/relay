@@ -31,7 +31,7 @@ const {
 
 type ContainerProps = $FlowFixMe;
 type ContainerState = {
-  data: {[key: string]: mixed, ...},
+  data: {[key: string]: unknown, ...},
   prevProps: ContainerProps,
   prevPropsContext: RelayContext,
   relayProp: RelayProp,
@@ -45,8 +45,8 @@ type ContainerState = {
  * updates.
  */
 function createContainerWithFragments<
-  Props: {...},
-  TComponent: component(...Props),
+  Props extends {...},
+  TComponent extends component(...Props),
 >(
   Component: TComponent,
   fragments: FragmentMap,
@@ -121,8 +121,8 @@ function createContainerWithFragments<
 
         return {
           data: resolver.resolve(),
-          prevPropsContext: relayContext,
           prevProps: nextProps,
+          prevPropsContext: relayContext,
           relayProp: getRelayProp(relayContext.environment),
           resolver,
         };
@@ -266,14 +266,13 @@ function getRelayProp(environment: IEnvironment) {
  * instance of the container constructed/rendered.
  */
 function createContainer<
-  Props: {...},
-  Ref,
-  TComponent: component(ref: Ref, ...Props),
+  Props extends {...},
+  TComponent extends component(...Props),
 >(
   Component: TComponent,
   fragmentSpec: GeneratedNodeMap,
-): component(ref: Ref, ...$RelayProps<Props, RelayProp>) {
-  // $FlowFixMe[incompatible-return]
+): component(...$RelayProps<Props, RelayProp>) {
+  // $FlowFixMe[incompatible-type]
   return buildReactRelayContainer(
     Component,
     fragmentSpec,

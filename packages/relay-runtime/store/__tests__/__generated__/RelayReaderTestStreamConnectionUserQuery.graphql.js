@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7d744f11f5417a944e40cb2005515511>>
+ * @generated SignedSource<<39723784824a16020749066f3ab47671>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,18 +18,18 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayReaderTestStreamConnectionUserProfile$fragmentType } from "./RelayReaderTestStreamConnectionUserProfile.graphql";
-export type RelayReaderTestStreamConnectionUserQuery$variables = {|
+export type RelayReaderTestStreamConnectionUserQuery$variables = {
   id: string,
-|};
-export type RelayReaderTestStreamConnectionUserQuery$data = {|
-  +node: ?{|
-    +$fragmentSpreads: RelayReaderTestStreamConnectionUserProfile$fragmentType,
-  |},
-|};
-export type RelayReaderTestStreamConnectionUserQuery = {|
+};
+export type RelayReaderTestStreamConnectionUserQuery$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: RelayReaderTestStreamConnectionUserProfile$fragmentType,
+  },
+};
+export type RelayReaderTestStreamConnectionUserQuery = {
   response: RelayReaderTestStreamConnectionUserQuery$data,
   variables: RelayReaderTestStreamConnectionUserQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -71,14 +70,14 @@ v4 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayReaderTestStreamConnectionUserQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -98,25 +97,25 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayReaderTestStreamConnectionUserQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
               {
                 "alias": null,
-                "args": (v3/*: any*/),
+                "args": (v3/*:: as any*/),
                 "concreteType": "FriendsConnection",
                 "kind": "LinkedField",
                 "name": "friends",
@@ -150,8 +149,8 @@ return {
                                 "name": "name",
                                 "storageKey": null
                               },
-                              (v4/*: any*/),
-                              (v2/*: any*/)
+                              (v4/*:: as any*/),
+                              (v2/*:: as any*/)
                             ],
                             "storageKey": null
                           },
@@ -204,7 +203,7 @@ return {
               },
               {
                 "alias": null,
-                "args": (v3/*: any*/),
+                "args": (v3/*:: as any*/),
                 "filters": null,
                 "handle": "connection",
                 "key": "UserProfile_friends",
@@ -215,7 +214,7 @@ return {
             "type": "User",
             "abstractKey": null
           },
-          (v4/*: any*/)
+          (v4/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -233,10 +232,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "6fea4f22e3efe059099ef5cfa350fc9c";
+  (node/*:: as any*/).hash = "6fea4f22e3efe059099ef5cfa350fc9c";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderTestStreamConnectionUserQuery$variables,
   RelayReaderTestStreamConnectionUserQuery$data,
 >*/);

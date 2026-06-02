@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c2756fa59b7a708b60c43ef63f223c6b>>
+ * @generated SignedSource<<cf2434bf3316eb0d436393d69d6bc28b>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -25,25 +24,25 @@ import {client_edge as userClientEdgeResolverType} from "../resolvers/UserClient
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userClientEdgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userClientEdgeResolverType: (
+(userClientEdgeResolverType as (
   rootKey: UserClientEdgeResolver$key,
   args: void,
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
-export type RelayReaderClientEdgesTest3Query$variables = {||};
-export type RelayReaderClientEdgesTest3Query$data = {|
-  +me: ?{|
-    +client_edge: ?{|
-      +$fragmentSpreads: RelayReaderClientEdgesTestFragmentOnUser$fragmentType,
-    |},
-  |},
-|};
-export type RelayReaderClientEdgesTest3Query = {|
+) => ?{
+  readonly id: DataID,
+});
+export type RelayReaderClientEdgesTest3Query$variables = {};
+export type RelayReaderClientEdgesTest3Query$data = {
+  readonly me: ?{
+    readonly client_edge: ?{
+      readonly $fragmentSpreads: RelayReaderClientEdgesTestFragmentOnUser$fragmentType,
+    },
+  },
+};
+export type RelayReaderClientEdgesTest3Query = {
   response: RelayReaderClientEdgesTest3Query$data,
   variables: RelayReaderClientEdgesTest3Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {
@@ -161,10 +160,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "1631a4297aeb4909e68ea6822af044cb";
+  (node/*:: as any*/).hash = "1631a4297aeb4909e68ea6822af044cb";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderClientEdgesTest3Query$variables,
   RelayReaderClientEdgesTest3Query$data,
 >*/);

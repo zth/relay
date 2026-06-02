@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<721f227a2dacdaad832c941fa734ffd7>>
+ * @generated SignedSource<<1f89b89eb5afcac2867a60133de312b3>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,7 +23,7 @@ import {name as astrologicalSignNameResolverType} from "../AstrologicalSignNameR
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `astrologicalSignNameResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(astrologicalSignNameResolverType: (
+(astrologicalSignNameResolverType as (
   rootKey: AstrologicalSignNameResolver$key,
   args: void,
   context: TestResolverContextType,
@@ -32,25 +31,25 @@ import type { TestResolverContextType } from "../../../../mutations/__tests__/Te
 import {virgo_suspends_when_counter_is_odd as queryVirgoSuspendsWhenCounterIsOddResolverType} from "../QueryVirgoLiveSuspendsWhenOddResolver.js";
 // Type assertion validating that `queryVirgoSuspendsWhenCounterIsOddResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryVirgoSuspendsWhenCounterIsOddResolverType: (
+(queryVirgoSuspendsWhenCounterIsOddResolverType as (
   args: void,
   context: TestResolverContextType,
-) => LiveState<?{|
-  +id: DataID,
-|}>);
-export type ResolverGCTestResolverClientEdgeToClientSuspendedQuery$variables = {||};
-export type ResolverGCTestResolverClientEdgeToClientSuspendedQuery$data = {|
-  +me: ?{|
-    +__typename: "User",
-  |},
-  +virgo_suspends_when_counter_is_odd: ?{|
-    +name: ?string,
-  |},
-|};
-export type ResolverGCTestResolverClientEdgeToClientSuspendedQuery = {|
+) => LiveState<?{
+  readonly id: DataID,
+}>);
+export type ResolverGCTestResolverClientEdgeToClientSuspendedQuery$variables = {};
+export type ResolverGCTestResolverClientEdgeToClientSuspendedQuery$data = {
+  readonly me: ?{
+    readonly __typename: "User",
+  },
+  readonly virgo_suspends_when_counter_is_odd: ?{
+    readonly name: ?string,
+  },
+};
+export type ResolverGCTestResolverClientEdgeToClientSuspendedQuery = {
   response: ResolverGCTestResolverClientEdgeToClientSuspendedQuery$data,
   variables: ResolverGCTestResolverClientEdgeToClientSuspendedQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -81,6 +80,7 @@ return {
         "kind": "ClientEdgeToClientObject",
         "concreteType": "AstrologicalSign",
         "modelResolvers": null,
+        "serverObjectOperations": null,
         "backingField": {
           "alias": null,
           "args": null,
@@ -123,7 +123,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/)
+          (v0/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -167,7 +167,7 @@ return {
                     "fragment": {
                       "kind": "InlineFragment",
                       "selections": [
-                        (v1/*: any*/)
+                        (v1/*:: as any*/)
                       ],
                       "type": "AstrologicalSign",
                       "abstractKey": null
@@ -184,7 +184,7 @@ return {
               "storageKey": null,
               "isOutputType": true
             },
-            (v1/*: any*/)
+            (v1/*:: as any*/)
           ],
           "storageKey": null
         }
@@ -197,8 +197,8 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
-          (v1/*: any*/)
+          (v0/*:: as any*/),
+          (v1/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -216,10 +216,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "dd0a273ac98c59f8fb96a349e801ad6d";
+  (node/*:: as any*/).hash = "dd0a273ac98c59f8fb96a349e801ad6d";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ResolverGCTestResolverClientEdgeToClientSuspendedQuery$variables,
   ResolverGCTestResolverClientEdgeToClientSuspendedQuery$data,
 >*/);

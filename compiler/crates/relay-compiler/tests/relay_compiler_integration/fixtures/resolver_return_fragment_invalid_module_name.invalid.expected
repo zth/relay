@@ -1,0 +1,34 @@
+==================================== INPUT ====================================
+//- User_foo.js
+// Test that @returnFragment requires fragment names to start with the module name.
+/**
+ * @relayField User.foo: RelayResolverValue
+ * @returnFragment WrongPrefix_fragment
+ */
+
+//- UserFragment.js
+graphql`fragment UserFragment on User {
+  foo
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "featureFlags": {
+    "enable_shadow_resolvers": { "kind": "enabled" }
+  }
+}
+
+//- schema.graphql
+type Query { me: User }
+type User { name: String }
+==================================== OUTPUT ===================================
+✖︎ The @returnFragment name must start with the module name ('UserFoo'). Got 'WrongPrefix_fragment' instead.
+
+  User_foo.js:4:20
+    3 │  * @relayField User.foo: RelayResolverValue
+    4 │  * @returnFragment WrongPrefix_fragment
+      │                    ^^^^^^^^^^^^^^^^^^^^
+    5 │

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4d0c48c1712a5e0c8a0662becaea11ac>>
+ * @generated SignedSource<<6933fd68181dcd7f9b2d1877be2324da>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -25,16 +24,16 @@ import {edge_to_live_object_does_not_exist as queryEdgeToLiveObjectDoesNotExistR
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryEdgeToLiveObjectDoesNotExistResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryEdgeToLiveObjectDoesNotExistResolverType: (
+(queryEdgeToLiveObjectDoesNotExistResolverType as (
   args: void,
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
+) => ?{
+  readonly id: DataID,
+});
 import {text as todoDescriptionTextResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
 // Type assertion validating that `todoDescriptionTextResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(todoDescriptionTextResolverType: (
+(todoDescriptionTextResolverType as (
   __relay_model_instance: TodoDescription____relay_model_instance$data['__relay_model_instance'],
   args: void,
   context: TestResolverContextType,
@@ -42,25 +41,25 @@ import {text as todoDescriptionTextResolverType} from "../../../relay-runtime/st
 import {fancy_description as todoModelFancyDescriptionResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoModel.js";
 // Type assertion validating that `todoModelFancyDescriptionResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(todoModelFancyDescriptionResolverType: (
+(todoModelFancyDescriptionResolverType as (
   __relay_model_instance: TodoModel____relay_model_instance$data['__relay_model_instance'],
   args: void,
   context: TestResolverContextType,
 ) => ?TodoDescription);
 import type { TodoDescription } from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
-export type RelayResolverNullableModelClientEdgeTest_LiveModel_Query$variables = {||};
-export type RelayResolverNullableModelClientEdgeTest_LiveModel_Query$data = {|
-  +edge_to_live_object_does_not_exist: ?{|
-    +fancy_description: ?{|
-      +text: ?string,
-    |},
-    +id: string,
-  |},
-|};
-export type RelayResolverNullableModelClientEdgeTest_LiveModel_Query = {|
+export type RelayResolverNullableModelClientEdgeTest_LiveModel_Query$variables = {};
+export type RelayResolverNullableModelClientEdgeTest_LiveModel_Query$data = {
+  readonly edge_to_live_object_does_not_exist: ?{
+    readonly fancy_description: ?{
+      readonly text: ?string,
+    },
+    readonly id: string,
+  },
+};
+export type RelayResolverNullableModelClientEdgeTest_LiveModel_Query = {
   response: RelayResolverNullableModelClientEdgeTest_LiveModel_Query$data,
   variables: RelayResolverNullableModelClientEdgeTest_LiveModel_Query$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){
@@ -98,6 +97,7 @@ return {
             "path": "edge_to_live_object_does_not_exist.__relay_model_instance"
           }
         },
+        "serverObjectOperations": null,
         "backingField": {
           "alias": null,
           "args": null,
@@ -115,11 +115,12 @@ return {
           "name": "edge_to_live_object_does_not_exist",
           "plural": false,
           "selections": [
-            (v0/*: any*/),
+            (v0/*:: as any*/),
             {
               "kind": "ClientEdgeToClientObject",
               "concreteType": "TodoDescription",
               "modelResolvers": null,
+              "serverObjectOperations": null,
               "backingField": {
                 "alias": null,
                 "args": null,
@@ -195,7 +196,7 @@ return {
           "name": "edge_to_live_object_does_not_exist",
           "plural": false,
           "selections": [
-            (v0/*: any*/),
+            (v0/*:: as any*/),
             {
               "kind": "ClientEdgeToClientObject",
               "backingField": {
@@ -210,7 +211,7 @@ return {
                       "fragment": {
                         "kind": "InlineFragment",
                         "selections": [
-                          (v0/*: any*/)
+                          (v0/*:: as any*/)
                         ],
                         "type": "TodoModel",
                         "abstractKey": null
@@ -278,10 +279,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "37156528a49b790efe6451531de61ea5";
+  (node/*:: as any*/).hash = "37156528a49b790efe6451531de61ea5";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   RelayResolverNullableModelClientEdgeTest_LiveModel_Query$variables,
   RelayResolverNullableModelClientEdgeTest_LiveModel_Query$data,
 >*/);

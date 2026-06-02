@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9d6873325f05214bcecfbd4ca83c858f>>
+ * @generated SignedSource<<1a278976f5789424d00819ad317cfa71>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -22,20 +21,20 @@ import {hello as queryHelloResolverType} from "../HelloWorldResolver.js";
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryHelloResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryHelloResolverType: (
-  args: {|
+(queryHelloResolverType as (
+  args: {
     world: string,
-  |},
+  },
   context: TestResolverContextType,
 ) => ?string);
-export type ResolverGCTestNoFragmentStaticArgsQuery$variables = {||};
-export type ResolverGCTestNoFragmentStaticArgsQuery$data = {|
-  +hello: ?string,
-|};
-export type ResolverGCTestNoFragmentStaticArgsQuery = {|
+export type ResolverGCTestNoFragmentStaticArgsQuery$variables = {};
+export type ResolverGCTestNoFragmentStaticArgsQuery$data = {
+  readonly hello: ?string,
+};
+export type ResolverGCTestNoFragmentStaticArgsQuery = {
   response: ResolverGCTestNoFragmentStaticArgsQuery$data,
   variables: ResolverGCTestNoFragmentStaticArgsQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){
@@ -58,7 +57,7 @@ return {
         "selections": [
           {
             "alias": null,
-            "args": (v0/*: any*/),
+            "args": (v0/*:: as any*/),
             "fragment": null,
             "kind": "RelayResolver",
             "name": "hello",
@@ -82,7 +81,7 @@ return {
         "selections": [
           {
             "name": "hello",
-            "args": (v0/*: any*/),
+            "args": (v0/*:: as any*/),
             "fragment": null,
             "kind": "RelayResolver",
             "storageKey": "hello(world:\"Planet\")",
@@ -104,10 +103,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "9b9ee1ef7e082bd557894d841c4a08f3";
+  (node/*:: as any*/).hash = "9b9ee1ef7e082bd557894d841c4a08f3";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   ResolverGCTestNoFragmentStaticArgsQuery$variables,
   ResolverGCTestNoFragmentStaticArgsQuery$data,
 >*/);

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<fdaa5ec783ffb2fb143e6c6fbc60d515>>
+ * @generated SignedSource<<1e8565739b707ffa8afebbeb03a8193d>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,20 +19,20 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayMockPayloadGeneratorTest14Fragment$fragmentType: FragmentType;
-export type RelayMockPayloadGeneratorTest14Fragment$data = {|
-  +bigImage: ?{|
-    +uri: ?string,
-  |},
-  +id: string,
-  +name: ?string,
-  +smallImage: ?{|
-    +uri: ?string,
-  |},
-  +$fragmentType: RelayMockPayloadGeneratorTest14Fragment$fragmentType,
-|};
+export type RelayMockPayloadGeneratorTest14Fragment$data = {
+  readonly bigImage: ?{
+    readonly uri: ?string,
+  },
+  readonly id: string,
+  readonly name: ?string,
+  readonly smallImage: ?{
+    readonly uri: ?string,
+  },
+  readonly $fragmentType: RelayMockPayloadGeneratorTest14Fragment$fragmentType,
+};
 export type RelayMockPayloadGeneratorTest14Fragment$key = {
-  +$data?: RelayMockPayloadGeneratorTest14Fragment$data,
-  +$fragmentSpreads: RelayMockPayloadGeneratorTest14Fragment$fragmentType,
+  readonly $data?: RelayMockPayloadGeneratorTest14Fragment$data,
+  readonly $fragmentSpreads: RelayMockPayloadGeneratorTest14Fragment$fragmentType,
   ...
 };
 */
@@ -90,7 +89,7 @@ return {
       "kind": "LinkedField",
       "name": "profile_picture",
       "plural": false,
-      "selections": (v0/*: any*/),
+      "selections": (v0/*:: as any*/),
       "storageKey": null
     },
     {
@@ -106,7 +105,7 @@ return {
       "kind": "LinkedField",
       "name": "profile_picture",
       "plural": false,
-      "selections": (v0/*: any*/),
+      "selections": (v0/*:: as any*/),
       "storageKey": null
     }
   ],
@@ -116,10 +115,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "5617c6db55c34b5c577c3132b1c6db8a";
+  (node/*:: as any*/).hash = "5617c6db55c34b5c577c3132b1c6db8a";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayMockPayloadGeneratorTest14Fragment$fragmentType,
   RelayMockPayloadGeneratorTest14Fragment$data,
 >*/);

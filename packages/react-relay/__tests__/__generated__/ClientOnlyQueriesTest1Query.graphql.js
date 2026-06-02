@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<16fcf23b01ad655a62ccacdfd6c4e67b>>
+ * @generated SignedSource<<ac9c35bc46cc04ab787a6751209a98c7>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,16 +17,16 @@
 
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
-export type ClientOnlyQueriesTest1Query$variables = {||};
-export type ClientOnlyQueriesTest1Query$data = {|
-  +defaultSettings: ?{|
-    +client_field: ?string,
-  |},
-|};
-export type ClientOnlyQueriesTest1Query = {|
+export type ClientOnlyQueriesTest1Query$variables = {};
+export type ClientOnlyQueriesTest1Query$data = {
+  readonly defaultSettings: ?{
+    readonly client_field: ?string,
+  },
+};
+export type ClientOnlyQueriesTest1Query = {
   response: ClientOnlyQueriesTest1Query$data,
   variables: ClientOnlyQueriesTest1Query$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){
@@ -62,7 +61,7 @@ return {
     "kind": "Fragment",
     "metadata": null,
     "name": "ClientOnlyQueriesTest1Query",
-    "selections": (v0/*: any*/),
+    "selections": (v0/*:: as any*/),
     "type": "Query",
     "abstractKey": null
   },
@@ -71,7 +70,7 @@ return {
     "argumentDefinitions": [],
     "kind": "Operation",
     "name": "ClientOnlyQueriesTest1Query",
-    "selections": (v0/*: any*/)
+    "selections": (v0/*:: as any*/)
   },
   "params": {
     "cacheID": "66f0994dc5890a6b08b3d2c3b7c65e29",
@@ -85,10 +84,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "22cf2fd45d860a9f2d7674f60dcf05dd";
+  (node/*:: as any*/).hash = "22cf2fd45d860a9f2d7674f60dcf05dd";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   ClientOnlyQueriesTest1Query$variables,
   ClientOnlyQueriesTest1Query$data,
 >*/);

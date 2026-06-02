@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<91a8b69e43b9a2cd48895707a93d98f5>>
+ * @generated SignedSource<<015465b43b9a8d7bff258f5d4555971d>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,17 +19,17 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayMockEnvironmentWithComponentsTestImpactfulAwesomenessFragment$fragmentType: FragmentType;
-export type RelayMockEnvironmentWithComponentsTestImpactfulAwesomenessFragment$data = {|
-  +doesViewerLike: ?boolean,
-  +id: string,
-  +message: ?{|
-    +text: ?string,
-  |},
-  +$fragmentType: RelayMockEnvironmentWithComponentsTestImpactfulAwesomenessFragment$fragmentType,
-|};
+export type RelayMockEnvironmentWithComponentsTestImpactfulAwesomenessFragment$data = {
+  readonly doesViewerLike: ?boolean,
+  readonly id: string,
+  readonly message: ?{
+    readonly text: ?string,
+  },
+  readonly $fragmentType: RelayMockEnvironmentWithComponentsTestImpactfulAwesomenessFragment$fragmentType,
+};
 export type RelayMockEnvironmentWithComponentsTestImpactfulAwesomenessFragment$key = {
-  +$data?: RelayMockEnvironmentWithComponentsTestImpactfulAwesomenessFragment$data,
-  +$fragmentSpreads: RelayMockEnvironmentWithComponentsTestImpactfulAwesomenessFragment$fragmentType,
+  readonly $data?: RelayMockEnvironmentWithComponentsTestImpactfulAwesomenessFragment$data,
+  readonly $fragmentSpreads: RelayMockEnvironmentWithComponentsTestImpactfulAwesomenessFragment$fragmentType,
   ...
 };
 */
@@ -79,10 +78,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "afc4f54ab4d51941dca5c3cede03b6ba";
+  (node/*:: as any*/).hash = "afc4f54ab4d51941dca5c3cede03b6ba";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayMockEnvironmentWithComponentsTestImpactfulAwesomenessFragment$fragmentType,
   RelayMockEnvironmentWithComponentsTestImpactfulAwesomenessFragment$data,
 >*/);

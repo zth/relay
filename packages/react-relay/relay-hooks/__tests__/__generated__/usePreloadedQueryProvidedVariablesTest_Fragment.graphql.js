@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8068d4a9c39132eda92f934a91555e76>>
+ * @generated SignedSource<<a6c6a1fd0e9fc3a4bf9a978d5fe6ec78>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,16 +19,16 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type usePreloadedQueryProvidedVariablesTest_Fragment$fragmentType: FragmentType;
-export type usePreloadedQueryProvidedVariablesTest_Fragment$data = {|
-  +firstName?: ?string,
-  +lastName?: ?string,
-  +name?: ?string,
-  +username?: ?string,
-  +$fragmentType: usePreloadedQueryProvidedVariablesTest_Fragment$fragmentType,
-|};
+export type usePreloadedQueryProvidedVariablesTest_Fragment$data = {
+  readonly firstName?: ?string,
+  readonly lastName?: ?string,
+  readonly name?: ?string,
+  readonly username?: ?string,
+  readonly $fragmentType: usePreloadedQueryProvidedVariablesTest_Fragment$fragmentType,
+};
 export type usePreloadedQueryProvidedVariablesTest_Fragment$key = {
-  +$data?: usePreloadedQueryProvidedVariablesTest_Fragment$data,
-  +$fragmentSpreads: usePreloadedQueryProvidedVariablesTest_Fragment$fragmentType,
+  readonly $data?: usePreloadedQueryProvidedVariablesTest_Fragment$data,
+  readonly $fragmentSpreads: usePreloadedQueryProvidedVariablesTest_Fragment$fragmentType,
   ...
 };
 */
@@ -45,10 +44,10 @@ v1 = {
 };
 return {
   "argumentDefinitions": [
-    (v0/*: any*/),
-    (v0/*: any*/),
-    (v1/*: any*/),
-    (v1/*: any*/)
+    (v0/*:: as any*/),
+    (v0/*:: as any*/),
+    (v1/*:: as any*/),
+    (v1/*:: as any*/)
   ],
   "kind": "Fragment",
   "metadata": null,
@@ -117,10 +116,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "9aa04bed3938035b507ba1c0b03467b1";
+  (node/*:: as any*/).hash = "9aa04bed3938035b507ba1c0b03467b1";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   usePreloadedQueryProvidedVariablesTest_Fragment$fragmentType,
   usePreloadedQueryProvidedVariablesTest_Fragment$data,
 >*/);

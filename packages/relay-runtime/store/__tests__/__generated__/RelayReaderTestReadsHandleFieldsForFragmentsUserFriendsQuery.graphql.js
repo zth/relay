@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3da2f5b9435639cb76f7c803e4954131>>
+ * @generated SignedSource<<a4436771a5aa70b79e8344faddab4142>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,16 +18,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayReaderTestReadsHandleFieldsForFragmentsUserFriends$fragmentType } from "./RelayReaderTestReadsHandleFieldsForFragmentsUserFriends.graphql";
-export type RelayReaderTestReadsHandleFieldsForFragmentsUserFriendsQuery$variables = {||};
-export type RelayReaderTestReadsHandleFieldsForFragmentsUserFriendsQuery$data = {|
-  +me: ?{|
-    +$fragmentSpreads: RelayReaderTestReadsHandleFieldsForFragmentsUserFriends$fragmentType,
-  |},
-|};
-export type RelayReaderTestReadsHandleFieldsForFragmentsUserFriendsQuery = {|
+export type RelayReaderTestReadsHandleFieldsForFragmentsUserFriendsQuery$variables = {};
+export type RelayReaderTestReadsHandleFieldsForFragmentsUserFriendsQuery$data = {
+  readonly me: ?{
+    readonly $fragmentSpreads: RelayReaderTestReadsHandleFieldsForFragmentsUserFriends$fragmentType,
+  },
+};
+export type RelayReaderTestReadsHandleFieldsForFragmentsUserFriendsQuery = {
   response: RelayReaderTestReadsHandleFieldsForFragmentsUserFriendsQuery$data,
   variables: RelayReaderTestReadsHandleFieldsForFragmentsUserFriendsQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -89,7 +88,7 @@ return {
         "selections": [
           {
             "alias": null,
-            "args": (v0/*: any*/),
+            "args": (v0/*:: as any*/),
             "concreteType": "FriendsConnection",
             "kind": "LinkedField",
             "name": "friends",
@@ -118,7 +117,7 @@ return {
                     "name": "node",
                     "plural": false,
                     "selections": [
-                      (v1/*: any*/),
+                      (v1/*:: as any*/),
                       {
                         "alias": null,
                         "args": null,
@@ -146,14 +145,14 @@ return {
           },
           {
             "alias": null,
-            "args": (v0/*: any*/),
+            "args": (v0/*:: as any*/),
             "filters": null,
             "handle": "bestFriends",
             "key": "",
             "kind": "LinkedHandle",
             "name": "friends"
           },
-          (v1/*: any*/)
+          (v1/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -171,10 +170,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "2ac225f5ec97e79b7c664322027462a2";
+  (node/*:: as any*/).hash = "2ac225f5ec97e79b7c664322027462a2";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderTestReadsHandleFieldsForFragmentsUserFriendsQuery$variables,
   RelayReaderTestReadsHandleFieldsForFragmentsUserFriendsQuery$data,
 >*/);

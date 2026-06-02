@@ -20,26 +20,26 @@ const {FRAGMENTS_KEY} = require('./RelayStoreUtils');
 const invariant = require('invariant');
 
 type HasSpread<TFragmentType> = {
-  +$fragmentSpreads: TFragmentType,
+  readonly $fragmentSpreads: TFragmentType,
   ...
 };
 
 /**
  * Reads an @inline data fragment that was spread into the parent fragment.
  */
-declare function readInlineData<TFragmentType: FragmentType, TData>(
+declare function readInlineData<TFragmentType extends FragmentType, TData>(
   fragment: InlineFragment<TFragmentType, TData>,
   key: HasSpread<TFragmentType>,
 ): TData;
-declare function readInlineData<TFragmentType: FragmentType, TData>(
+declare function readInlineData<TFragmentType extends FragmentType, TData>(
   fragment: InlineFragment<TFragmentType, TData>,
   key: ?HasSpread<TFragmentType>,
 ): ?TData;
 
 function readInlineData(
   fragment: GraphQLTaggedNode,
-  fragmentRef: mixed,
-): mixed {
+  fragmentRef: unknown,
+): unknown {
   const inlineDataFragment = getInlineDataFragment(fragment);
   if (fragmentRef == null) {
     return fragmentRef;

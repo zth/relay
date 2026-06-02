@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<628c814c146ce36f8b17c47654403092>>
+ * @generated SignedSource<<47f7614adf8e3555d64bd3db8bab9fb8>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,17 +17,17 @@
 
 /*::
 import type { UpdatableQuery, ConcreteUpdatableQuery } from 'relay-runtime';
-export type ClientOnlyQueriesTestUpdatableQuery$variables = {||};
-export type ClientOnlyQueriesTestUpdatableQuery$data = {|
-  get defaultSettings(): ?{|
+export type ClientOnlyQueriesTestUpdatableQuery$variables = {};
+export type ClientOnlyQueriesTestUpdatableQuery$data = {
+  get defaultSettings(): ?{
     client_field: ?string,
-  |},
+  },
   set defaultSettings(value: null | void): void,
-|};
-export type ClientOnlyQueriesTestUpdatableQuery = {|
+};
+export type ClientOnlyQueriesTestUpdatableQuery = {
   response: ClientOnlyQueriesTestUpdatableQuery$data,
   variables: ClientOnlyQueriesTestUpdatableQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteUpdatableQuery*/ = {
@@ -69,10 +68,10 @@ var node/*: ConcreteUpdatableQuery*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "0a0119dc9f4fe139042af0839c700351";
+  (node/*:: as any*/).hash = "0a0119dc9f4fe139042af0839c700351";
 }
 
-module.exports = ((node/*: any*/)/*: UpdatableQuery<
+module.exports = ((node/*:: as any*/)/*:: as UpdatableQuery<
   ClientOnlyQueriesTestUpdatableQuery$variables,
   ClientOnlyQueriesTestUpdatableQuery$data,
 >*/);

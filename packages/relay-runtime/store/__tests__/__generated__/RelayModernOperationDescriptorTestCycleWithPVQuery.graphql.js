@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<305bc4cb44edc8ea237917371c400367>>
+ * @generated SignedSource<<ab35219d46342e358d67648550350eb0>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,23 +18,23 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernOperationDescriptorTestCycleQuery_fragment$fragmentType } from "./RelayModernOperationDescriptorTestCycleQuery_fragment.graphql";
-export type RelayModernOperationDescriptorTestCycleWithPVQuery$variables = {||};
-export type RelayModernOperationDescriptorTestCycleWithPVQuery$data = {|
-  +me: ?{|
-    +$fragmentSpreads: RelayModernOperationDescriptorTestCycleQuery_fragment$fragmentType,
-  |},
-|};
-export type RelayModernOperationDescriptorTestCycleWithPVQuery = {|
+export type RelayModernOperationDescriptorTestCycleWithPVQuery$variables = {};
+export type RelayModernOperationDescriptorTestCycleWithPVQuery$data = {
+  readonly me: ?{
+    readonly $fragmentSpreads: RelayModernOperationDescriptorTestCycleQuery_fragment$fragmentType,
+  },
+};
+export type RelayModernOperationDescriptorTestCycleWithPVQuery = {
   response: RelayModernOperationDescriptorTestCycleWithPVQuery$data,
   variables: RelayModernOperationDescriptorTestCycleWithPVQuery$variables,
-|};
+};
 ({
   "__relay_internal__pv__RelayProvider_returnsCyclicrelayprovider": require('../RelayProvider_returnsCyclic.relayprovider')
-}: {|
-  +__relay_internal__pv__RelayProvider_returnsCyclicrelayprovider: {|
-    +get: () => boolean,
-  |},
-|});
+} as {
+  readonly __relay_internal__pv__RelayProvider_returnsCyclicrelayprovider: {
+    readonly get: () => boolean,
+  },
+});
 */
 
 var node/*: ConcreteRequest*/ = {
@@ -125,10 +124,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "6f13180b64777a29cc0fd27356525b7a";
+  (node/*:: as any*/).hash = "6f13180b64777a29cc0fd27356525b7a";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernOperationDescriptorTestCycleWithPVQuery$variables,
   RelayModernOperationDescriptorTestCycleWithPVQuery$data,
 >*/);

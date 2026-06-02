@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b86190b6aad797cc8ff16dbd1b765413>>
+ * @generated SignedSource<<145e2d2e1866d60bed2ac27b6d19482c>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,19 +18,19 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernStoreTest9Fragment$fragmentType } from "./RelayModernStoreTest9Fragment.graphql";
-export type RelayModernStoreTest9Query$variables = {|
+export type RelayModernStoreTest9Query$variables = {
   id: string,
-  size?: ?$ReadOnlyArray<?number>,
-|};
-export type RelayModernStoreTest9Query$data = {|
-  +node: ?{|
-    +$fragmentSpreads: RelayModernStoreTest9Fragment$fragmentType,
-  |},
-|};
-export type RelayModernStoreTest9Query = {|
+  size?: ?ReadonlyArray<?number>,
+};
+export type RelayModernStoreTest9Query$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: RelayModernStoreTest9Fragment$fragmentType,
+  },
+};
+export type RelayModernStoreTest9Query = {
   response: RelayModernStoreTest9Query$data,
   variables: RelayModernStoreTest9Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -56,14 +55,14 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernStoreTest9Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -83,13 +82,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernStoreTest9Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -164,10 +163,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "b32973d64f3cb9d3955e0aab2c9a36f2";
+  (node/*:: as any*/).hash = "b32973d64f3cb9d3955e0aab2c9a36f2";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernStoreTest9Query$variables,
   RelayModernStoreTest9Query$data,
 >*/);

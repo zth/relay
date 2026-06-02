@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<72188650656e03e287d0ee66de681e42>>
+ * @generated SignedSource<<7273d96b6b9f8879f3fed1f34fda9ecb>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,19 +18,19 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentExecuteSubscriptionTestCommentFragment$fragmentType } from "./RelayModernEnvironmentExecuteSubscriptionTestCommentFragment.graphql";
-export type RelayModernEnvironmentExecuteSubscriptionTestCommentQuery$variables = {|
+export type RelayModernEnvironmentExecuteSubscriptionTestCommentQuery$variables = {
   id: string,
-|};
-export type RelayModernEnvironmentExecuteSubscriptionTestCommentQuery$data = {|
-  +node: ?{|
-    +id: string,
-    +$fragmentSpreads: RelayModernEnvironmentExecuteSubscriptionTestCommentFragment$fragmentType,
-  |},
-|};
-export type RelayModernEnvironmentExecuteSubscriptionTestCommentQuery = {|
+};
+export type RelayModernEnvironmentExecuteSubscriptionTestCommentQuery$data = {
+  readonly node: ?{
+    readonly id: string,
+    readonly $fragmentSpreads: RelayModernEnvironmentExecuteSubscriptionTestCommentFragment$fragmentType,
+  },
+};
+export type RelayModernEnvironmentExecuteSubscriptionTestCommentQuery = {
   response: RelayModernEnvironmentExecuteSubscriptionTestCommentQuery$data,
   variables: RelayModernEnvironmentExecuteSubscriptionTestCommentQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -58,20 +57,20 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentExecuteSubscriptionTestCommentQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "args": null,
             "kind": "FragmentSpread",
@@ -86,13 +85,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentExecuteSubscriptionTestCommentQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -105,7 +104,7 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
@@ -148,10 +147,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "0d4b8e1bf2b61e9a7c5c448f5737a807";
+  (node/*:: as any*/).hash = "0d4b8e1bf2b61e9a7c5c448f5737a807";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentExecuteSubscriptionTestCommentQuery$variables,
   RelayModernEnvironmentExecuteSubscriptionTestCommentQuery$data,
 >*/);

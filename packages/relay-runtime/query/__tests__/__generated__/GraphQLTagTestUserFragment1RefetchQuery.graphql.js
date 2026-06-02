@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<19f4924a96694b89a0e38ea144cc07a9>>
+ * @generated SignedSource<<155446bc60b7eca5bc6356fc197da07d>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,18 +19,18 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 import type { GraphQLTagTest2UserFragment$fragmentType } from "./GraphQLTagTest2UserFragment.graphql";
-export type GraphQLTagTestUserFragment1RefetchQuery$variables = {|
+export type GraphQLTagTestUserFragment1RefetchQuery$variables = {
   id: string,
-|};
-export type GraphQLTagTestUserFragment1RefetchQuery$data = {|
-  +node: ?{|
-    +$fragmentSpreads: GraphQLTagTest2UserFragment$fragmentType,
-  |},
-|};
-export type GraphQLTagTestUserFragment1RefetchQuery = {|
+};
+export type GraphQLTagTestUserFragment1RefetchQuery$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: GraphQLTagTest2UserFragment$fragmentType,
+  },
+};
+export type GraphQLTagTestUserFragment1RefetchQuery = {
   response: GraphQLTagTestUserFragment1RefetchQuery$data,
   variables: GraphQLTagTestUserFragment1RefetchQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -51,14 +50,14 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "GraphQLTagTestUserFragment1RefetchQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -78,13 +77,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "GraphQLTagTestUserFragment1RefetchQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -135,10 +134,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "551532a9e8b3679f63f17f68268f03d2";
+  (node/*:: as any*/).hash = "551532a9e8b3679f63f17f68268f03d2";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   GraphQLTagTestUserFragment1RefetchQuery$variables,
   GraphQLTagTestUserFragment1RefetchQuery$data,
 >*/);

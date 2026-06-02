@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4f4055e60386c1e395bc49e7dcacab07>>
+ * @generated SignedSource<<803215721e8aeab8bd5eaaba0ec5ffd5>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,16 +17,16 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayReaderRequiredFieldsTest18Query$variables = {||};
-export type RelayReaderRequiredFieldsTest18Query$data = {|
-  +me: ?{|
-    +client_nickname: string,
-  |},
-|};
-export type RelayReaderRequiredFieldsTest18Query = {|
+export type RelayReaderRequiredFieldsTest18Query$variables = {};
+export type RelayReaderRequiredFieldsTest18Query$data = {
+  readonly me: ?{
+    readonly client_nickname: string,
+  },
+};
+export type RelayReaderRequiredFieldsTest18Query = {
   response: RelayReaderRequiredFieldsTest18Query$data,
   variables: RelayReaderRequiredFieldsTest18Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -58,7 +57,7 @@ return {
             "selections": [
               {
                 "kind": "RequiredField",
-                "field": (v0/*: any*/),
+                "field": (v0/*:: as any*/),
                 "action": "LOG"
               }
             ]
@@ -94,7 +93,7 @@ return {
           {
             "kind": "ClientExtension",
             "selections": [
-              (v0/*: any*/)
+              (v0/*:: as any*/)
             ]
           }
         ],
@@ -114,10 +113,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "b33ec9cb2117d55d71acf42e45db711d";
+  (node/*:: as any*/).hash = "b33ec9cb2117d55d71acf42e45db711d";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderRequiredFieldsTest18Query$variables,
   RelayReaderRequiredFieldsTest18Query$data,
 >*/);

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<52d1fe5c471b04abf5bb5944989d6fe2>>
+ * @generated SignedSource<<ebb597f6de9d9b971d29fcad67826e4d>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,17 +17,17 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayModernEnvironmentExecuteWithOptimisticResponseTestActor2Query$variables = {||};
-export type RelayModernEnvironmentExecuteWithOptimisticResponseTestActor2Query$data = {|
-  +me: ?{|
-    +lastName: ?string,
-    +name: ?string,
-  |},
-|};
-export type RelayModernEnvironmentExecuteWithOptimisticResponseTestActor2Query = {|
+export type RelayModernEnvironmentExecuteWithOptimisticResponseTestActor2Query$variables = {};
+export type RelayModernEnvironmentExecuteWithOptimisticResponseTestActor2Query$data = {
+  readonly me: ?{
+    readonly lastName: ?string,
+    readonly name: ?string,
+  },
+};
+export type RelayModernEnvironmentExecuteWithOptimisticResponseTestActor2Query = {
   response: RelayModernEnvironmentExecuteWithOptimisticResponseTestActor2Query$data,
   variables: RelayModernEnvironmentExecuteWithOptimisticResponseTestActor2Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -61,8 +60,8 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
-          (v1/*: any*/)
+          (v0/*:: as any*/),
+          (v1/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -84,8 +83,8 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
-          (v1/*: any*/),
+          (v0/*:: as any*/),
+          (v1/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -110,10 +109,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "02fe375518097833333acc788cea5d5c";
+  (node/*:: as any*/).hash = "02fe375518097833333acc788cea5d5c";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentExecuteWithOptimisticResponseTestActor2Query$variables,
   RelayModernEnvironmentExecuteWithOptimisticResponseTestActor2Query$data,
 >*/);

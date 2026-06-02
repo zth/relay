@@ -1,0 +1,32 @@
+//- src/component.js
+graphql`query componentQuery {
+  me {
+    name
+  }
+}`
+
+//- src/__generated__/nonRelayFile.js
+// This is a non-relay file living in a __generated__ directory.
+// Even though the project specifies a custom output directory, the compiler
+// will still delete this file because it is categorized as a generated file
+// via `in_relative_generated_dir`.
+export const MY_CONSTANT = 42;
+
+//- relay.config.json
+{
+   "sources": {
+      "src": "test_project"
+   },
+   "excludes": [],
+   "projects": {
+      "test_project": {
+         "schema": "schema.graphql",
+         "language": "javascript",
+         "output": "custom-output"
+      }
+   }
+}
+
+//- schema.graphql
+type Query { me: User }
+type User { name: String }

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a9eae4a4cd1d8e54affbce95252de8ab>>
+ * @generated SignedSource<<71a3539646e4c2ee5e03d2856d054a85>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -23,18 +22,18 @@ import {counter_throws_when_odd as queryCounterThrowsWhenOddResolverType} from "
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryCounterThrowsWhenOddResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryCounterThrowsWhenOddResolverType: (
+(queryCounterThrowsWhenOddResolverType as (
   args: void,
   context: TestResolverContextType,
 ) => LiveState<?number>);
-export type LiveResolversTestHandlesErrorOnUpdateQuery$variables = {||};
-export type LiveResolversTestHandlesErrorOnUpdateQuery$data = {|
-  +counter_throws_when_odd: ?number,
-|};
-export type LiveResolversTestHandlesErrorOnUpdateQuery = {|
+export type LiveResolversTestHandlesErrorOnUpdateQuery$variables = {};
+export type LiveResolversTestHandlesErrorOnUpdateQuery$data = {
+  readonly counter_throws_when_odd: ?number,
+};
+export type LiveResolversTestHandlesErrorOnUpdateQuery = {
   response: LiveResolversTestHandlesErrorOnUpdateQuery$data,
   variables: LiveResolversTestHandlesErrorOnUpdateQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = {
@@ -94,10 +93,10 @@ var node/*: ClientRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "b0fe01bebd0ba17a2b27b256f6391a2d";
+  (node/*:: as any*/).hash = "b0fe01bebd0ba17a2b27b256f6391a2d";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   LiveResolversTestHandlesErrorOnUpdateQuery$variables,
   LiveResolversTestHandlesErrorOnUpdateQuery$data,
 >*/);

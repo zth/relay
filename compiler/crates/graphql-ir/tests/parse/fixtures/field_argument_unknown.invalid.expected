@@ -6,7 +6,7 @@ query TestQuery {
   }
 }
 ==================================== ERROR ====================================
-✖︎ Unknown argument 'cucumber'. Did you mean `number`?
+✖︎ Unknown argument 'cucumber' on field 'Query.task'. Did you mean `number`?
 
   field_argument_unknown.invalid.graphql:3:8
     2 │ query TestQuery {

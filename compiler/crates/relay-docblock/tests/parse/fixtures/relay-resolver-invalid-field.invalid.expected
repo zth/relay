@@ -7,13 +7,10 @@
  */
 
 // expected-to-throw
-// relay:allow_legacy_verbose_syntax
+// relay:allow_legacy_relay_resolver_tag
 
 /**
- * @RelayResolver
- * @onType User
- * @fieldName favorite_page
- * @edgeTo Page
+ * @RelayResolver User.favorite_page: Page
  * @rootFragment myRootFragment
  * @notValid myRootFragment
  */
@@ -26,8 +23,8 @@ graphql`
 ==================================== ERROR ====================================
 ✖︎ Unexpected docblock field `@notValid`
 
-  /path/to/test/fixture/relay-resolver-invalid-field.invalid.js:17:5
-   16 │  * @rootFragment myRootFragment
-   17 │  * @notValid myRootFragment
+  /path/to/test/fixture/relay-resolver-invalid-field.invalid.js:14:5
+   13 │  * @rootFragment myRootFragment
+   14 │  * @notValid myRootFragment
       │     ^^^^^^^^
-   18 │
+   15 │

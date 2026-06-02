@@ -72,10 +72,12 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                 initialize_resources();
                 setup_event.stop(timer);
             }
+            let load_compiler_state_timer = setup_event.start("load_compiler_state_time");
             let file_source = FileSource::connect(&self.config, &setup_event).await?;
             let mut compiler_state = file_source
                 .query(&setup_event, self.perf_logger.as_ref())
                 .await?;
+            setup_event.stop(load_compiler_state_timer);
 
             let diagnostics = self
                 .build_projects(&mut compiler_state, &setup_event)
@@ -100,13 +102,76 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
         }
     }
 
+    /// Exposed for testing.
+    ///
+    /// Perform an incremental build using an existing compiler state.
+    ///
+    /// This method is useful for testing incremental compilation. The caller should:
+    /// 1. Push file source changes to `compiler_state.pending_file_source_changes`
+    /// 2. Call this method to merge changes and rebuild
+    pub async fn build_with_changed_files(&self, compiler_state: &mut CompilerState) -> Result<()> {
+        let setup_event = self.perf_logger.create_event("incremental_build");
+        self.config.status_reporter.build_starts();
+
+        let result: Result<Vec<Diagnostic>> = async {
+            let had_new_changes = compiler_state.merge_file_source_changes(
+                &self.config,
+                self.perf_logger.as_ref(),
+                false,
+            )?;
+
+            if had_new_changes {
+                let diagnostics = self.build_projects(compiler_state, &setup_event).await?;
+                Ok(diagnostics)
+            } else {
+                Ok(vec![])
+            }
+        }
+        .await;
+        setup_event.complete();
+
+        match result {
+            Ok(non_fatal_diagnostics) => {
+                self.config
+                    .status_reporter
+                    .build_completes(&non_fatal_diagnostics);
+                Ok(())
+            }
+            Err(error) => {
+                self.config.status_reporter.build_errors(&error);
+                Err(error)
+            }
+        }
+    }
+
     pub async fn watch(&self) -> Result<()> {
         'watch: loop {
+            // Clear any stale cached artifact operations from a previous watch
+            // loop iteration. After a source control update (rebase), the old
+            // cached operations are derived from the pre-rebase compiler state
+            // and may reference artifacts for files that no longer exist.
+            self.config.artifact_writer.reset();
+
             let setup_event = self.perf_logger.create_event("compiler_setup");
             let initial_watch_compile_timer = setup_event.start("initial_watch_compile");
             self.config.status_reporter.build_starts();
+
+            if let Some(build_status) = &self.config.daemon_build_status {
+                build_status.changes_pending();
+            }
+
             let result: Result<(CompilerState, Arc<Notify>, JoinHandle<()>)> = async {
-                if let Some(initialize_resources) = &self.config.initialize_resources {
+                // In daemon mode, skip `initialize_resources` (e.g. dumping
+                // GraphQL schemas via `phps GraphQLDumpSchemas`). The client is
+                // responsible for re-dumping schemas before each operation, and
+                // re-dumping here causes a feedback loop: the dump rewrites
+                // many files, Watchman returns a fresh-instance result on the
+                // next subscription, that triggers a reset, and the outer loop
+                // re-dumps again. The initial schema load happens once at
+                // server startup before `Compiler::watch()` is entered.
+                if self.config.daemon_build_status.is_none()
+                    && let Some(initialize_resources) = &self.config.initialize_resources
+                {
                     let timer = setup_event.start("load_resources");
                     initialize_resources();
                     setup_event.stop(timer);
@@ -124,6 +189,20 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
 
                 let notify_sender = Arc::new(Notify::new());
                 let notify_receiver = notify_sender.clone();
+                let is_daemon = self.config.daemon_build_status.is_some();
+
+                // In daemon mode, initialize the synchronized Watchman state so
+                // that both the build loop and write handler query Watchman
+                // through the same serialized path.
+                if let Some(build_status) = &self.config.daemon_build_status {
+                    build_status
+                        .init_watchman_sync(
+                            compiler_state.clock.clone(),
+                            compiler_state.pending_file_source_changes.clone(),
+                            notify_sender.clone(),
+                        )
+                        .await;
+                }
 
                 // First, set up watchman subscription
                 let subscription_handle = task::spawn(async move {
@@ -131,13 +210,20 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                         let next_change = subscription.next_change().await;
                         match next_change {
                             Ok(FileSourceSubscriptionNextChange::Watchman(watchman_next_change)) => {
-                                match watchman_next_change {
+                                match *watchman_next_change {
                                     WatchmanFileSourceSubscriptionNextChange::Result(file_source_changes) => {
-                                        pending_file_source_changes
-                                            .write()
-                                            .unwrap()
-                                            .push(FileSourceResult::Watchman(file_source_changes));
-                                        notify_sender.notify_one();
+                                        if is_daemon {
+                                            // Daemon mode: the subscription is just a signal.
+                                            // Don't read the clock or file changes from it —
+                                            // sync_file_changes() will query Watchman directly.
+                                            notify_sender.notify_one();
+                                        } else {
+                                            pending_file_source_changes
+                                                .write()
+                                                .unwrap()
+                                                .push(FileSourceResult::Watchman(Box::new(file_source_changes)));
+                                            notify_sender.notify_one();
+                                        }
                                     }
                                     WatchmanFileSourceSubscriptionNextChange::SourceControlUpdateEnter => {
                                         info!("hg.update started...");
@@ -156,8 +242,29 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                                     WatchmanFileSourceSubscriptionNextChange::None => {}
                                 }
                             }
+                            Ok(FileSourceSubscriptionNextChange::Test(file_source_changes)) => {
+                                pending_file_source_changes
+                                    .write()
+                                    .unwrap()
+                                    .push(FileSourceResult::WalkDir(file_source_changes));
+                                notify_sender.notify_one();
+                            }
+                            Ok(FileSourceSubscriptionNextChange::TestSourceControlUpdateEnter) => {
+                                info!("Test: source control update started...");
+                                source_control_update_status.mark_as_started();
+                            }
+                            Ok(FileSourceSubscriptionNextChange::TestSourceControlUpdateLeave) => {
+                                info!("Test: source control update completed.");
+                                source_control_update_status.set_to_default();
+                            }
+                            Ok(FileSourceSubscriptionNextChange::TestSourceControlUpdate) => {
+                                info!("Test: source control update with new base revision...");
+                                source_control_update_status.mark_as_completed();
+                                notify_sender.notify_one();
+                                break;
+                            }
                             Err(err) => {
-                                panic!("Watchman subscription error: {}", err);
+                                panic!("Watchman subscription error: {err}");
                             }
                         }
                     }
@@ -210,7 +317,30 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
         loop {
             notify_receiver.notified().await;
 
+            // Signal that changes have been detected and processing may occur.
+            // This must happen before any checks/debouncing so that clients
+            // calling wait_for_idle() are blocked during the entire period.
+            if let Some(build_status) = &self.config.daemon_build_status {
+                build_status.changes_pending();
+
+                // If a reset was requested (e.g. Watchman returned a fresh
+                // instance or the sync query errored), abort the subscription
+                // and return so the outer watch() loop reinitializes from
+                // saved state — falling back to a full build if unavailable.
+                // is_building stays true via changes_pending() above so
+                // wait_for_idle() blocks through the entire reset cycle.
+                if build_status.take_reset_requested() {
+                    info!("Reset requested: reinitializing compiler state from saved state...");
+                    subscription_handle.abort();
+                    return;
+                }
+            }
+
             if compiler_state.source_control_update_status.is_started() {
+                // Clear pending changes since we're skipping this notification
+                if let Some(build_status) = &self.config.daemon_build_status {
+                    build_status.no_pending_changes();
+                }
                 continue;
             }
 
@@ -223,25 +353,44 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
             // wait for 50ms in case there is a subsequent request
             tokio::time::sleep(std::time::Duration::from_millis(50)).await;
 
+            // In daemon mode, query Watchman directly for changes since the
+            // last clock. This is the single authoritative sync path — the
+            // subscription only signals us to check, it doesn't carry the
+            // changes or the clock.
+            if let Some(build_status) = &self.config.daemon_build_status {
+                build_status.sync_file_changes(&self.config).await;
+            }
+
             if compiler_state.has_pending_file_source_changes() {
                 let incremental_build_event =
                     self.perf_logger.create_event("incremental_build_event");
+                incremental_build_event
+                    .bool("is_daemon_build", self.config.daemon_build_status.is_some());
                 let incremental_build_time =
                     incremental_build_event.start("incremental_build_time");
 
+                // When running as a daemon, collect changes to generated
+                // artifacts so that external modifications trigger
+                // recompilation of the affected source definitions.
+                let should_collect_changed_artifacts = self.config.daemon_build_status.is_some();
                 let had_new_changes = match compiler_state.merge_file_source_changes(
                     &self.config,
                     self.perf_logger.as_ref(),
-                    false,
+                    should_collect_changed_artifacts,
                 ) {
                     Ok(b) => b,
                     Err(err) => {
                         let error_event = self.perf_logger.create_event("watch_build_error");
-                        error_event.string("error", format!("Ignored Compilation Error: {}", err));
+                        error_event.string("error", format!("Ignored Compilation Error: {err}"));
                         error_event.complete();
                         return;
                     }
                 };
+
+                // Also rebuild when generated artifacts changed on disk,
+                // even if no source files changed.
+                let had_new_changes =
+                    had_new_changes || !compiler_state.dirty_artifact_paths.is_empty();
 
                 if had_new_changes {
                     self.config.status_reporter.build_starts();
@@ -265,9 +414,21 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                     info!("Watching for new changes...");
                 } else {
                     debug!("No new changes detected.");
+                    // Clear the pending changes flag since there were no actual changes
+                    if let Some(build_status) = &self.config.daemon_build_status {
+                        build_status.no_pending_changes();
+                    }
                     incremental_build_event.stop(incremental_build_time);
                 }
                 incremental_build_event.complete();
+            } else {
+                // The notification resolved (possibly from a stored Notify
+                // permit) but all pending changes were already consumed by a
+                // prior iteration. Clear is_building so clients aren't blocked
+                // indefinitely in wait_for_idle().
+                if let Some(build_status) = &self.config.daemon_build_status {
+                    build_status.no_pending_changes();
+                }
             }
         }
     }
@@ -324,10 +485,10 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
     let build_results: Vec<_> = config
         .par_enabled_projects()
         .filter(|project_config| {
-            if let Some(base) = project_config.base {
-                if compiler_state.project_has_pending_changes(base) {
-                    return true;
-                }
+            if let Some(base) = project_config.base
+                && compiler_state.project_has_pending_changes(base)
+            {
+                return true;
             }
             compiler_state.project_has_pending_changes(project_config.name)
         })
@@ -341,6 +502,7 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
             )
         })
         .collect();
+    let build_commit_state_timer = setup_event.start("build_commit_state_time");
     let mut results = Vec::new();
     let mut errors = Vec::new();
     for result in build_results {
@@ -374,6 +536,7 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
         let perf_logger = Arc::clone(&perf_logger);
         let artifact_map = compiler_state
             .artifacts
+            .0
             .get(&project_name)
             .cloned()
             .unwrap_or_else(|| Arc::new(ArtifactMapKind::Unconnected(Default::default())));
@@ -399,29 +562,25 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
         let source_control_update_status = Arc::clone(&compiler_state.source_control_update_status);
         handles.push(task::spawn(async move {
             let project_config = &config.projects[&project_name];
-            Ok((
-                (
-                    project_name,
-                    commit_project(
-                        &config,
-                        project_config,
-                        perf_logger,
-                        &schema,
-                        programs,
-                        artifacts,
-                        artifact_map,
-                        removed_artifact_sources,
-                        dirty_artifact_paths,
-                        source_control_update_status,
-                    )
-                    .await?,
-                    schema,
-                ),
-                diagnostics,
-            ))
+            let artifact_map = commit_project(
+                &config,
+                project_config,
+                perf_logger,
+                &schema,
+                programs,
+                artifacts,
+                artifact_map,
+                removed_artifact_sources,
+                dirty_artifact_paths,
+                source_control_update_status,
+            )
+            .await?;
+            Ok(((project_name, artifact_map, schema), diagnostics))
         }));
     }
+    setup_event.stop(build_commit_state_timer);
 
+    let commit_all_projects_timer = setup_event.start("commit_all_projects_time");
     let mut build_cancelled_during_commit = false;
     let mut all_diagnostics: Vec<Diagnostic> = Vec::new();
     for commit_result in join_all(handles).await {
@@ -434,6 +593,7 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
                 let next_artifact_map = Arc::new(ArtifactMapKind::Mapping(next_artifact_map));
                 compiler_state
                     .artifacts
+                    .0
                     .insert(project_name, next_artifact_map);
                 compiler_state.schema_cache.insert(project_name, schema);
 
@@ -447,6 +607,7 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
             }
         }
     }
+    setup_event.stop(commit_all_projects_timer);
 
     if !errors.is_empty() {
         return Err(Error::BuildProjectsErrors { errors });

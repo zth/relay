@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<191b4e64f5bfa318669814916590702d>>
+ * @generated SignedSource<<eedbd5f77af28cf2e442713434b17187>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,18 +18,18 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentNoInlineTestStream_feedback$fragmentType } from "./RelayModernEnvironmentNoInlineTestStream_feedback.graphql";
-export type RelayModernEnvironmentNoInlineTestStreamQuery$variables = {|
+export type RelayModernEnvironmentNoInlineTestStreamQuery$variables = {
   cond: boolean,
-|};
-export type RelayModernEnvironmentNoInlineTestStreamQuery$data = {|
-  +node: ?{|
-    +$fragmentSpreads: RelayModernEnvironmentNoInlineTestStream_feedback$fragmentType,
-  |},
-|};
-export type RelayModernEnvironmentNoInlineTestStreamQuery = {|
+};
+export type RelayModernEnvironmentNoInlineTestStreamQuery$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: RelayModernEnvironmentNoInlineTestStream_feedback$fragmentType,
+  },
+};
+export type RelayModernEnvironmentNoInlineTestStreamQuery = {
   response: RelayModernEnvironmentNoInlineTestStreamQuery$data,
   variables: RelayModernEnvironmentNoInlineTestStreamQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -50,14 +49,14 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentNoInlineTestStreamQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -83,13 +82,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentNoInlineTestStreamQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -137,10 +136,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "ef3b0ee1286de679a140741dc9baed1d";
+  (node/*:: as any*/).hash = "ef3b0ee1286de679a140741dc9baed1d";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentNoInlineTestStreamQuery$variables,
   RelayModernEnvironmentNoInlineTestStreamQuery$data,
 >*/);

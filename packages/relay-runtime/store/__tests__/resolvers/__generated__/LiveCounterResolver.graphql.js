@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8f1562aad2e4887511da269cd076a99d>>
+ * @generated SignedSource<<527c5b211b0a1767daf9f1db94a70f89>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,15 +19,15 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type LiveCounterResolver$fragmentType: FragmentType;
-export type LiveCounterResolver$data = {|
-  +me: ?{|
-    +__id: string,
-  |},
-  +$fragmentType: LiveCounterResolver$fragmentType,
-|};
+export type LiveCounterResolver$data = {
+  readonly me: ?{
+    readonly __id: string,
+  },
+  readonly $fragmentType: LiveCounterResolver$fragmentType,
+};
 export type LiveCounterResolver$key = {
-  +$data?: LiveCounterResolver$data,
-  +$fragmentSpreads: LiveCounterResolver$fragmentType,
+  readonly $data?: LiveCounterResolver$data,
+  readonly $fragmentSpreads: LiveCounterResolver$fragmentType,
   ...
 };
 */
@@ -68,10 +67,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "6e340f4ab7751ff9ad23d68c862e0d01";
+  (node/*:: as any*/).hash = "6e340f4ab7751ff9ad23d68c862e0d01";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   LiveCounterResolver$fragmentType,
   LiveCounterResolver$data,
 >*/);

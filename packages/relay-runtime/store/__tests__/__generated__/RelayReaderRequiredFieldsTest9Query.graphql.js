@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6e226587e82499296bae75baeda79d55>>
+ * @generated SignedSource<<cfd3068385991c69ed983d4b0b0a2f36>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,16 +17,16 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayReaderRequiredFieldsTest9Query$variables = {||};
-export type RelayReaderRequiredFieldsTest9Query$data = {|
-  +me: ?{|
-    +emailAddresses: $ReadOnlyArray<?string>,
-  |},
-|};
-export type RelayReaderRequiredFieldsTest9Query = {|
+export type RelayReaderRequiredFieldsTest9Query$variables = {};
+export type RelayReaderRequiredFieldsTest9Query$data = {
+  readonly me: ?{
+    readonly emailAddresses: ReadonlyArray<?string>,
+  },
+};
+export type RelayReaderRequiredFieldsTest9Query = {
   response: RelayReaderRequiredFieldsTest9Query$data,
   variables: RelayReaderRequiredFieldsTest9Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -55,7 +54,7 @@ return {
         "selections": [
           {
             "kind": "RequiredField",
-            "field": (v0/*: any*/),
+            "field": (v0/*:: as any*/),
             "action": "LOG"
           }
         ],
@@ -79,7 +78,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
+          (v0/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -104,10 +103,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "7c1aeaf481910818ae744a98371df995";
+  (node/*:: as any*/).hash = "7c1aeaf481910818ae744a98371df995";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderRequiredFieldsTest9Query$variables,
   RelayReaderRequiredFieldsTest9Query$data,
 >*/);

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<accb0432370a6991b27b154f69667528>>
+ * @generated SignedSource<<0e93acb3dbb88992f6aec63bd7d525c9>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,27 +18,27 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { withProvidedVariablesTest3Fragment$fragmentType } from "./withProvidedVariablesTest3Fragment.graphql";
-export type withProvidedVariablesTest3Query$variables = {||};
-export type withProvidedVariablesTest3Query$data = {|
-  +node: ?{|
-    +$fragmentSpreads: withProvidedVariablesTest3Fragment$fragmentType,
-  |},
-|};
-export type withProvidedVariablesTest3Query = {|
+export type withProvidedVariablesTest3Query$variables = {};
+export type withProvidedVariablesTest3Query$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: withProvidedVariablesTest3Fragment$fragmentType,
+  },
+};
+export type withProvidedVariablesTest3Query = {
   response: withProvidedVariablesTest3Query$data,
   variables: withProvidedVariablesTest3Query$variables,
-|};
+};
 ({
   "__relay_internal__pv__provideNumberOfFriendsrelayprovider": require('../provideNumberOfFriends.relayprovider'),
   "__relay_internal__pv__provideIncludeUserNamesrelayprovider": require('../provideIncludeUserNames.relayprovider')
-}: {|
-  +__relay_internal__pv__provideIncludeUserNamesrelayprovider: {|
-    +get: () => boolean,
-  |},
-  +__relay_internal__pv__provideNumberOfFriendsrelayprovider: {|
-    +get: () => number,
-  |},
-|});
+} as {
+  readonly __relay_internal__pv__provideIncludeUserNamesrelayprovider: {
+    readonly get: () => boolean,
+  },
+  readonly __relay_internal__pv__provideNumberOfFriendsrelayprovider: {
+    readonly get: () => number,
+  },
+});
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -59,7 +58,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -96,7 +95,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -182,10 +181,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "e9f1d13b64d707716ef131a7ec5c3ca0";
+  (node/*:: as any*/).hash = "e9f1d13b64d707716ef131a7ec5c3ca0";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   withProvidedVariablesTest3Query$variables,
   withProvidedVariablesTest3Query$data,
 >*/);

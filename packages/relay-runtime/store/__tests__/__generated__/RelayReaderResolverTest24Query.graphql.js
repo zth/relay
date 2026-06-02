@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9f553ae2e533f771e1091d967ec3ae58>>
+ * @generated SignedSource<<e863a7320485e87513a318bcd7f017a1>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,25 +23,25 @@ import {client_edge as userClientEdgeResolverType} from "../resolvers/UserClient
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userClientEdgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userClientEdgeResolverType: (
+(userClientEdgeResolverType as (
   rootKey: UserClientEdgeResolver$key,
   args: void,
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
-export type RelayReaderResolverTest24Query$variables = {||};
-export type RelayReaderResolverTest24Query$data = {|
-  +me: ?{|
-    +client_edge: ?{|
-      +__typename: "User",
-    |},
-  |},
-|};
-export type RelayReaderResolverTest24Query = {|
+) => ?{
+  readonly id: DataID,
+});
+export type RelayReaderResolverTest24Query$variables = {};
+export type RelayReaderResolverTest24Query$data = {
+  readonly me: ?{
+    readonly client_edge: ?{
+      readonly __typename: "User",
+    },
+  },
+};
+export type RelayReaderResolverTest24Query = {
   response: RelayReaderResolverTest24Query$data,
   variables: RelayReaderResolverTest24Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {
@@ -162,10 +161,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "8635cde1528b69cd8dd3828aadb768bb";
+  (node/*:: as any*/).hash = "8635cde1528b69cd8dd3828aadb768bb";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderResolverTest24Query$variables,
   RelayReaderResolverTest24Query$data,
 >*/);

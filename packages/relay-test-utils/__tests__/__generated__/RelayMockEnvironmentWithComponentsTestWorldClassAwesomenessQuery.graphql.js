@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6bb3b7f104b48651aa046a1bc9bbc504>>
+ * @generated SignedSource<<3ead47fc7f9d51adf756af6d95fcc01a>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,18 +18,18 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayMockEnvironmentWithComponentsTestNoticeableResultFragment$fragmentType } from "./RelayMockEnvironmentWithComponentsTestNoticeableResultFragment.graphql";
-export type RelayMockEnvironmentWithComponentsTestWorldClassAwesomenessQuery$variables = {|
+export type RelayMockEnvironmentWithComponentsTestWorldClassAwesomenessQuery$variables = {
   id: string,
-|};
-export type RelayMockEnvironmentWithComponentsTestWorldClassAwesomenessQuery$data = {|
-  +feedback: ?{|
-    +$fragmentSpreads: RelayMockEnvironmentWithComponentsTestNoticeableResultFragment$fragmentType,
-  |},
-|};
-export type RelayMockEnvironmentWithComponentsTestWorldClassAwesomenessQuery = {|
+};
+export type RelayMockEnvironmentWithComponentsTestWorldClassAwesomenessQuery$data = {
+  readonly feedback: ?{
+    readonly $fragmentSpreads: RelayMockEnvironmentWithComponentsTestNoticeableResultFragment$fragmentType,
+  },
+};
+export type RelayMockEnvironmentWithComponentsTestWorldClassAwesomenessQuery = {
   response: RelayMockEnvironmentWithComponentsTestWorldClassAwesomenessQuery$data,
   variables: RelayMockEnvironmentWithComponentsTestWorldClassAwesomenessQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -50,14 +49,14 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayMockEnvironmentWithComponentsTestWorldClassAwesomenessQuery",
     "selections": [
       {
         "alias": "feedback",
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -77,13 +76,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayMockEnvironmentWithComponentsTestWorldClassAwesomenessQuery",
     "selections": [
       {
         "alias": "feedback",
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -152,10 +151,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "27fc5cfac1bab81b1d82d08bc4e16d65";
+  (node/*:: as any*/).hash = "27fc5cfac1bab81b1d82d08bc4e16d65";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayMockEnvironmentWithComponentsTestWorldClassAwesomenessQuery$variables,
   RelayMockEnvironmentWithComponentsTestWorldClassAwesomenessQuery$data,
 >*/);

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e01a653248c5e82b4cab34a8391e64e4>>
+ * @generated SignedSource<<3d5e436e0402d25939d68f1133805bcd>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,24 +18,24 @@
 /*::
 import type { ConcreteRequest, GraphQLSubscription } from 'relay-runtime';
 import type { RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackFragment$fragmentType } from "./RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackFragment.graphql";
-export type CommentCreateSubscriptionInput = {|
+export type CommentCreateSubscriptionInput = {
   feedbackId?: ?string,
   text?: ?string,
-|};
-export type RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscription$variables = {|
+};
+export type RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscription$variables = {
   input: CommentCreateSubscriptionInput,
-|};
-export type RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscription$data = {|
-  +commentCreateSubscribe: ?{|
-    +feedback: ?{|
-      +$fragmentSpreads: RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackFragment$fragmentType,
-    |},
-  |},
-|};
-export type RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscription = {|
+};
+export type RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscription$data = {
+  readonly commentCreateSubscribe: ?{
+    readonly feedback: ?{
+      readonly $fragmentSpreads: RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackFragment$fragmentType,
+    },
+  },
+};
+export type RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscription = {
   response: RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscription$data,
   variables: RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscription$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -63,14 +62,14 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscription",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "CommentCreateResponsePayload",
         "kind": "LinkedField",
         "name": "commentCreateSubscribe",
@@ -101,13 +100,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscription",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "CommentCreateResponsePayload",
         "kind": "LinkedField",
         "name": "commentCreateSubscribe",
@@ -121,7 +120,7 @@ return {
             "name": "feedback",
             "plural": false,
             "selections": [
-              (v2/*: any*/),
+              (v2/*:: as any*/),
               {
                 "if": null,
                 "kind": "Stream",
@@ -158,7 +157,7 @@ return {
                         "kind": "ScalarHandle",
                         "name": "name"
                       },
-                      (v2/*: any*/)
+                      (v2/*:: as any*/)
                     ],
                     "storageKey": null
                   }
@@ -184,10 +183,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "70d193c49c68d1cebe7967a31c1a0bcf";
+  (node/*:: as any*/).hash = "70d193c49c68d1cebe7967a31c1a0bcf";
 }
 
-module.exports = ((node/*: any*/)/*: GraphQLSubscription<
+module.exports = ((node/*:: as any*/)/*:: as GraphQLSubscription<
   RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscription$variables,
   RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscription$data,
 >*/);

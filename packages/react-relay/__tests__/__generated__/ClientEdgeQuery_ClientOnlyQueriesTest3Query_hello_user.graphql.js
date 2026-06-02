@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0ed3424f84247a67715ebc24fb1cbb56>>
+ * @generated SignedSource<<da2566b7b3914c0027cb0b9e247c7ab8>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,18 +18,18 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RefetchableClientEdgeQuery_ClientOnlyQueriesTest3Query_hello_user$fragmentType } from "./RefetchableClientEdgeQuery_ClientOnlyQueriesTest3Query_hello_user.graphql";
-export type ClientEdgeQuery_ClientOnlyQueriesTest3Query_hello_user$variables = {|
+export type ClientEdgeQuery_ClientOnlyQueriesTest3Query_hello_user$variables = {
   id: string,
-|};
-export type ClientEdgeQuery_ClientOnlyQueriesTest3Query_hello_user$data = {|
-  +node: ?{|
-    +$fragmentSpreads: RefetchableClientEdgeQuery_ClientOnlyQueriesTest3Query_hello_user$fragmentType,
-  |},
-|};
-export type ClientEdgeQuery_ClientOnlyQueriesTest3Query_hello_user = {|
+};
+export type ClientEdgeQuery_ClientOnlyQueriesTest3Query_hello_user$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: RefetchableClientEdgeQuery_ClientOnlyQueriesTest3Query_hello_user$fragmentType,
+  },
+};
+export type ClientEdgeQuery_ClientOnlyQueriesTest3Query_hello_user = {
   response: ClientEdgeQuery_ClientOnlyQueriesTest3Query_hello_user$data,
   variables: ClientEdgeQuery_ClientOnlyQueriesTest3Query_hello_user$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -50,14 +49,14 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "ClientEdgeQuery_ClientOnlyQueriesTest3Query_hello_user",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -77,13 +76,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "ClientEdgeQuery_ClientOnlyQueriesTest3Query_hello_user",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -134,10 +133,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "f39e561157fa607bf64e77aad228aa05";
+  (node/*:: as any*/).hash = "f39e561157fa607bf64e77aad228aa05";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ClientEdgeQuery_ClientOnlyQueriesTest3Query_hello_user$variables,
   ClientEdgeQuery_ClientOnlyQueriesTest3Query_hello_user$data,
 >*/);

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7d6c14f61090bb9548bed957397de1ca>>
+ * @generated SignedSource<<2f392f575125ac676ba402dacd94f989>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,24 +23,24 @@ import {resolver_that_throws as userResolverThatThrowsResolverType} from "../../
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userResolverThatThrowsResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userResolverThatThrowsResolverType: (
+(userResolverThatThrowsResolverType as (
   rootKey: ResolverThatThrows$key,
   args: void,
   context: TestResolverContextType,
-) => LiveState<?mixed>);
-export type LiveResolversTest8Query$variables = {|
+) => LiveState<?unknown>);
+export type LiveResolversTest8Query$variables = {
   id: string,
-|};
-export type LiveResolversTest8Query$data = {|
-  +node: ?{|
-    +name?: ?string,
-    +resolver_that_throws?: ?ReturnType<ReturnType<typeof userResolverThatThrowsResolverType>["read"]>,
-  |},
-|};
-export type LiveResolversTest8Query = {|
+};
+export type LiveResolversTest8Query$data = {
+  readonly node: ?{
+    readonly name?: ?string,
+    readonly resolver_that_throws?: ?ReturnType<ReturnType<typeof userResolverThatThrowsResolverType>["read"]>,
+  },
+};
+export type LiveResolversTest8Query = {
   response: LiveResolversTest8Query$data,
   variables: LiveResolversTest8Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -68,14 +67,14 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "LiveResolversTest8Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -84,7 +83,7 @@ return {
           {
             "kind": "InlineFragment",
             "selections": [
-              (v2/*: any*/),
+              (v2/*:: as any*/),
               {
                 "alias": null,
                 "args": null,
@@ -111,13 +110,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "LiveResolversTest8Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -133,7 +132,7 @@ return {
           {
             "kind": "InlineFragment",
             "selections": [
-              (v2/*: any*/),
+              (v2/*:: as any*/),
               {
                 "name": "resolver_that_throws",
                 "args": null,
@@ -183,10 +182,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "ec189df401880da95c79b741eaec1006";
+  (node/*:: as any*/).hash = "ec189df401880da95c79b741eaec1006";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   LiveResolversTest8Query$variables,
   LiveResolversTest8Query$data,
 >*/);

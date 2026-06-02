@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2f77f1def57ca1e9af3c4ff1aebcebb1>>
+ * @generated SignedSource<<44f79d5b02d7e0140334a696e9271597>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,18 +17,18 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type cloneRelayHandleSourceFieldTestTestQuery$variables = {||};
-export type cloneRelayHandleSourceFieldTestTestQuery$data = {|
-  +me: ?{|
-    +address: ?{|
-      +street: ?string,
-    |},
-  |},
-|};
-export type cloneRelayHandleSourceFieldTestTestQuery = {|
+export type cloneRelayHandleSourceFieldTestTestQuery$variables = {};
+export type cloneRelayHandleSourceFieldTestTestQuery$data = {
+  readonly me: ?{
+    readonly address: ?{
+      readonly street: ?string,
+    },
+  },
+};
+export type cloneRelayHandleSourceFieldTestTestQuery = {
   response: cloneRelayHandleSourceFieldTestTestQuery$data,
   variables: cloneRelayHandleSourceFieldTestTestQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -64,7 +63,7 @@ return {
             "kind": "LinkedField",
             "name": "__address_test",
             "plural": false,
-            "selections": (v0/*: any*/),
+            "selections": (v0/*:: as any*/),
             "storageKey": null
           }
         ],
@@ -95,7 +94,7 @@ return {
             "kind": "LinkedField",
             "name": "address",
             "plural": false,
-            "selections": (v0/*: any*/),
+            "selections": (v0/*:: as any*/),
             "storageKey": null
           },
           {
@@ -131,10 +130,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "b25d254d9cced587a60803f29606c8b5";
+  (node/*:: as any*/).hash = "b25d254d9cced587a60803f29606c8b5";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   cloneRelayHandleSourceFieldTestTestQuery$variables,
   cloneRelayHandleSourceFieldTestTestQuery$data,
 >*/);

@@ -16,16 +16,19 @@ mod parser;
 mod source;
 mod syntax_error;
 mod utils;
+mod visitor;
 
 use common::DiagnosticsResult;
 use common::SourceLocationKey;
 use common::WithDiagnostics;
 pub use lexer::TokenKind;
+use logos::Logos;
 pub use node::*;
 pub use parser::FragmentArgumentSyntaxKind;
 pub use parser::ParserFeatures;
 pub use source::GraphQLSource;
 pub use syntax_error::SyntaxError;
+pub use visitor::SyntaxVisitor;
 
 use crate::parser::Parser;
 
@@ -186,4 +189,14 @@ pub fn parse_directive(
     let features = ParserFeatures::default();
     let parser = Parser::with_offset(source, source_location, features, offset);
     parser.parse_directive()
+}
+
+/// Checks if a string is a valid GraphQL identifier.
+/// Valid identifiers match the pattern: /[_A-Za-z][_0-9A-Za-z]*/
+pub fn is_valid_identifier(name: &str) -> bool {
+    if name.is_empty() {
+        return false;
+    }
+    let mut lexer = TokenKind::lexer(name);
+    matches!(lexer.next(), Some(Ok(TokenKind::Identifier))) && lexer.remainder().is_empty()
 }

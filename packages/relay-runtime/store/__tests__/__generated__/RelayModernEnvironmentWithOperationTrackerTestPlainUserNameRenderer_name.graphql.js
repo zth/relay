@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2de768d4886a7c9b951f8950a0bd2898>>
+ * @generated SignedSource<<8234e7f0ca3522957c9180c70bf57dca>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,16 +19,16 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name$fragmentType: FragmentType;
-export type RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name$data = {|
-  +data: ?{|
-    +text: ?string,
-  |},
-  +plaintext: ?string,
-  +$fragmentType: RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name$fragmentType,
-|};
+export type RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name$data = {
+  readonly data: ?{
+    readonly text: ?string,
+  },
+  readonly plaintext: ?string,
+  readonly $fragmentType: RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name$fragmentType,
+};
 export type RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name$key = {
-  +$data?: RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name$data,
-  +$fragmentSpreads: RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name$fragmentType,
+  readonly $data?: RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name$fragmentType,
   ...
 };
 */
@@ -71,10 +70,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "101296fb740d1eaff68fffbae7e2ed82";
+  (node/*:: as any*/).hash = "101296fb740d1eaff68fffbae7e2ed82";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name$fragmentType,
   RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name$data,
 >*/);

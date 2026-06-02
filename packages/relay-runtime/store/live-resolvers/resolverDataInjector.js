@@ -17,7 +17,7 @@ import type {FragmentType, ResolverContext} from '../RelayStoreTypes';
 const {readFragment} = require('../ResolverFragments');
 const invariant = require('invariant');
 
-type ResolverFn = ($FlowFixMe, ?$FlowFixMe, ResolverContext) => mixed;
+type ResolverFn = ($FlowFixMe, ?$FlowFixMe, ResolverContext) => unknown;
 
 /**
  *
@@ -31,20 +31,23 @@ type ResolverFn = ($FlowFixMe, ?$FlowFixMe, ResolverContext) => mixed;
  * This will not call the `resolverFn` if the fragment data for it is null/undefined.
  * The the compiler generates calls to this function, ensuring the correct set of arguments.
  */
-function resolverDataInjector<TFragmentType: FragmentType, TData: ?{...}>(
+function resolverDataInjector<
+  TFragmentType extends FragmentType,
+  TData extends ?{...},
+>(
   fragment: Fragment<TFragmentType, TData>,
   // Resolvers have their own type assertions, we don't want to confuse users
   // with a type error in their generated code at this point.
   _resolverFn: $FlowFixMe,
   fieldName?: string,
   isRequiredField?: boolean,
-): (fragmentKey: TFragmentType, args: mixed) => mixed {
+): (fragmentKey: TFragmentType, args: unknown) => unknown {
   const resolverFn: ResolverFn = _resolverFn;
   return (
     fragmentKey: TFragmentType,
-    args: mixed,
+    args: unknown,
     resolverContext: ResolverContext,
-  ): mixed => {
+  ): unknown => {
     const data = readFragment(fragment, fragmentKey);
     if (fieldName != null) {
       if (data == null) {
