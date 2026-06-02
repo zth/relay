@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<daf33411b986e3c18775fa4364ea766d>>
+ * @generated SignedSource<<ba3fe8aa6552f66df4d572e7f3e857d0>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,23 +17,23 @@
 
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
-export type ActorNameChangeInput = {|
+export type ActorNameChangeInput = {
   newName?: ?string,
-|};
-export type RelayPublishQueueTest3Mutation$variables = {|
+};
+export type RelayPublishQueueTest3Mutation$variables = {
   input: ActorNameChangeInput,
-|};
-export type RelayPublishQueueTest3Mutation$data = {|
-  +actorNameChange: ?{|
-    +actor: ?{|
-      +name: ?string,
-    |},
-  |},
-|};
-export type RelayPublishQueueTest3Mutation = {|
+};
+export type RelayPublishQueueTest3Mutation$data = {
+  readonly actorNameChange: ?{
+    readonly actor: ?{
+      readonly name: ?string,
+    },
+  },
+};
+export type RelayPublishQueueTest3Mutation = {
   response: RelayPublishQueueTest3Mutation$data,
   variables: RelayPublishQueueTest3Mutation$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -61,14 +60,14 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayPublishQueueTest3Mutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "ActorNameChangePayload",
         "kind": "LinkedField",
         "name": "actorNameChange",
@@ -82,7 +81,7 @@ return {
             "name": "actor",
             "plural": false,
             "selections": [
-              (v2/*: any*/)
+              (v2/*:: as any*/)
             ],
             "storageKey": null
           }
@@ -95,13 +94,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayPublishQueueTest3Mutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "ActorNameChangePayload",
         "kind": "LinkedField",
         "name": "actorNameChange",
@@ -122,7 +121,7 @@ return {
                 "name": "__typename",
                 "storageKey": null
               },
-              (v2/*: any*/),
+              (v2/*:: as any*/),
               {
                 "alias": null,
                 "args": null,
@@ -150,10 +149,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "5ed4fae8d4af94fd0c1661188492c54a";
+  (node/*:: as any*/).hash = "5ed4fae8d4af94fd0c1661188492c54a";
 }
 
-module.exports = ((node/*: any*/)/*: Mutation<
+module.exports = ((node/*:: as any*/)/*:: as Mutation<
   RelayPublishQueueTest3Mutation$variables,
   RelayPublishQueueTest3Mutation$data,
 >*/);

@@ -6,6 +6,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+// relay:allow_legacy_relay_resolver_tag
+
 /**
  * @RelayResolver Node.importantField: String
  * @rootFragment myRootFragment
@@ -35,6 +37,11 @@
 `
 ==================================== OUTPUT ===================================
 extend interface Node {
+  importantField: String @relay_resolver(has_output_type: true, import_name: "importantField", import_path: "/path/to/test/fixture/terse-relay-resolver-interface.js", fragment_name: "myRootFragment") @resolver_source_hash(value: "27c88753c4af8233f1e6e0c276cb42e9")
+}
+
+
+extend type Bicycle {
   importantField: String @relay_resolver(has_output_type: true, import_name: "importantField", import_path: "/path/to/test/fixture/terse-relay-resolver-interface.js", fragment_name: "myRootFragment") @resolver_source_hash(value: "27c88753c4af8233f1e6e0c276cb42e9")
 }
 

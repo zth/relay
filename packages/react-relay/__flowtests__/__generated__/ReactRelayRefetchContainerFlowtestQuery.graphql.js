@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<909036439f4d2e9e2d5728ade52035dc>>
+ * @generated SignedSource<<e499dcd15f8f9abcdb154440f1ccb9ba>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,19 +18,19 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { ReactRelayRefetchContainerFlowtest_viewer$fragmentType } from "./ReactRelayRefetchContainerFlowtest_viewer.graphql";
-export type ReactRelayRefetchContainerFlowtestQuery$variables = {|
+export type ReactRelayRefetchContainerFlowtestQuery$variables = {
   count: number,
   cursor?: ?string,
-|};
-export type ReactRelayRefetchContainerFlowtestQuery$data = {|
-  +viewer: ?{|
-    +$fragmentSpreads: ReactRelayRefetchContainerFlowtest_viewer$fragmentType,
-  |},
-|};
-export type ReactRelayRefetchContainerFlowtestQuery = {|
+};
+export type ReactRelayRefetchContainerFlowtestQuery$data = {
+  readonly viewer: ?{
+    readonly $fragmentSpreads: ReactRelayRefetchContainerFlowtest_viewer$fragmentType,
+  },
+};
+export type ReactRelayRefetchContainerFlowtestQuery = {
   response: ReactRelayRefetchContainerFlowtestQuery$data,
   variables: ReactRelayRefetchContainerFlowtestQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -68,7 +67,7 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "ReactRelayRefetchContainerFlowtestQuery",
@@ -95,7 +94,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "ReactRelayRefetchContainerFlowtestQuery",
     "selections": [
@@ -117,7 +116,7 @@ return {
             "selections": [
               {
                 "alias": null,
-                "args": (v1/*: any*/),
+                "args": (v1/*:: as any*/),
                 "concreteType": "FriendsConnection",
                 "kind": "LinkedField",
                 "name": "friends",
@@ -146,7 +145,7 @@ return {
                             "name": "__typename",
                             "storageKey": null
                           },
-                          (v2/*: any*/)
+                          (v2/*:: as any*/)
                         ],
                         "storageKey": null
                       },
@@ -190,14 +189,14 @@ return {
               },
               {
                 "alias": null,
-                "args": (v1/*: any*/),
+                "args": (v1/*:: as any*/),
                 "filters": null,
                 "handle": "connection",
                 "key": "ReactRelayRefetchContainerFlowtest_viewer__friends",
                 "kind": "LinkedHandle",
                 "name": "friends"
               },
-              (v2/*: any*/)
+              (v2/*:: as any*/)
             ],
             "storageKey": null
           }
@@ -218,10 +217,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "ce05ae9de6327d14ff0f3813ec77e594";
+  (node/*:: as any*/).hash = "ce05ae9de6327d14ff0f3813ec77e594";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ReactRelayRefetchContainerFlowtestQuery$variables,
   ReactRelayRefetchContainerFlowtestQuery$data,
 >*/);

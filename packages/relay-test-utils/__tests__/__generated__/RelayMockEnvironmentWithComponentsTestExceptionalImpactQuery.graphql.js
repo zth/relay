@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<97f8dcac130ba35d678ae455de6d5614>>
+ * @generated SignedSource<<c10419744f62867267b9e2c236dbfa60>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,22 +18,22 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$fragmentType } from "./RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment.graphql";
-export type RelayMockEnvironmentWithComponentsTestExceptionalImpactQuery$variables = {|
+export type RelayMockEnvironmentWithComponentsTestExceptionalImpactQuery$variables = {
   id?: ?string,
-|};
-export type RelayMockEnvironmentWithComponentsTestExceptionalImpactQuery$data = {|
-  +user: ?{|
-    +hometown: ?{|
-      +$fragmentSpreads: RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$fragmentType,
-    |},
-    +id: string,
-    +name: ?string,
-  |},
-|};
-export type RelayMockEnvironmentWithComponentsTestExceptionalImpactQuery = {|
+};
+export type RelayMockEnvironmentWithComponentsTestExceptionalImpactQuery$data = {
+  readonly user: ?{
+    readonly hometown: ?{
+      readonly $fragmentSpreads: RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$fragmentType,
+    },
+    readonly id: string,
+    readonly name: ?string,
+  },
+};
+export type RelayMockEnvironmentWithComponentsTestExceptionalImpactQuery = {
   response: RelayMockEnvironmentWithComponentsTestExceptionalImpactQuery$data,
   variables: RelayMockEnvironmentWithComponentsTestExceptionalImpactQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -68,21 +67,21 @@ v3 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayMockEnvironmentWithComponentsTestExceptionalImpactQuery",
     "selections": [
       {
         "alias": "user",
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
-          (v3/*: any*/),
+          (v2/*:: as any*/),
+          (v3/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -108,13 +107,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayMockEnvironmentWithComponentsTestExceptionalImpactQuery",
     "selections": [
       {
         "alias": "user",
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -127,8 +126,8 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v2/*: any*/),
-          (v3/*: any*/),
+          (v2/*:: as any*/),
+          (v3/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -137,8 +136,8 @@ return {
             "name": "hometown",
             "plural": false,
             "selections": [
-              (v2/*: any*/),
-              (v3/*: any*/),
+              (v2/*:: as any*/),
+              (v3/*:: as any*/),
               {
                 "alias": null,
                 "args": null,
@@ -166,10 +165,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "798cb3a725408866a34e49c9e720775f";
+  (node/*:: as any*/).hash = "798cb3a725408866a34e49c9e720775f";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayMockEnvironmentWithComponentsTestExceptionalImpactQuery$variables,
   RelayMockEnvironmentWithComponentsTestExceptionalImpactQuery$data,
 >*/);

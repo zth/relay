@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7949315a649e3ddda87be498f46a167f>>
+ * @generated SignedSource<<39008e48527ac8ccccf3080e98307e55>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,16 +18,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriends$fragmentType } from "./RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriends.graphql";
-export type RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriendsQuery$variables = {||};
-export type RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriendsQuery$data = {|
-  +me: ?{|
-    +$fragmentSpreads: RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriends$fragmentType,
-  |},
-|};
-export type RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriendsQuery = {|
+export type RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriendsQuery$variables = {};
+export type RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriendsQuery$data = {
+  readonly me: ?{
+    readonly $fragmentSpreads: RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriends$fragmentType,
+  },
+};
+export type RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriendsQuery = {
   response: RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriendsQuery$data,
   variables: RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriendsQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -80,7 +79,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
+          (v0/*:: as any*/),
           {
             "alias": null,
             "args": [
@@ -118,7 +117,7 @@ return {
                     "name": "node",
                     "plural": false,
                     "selections": [
-                      (v0/*: any*/)
+                      (v0/*:: as any*/)
                     ],
                     "storageKey": null
                   }
@@ -145,10 +144,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "5c8e7c278a183816c699d12ac87c1d8c";
+  (node/*:: as any*/).hash = "5c8e7c278a183816c699d12ac87c1d8c";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriendsQuery$variables,
   RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriendsQuery$data,
 >*/);

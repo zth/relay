@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<332b2f3909aa74a9ed4b5fe4c899cc3b>>
+ * @generated SignedSource<<1024aa76da24fc3f114dcba1171c68d6>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,18 +17,18 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type DataCheckerTest3Query$variables = {||};
-export type DataCheckerTest3Query$data = {|
-  +me: ?{|
-    +profilePicture: ?{|
-      +uri: ?string,
-    |},
-  |},
-|};
-export type DataCheckerTest3Query = {|
+export type DataCheckerTest3Query$variables = {};
+export type DataCheckerTest3Query$data = {
+  readonly me: ?{
+    readonly profilePicture: ?{
+      readonly uri: ?string,
+    },
+  },
+};
+export type DataCheckerTest3Query = {
   response: DataCheckerTest3Query$data,
   variables: DataCheckerTest3Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -57,7 +56,7 @@ return {
         "selections": [
           {
             "alias": null,
-            "args": (v0/*: any*/),
+            "args": (v0/*:: as any*/),
             "concreteType": "Image",
             "kind": "LinkedField",
             "name": "profilePicture",
@@ -96,7 +95,7 @@ return {
         "selections": [
           {
             "alias": null,
-            "args": (v0/*: any*/),
+            "args": (v0/*:: as any*/),
             "concreteType": "Image",
             "kind": "LinkedField",
             "name": "profilePicture",
@@ -145,10 +144,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "a3a12cb34be08326303b43d116f29246";
+  (node/*:: as any*/).hash = "a3a12cb34be08326303b43d116f29246";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   DataCheckerTest3Query$variables,
   DataCheckerTest3Query$data,
 >*/);

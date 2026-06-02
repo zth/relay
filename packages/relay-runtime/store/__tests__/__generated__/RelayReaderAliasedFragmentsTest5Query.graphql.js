@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<21212385ce4a862eb7cd6369f23c577d>>
+ * @generated SignedSource<<31287dbd430543aaa2b61c599f1e36a6>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,20 +18,20 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayReaderAliasedFragmentsTest_maybe_node_interface$fragmentType } from "./RelayReaderAliasedFragmentsTest_maybe_node_interface.graphql";
-export type RelayReaderAliasedFragmentsTest5Query$variables = {|
+export type RelayReaderAliasedFragmentsTest5Query$variables = {
   id: string,
-|};
-export type RelayReaderAliasedFragmentsTest5Query$data = {|
-  +node: ?{|
-    +aliased_fragment: ?{|
-      +$fragmentSpreads: RelayReaderAliasedFragmentsTest_maybe_node_interface$fragmentType,
-    |},
-  |},
-|};
-export type RelayReaderAliasedFragmentsTest5Query = {|
+};
+export type RelayReaderAliasedFragmentsTest5Query$data = {
+  readonly node: ?{
+    readonly aliased_fragment: ?{
+      readonly $fragmentSpreads: RelayReaderAliasedFragmentsTest_maybe_node_interface$fragmentType,
+    },
+  },
+};
+export type RelayReaderAliasedFragmentsTest5Query = {
   response: RelayReaderAliasedFragmentsTest5Query$data,
   variables: RelayReaderAliasedFragmentsTest5Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -52,14 +51,14 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayReaderAliasedFragmentsTest5Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -90,13 +89,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayReaderAliasedFragmentsTest5Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -147,10 +146,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "af2c6a63c8c707dff45a36bdf00e3169";
+  (node/*:: as any*/).hash = "af2c6a63c8c707dff45a36bdf00e3169";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderAliasedFragmentsTest5Query$variables,
   RelayReaderAliasedFragmentsTest5Query$data,
 >*/);

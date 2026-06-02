@@ -22,7 +22,7 @@ const {graphql} = require('relay-runtime');
 const {readFragment} = require('relay-runtime/store/ResolverFragments');
 
 /**
- * @RelayResolver AstrologicalSign.self: RelayResolverValue
+ * @relayField AstrologicalSign.self: RelayResolverValue
  * @rootFragment AstrologicalSignSelfResolver
  *
  * Local state knowledge of the user's astrological sign.
@@ -41,12 +41,12 @@ function self(
 
   // id is ID in the schema, but `AstrologicalSignID` in the resolver
   // which actually returns it. This is a typehole we'll need to patch.
-  // $FlowFixMe
-  const id: AstrologicalSignID = (sign.id: any);
+  // $FlowFixMe[unclear-type]
+  const id: AstrologicalSignID = sign.id as any;
   return {
+    house: getHouse(id),
     name: sign.id, // The id is actually the human readable name.
     oppositeSignId: getOpposite(id),
-    house: getHouse(id),
   };
 }
 

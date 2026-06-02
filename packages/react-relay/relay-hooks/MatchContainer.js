@@ -85,22 +85,28 @@ const {useMemo} = React;
 
 // Note: this type is intentionally non-exact, it is expected that the
 // object may contain sibling fields.
-type TypenameOnlyPointer = {+__typename: string};
+type TypenameOnlyPointer = {readonly __typename: string};
 export type MatchPointer = {
-  +__fragmentPropName?: ?string,
-  +__module_component?: mixed,
-  +$fragmentSpreads: mixed,
+  readonly __fragmentPropName?: ?string,
+  readonly __module_component?: unknown,
+  readonly $fragmentSpreads: unknown,
   ...
 };
 
-export type MatchContainerProps<TProps: {...}, TFallback: React.Node> = {
-  +fallback?: ?TFallback,
-  +loader: (module: mixed) => component(...TProps),
-  +match: ?MatchPointer | ?TypenameOnlyPointer,
-  +props?: TProps,
+export type MatchContainerProps<
+  TProps extends {...},
+  TFallback extends React.Node,
+> = {
+  readonly fallback?: ?TFallback,
+  readonly loader: (module: unknown) => component(...TProps),
+  readonly match: ?MatchPointer | ?TypenameOnlyPointer,
+  readonly props?: TProps,
 };
 
-function MatchContainer<TProps: {...}, TFallback: React.Node | null>({
+function MatchContainer<
+  TProps extends {...},
+  TFallback extends React.Node | null,
+>({
   fallback,
   loader,
   match,
@@ -127,7 +133,7 @@ function MatchContainer<TProps: {...}, TFallback: React.Node | null>({
     __fragmentOwner,
     __fragmentPropName,
     __module_component,
-  } = (match: $FlowFixMe) ?? {};
+  } = (match as $FlowFixMe) ?? {};
   if (
     (__fragmentOwner != null && typeof __fragmentOwner !== 'object') ||
     (__fragmentPropName != null && typeof __fragmentPropName !== 'string') ||

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1141ace88c742e7ead1502b6f2a62ae4>>
+ * @generated SignedSource<<ec02ea309dd20a6328a75735763b79bc>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,14 +17,14 @@
 
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
-export type fetchQueryTest5Query$variables = {||};
-export type fetchQueryTest5Query$data = {|
-  +client_root_field: ?string,
-|};
-export type fetchQueryTest5Query = {|
+export type fetchQueryTest5Query$variables = {};
+export type fetchQueryTest5Query$data = {
+  readonly client_root_field: ?string,
+};
+export type fetchQueryTest5Query = {
   response: fetchQueryTest5Query$data,
   variables: fetchQueryTest5Query$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){
@@ -49,7 +48,7 @@ return {
     "kind": "Fragment",
     "metadata": null,
     "name": "fetchQueryTest5Query",
-    "selections": (v0/*: any*/),
+    "selections": (v0/*:: as any*/),
     "type": "Query",
     "abstractKey": null
   },
@@ -58,7 +57,7 @@ return {
     "argumentDefinitions": [],
     "kind": "Operation",
     "name": "fetchQueryTest5Query",
-    "selections": (v0/*: any*/)
+    "selections": (v0/*:: as any*/)
   },
   "params": {
     "cacheID": "1f64dc5de41e4d35c974cef1681434a4",
@@ -72,10 +71,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "51b5507fd390b89ad93a513e19352913";
+  (node/*:: as any*/).hash = "51b5507fd390b89ad93a513e19352913";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   fetchQueryTest5Query$variables,
   fetchQueryTest5Query$data,
 >*/);

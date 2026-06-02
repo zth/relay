@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<eb980180d08cb001991d1002c47b407e>>
+ * @generated SignedSource<<225654e56aad2513a5412cbb30c7991f>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,16 +18,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { observeQueryTestToPromiseFragment$fragmentType } from "./observeQueryTestToPromiseFragment.graphql";
-export type observeQueryTestToPromiseChainQuery$variables = {||};
-export type observeQueryTestToPromiseChainQuery$data = {|
-  +me: {|
-    +$fragmentSpreads: observeQueryTestToPromiseFragment$fragmentType,
-  |},
-|};
-export type observeQueryTestToPromiseChainQuery = {|
+export type observeQueryTestToPromiseChainQuery$variables = {};
+export type observeQueryTestToPromiseChainQuery$data = {
+  readonly me: {
+    readonly $fragmentSpreads: observeQueryTestToPromiseFragment$fragmentType,
+  },
+};
+export type observeQueryTestToPromiseChainQuery = {
   response: observeQueryTestToPromiseChainQuery$data,
   variables: observeQueryTestToPromiseChainQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {
@@ -106,10 +105,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "d090c63a0d3e49ee45ef4907368db51e";
+  (node/*:: as any*/).hash = "d090c63a0d3e49ee45ef4907368db51e";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   observeQueryTestToPromiseChainQuery$variables,
   observeQueryTestToPromiseChainQuery$data,
 >*/);

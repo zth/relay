@@ -25,7 +25,7 @@ use graphql_syntax::parse_executable_with_error_recovery_and_parser_features;
 use graphql_text_printer::print_full_operation;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
-use lsp_types::Url;
+use lsp_types::Uri;
 use lsp_types::request::Request;
 use relay_compiler::ProjectName;
 use relay_compiler::config::ProjectConfig;
@@ -54,9 +54,9 @@ pub(crate) struct GraphQLExecuteQueryParams {
 }
 
 impl GraphQLExecuteQueryParams {
-    fn get_url(&self) -> Option<Url> {
+    fn get_uri(&self) -> Option<Uri> {
         if let Some(path) = &self.document_path {
-            Url::parse(&format!("file://{}", path)).ok()
+            crate::utils::path_to_file_uri(std::path::Path::new(path))
         } else {
             None
         }
@@ -153,7 +153,7 @@ fn transform_program<TPerfLogger: PerfLogger + 'static>(
         custom_transforms_config,
         transferrable_refetchable_query_directives,
     )
-    .map_err(|errors| format!("{:?}", errors))
+    .map_err(|errors| format!("{errors:?}"))
 }
 
 fn print_full_operation_text(programs: Programs, operation_name: StringKey) -> Option<String> {
@@ -180,13 +180,14 @@ fn build_operation_ir_with_fragments(
         definitions,
         &BuilderOptions {
             allow_undefined_fragment_spreads: true,
+            allow_non_overlapping_abstract_spreads: false,
             fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
             relay_mode: Some(graphql_ir::RelayMode),
             default_anonymous_operation_name: Some("anonymous".intern()),
             allow_custom_scalar_literals: true, // for compatibility
         },
     )
-    .map_err(|errors| format!("{:?}", errors))?;
+    .map_err(|errors| format!("{errors:?}"))?;
 
     match ir.iter().find_map(|item| {
         if let ExecutableDefinition::Operation(operation) = item {
@@ -229,8 +230,7 @@ pub(crate) fn get_query_text<
         .find(|project_config| project_config.name == project_name)
         .ok_or_else(|| {
             LSPRuntimeError::UnexpectedError(format!(
-                "Unable to get project config for project {}.",
-                project_name
+                "Unable to get project config for project {project_name}."
             ))
         })?;
 
@@ -283,9 +283,9 @@ pub(crate) fn on_graphql_execute_query(
     state: &impl GlobalState,
     params: GraphQLExecuteQueryParams,
 ) -> LSPRuntimeResult<<GraphQLExecuteQuery as Request>::Result> {
-    let project_name = if let Some(url) = &params.get_url() {
+    let project_name = if let Some(uri) = &params.get_uri() {
         state
-            .extract_project_name_from_url(url)
+            .extract_project_name_from_uri(uri)
             .unwrap_or_else(|_| params.get_schema_name())
     } else {
         params.get_schema_name()

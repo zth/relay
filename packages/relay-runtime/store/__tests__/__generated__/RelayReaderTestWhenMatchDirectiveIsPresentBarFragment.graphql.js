@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8dcada45472d826c073cbf5a54c1a1cb>>
+ * @generated SignedSource<<cd2dacb9209db91d98860bb43d6c474d>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,18 +23,18 @@ import type { RelayReaderTestWhenMatchDirectiveIsPresentMarkdownUserNameRenderer
 import type { RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name$fragmentType } from "./RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$fragmentType: FragmentType;
-export type RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$data = {|
-  +id: string,
-  +nameRenderer: ?{|
-    +__fragmentPropName?: ?string,
-    +__module_component?: ?string,
-    +$fragmentSpreads: RelayReaderTestWhenMatchDirectiveIsPresentMarkdownUserNameRenderer_name$fragmentType & RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name$fragmentType,
-  |},
-  +$fragmentType: RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$fragmentType,
-|};
+export type RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$data = {
+  readonly id: string,
+  readonly nameRenderer: ?{
+    readonly __fragmentPropName?: ?string,
+    readonly __module_component?: ?string,
+    readonly $fragmentSpreads: RelayReaderTestWhenMatchDirectiveIsPresentMarkdownUserNameRenderer_name$fragmentType & RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name$fragmentType,
+  },
+  readonly $fragmentType: RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$fragmentType,
+};
 export type RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$key = {
-  +$data?: RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$data,
-  +$fragmentSpreads: RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$fragmentType,
+  readonly $data?: RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$data,
+  readonly $fragmentSpreads: RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$fragmentType,
   ...
 };
 */
@@ -104,10 +103,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "d8887b2ac025350aec36b04e349ce12a";
+  (node/*:: as any*/).hash = "d8887b2ac025350aec36b04e349ce12a";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$fragmentType,
   RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$data,
 >*/);

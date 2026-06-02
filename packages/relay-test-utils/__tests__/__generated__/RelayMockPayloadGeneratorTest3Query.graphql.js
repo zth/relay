@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4eb8b9913613cd5ea956a374b0121f19>>
+ * @generated SignedSource<<1ae5a216643a4c600e131cadcce78a95>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,18 +18,18 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayMockPayloadGeneratorTest2Fragment$fragmentType } from "./RelayMockPayloadGeneratorTest2Fragment.graphql";
-export type RelayMockPayloadGeneratorTest3Query$variables = {|
+export type RelayMockPayloadGeneratorTest3Query$variables = {
   condition: boolean,
-|};
-export type RelayMockPayloadGeneratorTest3Query$data = {|
-  +node: ?{|
-    +$fragmentSpreads: RelayMockPayloadGeneratorTest2Fragment$fragmentType,
-  |},
-|};
-export type RelayMockPayloadGeneratorTest3Query = {|
+};
+export type RelayMockPayloadGeneratorTest3Query$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: RelayMockPayloadGeneratorTest2Fragment$fragmentType,
+  },
+};
+export type RelayMockPayloadGeneratorTest3Query = {
   response: RelayMockPayloadGeneratorTest3Query$data,
   variables: RelayMockPayloadGeneratorTest3Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -64,14 +63,14 @@ v3 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayMockPayloadGeneratorTest3Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -91,13 +90,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayMockPayloadGeneratorTest3Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -110,11 +109,11 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
-              (v3/*: any*/),
+              (v3/*:: as any*/),
               {
                 "alias": null,
                 "args": null,
@@ -123,8 +122,8 @@ return {
                 "name": "author",
                 "plural": false,
                 "selections": [
-                  (v2/*: any*/),
-                  (v3/*: any*/),
+                  (v2/*:: as any*/),
+                  (v3/*:: as any*/),
                   {
                     "alias": "authorID",
                     "args": null,
@@ -234,10 +233,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "516e96dc8b1e7ac336c80a4bca81bb10";
+  (node/*:: as any*/).hash = "516e96dc8b1e7ac336c80a4bca81bb10";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayMockPayloadGeneratorTest3Query$variables,
   RelayMockPayloadGeneratorTest3Query$data,
 >*/);

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f83c23b1cb2348ac531bcc3090977291>>
+ * @generated SignedSource<<9d33364b4937b124f633c206b16a96d4>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,14 +19,14 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentCommitPayloadTest6MarkdownUserNameRenderer_name$fragmentType: FragmentType;
-export type RelayModernEnvironmentCommitPayloadTest6MarkdownUserNameRenderer_name$data = {|
-  +__typename: "MarkdownUserNameRenderer",
-  +markdown: ?string,
-  +$fragmentType: RelayModernEnvironmentCommitPayloadTest6MarkdownUserNameRenderer_name$fragmentType,
-|};
+export type RelayModernEnvironmentCommitPayloadTest6MarkdownUserNameRenderer_name$data = {
+  readonly __typename: "MarkdownUserNameRenderer",
+  readonly markdown: ?string,
+  readonly $fragmentType: RelayModernEnvironmentCommitPayloadTest6MarkdownUserNameRenderer_name$fragmentType,
+};
 export type RelayModernEnvironmentCommitPayloadTest6MarkdownUserNameRenderer_name$key = {
-  +$data?: RelayModernEnvironmentCommitPayloadTest6MarkdownUserNameRenderer_name$data,
-  +$fragmentSpreads: RelayModernEnvironmentCommitPayloadTest6MarkdownUserNameRenderer_name$fragmentType,
+  readonly $data?: RelayModernEnvironmentCommitPayloadTest6MarkdownUserNameRenderer_name$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentCommitPayloadTest6MarkdownUserNameRenderer_name$fragmentType,
   ...
 };
 */
@@ -58,10 +57,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "98b51356569737f7fa582d640033d6b4";
+  (node/*:: as any*/).hash = "98b51356569737f7fa582d640033d6b4";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayModernEnvironmentCommitPayloadTest6MarkdownUserNameRenderer_name$fragmentType,
   RelayModernEnvironmentCommitPayloadTest6MarkdownUserNameRenderer_name$data,
 >*/);

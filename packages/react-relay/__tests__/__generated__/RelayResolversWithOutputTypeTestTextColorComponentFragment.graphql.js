@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8ccda0e6400fbe28467e1480ff53c72f>>
+ * @generated SignedSource<<4630b7912fb14a740c2044d169320a70>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,19 +23,19 @@ import {human_readable_color as todoTextColorHumanReadableColorResolverType} fro
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `todoTextColorHumanReadableColorResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(todoTextColorHumanReadableColorResolverType: (
+(todoTextColorHumanReadableColorResolverType as (
   rootKey: TodoTextColorResolverFragment$key,
   args: void,
   context: TestResolverContextType,
 ) => ?string);
 declare export opaque type RelayResolversWithOutputTypeTestTextColorComponentFragment$fragmentType: FragmentType;
-export type RelayResolversWithOutputTypeTestTextColorComponentFragment$data = {|
-  +human_readable_color: ?string,
-  +$fragmentType: RelayResolversWithOutputTypeTestTextColorComponentFragment$fragmentType,
-|};
+export type RelayResolversWithOutputTypeTestTextColorComponentFragment$data = {
+  readonly human_readable_color: ?string,
+  readonly $fragmentType: RelayResolversWithOutputTypeTestTextColorComponentFragment$fragmentType,
+};
 export type RelayResolversWithOutputTypeTestTextColorComponentFragment$key = {
-  +$data?: RelayResolversWithOutputTypeTestTextColorComponentFragment$data,
-  +$fragmentSpreads: RelayResolversWithOutputTypeTestTextColorComponentFragment$fragmentType,
+  readonly $data?: RelayResolversWithOutputTypeTestTextColorComponentFragment$data,
+  readonly $fragmentSpreads: RelayResolversWithOutputTypeTestTextColorComponentFragment$fragmentType,
   ...
 };
 */
@@ -66,10 +65,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "d236248a49dbfef90d13bc458b58a7f5";
+  (node/*:: as any*/).hash = "d236248a49dbfef90d13bc458b58a7f5";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayResolversWithOutputTypeTestTextColorComponentFragment$fragmentType,
   RelayResolversWithOutputTypeTestTextColorComponentFragment$data,
 >*/);

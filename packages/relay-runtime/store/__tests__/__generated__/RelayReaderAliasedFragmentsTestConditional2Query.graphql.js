@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8eb2d33cbcfe7f66ddb4b4f401134637>>
+ * @generated SignedSource<<6a8ca5fad7900237a379971d338fb549>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,20 +18,20 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayReaderAliasedFragmentsTestConditionalFragment$fragmentType } from "./RelayReaderAliasedFragmentsTestConditionalFragment.graphql";
-export type RelayReaderAliasedFragmentsTestConditional2Query$variables = {|
+export type RelayReaderAliasedFragmentsTestConditional2Query$variables = {
   someCondition: boolean,
-|};
-export type RelayReaderAliasedFragmentsTestConditional2Query$data = {|
-  +me: ?{|
-    +aliased_fragment?: ?{|
-      +$fragmentSpreads: RelayReaderAliasedFragmentsTestConditionalFragment$fragmentType,
-    |},
-  |},
-|};
-export type RelayReaderAliasedFragmentsTestConditional2Query = {|
+};
+export type RelayReaderAliasedFragmentsTestConditional2Query$data = {
+  readonly me: ?{
+    readonly aliased_fragment?: ?{
+      readonly $fragmentSpreads: RelayReaderAliasedFragmentsTestConditionalFragment$fragmentType,
+    },
+  },
+};
+export type RelayReaderAliasedFragmentsTestConditional2Query = {
   response: RelayReaderAliasedFragmentsTestConditional2Query$data,
   variables: RelayReaderAliasedFragmentsTestConditional2Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -45,7 +44,7 @@ var v0 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayReaderAliasedFragmentsTestConditional2Query",
@@ -90,7 +89,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayReaderAliasedFragmentsTestConditional2Query",
     "selections": [
@@ -140,10 +139,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "74cc4a7c44594fd9bd8ba6862c83a664";
+  (node/*:: as any*/).hash = "74cc4a7c44594fd9bd8ba6862c83a664";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderAliasedFragmentsTestConditional2Query$variables,
   RelayReaderAliasedFragmentsTestConditional2Query$data,
 >*/);

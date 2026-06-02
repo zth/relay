@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<14ca19310ea256cb803dc7719febd7d0>>
+ * @generated SignedSource<<d149807f759535354064a58d304ce56c>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -22,59 +21,59 @@ import type { RelayMockPayloadGeneratorTest21Fragment$fragmentType } from "./Rel
 import type { RelayMockPayloadGeneratorTest23Fragment$fragmentType } from "./RelayMockPayloadGeneratorTest23Fragment.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayMockPayloadGeneratorTest22Fragment$fragmentType: FragmentType;
-export type RelayMockPayloadGeneratorTest22Fragment$data = {|
-  +actor: ?{|
-    +feedback?: ?{|
-      +comments: ?{|
-        +edges: ?$ReadOnlyArray<?{|
-          +node: ?{|
-            +$fragmentSpreads: RelayMockPayloadGeneratorTest23Fragment$fragmentType,
-          |},
-        |}>,
-      |},
-    |},
-    +id?: string,
-    +name?: ?string,
-    +pageName?: ?string,
-    +profilePicture?: ?{|
-      +height: ?number,
-      +uri: ?string,
-      +width: ?number,
-    |},
-    +userName?: ?string,
-    +username: ?string,
-  |},
-  +customName: ?string,
-  +friends: ?{|
-    +edges: ?$ReadOnlyArray<?{|
-      +node: ?{|
-        +id: string,
-        +name: ?string,
-      |},
-    |}>,
-    +myPageInfo: ?{|
-      +endCursor: ?string,
-      +hasNextPage: ?boolean,
-    |},
-  |},
-  +id: string,
-  +myActor: ?{|
-    +id: string,
-    +name: ?string,
-  |},
-  +name: ?string,
-  +profilePicture?: ?{|
-    +uri: ?string,
-  |},
-  +profile_picture: ?{|
-    +uri: ?string,
-  |},
-  +$fragmentSpreads: RelayMockPayloadGeneratorTest21Fragment$fragmentType,
-  +$fragmentType: RelayMockPayloadGeneratorTest22Fragment$fragmentType,
-|};
+export type RelayMockPayloadGeneratorTest22Fragment$data = {
+  readonly actor: ?{
+    readonly feedback?: ?{
+      readonly comments: ?{
+        readonly edges: ?ReadonlyArray<?{
+          readonly node: ?{
+            readonly $fragmentSpreads: RelayMockPayloadGeneratorTest23Fragment$fragmentType,
+          },
+        }>,
+      },
+    },
+    readonly id?: string,
+    readonly name?: ?string,
+    readonly pageName?: ?string,
+    readonly profilePicture?: ?{
+      readonly height: ?number,
+      readonly uri: ?string,
+      readonly width: ?number,
+    },
+    readonly userName?: ?string,
+    readonly username: ?string,
+  },
+  readonly customName: ?string,
+  readonly friends: ?{
+    readonly edges: ?ReadonlyArray<?{
+      readonly node: ?{
+        readonly id: string,
+        readonly name: ?string,
+      },
+    }>,
+    readonly myPageInfo: ?{
+      readonly endCursor: ?string,
+      readonly hasNextPage: ?boolean,
+    },
+  },
+  readonly id: string,
+  readonly myActor: ?{
+    readonly id: string,
+    readonly name: ?string,
+  },
+  readonly name: ?string,
+  readonly profilePicture?: ?{
+    readonly uri: ?string,
+  },
+  readonly profile_picture: ?{
+    readonly uri: ?string,
+  },
+  readonly $fragmentSpreads: RelayMockPayloadGeneratorTest21Fragment$fragmentType,
+  readonly $fragmentType: RelayMockPayloadGeneratorTest22Fragment$fragmentType,
+};
 export type RelayMockPayloadGeneratorTest22Fragment$key = {
-  +$data?: RelayMockPayloadGeneratorTest22Fragment$data,
-  +$fragmentSpreads: RelayMockPayloadGeneratorTest22Fragment$fragmentType,
+  readonly $data?: RelayMockPayloadGeneratorTest22Fragment$data,
+  readonly $fragmentSpreads: RelayMockPayloadGeneratorTest22Fragment$fragmentType,
   ...
 };
 */
@@ -118,7 +117,7 @@ v3 = {
   "storageKey": null
 },
 v4 = [
-  (v3/*: any*/)
+  (v3/*:: as any*/)
 ];
 return {
   "argumentDefinitions": [
@@ -155,8 +154,8 @@ return {
   },
   "name": "RelayMockPayloadGeneratorTest22Fragment",
   "selections": [
-    (v0/*: any*/),
-    (v1/*: any*/),
+    (v0/*:: as any*/),
+    (v1/*:: as any*/),
     {
       "alias": "myActor",
       "args": null,
@@ -165,8 +164,8 @@ return {
       "name": "actor",
       "plural": false,
       "selections": [
-        (v0/*: any*/),
-        (v1/*: any*/)
+        (v0/*:: as any*/),
+        (v1/*:: as any*/)
       ],
       "storageKey": null
     },
@@ -201,8 +200,8 @@ return {
               "name": "node",
               "plural": false,
               "selections": [
-                (v0/*: any*/),
-                (v1/*: any*/),
+                (v0/*:: as any*/),
+                (v1/*:: as any*/),
                 {
                   "alias": null,
                   "args": null,
@@ -230,7 +229,7 @@ return {
           "kind": "LinkedField",
           "name": "pageInfo",
           "plural": false,
-          "selections": (v2/*: any*/),
+          "selections": (v2/*:: as any*/),
           "storageKey": null
         },
         {
@@ -240,7 +239,7 @@ return {
           "kind": "LinkedField",
           "name": "pageInfo",
           "plural": false,
-          "selections": (v2/*: any*/),
+          "selections": (v2/*:: as any*/),
           "storageKey": null
         }
       ],
@@ -253,7 +252,7 @@ return {
       "kind": "LinkedField",
       "name": "profile_picture",
       "plural": false,
-      "selections": (v4/*: any*/),
+      "selections": (v4/*:: as any*/),
       "storageKey": null
     },
     {
@@ -274,7 +273,7 @@ return {
           "kind": "LinkedField",
           "name": "profilePicture",
           "plural": false,
-          "selections": (v4/*: any*/),
+          "selections": (v4/*:: as any*/),
           "storageKey": null
         }
       ]
@@ -295,7 +294,7 @@ return {
         {
           "kind": "InlineFragment",
           "selections": [
-            (v0/*: any*/),
+            (v0/*:: as any*/),
             {
               "alias": "userName",
               "args": null,
@@ -324,7 +323,7 @@ return {
               "name": "profilePicture",
               "plural": false,
               "selections": [
-                (v3/*: any*/),
+                (v3/*:: as any*/),
                 {
                   "alias": null,
                   "args": null,
@@ -403,7 +402,7 @@ return {
         {
           "kind": "InlineFragment",
           "selections": [
-            (v0/*: any*/),
+            (v0/*:: as any*/),
             {
               "alias": "pageName",
               "args": null,
@@ -432,10 +431,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "08c62813cbbac5cf9a652eb692b64132";
+  (node/*:: as any*/).hash = "08c62813cbbac5cf9a652eb692b64132";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayMockPayloadGeneratorTest22Fragment$fragmentType,
   RelayMockPayloadGeneratorTest22Fragment$data,
 >*/);

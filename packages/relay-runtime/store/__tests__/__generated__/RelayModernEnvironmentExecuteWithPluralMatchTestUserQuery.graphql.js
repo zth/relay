@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2876a51e0e7653e5855aacebb73555c7>>
+ * @generated SignedSource<<ff1a176686f1c2f5b0fe27c5bc110f3b>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -22,22 +21,22 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentExecuteWithPluralMatchTestMarkdownUserNameRenderer_name$fragmentType } from "./RelayModernEnvironmentExecuteWithPluralMatchTestMarkdownUserNameRenderer_name.graphql";
 import type { RelayModernEnvironmentExecuteWithPluralMatchTestPlainUserNameRenderer_name$fragmentType } from "./RelayModernEnvironmentExecuteWithPluralMatchTestPlainUserNameRenderer_name.graphql";
-export type RelayModernEnvironmentExecuteWithPluralMatchTestUserQuery$variables = {|
+export type RelayModernEnvironmentExecuteWithPluralMatchTestUserQuery$variables = {
   id: string,
-|};
-export type RelayModernEnvironmentExecuteWithPluralMatchTestUserQuery$data = {|
-  +node: ?{|
-    +nameRenderers?: ?$ReadOnlyArray<?{|
-      +__fragmentPropName?: ?string,
-      +__module_component?: ?string,
-      +$fragmentSpreads: RelayModernEnvironmentExecuteWithPluralMatchTestMarkdownUserNameRenderer_name$fragmentType & RelayModernEnvironmentExecuteWithPluralMatchTestPlainUserNameRenderer_name$fragmentType,
-    |}>,
-  |},
-|};
-export type RelayModernEnvironmentExecuteWithPluralMatchTestUserQuery = {|
+};
+export type RelayModernEnvironmentExecuteWithPluralMatchTestUserQuery$data = {
+  readonly node: ?{
+    readonly nameRenderers?: ?ReadonlyArray<?{
+      readonly __fragmentPropName?: ?string,
+      readonly __module_component?: ?string,
+      readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithPluralMatchTestMarkdownUserNameRenderer_name$fragmentType & RelayModernEnvironmentExecuteWithPluralMatchTestPlainUserNameRenderer_name$fragmentType,
+    }>,
+  },
+};
+export type RelayModernEnvironmentExecuteWithPluralMatchTestUserQuery = {
   response: RelayModernEnvironmentExecuteWithPluralMatchTestUserQuery$data,
   variables: RelayModernEnvironmentExecuteWithPluralMatchTestUserQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -99,14 +98,14 @@ v5 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentExecuteWithPluralMatchTestUserQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -117,14 +116,14 @@ return {
             "selections": [
               {
                 "alias": null,
-                "args": (v2/*: any*/),
+                "args": (v2/*:: as any*/),
                 "concreteType": null,
                 "kind": "LinkedField",
                 "name": "nameRenderers",
                 "plural": true,
                 "selections": [
-                  (v3/*: any*/),
-                  (v4/*: any*/)
+                  (v3/*:: as any*/),
+                  (v4/*:: as any*/)
                 ],
                 "storageKey": "nameRenderers(supported:\"34hjiS\")"
               }
@@ -141,33 +140,33 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentExecuteWithPluralMatchTestUserQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v5/*: any*/),
+          (v5/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
               {
                 "alias": null,
-                "args": (v2/*: any*/),
+                "args": (v2/*:: as any*/),
                 "concreteType": null,
                 "kind": "LinkedField",
                 "name": "nameRenderers",
                 "plural": true,
                 "selections": [
-                  (v5/*: any*/),
-                  (v3/*: any*/),
-                  (v4/*: any*/)
+                  (v5/*:: as any*/),
+                  (v3/*:: as any*/),
+                  (v4/*:: as any*/)
                 ],
                 "storageKey": "nameRenderers(supported:\"34hjiS\")"
               }
@@ -199,10 +198,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "5ba0549be6b9d3358f8bc52844e64484";
+  (node/*:: as any*/).hash = "5ba0549be6b9d3358f8bc52844e64484";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentExecuteWithPluralMatchTestUserQuery$variables,
   RelayModernEnvironmentExecuteWithPluralMatchTestUserQuery$data,
 >*/);

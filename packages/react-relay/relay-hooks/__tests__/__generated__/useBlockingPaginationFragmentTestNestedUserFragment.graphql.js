@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<93ef0e4560cffab14d6452f50f46a50d>>
+ * @generated SignedSource<<809ab8d7183c93f3ad6f678980a98e34>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,13 +19,13 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type useBlockingPaginationFragmentTestNestedUserFragment$fragmentType: FragmentType;
-export type useBlockingPaginationFragmentTestNestedUserFragment$data = {|
-  +username: ?string,
-  +$fragmentType: useBlockingPaginationFragmentTestNestedUserFragment$fragmentType,
-|};
+export type useBlockingPaginationFragmentTestNestedUserFragment$data = {
+  readonly username: ?string,
+  readonly $fragmentType: useBlockingPaginationFragmentTestNestedUserFragment$fragmentType,
+};
 export type useBlockingPaginationFragmentTestNestedUserFragment$key = {
-  +$data?: useBlockingPaginationFragmentTestNestedUserFragment$data,
-  +$fragmentSpreads: useBlockingPaginationFragmentTestNestedUserFragment$fragmentType,
+  readonly $data?: useBlockingPaginationFragmentTestNestedUserFragment$data,
+  readonly $fragmentSpreads: useBlockingPaginationFragmentTestNestedUserFragment$fragmentType,
   ...
 };
 */
@@ -50,10 +49,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "eb2765a66613b55829da5ea9c3c0627a";
+  (node/*:: as any*/).hash = "eb2765a66613b55829da5ea9c3c0627a";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   useBlockingPaginationFragmentTestNestedUserFragment$fragmentType,
   useBlockingPaginationFragmentTestNestedUserFragment$data,
 >*/);

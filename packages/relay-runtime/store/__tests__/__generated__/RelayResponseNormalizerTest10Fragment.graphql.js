@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<86e71ad04a6c71f29f5e3136dee270e3>>
+ * @generated SignedSource<<7adf4ce411a9576098a0d6cae689a0e4>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,19 +19,19 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayResponseNormalizerTest10Fragment$fragmentType: FragmentType;
-export type RelayResponseNormalizerTest10Fragment$data = {|
-  +actors: ?$ReadOnlyArray<?{|
-    +actors?: ?$ReadOnlyArray<?{|
-      +name: ?string,
-    |}>,
-    +name?: ?string,
-  |}>,
-  +id: string,
-  +$fragmentType: RelayResponseNormalizerTest10Fragment$fragmentType,
-|};
+export type RelayResponseNormalizerTest10Fragment$data = {
+  readonly actors: ?ReadonlyArray<?{
+    readonly actors?: ?ReadonlyArray<?{
+      readonly name: ?string,
+    }>,
+    readonly name?: ?string,
+  }>,
+  readonly id: string,
+  readonly $fragmentType: RelayResponseNormalizerTest10Fragment$fragmentType,
+};
 export type RelayResponseNormalizerTest10Fragment$key = {
-  +$data?: RelayResponseNormalizerTest10Fragment$data,
-  +$fragmentSpreads: RelayResponseNormalizerTest10Fragment$fragmentType,
+  readonly $data?: RelayResponseNormalizerTest10Fragment$data,
+  readonly $fragmentSpreads: RelayResponseNormalizerTest10Fragment$fragmentType,
   ...
 };
 */
@@ -69,7 +68,7 @@ return {
         {
           "kind": "InlineFragment",
           "selections": [
-            (v0/*: any*/),
+            (v0/*:: as any*/),
             {
               "kind": "Stream",
               "selections": [
@@ -81,7 +80,7 @@ return {
                   "name": "actors",
                   "plural": true,
                   "selections": [
-                    (v0/*: any*/)
+                    (v0/*:: as any*/)
                   ],
                   "storageKey": null
                 }
@@ -101,10 +100,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "8c389e04433fbf8aaa29700855a45351";
+  (node/*:: as any*/).hash = "8c389e04433fbf8aaa29700855a45351";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayResponseNormalizerTest10Fragment$fragmentType,
   RelayResponseNormalizerTest10Fragment$data,
 >*/);

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<15fb9013adc7ea5219f3caae94838def>>
+ * @generated SignedSource<<2de20af9f4abb1745c5cff4fa3ced7b3>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,19 +23,19 @@ import {ErrorModel as errorModelRelayModelInstanceResolverType} from "../RelayRe
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `errorModelRelayModelInstanceResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(errorModelRelayModelInstanceResolverType: (
+(errorModelRelayModelInstanceResolverType as (
   id: ErrorModel__id$data['id'],
   args: void,
   context: TestResolverContextType,
-) => mixed);
+) => unknown);
 declare export opaque type ErrorModel____relay_model_instance$fragmentType: FragmentType;
-export type ErrorModel____relay_model_instance$data = {|
-  +__relay_model_instance: $NonMaybeType<ReturnType<typeof errorModelRelayModelInstanceResolverType>>,
-  +$fragmentType: ErrorModel____relay_model_instance$fragmentType,
-|};
+export type ErrorModel____relay_model_instance$data = {
+  readonly __relay_model_instance: NonNullable<ReturnType<typeof errorModelRelayModelInstanceResolverType>>,
+  readonly $fragmentType: ErrorModel____relay_model_instance$fragmentType,
+};
 export type ErrorModel____relay_model_instance$key = {
-  +$data?: ErrorModel____relay_model_instance$data,
-  +$fragmentSpreads: ErrorModel____relay_model_instance$fragmentType,
+  readonly $data?: ErrorModel____relay_model_instance$data,
+  readonly $fragmentSpreads: ErrorModel____relay_model_instance$fragmentType,
   ...
 };
 */
@@ -65,7 +64,7 @@ var node/*: ReaderFragment*/ = {
   "abstractKey": null
 };
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   ErrorModel____relay_model_instance$fragmentType,
   ErrorModel____relay_model_instance$data,
 >*/);

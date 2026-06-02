@@ -1,5 +1,6 @@
 crates/dependency-analyzer/tests/ast
 crates/dependency-analyzer/tests/ir
+crates/dependency-analyzer/tests/query_stats
 crates/docblock-syntax/tests/parse
 crates/extract-graphql/tests/extract
 crates/fixture-tests/tests/uppercase
@@ -29,18 +30,19 @@ crates/relay-codegen/tests/deduped_json_codegen
 crates/relay-codegen/tests/defer_stream
 crates/relay-codegen/tests/throw_on_field_error_directive_codegen
 crates/relay-codegen/tests/json_codegen
-crates/relay-codegen/tests/relay_actor_change
 crates/relay-codegen/tests/request_metadata
 crates/relay-codegen/tests/skip_printing_nulls
 crates/relay-codegen/tests/required_directive_codegen
 crates/relay-compiler/tests/compile_relay_artifacts
 crates/relay-compiler/tests/compile_relay_artifacts_with_custom_id
 crates/relay-compiler/tests/relay_compiler_integration
+crates/relay-compiler/tests/subschema_extraction
 crates/relay-docblock/tests/parse
 crates/relay-docblock/tests/to_schema
 crates/relay-lsp/tests/find_field_usages
 crates/relay-lsp/tests/hover
 crates/relay-lsp/tests/rename
+crates/relay-lsp/tests/type_information
 crates/relay-schema-generation/tests/docblock
 crates/relay-schema-generation/tests/extract
 crates/relay-transforms/tests/apply_fragment_arguments
@@ -72,7 +74,6 @@ crates/relay-transforms/tests/match_transform_client_resolver
 crates/relay-transforms/tests/match_transform
 crates/relay-transforms/tests/provided_variable_fragment_transform
 crates/relay-transforms/tests/refetchable_fragment
-crates/relay-transforms/tests/relay_actor_change
 crates/relay-transforms/tests/relay_resolvers
 crates/relay-transforms/tests/relay_resolvers_abstract_types
 crates/relay-transforms/tests/relay_test_operation

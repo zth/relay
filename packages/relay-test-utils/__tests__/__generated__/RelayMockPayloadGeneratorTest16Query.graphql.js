@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b5a5c64f23e9d49fa3c46ffa7ba40ef7>>
+ * @generated SignedSource<<11ec6dc8810804edd0d66e56aa979b38>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,16 +18,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayMockPayloadGeneratorTest16Fragment$fragmentType } from "./RelayMockPayloadGeneratorTest16Fragment.graphql";
-export type RelayMockPayloadGeneratorTest16Query$variables = {||};
-export type RelayMockPayloadGeneratorTest16Query$data = {|
-  +nodes: ?$ReadOnlyArray<?{|
-    +$fragmentSpreads: RelayMockPayloadGeneratorTest16Fragment$fragmentType,
-  |}>,
-|};
-export type RelayMockPayloadGeneratorTest16Query = {|
+export type RelayMockPayloadGeneratorTest16Query$variables = {};
+export type RelayMockPayloadGeneratorTest16Query$data = {
+  readonly nodes: ?ReadonlyArray<?{
+    readonly $fragmentSpreads: RelayMockPayloadGeneratorTest16Fragment$fragmentType,
+  }>,
+};
+export type RelayMockPayloadGeneratorTest16Query = {
   response: RelayMockPayloadGeneratorTest16Query$data,
   variables: RelayMockPayloadGeneratorTest16Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {
@@ -127,10 +126,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "d0f4c472087c557a5331f6d81ff6433e";
+  (node/*:: as any*/).hash = "d0f4c472087c557a5331f6d81ff6433e";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayMockPayloadGeneratorTest16Query$variables,
   RelayMockPayloadGeneratorTest16Query$data,
 >*/);

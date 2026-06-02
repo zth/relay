@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<bd67d422ffd9395e08048e1b358a9c4d>>
+ * @generated SignedSource<<a57f82b24a042c5778dec5d6283e9abf>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,14 +18,14 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { observeFragmentTestNetworkErrorFragment$fragmentType } from "./observeFragmentTestNetworkErrorFragment.graphql";
-export type observeFragmentTestNetworkErrorQuery$variables = {||};
-export type observeFragmentTestNetworkErrorQuery$data = {|
-  +$fragmentSpreads: observeFragmentTestNetworkErrorFragment$fragmentType,
-|};
-export type observeFragmentTestNetworkErrorQuery = {|
+export type observeFragmentTestNetworkErrorQuery$variables = {};
+export type observeFragmentTestNetworkErrorQuery$data = {
+  readonly $fragmentSpreads: observeFragmentTestNetworkErrorFragment$fragmentType,
+};
+export type observeFragmentTestNetworkErrorQuery = {
   response: observeFragmentTestNetworkErrorQuery$data,
   variables: observeFragmentTestNetworkErrorQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {
@@ -89,10 +88,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "ab0f402fbc738d3f90847297471bd4b3";
+  (node/*:: as any*/).hash = "ab0f402fbc738d3f90847297471bd4b3";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   observeFragmentTestNetworkErrorQuery$variables,
   observeFragmentTestNetworkErrorQuery$data,
 >*/);

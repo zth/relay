@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<67aa79681f4c3c1406944dd059174dc7>>
+ * @generated SignedSource<<a63153d73bff5e158caa177e9aa4c9f8>>
  */
 
 mod compile_relay_artifacts;
@@ -101,13 +101,6 @@ async fn abstract_type_refinement_no_unnecessary_type_discriminator_under_condit
     let input = include_str!("compile_relay_artifacts/fixtures/abstract-type-refinement-no-unnecessary-type-discriminator-under-condition_incorrect.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/abstract-type-refinement-no-unnecessary-type-discriminator-under-condition_incorrect.expected");
     test_fixture(transform_fixture, file!(), "abstract-type-refinement-no-unnecessary-type-discriminator-under-condition_incorrect.graphql", "compile_relay_artifacts/fixtures/abstract-type-refinement-no-unnecessary-type-discriminator-under-condition_incorrect.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn actor_change_simple_query() {
-    let input = include_str!("compile_relay_artifacts/fixtures/actor-change-simple-query.graphql");
-    let expected = include_str!("compile_relay_artifacts/fixtures/actor-change-simple-query.expected");
-    test_fixture(transform_fixture, file!(), "actor-change-simple-query.graphql", "compile_relay_artifacts/fixtures/actor-change-simple-query.expected", input, expected).await;
 }
 
 #[tokio::test]
@@ -468,13 +461,6 @@ async fn complex_arguments_with_mutliple_variables() {
 }
 
 #[tokio::test]
-async fn conflicting_selections_with_actor_change_invalid() {
-    let input = include_str!("compile_relay_artifacts/fixtures/conflicting-selections-with-actor-change.invalid.graphql");
-    let expected = include_str!("compile_relay_artifacts/fixtures/conflicting-selections-with-actor-change.invalid.expected");
-    test_fixture(transform_fixture, file!(), "conflicting-selections-with-actor-change.invalid.graphql", "compile_relay_artifacts/fixtures/conflicting-selections-with-actor-change.invalid.expected", input, expected).await;
-}
-
-#[tokio::test]
 async fn conflicting_selections_with_defer_invalid() {
     let input = include_str!("compile_relay_artifacts/fixtures/conflicting-selections-with-defer.invalid.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/conflicting-selections-with-defer.invalid.expected");
@@ -591,6 +577,13 @@ async fn duplicate_query_name() {
     let input = include_str!("compile_relay_artifacts/fixtures/duplicate_query_name.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/duplicate_query_name.expected");
     test_fixture(transform_fixture, file!(), "duplicate_query_name.graphql", "compile_relay_artifacts/fixtures/duplicate_query_name.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn exec_time_experimental_provider() {
+    let input = include_str!("compile_relay_artifacts/fixtures/exec-time-experimental-provider.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/exec-time-experimental-provider.expected");
+    test_fixture(transform_fixture, file!(), "exec-time-experimental-provider.graphql", "compile_relay_artifacts/fixtures/exec-time-experimental-provider.expected", input, expected).await;
 }
 
 #[tokio::test]
@@ -1998,6 +1991,13 @@ async fn supported_arg_non_static_invalid() {
     let input = include_str!("compile_relay_artifacts/fixtures/supported_arg_non_static.invalid.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/supported_arg_non_static.invalid.expected");
     test_fixture(transform_fixture, file!(), "supported_arg_non_static.invalid.graphql", "compile_relay_artifacts/fixtures/supported_arg_non_static.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn todo_multiple_overlapping_modules() {
+    let input = include_str!("compile_relay_artifacts/fixtures/TODO-multiple-overlapping-modules.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/TODO-multiple-overlapping-modules.expected");
+    test_fixture(transform_fixture, file!(), "TODO-multiple-overlapping-modules.graphql", "compile_relay_artifacts/fixtures/TODO-multiple-overlapping-modules.expected", input, expected).await;
 }
 
 #[tokio::test]

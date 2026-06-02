@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<97b19e3d604a71ea8b7c17d0074ea57c>>
+ * @generated SignedSource<<4f75ada55b655ae02c8729a4dfef2c63>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,18 +18,18 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment$fragmentType } from "./RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment.graphql";
-export type RelayModernEnvironmentExecuteWithNestedStreamTestFeedQuery$variables = {|
+export type RelayModernEnvironmentExecuteWithNestedStreamTestFeedQuery$variables = {
   enableStream: boolean,
-|};
-export type RelayModernEnvironmentExecuteWithNestedStreamTestFeedQuery$data = {|
-  +viewer: ?{|
-    +$fragmentSpreads: RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment$fragmentType,
-  |},
-|};
-export type RelayModernEnvironmentExecuteWithNestedStreamTestFeedQuery = {|
+};
+export type RelayModernEnvironmentExecuteWithNestedStreamTestFeedQuery$data = {
+  readonly viewer: ?{
+    readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment$fragmentType,
+  },
+};
+export type RelayModernEnvironmentExecuteWithNestedStreamTestFeedQuery = {
   response: RelayModernEnvironmentExecuteWithNestedStreamTestFeedQuery$data,
   variables: RelayModernEnvironmentExecuteWithNestedStreamTestFeedQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -57,7 +56,7 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentExecuteWithNestedStreamTestFeedQuery",
@@ -84,7 +83,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentExecuteWithNestedStreamTestFeedQuery",
     "selections": [
@@ -138,8 +137,8 @@ return {
                         "name": "node",
                         "plural": false,
                         "selections": [
-                          (v1/*: any*/),
-                          (v2/*: any*/),
+                          (v1/*:: as any*/),
+                          (v2/*:: as any*/),
                           {
                             "alias": null,
                             "args": null,
@@ -161,7 +160,7 @@ return {
                                     "name": "actors",
                                     "plural": true,
                                     "selections": [
-                                      (v1/*: any*/),
+                                      (v1/*:: as any*/),
                                       {
                                         "alias": null,
                                         "args": null,
@@ -178,13 +177,13 @@ return {
                                         "kind": "ScalarHandle",
                                         "name": "name"
                                       },
-                                      (v2/*: any*/)
+                                      (v2/*:: as any*/)
                                     ],
                                     "storageKey": null
                                   }
                                 ]
                               },
-                              (v2/*: any*/)
+                              (v2/*:: as any*/)
                             ],
                             "storageKey": null
                           }
@@ -216,10 +215,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "0320449c8b7bac4f9ee4a98105c83e53";
+  (node/*:: as any*/).hash = "0320449c8b7bac4f9ee4a98105c83e53";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentExecuteWithNestedStreamTestFeedQuery$variables,
   RelayModernEnvironmentExecuteWithNestedStreamTestFeedQuery$data,
 >*/);

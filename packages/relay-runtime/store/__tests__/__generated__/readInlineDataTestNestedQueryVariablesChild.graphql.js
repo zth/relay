@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<545eb28d54192e234161c00daf1f6593>>
+ * @generated SignedSource<<d7b332cfaa674be6acdc903569294257>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,13 +20,13 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { readInlineDataTestNestedQueryVariablesGrandchild$fragmentType } from "./readInlineDataTestNestedQueryVariablesGrandchild.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type readInlineDataTestNestedQueryVariablesChild$fragmentType: FragmentType;
-export type readInlineDataTestNestedQueryVariablesChild$data = {|
-  +$fragmentSpreads: readInlineDataTestNestedQueryVariablesGrandchild$fragmentType,
-  +$fragmentType: readInlineDataTestNestedQueryVariablesChild$fragmentType,
-|};
+export type readInlineDataTestNestedQueryVariablesChild$data = {
+  readonly $fragmentSpreads: readInlineDataTestNestedQueryVariablesGrandchild$fragmentType,
+  readonly $fragmentType: readInlineDataTestNestedQueryVariablesChild$fragmentType,
+};
 export type readInlineDataTestNestedQueryVariablesChild$key = {
-  +$data?: readInlineDataTestNestedQueryVariablesChild$data,
-  +$fragmentSpreads: readInlineDataTestNestedQueryVariablesChild$fragmentType,
+  readonly $data?: readInlineDataTestNestedQueryVariablesChild$data,
+  readonly $fragmentSpreads: readInlineDataTestNestedQueryVariablesChild$fragmentType,
   ...
 };
 */
@@ -81,10 +80,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "07443f80b006430044e79ee785ad46d9";
+  (node/*:: as any*/).hash = "07443f80b006430044e79ee785ad46d9";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   readInlineDataTestNestedQueryVariablesChild$fragmentType,
   readInlineDataTestNestedQueryVariablesChild$data,
 >*/);

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<73b8605ac3760044029fbbdb5d24fd6a>>
+ * @generated SignedSource<<c5910ae0cd7b1a14e940709f314324dc>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,18 +18,18 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayReaderAliasedFragmentsTestInline_user$fragmentType } from "./RelayReaderAliasedFragmentsTestInline_user.graphql";
-export type RelayReaderAliasedFragmentsTestInlineQuery$variables = {||};
-export type RelayReaderAliasedFragmentsTestInlineQuery$data = {|
-  +me: ?{|
-    +aliased_fragment: {|
-      +$fragmentSpreads: RelayReaderAliasedFragmentsTestInline_user$fragmentType,
-    |},
-  |},
-|};
-export type RelayReaderAliasedFragmentsTestInlineQuery = {|
+export type RelayReaderAliasedFragmentsTestInlineQuery$variables = {};
+export type RelayReaderAliasedFragmentsTestInlineQuery$data = {
+  readonly me: ?{
+    readonly aliased_fragment: {
+      readonly $fragmentSpreads: RelayReaderAliasedFragmentsTestInline_user$fragmentType,
+    },
+  },
+};
+export type RelayReaderAliasedFragmentsTestInlineQuery = {
   response: RelayReaderAliasedFragmentsTestInlineQuery$data,
   variables: RelayReaderAliasedFragmentsTestInlineQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -64,7 +63,7 @@ return {
                   "kind": "InlineDataFragmentSpread",
                   "name": "RelayReaderAliasedFragmentsTestInline_user",
                   "selections": [
-                    (v0/*: any*/)
+                    (v0/*:: as any*/)
                   ],
                   "args": null,
                   "argumentDefinitions": []
@@ -97,7 +96,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
+          (v0/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -122,10 +121,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "3af78f20037ecd47cd47a2996051cb67";
+  (node/*:: as any*/).hash = "3af78f20037ecd47cd47a2996051cb67";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderAliasedFragmentsTestInlineQuery$variables,
   RelayReaderAliasedFragmentsTestInlineQuery$data,
 >*/);

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e7d82f41e9632430a0c726cfe1d3bbf1>>
+ * @generated SignedSource<<7761c42334c3211aa20b44acca954fcb>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -23,20 +22,20 @@ import {counter_suspends_when_odd as userCounterSuspendsWhenOddResolverType} fro
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userCounterSuspendsWhenOddResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userCounterSuspendsWhenOddResolverType: (
+(userCounterSuspendsWhenOddResolverType as (
   args: void,
   context: TestResolverContextType,
 ) => LiveState<?number>);
-export type observeQueryTestToResolverSuspenseQuery$variables = {||};
-export type observeQueryTestToResolverSuspenseQuery$data = {|
-  +me: ?{|
-    +counter_suspends_when_odd: ?number,
-  |},
-|};
-export type observeQueryTestToResolverSuspenseQuery = {|
+export type observeQueryTestToResolverSuspenseQuery$variables = {};
+export type observeQueryTestToResolverSuspenseQuery$data = {
+  readonly me: ?{
+    readonly counter_suspends_when_odd: ?number,
+  },
+};
+export type observeQueryTestToResolverSuspenseQuery = {
   response: observeQueryTestToResolverSuspenseQuery$data,
   variables: observeQueryTestToResolverSuspenseQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {
@@ -125,10 +124,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "c12131b8b3d0e8ec0de28cd1a839c2b8";
+  (node/*:: as any*/).hash = "c12131b8b3d0e8ec0de28cd1a839c2b8";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   observeQueryTestToResolverSuspenseQuery$variables,
   observeQueryTestToResolverSuspenseQuery$data,
 >*/);

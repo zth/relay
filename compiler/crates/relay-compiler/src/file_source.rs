@@ -38,8 +38,11 @@ pub use read_file_to_string::read_file_to_string;
 use serde::Deserialize;
 use serde_bser::value::Value;
 pub use source_control_update_status::SourceControlUpdateStatus;
+use tokio::sync::broadcast;
 pub use watchman_client::prelude::Clock;
+pub use watchman_file_source::ChangesSinceQuery;
 use watchman_file_source::WatchmanFileSource;
+pub use watchman_file_source::query_changes_since;
 
 pub use self::external_file_source::ExternalFileSourceResult;
 pub use self::extract_graphql::FsSourceReader;
@@ -50,10 +53,11 @@ pub use self::extract_graphql::SourceReader;
 pub use self::extract_graphql::extract_javascript_features_from_file;
 pub use self::extract_graphql::source_for_location;
 use self::walk_dir_file_source::WalkDirFileSource;
-use self::walk_dir_file_source::WalkDirFileSourceResult;
+pub use self::walk_dir_file_source::WalkDirFileSourceResult;
 use crate::compiler_state::CompilerState;
 use crate::config::Config;
 use crate::config::FileSourceKind;
+use crate::config::TestFileSourceEvent;
 use crate::errors::Error;
 use crate::errors::Result;
 
@@ -61,6 +65,16 @@ pub enum FileSource {
     Watchman(WatchmanFileSource),
     External(ExternalFileSource),
     WalkDir(WalkDirFileSource),
+    Test(TestFileSource),
+}
+
+/// Test file source for testing the daemon (watch mode) without Watchman.
+///
+/// This file source uses WalkDir for initial query and channel-based
+/// notifications for subscriptions, allowing tests control notification of file changes.
+pub struct TestFileSource {
+    config: Arc<Config>,
+    walk_dir_source: WalkDirFileSource,
 }
 
 impl FileSource {
@@ -78,6 +92,10 @@ impl FileSource {
             FileSourceKind::WalkDir => {
                 Ok(Self::WalkDir(WalkDirFileSource::new(Arc::clone(config))))
             }
+            FileSourceKind::Test(_) => Ok(Self::Test(TestFileSource {
+                config: Arc::clone(config),
+                walk_dir_source: WalkDirFileSource::new(Arc::clone(config)),
+            })),
         }
     }
 
@@ -93,11 +111,10 @@ impl FileSource {
                 if let Err(err) = &result {
                     perf_logger_event.string(
                         "external_file_source_create_compiler_state_error",
-                        format!("{:?}", err),
+                        format!("{err:?}"),
                     );
                     warn!(
-                        "Unable to create state from external source: {:?}. Sending a full watchman query...",
-                        err
+                        "Unable to create state from external source: {err:?}. Sending a full watchman query..."
                     );
                     let watchman_file_source =
                         WatchmanFileSource::connect(&file_source.config, perf_logger_event).await?;
@@ -109,6 +126,9 @@ impl FileSource {
                 }
             }
             Self::WalkDir(file_source) => file_source.create_compiler_state(perf_logger),
+            Self::Test(file_source) => file_source
+                .walk_dir_source
+                .create_compiler_state(perf_logger),
         }
     }
 
@@ -125,6 +145,26 @@ impl FileSource {
                 Ok((
                     compiler_state,
                     FileSourceSubscription::Watchman(watchman_subscription),
+                ))
+            }
+            Self::Test(file_source) => {
+                // Use WalkDir for initial state
+                let compiler_state = file_source
+                    .walk_dir_source
+                    .create_compiler_state(perf_logger)?;
+
+                let receiver = match &file_source.config.file_source_config {
+                    FileSourceKind::Test(config) => config.subscribe(),
+                    _ => unreachable!("TestFileSource must have FileSourceKind::Test config"),
+                };
+                let walk_dir_source = WalkDirFileSource::new(Arc::clone(&file_source.config));
+
+                Ok((
+                    compiler_state,
+                    FileSourceSubscription::Test(TestFileSourceSubscription {
+                        receiver,
+                        walk_dir_source,
+                    }),
                 ))
             }
             Self::External(_) | Self::WalkDir(_) => {
@@ -152,7 +192,7 @@ impl File {
 
 #[derive(Debug)]
 pub enum FileSourceResult {
-    Watchman(WatchmanFileSourceResult),
+    Watchman(Box<WatchmanFileSourceResult>),
     External(ExternalFileSourceResult),
     WalkDir(WalkDirFileSourceResult),
 }
@@ -192,7 +232,19 @@ impl FileSourceResult {
 }
 
 pub enum FileSourceSubscription {
-    Watchman(WatchmanFileSourceSubscription), // Oss(OssFileSourceSubscription)
+    Watchman(WatchmanFileSourceSubscription), // Oss(OssFileSourceSubscription),
+    Test(TestFileSourceSubscription),
+}
+
+/// Test file source subscription for watch mode testing.
+///
+/// This subscription receives typed events from a broadcast channel,
+/// allowing tests to simulate file changes and source control events.
+/// On `FileChanged`, it does a WalkDir rescan to find changed files.
+/// Source control events are forwarded to the compiler's event handling.
+pub struct TestFileSourceSubscription {
+    receiver: broadcast::Receiver<TestFileSourceEvent>,
+    walk_dir_source: WalkDirFileSource,
 }
 
 impl FileSourceSubscription {
@@ -201,8 +253,40 @@ impl FileSourceSubscription {
             Self::Watchman(file_source_subscription) => {
                 file_source_subscription.next_change().await.map_or_else(
                     |err| Err(Error::from(err)),
-                    |next_change| Ok(FileSourceSubscriptionNextChange::Watchman(next_change)),
+                    |next_change| {
+                        Ok(FileSourceSubscriptionNextChange::Watchman(Box::new(
+                            next_change,
+                        )))
+                    },
                 )
+            }
+            Self::Test(test_subscription) => {
+                match test_subscription.receiver.recv().await {
+                    Ok(TestFileSourceEvent::FileChanged) => {
+                        let result = test_subscription.walk_dir_source.query_files()?;
+                        Ok(FileSourceSubscriptionNextChange::Test(result))
+                    }
+                    Ok(TestFileSourceEvent::SourceControlUpdateEnter) => {
+                        Ok(FileSourceSubscriptionNextChange::TestSourceControlUpdateEnter)
+                    }
+                    Ok(TestFileSourceEvent::SourceControlUpdateLeave) => {
+                        Ok(FileSourceSubscriptionNextChange::TestSourceControlUpdateLeave)
+                    }
+                    Ok(TestFileSourceEvent::SourceControlUpdate) => {
+                        Ok(FileSourceSubscriptionNextChange::TestSourceControlUpdate)
+                    }
+                    Err(broadcast::error::RecvError::Lagged(_)) => {
+                        // The receiver fell behind and missed messages because the
+                        // broadcast channel's fixed capacity was exceeded. Unlikely
+                        // in tests, but recover by doing a full WalkDir rescan to
+                        // pick up the current disk state.
+                        let result = test_subscription.walk_dir_source.query_files()?;
+                        Ok(FileSourceSubscriptionNextChange::Test(result))
+                    }
+                    Err(broadcast::error::RecvError::Closed) => Err(Error::ConfigError {
+                        details: "Test broadcast channel closed".to_string(),
+                    }),
+                }
             }
         }
     }
@@ -210,5 +294,13 @@ impl FileSourceSubscription {
 
 #[derive(Debug)]
 pub enum FileSourceSubscriptionNextChange {
-    Watchman(WatchmanFileSourceSubscriptionNextChange),
+    Watchman(Box<WatchmanFileSourceSubscriptionNextChange>),
+    /// Test file source notification with rescanned files
+    Test(WalkDirFileSourceResult),
+    /// Test: source control update started (mirrors watchman hg.update enter)
+    TestSourceControlUpdateEnter,
+    /// Test: source control update finished, no base revision change
+    TestSourceControlUpdateLeave,
+    /// Test: source control update finished with new base revision (triggers watch loop restart)
+    TestSourceControlUpdate,
 }

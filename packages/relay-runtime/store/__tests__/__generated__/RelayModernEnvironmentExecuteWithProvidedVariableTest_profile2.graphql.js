@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7960f52a91ecccc390343f3bfe6d707b>>
+ * @generated SignedSource<<273ea7f927cd983ece154b63438ed277>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,14 +19,14 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2$fragmentType: FragmentType;
-export type RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2$data = {|
-  +alternate_name?: ?string,
-  +name?: ?string,
-  +$fragmentType: RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2$fragmentType,
-|};
+export type RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2$data = {
+  readonly alternate_name?: ?string,
+  readonly name?: ?string,
+  readonly $fragmentType: RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2$fragmentType,
+};
 export type RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2$key = {
-  +$data?: RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2$data,
-  +$fragmentSpreads: RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2$fragmentType,
+  readonly $data?: RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2$fragmentType,
   ...
 };
 */
@@ -39,8 +38,8 @@ var v0 = {
 };
 return {
   "argumentDefinitions": [
-    (v0/*: any*/),
-    (v0/*: any*/)
+    (v0/*:: as any*/),
+    (v0/*:: as any*/)
   ],
   "kind": "Fragment",
   "metadata": null,
@@ -74,10 +73,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "cfc7de82c399b59a0b18a721d23298a6";
+  (node/*:: as any*/).hash = "cfc7de82c399b59a0b18a721d23298a6";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2$fragmentType,
   RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2$data,
 >*/);

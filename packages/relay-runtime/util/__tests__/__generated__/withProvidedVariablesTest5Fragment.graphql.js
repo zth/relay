@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<79cfd1aa462fa1625baaea91b7e7dd2f>>
+ * @generated SignedSource<<17193523a1067ba22340131eb343de09>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,18 +19,18 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type withProvidedVariablesTest5Fragment$fragmentType: FragmentType;
-export type withProvidedVariablesTest5Fragment$data = {|
-  +other_picture: ?{|
-    +uri: ?string,
-  |},
-  +profile_picture: ?{|
-    +uri: ?string,
-  |},
-  +$fragmentType: withProvidedVariablesTest5Fragment$fragmentType,
-|};
+export type withProvidedVariablesTest5Fragment$data = {
+  readonly other_picture: ?{
+    readonly uri: ?string,
+  },
+  readonly profile_picture: ?{
+    readonly uri: ?string,
+  },
+  readonly $fragmentType: withProvidedVariablesTest5Fragment$fragmentType,
+};
 export type withProvidedVariablesTest5Fragment$key = {
-  +$data?: withProvidedVariablesTest5Fragment$data,
-  +$fragmentSpreads: withProvidedVariablesTest5Fragment$fragmentType,
+  readonly $data?: withProvidedVariablesTest5Fragment$data,
+  readonly $fragmentSpreads: withProvidedVariablesTest5Fragment$fragmentType,
   ...
 };
 */
@@ -74,7 +73,7 @@ return {
       "kind": "LinkedField",
       "name": "profile_picture",
       "plural": false,
-      "selections": (v0/*: any*/),
+      "selections": (v0/*:: as any*/),
       "storageKey": null
     },
     {
@@ -90,7 +89,7 @@ return {
       "kind": "LinkedField",
       "name": "profile_picture",
       "plural": false,
-      "selections": (v0/*: any*/),
+      "selections": (v0/*:: as any*/),
       "storageKey": null
     }
   ],
@@ -100,10 +99,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "6e08f5797205b7b5bb2a77db4e738fd9";
+  (node/*:: as any*/).hash = "6e08f5797205b7b5bb2a77db4e738fd9";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   withProvidedVariablesTest5Fragment$fragmentType,
   withProvidedVariablesTest5Fragment$data,
 >*/);

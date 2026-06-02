@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4e8b698509bf6cbc4fdb043ee5b73a93>>
+ * @generated SignedSource<<0880c9ab158abf855fc982f8d50d63b5>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,19 +18,19 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayResponseNormalizerTest9Fragment$fragmentType } from "./RelayResponseNormalizerTest9Fragment.graphql";
-export type RelayResponseNormalizerTest12Query$variables = {|
+export type RelayResponseNormalizerTest12Query$variables = {
   enableStream: boolean,
   id: string,
-|};
-export type RelayResponseNormalizerTest12Query$data = {|
-  +node: ?{|
-    +$fragmentSpreads: RelayResponseNormalizerTest9Fragment$fragmentType,
-  |},
-|};
-export type RelayResponseNormalizerTest12Query = {|
+};
+export type RelayResponseNormalizerTest12Query$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: RelayResponseNormalizerTest9Fragment$fragmentType,
+  },
+};
+export type RelayResponseNormalizerTest12Query = {
   response: RelayResponseNormalizerTest12Query$data,
   variables: RelayResponseNormalizerTest12Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -69,8 +68,8 @@ v4 = {
 return {
   "fragment": {
     "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/)
+      (v0/*:: as any*/),
+      (v1/*:: as any*/)
     ],
     "kind": "Fragment",
     "metadata": null,
@@ -78,7 +77,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v2/*: any*/),
+        "args": (v2/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -99,22 +98,22 @@ return {
   "kind": "Request",
   "operation": {
     "argumentDefinitions": [
-      (v1/*: any*/),
-      (v0/*: any*/)
+      (v1/*:: as any*/),
+      (v0/*:: as any*/)
     ],
     "kind": "Operation",
     "name": "RelayResponseNormalizerTest12Query",
     "selections": [
       {
         "alias": null,
-        "args": (v2/*: any*/),
+        "args": (v2/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v3/*: any*/),
-          (v4/*: any*/),
+          (v3/*:: as any*/),
+          (v4/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
@@ -131,7 +130,7 @@ return {
                     "name": "actors",
                     "plural": true,
                     "selections": [
-                      (v3/*: any*/),
+                      (v3/*:: as any*/),
                       {
                         "alias": null,
                         "args": null,
@@ -139,7 +138,7 @@ return {
                         "name": "name",
                         "storageKey": null
                       },
-                      (v4/*: any*/)
+                      (v4/*:: as any*/)
                     ],
                     "storageKey": null
                   }
@@ -166,10 +165,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "086b7fb8e257be2c1e7e5baa629f7f3b";
+  (node/*:: as any*/).hash = "086b7fb8e257be2c1e7e5baa629f7f3b";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayResponseNormalizerTest12Query$variables,
   RelayResponseNormalizerTest12Query$data,
 >*/);

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c1c6a5ea04c5e78f2424b6f575f251a4>>
+ * @generated SignedSource<<20d2af191caf33d4e0d4560e13f1e7fb>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,27 +17,27 @@
 
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
-export type CommentDeleteInput = {|
+export type CommentDeleteInput = {
   commentId?: ?string,
-|};
-export type commitMutationTest1Mutation$variables = {|
+};
+export type commitMutationTest1Mutation$variables = {
   input?: ?CommentDeleteInput,
-|};
-export type commitMutationTest1Mutation$data = {|
-  +commentDelete: ?{|
-    +deletedCommentId: ?string,
-    +feedback: ?{|
-      +id: string,
-      +topLevelComments: ?{|
-        +count: ?number,
-      |},
-    |},
-  |},
-|};
-export type commitMutationTest1Mutation = {|
+};
+export type commitMutationTest1Mutation$data = {
+  readonly commentDelete: ?{
+    readonly deletedCommentId: ?string,
+    readonly feedback: ?{
+      readonly id: string,
+      readonly topLevelComments: ?{
+        readonly count: ?number,
+      },
+    },
+  },
+};
+export type commitMutationTest1Mutation = {
   response: commitMutationTest1Mutation$data,
   variables: commitMutationTest1Mutation$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -113,20 +112,20 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "commitMutationTest1Mutation",
-    "selections": (v1/*: any*/),
+    "selections": (v1/*:: as any*/),
     "type": "Mutation",
     "abstractKey": null
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "commitMutationTest1Mutation",
-    "selections": (v1/*: any*/)
+    "selections": (v1/*:: as any*/)
   },
   "params": {
     "cacheID": "4bdb9209ea14f9100a88983ba4f76194",
@@ -140,10 +139,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "582fcc177e4a23328995e1d14ca9b8cb";
+  (node/*:: as any*/).hash = "582fcc177e4a23328995e1d14ca9b8cb";
 }
 
-module.exports = ((node/*: any*/)/*: Mutation<
+module.exports = ((node/*:: as any*/)/*:: as Mutation<
   commitMutationTest1Mutation$variables,
   commitMutationTest1Mutation$data,
 >*/);

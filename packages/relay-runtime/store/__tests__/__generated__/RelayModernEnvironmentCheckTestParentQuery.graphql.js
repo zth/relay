@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c73249250e6553db1c2ad4e827c71788>>
+ * @generated SignedSource<<869842e841a373ebf519e88c2294f037>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,22 +17,22 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayModernEnvironmentCheckTestParentQuery$variables = {|
-  size: $ReadOnlyArray<?number>,
-|};
-export type RelayModernEnvironmentCheckTestParentQuery$data = {|
-  +me: ?{|
-    +id: string,
-    +name: ?string,
-    +profilePicture: ?{|
-      +uri: ?string,
-    |},
-  |},
-|};
-export type RelayModernEnvironmentCheckTestParentQuery = {|
+export type RelayModernEnvironmentCheckTestParentQuery$variables = {
+  size: ReadonlyArray<?number>,
+};
+export type RelayModernEnvironmentCheckTestParentQuery$data = {
+  readonly me: ?{
+    readonly id: string,
+    readonly name: ?string,
+    readonly profilePicture: ?{
+      readonly uri: ?string,
+    },
+  },
+};
+export type RelayModernEnvironmentCheckTestParentQuery = {
   response: RelayModernEnvironmentCheckTestParentQuery$data,
   variables: RelayModernEnvironmentCheckTestParentQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -97,20 +96,20 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentCheckTestParentQuery",
-    "selections": (v1/*: any*/),
+    "selections": (v1/*:: as any*/),
     "type": "Query",
     "abstractKey": null
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentCheckTestParentQuery",
-    "selections": (v1/*: any*/)
+    "selections": (v1/*:: as any*/)
   },
   "params": {
     "cacheID": "2c6b332cc635f49631de5f0650b250f9",
@@ -124,10 +123,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "5ba6084e5dd0f64ebddb6badda51b744";
+  (node/*:: as any*/).hash = "5ba6084e5dd0f64ebddb6badda51b744";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentCheckTestParentQuery$variables,
   RelayModernEnvironmentCheckTestParentQuery$data,
 >*/);

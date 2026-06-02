@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<83279bcac3598c8eadc0729662f83169>>
+ * @generated SignedSource<<6b78ca29989554974c1d34a7d2122502>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -25,37 +24,37 @@ import {another_client_edge as userAnotherClientEdgeResolverType} from "../resol
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userAnotherClientEdgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userAnotherClientEdgeResolverType: (
+(userAnotherClientEdgeResolverType as (
   rootKey: UserAnotherClientEdgeResolver$key,
   args: void,
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
+) => ?{
+  readonly id: DataID,
+});
 import {client_edge as userClientEdgeResolverType} from "../resolvers/UserClientEdgeResolver.js";
 // Type assertion validating that `userClientEdgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userClientEdgeResolverType: (
+(userClientEdgeResolverType as (
   rootKey: UserClientEdgeResolver$key,
   args: void,
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
-export type RelayReaderClientEdgesTest4Query$variables = {||};
-export type RelayReaderClientEdgesTest4Query$data = {|
-  +me: ?{|
-    +client_edge: ?{|
-      +another_client_edge: ?{|
-        +name: ?string,
-      |},
-    |},
-  |},
-|};
-export type RelayReaderClientEdgesTest4Query = {|
+) => ?{
+  readonly id: DataID,
+});
+export type RelayReaderClientEdgesTest4Query$variables = {};
+export type RelayReaderClientEdgesTest4Query$data = {
+  readonly me: ?{
+    readonly client_edge: ?{
+      readonly another_client_edge: ?{
+        readonly name: ?string,
+      },
+    },
+  },
+};
+export type RelayReaderClientEdgesTest4Query = {
   response: RelayReaderClientEdgesTest4Query$data,
   variables: RelayReaderClientEdgesTest4Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -132,7 +131,7 @@ return {
                     "kind": "LinkedField",
                     "name": "another_client_edge",
                     "plural": false,
-                    "selections": (v0/*: any*/),
+                    "selections": (v0/*:: as any*/),
                     "storageKey": null
                   }
                 }
@@ -166,7 +165,7 @@ return {
             "args": null,
             "fragment": {
               "kind": "InlineFragment",
-              "selections": (v0/*: any*/),
+              "selections": (v0/*:: as any*/),
               "type": "User",
               "abstractKey": null
             },
@@ -198,10 +197,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "f12dcfffcc6bbf929b4fad3a4eb5602d";
+  (node/*:: as any*/).hash = "f12dcfffcc6bbf929b4fad3a4eb5602d";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderClientEdgesTest4Query$variables,
   RelayReaderClientEdgesTest4Query$data,
 >*/);

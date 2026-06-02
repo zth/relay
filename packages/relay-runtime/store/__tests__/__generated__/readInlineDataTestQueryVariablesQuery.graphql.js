@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1a9f46bef8d13f707289885732875294>>
+ * @generated SignedSource<<55bcde95298f223c91a6240e89091efc>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,18 +18,18 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { readInlineDataTestQueryVariables$fragmentType } from "./readInlineDataTestQueryVariables.graphql";
-export type readInlineDataTestQueryVariablesQuery$variables = {|
+export type readInlineDataTestQueryVariablesQuery$variables = {
   scale?: ?number,
-|};
-export type readInlineDataTestQueryVariablesQuery$data = {|
-  +me: ?{|
-    +$fragmentSpreads: readInlineDataTestQueryVariables$fragmentType,
-  |},
-|};
-export type readInlineDataTestQueryVariablesQuery = {|
+};
+export type readInlineDataTestQueryVariablesQuery$data = {
+  readonly me: ?{
+    readonly $fragmentSpreads: readInlineDataTestQueryVariables$fragmentType,
+  },
+};
+export type readInlineDataTestQueryVariablesQuery = {
   response: readInlineDataTestQueryVariablesQuery$data,
   variables: readInlineDataTestQueryVariablesQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -67,7 +66,7 @@ v1 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "readInlineDataTestQueryVariablesQuery",
@@ -84,7 +83,7 @@ return {
             "kind": "InlineDataFragmentSpread",
             "name": "readInlineDataTestQueryVariables",
             "selections": [
-              (v1/*: any*/)
+              (v1/*:: as any*/)
             ],
             "args": null,
             "argumentDefinitions": [
@@ -103,7 +102,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "readInlineDataTestQueryVariablesQuery",
     "selections": [
@@ -115,7 +114,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v1/*: any*/),
+          (v1/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -140,10 +139,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "b81371b5470d08403d2fc99426f4ab5f";
+  (node/*:: as any*/).hash = "b81371b5470d08403d2fc99426f4ab5f";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   readInlineDataTestQueryVariablesQuery$variables,
   readInlineDataTestQueryVariablesQuery$data,
 >*/);

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<97fc88cd2d126da773e4c2bd76e0727a>>
+ * @generated SignedSource<<0e4698ffda0945b8754bc66674590d0d>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,18 +18,18 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { Result } from "relay-runtime";
-export type RelayReaderCatchFieldsTestCatchMissingInInlineFragmentToResultErrorQuery$variables = {||};
-export type RelayReaderCatchFieldsTestCatchMissingInInlineFragmentToResultErrorQuery$data = {|
-  +me: ?{|
-    +myAlias: Result<{|
-      +firstName: ?string,
-    |}, mixed>,
-  |},
-|};
-export type RelayReaderCatchFieldsTestCatchMissingInInlineFragmentToResultErrorQuery = {|
+export type RelayReaderCatchFieldsTestCatchMissingInInlineFragmentToResultErrorQuery$variables = {};
+export type RelayReaderCatchFieldsTestCatchMissingInInlineFragmentToResultErrorQuery$data = {
+  readonly me: ?{
+    readonly myAlias: Result<{
+      readonly firstName: ?string,
+    }, unknown>,
+  },
+};
+export type RelayReaderCatchFieldsTestCatchMissingInInlineFragmentToResultErrorQuery = {
   response: RelayReaderCatchFieldsTestCatchMissingInInlineFragmentToResultErrorQuery$data,
   variables: RelayReaderCatchFieldsTestCatchMissingInInlineFragmentToResultErrorQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -62,7 +61,7 @@ return {
               "fragment": {
                 "kind": "InlineFragment",
                 "selections": [
-                  (v0/*: any*/)
+                  (v0/*:: as any*/)
                 ],
                 "type": null,
                 "abstractKey": null
@@ -93,7 +92,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
+          (v0/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -118,10 +117,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "70b3512560504ebf42fd02ac2a26bb17";
+  (node/*:: as any*/).hash = "70b3512560504ebf42fd02ac2a26bb17";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderCatchFieldsTestCatchMissingInInlineFragmentToResultErrorQuery$variables,
   RelayReaderCatchFieldsTestCatchMissingInInlineFragmentToResultErrorQuery$data,
 >*/);

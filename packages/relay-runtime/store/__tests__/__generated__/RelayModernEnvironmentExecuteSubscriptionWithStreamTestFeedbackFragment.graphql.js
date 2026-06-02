@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ce1553e0067dab6e9a7387d660a178ec>>
+ * @generated SignedSource<<d2ed01b903cae94c7c3856a0f7cf7eb2>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,16 +19,16 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackFragment$fragmentType: FragmentType;
-export type RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackFragment$data = {|
-  +actors: ?$ReadOnlyArray<?{|
-    +name: ?string,
-  |}>,
-  +id: string,
-  +$fragmentType: RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackFragment$fragmentType,
-|};
+export type RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackFragment$data = {
+  readonly actors: ?ReadonlyArray<?{
+    readonly name: ?string,
+  }>,
+  readonly id: string,
+  readonly $fragmentType: RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackFragment$fragmentType,
+};
 export type RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackFragment$key = {
-  +$data?: RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackFragment$data,
-  +$fragmentSpreads: RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackFragment$fragmentType,
+  readonly $data?: RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackFragment$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackFragment$fragmentType,
   ...
 };
 */
@@ -76,10 +75,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "01fb16bc08c2b85ceba94ab5813c8d70";
+  (node/*:: as any*/).hash = "01fb16bc08c2b85ceba94ab5813c8d70";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackFragment$fragmentType,
   RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackFragment$data,
 >*/);

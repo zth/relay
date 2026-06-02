@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3f81bb6a8865e272b05c0a29b899ee13>>
+ * @generated SignedSource<<2413a376107e82b8cc7e0fc504b54125>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,19 +17,19 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayReaderRequiredFieldsTest17Query$variables = {|
+export type RelayReaderRequiredFieldsTest17Query$variables = {
   skip: boolean,
-|};
-export type RelayReaderRequiredFieldsTest17Query$data = {|
-  +me: ?{|
-    +emailAddresses?: $ReadOnlyArray<?string>,
-    +name: ?string,
-  |},
-|};
-export type RelayReaderRequiredFieldsTest17Query = {|
+};
+export type RelayReaderRequiredFieldsTest17Query$data = {
+  readonly me: ?{
+    readonly emailAddresses?: ReadonlyArray<?string>,
+    readonly name: ?string,
+  },
+};
+export type RelayReaderRequiredFieldsTest17Query = {
   response: RelayReaderRequiredFieldsTest17Query$data,
   variables: RelayReaderRequiredFieldsTest17Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -57,7 +56,7 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayReaderRequiredFieldsTest17Query",
@@ -77,12 +76,12 @@ return {
             "selections": [
               {
                 "kind": "RequiredField",
-                "field": (v1/*: any*/),
+                "field": (v1/*:: as any*/),
                 "action": "LOG"
               }
             ]
           },
-          (v2/*: any*/)
+          (v2/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -92,7 +91,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayReaderRequiredFieldsTest17Query",
     "selections": [
@@ -109,10 +108,10 @@ return {
             "kind": "Condition",
             "passingValue": false,
             "selections": [
-              (v1/*: any*/)
+              (v1/*:: as any*/)
             ]
           },
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -137,10 +136,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "6fabad075998eb88ecad868a27a984dd";
+  (node/*:: as any*/).hash = "6fabad075998eb88ecad868a27a984dd";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderRequiredFieldsTest17Query$variables,
   RelayReaderRequiredFieldsTest17Query$data,
 >*/);

@@ -14,12 +14,12 @@
 import type {LiveState} from 'relay-runtime';
 
 /**
- * @RelayResolver Query.live_resolver_return_undefined: RelayResolverValue
+ * @relayField Query.live_resolver_return_undefined: RelayResolverValue
  * @live
  *
  * A @live resolver that returns undefined
  */
-// $FlowFixMe - this resolver returns undefined, but should return LiveState
+// $FlowFixMe[incompatible-type] - this resolver returns undefined, but should return LiveState
 function live_resolver_return_undefined(): LiveState<$FlowFixMe> {}
 
 module.exports = {

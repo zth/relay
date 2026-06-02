@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5fcfb3e6b7da38ef3bb3d7059cf5dc05>>
+ * @generated SignedSource<<e1225d8bf93fdab857426762112740d9>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,18 +17,18 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type cloneRelayScalarHandleSourceFieldTestQuery$variables = {||};
-export type cloneRelayScalarHandleSourceFieldTestQuery$data = {|
-  +me: ?{|
-    +address: ?{|
-      +street: ?string,
-    |},
-  |},
-|};
-export type cloneRelayScalarHandleSourceFieldTestQuery = {|
+export type cloneRelayScalarHandleSourceFieldTestQuery$variables = {};
+export type cloneRelayScalarHandleSourceFieldTestQuery$data = {
+  readonly me: ?{
+    readonly address: ?{
+      readonly street: ?string,
+    },
+  },
+};
+export type cloneRelayScalarHandleSourceFieldTestQuery = {
   response: cloneRelayScalarHandleSourceFieldTestQuery$data,
   variables: cloneRelayScalarHandleSourceFieldTestQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {
@@ -136,10 +135,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "3550000f29a16d6c56f9ec8bd39e313c";
+  (node/*:: as any*/).hash = "3550000f29a16d6c56f9ec8bd39e313c";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   cloneRelayScalarHandleSourceFieldTestQuery$variables,
   cloneRelayScalarHandleSourceFieldTestQuery$data,
 >*/);

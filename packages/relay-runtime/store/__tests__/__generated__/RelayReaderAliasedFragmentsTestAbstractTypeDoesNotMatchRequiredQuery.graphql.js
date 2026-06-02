@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<08dc10522e39988b14cfbf1ca2b0bdfe>>
+ * @generated SignedSource<<669570580b320f0a94669b224263e88c>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,20 +17,20 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayReaderAliasedFragmentsTestAbstractTypeDoesNotMatchRequiredQuery$variables = {|
+export type RelayReaderAliasedFragmentsTestAbstractTypeDoesNotMatchRequiredQuery$variables = {
   id: string,
-|};
-export type RelayReaderAliasedFragmentsTestAbstractTypeDoesNotMatchRequiredQuery$data = {|
-  +node: ?{|
-    +aliased_fragment: ?{|
-      +name: string,
-    |},
-  |},
-|};
-export type RelayReaderAliasedFragmentsTestAbstractTypeDoesNotMatchRequiredQuery = {|
+};
+export type RelayReaderAliasedFragmentsTestAbstractTypeDoesNotMatchRequiredQuery$data = {
+  readonly node: ?{
+    readonly aliased_fragment: ?{
+      readonly name: string,
+    },
+  },
+};
+export type RelayReaderAliasedFragmentsTestAbstractTypeDoesNotMatchRequiredQuery = {
   response: RelayReaderAliasedFragmentsTestAbstractTypeDoesNotMatchRequiredQuery$data,
   variables: RelayReaderAliasedFragmentsTestAbstractTypeDoesNotMatchRequiredQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -58,14 +57,14 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayReaderAliasedFragmentsTestAbstractTypeDoesNotMatchRequiredQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -77,7 +76,7 @@ return {
               "selections": [
                 {
                   "kind": "RequiredField",
-                  "field": (v2/*: any*/),
+                  "field": (v2/*:: as any*/),
                   "action": "THROW"
                 }
               ],
@@ -96,13 +95,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayReaderAliasedFragmentsTestAbstractTypeDoesNotMatchRequiredQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -118,7 +117,7 @@ return {
           {
             "kind": "InlineFragment",
             "selections": [
-              (v2/*: any*/)
+              (v2/*:: as any*/)
             ],
             "type": "MaybeNodeInterface",
             "abstractKey": "__isMaybeNodeInterface"
@@ -147,10 +146,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "05aba3eafee04c7575bde3ff333ed06d";
+  (node/*:: as any*/).hash = "05aba3eafee04c7575bde3ff333ed06d";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderAliasedFragmentsTestAbstractTypeDoesNotMatchRequiredQuery$variables,
   RelayReaderAliasedFragmentsTestAbstractTypeDoesNotMatchRequiredQuery$data,
 >*/);

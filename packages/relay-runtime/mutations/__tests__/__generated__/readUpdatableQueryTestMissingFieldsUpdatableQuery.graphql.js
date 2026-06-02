@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4eea6b4fad6e2e207d671572badf8320>>
+ * @generated SignedSource<<c091d4a8b7fb375fbe80411da80ef355>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,35 +17,35 @@
 
 /*::
 import type { UpdatableQuery, ConcreteUpdatableQuery } from 'relay-runtime';
-export type readUpdatableQueryTestMissingFieldsUpdatableQuery$variables = {||};
-export type readUpdatableQueryTestMissingFieldsUpdatableQuery$data = {|
-  get me(): ?{|
+export type readUpdatableQueryTestMissingFieldsUpdatableQuery$variables = {};
+export type readUpdatableQueryTestMissingFieldsUpdatableQuery$data = {
+  get me(): ?{
     lastName: ?string,
-  |},
+  },
   set me(value: null | void): void,
-  get node(): ?({|
-    +__typename: "User",
+  get node(): ?({
+    readonly __typename: "User",
     name: ?string,
-  |} | {|
+  } | {
     // This will never be '%other', but we need some
     // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
+    readonly __typename: "%other",
+  }),
   set node(value: null | void): void,
-  get nodes(): ?$ReadOnlyArray<?({|
-    +__typename: "User",
+  get nodes(): ?ReadonlyArray<?({
+    readonly __typename: "User",
     name: ?string,
-  |} | {|
+  } | {
     // This will never be '%other', but we need some
     // value in case none of the concrete values match.
-    +__typename: "%other",
-  |})>,
+    readonly __typename: "%other",
+  })>,
   set nodes(value: []): void,
-|};
-export type readUpdatableQueryTestMissingFieldsUpdatableQuery = {|
+};
+export type readUpdatableQueryTestMissingFieldsUpdatableQuery = {
   response: readUpdatableQueryTestMissingFieldsUpdatableQuery$data,
   variables: readUpdatableQueryTestMissingFieldsUpdatableQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteUpdatableQuery*/ = (function(){
@@ -93,7 +92,7 @@ return {
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
-        "selections": (v0/*: any*/),
+        "selections": (v0/*:: as any*/),
         "storageKey": "node(id:\"4\")"
       },
       {
@@ -111,7 +110,7 @@ return {
         "kind": "LinkedField",
         "name": "nodes",
         "plural": true,
-        "selections": (v0/*: any*/),
+        "selections": (v0/*:: as any*/),
         "storageKey": "nodes(ids:[\"4\"])"
       },
       {
@@ -141,10 +140,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "33578755c95870b57a52adef714a176e";
+  (node/*:: as any*/).hash = "33578755c95870b57a52adef714a176e";
 }
 
-module.exports = ((node/*: any*/)/*: UpdatableQuery<
+module.exports = ((node/*:: as any*/)/*:: as UpdatableQuery<
   readUpdatableQueryTestMissingFieldsUpdatableQuery$variables,
   readUpdatableQueryTestMissingFieldsUpdatableQuery$data,
 >*/);

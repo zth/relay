@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<81328793e4ce977c4dae9ca02a525bdb>>
+ * @generated SignedSource<<cfd15846507598798f95c92fdd79305d>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,16 +17,16 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayReaderCatchFieldsTestCatchMissingInQueryToNullErrorQuery$variables = {||};
-export type RelayReaderCatchFieldsTestCatchMissingInQueryToNullErrorQuery$data = ?{|
-  +me: ?{|
-    +firstName: ?string,
-  |},
-|};
-export type RelayReaderCatchFieldsTestCatchMissingInQueryToNullErrorQuery = {|
+export type RelayReaderCatchFieldsTestCatchMissingInQueryToNullErrorQuery$variables = {};
+export type RelayReaderCatchFieldsTestCatchMissingInQueryToNullErrorQuery$data = ?{
+  readonly me: ?{
+    readonly firstName: ?string,
+  },
+};
+export type RelayReaderCatchFieldsTestCatchMissingInQueryToNullErrorQuery = {
   response: RelayReaderCatchFieldsTestCatchMissingInQueryToNullErrorQuery$data,
   variables: RelayReaderCatchFieldsTestCatchMissingInQueryToNullErrorQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -55,7 +54,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/)
+          (v0/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -77,7 +76,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
+          (v0/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -102,10 +101,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "ffbbd346097bf22b57550c6bea489807";
+  (node/*:: as any*/).hash = "ffbbd346097bf22b57550c6bea489807";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderCatchFieldsTestCatchMissingInQueryToNullErrorQuery$variables,
   RelayReaderCatchFieldsTestCatchMissingInQueryToNullErrorQuery$data,
 >*/);

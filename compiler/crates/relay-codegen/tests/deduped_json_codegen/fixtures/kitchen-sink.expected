@@ -263,7 +263,7 @@ return {
       "kind": "LinkedField",
       "name": "profilePicture",
       "plural": false,
-      "selections": (v0/*: any*/),
+      "selections": (v0/*:: as any*/),
       "storageKey": "profilePicture(size:32)"
     },
     {
@@ -279,7 +279,7 @@ return {
       "kind": "LinkedField",
       "name": "profilePicture",
       "plural": false,
-      "selections": (v0/*: any*/),
+      "selections": (v0/*:: as any*/),
       "storageKey": null
     },
     {
@@ -295,7 +295,7 @@ return {
       "kind": "LinkedField",
       "name": "profile_picture",
       "plural": false,
-      "selections": (v0/*: any*/),
+      "selections": (v0/*:: as any*/),
       "storageKey": null
     },
     {

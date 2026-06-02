@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c65c03388522d729008ffc7988c17306>>
+ * @generated SignedSource<<c45117ffc627ad43416f804924ec1e1c>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,13 +19,13 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment$fragmentType: FragmentType;
-export type ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment$data = {|
-  +username: ?string,
-  +$fragmentType: ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment$fragmentType,
-|};
+export type ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment$data = {
+  readonly username: ?string,
+  readonly $fragmentType: ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment$fragmentType,
+};
 export type ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment$key = {
-  +$data?: ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment$data,
-  +$fragmentSpreads: ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment$fragmentType,
+  readonly $data?: ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment$data,
+  readonly $fragmentSpreads: ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment$fragmentType,
   ...
 };
 */
@@ -50,10 +49,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "696fd5eeae83e4817dbea8b08ef65786";
+  (node/*:: as any*/).hash = "696fd5eeae83e4817dbea8b08ef65786";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment$fragmentType,
   ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment$data,
 >*/);

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d248d1b5c6b3fdf79bd9a76672e494cd>>
+ * @generated SignedSource<<0a96fd33a0a475739d4289855ac97c85>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,18 +17,18 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayReaderRequiredFieldsTest6Query$variables = {||};
-export type RelayReaderRequiredFieldsTest6Query$data = {|
-  +me: ?{|
-    +backgroundImage: {|
-      +uri: string,
-    |},
-  |},
-|};
-export type RelayReaderRequiredFieldsTest6Query = {|
+export type RelayReaderRequiredFieldsTest6Query$variables = {};
+export type RelayReaderRequiredFieldsTest6Query$data = {
+  readonly me: ?{
+    readonly backgroundImage: {
+      readonly uri: string,
+    },
+  },
+};
+export type RelayReaderRequiredFieldsTest6Query = {
   response: RelayReaderRequiredFieldsTest6Query$data,
   variables: RelayReaderRequiredFieldsTest6Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -67,7 +66,7 @@ return {
               "selections": [
                 {
                   "kind": "RequiredField",
-                  "field": (v0/*: any*/),
+                  "field": (v0/*:: as any*/),
                   "action": "LOG"
                 }
               ],
@@ -104,7 +103,7 @@ return {
             "name": "backgroundImage",
             "plural": false,
             "selections": [
-              (v0/*: any*/)
+              (v0/*:: as any*/)
             ],
             "storageKey": null
           },
@@ -132,10 +131,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "e1267ec21a6f7214ada08e4e764d50a5";
+  (node/*:: as any*/).hash = "e1267ec21a6f7214ada08e4e764d50a5";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderRequiredFieldsTest6Query$variables,
   RelayReaderRequiredFieldsTest6Query$data,
 >*/);

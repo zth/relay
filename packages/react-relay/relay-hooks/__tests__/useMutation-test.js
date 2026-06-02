@@ -48,10 +48,10 @@ const data = {
         __typename: 'CommentsEdge',
         cursor: '<cursor>',
         node: {
-          id: '<id>',
           body: {
             text: '<text>',
           },
+          id: '<id>',
         },
       },
     },
@@ -66,7 +66,7 @@ const variables = {
 
 beforeEach(() => {
   environment = createMockEnvironment();
-  isInFlightFn = jest.fn<[boolean], mixed>();
+  isInFlightFn = jest.fn<[boolean], unknown>();
 
   CommentCreateMutation = graphql`
     mutation useMutationTest1Mutation($input: CommentCreateInput) {
@@ -265,10 +265,10 @@ it('returns in-flight state that tracks all in-flight mutations', async () => {
             __typename: 'CommentsEdge',
             cursor: '<cursor>',
             node: {
-              id: '<new-id-1>',
               body: {
                 text: '<text>',
               },
+              id: '<new-id-1>',
             },
           },
         },
@@ -288,10 +288,10 @@ it('returns in-flight state that tracks all in-flight mutations', async () => {
             __typename: 'CommentsEdge',
             cursor: '<cursor>',
             node: {
-              id: '<new-id-2>',
               body: {
                 text: '<text>',
               },
+              id: '<new-id-2>',
             },
           },
         },
@@ -337,25 +337,25 @@ it('returns in-flight state that tracks all current mutations when disposed or e
 });
 
 it('calls onCompleted when mutation responses contains server errors', async () => {
-  const onError = jest.fn<$ReadOnlyArray<mixed>, mixed>();
-  const onCompleted = jest.fn<$ReadOnlyArray<mixed>, mixed>();
+  const onError = jest.fn<ReadonlyArray<unknown>, unknown>();
+  const onCompleted = jest.fn<ReadonlyArray<unknown>, unknown>();
   await render(environment, CommentCreateMutation);
-  await commit({variables, onError, onCompleted});
+  await commit({onCompleted, onError, variables});
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   const operation = environment.executeMutation.mock.calls[0][0].operation;
 
   isInFlightFn.mockClear();
   await ReactTestingLibrary.act(() =>
     environment.mock.resolve(operation, {
-      data: (data.data: PayloadData),
-      errors: ([
+      data: data.data as PayloadData,
+      errors: [
         {
           message: '<error0>',
         },
         {
           message: '<error1>',
         },
-      ]: Array<PayloadError>),
+      ] as Array<PayloadError>,
     }),
   );
   expect(onError).toBeCalledTimes(0);
@@ -381,13 +381,13 @@ it('calls onCompleted when mutation responses contains server errors', async () 
   expect(isInFlightFn).toBeCalledWith(false);
 });
 it('calls onError when mutation errors in commitMutation', async () => {
-  const onError = jest.fn<$ReadOnlyArray<mixed>, mixed>();
-  const onCompleted = jest.fn<$ReadOnlyArray<mixed>, mixed>();
+  const onError = jest.fn<ReadonlyArray<unknown>, unknown>();
+  const onCompleted = jest.fn<ReadonlyArray<unknown>, unknown>();
   const throwingUpdater = () => {
     throw new Error('<error0>');
   };
   await render(environment, CommentCreateMutation);
-  await commit({variables, onError, onCompleted, updater: throwingUpdater});
+  await commit({onCompleted, onError, updater: throwingUpdater, variables});
 
   isInFlightFn.mockClear();
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
@@ -402,10 +402,10 @@ it('calls onError when mutation errors in commitMutation', async () => {
 });
 
 it('calls onComplete when mutation successfully resolved', async () => {
-  const onError = jest.fn<$ReadOnlyArray<mixed>, mixed>();
-  const onCompleted = jest.fn<$ReadOnlyArray<mixed>, mixed>();
+  const onError = jest.fn<ReadonlyArray<unknown>, unknown>();
+  const onCompleted = jest.fn<ReadonlyArray<unknown>, unknown>();
   await render(environment, CommentCreateMutation);
-  await commit({variables, onError, onCompleted});
+  await commit({onCompleted, onError, variables});
 
   isInFlightFn.mockClear();
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
@@ -421,10 +421,10 @@ it('calls onComplete when mutation successfully resolved', async () => {
         feedbackCommentEdge: {
           cursor: '<cursor>',
           node: {
-            id: '<id>',
             body: {
               text: '<text>',
             },
+            id: '<id>',
           },
         },
       },
@@ -575,9 +575,9 @@ describe('unmount', () => {
   });
 
   it('does not dispose previous in-flight mutaiton ', async () => {
-    const onCompleted = jest.fn<$ReadOnlyArray<mixed>, mixed>();
+    const onCompleted = jest.fn<ReadonlyArray<unknown>, unknown>();
     await render(environment, CommentCreateMutation);
-    await commit({variables, onCompleted});
+    await commit({onCompleted, variables});
     await ReactTestingLibrary.act(() => {
       instance.unmount();
     });
@@ -593,15 +593,117 @@ describe('unmount', () => {
           feedbackCommentEdge: {
             cursor: '<cursor>',
             node: {
-              id: '<id>',
               body: {
                 text: '<text>',
               },
+              id: '<id>',
             },
           },
         },
       },
       null,
     );
+  });
+});
+
+// $FlowFixMe[missing-export] Not yet exists in the Flow types in OSS
+const Activity = React.unstable_Activity;
+
+describe('<Activity> compatibility', () => {
+  let setMode;
+
+  const renderWithActivity = async (env: RelayMockEnvironment) => {
+    let commitFn;
+    function Renderer() {
+      const [c, isMutationInFlight] = useMutation(CommentCreateMutation);
+      commitFn = c;
+      isInFlightFn(isMutationInFlight);
+      return null;
+    }
+
+    function Wrapper() {
+      const [mode, setModeFn] = useState('visible');
+      setMode = setModeFn;
+      return (
+        <RelayEnvironmentProvider environment={env}>
+          {/* $FlowFixMe[incompatible-type] */}
+          {/* $FlowFixMe[not-a-component] */}
+          <Activity mode={mode}>
+            <Renderer />
+          </Activity>
+        </RelayEnvironmentProvider>
+      );
+    }
+
+    await ReactTestingLibrary.act(() => {
+      instance = ReactTestingLibrary.render(<Wrapper />);
+    });
+    commit = async (config: any) =>
+      await ReactTestingLibrary.act(() => {
+        disposable = commitFn(config);
+      });
+  };
+
+  it('reconciles isInFlight when mutation completes while hidden', async () => {
+    await renderWithActivity(environment);
+    expect(isInFlightFn).toHaveBeenLastCalledWith(false);
+
+    // Start a mutation
+    isInFlightFn.mockClear();
+    await commit({variables});
+    expect(isInFlightFn).toHaveBeenLastCalledWith(true);
+
+    // Hide the component (simulates navigating to another tab)
+    isInFlightFn.mockClear();
+    await ReactTestingLibrary.act(() => {
+      setMode('hidden');
+    });
+
+    // Mutation completes while hidden
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
+    const operation = environment.executeMutation.mock.calls[0][0].operation;
+    await ReactTestingLibrary.act(() =>
+      environment.mock.resolve(operation, data),
+    );
+
+    // Show the component again (simulates navigating back)
+    isInFlightFn.mockClear();
+    await ReactTestingLibrary.act(() => {
+      setMode('visible');
+    });
+
+    // isInFlight should be false, not stuck as true
+    expect(isInFlightFn).toHaveBeenLastCalledWith(false);
+  });
+
+  it('keeps isInFlight true when mutation is still in-flight after re-show', async () => {
+    await renderWithActivity(environment);
+    await commit({variables});
+    expect(isInFlightFn).toHaveBeenLastCalledWith(true);
+
+    // Hide
+    await ReactTestingLibrary.act(() => {
+      setMode('hidden');
+    });
+
+    // Do NOT resolve mutation - it's still in flight
+
+    // Show again
+    isInFlightFn.mockClear();
+    await ReactTestingLibrary.act(() => {
+      setMode('visible');
+    });
+
+    // isInFlight should still be true since mutation hasn't completed
+    expect(isInFlightFn).toHaveBeenLastCalledWith(true);
+
+    // Now resolve the mutation
+    isInFlightFn.mockClear();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
+    const operation = environment.executeMutation.mock.calls[0][0].operation;
+    await ReactTestingLibrary.act(() =>
+      environment.mock.resolve(operation, data),
+    );
+    expect(isInFlightFn).toHaveBeenLastCalledWith(false);
   });
 });

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<bd705c1a40bce07f7407097d481160b0>>
+ * @generated SignedSource<<d2f27bfe003a5af85dec2292c3eab5ed>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,17 +17,17 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayModernEnvironmentCommitUpdateTestParentQuery$variables = {||};
-export type RelayModernEnvironmentCommitUpdateTestParentQuery$data = {|
-  +me: ?{|
-    +id: string,
-    +name: ?string,
-  |},
-|};
-export type RelayModernEnvironmentCommitUpdateTestParentQuery = {|
+export type RelayModernEnvironmentCommitUpdateTestParentQuery$variables = {};
+export type RelayModernEnvironmentCommitUpdateTestParentQuery$data = {
+  readonly me: ?{
+    readonly id: string,
+    readonly name: ?string,
+  },
+};
+export type RelayModernEnvironmentCommitUpdateTestParentQuery = {
   response: RelayModernEnvironmentCommitUpdateTestParentQuery$data,
   variables: RelayModernEnvironmentCommitUpdateTestParentQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -65,7 +64,7 @@ return {
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentCommitUpdateTestParentQuery",
-    "selections": (v0/*: any*/),
+    "selections": (v0/*:: as any*/),
     "type": "Query",
     "abstractKey": null
   },
@@ -74,7 +73,7 @@ return {
     "argumentDefinitions": [],
     "kind": "Operation",
     "name": "RelayModernEnvironmentCommitUpdateTestParentQuery",
-    "selections": (v0/*: any*/)
+    "selections": (v0/*:: as any*/)
   },
   "params": {
     "cacheID": "bd4517def97dc3ebf363f8887f96cd3e",
@@ -88,10 +87,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "f4e78cf9f500660c2caaac5c0c05f547";
+  (node/*:: as any*/).hash = "f4e78cf9f500660c2caaac5c0c05f547";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentCommitUpdateTestParentQuery$variables,
   RelayModernEnvironmentCommitUpdateTestParentQuery$data,
 >*/);

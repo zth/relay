@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<62f592e6a62ed2b8aeeae83c85af2378>>
+ * @generated SignedSource<<aa7635c68b2f35f33f6b2f57fb010063>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,16 +18,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { observeFragmentTestMissingRequiredFragment$fragmentType } from "./observeFragmentTestMissingRequiredFragment.graphql";
-export type observeFragmentTestMissingRequiredQuery$variables = {||};
-export type observeFragmentTestMissingRequiredQuery$data = {|
-  +me: ?{|
-    +$fragmentSpreads: observeFragmentTestMissingRequiredFragment$fragmentType,
-  |},
-|};
-export type observeFragmentTestMissingRequiredQuery = {|
+export type observeFragmentTestMissingRequiredQuery$variables = {};
+export type observeFragmentTestMissingRequiredQuery$data = {
+  readonly me: ?{
+    readonly $fragmentSpreads: observeFragmentTestMissingRequiredFragment$fragmentType,
+  },
+};
+export type observeFragmentTestMissingRequiredQuery = {
   response: observeFragmentTestMissingRequiredQuery$data,
   variables: observeFragmentTestMissingRequiredQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {
@@ -102,10 +101,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "7a946e6ad5139d7b15ccd06ff3be312f";
+  (node/*:: as any*/).hash = "7a946e6ad5139d7b15ccd06ff3be312f";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   observeFragmentTestMissingRequiredQuery$variables,
   observeFragmentTestMissingRequiredQuery$data,
 >*/);

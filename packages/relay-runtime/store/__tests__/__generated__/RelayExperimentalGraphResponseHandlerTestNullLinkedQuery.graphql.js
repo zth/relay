@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e1fddfe5254e1170227410b9427db2af>>
+ * @generated SignedSource<<4e32cebe737159a12489b1f29a5bdbf9>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,16 +17,16 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayExperimentalGraphResponseHandlerTestNullLinkedQuery$variables = {||};
-export type RelayExperimentalGraphResponseHandlerTestNullLinkedQuery$data = {|
-  +fetch__User: ?{|
-    +name: ?string,
-  |},
-|};
-export type RelayExperimentalGraphResponseHandlerTestNullLinkedQuery = {|
+export type RelayExperimentalGraphResponseHandlerTestNullLinkedQuery$variables = {};
+export type RelayExperimentalGraphResponseHandlerTestNullLinkedQuery$data = {
+  readonly fetch__User: ?{
+    readonly name: ?string,
+  },
+};
+export type RelayExperimentalGraphResponseHandlerTestNullLinkedQuery = {
   response: RelayExperimentalGraphResponseHandlerTestNullLinkedQuery$data,
   variables: RelayExperimentalGraphResponseHandlerTestNullLinkedQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -54,13 +53,13 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": "User",
         "kind": "LinkedField",
         "name": "fetch__User",
         "plural": false,
         "selections": [
-          (v1/*: any*/)
+          (v1/*:: as any*/)
         ],
         "storageKey": "fetch__User(id:\"100\")"
       }
@@ -76,13 +75,13 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": "User",
         "kind": "LinkedField",
         "name": "fetch__User",
         "plural": false,
         "selections": [
-          (v1/*: any*/),
+          (v1/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -107,10 +106,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "e868347e3a048a26744812ce3be67387";
+  (node/*:: as any*/).hash = "e868347e3a048a26744812ce3be67387";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayExperimentalGraphResponseHandlerTestNullLinkedQuery$variables,
   RelayExperimentalGraphResponseHandlerTestNullLinkedQuery$data,
 >*/);

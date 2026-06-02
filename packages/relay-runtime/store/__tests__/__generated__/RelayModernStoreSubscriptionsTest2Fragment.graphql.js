@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<90c2f09d4ef92522375d65c915acfda1>>
+ * @generated SignedSource<<15ffa949cd097d76f23185bd3cecfbdd>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,17 +19,17 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernStoreSubscriptionsTest2Fragment$fragmentType: FragmentType;
-export type RelayModernStoreSubscriptionsTest2Fragment$data = {|
-  +emailAddresses: ?$ReadOnlyArray<?string>,
-  +name: ?string,
-  +profilePicture: ?{|
-    +uri: ?string,
-  |},
-  +$fragmentType: RelayModernStoreSubscriptionsTest2Fragment$fragmentType,
-|};
+export type RelayModernStoreSubscriptionsTest2Fragment$data = {
+  readonly emailAddresses: ?ReadonlyArray<?string>,
+  readonly name: ?string,
+  readonly profilePicture: ?{
+    readonly uri: ?string,
+  },
+  readonly $fragmentType: RelayModernStoreSubscriptionsTest2Fragment$fragmentType,
+};
 export type RelayModernStoreSubscriptionsTest2Fragment$key = {
-  +$data?: RelayModernStoreSubscriptionsTest2Fragment$data,
-  +$fragmentSpreads: RelayModernStoreSubscriptionsTest2Fragment$fragmentType,
+  readonly $data?: RelayModernStoreSubscriptionsTest2Fragment$data,
+  readonly $fragmentSpreads: RelayModernStoreSubscriptionsTest2Fragment$fragmentType,
   ...
 };
 */
@@ -90,10 +89,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "62772b04e13398db69cb01e0fffd5b96";
+  (node/*:: as any*/).hash = "62772b04e13398db69cb01e0fffd5b96";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayModernStoreSubscriptionsTest2Fragment$fragmentType,
   RelayModernStoreSubscriptionsTest2Fragment$data,
 >*/);

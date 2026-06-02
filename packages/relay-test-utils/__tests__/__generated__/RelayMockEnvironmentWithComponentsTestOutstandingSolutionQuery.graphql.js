@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<90911a073dde6783af10e885f348213b>>
+ * @generated SignedSource<<656baf072b71b9de8090090195a2debf>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,18 +17,18 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayMockEnvironmentWithComponentsTestOutstandingSolutionQuery$variables = {||};
-export type RelayMockEnvironmentWithComponentsTestOutstandingSolutionQuery$data = {|
-  +viewer: ?{|
-    +actor: ?{|
-      +name: ?string,
-    |},
-  |},
-|};
-export type RelayMockEnvironmentWithComponentsTestOutstandingSolutionQuery = {|
+export type RelayMockEnvironmentWithComponentsTestOutstandingSolutionQuery$variables = {};
+export type RelayMockEnvironmentWithComponentsTestOutstandingSolutionQuery$data = {
+  readonly viewer: ?{
+    readonly actor: ?{
+      readonly name: ?string,
+    },
+  },
+};
+export type RelayMockEnvironmentWithComponentsTestOutstandingSolutionQuery = {
   response: RelayMockEnvironmentWithComponentsTestOutstandingSolutionQuery$data,
   variables: RelayMockEnvironmentWithComponentsTestOutstandingSolutionQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {
@@ -176,10 +175,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "e8326016e942abe55f8a45e953970d18";
+  (node/*:: as any*/).hash = "e8326016e942abe55f8a45e953970d18";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayMockEnvironmentWithComponentsTestOutstandingSolutionQuery$variables,
   RelayMockEnvironmentWithComponentsTestOutstandingSolutionQuery$data,
 >*/);

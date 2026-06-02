@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f9a0bc0b210e7b1cee0f55392e1a37e2>>
+ * @generated SignedSource<<0759132c2b59073793288dd9744587ef>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,36 +17,36 @@
 
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
-export type CommentCreateInput = {|
+export type CommentCreateInput = {
   feedback?: ?CommentfeedbackFeedback,
   feedbackId?: ?string,
-|};
-export type CommentfeedbackFeedback = {|
+};
+export type CommentfeedbackFeedback = {
   comment?: ?FeedbackcommentComment,
-|};
-export type FeedbackcommentComment = {|
+};
+export type FeedbackcommentComment = {
   feedback?: ?CommentfeedbackFeedback,
-|};
-export type commitMutationTest4Mutation$variables = {|
+};
+export type commitMutationTest4Mutation$variables = {
   input?: ?CommentCreateInput,
-|};
-export type commitMutationTest4Mutation$data = {|
-  +commentCreate: ?{|
-    +feedbackCommentEdge: ?{|
-      +cursor: ?string,
-      +node: ?{|
-        +body: ?{|
-          +text: ?string,
-        |},
-        +id: string,
-      |},
-    |},
-  |},
-|};
-export type commitMutationTest4Mutation = {|
+};
+export type commitMutationTest4Mutation$data = {
+  readonly commentCreate: ?{
+    readonly feedbackCommentEdge: ?{
+      readonly cursor: ?string,
+      readonly node: ?{
+        readonly body: ?{
+          readonly text: ?string,
+        },
+        readonly id: string,
+      },
+    },
+  },
+};
+export type commitMutationTest4Mutation = {
   response: commitMutationTest4Mutation$data,
   variables: commitMutationTest4Mutation$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -133,20 +132,20 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "commitMutationTest4Mutation",
-    "selections": (v1/*: any*/),
+    "selections": (v1/*:: as any*/),
     "type": "Mutation",
     "abstractKey": null
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "commitMutationTest4Mutation",
-    "selections": (v1/*: any*/)
+    "selections": (v1/*:: as any*/)
   },
   "params": {
     "cacheID": "6daa683db3157e15cbf003e1a3b837e1",
@@ -160,10 +159,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "12278b4e3399d4ebd1cf0632c6b73890";
+  (node/*:: as any*/).hash = "12278b4e3399d4ebd1cf0632c6b73890";
 }
 
-module.exports = ((node/*: any*/)/*: Mutation<
+module.exports = ((node/*:: as any*/)/*:: as Mutation<
   commitMutationTest4Mutation$variables,
   commitMutationTest4Mutation$data,
 >*/);

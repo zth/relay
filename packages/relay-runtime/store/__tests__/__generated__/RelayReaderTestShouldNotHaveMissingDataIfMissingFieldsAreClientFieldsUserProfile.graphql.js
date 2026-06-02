@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6f72341242f00b4bf7f0668c5df89661>>
+ * @generated SignedSource<<f7ba4612b938328ca470409de44dc149>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,49 +19,49 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$fragmentType: FragmentType;
-export type RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$data = {|
-  +best_friends: ?{|
-    +edges: ?$ReadOnlyArray<?{|
-      +client_friend_edge_field: ?string,
-      +cursor: ?string,
-      +node: ?{|
-        +client_actor_field?: ?string,
-        +id: string,
-        +profilePicture?: ?{|
-          +height: ?number,
-          +uri: ?string,
-          +width: ?number,
-        |},
-      |},
-    |}>,
-  |},
-  +client_actor_field: ?string,
-  +client_foo: ?{|
-    +client_name: ?string,
-    +profile_picture: ?{|
-      +uri: ?string,
-    |},
-  |},
-  +friends: ?{|
-    +client_friends_connection_field: ?string,
-    +edges: ?$ReadOnlyArray<?{|
-      +cursor: ?string,
-      +node: ?{|
-        +client_foo: ?{|
-          +client_name: ?string,
-        |},
-        +firstName: ?string,
-        +id: string,
-      |},
-    |}>,
-  |},
-  +id: string,
-  +nickname: ?string,
-  +$fragmentType: RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$fragmentType,
-|};
+export type RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$data = {
+  readonly best_friends: ?{
+    readonly edges: ?ReadonlyArray<?{
+      readonly client_friend_edge_field: ?string,
+      readonly cursor: ?string,
+      readonly node: ?{
+        readonly client_actor_field?: ?string,
+        readonly id: string,
+        readonly profilePicture?: ?{
+          readonly height: ?number,
+          readonly uri: ?string,
+          readonly width: ?number,
+        },
+      },
+    }>,
+  },
+  readonly client_actor_field: ?string,
+  readonly client_foo: ?{
+    readonly client_name: ?string,
+    readonly profile_picture: ?{
+      readonly uri: ?string,
+    },
+  },
+  readonly friends: ?{
+    readonly client_friends_connection_field: ?string,
+    readonly edges: ?ReadonlyArray<?{
+      readonly cursor: ?string,
+      readonly node: ?{
+        readonly client_foo: ?{
+          readonly client_name: ?string,
+        },
+        readonly firstName: ?string,
+        readonly id: string,
+      },
+    }>,
+  },
+  readonly id: string,
+  readonly nickname: ?string,
+  readonly $fragmentType: RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$fragmentType,
+};
 export type RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$key = {
-  +$data?: RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$data,
-  +$fragmentSpreads: RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$fragmentType,
+  readonly $data?: RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$data,
+  readonly $fragmentSpreads: RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$fragmentType,
   ...
 };
 */
@@ -114,7 +113,7 @@ return {
   "metadata": null,
   "name": "RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile",
   "selections": [
-    (v0/*: any*/),
+    (v0/*:: as any*/),
     {
       "alias": null,
       "args": [
@@ -137,7 +136,7 @@ return {
           "name": "edges",
           "plural": true,
           "selections": [
-            (v1/*: any*/),
+            (v1/*:: as any*/),
             {
               "alias": null,
               "args": null,
@@ -146,7 +145,7 @@ return {
               "name": "node",
               "plural": false,
               "selections": [
-                (v0/*: any*/),
+                (v0/*:: as any*/),
                 {
                   "alias": null,
                   "args": null,
@@ -165,7 +164,7 @@ return {
                       "name": "client_foo",
                       "plural": false,
                       "selections": [
-                        (v2/*: any*/)
+                        (v2/*:: as any*/)
                       ],
                       "storageKey": null
                     }
@@ -198,7 +197,7 @@ return {
         {
           "kind": "ClientExtension",
           "selections": [
-            (v3/*: any*/)
+            (v3/*:: as any*/)
           ]
         }
       ],
@@ -215,7 +214,7 @@ return {
           "name": "nickname",
           "storageKey": null
         },
-        (v3/*: any*/),
+        (v3/*:: as any*/),
         {
           "alias": null,
           "args": null,
@@ -224,7 +223,7 @@ return {
           "name": "client_foo",
           "plural": false,
           "selections": [
-            (v2/*: any*/),
+            (v2/*:: as any*/),
             {
               "alias": null,
               "args": [
@@ -239,7 +238,7 @@ return {
               "name": "profile_picture",
               "plural": false,
               "selections": [
-                (v4/*: any*/)
+                (v4/*:: as any*/)
               ],
               "storageKey": "profile_picture(scale:2)"
             }
@@ -269,7 +268,7 @@ return {
                   "name": "client_friend_edge_field",
                   "storageKey": null
                 },
-                (v1/*: any*/),
+                (v1/*:: as any*/),
                 {
                   "alias": null,
                   "args": null,
@@ -278,11 +277,11 @@ return {
                   "name": "node",
                   "plural": false,
                   "selections": [
-                    (v0/*: any*/),
+                    (v0/*:: as any*/),
                     {
                       "kind": "InlineFragment",
                       "selections": [
-                        (v3/*: any*/),
+                        (v3/*:: as any*/),
                         {
                           "alias": null,
                           "args": [
@@ -297,7 +296,7 @@ return {
                           "name": "profilePicture",
                           "plural": false,
                           "selections": [
-                            (v4/*: any*/),
+                            (v4/*:: as any*/),
                             {
                               "alias": null,
                               "args": null,
@@ -337,10 +336,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "be1193f9af652f17c3230d030ea0ae72";
+  (node/*:: as any*/).hash = "be1193f9af652f17c3230d030ea0ae72";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$fragmentType,
   RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$data,
 >*/);

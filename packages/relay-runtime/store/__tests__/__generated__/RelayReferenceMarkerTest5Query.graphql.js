@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<cc3fcc3c7d9dc7cfaa8982efe0057af8>>
+ * @generated SignedSource<<1187af8e68236791b64fedd2c04ab08d>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,18 +20,18 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayReferenceMarkerTest3Fragment$fragmentType } from "./RelayReferenceMarkerTest3Fragment.graphql";
-export type RelayReferenceMarkerTest5Query$variables = {|
+export type RelayReferenceMarkerTest5Query$variables = {
   id: string,
-|};
-export type RelayReferenceMarkerTest5Query$data = {|
-  +node: ?{|
-    +$fragmentSpreads: RelayReferenceMarkerTest3Fragment$fragmentType,
-  |},
-|};
-export type RelayReferenceMarkerTest5Query = {|
+};
+export type RelayReferenceMarkerTest5Query$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: RelayReferenceMarkerTest3Fragment$fragmentType,
+  },
+};
+export type RelayReferenceMarkerTest5Query = {
   response: RelayReferenceMarkerTest5Query$data,
   variables: RelayReferenceMarkerTest5Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -59,14 +58,14 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayReferenceMarkerTest5Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -86,19 +85,19 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayReferenceMarkerTest5Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -123,7 +122,7 @@ return {
                 "name": "nameRenderer",
                 "plural": false,
                 "selections": [
-                  (v2/*: any*/),
+                  (v2/*:: as any*/),
                   {
                     "kind": "InlineFragment",
                     "selections": [
@@ -176,10 +175,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "7b4c00aa61d93ed96cf7e372fcaf9a6d";
+  (node/*:: as any*/).hash = "7b4c00aa61d93ed96cf7e372fcaf9a6d";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReferenceMarkerTest5Query$variables,
   RelayReferenceMarkerTest5Query$data,
 >*/);

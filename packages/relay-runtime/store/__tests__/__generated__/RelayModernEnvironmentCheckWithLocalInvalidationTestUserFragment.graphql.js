@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3921ea83e773a466e119a2d5a65fbaa0>>
+ * @generated SignedSource<<ca2fa7e40325bbfdc7c9a471492b5fef>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,15 +19,15 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentCheckWithLocalInvalidationTestUserFragment$fragmentType: FragmentType;
-export type RelayModernEnvironmentCheckWithLocalInvalidationTestUserFragment$data = {|
-  +profilePicture: ?{|
-    +uri: ?string,
-  |},
-  +$fragmentType: RelayModernEnvironmentCheckWithLocalInvalidationTestUserFragment$fragmentType,
-|};
+export type RelayModernEnvironmentCheckWithLocalInvalidationTestUserFragment$data = {
+  readonly profilePicture: ?{
+    readonly uri: ?string,
+  },
+  readonly $fragmentType: RelayModernEnvironmentCheckWithLocalInvalidationTestUserFragment$fragmentType,
+};
 export type RelayModernEnvironmentCheckWithLocalInvalidationTestUserFragment$key = {
-  +$data?: RelayModernEnvironmentCheckWithLocalInvalidationTestUserFragment$data,
-  +$fragmentSpreads: RelayModernEnvironmentCheckWithLocalInvalidationTestUserFragment$fragmentType,
+  readonly $data?: RelayModernEnvironmentCheckWithLocalInvalidationTestUserFragment$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentCheckWithLocalInvalidationTestUserFragment$fragmentType,
   ...
 };
 */
@@ -74,10 +73,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "33d1beb6c101215ec2db0329b5df2e20";
+  (node/*:: as any*/).hash = "33d1beb6c101215ec2db0329b5df2e20";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayModernEnvironmentCheckWithLocalInvalidationTestUserFragment$fragmentType,
   RelayModernEnvironmentCheckWithLocalInvalidationTestUserFragment$data,
 >*/);

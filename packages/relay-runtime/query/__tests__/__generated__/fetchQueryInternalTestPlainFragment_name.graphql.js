@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<27912ef8ad55a22e291c129f02ccd43d>>
+ * @generated SignedSource<<49ce5d9d4374a248d236645aaa3c04cc>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,16 +19,16 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type fetchQueryInternalTestPlainFragment_name$fragmentType: FragmentType;
-export type fetchQueryInternalTestPlainFragment_name$data = {|
-  +data: ?{|
-    +text: ?string,
-  |},
-  +plaintext: ?string,
-  +$fragmentType: fetchQueryInternalTestPlainFragment_name$fragmentType,
-|};
+export type fetchQueryInternalTestPlainFragment_name$data = {
+  readonly data: ?{
+    readonly text: ?string,
+  },
+  readonly plaintext: ?string,
+  readonly $fragmentType: fetchQueryInternalTestPlainFragment_name$fragmentType,
+};
 export type fetchQueryInternalTestPlainFragment_name$key = {
-  +$data?: fetchQueryInternalTestPlainFragment_name$data,
-  +$fragmentSpreads: fetchQueryInternalTestPlainFragment_name$fragmentType,
+  readonly $data?: fetchQueryInternalTestPlainFragment_name$data,
+  readonly $fragmentSpreads: fetchQueryInternalTestPlainFragment_name$fragmentType,
   ...
 };
 */
@@ -71,10 +70,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "28987f688adc6c61dc29867c5efdef79";
+  (node/*:: as any*/).hash = "28987f688adc6c61dc29867c5efdef79";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   fetchQueryInternalTestPlainFragment_name$fragmentType,
   fetchQueryInternalTestPlainFragment_name$data,
 >*/);

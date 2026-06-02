@@ -28,17 +28,17 @@ import type { FragmentType } from "relay-runtime";
 import catDescriptionResolverType from "CatResolver";
 // Type assertion validating that `catDescriptionResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(catDescriptionResolverType: (
+(catDescriptionResolverType as (
   rootKey: description_Fragment$key,
-) => ?mixed);
+) => ?unknown);
 declare export opaque type description_Fragment$fragmentType: FragmentType;
-export type description_Fragment$data = {|
-  +description: ?ReturnType<typeof catDescriptionResolverType>,
-  +$fragmentType: description_Fragment$fragmentType,
-|};
+export type description_Fragment$data = {
+  readonly description: ?ReturnType<typeof catDescriptionResolverType>,
+  readonly $fragmentType: description_Fragment$fragmentType,
+};
 export type description_Fragment$key = {
-  +$data?: description_Fragment$data,
-  +$fragmentSpreads: description_Fragment$fragmentType,
+  readonly $data?: description_Fragment$data,
+  readonly $fragmentSpreads: description_Fragment$fragmentType,
   ...
 };
 -------------------------------------------------------------------------------
@@ -47,16 +47,16 @@ import type { FragmentType } from "relay-runtime";
 import catDescriptionResolverType from "CatResolver";
 // Type assertion validating that `catDescriptionResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(catDescriptionResolverType: (
+(catDescriptionResolverType as (
   rootKey: description_Fragment$key,
-) => ?mixed);
+) => ?unknown);
 declare export opaque type resolverOnInterfaceOfAllStrongModelTypeWithRootFragment$fragmentType: FragmentType;
-export type resolverOnInterfaceOfAllStrongModelTypeWithRootFragment$data = {|
-  +description: ?ReturnType<typeof catDescriptionResolverType>,
-  +$fragmentType: resolverOnInterfaceOfAllStrongModelTypeWithRootFragment$fragmentType,
-|};
+export type resolverOnInterfaceOfAllStrongModelTypeWithRootFragment$data = {
+  readonly description: ?ReturnType<typeof catDescriptionResolverType>,
+  readonly $fragmentType: resolverOnInterfaceOfAllStrongModelTypeWithRootFragment$fragmentType,
+};
 export type resolverOnInterfaceOfAllStrongModelTypeWithRootFragment$key = {
-  +$data?: resolverOnInterfaceOfAllStrongModelTypeWithRootFragment$data,
-  +$fragmentSpreads: resolverOnInterfaceOfAllStrongModelTypeWithRootFragment$fragmentType,
+  readonly $data?: resolverOnInterfaceOfAllStrongModelTypeWithRootFragment$data,
+  readonly $fragmentSpreads: resolverOnInterfaceOfAllStrongModelTypeWithRootFragment$fragmentType,
   ...
 };

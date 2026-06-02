@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f756f7316e474544423ae72254753ca2>>
+ * @generated SignedSource<<db0236c69ced2174bf4579d605a078ce>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,16 +17,16 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type ReactRelayTestMockerTestQuery$variables = {||};
-export type ReactRelayTestMockerTestQuery$data = {|
-  +me: ?{|
-    +name: ?string,
-  |},
-|};
-export type ReactRelayTestMockerTestQuery = {|
+export type ReactRelayTestMockerTestQuery$variables = {};
+export type ReactRelayTestMockerTestQuery$data = {
+  readonly me: ?{
+    readonly name: ?string,
+  },
+};
+export type ReactRelayTestMockerTestQuery = {
   response: ReactRelayTestMockerTestQuery$data,
   variables: ReactRelayTestMockerTestQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -53,7 +52,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/)
+          (v0/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -75,7 +74,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
+          (v0/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -100,10 +99,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "130eb1e0c99c8856e670b7153c60015e";
+  (node/*:: as any*/).hash = "130eb1e0c99c8856e670b7153c60015e";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ReactRelayTestMockerTestQuery$variables,
   ReactRelayTestMockerTestQuery$data,
 >*/);

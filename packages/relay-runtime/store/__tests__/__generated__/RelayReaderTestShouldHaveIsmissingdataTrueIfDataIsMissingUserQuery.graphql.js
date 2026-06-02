@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6d5e3483fdd3a1a5cb0e870175c17227>>
+ * @generated SignedSource<<7e6e7f009399b8a2802487e2dc25b290>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,16 +18,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserProfile$fragmentType } from "./RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserProfile.graphql";
-export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserQuery$variables = {||};
-export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserQuery$data = {|
-  +me: ?{|
-    +$fragmentSpreads: RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserProfile$fragmentType,
-  |},
-|};
-export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserQuery = {|
+export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserQuery$variables = {};
+export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserQuery$data = {
+  readonly me: ?{
+    readonly $fragmentSpreads: RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserProfile$fragmentType,
+  },
+};
+export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserQuery = {
   response: RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserQuery$data,
   variables: RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {
@@ -102,10 +101,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "b8bb895c4bc3c32d92456c0798ef49ed";
+  (node/*:: as any*/).hash = "b8bb895c4bc3c32d92456c0798ef49ed";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserQuery$variables,
   RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserQuery$data,
 >*/);

@@ -52,7 +52,7 @@ const warning = require('warning');
 type ContainerProps = $FlowFixMe;
 
 type ContainerState = {
-  data: {[key: string]: mixed, ...},
+  data: {[key: string]: unknown, ...},
   prevProps: ContainerProps,
   localVariables: ?Variables,
   prevPropsContext: RelayContext,
@@ -68,8 +68,8 @@ type ContainerState = {
  * updates.
  */
 function createContainerWithFragments<
-  Props: {...},
-  TComponent: component(...Props),
+  Props extends {...},
+  TComponent extends component(...Props),
 >(
   Component: TComponent,
   fragments: FragmentMap,
@@ -104,11 +104,11 @@ function createContainerWithFragments<
         rootIsQueryRenderer,
       );
       this.state = {
+        contextForChildren: relayContext,
         data: resolver.resolve(),
         localVariables: null,
         prevProps: props,
         prevPropsContext: relayContext,
-        contextForChildren: relayContext,
         relayProp: getRelayProp(relayContext.environment, this._refetch),
         resolver,
       };
@@ -146,7 +146,7 @@ function createContainerWithFragments<
       prevState: ContainerState,
     ): Partial<ContainerState> | null {
       // Any props change could impact the query, so we mirror props in state.
-      // This is an unusual pattern, but necessary for this container usecase.
+      // This is an unusual pattern, but necessary for this container use case.
       const {prevProps} = prevState;
       const relayContext = assertRelayContext(nextProps.__relayContext);
       const rootIsQueryRenderer = nextProps.__rootIsQueryRenderer ?? false;
@@ -187,11 +187,11 @@ function createContainerWithFragments<
           rootIsQueryRenderer,
         );
         return {
+          contextForChildren: relayContext,
           data: resolver.resolve(),
           localVariables: null,
           prevProps: nextProps,
           prevPropsContext: relayContext,
-          contextForChildren: relayContext,
           relayProp: getRelayProp(
             relayContext.environment,
             prevState.relayProp.refetch,
@@ -349,12 +349,12 @@ function createContainerWithFragments<
       const observer =
         typeof observerOrCallback === 'function'
           ? {
-              // callback is not exectued on complete or unsubscribe
+              error: observerOrCallback,
+              // callback is not executed on complete or unsubscribe
               // for backward compatibility
               next: observerOrCallback,
-              error: observerOrCallback,
             }
-          : observerOrCallback || ({}: any);
+          : observerOrCallback || ({} as any);
 
       const query = getRequest(taggedNode);
       const operation = createOperationDescriptor(
@@ -385,10 +385,10 @@ function createContainerWithFragments<
         );
         this.setState(
           latestState => ({
-            data: latestState.resolver.resolve(),
             contextForChildren: {
               environment: this.props.__relayContext.environment,
             },
+            data: latestState.resolver.resolve(),
           }),
           () => {
             observer.next && observer.next();
@@ -415,10 +415,10 @@ function createContainerWithFragments<
           return Observable.create<void>(sink =>
             this.setState(
               latestState => ({
-                data: latestState.resolver.resolve(),
                 contextForChildren: {
                   environment: this.props.__relayContext.environment,
                 },
+                data: latestState.resolver.resolve(),
               }),
               () => {
                 sink.next();
@@ -429,7 +429,7 @@ function createContainerWithFragments<
         })
         .finally(() => {
           // Finalizing a refetch should only clear this._refetchSubscription
-          // if the finizing subscription is the most recent call.
+          // if the finalizing subscription is the most recent call.
           if (this._refetchSubscription === refetchSubscription) {
             this._refetchSubscription = null;
           }
@@ -486,14 +486,17 @@ function getRelayProp(
  * `fragmentSpec` is memoized once per environment, rather than once per
  * instance of the container constructed/rendered.
  */
-function createContainer<Props: {...}, TComponent: component(...Props)>(
+function createContainer<
+  Props extends {...},
+  TComponent extends component(...Props),
+>(
   Component: TComponent,
   fragmentSpec: GeneratedNodeMap,
   taggedNode: GraphQLTaggedNode,
 ): component(
   ...$RelayProps<React.ElementConfig<TComponent>, RelayRefetchProp>
 ) {
-  // $FlowFixMe[incompatible-return]
+  // $FlowFixMe[incompatible-type]
   return buildReactRelayContainer(
     Component,
     fragmentSpec,

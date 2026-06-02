@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1794e78bb43d7aee1a7a2741f6b03bf8>>
+ * @generated SignedSource<<f53585da2a5a8b46c5bcfb2db7951b68>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -23,22 +22,22 @@ import {live_user_resolver_always_suspend as queryLiveUserResolverAlwaysSuspendR
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryLiveUserResolverAlwaysSuspendResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryLiveUserResolverAlwaysSuspendResolverType: (
+(queryLiveUserResolverAlwaysSuspendResolverType as (
   args: void,
   context: TestResolverContextType,
-) => LiveState<?{|
-  +id: DataID,
-|}>);
-export type RelayReaderRequiredFieldsTest28Query$variables = {||};
-export type RelayReaderRequiredFieldsTest28Query$data = {|
-  +live_user_resolver_always_suspend: {|
-    +name: ?string,
-  |},
-|};
-export type RelayReaderRequiredFieldsTest28Query = {|
+) => LiveState<?{
+  readonly id: DataID,
+}>);
+export type RelayReaderRequiredFieldsTest28Query$variables = {};
+export type RelayReaderRequiredFieldsTest28Query$data = {
+  readonly live_user_resolver_always_suspend: {
+    readonly name: ?string,
+  },
+};
+export type RelayReaderRequiredFieldsTest28Query = {
   response: RelayReaderRequiredFieldsTest28Query$data,
   variables: RelayReaderRequiredFieldsTest28Query$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = {
@@ -116,10 +115,10 @@ var node/*: ClientRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "1ea17c6315e8ba285db304130201310d";
+  (node/*:: as any*/).hash = "1ea17c6315e8ba285db304130201310d";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   RelayReaderRequiredFieldsTest28Query$variables,
   RelayReaderRequiredFieldsTest28Query$data,
 >*/);

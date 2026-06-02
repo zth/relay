@@ -7,6 +7,7 @@
 
 use std::sync::Arc;
 
+use common::FeatureFlags;
 use common::SourceLocationKey;
 use fixture_tests::Fixture;
 use graphql_ir::FragmentDefinition;
@@ -28,6 +29,7 @@ use relay_transforms::validate_connections;
 pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let project_config = ProjectConfig {
         js_module_format: JsModuleFormat::Haste,
+        feature_flags: Arc::new(FeatureFlags::default()),
         ..Default::default()
     };
     let mut printer = Printer::with_dedupe(&project_config);

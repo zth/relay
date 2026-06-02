@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b5b61f702f5e12bbf3e637c3b330ac09>>
+ * @generated SignedSource<<09c8cd145b4d2f46cecc5ff2c958df6d>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,16 +17,16 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type observeQueryTestToPromiseQuery$variables = {||};
-export type observeQueryTestToPromiseQuery$data = {|
-  +me: ?{|
-    +name: ?string,
-  |},
-|};
-export type observeQueryTestToPromiseQuery = {|
+export type observeQueryTestToPromiseQuery$variables = {};
+export type observeQueryTestToPromiseQuery$data = {
+  readonly me: ?{
+    readonly name: ?string,
+  },
+};
+export type observeQueryTestToPromiseQuery = {
   response: observeQueryTestToPromiseQuery$data,
   variables: observeQueryTestToPromiseQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -53,7 +52,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/)
+          (v0/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -75,7 +74,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
+          (v0/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -100,10 +99,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "9ef8801e54038e17ccb9d41fe22ee69d";
+  (node/*:: as any*/).hash = "9ef8801e54038e17ccb9d41fe22ee69d";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   observeQueryTestToPromiseQuery$variables,
   observeQueryTestToPromiseQuery$data,
 >*/);

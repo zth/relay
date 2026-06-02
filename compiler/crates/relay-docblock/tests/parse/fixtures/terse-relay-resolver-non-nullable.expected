@@ -6,6 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+// relay:allow_legacy_relay_resolver_tag
 // relay:allow_resolver_non_nullable_return_type
 
 /**
@@ -65,6 +66,7 @@ Field(
                 item: "User",
             },
             root_fragment: None,
+            return_fragment: None,
             deprecated: None,
             semantic_non_null: None,
             live: None,

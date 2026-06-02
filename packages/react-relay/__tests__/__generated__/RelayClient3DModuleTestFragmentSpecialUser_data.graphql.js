@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c244439bc5e3df600a67e1c3f64edf1d>>
+ * @generated SignedSource<<a086e28f93008474631b8308bdb1f099>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,19 +23,19 @@ import {data as specialUserDataResolverType} from "../../../relay-runtime/store/
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `specialUserDataResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(specialUserDataResolverType: (
+(specialUserDataResolverType as (
   __relay_model_instance: SpecialUser____relay_model_instance$data['__relay_model_instance'],
   args: void,
   context: TestResolverContextType,
 ) => ?string);
 declare export opaque type RelayClient3DModuleTestFragmentSpecialUser_data$fragmentType: FragmentType;
-export type RelayClient3DModuleTestFragmentSpecialUser_data$data = {|
-  +data: ?string,
-  +$fragmentType: RelayClient3DModuleTestFragmentSpecialUser_data$fragmentType,
-|};
+export type RelayClient3DModuleTestFragmentSpecialUser_data$data = {
+  readonly data: ?string,
+  readonly $fragmentType: RelayClient3DModuleTestFragmentSpecialUser_data$fragmentType,
+};
 export type RelayClient3DModuleTestFragmentSpecialUser_data$key = {
-  +$data?: RelayClient3DModuleTestFragmentSpecialUser_data$data,
-  +$fragmentSpreads: RelayClient3DModuleTestFragmentSpecialUser_data$fragmentType,
+  readonly $data?: RelayClient3DModuleTestFragmentSpecialUser_data$data,
+  readonly $fragmentSpreads: RelayClient3DModuleTestFragmentSpecialUser_data$fragmentType,
   ...
 };
 */
@@ -66,10 +65,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "88c92da2147eac1c8b39d1e3a1db20ed";
+  (node/*:: as any*/).hash = "88c92da2147eac1c8b39d1e3a1db20ed";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayClient3DModuleTestFragmentSpecialUser_data$fragmentType,
   RelayClient3DModuleTestFragmentSpecialUser_data$data,
 >*/);

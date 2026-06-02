@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c4c2260e95cac92d1b80156ea4f002ba>>
+ * @generated SignedSource<<39e43ed725c5981c4d76d6e0475cce83>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,25 +18,25 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { withProvidedVariablesTest2Fragment$fragmentType } from "./withProvidedVariablesTest2Fragment.graphql";
-export type withProvidedVariablesTest2Query$variables = {|
+export type withProvidedVariablesTest2Query$variables = {
   includeFriendsCount: boolean,
-|};
-export type withProvidedVariablesTest2Query$data = {|
-  +node: ?{|
-    +$fragmentSpreads: withProvidedVariablesTest2Fragment$fragmentType,
-  |},
-|};
-export type withProvidedVariablesTest2Query = {|
+};
+export type withProvidedVariablesTest2Query$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: withProvidedVariablesTest2Fragment$fragmentType,
+  },
+};
+export type withProvidedVariablesTest2Query = {
   response: withProvidedVariablesTest2Query$data,
   variables: withProvidedVariablesTest2Query$variables,
-|};
+};
 ({
   "__relay_internal__pv__provideNumberOfFriendsrelayprovider": require('../provideNumberOfFriends.relayprovider')
-}: {|
-  +__relay_internal__pv__provideNumberOfFriendsrelayprovider: {|
-    +get: () => number,
-  |},
-|});
+} as {
+  readonly __relay_internal__pv__provideNumberOfFriendsrelayprovider: {
+    readonly get: () => number,
+  },
+});
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -56,7 +55,7 @@ v1 = [
 return {
   "fragment": {
     "argumentDefinitions": [
-      (v0/*: any*/)
+      (v0/*:: as any*/)
     ],
     "kind": "Fragment",
     "metadata": null,
@@ -64,7 +63,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -91,7 +90,7 @@ return {
   "kind": "Request",
   "operation": {
     "argumentDefinitions": [
-      (v0/*: any*/),
+      (v0/*:: as any*/),
       {
         "defaultValue": null,
         "kind": "LocalArgument",
@@ -103,7 +102,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -181,10 +180,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "672d458b4f030a73c4aeb0146485c476";
+  (node/*:: as any*/).hash = "672d458b4f030a73c4aeb0146485c476";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   withProvidedVariablesTest2Query$variables,
   withProvidedVariablesTest2Query$data,
 >*/);

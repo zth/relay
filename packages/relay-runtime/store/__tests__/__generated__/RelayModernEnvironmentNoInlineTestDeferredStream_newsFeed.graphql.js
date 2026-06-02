@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<cf633fc58f6534c0c966a6c4c17ab90e>>
+ * @generated SignedSource<<1de769026b110d86f5f49ec4bd312a57>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,23 +19,23 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$fragmentType: FragmentType;
-export type RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$data = {|
-  +newsFeed: ?{|
-    +edges: ?$ReadOnlyArray<?{|
-      +node: ?{|
-        +feedback?: ?{|
-          +author: ?{|
-            +name: ?string,
-          |},
-        |},
-      |},
-    |}>,
-  |},
-  +$fragmentType: RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$fragmentType,
-|};
+export type RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$data = {
+  readonly newsFeed: ?{
+    readonly edges: ?ReadonlyArray<?{
+      readonly node: ?{
+        readonly feedback?: ?{
+          readonly author: ?{
+            readonly name: ?string,
+          },
+        },
+      },
+    }>,
+  },
+  readonly $fragmentType: RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$fragmentType,
+};
 export type RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$key = {
-  +$data?: RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$data,
-  +$fragmentSpreads: RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$fragmentType,
+  readonly $data?: RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$fragmentType,
   ...
 };
 */
@@ -144,10 +143,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "a7455d1924444ac117790f34dbd90cec";
+  (node/*:: as any*/).hash = "a7455d1924444ac117790f34dbd90cec";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$fragmentType,
   RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$data,
 >*/);

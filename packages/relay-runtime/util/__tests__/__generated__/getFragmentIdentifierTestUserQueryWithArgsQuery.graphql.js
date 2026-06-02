@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8cd3dc9de6099bff154fa4911de1a39c>>
+ * @generated SignedSource<<ae96e58e61652e792609daeabc02088b>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,19 +18,19 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { getFragmentIdentifierTestUserFragmentWithArgs$fragmentType } from "./getFragmentIdentifierTestUserFragmentWithArgs.graphql";
-export type getFragmentIdentifierTestUserQueryWithArgsQuery$variables = {|
+export type getFragmentIdentifierTestUserQueryWithArgsQuery$variables = {
   id: string,
   scale: number,
-|};
-export type getFragmentIdentifierTestUserQueryWithArgsQuery$data = {|
-  +node: ?{|
-    +$fragmentSpreads: getFragmentIdentifierTestUserFragmentWithArgs$fragmentType,
-  |},
-|};
-export type getFragmentIdentifierTestUserQueryWithArgsQuery = {|
+};
+export type getFragmentIdentifierTestUserQueryWithArgsQuery$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: getFragmentIdentifierTestUserFragmentWithArgs$fragmentType,
+  },
+};
+export type getFragmentIdentifierTestUserQueryWithArgsQuery = {
   response: getFragmentIdentifierTestUserQueryWithArgsQuery$data,
   variables: getFragmentIdentifierTestUserQueryWithArgsQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -56,14 +55,14 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "getFragmentIdentifierTestUserQueryWithArgsQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -89,13 +88,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "getFragmentIdentifierTestUserQueryWithArgsQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -177,10 +176,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "ce1c117df7e611604494cc0036258270";
+  (node/*:: as any*/).hash = "ce1c117df7e611604494cc0036258270";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   getFragmentIdentifierTestUserQueryWithArgsQuery$variables,
   getFragmentIdentifierTestUserQueryWithArgsQuery$data,
 >*/);

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<38db53050ac518827b1a14880489e2fb>>
+ * @generated SignedSource<<d8b66e7b709ecd3724c87510afaf998a>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -22,23 +21,23 @@ import type { usePaginationFragmentTestNestedUserFragment$fragmentType } from ".
 import type { FragmentType } from "relay-runtime";
 declare export opaque type usePaginationFragmentTestUserFragment$fragmentType: FragmentType;
 type usePaginationFragmentTestUserFragmentPaginationQuery$variables = any;
-export type usePaginationFragmentTestUserFragment$data = {|
-  +friends: ?{|
-    +edges: ?$ReadOnlyArray<?{|
-      +node: ?{|
-        +id: string,
-        +name: ?string,
-        +$fragmentSpreads: usePaginationFragmentTestNestedUserFragment$fragmentType,
-      |},
-    |}>,
-  |},
-  +id: string,
-  +name: ?string,
-  +$fragmentType: usePaginationFragmentTestUserFragment$fragmentType,
-|};
+export type usePaginationFragmentTestUserFragment$data = {
+  readonly friends: ?{
+    readonly edges: ?ReadonlyArray<?{
+      readonly node: ?{
+        readonly id: string,
+        readonly name: ?string,
+        readonly $fragmentSpreads: usePaginationFragmentTestNestedUserFragment$fragmentType,
+      },
+    }>,
+  },
+  readonly id: string,
+  readonly name: ?string,
+  readonly $fragmentType: usePaginationFragmentTestUserFragment$fragmentType,
+};
 export type usePaginationFragmentTestUserFragment$key = {
-  +$data?: usePaginationFragmentTestUserFragment$data,
-  +$fragmentSpreads: usePaginationFragmentTestUserFragment$fragmentType,
+  readonly $data?: usePaginationFragmentTestUserFragment$data,
+  readonly $fragmentSpreads: usePaginationFragmentTestUserFragment$fragmentType,
   ...
 };
 */
@@ -102,7 +101,7 @@ return {
         "count": null,
         "cursor": null,
         "direction": "bidirectional",
-        "path": (v0/*: any*/)
+        "path": (v0/*:: as any*/)
       }
     ],
     "refetch": {
@@ -115,7 +114,7 @@ return {
           "count": "last",
           "cursor": "before"
         },
-        "path": (v0/*: any*/)
+        "path": (v0/*:: as any*/)
       },
       "fragmentPathInResult": [
         "node"
@@ -129,8 +128,8 @@ return {
   },
   "name": "usePaginationFragmentTestUserFragment",
   "selections": [
-    (v1/*: any*/),
-    (v2/*: any*/),
+    (v1/*:: as any*/),
+    (v2/*:: as any*/),
     {
       "alias": "friends",
       "args": [
@@ -166,8 +165,8 @@ return {
               "name": "node",
               "plural": false,
               "selections": [
-                (v1/*: any*/),
-                (v2/*: any*/),
+                (v1/*:: as any*/),
+                (v2/*:: as any*/),
                 {
                   "args": null,
                   "kind": "FragmentSpread",
@@ -242,10 +241,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "fe5dabc8eef251e3032e850d1c26f222";
+  (node/*:: as any*/).hash = "fe5dabc8eef251e3032e850d1c26f222";
 }
 
-module.exports = ((node/*: any*/)/*: RefetchableFragment<
+module.exports = ((node/*:: as any*/)/*:: as RefetchableFragment<
   usePaginationFragmentTestUserFragment$fragmentType,
   usePaginationFragmentTestUserFragment$data,
   usePaginationFragmentTestUserFragmentPaginationQuery$variables,

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<488137e059826e157a95ea8a087abedd>>
+ * @generated SignedSource<<b2430884046715edc9adfb3cab07f36d>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,14 +19,14 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type useFragmentWithOperationTrackerSuspenseTest2Fragment$fragmentType: FragmentType;
-export type useFragmentWithOperationTrackerSuspenseTest2Fragment$data = $ReadOnlyArray<{|
-  +id: string,
-  +name: ?string,
-  +$fragmentType: useFragmentWithOperationTrackerSuspenseTest2Fragment$fragmentType,
-|}>;
-export type useFragmentWithOperationTrackerSuspenseTest2Fragment$key = $ReadOnlyArray<{
-  +$data?: useFragmentWithOperationTrackerSuspenseTest2Fragment$data,
-  +$fragmentSpreads: useFragmentWithOperationTrackerSuspenseTest2Fragment$fragmentType,
+export type useFragmentWithOperationTrackerSuspenseTest2Fragment$data = ReadonlyArray<{
+  readonly id: string,
+  readonly name: ?string,
+  readonly $fragmentType: useFragmentWithOperationTrackerSuspenseTest2Fragment$fragmentType,
+}>;
+export type useFragmentWithOperationTrackerSuspenseTest2Fragment$key = ReadonlyArray<{
+  readonly $data?: useFragmentWithOperationTrackerSuspenseTest2Fragment$data,
+  readonly $fragmentSpreads: useFragmentWithOperationTrackerSuspenseTest2Fragment$fragmentType,
   ...
 }>;
 */
@@ -60,10 +59,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "ed248350d2cf54c3301858051ee10660";
+  (node/*:: as any*/).hash = "ed248350d2cf54c3301858051ee10660";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   useFragmentWithOperationTrackerSuspenseTest2Fragment$fragmentType,
   useFragmentWithOperationTrackerSuspenseTest2Fragment$data,
 >*/);

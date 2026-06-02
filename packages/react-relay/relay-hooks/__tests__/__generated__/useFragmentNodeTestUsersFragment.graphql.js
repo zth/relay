@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c502957203f5a0a8eb88fd805244bbc3>>
+ * @generated SignedSource<<fa264e53dab37153b3c475b0eb1a8ea6>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,18 +20,18 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { useFragmentNodeTestNestedUserFragment$fragmentType } from "./useFragmentNodeTestNestedUserFragment.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type useFragmentNodeTestUsersFragment$fragmentType: FragmentType;
-export type useFragmentNodeTestUsersFragment$data = $ReadOnlyArray<{|
-  +id: string,
-  +name: ?string,
-  +profile_picture: ?{|
-    +uri: ?string,
-  |},
-  +$fragmentSpreads: useFragmentNodeTestNestedUserFragment$fragmentType,
-  +$fragmentType: useFragmentNodeTestUsersFragment$fragmentType,
-|}>;
-export type useFragmentNodeTestUsersFragment$key = $ReadOnlyArray<{
-  +$data?: useFragmentNodeTestUsersFragment$data,
-  +$fragmentSpreads: useFragmentNodeTestUsersFragment$fragmentType,
+export type useFragmentNodeTestUsersFragment$data = ReadonlyArray<{
+  readonly id: string,
+  readonly name: ?string,
+  readonly profile_picture: ?{
+    readonly uri: ?string,
+  },
+  readonly $fragmentSpreads: useFragmentNodeTestNestedUserFragment$fragmentType,
+  readonly $fragmentType: useFragmentNodeTestUsersFragment$fragmentType,
+}>;
+export type useFragmentNodeTestUsersFragment$key = ReadonlyArray<{
+  readonly $data?: useFragmentNodeTestUsersFragment$data,
+  readonly $fragmentSpreads: useFragmentNodeTestUsersFragment$fragmentType,
   ...
 }>;
 */
@@ -99,10 +98,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "21820b2b5754dc640e5b08199a2a0498";
+  (node/*:: as any*/).hash = "21820b2b5754dc640e5b08199a2a0498";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   useFragmentNodeTestUsersFragment$fragmentType,
   useFragmentNodeTestUsersFragment$data,
 >*/);

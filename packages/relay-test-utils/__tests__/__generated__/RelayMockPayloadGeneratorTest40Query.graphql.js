@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f9f880793728c435013eab94c345c968>>
+ * @generated SignedSource<<fd0cf723962ff24be71f4d2c3b4dbaaa>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,17 +18,17 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 export type PersonalityTraits = "CHEERFUL" | "DERISIVE" | "HELPFUL" | "SNARKY" | "%future added value";
-export type RelayMockPayloadGeneratorTest40Query$variables = {||};
-export type RelayMockPayloadGeneratorTest40Query$data = {|
-  +node: ?{|
-    +id?: string,
-    +traits?: ?$ReadOnlyArray<?PersonalityTraits>,
-  |},
-|};
-export type RelayMockPayloadGeneratorTest40Query = {|
+export type RelayMockPayloadGeneratorTest40Query$variables = {};
+export type RelayMockPayloadGeneratorTest40Query$data = {
+  readonly node: ?{
+    readonly id?: string,
+    readonly traits?: ?ReadonlyArray<?PersonalityTraits>,
+  },
+};
+export type RelayMockPayloadGeneratorTest40Query = {
   response: RelayMockPayloadGeneratorTest40Query$data,
   variables: RelayMockPayloadGeneratorTest40Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -63,7 +62,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -72,8 +71,8 @@ return {
           {
             "kind": "InlineFragment",
             "selections": [
-              (v1/*: any*/),
-              (v2/*: any*/)
+              (v1/*:: as any*/),
+              (v2/*:: as any*/)
             ],
             "type": "User",
             "abstractKey": null
@@ -93,7 +92,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -106,11 +105,11 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v1/*: any*/),
+          (v1/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
-              (v2/*: any*/)
+              (v2/*:: as any*/)
             ],
             "type": "User",
             "abstractKey": null
@@ -164,10 +163,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "3701a984f2c55db48e915d7e39baebfa";
+  (node/*:: as any*/).hash = "3701a984f2c55db48e915d7e39baebfa";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayMockPayloadGeneratorTest40Query$variables,
   RelayMockPayloadGeneratorTest40Query$data,
 >*/);

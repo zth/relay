@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1334d6dcfae83bd81ffbe11675646b38>>
+ * @generated SignedSource<<ee36e4a3afd573ab2ab2cfd9d036483b>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,19 +18,19 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { useFragmentWithOperationTrackerSuspenseTest2Fragment$fragmentType } from "./useFragmentWithOperationTrackerSuspenseTest2Fragment.graphql";
-export type useFragmentWithOperationTrackerSuspenseTest2Query$variables = {|
-  ids: $ReadOnlyArray<string>,
-|};
-export type useFragmentWithOperationTrackerSuspenseTest2Query$data = {|
-  +nodes: ?$ReadOnlyArray<?{|
-    +__typename: string,
-    +$fragmentSpreads: useFragmentWithOperationTrackerSuspenseTest2Fragment$fragmentType,
-  |}>,
-|};
-export type useFragmentWithOperationTrackerSuspenseTest2Query = {|
+export type useFragmentWithOperationTrackerSuspenseTest2Query$variables = {
+  ids: ReadonlyArray<string>,
+};
+export type useFragmentWithOperationTrackerSuspenseTest2Query$data = {
+  readonly nodes: ?ReadonlyArray<?{
+    readonly __typename: string,
+    readonly $fragmentSpreads: useFragmentWithOperationTrackerSuspenseTest2Fragment$fragmentType,
+  }>,
+};
+export type useFragmentWithOperationTrackerSuspenseTest2Query = {
   response: useFragmentWithOperationTrackerSuspenseTest2Query$data,
   variables: useFragmentWithOperationTrackerSuspenseTest2Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -58,20 +57,20 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "useFragmentWithOperationTrackerSuspenseTest2Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "nodes",
         "plural": true,
         "selections": [
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "args": null,
             "kind": "FragmentSpread",
@@ -86,19 +85,19 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "useFragmentWithOperationTrackerSuspenseTest2Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "nodes",
         "plural": true,
         "selections": [
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -137,10 +136,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "06302c0cd4cc001ebbdab28a2512483d";
+  (node/*:: as any*/).hash = "06302c0cd4cc001ebbdab28a2512483d";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   useFragmentWithOperationTrackerSuspenseTest2Query$variables,
   useFragmentWithOperationTrackerSuspenseTest2Query$data,
 >*/);

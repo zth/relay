@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5dfdd138a8df8ffd8a59b6e5e458f8d9>>
+ * @generated SignedSource<<754c2c2beea0382f56c5cc68025c9886>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -23,22 +22,22 @@ import {required_name as userRequiredNameResolverType} from "../resolvers/UserRe
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userRequiredNameResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userRequiredNameResolverType: (
+(userRequiredNameResolverType as (
   rootKey: UserRequiredNameResolver$key,
   args: void,
   context: TestResolverContextType,
 ) => ?string);
-export type RelayReaderResolverTestRequiredWithParentQuery$variables = {||};
-export type RelayReaderResolverTestRequiredWithParentQuery$data = {|
-  +me: ?{|
-    +lastName: string,
-    +required_name: ?string,
-  |},
-|};
-export type RelayReaderResolverTestRequiredWithParentQuery = {|
+export type RelayReaderResolverTestRequiredWithParentQuery$variables = {};
+export type RelayReaderResolverTestRequiredWithParentQuery$data = {
+  readonly me: ?{
+    readonly lastName: string,
+    readonly required_name: ?string,
+  },
+};
+export type RelayReaderResolverTestRequiredWithParentQuery = {
   response: RelayReaderResolverTestRequiredWithParentQuery$data,
   variables: RelayReaderResolverTestRequiredWithParentQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -79,7 +78,7 @@ return {
           },
           {
             "kind": "RequiredField",
-            "field": (v0/*: any*/),
+            "field": (v0/*:: as any*/),
             "action": "LOG"
           }
         ],
@@ -124,7 +123,7 @@ return {
             "storageKey": null,
             "isOutputType": true
           },
-          (v0/*: any*/),
+          (v0/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -149,10 +148,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "a6891d63749d7987762c465731697f81";
+  (node/*:: as any*/).hash = "a6891d63749d7987762c465731697f81";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderResolverTestRequiredWithParentQuery$variables,
   RelayReaderResolverTestRequiredWithParentQuery$data,
 >*/);

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a97cc976d017f4c496816fe5ef281db5>>
+ * @generated SignedSource<<15af2594f1b567f304cad2c5779d9227>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,16 +18,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentNoInlineTest_nestedNoInlineParent$fragmentType } from "./RelayModernEnvironmentNoInlineTest_nestedNoInlineParent.graphql";
-export type RelayModernEnvironmentNoInlineTestNestedQuery$variables = {|
+export type RelayModernEnvironmentNoInlineTestNestedQuery$variables = {
   global_cond: boolean,
-|};
-export type RelayModernEnvironmentNoInlineTestNestedQuery$data = {|
-  +$fragmentSpreads: RelayModernEnvironmentNoInlineTest_nestedNoInlineParent$fragmentType,
-|};
-export type RelayModernEnvironmentNoInlineTestNestedQuery = {|
+};
+export type RelayModernEnvironmentNoInlineTestNestedQuery$data = {
+  readonly $fragmentSpreads: RelayModernEnvironmentNoInlineTest_nestedNoInlineParent$fragmentType,
+};
+export type RelayModernEnvironmentNoInlineTestNestedQuery = {
   response: RelayModernEnvironmentNoInlineTestNestedQuery$data,
   variables: RelayModernEnvironmentNoInlineTestNestedQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -41,7 +40,7 @@ var v0 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentNoInlineTestNestedQuery",
@@ -63,7 +62,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentNoInlineTestNestedQuery",
     "selections": [
@@ -92,10 +91,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "cecbcd722b6b7ecf0d3af5c336814547";
+  (node/*:: as any*/).hash = "cecbcd722b6b7ecf0d3af5c336814547";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentNoInlineTestNestedQuery$variables,
   RelayModernEnvironmentNoInlineTestNestedQuery$data,
 >*/);

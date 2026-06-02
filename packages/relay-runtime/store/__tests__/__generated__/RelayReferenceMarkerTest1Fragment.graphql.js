@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7553cba0c417e993e7e64a453e41508a>>
+ * @generated SignedSource<<48904ad6c555f2517957e74b3fdd4145>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,25 +19,25 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayReferenceMarkerTest1Fragment$fragmentType: FragmentType;
-export type RelayReferenceMarkerTest1Fragment$data = {|
-  +firstName: ?string,
-  +friends: ?{|
-    +edges: ?$ReadOnlyArray<?{|
-      +cursor: ?string,
-      +node: ?{|
-        +firstName: ?string,
-        +id: string,
-      |},
-    |}>,
-  |},
-  +profilePicture: ?{|
-    +uri: ?string,
-  |},
-  +$fragmentType: RelayReferenceMarkerTest1Fragment$fragmentType,
-|};
+export type RelayReferenceMarkerTest1Fragment$data = {
+  readonly firstName: ?string,
+  readonly friends: ?{
+    readonly edges: ?ReadonlyArray<?{
+      readonly cursor: ?string,
+      readonly node: ?{
+        readonly firstName: ?string,
+        readonly id: string,
+      },
+    }>,
+  },
+  readonly profilePicture: ?{
+    readonly uri: ?string,
+  },
+  readonly $fragmentType: RelayReferenceMarkerTest1Fragment$fragmentType,
+};
 export type RelayReferenceMarkerTest1Fragment$key = {
-  +$data?: RelayReferenceMarkerTest1Fragment$data,
-  +$fragmentSpreads: RelayReferenceMarkerTest1Fragment$fragmentType,
+  readonly $data?: RelayReferenceMarkerTest1Fragment$data,
+  readonly $fragmentSpreads: RelayReferenceMarkerTest1Fragment$fragmentType,
   ...
 };
 */
@@ -63,7 +62,7 @@ return {
   "metadata": null,
   "name": "RelayReferenceMarkerTest1Fragment",
   "selections": [
-    (v0/*: any*/),
+    (v0/*:: as any*/),
     {
       "alias": null,
       "args": [
@@ -108,7 +107,7 @@ return {
                   "name": "id",
                   "storageKey": null
                 },
-                (v0/*: any*/)
+                (v0/*:: as any*/)
               ],
               "storageKey": null
             }
@@ -149,10 +148,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "90914722103f39a1f621e4d4529be673";
+  (node/*:: as any*/).hash = "90914722103f39a1f621e4d4529be673";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayReferenceMarkerTest1Fragment$fragmentType,
   RelayReferenceMarkerTest1Fragment$data,
 >*/);

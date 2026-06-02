@@ -6,18 +6,25 @@
  */
 
 use std::fs;
+use std::path::Path;
+use std::path::PathBuf;
 use std::sync::Arc;
+use std::vec;
 
 use clap::Args;
 use clap::Subcommand;
+use common::Diagnostic;
+use common::DiagnosticsResult;
 use common::FeatureFlag;
 use common::Rollout;
 use common::RolloutRange;
 use log::info;
 use lsp_types::CodeActionOrCommand;
 use lsp_types::TextEdit;
-use lsp_types::Url;
-use relay_compiler::config::Config;
+use lsp_types::Uri;
+use relay_compiler::errors::BuildProjectError;
+use relay_compiler::errors::Error as CompilerError;
+use relay_compiler::errors::Result as CompilerResult;
 use relay_transforms::Programs;
 use relay_transforms::disallow_required_on_non_null_field;
 use relay_transforms::fragment_alias_directive;
@@ -29,6 +36,9 @@ pub enum AvailableCodemod {
 
     /// Removes @required directives from non-null fields within @throwOnFieldError fragments and operations.
     RemoveUnnecessaryRequiredDirectives,
+
+    /// Runs all Relay compiler transforms and fixes all fixable diagnostics
+    FixAll,
 }
 
 #[derive(Args, Debug, Clone)]
@@ -41,29 +51,86 @@ pub struct MarkDangerousConditionalFragmentSpreadsArgs {
 }
 
 pub async fn run_codemod(
-    programs: Vec<Arc<Programs>>,
-    config: Arc<Config>,
+    programs: CompilerResult<Vec<Arc<Programs>>>,
+    root_dir: PathBuf,
     codemod: AvailableCodemod,
+) -> Result<(), std::io::Error> {
+    match &codemod {
+        AvailableCodemod::MarkDangerousConditionalFragmentSpreads(opts) => {
+            run_codemod_impl(
+                programs.expect("Failed to build programs"),
+                root_dir,
+                |programs: &Arc<Programs>| {
+                    fragment_alias_directive(&programs.source, &opts.rollout_percentage).map(|_| ())
+                }, // Codemods don't return anything for OK,
+                format!("{codemod:?}").as_str(),
+            )
+            .await
+        }
+        AvailableCodemod::RemoveUnnecessaryRequiredDirectives => {
+            run_codemod_impl(
+                programs.expect("Failed to build programs"),
+                root_dir,
+                |programs: &Arc<Programs>| disallow_required_on_non_null_field(&programs.reader),
+                format!("{codemod:?}").as_str(),
+            )
+            .await
+        }
+        AvailableCodemod::FixAll => {
+            match programs {
+                Ok(_programs) => {
+                    // Noop
+                    Ok(())
+                }
+                Err(error) => {
+                    let diagnostics = as_diagnostics(error);
+                    fix_diagnostics("FixAll", &root_dir, &diagnostics)
+                }
+            }
+        }
+    }
+}
+
+fn as_diagnostics(error: CompilerError) -> Vec<Diagnostic> {
+    match error {
+        CompilerError::DiagnosticsError { errors } => errors,
+        CompilerError::BuildProjectsErrors { errors } => errors
+            .into_iter()
+            .flat_map(|e| match e {
+                BuildProjectError::ValidationErrors { errors, .. } => errors,
+                _ => vec![],
+            })
+            .collect(),
+        _ => vec![],
+    }
+}
+
+pub async fn run_codemod_impl(
+    programs: Vec<Arc<Programs>>,
+    root_dir: PathBuf,
+    f: impl Fn(&Arc<Programs>) -> DiagnosticsResult<()>,
+    codemod: &str,
 ) -> Result<(), std::io::Error> {
     let diagnostics = programs
         .iter()
-        .flat_map(|programs| match &codemod {
-            AvailableCodemod::MarkDangerousConditionalFragmentSpreads(opts) => {
-                match fragment_alias_directive(&programs.source, &opts.rollout_percentage) {
-                    Ok(_) => vec![],
-                    Err(e) => e,
-                }
-            }
-            AvailableCodemod::RemoveUnnecessaryRequiredDirectives => {
-                match disallow_required_on_non_null_field(&programs.reader) {
-                    Ok(_) => vec![],
-                    Err(e) => e,
-                }
+        .flat_map(|programs| {
+            let result = f(programs);
+            match result {
+                Ok(_) => vec![],
+                Err(e) => e,
             }
         })
         .collect::<Vec<_>>();
 
-    let actions = relay_lsp::diagnostics_to_code_actions(&config.root_dir, &diagnostics);
+    fix_diagnostics(codemod, &root_dir, &diagnostics)
+}
+
+pub fn fix_diagnostics(
+    codemod: &str,
+    root_dir: &Path,
+    diagnostics: &[Diagnostic],
+) -> Result<(), std::io::Error> {
+    let actions = relay_lsp::diagnostics_to_code_actions(root_dir, diagnostics);
 
     info!(
         "Codemod {:?} ran and found {} changes to make.",
@@ -79,14 +146,14 @@ fn apply_actions(actions: Vec<CodeActionOrCommand>) -> Result<(), std::io::Error
 
     // Collect all the changes into a map of file-to-list-of-changes
     for action in actions {
-        if let CodeActionOrCommand::CodeAction(code_action) = action {
-            if let Some(changes) = code_action.edit.unwrap().changes {
-                for (file, changes) in changes {
-                    collected_changes
-                        .entry(file)
-                        .or_insert_with(Vec::new)
-                        .extend(changes);
-                }
+        if let CodeActionOrCommand::CodeAction(code_action) = action
+            && let Some(changes) = code_action.edit.unwrap().changes
+        {
+            for (file, changes) in changes {
+                collected_changes
+                    .entry(file)
+                    .or_insert_with(Vec::new)
+                    .extend(changes);
             }
         }
     }
@@ -95,7 +162,7 @@ fn apply_actions(actions: Vec<CodeActionOrCommand>) -> Result<(), std::io::Error
         sort_changes(&file, &mut changes)?;
 
         // Read file into memory and apply changes
-        let file_contents: String = fs::read_to_string(file.path())?;
+        let file_contents: String = fs::read_to_string(file.path().as_str())?;
         let mut lines: Vec<String> = file_contents.lines().map(|s| s.to_string()).collect();
         for change in &changes {
             let line = change.range.start.line as usize;
@@ -108,36 +175,32 @@ fn apply_actions(actions: Vec<CodeActionOrCommand>) -> Result<(), std::io::Error
 
         // Write file back out
         let new_file_contents = lines.join("\n");
-        fs::write(file.path(), new_file_contents)?;
+        fs::write(file.path().as_str(), new_file_contents)?;
 
         info!("Applied {} changes to {}", changes.len(), file.path());
     }
     Ok(())
 }
 
-fn sort_changes(url: &Url, changes: &mut Vec<TextEdit>) -> Result<(), std::io::Error> {
+fn sort_changes(uri: &Uri, changes: &mut Vec<TextEdit>) -> Result<(), std::io::Error> {
     // Now we have all the changes for this file. Sort them by position within the file, end of file first
     // This way the changes are applied in reverse order, so we don't have to worry about altering the positions of the remaining changes
-    changes.sort_by(|a, b| b.range.start.cmp(&a.range.start));
+    changes.sort_by_key(|change| change.range.start);
 
     // Verify none of the changes overlap
     let mut prev_change: Option<&TextEdit> = None;
     for change in changes {
-        if let Some(prev_change) = prev_change {
-            if change.range.end.line > prev_change.range.start.line
+        if let Some(prev_change) = prev_change
+            && (change.range.end.line > prev_change.range.start.line
                 || (change.range.end.line == prev_change.range.start.line
-                    && change.range.end.character > prev_change.range.start.character)
-            {
-                return Err(std::io::Error::new(
-                    std::io::ErrorKind::Other,
-                    format!(
-                        "Codemod produced changes that overlap: File {}, changes: {:?} vs {:?}",
-                        url.path(),
-                        change,
-                        prev_change
-                    ),
-                ));
-            }
+                    && change.range.end.character > prev_change.range.start.character))
+        {
+            return Err(std::io::Error::other(format!(
+                "Codemod produced changes that overlap: File {}, changes: {:?} vs {:?}",
+                uri.path(),
+                change,
+                prev_change
+            )));
         }
         prev_change = Some(change);
     }

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<eba44d4516795cff3f896120e186aa56>>
+ * @generated SignedSource<<884d879440f95ff7fe38e02885675a0e>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,13 +19,13 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type ReactRelayTestMockerTest_me$fragmentType: FragmentType;
-export type ReactRelayTestMockerTest_me$data = {|
-  +name: ?string,
-  +$fragmentType: ReactRelayTestMockerTest_me$fragmentType,
-|};
+export type ReactRelayTestMockerTest_me$data = {
+  readonly name: ?string,
+  readonly $fragmentType: ReactRelayTestMockerTest_me$fragmentType,
+};
 export type ReactRelayTestMockerTest_me$key = {
-  +$data?: ReactRelayTestMockerTest_me$data,
-  +$fragmentSpreads: ReactRelayTestMockerTest_me$fragmentType,
+  readonly $data?: ReactRelayTestMockerTest_me$data,
+  readonly $fragmentSpreads: ReactRelayTestMockerTest_me$fragmentType,
   ...
 };
 */
@@ -50,10 +49,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "759aa7a952c8cbeb8b60e6ec8e032369";
+  (node/*:: as any*/).hash = "759aa7a952c8cbeb8b60e6ec8e032369";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   ReactRelayTestMockerTest_me$fragmentType,
   ReactRelayTestMockerTest_me$data,
 >*/);

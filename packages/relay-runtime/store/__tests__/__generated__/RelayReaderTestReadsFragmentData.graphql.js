@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1951905e0ace5467b1cb588ef12056e8>>
+ * @generated SignedSource<<a45ca07cc1d2e6392b1e47ffdf423033>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,26 +19,26 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayReaderTestReadsFragmentData$fragmentType: FragmentType;
-export type RelayReaderTestReadsFragmentData$data = {|
-  +firstName: ?string,
-  +friends: ?{|
-    +edges: ?$ReadOnlyArray<?{|
-      +cursor: ?string,
-      +node: ?{|
-        +firstName: ?string,
-        +id: string,
-      |},
-    |}>,
-  |},
-  +id: string,
-  +profilePicture: ?{|
-    +uri: ?string,
-  |},
-  +$fragmentType: RelayReaderTestReadsFragmentData$fragmentType,
-|};
+export type RelayReaderTestReadsFragmentData$data = {
+  readonly firstName: ?string,
+  readonly friends: ?{
+    readonly edges: ?ReadonlyArray<?{
+      readonly cursor: ?string,
+      readonly node: ?{
+        readonly firstName: ?string,
+        readonly id: string,
+      },
+    }>,
+  },
+  readonly id: string,
+  readonly profilePicture: ?{
+    readonly uri: ?string,
+  },
+  readonly $fragmentType: RelayReaderTestReadsFragmentData$fragmentType,
+};
 export type RelayReaderTestReadsFragmentData$key = {
-  +$data?: RelayReaderTestReadsFragmentData$data,
-  +$fragmentSpreads: RelayReaderTestReadsFragmentData$fragmentType,
+  readonly $data?: RelayReaderTestReadsFragmentData$data,
+  readonly $fragmentSpreads: RelayReaderTestReadsFragmentData$fragmentType,
   ...
 };
 */
@@ -71,8 +70,8 @@ return {
   "metadata": null,
   "name": "RelayReaderTestReadsFragmentData",
   "selections": [
-    (v0/*: any*/),
-    (v1/*: any*/),
+    (v0/*:: as any*/),
+    (v1/*:: as any*/),
     {
       "alias": null,
       "args": [
@@ -110,8 +109,8 @@ return {
               "name": "node",
               "plural": false,
               "selections": [
-                (v0/*: any*/),
-                (v1/*: any*/)
+                (v0/*:: as any*/),
+                (v1/*:: as any*/)
               ],
               "storageKey": null
             }
@@ -152,10 +151,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "92a7ad8bc63727cda5956b23cf6d231f";
+  (node/*:: as any*/).hash = "92a7ad8bc63727cda5956b23cf6d231f";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayReaderTestReadsFragmentData$fragmentType,
   RelayReaderTestReadsFragmentData$data,
 >*/);

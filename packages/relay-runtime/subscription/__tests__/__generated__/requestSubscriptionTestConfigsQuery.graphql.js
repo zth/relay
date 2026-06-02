@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1d5ff18113dbd4491b803b7572aa4da6>>
+ * @generated SignedSource<<48068904922e883bc6baf89ba4ab63a9>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,22 +17,22 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type requestSubscriptionTestConfigsQuery$variables = {||};
-export type requestSubscriptionTestConfigsQuery$data = {|
-  +viewer: ?{|
-    +configs: ?{|
-      +edges: ?$ReadOnlyArray<?{|
-        +node: ?{|
-          +name: ?string,
-        |},
-      |}>,
-    |},
-  |},
-|};
-export type requestSubscriptionTestConfigsQuery = {|
+export type requestSubscriptionTestConfigsQuery$variables = {};
+export type requestSubscriptionTestConfigsQuery$data = {
+  readonly viewer: ?{
+    readonly configs: ?{
+      readonly edges: ?ReadonlyArray<?{
+        readonly node: ?{
+          readonly name: ?string,
+        },
+      }>,
+    },
+  },
+};
+export type requestSubscriptionTestConfigsQuery = {
   response: requestSubscriptionTestConfigsQuery$data,
   variables: requestSubscriptionTestConfigsQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -96,7 +95,7 @@ return {
     "kind": "Fragment",
     "metadata": null,
     "name": "requestSubscriptionTestConfigsQuery",
-    "selections": (v0/*: any*/),
+    "selections": (v0/*:: as any*/),
     "type": "Query",
     "abstractKey": null
   },
@@ -105,7 +104,7 @@ return {
     "argumentDefinitions": [],
     "kind": "Operation",
     "name": "requestSubscriptionTestConfigsQuery",
-    "selections": (v0/*: any*/)
+    "selections": (v0/*:: as any*/)
   },
   "params": {
     "cacheID": "2e8459a1348e993fdb5ffe578b057275",
@@ -119,10 +118,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "16ca9c7a54273df2636b21f815941e23";
+  (node/*:: as any*/).hash = "16ca9c7a54273df2636b21f815941e23";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   requestSubscriptionTestConfigsQuery$variables,
   requestSubscriptionTestConfigsQuery$data,
 >*/);

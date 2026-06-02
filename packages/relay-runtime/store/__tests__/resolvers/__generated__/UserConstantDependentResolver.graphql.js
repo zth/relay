@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c6da0d2b3414feac05aacff9035bf12d>>
+ * @generated SignedSource<<4db489a191a6b515dc8ffbfef5ccd373>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,19 +23,19 @@ import {constant as userConstantResolverType} from "../UserConstantResolver.js";
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userConstantResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userConstantResolverType: (
+(userConstantResolverType as (
   rootKey: UserConstantResolver$key,
   args: void,
   context: TestResolverContextType,
 ) => ?number);
 declare export opaque type UserConstantDependentResolver$fragmentType: FragmentType;
-export type UserConstantDependentResolver$data = {|
-  +constant: ?number,
-  +$fragmentType: UserConstantDependentResolver$fragmentType,
-|};
+export type UserConstantDependentResolver$data = {
+  readonly constant: ?number,
+  readonly $fragmentType: UserConstantDependentResolver$fragmentType,
+};
 export type UserConstantDependentResolver$key = {
-  +$data?: UserConstantDependentResolver$data,
-  +$fragmentSpreads: UserConstantDependentResolver$fragmentType,
+  readonly $data?: UserConstantDependentResolver$data,
+  readonly $fragmentSpreads: UserConstantDependentResolver$fragmentType,
   ...
 };
 */
@@ -66,10 +65,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "24ebf834d1a139bc177fc287cdf0dfd2";
+  (node/*:: as any*/).hash = "24ebf834d1a139bc177fc287cdf0dfd2";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   UserConstantDependentResolver$fragmentType,
   UserConstantDependentResolver$data,
 >*/);

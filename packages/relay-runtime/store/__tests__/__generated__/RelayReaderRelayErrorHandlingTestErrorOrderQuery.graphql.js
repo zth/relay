@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2e1d56f339c3fc473fcf40d268b97df2>>
+ * @generated SignedSource<<52b8597346a3c71912246fab996617e8>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,22 +17,22 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayReaderRelayErrorHandlingTestErrorOrderQuery$variables = {||};
-export type RelayReaderRelayErrorHandlingTestErrorOrderQuery$data = {|
-  +also_me: ?{|
-    +name: ?string,
-    +nearest_neighbor: {|
-      +name: ?string,
-    |},
-  |},
-  +me: ?{|
-    +name: ?string,
-  |},
-|};
-export type RelayReaderRelayErrorHandlingTestErrorOrderQuery = {|
+export type RelayReaderRelayErrorHandlingTestErrorOrderQuery$variables = {};
+export type RelayReaderRelayErrorHandlingTestErrorOrderQuery$data = {
+  readonly also_me: ?{
+    readonly name: ?string,
+    readonly nearest_neighbor: {
+      readonly name: ?string,
+    },
+  },
+  readonly me: ?{
+    readonly name: ?string,
+  },
+};
+export type RelayReaderRelayErrorHandlingTestErrorOrderQuery = {
   response: RelayReaderRelayErrorHandlingTestErrorOrderQuery$data,
   variables: RelayReaderRelayErrorHandlingTestErrorOrderQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -45,7 +44,7 @@ var v0 = {
   "storageKey": null
 },
 v1 = [
-  (v0/*: any*/)
+  (v0/*:: as any*/)
 ],
 v2 = {
   "alias": null,
@@ -55,8 +54,8 @@ v2 = {
   "storageKey": null
 },
 v3 = [
-  (v0/*: any*/),
-  (v2/*: any*/)
+  (v0/*:: as any*/),
+  (v2/*:: as any*/)
 ];
 return {
   "fragment": {
@@ -75,7 +74,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
+          (v0/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -83,7 +82,7 @@ return {
             "kind": "LinkedField",
             "name": "nearest_neighbor",
             "plural": false,
-            "selections": (v1/*: any*/),
+            "selections": (v1/*:: as any*/),
             "storageKey": null
           }
         ],
@@ -96,7 +95,7 @@ return {
         "kind": "LinkedField",
         "name": "me",
         "plural": false,
-        "selections": (v1/*: any*/),
+        "selections": (v1/*:: as any*/),
         "storageKey": null
       }
     ],
@@ -117,7 +116,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
+          (v0/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -125,10 +124,10 @@ return {
             "kind": "LinkedField",
             "name": "nearest_neighbor",
             "plural": false,
-            "selections": (v3/*: any*/),
+            "selections": (v3/*:: as any*/),
             "storageKey": null
           },
-          (v2/*: any*/)
+          (v2/*:: as any*/)
         ],
         "storageKey": null
       },
@@ -139,7 +138,7 @@ return {
         "kind": "LinkedField",
         "name": "me",
         "plural": false,
-        "selections": (v3/*: any*/),
+        "selections": (v3/*:: as any*/),
         "storageKey": null
       }
     ]
@@ -156,10 +155,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "d5a7d5606148861a51f3e0ff315a68b3";
+  (node/*:: as any*/).hash = "d5a7d5606148861a51f3e0ff315a68b3";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderRelayErrorHandlingTestErrorOrderQuery$variables,
   RelayReaderRelayErrorHandlingTestErrorOrderQuery$data,
 >*/);

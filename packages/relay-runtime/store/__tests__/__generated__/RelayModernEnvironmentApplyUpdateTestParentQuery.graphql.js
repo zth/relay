@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<98b5ce178cd26aa8044f4d3040f3d9e6>>
+ * @generated SignedSource<<aabb0635540771d1bd8160336a45b383>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,17 +17,17 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayModernEnvironmentApplyUpdateTestParentQuery$variables = {||};
-export type RelayModernEnvironmentApplyUpdateTestParentQuery$data = {|
-  +me: ?{|
-    +id: string,
-    +name: ?string,
-  |},
-|};
-export type RelayModernEnvironmentApplyUpdateTestParentQuery = {|
+export type RelayModernEnvironmentApplyUpdateTestParentQuery$variables = {};
+export type RelayModernEnvironmentApplyUpdateTestParentQuery$data = {
+  readonly me: ?{
+    readonly id: string,
+    readonly name: ?string,
+  },
+};
+export type RelayModernEnvironmentApplyUpdateTestParentQuery = {
   response: RelayModernEnvironmentApplyUpdateTestParentQuery$data,
   variables: RelayModernEnvironmentApplyUpdateTestParentQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -65,7 +64,7 @@ return {
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentApplyUpdateTestParentQuery",
-    "selections": (v0/*: any*/),
+    "selections": (v0/*:: as any*/),
     "type": "Query",
     "abstractKey": null
   },
@@ -74,7 +73,7 @@ return {
     "argumentDefinitions": [],
     "kind": "Operation",
     "name": "RelayModernEnvironmentApplyUpdateTestParentQuery",
-    "selections": (v0/*: any*/)
+    "selections": (v0/*:: as any*/)
   },
   "params": {
     "cacheID": "f4b45974ff188d52db320fa51dbd4f28",
@@ -88,10 +87,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "8448bd921a02af1b82ac602808b5eb14";
+  (node/*:: as any*/).hash = "8448bd921a02af1b82ac602808b5eb14";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentApplyUpdateTestParentQuery$variables,
   RelayModernEnvironmentApplyUpdateTestParentQuery$data,
 >*/);

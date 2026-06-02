@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<81ae310aa7ae3938254003ee9b318272>>
+ * @generated SignedSource<<9e73e5423a3a508d51c1b3286c1ebe04>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,18 +19,28 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentTypeRefinementTestClientInterface$fragmentType: FragmentType;
-export type RelayModernEnvironmentTypeRefinementTestClientInterface$data = {|
-  +description: ?string,
-  +$fragmentType: RelayModernEnvironmentTypeRefinementTestClientInterface$fragmentType,
-|};
+export type RelayModernEnvironmentTypeRefinementTestClientInterface$data = {
+  readonly description: ?string,
+  readonly $fragmentType: RelayModernEnvironmentTypeRefinementTestClientInterface$fragmentType,
+};
 export type RelayModernEnvironmentTypeRefinementTestClientInterface$key = {
-  +$data?: RelayModernEnvironmentTypeRefinementTestClientInterface$data,
-  +$fragmentSpreads: RelayModernEnvironmentTypeRefinementTestClientInterface$fragmentType,
+  readonly $data?: RelayModernEnvironmentTypeRefinementTestClientInterface$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentTypeRefinementTestClientInterface$fragmentType,
   ...
 };
 */
 
-var node/*: ReaderFragment*/ = {
+var node/*: ReaderFragment*/ = (function(){
+var v0 = [
+  {
+    "alias": null,
+    "args": null,
+    "kind": "ScalarField",
+    "name": "description",
+    "storageKey": null
+  }
+];
+return {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
@@ -41,11 +50,16 @@ var node/*: ReaderFragment*/ = {
       "kind": "ClientExtension",
       "selections": [
         {
-          "alias": null,
-          "args": null,
-          "kind": "ScalarField",
-          "name": "description",
-          "storageKey": null
+          "kind": "InlineFragment",
+          "selections": (v0/*:: as any*/),
+          "type": "ClientTypeImplementingClientInterface",
+          "abstractKey": null
+        },
+        {
+          "kind": "InlineFragment",
+          "selections": (v0/*:: as any*/),
+          "type": "OtherClientTypeImplementingClientInterface",
+          "abstractKey": null
         }
       ]
     }
@@ -53,12 +67,13 @@ var node/*: ReaderFragment*/ = {
   "type": "ClientInterface",
   "abstractKey": "__isClientInterface"
 };
+})();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "287f546a52c69fb148055d6382052c98";
+  (node/*:: as any*/).hash = "287f546a52c69fb148055d6382052c98";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayModernEnvironmentTypeRefinementTestClientInterface$fragmentType,
   RelayModernEnvironmentTypeRefinementTestClientInterface$data,
 >*/);

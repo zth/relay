@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8234a98afc2ebec72a3b7912ec081f8c>>
+ * @generated SignedSource<<3dc0e3972cc49f2131b24ce35a04c743>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -23,25 +22,25 @@ import {many_todos as queryManyTodosResolverType} from "../../../relay-runtime/s
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryManyTodosResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryManyTodosResolverType: (
-  args: {|
-    todo_ids: $ReadOnlyArray<?string>,
-  |},
+(queryManyTodosResolverType as (
+  args: {
+    todo_ids: ReadonlyArray<?string>,
+  },
   context: TestResolverContextType,
-) => ?$ReadOnlyArray<?Query__many_todos$normalization>);
+) => ?ReadonlyArray<?Query__many_todos$normalization>);
 import type { Query__many_todos$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__many_todos$normalization.graphql";
-export type RelayResolversWithOutputTypeTestManyTodosQuery$variables = {|
-  todos: $ReadOnlyArray<?string>,
-|};
-export type RelayResolversWithOutputTypeTestManyTodosQuery$data = {|
-  +many_todos: ?$ReadOnlyArray<?{|
-    +$fragmentSpreads: RelayResolversWithOutputTypeTestFragment$fragmentType,
-  |}>,
-|};
-export type RelayResolversWithOutputTypeTestManyTodosQuery = {|
+export type RelayResolversWithOutputTypeTestManyTodosQuery$variables = {
+  todos: ReadonlyArray<?string>,
+};
+export type RelayResolversWithOutputTypeTestManyTodosQuery$data = {
+  readonly many_todos: ?ReadonlyArray<?{
+    readonly $fragmentSpreads: RelayResolversWithOutputTypeTestFragment$fragmentType,
+  }>,
+};
+export type RelayResolversWithOutputTypeTestManyTodosQuery = {
   response: RelayResolversWithOutputTypeTestManyTodosQuery$data,
   variables: RelayResolversWithOutputTypeTestManyTodosQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){
@@ -89,7 +88,7 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": {
       "hasClientEdges": true
@@ -100,9 +99,10 @@ return {
         "kind": "ClientEdgeToClientObject",
         "concreteType": "Todo",
         "modelResolvers": null,
+        "serverObjectOperations": null,
         "backingField": {
           "alias": null,
-          "args": (v1/*: any*/),
+          "args": (v1/*:: as any*/),
           "fragment": null,
           "kind": "RelayResolver",
           "name": "many_todos",
@@ -117,7 +117,7 @@ return {
         },
         "linkedField": {
           "alias": null,
-          "args": (v1/*: any*/),
+          "args": (v1/*:: as any*/),
           "concreteType": "Todo",
           "kind": "LinkedField",
           "name": "many_todos",
@@ -138,7 +138,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayResolversWithOutputTypeTestManyTodosQuery",
     "selections": [
@@ -146,7 +146,7 @@ return {
         "kind": "ClientEdgeToClientObject",
         "backingField": {
           "name": "many_todos",
-          "args": (v1/*: any*/),
+          "args": (v1/*:: as any*/),
           "fragment": null,
           "kind": "RelayResolver",
           "storageKey": null,
@@ -154,7 +154,7 @@ return {
         },
         "linkedField": {
           "alias": null,
-          "args": (v1/*: any*/),
+          "args": (v1/*:: as any*/),
           "concreteType": "Todo",
           "kind": "LinkedField",
           "name": "many_todos",
@@ -165,7 +165,7 @@ return {
               "backingField": {
                 "name": "text",
                 "args": null,
-                "fragment": (v2/*: any*/),
+                "fragment": (v2/*:: as any*/),
                 "kind": "RelayResolver",
                 "storageKey": null,
                 "isOutputType": true
@@ -242,7 +242,7 @@ return {
             {
               "name": "complete",
               "args": null,
-              "fragment": (v2/*: any*/),
+              "fragment": (v2/*:: as any*/),
               "kind": "RelayResolver",
               "storageKey": null,
               "isOutputType": true
@@ -265,10 +265,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "7bdedb4f9812c93f894c879d33149a2d";
+  (node/*:: as any*/).hash = "7bdedb4f9812c93f894c879d33149a2d";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   RelayResolversWithOutputTypeTestManyTodosQuery$variables,
   RelayResolversWithOutputTypeTestManyTodosQuery$data,
 >*/);

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6141e41c7352396659fb429e6a1d15e1>>
+ * @generated SignedSource<<1114f222b20f6ef4b09be72a114cfa92>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,20 +18,20 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedFragment$fragmentType } from "./RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedFragment.graphql";
-export type RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedQuery$variables = {|
+export type RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedQuery$variables = {
   after?: ?string,
   enableStream: boolean,
-|};
-export type RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedQuery$data = {|
-  +viewer: ?{|
-    +__typename: "Viewer",
-    +$fragmentSpreads: RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedFragment$fragmentType,
-  |},
-|};
-export type RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedQuery = {|
+};
+export type RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedQuery$data = {
+  readonly viewer: ?{
+    readonly __typename: "Viewer",
+    readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedFragment$fragmentType,
+  },
+};
+export type RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedQuery = {
   response: RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedQuery$data,
   variables: RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -75,8 +74,8 @@ v4 = {
 return {
   "fragment": {
     "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/)
+      (v0/*:: as any*/),
+      (v1/*:: as any*/)
     ],
     "kind": "Fragment",
     "metadata": null,
@@ -90,7 +89,7 @@ return {
         "name": "viewer",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "kind": "Defer",
             "selections": [
@@ -111,8 +110,8 @@ return {
   "kind": "Request",
   "operation": {
     "argumentDefinitions": [
-      (v1/*: any*/),
-      (v0/*: any*/)
+      (v1/*:: as any*/),
+      (v0/*:: as any*/)
     ],
     "kind": "Operation",
     "name": "RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedQuery",
@@ -125,7 +124,7 @@ return {
         "name": "viewer",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "if": null,
             "kind": "Defer",
@@ -133,7 +132,7 @@ return {
             "selections": [
               {
                 "alias": null,
-                "args": (v3/*: any*/),
+                "args": (v3/*:: as any*/),
                 "concreteType": "NewsFeedConnection",
                 "kind": "LinkedField",
                 "name": "newsFeed",
@@ -167,8 +166,8 @@ return {
                             "name": "node",
                             "plural": false,
                             "selections": [
-                              (v2/*: any*/),
-                              (v4/*: any*/),
+                              (v2/*:: as any*/),
+                              (v4/*:: as any*/),
                               {
                                 "alias": null,
                                 "args": null,
@@ -177,7 +176,7 @@ return {
                                 "name": "feedback",
                                 "plural": false,
                                 "selections": [
-                                  (v4/*: any*/),
+                                  (v4/*:: as any*/),
                                   {
                                     "alias": null,
                                     "args": null,
@@ -186,8 +185,8 @@ return {
                                     "name": "actors",
                                     "plural": true,
                                     "selections": [
-                                      (v2/*: any*/),
-                                      (v4/*: any*/),
+                                      (v2/*:: as any*/),
+                                      (v4/*:: as any*/),
                                       {
                                         "alias": null,
                                         "args": null,
@@ -248,7 +247,7 @@ return {
               },
               {
                 "alias": null,
-                "args": (v3/*: any*/),
+                "args": (v3/*:: as any*/),
                 "filters": null,
                 "handle": "connection",
                 "key": "RelayModernEnvironment_newsFeed",
@@ -274,10 +273,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "da3bd0b60a87ce2c3aee53776f2f43bd";
+  (node/*:: as any*/).hash = "da3bd0b60a87ce2c3aee53776f2f43bd";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedQuery$variables,
   RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedQuery$data,
 >*/);

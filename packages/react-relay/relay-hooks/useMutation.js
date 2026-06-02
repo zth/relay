@@ -24,14 +24,13 @@ import type {
   Variables,
 } from 'relay-runtime';
 
-const useIsMountedRef = require('./useIsMountedRef');
 const useRelayEnvironment = require('./useRelayEnvironment');
 const React = require('react');
 const {commitMutation: defaultCommitMutation} = require('relay-runtime');
 
 const {useState, useEffect, useRef, useCallback} = React;
 
-export type UseMutationConfig<TMutation: MutationParameters> = {
+export type UseMutationConfig<TMutation extends MutationParameters> = {
   configs?: Array<DeclarativeMutationConfig>,
   onError?: ?(error: Error) => void,
   onCompleted?: ?(
@@ -41,7 +40,7 @@ export type UseMutationConfig<TMutation: MutationParameters> = {
   onNext?: ?() => void,
   onUnsubscribe?: ?() => void,
   optimisticResponse?: {
-    +rawResponse?: {...},
+    readonly rawResponse?: {...},
     ...TMutation,
     ...
   }['rawResponse'],
@@ -64,7 +63,7 @@ type UseMutationConfigInternal<TVariables, TData, TRawResponse> = {
   variables: TVariables,
 };
 
-hook useMutation<TVariables: Variables, TData, TRawResponse = {...}>(
+hook useMutation<TVariables extends Variables, TData, TRawResponse = {...}>(
   mutation: Mutation<TVariables, TData, TRawResponse>,
   commitMutationFn?: (
     environment: IEnvironment,
@@ -75,7 +74,6 @@ hook useMutation<TVariables: Variables, TData, TRawResponse = {...}>(
   boolean,
 ] {
   const environment = useRelayEnvironment();
-  const isMountedRef = useIsMountedRef();
   const environmentRef = useRef(environment);
   const mutationRef = useRef(mutation);
   const inFlightMutationsRef = useRef(new Set<Disposable>());
@@ -88,12 +86,10 @@ hook useMutation<TVariables: Variables, TData, TRawResponse = {...}>(
         mutationRef.current === mutation
       ) {
         inFlightMutationsRef.current.delete(disposable);
-        if (isMountedRef.current) {
-          setMutationInFlight(inFlightMutationsRef.current.size > 0);
-        }
+        setMutationInFlight(inFlightMutationsRef.current.size > 0);
       }
     },
-    [environment, isMountedRef, mutation],
+    [environment, mutation],
   );
 
   useEffect(() => {
@@ -102,19 +98,15 @@ hook useMutation<TVariables: Variables, TData, TRawResponse = {...}>(
       mutationRef.current !== mutation
     ) {
       inFlightMutationsRef.current = new Set();
-      if (isMountedRef.current) {
-        setMutationInFlight(false);
-      }
+      setMutationInFlight(false);
       environmentRef.current = environment;
       mutationRef.current = mutation;
     }
-  }, [environment, isMountedRef, mutation]);
+  }, [environment, mutation]);
 
   const commit = useCallback(
     (config: UseMutationConfigInternal<TVariables, TData, TRawResponse>) => {
-      if (isMountedRef.current) {
-        setMutationInFlight(true);
-      }
+      setMutationInFlight(true);
       const disposable: Disposable = commitMutationFn(environment, {
         ...config,
         mutation,
@@ -137,7 +129,7 @@ hook useMutation<TVariables: Variables, TData, TRawResponse = {...}>(
       inFlightMutationsRef.current.add(disposable);
       return disposable;
     },
-    [cleanup, commitMutationFn, environment, isMountedRef, mutation],
+    [cleanup, commitMutationFn, environment, mutation],
   );
 
   return [commit, isMutationInFlight];

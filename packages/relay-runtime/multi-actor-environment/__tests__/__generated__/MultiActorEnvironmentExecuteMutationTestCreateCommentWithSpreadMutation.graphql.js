@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c67d92057e76ef7da15329313e787d65>>
+ * @generated SignedSource<<466c36b51a66379518f7c9b836f368f3>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,30 +18,30 @@
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
 import type { MultiActorEnvironmentExecuteMutationTestCommentFragment$fragmentType } from "./MultiActorEnvironmentExecuteMutationTestCommentFragment.graphql";
-export type CommentCreateInput = {|
+export type CommentCreateInput = {
   feedback?: ?CommentfeedbackFeedback,
   feedbackId?: ?string,
-|};
-export type CommentfeedbackFeedback = {|
+};
+export type CommentfeedbackFeedback = {
   comment?: ?FeedbackcommentComment,
-|};
-export type FeedbackcommentComment = {|
+};
+export type FeedbackcommentComment = {
   feedback?: ?CommentfeedbackFeedback,
-|};
-export type MultiActorEnvironmentExecuteMutationTestCreateCommentWithSpreadMutation$variables = {|
+};
+export type MultiActorEnvironmentExecuteMutationTestCreateCommentWithSpreadMutation$variables = {
   input: CommentCreateInput,
-|};
-export type MultiActorEnvironmentExecuteMutationTestCreateCommentWithSpreadMutation$data = {|
-  +commentCreate: ?{|
-    +comment: ?{|
-      +$fragmentSpreads: MultiActorEnvironmentExecuteMutationTestCommentFragment$fragmentType,
-    |},
-  |},
-|};
-export type MultiActorEnvironmentExecuteMutationTestCreateCommentWithSpreadMutation = {|
+};
+export type MultiActorEnvironmentExecuteMutationTestCreateCommentWithSpreadMutation$data = {
+  readonly commentCreate: ?{
+    readonly comment: ?{
+      readonly $fragmentSpreads: MultiActorEnvironmentExecuteMutationTestCommentFragment$fragmentType,
+    },
+  },
+};
+export type MultiActorEnvironmentExecuteMutationTestCreateCommentWithSpreadMutation = {
   response: MultiActorEnvironmentExecuteMutationTestCreateCommentWithSpreadMutation$data,
   variables: MultiActorEnvironmentExecuteMutationTestCreateCommentWithSpreadMutation$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -62,14 +61,14 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "MultiActorEnvironmentExecuteMutationTestCreateCommentWithSpreadMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "CommentCreateResponsePayload",
         "kind": "LinkedField",
         "name": "commentCreate",
@@ -100,13 +99,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "MultiActorEnvironmentExecuteMutationTestCreateCommentWithSpreadMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "CommentCreateResponsePayload",
         "kind": "LinkedField",
         "name": "commentCreate",
@@ -165,10 +164,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "8b1a1a620a023c1d33529555155512e7";
+  (node/*:: as any*/).hash = "8b1a1a620a023c1d33529555155512e7";
 }
 
-module.exports = ((node/*: any*/)/*: Mutation<
+module.exports = ((node/*:: as any*/)/*:: as Mutation<
   MultiActorEnvironmentExecuteMutationTestCreateCommentWithSpreadMutation$variables,
   MultiActorEnvironmentExecuteMutationTestCreateCommentWithSpreadMutation$data,
 >*/);

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<47f76140deeacf45ee24386e211a2d9b>>
+ * @generated SignedSource<<4602531a631833f910da63bf61b2e83b>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -23,21 +22,21 @@ import {name_passthrough as userNamePassthroughResolverType} from "../../../rela
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userNamePassthroughResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userNamePassthroughResolverType: (
+(userNamePassthroughResolverType as (
   rootKey: UserNamePassthroughResolver$key,
   args: void,
   context: TestResolverContextType,
 ) => ?string);
-export type RelayMockPayloadGeneratorTest57Query$variables = {||};
-export type RelayMockPayloadGeneratorTest57Query$data = {|
-  +me: ?{|
-    +name_passthrough: ?string,
-  |},
-|};
-export type RelayMockPayloadGeneratorTest57Query = {|
+export type RelayMockPayloadGeneratorTest57Query$variables = {};
+export type RelayMockPayloadGeneratorTest57Query$data = {
+  readonly me: ?{
+    readonly name_passthrough: ?string,
+  },
+};
+export type RelayMockPayloadGeneratorTest57Query = {
   response: RelayMockPayloadGeneratorTest57Query$data,
   variables: RelayMockPayloadGeneratorTest57Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {
@@ -154,10 +153,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "6d62f875a372c1076a33a60494cd44dd";
+  (node/*:: as any*/).hash = "6d62f875a372c1076a33a60494cd44dd";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayMockPayloadGeneratorTest57Query$variables,
   RelayMockPayloadGeneratorTest57Query$data,
 >*/);

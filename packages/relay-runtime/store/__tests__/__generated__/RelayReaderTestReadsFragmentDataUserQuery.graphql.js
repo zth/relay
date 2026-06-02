@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<dbf3cd1b935a658a54e5cd83adc7a9be>>
+ * @generated SignedSource<<bf8e2dcc8246e81859db529497a7cf8e>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,18 +18,18 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayReaderTestReadsFragmentData$fragmentType } from "./RelayReaderTestReadsFragmentData.graphql";
-export type RelayReaderTestReadsFragmentDataUserQuery$variables = {|
-  size?: ?$ReadOnlyArray<?number>,
-|};
-export type RelayReaderTestReadsFragmentDataUserQuery$data = {|
-  +me: ?{|
-    +$fragmentSpreads: RelayReaderTestReadsFragmentData$fragmentType,
-  |},
-|};
-export type RelayReaderTestReadsFragmentDataUserQuery = {|
+export type RelayReaderTestReadsFragmentDataUserQuery$variables = {
+  size?: ?ReadonlyArray<?number>,
+};
+export type RelayReaderTestReadsFragmentDataUserQuery$data = {
+  readonly me: ?{
+    readonly $fragmentSpreads: RelayReaderTestReadsFragmentData$fragmentType,
+  },
+};
+export type RelayReaderTestReadsFragmentDataUserQuery = {
   response: RelayReaderTestReadsFragmentDataUserQuery$data,
   variables: RelayReaderTestReadsFragmentDataUserQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -64,7 +63,7 @@ v3 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayReaderTestReadsFragmentDataUserQuery",
@@ -78,7 +77,7 @@ return {
         "plural": false,
         "selections": [
           {
-            "args": (v1/*: any*/),
+            "args": (v1/*:: as any*/),
             "kind": "FragmentSpread",
             "name": "RelayReaderTestReadsFragmentData"
           }
@@ -91,7 +90,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayReaderTestReadsFragmentDataUserQuery",
     "selections": [
@@ -103,8 +102,8 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
-          (v3/*: any*/),
+          (v2/*:: as any*/),
+          (v3/*:: as any*/),
           {
             "alias": null,
             "args": [
@@ -142,8 +141,8 @@ return {
                     "name": "node",
                     "plural": false,
                     "selections": [
-                      (v2/*: any*/),
-                      (v3/*: any*/)
+                      (v2/*:: as any*/),
+                      (v3/*:: as any*/)
                     ],
                     "storageKey": null
                   }
@@ -155,7 +154,7 @@ return {
           },
           {
             "alias": null,
-            "args": (v1/*: any*/),
+            "args": (v1/*:: as any*/),
             "concreteType": "Image",
             "kind": "LinkedField",
             "name": "profilePicture",
@@ -188,10 +187,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "fb223466873df61d9c49e0d1eccba9e9";
+  (node/*:: as any*/).hash = "fb223466873df61d9c49e0d1eccba9e9";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderTestReadsFragmentDataUserQuery$variables,
   RelayReaderTestReadsFragmentDataUserQuery$data,
 >*/);

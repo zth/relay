@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<02db49047ceffa7e69f41af4f27ac003>>
+ * @generated SignedSource<<d77534d49dc3be7824cc65f1cdbe67a6>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,16 +18,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { FragmentResourceTest4Fragment$fragmentType } from "./FragmentResourceTest4Fragment.graphql";
-export type FragmentResourceTest4Query$variables = {|
+export type FragmentResourceTest4Query$variables = {
   id: string,
-|};
-export type FragmentResourceTest4Query$data = {|
-  +$fragmentSpreads: FragmentResourceTest4Fragment$fragmentType,
-|};
-export type FragmentResourceTest4Query = {|
+};
+export type FragmentResourceTest4Query$data = {
+  readonly $fragmentSpreads: FragmentResourceTest4Fragment$fragmentType,
+};
+export type FragmentResourceTest4Query = {
   response: FragmentResourceTest4Query$data,
   variables: FragmentResourceTest4Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -41,7 +40,7 @@ var v0 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "FragmentResourceTest4Query",
@@ -57,7 +56,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "FragmentResourceTest4Query",
     "selections": [
@@ -113,10 +112,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "d8eb85a11fd17ca4b97b9b170e2184db";
+  (node/*:: as any*/).hash = "d8eb85a11fd17ca4b97b9b170e2184db";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   FragmentResourceTest4Query$variables,
   FragmentResourceTest4Query$data,
 >*/);

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0f51d603b9eb4efd57fa5e2131bea477>>
+ * @generated SignedSource<<1623d4f79062cd63e3fbe67463d65fac>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -23,21 +22,21 @@ import {name_passthrough as userNamePassthroughResolverType} from "../resolvers/
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userNamePassthroughResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userNamePassthroughResolverType: (
+(userNamePassthroughResolverType as (
   rootKey: UserNamePassthroughResolver$key,
   args: void,
   context: TestResolverContextType,
 ) => ?string);
-export type RelayReaderResolverTest8Query$variables = {||};
-export type RelayReaderResolverTest8Query$data = {|
-  +me: ?{|
-    +name_passthrough: $NonMaybeType<?string>,
-  |},
-|};
-export type RelayReaderResolverTest8Query = {|
+export type RelayReaderResolverTest8Query$variables = {};
+export type RelayReaderResolverTest8Query$data = {
+  readonly me: ?{
+    readonly name_passthrough: NonNullable<?string>,
+  },
+};
+export type RelayReaderResolverTest8Query = {
   response: RelayReaderResolverTest8Query$data,
   variables: RelayReaderResolverTest8Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {
@@ -137,10 +136,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "29f98fc496994fd02e276e0c65235467";
+  (node/*:: as any*/).hash = "29f98fc496994fd02e276e0c65235467";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderResolverTest8Query$variables,
   RelayReaderResolverTest8Query$data,
 >*/);

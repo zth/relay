@@ -22,11 +22,11 @@ beforeEach(() => {
 });
 
 type Observer = {
-  +complete: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
-  +error: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
-  +next: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
-  +start: JestMockFn<$ReadOnlyArray<Subscription>, mixed>,
-  +unsubscribe: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
+  readonly complete: JestMockFn<ReadonlyArray<unknown>, unknown>,
+  readonly error: JestMockFn<ReadonlyArray<unknown>, unknown>,
+  readonly next: JestMockFn<ReadonlyArray<unknown>, unknown>,
+  readonly start: JestMockFn<ReadonlyArray<Subscription>, unknown>,
+  readonly unsubscribe: JestMockFn<ReadonlyArray<unknown>, unknown>,
 };
 
 function createObserver(): Observer {

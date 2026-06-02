@@ -28,17 +28,19 @@ fragment pluralFragmentOnAbstractTypeFragment on Cat @relay(plural: true) {
   ... on Tabby {
     __id @__RelayResolverMetadata
     # RelayResolverMetadata {
-    #     field_id: FieldID(529),
+    #     field_id: FieldID(533),
     #     import_path: "TabbyResolver",
     #     import_name: None,
     #     field_alias: None,
     #     field_path: "description",
     #     field_arguments: [],
+    #     fragment_arguments: [],
     #     live: false,
     #     output_type_info: Legacy,
     #     fragment_data_injection_mode: None,
     #     type_confirmed: false,
     #     resolver_type: ResolverModule,
+    #     return_fragment: None,
     # }
     
   }

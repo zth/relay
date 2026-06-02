@@ -134,14 +134,12 @@ impl RelayResolverAbstractTypesTransform<'_> {
             .directives
             .iter()
             .find(|directive| directive.name.0 == RELAY_RESOLVER_DIRECTIVE_NAME.0)
-        {
-            if resolver_directive
+            && resolver_directive
                 .arguments
                 .named(ArgumentName(*ROOT_FRAGMENT_FIELD))
                 .is_some()
-            {
-                return true;
-            }
+        {
+            return true;
         }
         // Any of the implementing objects' corresponding field is a resolver field
         let selection_name = interface_field.name.item;
@@ -154,10 +152,15 @@ impl RelayResolverAbstractTypesTransform<'_> {
                 .named_field(Type::Object(*object_id), selection_name)
                 .expect("Expected field to be defined on concrete type");
             let concrete_field = self.program.schema.field(concrete_field_id);
-            concrete_field
-                .directives
-                .iter()
-                .any(|directive| directive.name.0 == RELAY_RESOLVER_DIRECTIVE_NAME.0)
+            // A field is a "different implementation" if it's either an explicit
+            // resolver or any extension field (e.g. a synthetic ID field on a
+            // client model type that has no @relay_resolver directive but is still
+            // client-only and must be fanned out per concrete type).
+            concrete_field.is_extension
+                || concrete_field
+                    .directives
+                    .iter()
+                    .any(|directive| directive.name.0 == RELAY_RESOLVER_DIRECTIVE_NAME.0)
         })
     }
 
@@ -180,13 +183,28 @@ impl RelayResolverAbstractTypesTransform<'_> {
                         .schema
                         .named_field(concrete_type, field_name)
                         .expect("Expected field to be defined on concrete type");
+                    let concrete_return_type =
+                        self.program.schema.field(concrete_field_id).type_.inner();
                     let definition = WithLocation::new(node.definition.location, concrete_field_id);
                     Selection::LinkedField(Arc::new(LinkedField {
                         definition,
                         alias: node.alias,
                         arguments: node.arguments.clone(),
                         directives: node.directives.clone(),
-                        selections: node.selections.clone(),
+                        // The linked field on the concrete type may have a
+                        // _narrower_ return type than the field on the
+                        // interface. As such, some of the selections which were
+                        // valid within the interface's field may not be valid
+                        // within the concrete type's field.
+                        //
+                        // So instead of passing the original selection set
+                        // through directly, we must filter out any selections
+                        // which are not compatible with the concrete type's
+                        // field's return type.
+                        selections: filter_incompatible_inline_fragments(
+                            concrete_return_type,
+                            &node.selections,
+                        ),
                     }))
                 }
                 Selection::ScalarField(node) => {
@@ -454,4 +472,33 @@ impl Transformer<'_> for RelayResolverAbstractTypesTransform<'_> {
             }
         }
     }
+}
+
+/// Removes inline fragments from `selections` whose object type condition is
+/// incompatible with a known concrete return type. When a linked field is known
+/// to return a specific concrete object type, any `... on OtherObject` inline
+/// fragments in its selection set are unreachable and can be dropped.
+///
+/// Only acts when `concrete_type` is an object type; abstract return types are
+/// returned unchanged because we cannot rule out any implementor without further
+/// context.
+fn filter_incompatible_inline_fragments(
+    concrete_type: Type,
+    selections: &[Selection],
+) -> Vec<Selection> {
+    let Type::Object(_) = concrete_type else {
+        return selections.to_vec();
+    };
+    selections
+        .iter()
+        .filter(|selection| {
+            if let Selection::InlineFragment(fragment) = selection
+                && let Some(Type::Object(_)) = fragment.type_condition
+            {
+                return fragment.type_condition == Some(concrete_type);
+            }
+            true
+        })
+        .cloned()
+        .collect()
 }

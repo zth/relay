@@ -37,7 +37,7 @@ lazy_static! {
     pub static ref EXPORT_NAME_CUSTOM_SCALAR_ARGUMENT_NAME: StringKey = intern!("export_name");
 }
 
-pub fn build_schema_with_extensions<
+pub fn build_schema_with_extensions_parallel<
     T: AsRef<str> + std::marker::Sync,
     U: AsRef<str> + std::marker::Sync,
 >(
@@ -53,7 +53,7 @@ pub fn build_schema_with_extensions<
             )
             .collect();
 
-    let mut schema = schema::build_schema_with_extensions(server_sdls, &extensions)?;
+    let mut schema = schema::build_schema_with_extensions_parallel(server_sdls, &extensions)?;
     remove_defer_stream_label(&mut schema);
     Ok(schema)
 }
@@ -79,11 +79,11 @@ fn remove_defer_stream_label(schema: &mut SDLSchema) {
         if let Some(directive) = schema.get_directive_mut(*directive_name) {
             let mut next_args: Vec<_> = directive.arguments.iter().cloned().collect();
             for arg in next_args.iter_mut() {
-                if arg.name.item == *LABEL {
-                    if let TypeReference::NonNull(of) = &arg.type_ {
-                        arg.type_ = *of.clone()
-                    };
-                }
+                if arg.name.item == *LABEL
+                    && let TypeReference::NonNull(of) = &arg.type_
+                {
+                    arg.type_ = *of.clone()
+                };
             }
             directive.arguments = ArgumentDefinitions::new(next_args);
         }

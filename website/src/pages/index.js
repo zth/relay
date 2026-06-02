@@ -8,13 +8,12 @@
  * @oncall relay
  */
 
-import Code from '../core/Code.js';
 import Container from '../core/Container';
 import GridBlock from '../core/GridBlock';
 import Link from '@docusaurus/Link';
-import {useThemeConfig} from '@docusaurus/theme-common';
 import useBaseUrl, {useBaseUrlUtils} from '@docusaurus/useBaseUrl';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
+import CodeBlock from '@theme/CodeBlock';
 import Layout from '@theme/Layout';
 import * as React from 'react';
 
@@ -46,25 +45,10 @@ function UseFragmentLink() {
   );
 }
 
-function HomeBanner() {
-  return (
-    <div className="homeBanner">
-      Support Ukraine 🇺🇦{' '}
-      <Link to="https://opensource.facebook.com/support-ukraine">
-        Help Provide Humanitarian Aid to Ukraine
-      </Link>
-      .
-    </div>
-  );
-}
-
 const HomeSplash = () => {
   const {siteConfig} = useDocusaurusContext();
   return (
     <div>
-      <div>
-        <HomeBanner />
-      </div>
       <div className="homeContainer">
         <div className="homeSplashFade">
           <div className="logo">
@@ -202,10 +186,9 @@ const Index = () => {
             </div>
 
             <div className="radiusLeft">
-              <pre className="outerPre">
-                <Code>
-                  {`
-import React from "react";
+              <div className="outerPre">
+                <CodeBlock>
+                  {`import React from "react";
 import { graphql, usePreloadedQuery, /* ... */ } from "react-relay";
 
 const artistsQuery = graphql\`
@@ -240,10 +223,9 @@ function ArtistView() {
       {data?.artist && <ArtistCard artist={data?.artist} />}
     </>
   );
-}
-`}
-                </Code>
-              </pre>
+}`}
+                </CodeBlock>
+              </div>
             </div>
           </div>
         </Container>
@@ -274,11 +256,11 @@ function ArtistView() {
                 fragments are fetched as part of that parent query.
               </p>
             </div>
+
             <div>
-              <pre className="outerPre">
-                <Code>
-                  {`
-import React from "react";
+              <div className="outerPre">
+                <CodeBlock>
+                  {`import React from "react";
 import { graphql, useFragment} from "react-relay";
 
 export default function ArtistCard(props) {
@@ -304,10 +286,9 @@ export default function ArtistCard(props) {
       </Link>
     </Card>
   );
-}
-                    `}
-                </Code>
-              </pre>
+}`}
+                </CodeBlock>
+              </div>
             </div>
           </div>
         </Container>
@@ -341,7 +322,10 @@ export default function ArtistCard(props) {
                       components, and compose data requirements together.
                     </p>
                     <p>
-                      See the <Link to="/docs/guided-tour/">guided tour</Link>
+                      See the{' '}
+                      <Link to="/docs/tutorial/fragments-1">
+                        fragments tutorial
+                      </Link>
                     </p>
                   </div>
                 ),

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<67a358adfda880afb36b9272ae11ec64>>
+ * @generated SignedSource<<418ceb640d60cf1443341437aeb4fe69>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -22,22 +21,22 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentCommitPayloadTest6MarkdownUserNameRenderer_name$fragmentType } from "./RelayModernEnvironmentCommitPayloadTest6MarkdownUserNameRenderer_name.graphql";
 import type { RelayModernEnvironmentCommitPayloadTest6UserFragment$fragmentType } from "./RelayModernEnvironmentCommitPayloadTest6UserFragment.graphql";
-export type RelayModernEnvironmentCommitPayloadTest6ActorQuery$variables = {||};
-export type RelayModernEnvironmentCommitPayloadTest6ActorQuery$data = {|
-  +me: ?{|
-    +name: ?string,
-    +nameRenderer: ?{|
-      +__fragmentPropName?: ?string,
-      +__module_component?: ?string,
-      +$fragmentSpreads: RelayModernEnvironmentCommitPayloadTest6MarkdownUserNameRenderer_name$fragmentType,
-    |},
-    +$fragmentSpreads: RelayModernEnvironmentCommitPayloadTest6UserFragment$fragmentType,
-  |},
-|};
-export type RelayModernEnvironmentCommitPayloadTest6ActorQuery = {|
+export type RelayModernEnvironmentCommitPayloadTest6ActorQuery$variables = {};
+export type RelayModernEnvironmentCommitPayloadTest6ActorQuery$data = {
+  readonly me: ?{
+    readonly name: ?string,
+    readonly nameRenderer: ?{
+      readonly __fragmentPropName?: ?string,
+      readonly __module_component?: ?string,
+      readonly $fragmentSpreads: RelayModernEnvironmentCommitPayloadTest6MarkdownUserNameRenderer_name$fragmentType,
+    },
+    readonly $fragmentSpreads: RelayModernEnvironmentCommitPayloadTest6UserFragment$fragmentType,
+  },
+};
+export type RelayModernEnvironmentCommitPayloadTest6ActorQuery = {
   response: RelayModernEnvironmentCommitPayloadTest6ActorQuery$data,
   variables: RelayModernEnvironmentCommitPayloadTest6ActorQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -77,7 +76,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
+          (v0/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -86,7 +85,7 @@ return {
             "name": "nameRenderer",
             "plural": false,
             "selections": [
-              (v1/*: any*/)
+              (v1/*:: as any*/)
             ],
             "storageKey": null
           },
@@ -121,7 +120,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
+          (v0/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -137,7 +136,7 @@ return {
                 "name": "__typename",
                 "storageKey": null
               },
-              (v1/*: any*/)
+              (v1/*:: as any*/)
             ],
             "storageKey": null
           },
@@ -179,10 +178,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "a6b604953d655581e78c5617d1c01e66";
+  (node/*:: as any*/).hash = "a6b604953d655581e78c5617d1c01e66";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentCommitPayloadTest6ActorQuery$variables,
   RelayModernEnvironmentCommitPayloadTest6ActorQuery$data,
 >*/);

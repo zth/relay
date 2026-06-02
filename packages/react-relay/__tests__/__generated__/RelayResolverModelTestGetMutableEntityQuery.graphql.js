@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<bebaf69d34c0f88f67f343914c4944f0>>
+ * @generated SignedSource<<c949449f4d5f3c942a17270d11bff40f>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -23,18 +22,18 @@ import {mutable_entity as queryMutableEntityResolverType} from "../../../relay-r
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryMutableEntityResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryMutableEntityResolverType: (
+(queryMutableEntityResolverType as (
   args: void,
   context: TestResolverContextType,
-) => LiveState<?mixed>);
-export type RelayResolverModelTestGetMutableEntityQuery$variables = {||};
-export type RelayResolverModelTestGetMutableEntityQuery$data = {|
-  +mutable_entity: ?ReturnType<ReturnType<typeof queryMutableEntityResolverType>["read"]>,
-|};
-export type RelayResolverModelTestGetMutableEntityQuery = {|
+) => LiveState<?unknown>);
+export type RelayResolverModelTestGetMutableEntityQuery$variables = {};
+export type RelayResolverModelTestGetMutableEntityQuery$data = {
+  readonly mutable_entity: ?ReturnType<ReturnType<typeof queryMutableEntityResolverType>["read"]>,
+};
+export type RelayResolverModelTestGetMutableEntityQuery = {
   response: RelayResolverModelTestGetMutableEntityQuery$data,
   variables: RelayResolverModelTestGetMutableEntityQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = {
@@ -94,10 +93,10 @@ var node/*: ClientRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "bd6186904ff5b69591c6929ee7f72aa4";
+  (node/*:: as any*/).hash = "bd6186904ff5b69591c6929ee7f72aa4";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   RelayResolverModelTestGetMutableEntityQuery$variables,
   RelayResolverModelTestGetMutableEntityQuery$data,
 >*/);

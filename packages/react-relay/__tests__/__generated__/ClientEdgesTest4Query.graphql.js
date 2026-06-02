@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<758fd1388eef83475d88178f34e78a75>>
+ * @generated SignedSource<<a29998683cc3b1d411cac40a1fae346c>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -22,27 +21,27 @@ import {client_object as userClientObjectResolverType} from "../../../relay-runt
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userClientObjectResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userClientObjectResolverType: (
-  args: {|
+(userClientObjectResolverType as (
+  args: {
     return_null: boolean,
-  |},
+  },
   context: TestResolverContextType,
 ) => ?User__client_object$normalization);
 import type { User__client_object$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/User__client_object$normalization.graphql";
-export type ClientEdgesTest4Query$variables = {|
+export type ClientEdgesTest4Query$variables = {
   return_null: boolean,
-|};
-export type ClientEdgesTest4Query$data = {|
-  +me: ?{|
-    +client_object: {|
-      +description: ?string,
-    |},
-  |},
-|};
-export type ClientEdgesTest4Query = {|
+};
+export type ClientEdgesTest4Query$data = {
+  readonly me: ?{
+    readonly client_object: {
+      readonly description: ?string,
+    },
+  },
+};
+export type ClientEdgesTest4Query = {
   response: ClientEdgesTest4Query$data,
   variables: ClientEdgesTest4Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -62,7 +61,7 @@ v1 = [
 ],
 v2 = {
   "alias": null,
-  "args": (v1/*: any*/),
+  "args": (v1/*:: as any*/),
   "concreteType": "ClientObject",
   "kind": "LinkedField",
   "name": "client_object",
@@ -80,7 +79,7 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": {
       "hasClientEdges": true
@@ -101,9 +100,10 @@ return {
               "kind": "ClientEdgeToClientObject",
               "concreteType": "ClientObject",
               "modelResolvers": null,
+              "serverObjectOperations": null,
               "backingField": {
                 "alias": null,
-                "args": (v1/*: any*/),
+                "args": (v1/*:: as any*/),
                 "fragment": null,
                 "kind": "RelayResolver",
                 "name": "client_object",
@@ -116,7 +116,7 @@ return {
                   "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/User__client_object$normalization.graphql')
                 }
               },
-              "linkedField": (v2/*: any*/)
+              "linkedField": (v2/*:: as any*/)
             },
             "action": "THROW"
           }
@@ -129,7 +129,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "ClientEdgesTest4Query",
     "selections": [
@@ -145,13 +145,13 @@ return {
             "kind": "ClientEdgeToClientObject",
             "backingField": {
               "name": "client_object",
-              "args": (v1/*: any*/),
+              "args": (v1/*:: as any*/),
               "fragment": null,
               "kind": "RelayResolver",
               "storageKey": null,
               "isOutputType": true
             },
-            "linkedField": (v2/*: any*/)
+            "linkedField": (v2/*:: as any*/)
           },
           {
             "alias": null,
@@ -177,10 +177,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "0d0d4be86097cc63c772eac5a3a43409";
+  (node/*:: as any*/).hash = "0d0d4be86097cc63c772eac5a3a43409";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ClientEdgesTest4Query$variables,
   ClientEdgesTest4Query$data,
 >*/);

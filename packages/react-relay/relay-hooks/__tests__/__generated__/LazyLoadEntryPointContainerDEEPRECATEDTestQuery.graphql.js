@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<37da829a421d8741260f08c1be6df308>>
+ * @generated SignedSource<<bb40e8e75d73f28a46529b5640f078a3>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,19 +17,19 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type LazyLoadEntryPointContainerDEEPRECATEDTestQuery$variables = {|
+export type LazyLoadEntryPointContainerDEEPRECATEDTestQuery$variables = {
   id: string,
-|};
-export type LazyLoadEntryPointContainerDEEPRECATEDTestQuery$data = {|
-  +node: ?{|
-    +id: string,
-    +name?: ?string,
-  |},
-|};
-export type LazyLoadEntryPointContainerDEEPRECATEDTestQuery = {|
+};
+export type LazyLoadEntryPointContainerDEEPRECATEDTestQuery$data = {
+  readonly node: ?{
+    readonly id: string,
+    readonly name?: ?string,
+  },
+};
+export type LazyLoadEntryPointContainerDEEPRECATEDTestQuery = {
   response: LazyLoadEntryPointContainerDEEPRECATEDTestQuery$data,
   variables: LazyLoadEntryPointContainerDEEPRECATEDTestQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -71,21 +70,21 @@ v3 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "LazyLoadEntryPointContainerDEEPRECATEDTestQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
-          (v3/*: any*/)
+          (v2/*:: as any*/),
+          (v3/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -95,13 +94,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "LazyLoadEntryPointContainerDEEPRECATEDTestQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -114,8 +113,8 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v2/*: any*/),
-          (v3/*: any*/)
+          (v2/*:: as any*/),
+          (v3/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -133,10 +132,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "efb87d5ed867796ca922a529fb5256c7";
+  (node/*:: as any*/).hash = "efb87d5ed867796ca922a529fb5256c7";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   LazyLoadEntryPointContainerDEEPRECATEDTestQuery$variables,
   LazyLoadEntryPointContainerDEEPRECATEDTestQuery$data,
 >*/);

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<bd5056361dfef316c705036aa1af6f58>>
+ * @generated SignedSource<<24f27db7c40b40be41d71fb8be883662>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,19 +19,19 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { FragmentResourceSemanticNonNullTestFragment1$fragmentType } from "./FragmentResourceSemanticNonNullTestFragment1.graphql";
 import type { FragmentResourceSemanticNonNullTestFragment2$fragmentType } from "./FragmentResourceSemanticNonNullTestFragment2.graphql";
-export type FragmentResourceSemanticNonNullTestQuery$variables = {|
+export type FragmentResourceSemanticNonNullTestQuery$variables = {
   id: string,
-|};
-export type FragmentResourceSemanticNonNullTestQuery$data = {|
-  +node: ?{|
-    +__typename: string,
-    +$fragmentSpreads: FragmentResourceSemanticNonNullTestFragment1$fragmentType & FragmentResourceSemanticNonNullTestFragment2$fragmentType,
-  |},
-|};
-export type FragmentResourceSemanticNonNullTestQuery = {|
+};
+export type FragmentResourceSemanticNonNullTestQuery$data = {
+  readonly node: ?{
+    readonly __typename: string,
+    readonly $fragmentSpreads: FragmentResourceSemanticNonNullTestFragment1$fragmentType & FragmentResourceSemanticNonNullTestFragment2$fragmentType,
+  },
+};
+export type FragmentResourceSemanticNonNullTestQuery = {
   response: FragmentResourceSemanticNonNullTestQuery$data,
   variables: FragmentResourceSemanticNonNullTestQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -59,20 +58,20 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "FragmentResourceSemanticNonNullTestQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "args": null,
             "kind": "FragmentSpread",
@@ -92,19 +91,19 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "FragmentResourceSemanticNonNullTestQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
@@ -143,10 +142,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "530d4a1ded82952de97544eaa016b219";
+  (node/*:: as any*/).hash = "530d4a1ded82952de97544eaa016b219";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   FragmentResourceSemanticNonNullTestQuery$variables,
   FragmentResourceSemanticNonNullTestQuery$data,
 >*/);

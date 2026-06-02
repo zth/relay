@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<035cb50d41e3798b105ddc71d6413c99>>
+ * @generated SignedSource<<3968f7bb7700b2ba51809c5ae0175c74>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,18 +20,18 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { getFragmentIdentifierTestNestedUserFragment$fragmentType } from "./getFragmentIdentifierTestNestedUserFragment.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type getFragmentIdentifierTestUsersFragment$fragmentType: FragmentType;
-export type getFragmentIdentifierTestUsersFragment$data = $ReadOnlyArray<{|
-  +id: string,
-  +name: ?string,
-  +profile_picture: ?{|
-    +uri: ?string,
-  |},
-  +$fragmentSpreads: getFragmentIdentifierTestNestedUserFragment$fragmentType,
-  +$fragmentType: getFragmentIdentifierTestUsersFragment$fragmentType,
-|}>;
-export type getFragmentIdentifierTestUsersFragment$key = $ReadOnlyArray<{
-  +$data?: getFragmentIdentifierTestUsersFragment$data,
-  +$fragmentSpreads: getFragmentIdentifierTestUsersFragment$fragmentType,
+export type getFragmentIdentifierTestUsersFragment$data = ReadonlyArray<{
+  readonly id: string,
+  readonly name: ?string,
+  readonly profile_picture: ?{
+    readonly uri: ?string,
+  },
+  readonly $fragmentSpreads: getFragmentIdentifierTestNestedUserFragment$fragmentType,
+  readonly $fragmentType: getFragmentIdentifierTestUsersFragment$fragmentType,
+}>;
+export type getFragmentIdentifierTestUsersFragment$key = ReadonlyArray<{
+  readonly $data?: getFragmentIdentifierTestUsersFragment$data,
+  readonly $fragmentSpreads: getFragmentIdentifierTestUsersFragment$fragmentType,
   ...
 }>;
 */
@@ -99,10 +98,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "d37f0a514c3d60209ae2dec723bc0a47";
+  (node/*:: as any*/).hash = "d37f0a514c3d60209ae2dec723bc0a47";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   getFragmentIdentifierTestUsersFragment$fragmentType,
   getFragmentIdentifierTestUsersFragment$data,
 >*/);

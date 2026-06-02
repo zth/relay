@@ -49,7 +49,7 @@ const pendingQueriesByEnvironment = WEAKMAP_SUPPORTED
   : new Map<IEnvironment, Map<string, PendingQueryEntry>>();
 
 type PendingQueryEntry =
-  | $ReadOnly<{
+  | Readonly<{
       cacheKey: string,
       fetchKey: ?string | ?number,
       fetchPolicy: PreloadFetchPolicy,
@@ -60,7 +60,7 @@ type PendingQueryEntry =
       subject: ReplaySubject<GraphQLResponse>,
       subscription: Subscription,
     }>
-  | $ReadOnly<{
+  | Readonly<{
       cacheKey: string,
       fetchKey: ?string | ?number,
       fetchPolicy: PreloadFetchPolicy,
@@ -70,7 +70,10 @@ type PendingQueryEntry =
       status: PreloadQueryStatus,
     }>;
 
-function preloadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
+function preloadQuery<
+  TQuery extends OperationType,
+  TEnvironmentProviderOptions,
+>(
   environment: IEnvironment,
   preloadableRequest: GraphQLTaggedNode | PreloadableConcreteRequest<TQuery>,
   variables: VariablesOf<TQuery>,
@@ -124,21 +127,21 @@ function preloadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
         })
       : null;
   return {
-    kind: 'PreloadedQuery_DEPRECATED',
     environment,
     environmentProviderOptions,
     fetchKey: queryEntry.fetchKey,
     fetchPolicy: queryEntry.fetchPolicy,
-    networkCacheConfig: options?.networkCacheConfig,
     id: queryEntry.id,
+    kind: 'PreloadedQuery_DEPRECATED',
     name: queryEntry.name,
+    networkCacheConfig: options?.networkCacheConfig,
     source,
-    variables,
     status: queryEntry.status,
+    variables,
   };
 }
 
-function preloadQueryDeduped<TQuery: OperationType>(
+function preloadQueryDeduped<TQuery extends OperationType>(
   environment: IEnvironment,
   pendingQueries: Map<string, PendingQueryEntry>,
   preloadableRequest: GraphQLTaggedNode | PreloadableConcreteRequest<TQuery>,
@@ -149,11 +152,11 @@ function preloadQueryDeduped<TQuery: OperationType>(
   let query: ?ConcreteRequest;
   if (preloadableRequest.kind === 'PreloadableConcreteRequest') {
     const preloadableConcreteRequest: PreloadableConcreteRequest<TQuery> =
-      (preloadableRequest: $FlowFixMe);
+      preloadableRequest as $FlowFixMe;
     params = preloadableConcreteRequest.params;
     query = params.id != null ? PreloadableQueryRegistry.get(params.id) : null;
   } else {
-    query = getRequest((preloadableRequest: $FlowFixMe));
+    query = getRequest(preloadableRequest as $FlowFixMe);
     params = query.params;
   }
   const network = environment.getNetwork();
@@ -189,13 +192,13 @@ function preloadQueryDeduped<TQuery: OperationType>(
             cacheKey,
             fetchKey,
             fetchPolicy,
-            kind: 'cache',
             id: params.id,
+            kind: 'cache',
             name: params.name,
             status: {
               cacheConfig: networkCacheConfig,
-              source: 'cache',
               fetchTime: availability?.fetchTime ?? null,
+              source: 'cache',
             },
           };
     if (!environment.isServer() && prevQueryEntry == null) {
@@ -224,13 +227,13 @@ function preloadQueryDeduped<TQuery: OperationType>(
       cacheKey,
       fetchKey,
       fetchPolicy,
-      kind: 'network',
       id: params.id,
+      kind: 'network',
       name: params.name,
       status: {
         cacheConfig: networkCacheConfig,
-        source: 'network',
         fetchTime: null,
+        source: 'network',
       },
       subject,
       subscription: source

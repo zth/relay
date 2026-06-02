@@ -32,19 +32,19 @@ export type Disposable = interface {dispose(): void};
 export type DataID = string;
 
 // Variables
-export type Variables = {+[string]: $FlowFixMe};
+export type Variables = {readonly [string]: $FlowFixMe};
 
 /**
  * Generated operation flow types are subtypes of this.
  */
 export type OperationType = {
   // TODO(T33395812) Make this an open object type
-  +variables: Variables,
-  +response: mixed,
-  +rawResponse?: {...},
+  readonly variables: Variables,
+  readonly response: unknown,
+  readonly rawResponse?: {...},
 };
 
-export type VariablesOf<T: OperationType> = T['variables'];
+export type VariablesOf<T extends OperationType> = T['variables'];
 
 /**
  * Settings for how a query response may be cached.
@@ -62,14 +62,17 @@ export type VariablesOf<T: OperationType> = T['variables'];
  *   a given instance of executing an operation.
  */
 export type CacheConfig = {
-  +force?: ?boolean,
-  +poll?: ?number,
-  +liveConfigId?: ?string,
-  +onSubscribe?: () => void,
-  +onResume?: (pauseTimeMs: number) => void,
-  +onPause?: (mqttConnectionIsOk: boolean, internetIsOk: boolean) => void,
-  +metadata?: {+[key: string]: mixed, ...},
-  +transactionId?: ?string,
+  readonly force?: ?boolean,
+  readonly poll?: ?number,
+  readonly liveConfigId?: ?string,
+  readonly onSubscribe?: () => void,
+  readonly onResume?: (pauseTimeMs: number) => void,
+  readonly onPause?: (
+    mqttConnectionIsOk: boolean,
+    internetIsOk: boolean,
+  ) => void,
+  readonly metadata?: {readonly [key: string]: unknown, ...},
+  readonly transactionId?: ?string,
 };
 
 export type FetchQueryFetchPolicy = 'store-or-network' | 'network-only';
@@ -86,8 +89,8 @@ export type RenderPolicy = 'full' | 'partial';
  * Return type of graphql tag literals for all operations.
  */
 declare export opaque type Operation<
-  -TVariables: Variables,
-  +TData,
+  in TVariables extends Variables,
+  out TData,
   TRawResponse,
 >: ConcreteRequest;
 
@@ -95,8 +98,8 @@ declare export opaque type Operation<
  * Return type of graphql tag literals for updatable queries.
  */
 declare export opaque type UpdatableQuery<
-  -TVariables: Variables,
-  +TData,
+  in TVariables extends Variables,
+  out TData,
 >: ConcreteUpdatableQuery;
 
 /**
@@ -104,15 +107,15 @@ declare export opaque type UpdatableQuery<
  */
 declare export opaque type UpdatableFragment<
   TFragmentType,
-  +TData,
+  out TData,
 >: ReaderFragment;
 
 /**
  * Return type of graphql tag literals for queries.
  */
 declare export opaque type Query<
-  -TVariables: Variables,
-  +TData,
+  in TVariables extends Variables,
+  out TData,
   TRawResponse = void,
 >: Operation<TVariables, TData, TRawResponse>;
 
@@ -120,8 +123,8 @@ declare export opaque type Query<
  * Return type of graphql tag literals for client-only queries.
  */
 declare export opaque type ClientQuery<
-  -TVariables: Variables,
-  +TData,
+  in TVariables extends Variables,
+  out TData,
   TRawResponse = void,
 >: ClientRequest;
 
@@ -129,8 +132,8 @@ declare export opaque type ClientQuery<
  * Return type of graphql tag literals for mutations.
  */
 declare export opaque type Mutation<
-  -TVariables: Variables,
-  +TData,
+  in TVariables extends Variables,
+  out TData,
   TRawResponse = {...},
 >: Operation<TVariables, TData, TRawResponse>;
 
@@ -141,8 +144,8 @@ declare export opaque type Mutation<
  *       `RelayObservable`'s `Subscription` type.
  */
 declare export opaque type GraphQLSubscription<
-  -TVariables: Variables,
-  +TData,
+  in TVariables extends Variables,
+  out TData,
   TRawResponse = void,
 >: Operation<TVariables, TData, TRawResponse>;
 
@@ -151,22 +154,22 @@ declare export opaque type GraphQLSubscription<
  */
 declare export opaque type InlineFragment<
   TFragmentType,
-  +TData,
+  out TData,
 >: ReaderInlineDataFragment;
 
 /**
  * Return type of graphql tag literals for fragments, except `@inline`
  * fragments.
  */
-declare export opaque type Fragment<TFragmentType, +TData>: ReaderFragment;
+declare export opaque type Fragment<TFragmentType, out TData>: ReaderFragment;
 
 /**
  * Return type of graphql tag literals for `@refetchable` fragments.
  */
 declare export opaque type RefetchableFragment<
   TFragmentType,
-  +TData,
-  TVariables: Variables,
+  out TData,
+  TVariables extends Variables,
 >: Fragment<TFragmentType, TData>;
 
 /**
@@ -175,7 +178,7 @@ declare export opaque type RefetchableFragment<
  */
 declare export opaque type PrefetchableRefetchableFragment<
   TFragmentType,
-  +TData,
-  +TEdgeData,
-  TVariables: Variables,
+  out TData,
+  out TEdgeData,
+  TVariables extends Variables,
 >: Fragment<TFragmentType, TData>;

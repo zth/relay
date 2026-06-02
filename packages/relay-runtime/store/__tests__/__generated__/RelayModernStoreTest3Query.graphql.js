@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<cdf3350dc1c98d704db179b55a5ccd0f>>
+ * @generated SignedSource<<c092a8d6f5ca2fd09a4aee95acf68154>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,18 +18,18 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernStoreTest3Fragment$fragmentType } from "./RelayModernStoreTest3Fragment.graphql";
-export type RelayModernStoreTest3Query$variables = {|
-  size?: ?$ReadOnlyArray<?number>,
-|};
-export type RelayModernStoreTest3Query$data = {|
-  +me: ?{|
-    +$fragmentSpreads: RelayModernStoreTest3Fragment$fragmentType,
-  |},
-|};
-export type RelayModernStoreTest3Query = {|
+export type RelayModernStoreTest3Query$variables = {
+  size?: ?ReadonlyArray<?number>,
+};
+export type RelayModernStoreTest3Query$data = {
+  readonly me: ?{
+    readonly $fragmentSpreads: RelayModernStoreTest3Fragment$fragmentType,
+  },
+};
+export type RelayModernStoreTest3Query = {
   response: RelayModernStoreTest3Query$data,
   variables: RelayModernStoreTest3Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -43,7 +42,7 @@ var v0 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernStoreTest3Query",
@@ -70,7 +69,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernStoreTest3Query",
     "selections": [
@@ -144,10 +143,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "6816c9dd90cf08c7c3a1cb730f0b6165";
+  (node/*:: as any*/).hash = "6816c9dd90cf08c7c3a1cb730f0b6165";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernStoreTest3Query$variables,
   RelayModernStoreTest3Query$data,
 >*/);

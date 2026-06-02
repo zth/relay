@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<97522ead356a8fb8d761609a62614b0f>>
+ * @generated SignedSource<<d714e4a95796da4eba468dd54e06a780>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,15 +20,15 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment$fragmentType } from "./ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type ReactRelayFragmentContainerWithFragmentOwnershipTestUserFragment$fragmentType: FragmentType;
-export type ReactRelayFragmentContainerWithFragmentOwnershipTestUserFragment$data = {|
-  +id: string,
-  +name?: ?string,
-  +$fragmentSpreads: ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment$fragmentType,
-  +$fragmentType: ReactRelayFragmentContainerWithFragmentOwnershipTestUserFragment$fragmentType,
-|};
+export type ReactRelayFragmentContainerWithFragmentOwnershipTestUserFragment$data = {
+  readonly id: string,
+  readonly name?: ?string,
+  readonly $fragmentSpreads: ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment$fragmentType,
+  readonly $fragmentType: ReactRelayFragmentContainerWithFragmentOwnershipTestUserFragment$fragmentType,
+};
 export type ReactRelayFragmentContainerWithFragmentOwnershipTestUserFragment$key = {
-  +$data?: ReactRelayFragmentContainerWithFragmentOwnershipTestUserFragment$data,
-  +$fragmentSpreads: ReactRelayFragmentContainerWithFragmentOwnershipTestUserFragment$fragmentType,
+  readonly $data?: ReactRelayFragmentContainerWithFragmentOwnershipTestUserFragment$data,
+  readonly $fragmentSpreads: ReactRelayFragmentContainerWithFragmentOwnershipTestUserFragment$fragmentType,
   ...
 };
 */
@@ -78,10 +77,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "a6f390ce39a0736709e18601023d1a20";
+  (node/*:: as any*/).hash = "a6f390ce39a0736709e18601023d1a20";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   ReactRelayFragmentContainerWithFragmentOwnershipTestUserFragment$fragmentType,
   ReactRelayFragmentContainerWithFragmentOwnershipTestUserFragment$data,
 >*/);

@@ -19,12 +19,12 @@ const {graphql} = require('relay-runtime');
 const {readFragment} = require('relay-runtime/store/ResolverFragments');
 
 /**
- * @RelayResolver Todo.blocked_by: [Todo]
+ * @relayField Todo.blocked_by: [Todo]
  * @rootFragment TodoBlockedByResolverFragment
  */
 function blocked_by(
   rootKey: TodoBlockedByResolverFragment$key,
-): $ReadOnlyArray<ReturnType> {
+): ReadonlyArray<ReturnType> {
   const data = readFragment(
     graphql`
       fragment TodoBlockedByResolverFragment on Todo {

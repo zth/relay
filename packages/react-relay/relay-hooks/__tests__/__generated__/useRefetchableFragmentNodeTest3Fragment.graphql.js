@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9a8e6d62d25a5d79047dcc1db10f00d4>>
+ * @generated SignedSource<<1b54526a81350101b9aca86199a504ac>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -22,18 +21,18 @@ import type { useRefetchableFragmentNodeTest2Fragment$fragmentType } from "./use
 import type { FragmentType } from "relay-runtime";
 declare export opaque type useRefetchableFragmentNodeTest3Fragment$fragmentType: FragmentType;
 type useRefetchableFragmentNodeTest3FragmentRefetchQuery$variables = any;
-export type useRefetchableFragmentNodeTest3Fragment$data = {|
-  +id: string,
-  +name: ?string,
-  +profile_picture: ?{|
-    +uri: ?string,
-  |},
-  +$fragmentSpreads: useRefetchableFragmentNodeTest2Fragment$fragmentType,
-  +$fragmentType: useRefetchableFragmentNodeTest3Fragment$fragmentType,
-|};
+export type useRefetchableFragmentNodeTest3Fragment$data = {
+  readonly id: string,
+  readonly name: ?string,
+  readonly profile_picture: ?{
+    readonly uri: ?string,
+  },
+  readonly $fragmentSpreads: useRefetchableFragmentNodeTest2Fragment$fragmentType,
+  readonly $fragmentType: useRefetchableFragmentNodeTest3Fragment$fragmentType,
+};
 export type useRefetchableFragmentNodeTest3Fragment$key = {
-  +$data?: useRefetchableFragmentNodeTest3Fragment$data,
-  +$fragmentSpreads: useRefetchableFragmentNodeTest3Fragment$fragmentType,
+  readonly $data?: useRefetchableFragmentNodeTest3Fragment$data,
+  readonly $fragmentSpreads: useRefetchableFragmentNodeTest3Fragment$fragmentType,
   ...
 };
 */
@@ -110,10 +109,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "2650c4a9699c99058f29e1c1d3554f01";
+  (node/*:: as any*/).hash = "2650c4a9699c99058f29e1c1d3554f01";
 }
 
-module.exports = ((node/*: any*/)/*: RefetchableFragment<
+module.exports = ((node/*:: as any*/)/*:: as RefetchableFragment<
   useRefetchableFragmentNodeTest3Fragment$fragmentType,
   useRefetchableFragmentNodeTest3Fragment$data,
   useRefetchableFragmentNodeTest3FragmentRefetchQuery$variables,

@@ -26,6 +26,7 @@ use graphql_syntax::parse_executable;
 use graphql_text_printer::PrinterOptions;
 use graphql_text_printer::print_fragment;
 use graphql_text_printer::print_operation;
+pub use project_fixture::FileChange;
 pub use project_fixture::ProjectFixture;
 use relay_test_schema::get_test_schema;
 use relay_test_schema::get_test_schema_with_located_extensions;
@@ -57,6 +58,7 @@ where
         &ast.definitions,
         &BuilderOptions {
             allow_undefined_fragment_spreads: false,
+            allow_non_overlapping_abstract_spreads: false,
             fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
             relay_mode: Some(RelayMode),
             default_anonymous_operation_name: None,

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b695e94e12cb58dbb47628319a156521>>
+ * @generated SignedSource<<b748f18607837e882bf8349d06475755>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -23,19 +22,19 @@ import {field_with_fragment_that_throws as queryFieldWithFragmentThatThrowsResol
 import type { TestResolverContextType } from "../../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryFieldWithFragmentThatThrowsResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryFieldWithFragmentThatThrowsResolverType: (
+(queryFieldWithFragmentThatThrowsResolverType as (
   rootKey: useFragmentNullabilityTestFragmentWithFieldThatThrows$key,
   args: void,
   context: TestResolverContextType,
 ) => number);
-export type useFragmentNullabilityTest3Query$variables = {||};
-export type useFragmentNullabilityTest3Query$data = {|
-  +field_with_fragment_that_throws: ?number,
-|};
-export type useFragmentNullabilityTest3Query = {|
+export type useFragmentNullabilityTest3Query$variables = {};
+export type useFragmentNullabilityTest3Query$data = {
+  readonly field_with_fragment_that_throws: ?number,
+};
+export type useFragmentNullabilityTest3Query = {
   response: useFragmentNullabilityTest3Query$data,
   variables: useFragmentNullabilityTest3Query$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = {
@@ -108,10 +107,10 @@ var node/*: ClientRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "10916d7ec8d66dc54d930f21305b5778";
+  (node/*:: as any*/).hash = "10916d7ec8d66dc54d930f21305b5778";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   useFragmentNullabilityTest3Query$variables,
   useFragmentNullabilityTest3Query$data,
 >*/);

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<413a5d87005a669d51ac265f0285e4cd>>
+ * @generated SignedSource<<1114cb2c5ea8c0abd8ffa494ce0848ac>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,19 +18,19 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { Result } from "relay-runtime";
-export type RelayReaderCatchFieldsTestSiblingLogRequiredErrorQuery$variables = {||};
-export type RelayReaderCatchFieldsTestSiblingLogRequiredErrorQuery$data = {|
-  +alsoMe: ?{|
-    +lastName: string,
-  |},
-  +me: Result<?{|
-    +firstName: string,
-  |}, mixed>,
-|};
-export type RelayReaderCatchFieldsTestSiblingLogRequiredErrorQuery = {|
+export type RelayReaderCatchFieldsTestSiblingLogRequiredErrorQuery$variables = {};
+export type RelayReaderCatchFieldsTestSiblingLogRequiredErrorQuery$data = {
+  readonly alsoMe: ?{
+    readonly lastName: string,
+  },
+  readonly me: Result<?{
+    readonly firstName: string,
+  }, unknown>,
+};
+export type RelayReaderCatchFieldsTestSiblingLogRequiredErrorQuery = {
   response: RelayReaderCatchFieldsTestSiblingLogRequiredErrorQuery$data,
   variables: RelayReaderCatchFieldsTestSiblingLogRequiredErrorQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -73,7 +72,7 @@ return {
         "selections": [
           {
             "kind": "RequiredField",
-            "field": (v0/*: any*/),
+            "field": (v0/*:: as any*/),
             "action": "LOG"
           }
         ],
@@ -91,7 +90,7 @@ return {
           "selections": [
             {
               "kind": "RequiredField",
-              "field": (v1/*: any*/),
+              "field": (v1/*:: as any*/),
               "action": "THROW"
             }
           ],
@@ -117,8 +116,8 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
-          (v2/*: any*/)
+          (v0/*:: as any*/),
+          (v2/*:: as any*/)
         ],
         "storageKey": null
       },
@@ -130,8 +129,8 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v1/*: any*/),
-          (v2/*: any*/)
+          (v1/*:: as any*/),
+          (v2/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -149,10 +148,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "92ad5972e7b9516f470d0ab4f548a16d";
+  (node/*:: as any*/).hash = "92ad5972e7b9516f470d0ab4f548a16d";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderCatchFieldsTestSiblingLogRequiredErrorQuery$variables,
   RelayReaderCatchFieldsTestSiblingLogRequiredErrorQuery$data,
 >*/);

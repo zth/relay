@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a5e06d0be5eb8536662311f73a67666b>>
+ * @generated SignedSource<<324c3917a0ebe117c4796aa599e95f4d>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -22,18 +21,18 @@ import type { useRefetchableFragmentNodeTestNestedUserFragment$fragmentType } fr
 import type { FragmentType } from "relay-runtime";
 declare export opaque type useRefetchableFragmentNodeTestUserFragmentWithArgs$fragmentType: FragmentType;
 type useRefetchableFragmentNodeTestUserFragmentWithArgsRefetchQuery$variables = any;
-export type useRefetchableFragmentNodeTestUserFragmentWithArgs$data = {|
-  +id: string,
-  +name: ?string,
-  +profile_picture: ?{|
-    +uri: ?string,
-  |},
-  +$fragmentSpreads: useRefetchableFragmentNodeTestNestedUserFragment$fragmentType,
-  +$fragmentType: useRefetchableFragmentNodeTestUserFragmentWithArgs$fragmentType,
-|};
+export type useRefetchableFragmentNodeTestUserFragmentWithArgs$data = {
+  readonly id: string,
+  readonly name: ?string,
+  readonly profile_picture: ?{
+    readonly uri: ?string,
+  },
+  readonly $fragmentSpreads: useRefetchableFragmentNodeTestNestedUserFragment$fragmentType,
+  readonly $fragmentType: useRefetchableFragmentNodeTestUserFragmentWithArgs$fragmentType,
+};
 export type useRefetchableFragmentNodeTestUserFragmentWithArgs$key = {
-  +$data?: useRefetchableFragmentNodeTestUserFragmentWithArgs$data,
-  +$fragmentSpreads: useRefetchableFragmentNodeTestUserFragmentWithArgs$fragmentType,
+  readonly $data?: useRefetchableFragmentNodeTestUserFragmentWithArgs$data,
+  readonly $fragmentSpreads: useRefetchableFragmentNodeTestUserFragmentWithArgs$fragmentType,
   ...
 };
 */
@@ -111,10 +110,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "66560c7839480e9e6d2891c5dbcd2039";
+  (node/*:: as any*/).hash = "66560c7839480e9e6d2891c5dbcd2039";
 }
 
-module.exports = ((node/*: any*/)/*: RefetchableFragment<
+module.exports = ((node/*:: as any*/)/*:: as RefetchableFragment<
   useRefetchableFragmentNodeTestUserFragmentWithArgs$fragmentType,
   useRefetchableFragmentNodeTestUserFragmentWithArgs$data,
   useRefetchableFragmentNodeTestUserFragmentWithArgsRefetchQuery$variables,

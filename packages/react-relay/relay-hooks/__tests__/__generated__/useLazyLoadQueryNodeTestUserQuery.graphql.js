@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<282ca852f80210afbdc477b340e37aae>>
+ * @generated SignedSource<<4372b088c25b186633a2653d9e139c39>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,20 +18,20 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { useLazyLoadQueryNodeTestUserFragment$fragmentType } from "./useLazyLoadQueryNodeTestUserFragment.graphql";
-export type useLazyLoadQueryNodeTestUserQuery$variables = {|
+export type useLazyLoadQueryNodeTestUserQuery$variables = {
   id?: ?string,
-|};
-export type useLazyLoadQueryNodeTestUserQuery$data = {|
-  +node: ?{|
-    +id: string,
-    +name: ?string,
-    +$fragmentSpreads: useLazyLoadQueryNodeTestUserFragment$fragmentType,
-  |},
-|};
-export type useLazyLoadQueryNodeTestUserQuery = {|
+};
+export type useLazyLoadQueryNodeTestUserQuery$data = {
+  readonly node: ?{
+    readonly id: string,
+    readonly name: ?string,
+    readonly $fragmentSpreads: useLazyLoadQueryNodeTestUserFragment$fragmentType,
+  },
+};
+export type useLazyLoadQueryNodeTestUserQuery = {
   response: useLazyLoadQueryNodeTestUserQuery$data,
   variables: useLazyLoadQueryNodeTestUserQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -66,21 +65,21 @@ v3 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "useLazyLoadQueryNodeTestUserQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
-          (v3/*: any*/),
+          (v2/*:: as any*/),
+          (v3/*:: as any*/),
           {
             "args": null,
             "kind": "FragmentSpread",
@@ -95,13 +94,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "useLazyLoadQueryNodeTestUserQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -114,8 +113,8 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v2/*: any*/),
-          (v3/*: any*/)
+          (v2/*:: as any*/),
+          (v3/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -133,10 +132,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "19ad769206887ea7a7b87d2855e4cc1f";
+  (node/*:: as any*/).hash = "19ad769206887ea7a7b87d2855e4cc1f";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   useLazyLoadQueryNodeTestUserQuery$variables,
   useLazyLoadQueryNodeTestUserQuery$data,
 >*/);

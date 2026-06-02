@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<885d6675bd00f1ad0bbefc43c0f7595d>>
+ * @generated SignedSource<<ea6b5af520ad5c99a67918714d6e8356>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,19 +18,19 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { ReactRelayFragmentContainerWithFragmentOwnershipTestUserFragment$fragmentType } from "./ReactRelayFragmentContainerWithFragmentOwnershipTestUserFragment.graphql";
-export type ReactRelayFragmentContainerWithFragmentOwnershipTestWithCondUserQuery$variables = {|
+export type ReactRelayFragmentContainerWithFragmentOwnershipTestWithCondUserQuery$variables = {
   condGlobal: boolean,
   id: string,
-|};
-export type ReactRelayFragmentContainerWithFragmentOwnershipTestWithCondUserQuery$data = {|
-  +node: ?{|
-    +$fragmentSpreads: ReactRelayFragmentContainerWithFragmentOwnershipTestUserFragment$fragmentType,
-  |},
-|};
-export type ReactRelayFragmentContainerWithFragmentOwnershipTestWithCondUserQuery = {|
+};
+export type ReactRelayFragmentContainerWithFragmentOwnershipTestWithCondUserQuery$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: ReactRelayFragmentContainerWithFragmentOwnershipTestUserFragment$fragmentType,
+  },
+};
+export type ReactRelayFragmentContainerWithFragmentOwnershipTestWithCondUserQuery = {
   response: ReactRelayFragmentContainerWithFragmentOwnershipTestWithCondUserQuery$data,
   variables: ReactRelayFragmentContainerWithFragmentOwnershipTestWithCondUserQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -55,8 +54,8 @@ v2 = [
 return {
   "fragment": {
     "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/)
+      (v0/*:: as any*/),
+      (v1/*:: as any*/)
     ],
     "kind": "Fragment",
     "metadata": null,
@@ -64,7 +63,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v2/*: any*/),
+        "args": (v2/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -91,15 +90,15 @@ return {
   "kind": "Request",
   "operation": {
     "argumentDefinitions": [
-      (v1/*: any*/),
-      (v0/*: any*/)
+      (v1/*:: as any*/),
+      (v0/*:: as any*/)
     ],
     "kind": "Operation",
     "name": "ReactRelayFragmentContainerWithFragmentOwnershipTestWithCondUserQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v2/*: any*/),
+        "args": (v2/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -164,10 +163,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "02786543a0348beed6020ab497c904e6";
+  (node/*:: as any*/).hash = "02786543a0348beed6020ab497c904e6";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ReactRelayFragmentContainerWithFragmentOwnershipTestWithCondUserQuery$variables,
   ReactRelayFragmentContainerWithFragmentOwnershipTestWithCondUserQuery$data,
 >*/);

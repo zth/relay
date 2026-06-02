@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9f958fd158727189be789b9285419d21>>
+ * @generated SignedSource<<6b300ce85cbf8feb89962884c167f322>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,23 +19,23 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type ReactRelayPaginationContainerTestNoConnectionOnFragmentUserFragment$fragmentType: FragmentType;
-export type ReactRelayPaginationContainerTestNoConnectionOnFragmentUserFragment$data = {|
-  +friends: ?{|
-    +edges: ?$ReadOnlyArray<?{|
-      +node: ?{|
-        +id: string,
-      |},
-    |}>,
-    +pageInfo: ?{|
-      +endCursor: ?string,
-      +hasNextPage: ?boolean,
-    |},
-  |},
-  +$fragmentType: ReactRelayPaginationContainerTestNoConnectionOnFragmentUserFragment$fragmentType,
-|};
+export type ReactRelayPaginationContainerTestNoConnectionOnFragmentUserFragment$data = {
+  readonly friends: ?{
+    readonly edges: ?ReadonlyArray<?{
+      readonly node: ?{
+        readonly id: string,
+      },
+    }>,
+    readonly pageInfo: ?{
+      readonly endCursor: ?string,
+      readonly hasNextPage: ?boolean,
+    },
+  },
+  readonly $fragmentType: ReactRelayPaginationContainerTestNoConnectionOnFragmentUserFragment$fragmentType,
+};
 export type ReactRelayPaginationContainerTestNoConnectionOnFragmentUserFragment$key = {
-  +$data?: ReactRelayPaginationContainerTestNoConnectionOnFragmentUserFragment$data,
-  +$fragmentSpreads: ReactRelayPaginationContainerTestNoConnectionOnFragmentUserFragment$fragmentType,
+  readonly $data?: ReactRelayPaginationContainerTestNoConnectionOnFragmentUserFragment$data,
+  readonly $fragmentSpreads: ReactRelayPaginationContainerTestNoConnectionOnFragmentUserFragment$fragmentType,
   ...
 };
 */
@@ -162,10 +161,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "78e97ec9163edb066b4741e820a328d7";
+  (node/*:: as any*/).hash = "78e97ec9163edb066b4741e820a328d7";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   ReactRelayPaginationContainerTestNoConnectionOnFragmentUserFragment$fragmentType,
   ReactRelayPaginationContainerTestNoConnectionOnFragmentUserFragment$data,
 >*/);

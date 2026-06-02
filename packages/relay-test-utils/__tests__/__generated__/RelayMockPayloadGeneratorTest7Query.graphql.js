@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8e53102e1703f928b49c51525c87d1fa>>
+ * @generated SignedSource<<b989562f084b59370ce77b6fc78a0fd1>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,16 +18,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayMockPayloadGeneratorTest7Fragment$fragmentType } from "./RelayMockPayloadGeneratorTest7Fragment.graphql";
-export type RelayMockPayloadGeneratorTest7Query$variables = {||};
-export type RelayMockPayloadGeneratorTest7Query$data = {|
-  +node: ?{|
-    +$fragmentSpreads: RelayMockPayloadGeneratorTest7Fragment$fragmentType,
-  |},
-|};
-export type RelayMockPayloadGeneratorTest7Query = {|
+export type RelayMockPayloadGeneratorTest7Query$variables = {};
+export type RelayMockPayloadGeneratorTest7Query$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: RelayMockPayloadGeneratorTest7Fragment$fragmentType,
+  },
+};
+export type RelayMockPayloadGeneratorTest7Query = {
   response: RelayMockPayloadGeneratorTest7Query$data,
   variables: RelayMockPayloadGeneratorTest7Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -48,7 +47,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -74,7 +73,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -143,10 +142,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "0cc06f93ea6f93b459881b5fc3fef6c9";
+  (node/*:: as any*/).hash = "0cc06f93ea6f93b459881b5fc3fef6c9";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayMockPayloadGeneratorTest7Query$variables,
   RelayMockPayloadGeneratorTest7Query$data,
 >*/);

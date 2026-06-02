@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<047f8a49a087d81653faf18ca849d217>>
+ * @generated SignedSource<<6cf54fc577307389d1f548a377c28f32>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,25 +18,25 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { usePaginationFragmentTestUserFragment$fragmentType } from "./usePaginationFragmentTestUserFragment.graphql";
-export type usePaginationFragmentTestUserQueryWithoutIDQuery$variables = {|
+export type usePaginationFragmentTestUserQueryWithoutIDQuery$variables = {
   after?: ?string,
   before?: ?string,
   first?: ?number,
   isViewerFriend?: ?boolean,
   last?: ?number,
-  orderby?: ?$ReadOnlyArray<?string>,
-|};
-export type usePaginationFragmentTestUserQueryWithoutIDQuery$data = {|
-  +viewer: ?{|
-    +actor: ?{|
-      +$fragmentSpreads: usePaginationFragmentTestUserFragment$fragmentType,
-    |},
-  |},
-|};
-export type usePaginationFragmentTestUserQueryWithoutIDQuery = {|
+  orderby?: ?ReadonlyArray<?string>,
+};
+export type usePaginationFragmentTestUserQueryWithoutIDQuery$data = {
+  readonly viewer: ?{
+    readonly actor: ?{
+      readonly $fragmentSpreads: usePaginationFragmentTestUserFragment$fragmentType,
+    },
+  },
+};
+export type usePaginationFragmentTestUserQueryWithoutIDQuery = {
   response: usePaginationFragmentTestUserQueryWithoutIDQuery$data,
   variables: usePaginationFragmentTestUserQueryWithoutIDQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -123,17 +122,17 @@ v10 = [
     "name": "last",
     "variableName": "last"
   },
-  (v6/*: any*/)
+  (v6/*:: as any*/)
 ];
 return {
   "fragment": {
     "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/),
-      (v2/*: any*/),
-      (v3/*: any*/),
-      (v4/*: any*/),
-      (v5/*: any*/)
+      (v0/*:: as any*/),
+      (v1/*:: as any*/),
+      (v2/*:: as any*/),
+      (v3/*:: as any*/),
+      (v4/*:: as any*/),
+      (v5/*:: as any*/)
     ],
     "kind": "Fragment",
     "metadata": null,
@@ -162,7 +161,7 @@ return {
                     "name": "isViewerFriendLocal",
                     "variableName": "isViewerFriend"
                   },
-                  (v6/*: any*/)
+                  (v6/*:: as any*/)
                 ],
                 "kind": "FragmentSpread",
                 "name": "usePaginationFragmentTestUserFragment"
@@ -180,12 +179,12 @@ return {
   "kind": "Request",
   "operation": {
     "argumentDefinitions": [
-      (v0/*: any*/),
-      (v2/*: any*/),
-      (v1/*: any*/),
-      (v4/*: any*/),
-      (v5/*: any*/),
-      (v3/*: any*/)
+      (v0/*:: as any*/),
+      (v2/*:: as any*/),
+      (v1/*:: as any*/),
+      (v4/*:: as any*/),
+      (v5/*:: as any*/),
+      (v3/*:: as any*/)
     ],
     "kind": "Operation",
     "name": "usePaginationFragmentTestUserQueryWithoutIDQuery",
@@ -206,15 +205,15 @@ return {
             "name": "actor",
             "plural": false,
             "selections": [
-              (v7/*: any*/),
-              (v8/*: any*/),
+              (v7/*:: as any*/),
+              (v8/*:: as any*/),
               {
                 "kind": "InlineFragment",
                 "selections": [
-                  (v9/*: any*/),
+                  (v9/*:: as any*/),
                   {
                     "alias": null,
-                    "args": (v10/*: any*/),
+                    "args": (v10/*:: as any*/),
                     "concreteType": "FriendsConnection",
                     "kind": "LinkedField",
                     "name": "friends",
@@ -236,8 +235,8 @@ return {
                             "name": "node",
                             "plural": false,
                             "selections": [
-                              (v8/*: any*/),
-                              (v9/*: any*/),
+                              (v8/*:: as any*/),
+                              (v9/*:: as any*/),
                               {
                                 "alias": null,
                                 "args": null,
@@ -245,7 +244,7 @@ return {
                                 "name": "username",
                                 "storageKey": null
                               },
-                              (v7/*: any*/)
+                              (v7/*:: as any*/)
                             ],
                             "storageKey": null
                           },
@@ -303,7 +302,7 @@ return {
                   },
                   {
                     "alias": null,
-                    "args": (v10/*: any*/),
+                    "args": (v10/*:: as any*/),
                     "filters": [
                       "orderby",
                       "isViewerFriend"
@@ -337,10 +336,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "13b0011aa8319dc4cdadad78cf6c67fe";
+  (node/*:: as any*/).hash = "13b0011aa8319dc4cdadad78cf6c67fe";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   usePaginationFragmentTestUserQueryWithoutIDQuery$variables,
   usePaginationFragmentTestUserQueryWithoutIDQuery$data,
 >*/);

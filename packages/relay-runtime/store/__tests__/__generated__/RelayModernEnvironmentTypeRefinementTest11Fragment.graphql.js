@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8475320a6d1e15ae58e92f2c181d74b5>>
+ * @generated SignedSource<<52f86d6e79a2c54bef9c342175dad6af>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,15 +20,15 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { RelayModernEnvironmentTypeRefinementTest12Fragment$fragmentType } from "./RelayModernEnvironmentTypeRefinementTest12Fragment.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentTypeRefinementTest11Fragment$fragmentType: FragmentType;
-export type RelayModernEnvironmentTypeRefinementTest11Fragment$data = {|
-  +id?: string,
-  +lastName?: ?string,
-  +$fragmentSpreads: RelayModernEnvironmentTypeRefinementTest12Fragment$fragmentType,
-  +$fragmentType: RelayModernEnvironmentTypeRefinementTest11Fragment$fragmentType,
-|};
+export type RelayModernEnvironmentTypeRefinementTest11Fragment$data = {
+  readonly id?: string,
+  readonly lastName?: ?string,
+  readonly $fragmentSpreads: RelayModernEnvironmentTypeRefinementTest12Fragment$fragmentType,
+  readonly $fragmentType: RelayModernEnvironmentTypeRefinementTest11Fragment$fragmentType,
+};
 export type RelayModernEnvironmentTypeRefinementTest11Fragment$key = {
-  +$data?: RelayModernEnvironmentTypeRefinementTest11Fragment$data,
-  +$fragmentSpreads: RelayModernEnvironmentTypeRefinementTest11Fragment$fragmentType,
+  readonly $data?: RelayModernEnvironmentTypeRefinementTest11Fragment$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentTypeRefinementTest11Fragment$fragmentType,
   ...
 };
 */
@@ -72,10 +71,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "8bc0e3639495f2b50a1e1d136c922617";
+  (node/*:: as any*/).hash = "8bc0e3639495f2b50a1e1d136c922617";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayModernEnvironmentTypeRefinementTest11Fragment$fragmentType,
   RelayModernEnvironmentTypeRefinementTest11Fragment$data,
 >*/);

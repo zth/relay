@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<47fd809060f082603caffb18184910a1>>
+ * @generated SignedSource<<7e3250724ddaf929ebc890ccae9844f7>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,21 +17,21 @@
 
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
-export type CommentDeleteInput = {|
+export type CommentDeleteInput = {
   commentId?: ?string,
-|};
-export type RelayOperationTrackerTest2Mutation$variables = {|
+};
+export type RelayOperationTrackerTest2Mutation$variables = {
   input?: ?CommentDeleteInput,
-|};
-export type RelayOperationTrackerTest2Mutation$data = {|
-  +commentDelete: ?{|
-    +__typename: "CommentDeleteResponsePayload",
-  |},
-|};
-export type RelayOperationTrackerTest2Mutation = {|
+};
+export type RelayOperationTrackerTest2Mutation$data = {
+  readonly commentDelete: ?{
+    readonly __typename: "CommentDeleteResponsePayload",
+  },
+};
+export type RelayOperationTrackerTest2Mutation = {
   response: RelayOperationTrackerTest2Mutation$data,
   variables: RelayOperationTrackerTest2Mutation$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -71,20 +70,20 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayOperationTrackerTest2Mutation",
-    "selections": (v1/*: any*/),
+    "selections": (v1/*:: as any*/),
     "type": "Mutation",
     "abstractKey": null
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayOperationTrackerTest2Mutation",
-    "selections": (v1/*: any*/)
+    "selections": (v1/*:: as any*/)
   },
   "params": {
     "cacheID": "508bc0c312f801d0dbadea41836e7e4f",
@@ -98,10 +97,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "e9dad29ed57988cb37c5a266d488dc06";
+  (node/*:: as any*/).hash = "e9dad29ed57988cb37c5a266d488dc06";
 }
 
-module.exports = ((node/*: any*/)/*: Mutation<
+module.exports = ((node/*:: as any*/)/*:: as Mutation<
   RelayOperationTrackerTest2Mutation$variables,
   RelayOperationTrackerTest2Mutation$data,
 >*/);

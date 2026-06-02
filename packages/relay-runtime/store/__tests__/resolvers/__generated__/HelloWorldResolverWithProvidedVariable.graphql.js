@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4f3705ae49dac8dc45ab3d386293a4ae>>
+ * @generated SignedSource<<ea84b1498fe28185d97e9df1618511d0>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -23,20 +22,20 @@ import {hello as queryHelloResolverType} from "../HelloWorldResolver.js";
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryHelloResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryHelloResolverType: (
-  args: {|
+(queryHelloResolverType as (
+  args: {
     world: string,
-  |},
+  },
   context: TestResolverContextType,
 ) => ?string);
 declare export opaque type HelloWorldResolverWithProvidedVariable$fragmentType: FragmentType;
-export type HelloWorldResolverWithProvidedVariable$data = {|
-  +hello: ?string,
-  +$fragmentType: HelloWorldResolverWithProvidedVariable$fragmentType,
-|};
+export type HelloWorldResolverWithProvidedVariable$data = {
+  readonly hello: ?string,
+  readonly $fragmentType: HelloWorldResolverWithProvidedVariable$fragmentType,
+};
 export type HelloWorldResolverWithProvidedVariable$key = {
-  +$data?: HelloWorldResolverWithProvidedVariable$data,
-  +$fragmentSpreads: HelloWorldResolverWithProvidedVariable$fragmentType,
+  readonly $data?: HelloWorldResolverWithProvidedVariable$data,
+  readonly $fragmentSpreads: HelloWorldResolverWithProvidedVariable$fragmentType,
   ...
 };
 */
@@ -78,10 +77,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "9f94df55099df09e6d33779b83f732fc";
+  (node/*:: as any*/).hash = "9f94df55099df09e6d33779b83f732fc";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   HelloWorldResolverWithProvidedVariable$fragmentType,
   HelloWorldResolverWithProvidedVariable$data,
 >*/);

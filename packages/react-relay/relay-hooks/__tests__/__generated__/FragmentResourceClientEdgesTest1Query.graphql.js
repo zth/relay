@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d220daeec9e97848216109556748993c>>
+ * @generated SignedSource<<d4249b5438589ba19068476f9730d498>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,19 +18,19 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { FragmentResourceClientEdgesTestFragment1$fragmentType } from "./FragmentResourceClientEdgesTestFragment1.graphql";
-export type FragmentResourceClientEdgesTest1Query$variables = {|
+export type FragmentResourceClientEdgesTest1Query$variables = {
   id: string,
-|};
-export type FragmentResourceClientEdgesTest1Query$data = {|
-  +node: ?{|
-    +__typename: string,
-    +$fragmentSpreads: FragmentResourceClientEdgesTestFragment1$fragmentType,
-  |},
-|};
-export type FragmentResourceClientEdgesTest1Query = {|
+};
+export type FragmentResourceClientEdgesTest1Query$data = {
+  readonly node: ?{
+    readonly __typename: string,
+    readonly $fragmentSpreads: FragmentResourceClientEdgesTestFragment1$fragmentType,
+  },
+};
+export type FragmentResourceClientEdgesTest1Query = {
   response: FragmentResourceClientEdgesTest1Query$data,
   variables: FragmentResourceClientEdgesTest1Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -58,20 +57,20 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "FragmentResourceClientEdgesTest1Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "args": null,
             "kind": "FragmentSpread",
@@ -86,19 +85,19 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "FragmentResourceClientEdgesTest1Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
@@ -151,10 +150,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "12b2f7755a7f2800f27cf07a3b735b7f";
+  (node/*:: as any*/).hash = "12b2f7755a7f2800f27cf07a3b735b7f";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   FragmentResourceClientEdgesTest1Query$variables,
   FragmentResourceClientEdgesTest1Query$data,
 >*/);

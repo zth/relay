@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e4a0cf0f4609651052fb5562fe7a3ddf>>
+ * @generated SignedSource<<d0286dcf61f3cb36dac4b227b19f8834>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,13 +20,13 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserFragment$fragmentType } from "./RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserFragment.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$fragmentType: FragmentType;
-export type RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$data = {|
-  +$fragmentSpreads: RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserFragment$fragmentType,
-  +$fragmentType: RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$fragmentType,
-|};
+export type RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$data = {
+  readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserFragment$fragmentType,
+  readonly $fragmentType: RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$fragmentType,
+};
 export type RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$key = {
-  +$data?: RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$data,
-  +$fragmentSpreads: RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$fragmentType,
+  readonly $data?: RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$fragmentType,
   ...
 };
 */
@@ -54,10 +53,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "04d25ce78bcd07804cf0d4b5d3114cf0";
+  (node/*:: as any*/).hash = "04d25ce78bcd07804cf0d4b5d3114cf0";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$fragmentType,
   RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$data,
 >*/);

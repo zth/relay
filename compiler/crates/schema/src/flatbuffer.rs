@@ -75,6 +75,15 @@ impl<'fb> FlatBufferSchema<'fb> {
             schema_flatbuffer::root_as_schema_with_opts(&opts, bytes)
                 .expect("Failed to get root as schema");
 
+        Self::from_flatbuffer_schema(fb_schema)
+    }
+
+    pub fn build_unchecked(bytes: &'fb [u8]) -> Self {
+        let flatbuffer_schema = unsafe { schema_flatbuffer::root_as_schema_unchecked(bytes) };
+        Self::from_flatbuffer_schema(flatbuffer_schema)
+    }
+
+    fn from_flatbuffer_schema(fb_schema: schema_flatbuffer::Schema<'fb>) -> Self {
         let query_type = Type::Object(ObjectID(fb_schema.query_type()));
         let mutation_type = fb_schema
             .has_mutation_type()
@@ -221,7 +230,7 @@ impl<'fb> FlatBufferSchema<'fb> {
                 Type::Interface(InterfaceID(type_.interface_id()))
             }
             schema_flatbuffer::TypeKind::Union => Type::Union(UnionID(type_.union_id())),
-            unknown => panic!("unknown TypeKind value: {:?}", unknown),
+            unknown => panic!("unknown TypeKind value: {unknown:?}"),
         }
     }
 
@@ -342,6 +351,7 @@ impl<'fb> FlatBufferSchema<'fb> {
         Some(EnumValue {
             value: value.value()?.intern(),
             directives,
+            description: None,
         })
     }
 
@@ -357,6 +367,10 @@ impl<'fb> FlatBufferSchema<'fb> {
     }
 
     fn parse_argument(&self, argument: schema_flatbuffer::Argument<'fb>) -> Option<Argument> {
+        let directives = match argument.directives() {
+            Some(dirs) => self.parse_directive_values(dirs)?,
+            None => Vec::new(),
+        };
         Some(Argument {
             name: WithLocation::generated(ArgumentName(argument.name().unwrap().intern())),
             default_value: match argument.value() {
@@ -365,7 +379,7 @@ impl<'fb> FlatBufferSchema<'fb> {
             },
             type_: self.parse_type_reference(argument.type_()?)?,
             description: None,
-            directives: Default::default(),
+            directives,
         })
     }
 
@@ -384,7 +398,7 @@ impl<'fb> FlatBufferSchema<'fb> {
             schema_flatbuffer::TypeReferenceKind::List => {
                 TypeReference::List(Box::new(self.parse_type_reference(type_reference.list()?)?))
             }
-            unknown => panic!("unknown TypeReferenceKind value: {:?}", unknown),
+            unknown => panic!("unknown TypeReferenceKind value: {unknown:?}"),
         })
     }
 
@@ -443,7 +457,7 @@ impl<'fb> FlatBufferSchema<'fb> {
             FB::Enum => ConstantValue::Enum(get_enum_node(value.enum_value()?.to_string())),
             FB::List => ConstantValue::List(self.parse_list_value(value.list_value()?)?),
             FB::Object => ConstantValue::Object(self.parse_object_value(value.object_value()?)?),
-            unknown => panic!("unknown ConstValueKind value: {:?}", unknown),
+            unknown => panic!("unknown ConstValueKind value: {unknown:?}"),
         })
     }
 
@@ -512,7 +526,7 @@ impl<'fb> FlatBufferSchema<'fb> {
             schema_flatbuffer::TypeKind::Union => {
                 self.unions.get(type_.union_id().try_into().unwrap()).name()
             }
-            unknown => panic!("unknown TypeKind value: {:?}", unknown),
+            unknown => panic!("unknown TypeKind value: {unknown:?}"),
         }
         .unwrap()
         .intern()
@@ -601,7 +615,7 @@ fn get_mapped_location(location: schema_flatbuffer::DirectiveLocation) -> Direct
         FDL::InputObject => DL::InputObject,
         FDL::InputFieldDefinition => DL::InputFieldDefinition,
         FDL::VariableDefinition => DL::VariableDefinition,
-        unknown => panic!("unknown DirectiveLocation value: {:?}", unknown),
+        unknown => panic!("unknown DirectiveLocation value: {unknown:?}"),
     }
 }
 
@@ -624,7 +638,7 @@ mod tests {
         type MailingAddress { id: ID }
         type Country { id: ID }
         ";
-        let sdl_schema = build_schema(sdl)?.unwrap_in_memory_impl();
+        let sdl_schema = build_schema(sdl)?;
         let bytes = serialize_as_flatbuffer(&sdl_schema);
         let fb_schema = FlatBufferSchema::build(&bytes);
 

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<017ca18e8f83a3e70285277746fbb0ba>>
+ * @generated SignedSource<<9113469beb4b0579aa67b81c72541a6d>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,21 +17,21 @@
 
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
-export type CommentDeleteInput = {|
+export type CommentDeleteInput = {
   commentId?: ?string,
-|};
-export type commitMutationTestRequiredRootFieldMutation$variables = {|
+};
+export type commitMutationTestRequiredRootFieldMutation$variables = {
   input?: ?CommentDeleteInput,
-|};
-export type commitMutationTestRequiredRootFieldMutation$data = {|
-  +commentDelete: ?{|
-    +deletedCommentId: ?string,
-  |},
-|};
-export type commitMutationTestRequiredRootFieldMutation = {|
+};
+export type commitMutationTestRequiredRootFieldMutation$data = {
+  readonly commentDelete: ?{
+    readonly deletedCommentId: ?string,
+  },
+};
+export type commitMutationTestRequiredRootFieldMutation = {
   response: commitMutationTestRequiredRootFieldMutation$data,
   variables: commitMutationTestRequiredRootFieldMutation$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -71,20 +70,20 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "commitMutationTestRequiredRootFieldMutation",
-    "selections": (v1/*: any*/),
+    "selections": (v1/*:: as any*/),
     "type": "Mutation",
     "abstractKey": null
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "commitMutationTestRequiredRootFieldMutation",
-    "selections": (v1/*: any*/)
+    "selections": (v1/*:: as any*/)
   },
   "params": {
     "cacheID": "19f1e1c50328f89205857394403b5d9b",
@@ -98,10 +97,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "b75215ee7b976cd4f043bc5a88b05931";
+  (node/*:: as any*/).hash = "b75215ee7b976cd4f043bc5a88b05931";
 }
 
-module.exports = ((node/*: any*/)/*: Mutation<
+module.exports = ((node/*:: as any*/)/*:: as Mutation<
   commitMutationTestRequiredRootFieldMutation$variables,
   commitMutationTestRequiredRootFieldMutation$data,
 >*/);

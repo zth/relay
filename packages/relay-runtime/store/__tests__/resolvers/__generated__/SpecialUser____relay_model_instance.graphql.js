@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<63ac02b54ca04df2b445774e1c967950>>
+ * @generated SignedSource<<aa0f260d911459a60668844c256cae83>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,19 +23,19 @@ import {SpecialUser as specialUserRelayModelInstanceResolverType} from "../Clien
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `specialUserRelayModelInstanceResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(specialUserRelayModelInstanceResolverType: (
+(specialUserRelayModelInstanceResolverType as (
   id: SpecialUser__id$data['id'],
   args: void,
   context: TestResolverContextType,
-) => mixed);
+) => unknown);
 declare export opaque type SpecialUser____relay_model_instance$fragmentType: FragmentType;
-export type SpecialUser____relay_model_instance$data = {|
-  +__relay_model_instance: $NonMaybeType<ReturnType<typeof specialUserRelayModelInstanceResolverType>>,
-  +$fragmentType: SpecialUser____relay_model_instance$fragmentType,
-|};
+export type SpecialUser____relay_model_instance$data = {
+  readonly __relay_model_instance: NonNullable<ReturnType<typeof specialUserRelayModelInstanceResolverType>>,
+  readonly $fragmentType: SpecialUser____relay_model_instance$fragmentType,
+};
 export type SpecialUser____relay_model_instance$key = {
-  +$data?: SpecialUser____relay_model_instance$data,
-  +$fragmentSpreads: SpecialUser____relay_model_instance$fragmentType,
+  readonly $data?: SpecialUser____relay_model_instance$data,
+  readonly $fragmentSpreads: SpecialUser____relay_model_instance$fragmentType,
   ...
 };
 */
@@ -65,7 +64,7 @@ var node/*: ReaderFragment*/ = {
   "abstractKey": null
 };
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   SpecialUser____relay_model_instance$fragmentType,
   SpecialUser____relay_model_instance$data,
 >*/);

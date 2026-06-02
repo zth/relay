@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f23086d5ecde83b4b2d8ed8130162b9f>>
+ * @generated SignedSource<<69c24dd28bbc6688ef02fe34aea4f7ab>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -23,21 +22,21 @@ import {last_name_throw_on_field_error as userLastNameThrowOnFieldErrorResolverT
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userLastNameThrowOnFieldErrorResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userLastNameThrowOnFieldErrorResolverType: (
+(userLastNameThrowOnFieldErrorResolverType as (
   rootKey: UserLastNameThrowOnFieldErrorResolver$key,
   args: void,
   context: TestResolverContextType,
 ) => ?string);
-export type RelayReaderRelayErrorHandlingTest2Query$variables = {||};
-export type RelayReaderRelayErrorHandlingTest2Query$data = {|
-  +me: ?{|
-    +last_name_throw_on_field_error: ?string,
-  |},
-|};
-export type RelayReaderRelayErrorHandlingTest2Query = {|
+export type RelayReaderRelayErrorHandlingTest2Query$variables = {};
+export type RelayReaderRelayErrorHandlingTest2Query$data = {
+  readonly me: ?{
+    readonly last_name_throw_on_field_error: ?string,
+  },
+};
+export type RelayReaderRelayErrorHandlingTest2Query = {
   response: RelayReaderRelayErrorHandlingTest2Query$data,
   variables: RelayReaderRelayErrorHandlingTest2Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {
@@ -133,10 +132,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "f1898474d6207f6accbdf61340aef474";
+  (node/*:: as any*/).hash = "f1898474d6207f6accbdf61340aef474";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderRelayErrorHandlingTest2Query$variables,
   RelayReaderRelayErrorHandlingTest2Query$data,
 >*/);

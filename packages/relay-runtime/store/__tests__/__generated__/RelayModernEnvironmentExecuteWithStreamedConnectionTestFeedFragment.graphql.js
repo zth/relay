@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a56796e07979503e5bf084fcbad6cffd>>
+ * @generated SignedSource<<81cebbb69b7ae9bc8fbd1fa3b03b6544>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,32 +19,32 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$fragmentType: FragmentType;
-export type RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$data = {|
-  +newsFeed: ?{|
-    +edges: ?$ReadOnlyArray<?{|
-      +cursor: ?string,
-      +node: ?{|
-        +__typename: string,
-        +feedback: ?{|
-          +actors: ?$ReadOnlyArray<?{|
-            +id: string,
-            +name: ?string,
-          |}>,
-          +id: string,
-        |},
-        +id: string,
-      |},
-    |}>,
-    +pageInfo: ?{|
-      +endCursor: ?string,
-      +hasNextPage: ?boolean,
-    |},
-  |},
-  +$fragmentType: RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$fragmentType,
-|};
+export type RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$data = {
+  readonly newsFeed: ?{
+    readonly edges: ?ReadonlyArray<?{
+      readonly cursor: ?string,
+      readonly node: ?{
+        readonly __typename: string,
+        readonly feedback: ?{
+          readonly actors: ?ReadonlyArray<?{
+            readonly id: string,
+            readonly name: ?string,
+          }>,
+          readonly id: string,
+        },
+        readonly id: string,
+      },
+    }>,
+    readonly pageInfo: ?{
+      readonly endCursor: ?string,
+      readonly hasNextPage: ?boolean,
+    },
+  },
+  readonly $fragmentType: RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$fragmentType,
+};
 export type RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$key = {
-  +$data?: RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$data,
-  +$fragmentSpreads: RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$fragmentType,
+  readonly $data?: RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$fragmentType,
   ...
 };
 */
@@ -126,7 +125,7 @@ return {
                       "name": "__typename",
                       "storageKey": null
                     },
-                    (v0/*: any*/),
+                    (v0/*:: as any*/),
                     {
                       "alias": null,
                       "args": null,
@@ -135,7 +134,7 @@ return {
                       "name": "feedback",
                       "plural": false,
                       "selections": [
-                        (v0/*: any*/),
+                        (v0/*:: as any*/),
                         {
                           "alias": null,
                           "args": null,
@@ -144,7 +143,7 @@ return {
                           "name": "actors",
                           "plural": true,
                           "selections": [
-                            (v0/*: any*/),
+                            (v0/*:: as any*/),
                             {
                               "alias": "name",
                               "args": null,
@@ -206,10 +205,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "89c54479a6a4b0bcce2086df209a357f";
+  (node/*:: as any*/).hash = "89c54479a6a4b0bcce2086df209a357f";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$fragmentType,
   RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$data,
 >*/);

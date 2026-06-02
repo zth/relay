@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<18c8b08a242350766dc3e35b00e88bee>>
+ * @generated SignedSource<<a41d45e4a5e056c333fc80f597a3e447>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,23 +18,23 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { withProvidedVariablesTest1Fragment$fragmentType } from "./withProvidedVariablesTest1Fragment.graphql";
-export type withProvidedVariablesTest1Query$variables = {||};
-export type withProvidedVariablesTest1Query$data = {|
-  +node: ?{|
-    +$fragmentSpreads: withProvidedVariablesTest1Fragment$fragmentType,
-  |},
-|};
-export type withProvidedVariablesTest1Query = {|
+export type withProvidedVariablesTest1Query$variables = {};
+export type withProvidedVariablesTest1Query$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: withProvidedVariablesTest1Fragment$fragmentType,
+  },
+};
+export type withProvidedVariablesTest1Query = {
   response: withProvidedVariablesTest1Query$data,
   variables: withProvidedVariablesTest1Query$variables,
-|};
+};
 ({
   "__relay_internal__pv__provideNumberOfFriendsrelayprovider": require('../provideNumberOfFriends.relayprovider')
-}: {|
-  +__relay_internal__pv__provideNumberOfFriendsrelayprovider: {|
-    +get: () => number,
-  |},
-|});
+} as {
+  readonly __relay_internal__pv__provideNumberOfFriendsrelayprovider: {
+    readonly get: () => number,
+  },
+});
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -55,7 +54,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -87,7 +86,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -158,10 +157,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "c5f46e63be71ffd76d40c58b53dc2c3a";
+  (node/*:: as any*/).hash = "c5f46e63be71ffd76d40c58b53dc2c3a";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   withProvidedVariablesTest1Query$variables,
   withProvidedVariablesTest1Query$data,
 >*/);

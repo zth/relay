@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7c4e9a5496de08cdafa104c7aca75950>>
+ * @generated SignedSource<<6059e54d1be5db4f0ab99eb0c300b7d6>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,31 +23,31 @@ import {client_edge as userClientEdgeResolverType} from "../UserClientEdgeResolv
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userClientEdgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userClientEdgeResolverType: (
+(userClientEdgeResolverType as (
   rootKey: UserClientEdgeResolver$key,
   args: void,
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
-export type ResolverGCTestResolverClientEdgeToServerQuery$variables = {||};
-export type ResolverGCTestResolverClientEdgeToServerQuery$data = {|
-  +me: ?{|
-    +client_edge: ?{|
-      +id: string,
-      +name: ?string,
-      +nearest_neighbor: {|
-        +id: string,
-        +name: ?string,
-      |},
-    |},
-    +name: ?string,
-  |},
-|};
-export type ResolverGCTestResolverClientEdgeToServerQuery = {|
+) => ?{
+  readonly id: DataID,
+});
+export type ResolverGCTestResolverClientEdgeToServerQuery$variables = {};
+export type ResolverGCTestResolverClientEdgeToServerQuery$data = {
+  readonly me: ?{
+    readonly client_edge: ?{
+      readonly id: string,
+      readonly name: ?string,
+      readonly nearest_neighbor: {
+        readonly id: string,
+        readonly name: ?string,
+      },
+    },
+    readonly name: ?string,
+  },
+};
+export type ResolverGCTestResolverClientEdgeToServerQuery = {
   response: ResolverGCTestResolverClientEdgeToServerQuery$data,
   variables: ResolverGCTestResolverClientEdgeToServerQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -83,7 +82,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
+          (v0/*:: as any*/),
           {
             "kind": "ClientEdgeToServerObject",
             "operation": require('./ClientEdgeQuery_ResolverGCTestResolverClientEdgeToServerQuery_me__client_edge.graphql'),
@@ -108,8 +107,8 @@ return {
               "name": "client_edge",
               "plural": false,
               "selections": [
-                (v1/*: any*/),
-                (v0/*: any*/),
+                (v1/*:: as any*/),
+                (v0/*:: as any*/),
                 {
                   "alias": null,
                   "args": null,
@@ -118,8 +117,8 @@ return {
                   "name": "nearest_neighbor",
                   "plural": false,
                   "selections": [
-                    (v1/*: any*/),
-                    (v0/*: any*/)
+                    (v1/*:: as any*/),
+                    (v0/*:: as any*/)
                   ],
                   "storageKey": null
                 }
@@ -148,14 +147,14 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
+          (v0/*:: as any*/),
           {
             "name": "client_edge",
             "args": null,
             "fragment": {
               "kind": "InlineFragment",
               "selections": [
-                (v0/*: any*/)
+                (v0/*:: as any*/)
               ],
               "type": "User",
               "abstractKey": null
@@ -164,7 +163,7 @@ return {
             "storageKey": null,
             "isOutputType": false
           },
-          (v1/*: any*/)
+          (v1/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -182,10 +181,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "fe9d1d04537877d59f4905abc58c777f";
+  (node/*:: as any*/).hash = "fe9d1d04537877d59f4905abc58c777f";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ResolverGCTestResolverClientEdgeToServerQuery$variables,
   ResolverGCTestResolverClientEdgeToServerQuery$data,
 >*/);

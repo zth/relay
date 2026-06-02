@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8f4b0aac4120f11d442c4307930ad342>>
+ * @generated SignedSource<<10dfc30fc9e62bdac4fb811ff8a1187e>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,13 +19,13 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type useRefetchableFragmentNodeWithSuspenseTransitionTestNestedUserFragment$fragmentType: FragmentType;
-export type useRefetchableFragmentNodeWithSuspenseTransitionTestNestedUserFragment$data = {|
-  +username: ?string,
-  +$fragmentType: useRefetchableFragmentNodeWithSuspenseTransitionTestNestedUserFragment$fragmentType,
-|};
+export type useRefetchableFragmentNodeWithSuspenseTransitionTestNestedUserFragment$data = {
+  readonly username: ?string,
+  readonly $fragmentType: useRefetchableFragmentNodeWithSuspenseTransitionTestNestedUserFragment$fragmentType,
+};
 export type useRefetchableFragmentNodeWithSuspenseTransitionTestNestedUserFragment$key = {
-  +$data?: useRefetchableFragmentNodeWithSuspenseTransitionTestNestedUserFragment$data,
-  +$fragmentSpreads: useRefetchableFragmentNodeWithSuspenseTransitionTestNestedUserFragment$fragmentType,
+  readonly $data?: useRefetchableFragmentNodeWithSuspenseTransitionTestNestedUserFragment$data,
+  readonly $fragmentSpreads: useRefetchableFragmentNodeWithSuspenseTransitionTestNestedUserFragment$fragmentType,
   ...
 };
 */
@@ -50,10 +49,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "3fc88d644a0a4729fad8c22506a29f36";
+  (node/*:: as any*/).hash = "3fc88d644a0a4729fad8c22506a29f36";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   useRefetchableFragmentNodeWithSuspenseTransitionTestNestedUserFragment$fragmentType,
   useRefetchableFragmentNodeWithSuspenseTransitionTestNestedUserFragment$data,
 >*/);

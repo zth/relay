@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<251352b3e01dad80ebff105e8362a2f0>>
+ * @generated SignedSource<<c7cea70db4d65240e9ecbbce245b986b>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,16 +18,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { observeFragmentTestToResolverSuspenseFragment$fragmentType } from "./observeFragmentTestToResolverSuspenseFragment.graphql";
-export type observeFragmentTestToResolverSuspenseQuery$variables = {||};
-export type observeFragmentTestToResolverSuspenseQuery$data = {|
-  +me: ?{|
-    +$fragmentSpreads: observeFragmentTestToResolverSuspenseFragment$fragmentType,
-  |},
-|};
-export type observeFragmentTestToResolverSuspenseQuery = {|
+export type observeFragmentTestToResolverSuspenseQuery$variables = {};
+export type observeFragmentTestToResolverSuspenseQuery$data = {
+  readonly me: ?{
+    readonly $fragmentSpreads: observeFragmentTestToResolverSuspenseFragment$fragmentType,
+  },
+};
+export type observeFragmentTestToResolverSuspenseQuery = {
   response: observeFragmentTestToResolverSuspenseQuery$data,
   variables: observeFragmentTestToResolverSuspenseQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {
@@ -108,10 +107,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "8a0fc18dd1ed0c3069931597ed10b9a2";
+  (node/*:: as any*/).hash = "8a0fc18dd1ed0c3069931597ed10b9a2";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   observeFragmentTestToResolverSuspenseQuery$variables,
   observeFragmentTestToResolverSuspenseQuery$data,
 >*/);

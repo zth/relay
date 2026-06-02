@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<04e473cfd61ce67af6890717b0584de6>>
+ * @generated SignedSource<<bf9eebb1a97ac33fdc17c263a410f30d>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,18 +18,18 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayReaderTestShouldConsiderDataMissingIfTheFragmentTypeIsAbstractActorProfile$fragmentType } from "./RelayReaderTestShouldConsiderDataMissingIfTheFragmentTypeIsAbstractActorProfile.graphql";
-export type RelayReaderTestShouldConsiderDataMissingIfTheFragmentTypeIsAbstractActorQuery$variables = {||};
-export type RelayReaderTestShouldConsiderDataMissingIfTheFragmentTypeIsAbstractActorQuery$data = {|
-  +viewer: ?{|
-    +actor: ?{|
-      +$fragmentSpreads: RelayReaderTestShouldConsiderDataMissingIfTheFragmentTypeIsAbstractActorProfile$fragmentType,
-    |},
-  |},
-|};
-export type RelayReaderTestShouldConsiderDataMissingIfTheFragmentTypeIsAbstractActorQuery = {|
+export type RelayReaderTestShouldConsiderDataMissingIfTheFragmentTypeIsAbstractActorQuery$variables = {};
+export type RelayReaderTestShouldConsiderDataMissingIfTheFragmentTypeIsAbstractActorQuery$data = {
+  readonly viewer: ?{
+    readonly actor: ?{
+      readonly $fragmentSpreads: RelayReaderTestShouldConsiderDataMissingIfTheFragmentTypeIsAbstractActorProfile$fragmentType,
+    },
+  },
+};
+export type RelayReaderTestShouldConsiderDataMissingIfTheFragmentTypeIsAbstractActorQuery = {
   response: RelayReaderTestShouldConsiderDataMissingIfTheFragmentTypeIsAbstractActorQuery$data,
   variables: RelayReaderTestShouldConsiderDataMissingIfTheFragmentTypeIsAbstractActorQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {
@@ -137,10 +136,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "4b700c3225c0e3ab4f6a4eec8276a452";
+  (node/*:: as any*/).hash = "4b700c3225c0e3ab4f6a4eec8276a452";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderTestShouldConsiderDataMissingIfTheFragmentTypeIsAbstractActorQuery$variables,
   RelayReaderTestShouldConsiderDataMissingIfTheFragmentTypeIsAbstractActorQuery$data,
 >*/);

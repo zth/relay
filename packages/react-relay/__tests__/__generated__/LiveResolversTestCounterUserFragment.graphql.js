@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6c2a76037cf9638cbf0b23ed551c0076>>
+ * @generated SignedSource<<207d5cd5408c3435a4fda6be0ed0c52c>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -23,18 +22,18 @@ import {counter_suspends_when_odd as userCounterSuspendsWhenOddResolverType} fro
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userCounterSuspendsWhenOddResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userCounterSuspendsWhenOddResolverType: (
+(userCounterSuspendsWhenOddResolverType as (
   args: void,
   context: TestResolverContextType,
 ) => LiveState<?number>);
 declare export opaque type LiveResolversTestCounterUserFragment$fragmentType: FragmentType;
-export type LiveResolversTestCounterUserFragment$data = {|
-  +counter_suspends_when_odd: ?number,
-  +$fragmentType: LiveResolversTestCounterUserFragment$fragmentType,
-|};
+export type LiveResolversTestCounterUserFragment$data = {
+  readonly counter_suspends_when_odd: ?number,
+  readonly $fragmentType: LiveResolversTestCounterUserFragment$fragmentType,
+};
 export type LiveResolversTestCounterUserFragment$key = {
-  +$data?: LiveResolversTestCounterUserFragment$data,
-  +$fragmentSpreads: LiveResolversTestCounterUserFragment$fragmentType,
+  readonly $data?: LiveResolversTestCounterUserFragment$data,
+  readonly $fragmentSpreads: LiveResolversTestCounterUserFragment$fragmentType,
   ...
 };
 */
@@ -65,10 +64,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "b2185430d34bfbf0eadad14f4e9f8869";
+  (node/*:: as any*/).hash = "b2185430d34bfbf0eadad14f4e9f8869";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   LiveResolversTestCounterUserFragment$fragmentType,
   LiveResolversTestCounterUserFragment$data,
 >*/);

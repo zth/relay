@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6e2054587b8ff1c81d40535eb007ee66>>
+ * @generated SignedSource<<ef99706ef707e5c2caa4fc230d15bbb6>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,18 +18,18 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RefetchableClientEdgeQuery_LiveResolversTest15Query_live_user_resolver_always_suspend$fragmentType } from "./RefetchableClientEdgeQuery_LiveResolversTest15Query_live_user_resolver_always_suspend.graphql";
-export type ClientEdgeQuery_LiveResolversTest15Query_live_user_resolver_always_suspend$variables = {|
+export type ClientEdgeQuery_LiveResolversTest15Query_live_user_resolver_always_suspend$variables = {
   id: string,
-|};
-export type ClientEdgeQuery_LiveResolversTest15Query_live_user_resolver_always_suspend$data = {|
-  +node: ?{|
-    +$fragmentSpreads: RefetchableClientEdgeQuery_LiveResolversTest15Query_live_user_resolver_always_suspend$fragmentType,
-  |},
-|};
-export type ClientEdgeQuery_LiveResolversTest15Query_live_user_resolver_always_suspend = {|
+};
+export type ClientEdgeQuery_LiveResolversTest15Query_live_user_resolver_always_suspend$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: RefetchableClientEdgeQuery_LiveResolversTest15Query_live_user_resolver_always_suspend$fragmentType,
+  },
+};
+export type ClientEdgeQuery_LiveResolversTest15Query_live_user_resolver_always_suspend = {
   response: ClientEdgeQuery_LiveResolversTest15Query_live_user_resolver_always_suspend$data,
   variables: ClientEdgeQuery_LiveResolversTest15Query_live_user_resolver_always_suspend$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -50,14 +49,14 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "ClientEdgeQuery_LiveResolversTest15Query_live_user_resolver_always_suspend",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -77,13 +76,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "ClientEdgeQuery_LiveResolversTest15Query_live_user_resolver_always_suspend",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -134,10 +133,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "649fcb31c6138f80ad0ebb97c80d9ae6";
+  (node/*:: as any*/).hash = "649fcb31c6138f80ad0ebb97c80d9ae6";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ClientEdgeQuery_LiveResolversTest15Query_live_user_resolver_always_suspend$variables,
   ClientEdgeQuery_LiveResolversTest15Query_live_user_resolver_always_suspend$data,
 >*/);

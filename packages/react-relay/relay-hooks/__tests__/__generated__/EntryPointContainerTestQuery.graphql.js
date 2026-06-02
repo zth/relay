@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<44d1391b9bd625c569f44404f49ab4a1>>
+ * @generated SignedSource<<709088b878717676df9491169b28f17e>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,19 +17,19 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type EntryPointContainerTestQuery$variables = {|
+export type EntryPointContainerTestQuery$variables = {
   id: string,
-|};
-export type EntryPointContainerTestQuery$data = {|
-  +node: ?{|
-    +id: string,
-    +name?: ?string,
-  |},
-|};
-export type EntryPointContainerTestQuery = {|
+};
+export type EntryPointContainerTestQuery$data = {
+  readonly node: ?{
+    readonly id: string,
+    readonly name?: ?string,
+  },
+};
+export type EntryPointContainerTestQuery = {
   response: EntryPointContainerTestQuery$data,
   variables: EntryPointContainerTestQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -71,21 +70,21 @@ v3 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "EntryPointContainerTestQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
-          (v3/*: any*/)
+          (v2/*:: as any*/),
+          (v3/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -95,13 +94,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "EntryPointContainerTestQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -114,8 +113,8 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v2/*: any*/),
-          (v3/*: any*/)
+          (v2/*:: as any*/),
+          (v3/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -133,10 +132,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "709de726e9b253337a1b621d3eb10b67";
+  (node/*:: as any*/).hash = "709de726e9b253337a1b621d3eb10b67";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   EntryPointContainerTestQuery$variables,
   EntryPointContainerTestQuery$data,
 >*/);

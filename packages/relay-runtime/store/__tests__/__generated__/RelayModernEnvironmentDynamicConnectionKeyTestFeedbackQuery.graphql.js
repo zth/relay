@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6df53546f89a0e3fe557a85da970ddde>>
+ * @generated SignedSource<<e998bfbe3edc2c018eb368018702fe94>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,19 +18,19 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment$fragmentType } from "./RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment.graphql";
-export type RelayModernEnvironmentDynamicConnectionKeyTestFeedbackQuery$variables = {|
+export type RelayModernEnvironmentDynamicConnectionKeyTestFeedbackQuery$variables = {
   commentsKey?: ?string,
   id: string,
-|};
-export type RelayModernEnvironmentDynamicConnectionKeyTestFeedbackQuery$data = {|
-  +node: ?{|
-    +$fragmentSpreads: RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment$fragmentType,
-  |},
-|};
-export type RelayModernEnvironmentDynamicConnectionKeyTestFeedbackQuery = {|
+};
+export type RelayModernEnvironmentDynamicConnectionKeyTestFeedbackQuery$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment$fragmentType,
+  },
+};
+export type RelayModernEnvironmentDynamicConnectionKeyTestFeedbackQuery = {
   response: RelayModernEnvironmentDynamicConnectionKeyTestFeedbackQuery$data,
   variables: RelayModernEnvironmentDynamicConnectionKeyTestFeedbackQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -81,8 +80,8 @@ v5 = [
 return {
   "fragment": {
     "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/)
+      (v0/*:: as any*/),
+      (v1/*:: as any*/)
     ],
     "kind": "Fragment",
     "metadata": null,
@@ -90,7 +89,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v2/*: any*/),
+        "args": (v2/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -111,28 +110,28 @@ return {
   "kind": "Request",
   "operation": {
     "argumentDefinitions": [
-      (v1/*: any*/),
-      (v0/*: any*/)
+      (v1/*:: as any*/),
+      (v0/*:: as any*/)
     ],
     "kind": "Operation",
     "name": "RelayModernEnvironmentDynamicConnectionKeyTestFeedbackQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v2/*: any*/),
+        "args": (v2/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v3/*: any*/),
-          (v4/*: any*/),
+          (v3/*:: as any*/),
+          (v4/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
               {
                 "alias": null,
-                "args": (v5/*: any*/),
+                "args": (v5/*:: as any*/),
                 "concreteType": "CommentsConnection",
                 "kind": "LinkedField",
                 "name": "comments",
@@ -154,8 +153,8 @@ return {
                         "name": "node",
                         "plural": false,
                         "selections": [
-                          (v4/*: any*/),
-                          (v3/*: any*/)
+                          (v4/*:: as any*/),
+                          (v3/*:: as any*/)
                         ],
                         "storageKey": null
                       },
@@ -199,7 +198,7 @@ return {
               },
               {
                 "alias": null,
-                "args": (v5/*: any*/),
+                "args": (v5/*:: as any*/),
                 "filters": [
                   "orderby"
                 ],
@@ -234,10 +233,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "b57fa82fe4a28fee879d610ee77676d0";
+  (node/*:: as any*/).hash = "b57fa82fe4a28fee879d610ee77676d0";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentDynamicConnectionKeyTestFeedbackQuery$variables,
   RelayModernEnvironmentDynamicConnectionKeyTestFeedbackQuery$data,
 >*/);

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<57336f71892fef01936c5794e5ede2c2>>
+ * @generated SignedSource<<f84e273dabb63fcd0a2af75d83d1a0cc>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,13 +19,13 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type GraphQLTagTest1UserFragment$fragmentType: FragmentType;
-export type GraphQLTagTest1UserFragment$data = {|
-  +name: ?string,
-  +$fragmentType: GraphQLTagTest1UserFragment$fragmentType,
-|};
+export type GraphQLTagTest1UserFragment$data = {
+  readonly name: ?string,
+  readonly $fragmentType: GraphQLTagTest1UserFragment$fragmentType,
+};
 export type GraphQLTagTest1UserFragment$key = {
-  +$data?: GraphQLTagTest1UserFragment$data,
-  +$fragmentSpreads: GraphQLTagTest1UserFragment$fragmentType,
+  readonly $data?: GraphQLTagTest1UserFragment$data,
+  readonly $fragmentSpreads: GraphQLTagTest1UserFragment$fragmentType,
   ...
 };
 */
@@ -50,10 +49,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "fced6c5e36db6981177c0fbd5f001550";
+  (node/*:: as any*/).hash = "fced6c5e36db6981177c0fbd5f001550";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   GraphQLTagTest1UserFragment$fragmentType,
   GraphQLTagTest1UserFragment$data,
 >*/);

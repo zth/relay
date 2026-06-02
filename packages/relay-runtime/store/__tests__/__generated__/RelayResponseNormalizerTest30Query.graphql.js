@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c7b5e2a694c079a5ccf5bad11c6ce83e>>
+ * @generated SignedSource<<1fdbbfeac9c4cf2d6903470bb3753ba3>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,18 +17,18 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayResponseNormalizerTest30Query$variables = {||};
-export type RelayResponseNormalizerTest30Query$data = {|
-  +me: ?{|
-    +author: ?{|
-      +id: string,
-    |},
-  |},
-|};
-export type RelayResponseNormalizerTest30Query = {|
+export type RelayResponseNormalizerTest30Query$variables = {};
+export type RelayResponseNormalizerTest30Query$data = {
+  readonly me: ?{
+    readonly author: ?{
+      readonly id: string,
+    },
+  },
+};
+export type RelayResponseNormalizerTest30Query = {
   response: RelayResponseNormalizerTest30Query$data,
   variables: RelayResponseNormalizerTest30Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -48,7 +47,7 @@ v1 = {
   "name": "author",
   "plural": false,
   "selections": [
-    (v0/*: any*/)
+    (v0/*:: as any*/)
   ],
   "storageKey": null
 };
@@ -67,7 +66,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v1/*: any*/)
+          (v1/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -89,8 +88,8 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v1/*: any*/),
-          (v0/*: any*/)
+          (v1/*:: as any*/),
+          (v0/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -108,10 +107,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "afcd3f22af213b8daaa34a82ded163ad";
+  (node/*:: as any*/).hash = "afcd3f22af213b8daaa34a82ded163ad";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayResponseNormalizerTest30Query$variables,
   RelayResponseNormalizerTest30Query$data,
 >*/);

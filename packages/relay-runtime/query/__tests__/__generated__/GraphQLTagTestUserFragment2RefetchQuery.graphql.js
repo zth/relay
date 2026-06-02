@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<804fd8ebbff2b3b730c57ef7e04d20af>>
+ * @generated SignedSource<<8c8931722c734ef0e3b3c89483b9ab40>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,20 +19,20 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 import type { GraphQLTagTest3UserFragment$fragmentType } from "./GraphQLTagTest3UserFragment.graphql";
-export type GraphQLTagTestUserFragment2RefetchQuery$variables = {|
+export type GraphQLTagTestUserFragment2RefetchQuery$variables = {
   after?: ?string,
   first?: ?number,
   id: string,
-|};
-export type GraphQLTagTestUserFragment2RefetchQuery$data = {|
-  +node: ?{|
-    +$fragmentSpreads: GraphQLTagTest3UserFragment$fragmentType,
-  |},
-|};
-export type GraphQLTagTestUserFragment2RefetchQuery = {|
+};
+export type GraphQLTagTestUserFragment2RefetchQuery$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: GraphQLTagTest3UserFragment$fragmentType,
+  },
+};
+export type GraphQLTagTestUserFragment2RefetchQuery = {
   response: GraphQLTagTestUserFragment2RefetchQuery$data,
   variables: GraphQLTagTestUserFragment2RefetchQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -89,14 +88,14 @@ v4 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "GraphQLTagTestUserFragment2RefetchQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -116,20 +115,20 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "GraphQLTagTestUserFragment2RefetchQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
-          (v3/*: any*/),
+          (v2/*:: as any*/),
+          (v3/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
@@ -142,7 +141,7 @@ return {
               },
               {
                 "alias": null,
-                "args": (v4/*: any*/),
+                "args": (v4/*:: as any*/),
                 "concreteType": "FriendsConnection",
                 "kind": "LinkedField",
                 "name": "friends",
@@ -164,8 +163,8 @@ return {
                         "name": "node",
                         "plural": false,
                         "selections": [
-                          (v3/*: any*/),
-                          (v2/*: any*/)
+                          (v3/*:: as any*/),
+                          (v2/*:: as any*/)
                         ],
                         "storageKey": null
                       },
@@ -209,7 +208,7 @@ return {
               },
               {
                 "alias": null,
-                "args": (v4/*: any*/),
+                "args": (v4/*:: as any*/),
                 "filters": null,
                 "handle": "connection",
                 "key": "UserFragment_friends",
@@ -237,10 +236,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "ef4734e829166cfa64df0cd412904bdf";
+  (node/*:: as any*/).hash = "ef4734e829166cfa64df0cd412904bdf";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   GraphQLTagTestUserFragment2RefetchQuery$variables,
   GraphQLTagTestUserFragment2RefetchQuery$data,
 >*/);

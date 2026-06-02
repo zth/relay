@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<084c6feb9c37b0d0fcf2519ec85db7a9>>
+ * @generated SignedSource<<14d65c149c6e81bcf98ee5973788dc72>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,19 +20,19 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentFragment$fragmentType } from "./RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentFragment.graphql";
-export type RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentQuery$variables = {|
+export type RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentQuery$variables = {
   id: string,
-|};
-export type RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentQuery$data = {|
-  +node: ?{|
-    +id: string,
-    +$fragmentSpreads: RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentFragment$fragmentType,
-  |},
-|};
-export type RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentQuery = {|
+};
+export type RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentQuery$data = {
+  readonly node: ?{
+    readonly id: string,
+    readonly $fragmentSpreads: RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentFragment$fragmentType,
+  },
+};
+export type RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentQuery = {
   response: RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentQuery$data,
   variables: RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -67,20 +66,20 @@ v3 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "args": null,
             "kind": "FragmentSpread",
@@ -95,20 +94,20 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v3/*: any*/),
-          (v2/*: any*/),
+          (v3/*:: as any*/),
+          (v2/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
@@ -120,7 +119,7 @@ return {
                 "name": "actor",
                 "plural": false,
                 "selections": [
-                  (v3/*: any*/),
+                  (v3/*:: as any*/),
                   {
                     "alias": null,
                     "args": null,
@@ -142,7 +141,7 @@ return {
                     "name": "nameRenderer",
                     "plural": false,
                     "selections": [
-                      (v3/*: any*/),
+                      (v3/*:: as any*/),
                       {
                         "kind": "InlineFragment",
                         "selections": [
@@ -174,7 +173,7 @@ return {
                     ],
                     "storageKey": "nameRenderer(supported:\"34hjiS\")"
                   },
-                  (v2/*: any*/)
+                  (v2/*:: as any*/)
                 ],
                 "storageKey": null
               }
@@ -199,10 +198,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "6867c6d5b6b3b26fbbd58906a450e38c";
+  (node/*:: as any*/).hash = "6867c6d5b6b3b26fbbd58906a450e38c";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentQuery$variables,
   RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentQuery$data,
 >*/);

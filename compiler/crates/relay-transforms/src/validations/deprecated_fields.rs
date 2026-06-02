@@ -12,6 +12,7 @@ use common::DiagnosticTag;
 use common::DiagnosticsResult;
 use common::WithLocation;
 use graphql_ir::Argument;
+use graphql_ir::ConstantValue;
 use graphql_ir::Directive;
 use graphql_ir::ExecutableDefinition;
 use graphql_ir::LinkedField;
@@ -24,6 +25,7 @@ use graphql_ir::Value;
 use schema::FieldID;
 use schema::SDLSchema;
 use schema::Schema;
+use schema::Type;
 
 use crate::fragment_alias_directive::FRAGMENT_DANGEROUSLY_UNALIAS_DIRECTIVE_NAME;
 
@@ -97,6 +99,25 @@ impl<'a> DeprecatedFields<'a> {
                         vec![DiagnosticTag::DEPRECATED],
                     ));
                 }
+
+                if let Type::Enum(enum_id) = arg_definition.type_.inner() {
+                    let enum_def = schema.enum_(enum_id);
+                    if let Value::Constant(ConstantValue::Enum(value_name)) = &arg.value.item
+                        && let Some(enum_value) =
+                            enum_def.values.iter().find(|v| v.value == *value_name)
+                        && let Some(deprecation) = enum_value.deprecated()
+                    {
+                        self.warnings.push(Diagnostic::hint(
+                            ValidationMessage::DeprecatedEnumValue {
+                                enum_value: *value_name,
+                                enum_name: enum_def.name.item.0,
+                                deprecation_reason: deprecation.reason,
+                            },
+                            arg.value.location,
+                            vec![DiagnosticTag::DEPRECATED],
+                        ));
+                    }
+                }
             }
         }
     }
@@ -121,11 +142,9 @@ impl Validator for DeprecatedFields<'_> {
     }
 
     fn validate_value(&mut self, value: &Value) -> DiagnosticsResult<()> {
-        // TODO: `@deprecated` is allowed on Enum values, so technically we
-        // should also be validating when someone uses a deprecated enum value
-        // as an argument, but that will require some additional methods on our
-        // Schema, and potentially some additional traversal in our validation
-        // trait to traverse into potentially deep constant objects/arrays.
+        // TODO: Deprecated enum values inside deeply nested constant objects/arrays
+        // are not yet validated. Top-level enum values in field and directive arguments
+        // are handled in validate_field and validate_directive respectively.
         self.default_validate_value(value)
     }
 
@@ -154,6 +173,25 @@ impl Validator for DeprecatedFields<'_> {
                             arg.name.location,
                             vec![DiagnosticTag::DEPRECATED],
                         ));
+                    }
+
+                    if let Type::Enum(enum_id) = arg_definition.type_.inner() {
+                        let enum_def = self.schema.enum_(enum_id);
+                        if let Value::Constant(ConstantValue::Enum(value_name)) = &arg.value.item
+                            && let Some(enum_value) =
+                                enum_def.values.iter().find(|v| v.value == *value_name)
+                            && let Some(deprecation) = enum_value.deprecated()
+                        {
+                            self.warnings.push(Diagnostic::hint(
+                                ValidationMessage::DeprecatedEnumValue {
+                                    enum_value: *value_name,
+                                    enum_name: enum_def.name.item.0,
+                                    deprecation_reason: deprecation.reason,
+                                },
+                                arg.value.location,
+                                vec![DiagnosticTag::DEPRECATED],
+                            ));
+                        }
                     }
                 }
             }

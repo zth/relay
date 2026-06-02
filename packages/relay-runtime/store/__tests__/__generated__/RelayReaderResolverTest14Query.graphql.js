@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1460dd145afb22d6e34e70c030c1e4c2>>
+ * @generated SignedSource<<a8fe3f4df51526a8170e16efef33f976>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -23,19 +22,19 @@ import {throw_before_read as queryThrowBeforeReadResolverType} from "../resolver
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryThrowBeforeReadResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryThrowBeforeReadResolverType: (
+(queryThrowBeforeReadResolverType as (
   rootKey: ThrowBeforeReadResolver$key,
   args: void,
   context: TestResolverContextType,
-) => ?mixed);
-export type RelayReaderResolverTest14Query$variables = {||};
-export type RelayReaderResolverTest14Query$data = {|
-  +throw_before_read: ?ReturnType<typeof queryThrowBeforeReadResolverType>,
-|};
-export type RelayReaderResolverTest14Query = {|
+) => ?unknown);
+export type RelayReaderResolverTest14Query$variables = {};
+export type RelayReaderResolverTest14Query$data = {
+  readonly throw_before_read: ?ReturnType<typeof queryThrowBeforeReadResolverType>,
+};
+export type RelayReaderResolverTest14Query = {
   response: RelayReaderResolverTest14Query$data,
   variables: RelayReaderResolverTest14Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {
@@ -125,10 +124,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "796e410e5226384ec64305a38fa81d1d";
+  (node/*:: as any*/).hash = "796e410e5226384ec64305a38fa81d1d";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderResolverTest14Query$variables,
   RelayReaderResolverTest14Query$data,
 >*/);

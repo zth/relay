@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0d585c3944b7bfe14073570fe8925759>>
+ * @generated SignedSource<<11090d10dc153db0214abc776dfc94a9>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,18 +17,18 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayReaderRequiredFieldsTest14Query$variables = {|
+export type RelayReaderRequiredFieldsTest14Query$variables = {
   skip: boolean,
-|};
-export type RelayReaderRequiredFieldsTest14Query$data = {|
-  +me: ?{|
-    +emailAddresses?: $ReadOnlyArray<?string>,
-  |},
-|};
-export type RelayReaderRequiredFieldsTest14Query = {|
+};
+export type RelayReaderRequiredFieldsTest14Query$data = {
+  readonly me: ?{
+    readonly emailAddresses?: ReadonlyArray<?string>,
+  },
+};
+export type RelayReaderRequiredFieldsTest14Query = {
   response: RelayReaderRequiredFieldsTest14Query$data,
   variables: RelayReaderRequiredFieldsTest14Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -49,7 +48,7 @@ v1 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayReaderRequiredFieldsTest14Query",
@@ -69,7 +68,7 @@ return {
             "selections": [
               {
                 "kind": "RequiredField",
-                "field": (v1/*: any*/),
+                "field": (v1/*:: as any*/),
                 "action": "LOG"
               }
             ]
@@ -83,7 +82,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayReaderRequiredFieldsTest14Query",
     "selections": [
@@ -100,7 +99,7 @@ return {
             "kind": "Condition",
             "passingValue": false,
             "selections": [
-              (v1/*: any*/)
+              (v1/*:: as any*/)
             ]
           },
           {
@@ -127,10 +126,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "2c11aae5845b769b18eea9e4fbed5799";
+  (node/*:: as any*/).hash = "2c11aae5845b769b18eea9e4fbed5799";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderRequiredFieldsTest14Query$variables,
   RelayReaderRequiredFieldsTest14Query$data,
 >*/);

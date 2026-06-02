@@ -10,11 +10,15 @@
  */
 
 'use strict';
-import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
-import type {Snapshot} from '../RelayStoreTypes';
+import type {
+  GraphQLResponse,
+  PayloadExtensions,
+} from 'relay-runtime/network/RelayNetworkTypes';
+import type {Sink} from 'relay-runtime/network/RelayObservable';
 import type {
   HandleFieldPayload,
   RecordSourceProxy,
+  Snapshot,
   TaskPriority,
 } from 'relay-runtime/store/RelayStoreTypes';
 import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
@@ -26,17 +30,19 @@ import type {
 const {
   MultiActorEnvironment,
   getActorIdentifier,
-} = require('../../multi-actor-environment');
-const RelayNetwork = require('../../network/RelayNetwork');
-const RelayObservable = require('../../network/RelayObservable');
-const {graphql} = require('../../query/GraphQLTag');
-const RelayModernEnvironment = require('../RelayModernEnvironment');
+} = require('relay-runtime/multi-actor-environment');
+const RelayNetwork = require('relay-runtime/network/RelayNetwork');
+const RelayObservable = require('relay-runtime/network/RelayObservable');
+const {graphql} = require('relay-runtime/query/GraphQLTag');
+const RelayModernEnvironment = require('relay-runtime/store/RelayModernEnvironment');
 const {
   createOperationDescriptor,
-} = require('../RelayModernOperationDescriptor');
-const {createReaderSelector} = require('../RelayModernSelector');
-const RelayModernStore = require('../RelayModernStore');
-const RelayRecordSource = require('../RelayRecordSource');
+} = require('relay-runtime/store/RelayModernOperationDescriptor');
+const {
+  createReaderSelector,
+} = require('relay-runtime/store/RelayModernSelector');
+const RelayModernStore = require('relay-runtime/store/RelayModernStore');
+const RelayRecordSource = require('relay-runtime/store/RelayRecordSource');
 const {
   disallowWarnings,
   expectToWarn,
@@ -99,19 +105,20 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           },
         };
 
-        complete = jest.fn<[], mixed>();
-        error = jest.fn<[Error], mixed>();
-        next = jest.fn<[GraphQLResponse], mixed>();
+        complete = jest.fn<[], unknown>();
+        error = jest.fn<[Error], unknown>();
+        next = jest.fn<[GraphQLResponse], unknown>();
         callbacks = {complete, error, next};
         fetch = (
           _query: RequestParameters,
           _variables: Variables,
           _cacheConfig: CacheConfig,
-        ) => {
-          // $FlowFixMe[missing-local-annot] Error found while enabling LTI on this file
-          return RelayObservable.create(sink => {
-            dataSource = sink;
-          });
+        ): RelayObservable<GraphQLResponse> => {
+          return RelayObservable.create<GraphQLResponse>(
+            (sink: Sink<GraphQLResponse>) => {
+              dataSource = sink;
+            },
+          );
         };
         source = RelayRecordSource.create();
         store = new RelayModernStore(source);
@@ -225,7 +232,10 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         next.mockClear();
         callback.mockClear();
 
-        const extensionsPayload = {data: null, extensions: {foo: 'foo'}};
+        const extensionsPayload: GraphQLResponse = {
+          data: null,
+          extensions: {foo: 'foo'} as PayloadExtensions,
+        };
         dataSource.next(extensionsPayload);
         expect(callback).toBeCalledTimes(0);
         expect(next).toBeCalledTimes(1);
@@ -273,7 +283,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         next.mockClear();
         callback.mockClear();
 
-        const extensionsPayload = {
+        const extensionsPayload: GraphQLResponse = {
           data: {
             '1': {
               __id: '1',
@@ -281,7 +291,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               extra_data: 'Zuck',
             },
           },
-          extensions: {is_normalized: true},
+          extensions: {is_normalized: true} as PayloadExtensions,
         };
         dataSource.next(extensionsPayload);
         expect(callback).toBeCalledTimes(0);
@@ -309,6 +319,100 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(snapshot.data).toEqual({
           id: '1',
           name: 'JOE',
+        });
+      });
+
+      it('processes deferred payloads with deduplicated fields', () => {
+        // This functionality prevents Relay from throwing an error when missing
+        // fields are received in a deferred response. This is required for the
+        // latest `@defer` spec proposal, which does not send duplicate fields
+        // in deferred responses. While Relay does not yet attempt to support the latest
+        // spec proposal (https://github.com/graphql/defer-stream-wg/discussions/69),
+        // this option allows users to transform responses into a format that Relay
+        // can accept.
+        environment = new RelayModernEnvironment({
+          network: RelayNetwork.create(fetch),
+          store,
+          handlerProvider,
+          deferDeduplicatedFields: true,
+        });
+
+        const overlappingFieldsQuery = graphql`
+          query RelayModernEnvironmentExecuteWithDeferTestUserOverlappingFieldsQuery(
+            $id: ID!
+          ) {
+            node(id: $id) {
+              ... on User {
+                id
+                name
+                ...RelayModernEnvironmentExecuteWithDeferTestUserOverlappingFieldsFragment
+                  @dangerously_unaliased_fixme
+                  @defer(label: "UserFragment")
+              }
+            }
+          }
+        `;
+        const overlappingFieldsFragment = graphql`
+          fragment RelayModernEnvironmentExecuteWithDeferTestUserOverlappingFieldsFragment on User {
+            name
+            alternate_name
+          }
+        `;
+
+        const overlappingFieldsVariables = {id: '1'};
+        const overlappingFieldsOperation = createOperationDescriptor(
+          overlappingFieldsQuery,
+          overlappingFieldsVariables,
+        );
+        const overlappingFieldsSelector = createReaderSelector(
+          overlappingFieldsFragment,
+          '1',
+          {},
+          overlappingFieldsOperation.request,
+        );
+
+        const initialSnapshot = environment.lookup(overlappingFieldsSelector);
+        const callback = jest.fn<[Snapshot], void>();
+        environment.subscribe(initialSnapshot, callback);
+
+        environment
+          .execute({operation: overlappingFieldsOperation})
+          .subscribe(callbacks);
+        dataSource.next({
+          data: {
+            node: {
+              __typename: 'User',
+              id: '1',
+              name: 'joe',
+            },
+          },
+        });
+
+        jest.runAllTimers();
+        next.mockClear();
+        callback.mockClear();
+
+        dataSource.next({
+          data: {
+            alternate_name: 'joe2',
+          },
+          label:
+            'RelayModernEnvironmentExecuteWithDeferTestUserOverlappingFieldsQuery$defer$UserFragment',
+          path: ['node'],
+          extensions: {
+            is_final: true,
+          },
+        });
+
+        expect(complete).toBeCalledTimes(0);
+        expect(error).toBeCalledTimes(0);
+        expect(next).toBeCalledTimes(1);
+        expect(callback).toBeCalledTimes(1);
+        const snapshot = callback.mock.calls[0][0];
+        expect(snapshot.isMissingData).toBe(false);
+        expect(snapshot.data).toEqual({
+          name: 'joe',
+          alternate_name: 'joe2',
         });
       });
 
@@ -393,7 +497,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           // Finishes the exec time query
           callback.mockClear();
           next.mockClear();
-          const extensionsPayload = {
+          const extensionsPayload: GraphQLResponse = {
             data: {
               '1': {
                 __id: '1',
@@ -406,7 +510,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             extensions: {
               is_normalized: true,
               is_final: true,
-            },
+            } as PayloadExtensions,
           };
           dataSource.next(extensionsPayload);
           expect(callback).toBeCalledTimes(1);
@@ -436,7 +540,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             .execute({operation: resolverOperation})
             .subscribe(callbacks);
 
-          const extensionsPayload = {
+          const extensionsPayload: GraphQLResponse = {
             data: {
               '1': {
                 id: '1',
@@ -450,7 +554,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             extensions: {
               is_normalized: true,
               is_final: true,
-            },
+            } as PayloadExtensions,
           };
 
           dataSource.next(extensionsPayload);
@@ -516,6 +620,135 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
           // At this point, the deferred payload and the exec time query payload
           // have all been resolved, the query should no longer be treated as pending
+          expect(
+            environment
+              .getOperationTracker()
+              .getPendingOperationsAffectingOwner(resolverOperation.request),
+          ).toBe(null);
+          expect(
+            environment.isRequestActive(resolverOperation.request.identifier),
+          ).toBe(false);
+        });
+
+        it('marks the query as complete after the server completes first then the client finishes with `null` payload', () => {
+          const initialSnapshot = environment.lookup(selector);
+          const callback = jest.fn<[Snapshot], void>();
+          environment.subscribe(initialSnapshot, callback);
+
+          environment
+            .execute({operation: resolverOperation})
+            .subscribe(callbacks);
+
+          // Initial server payload but not complete
+          dataSource.next({
+            data: {
+              node: {
+                id: '1',
+                __typename: 'User',
+              },
+            },
+          });
+          jest.runAllTimers();
+          next.mockClear();
+          callback.mockClear();
+
+          // Empty exec time response but complete the exec time query
+          const extensionsPayload: GraphQLResponse = {
+            data: null,
+            extensions: {
+              is_normalized: true,
+              is_final: true,
+            } as PayloadExtensions,
+          };
+
+          dataSource.next(extensionsPayload);
+          expect(callback).not.toBeCalled();
+          next.mockClear();
+          callback.mockClear();
+
+          // Mark the server response as finished
+          dataSource.next({
+            data: {
+              id: '1',
+              __typename: 'User',
+              name: 'joe',
+            },
+            label:
+              'RelayModernEnvironmentExecuteWithDeferTestResolverQuery$defer$UserFragment',
+            path: ['node'],
+            extensions: {
+              // The server response needs to contain a marker for the final incremental payload
+              is_final: true,
+            },
+          });
+
+          expect(
+            environment
+              .getOperationTracker()
+              .getPendingOperationsAffectingOwner(resolverOperation.request),
+          ).toBe(null);
+          expect(
+            environment.isRequestActive(resolverOperation.request.identifier),
+          ).toBe(false);
+        });
+
+        it('marks the query as complete if there is no server request and the client payload is final', () => {
+          const initialSnapshot = environment.lookup(selector);
+          const callback = jest.fn<[Snapshot], void>();
+          environment.subscribe(initialSnapshot, callback);
+
+          environment
+            .execute({operation: resolverOperation})
+            .subscribe(callbacks);
+
+          const extensionsPayload: GraphQLResponse = {
+            data: {
+              '1': {
+                id: '1',
+                __id: '1',
+                __typename: 'User',
+                // __name_name_handler is where the name gets stored in the current test
+                // due to the usage of the field handler
+                __name_name_handler: 'Zuck',
+              },
+            },
+            extensions: {
+              is_normalized: true,
+              is_final: true,
+              is_client_only: true,
+            } as PayloadExtensions,
+          };
+
+          dataSource.next(extensionsPayload);
+          expect(
+            environment
+              .getOperationTracker()
+              .getPendingOperationsAffectingOwner(resolverOperation.request),
+          ).toBe(null);
+          expect(
+            environment.isRequestActive(resolverOperation.request.identifier),
+          ).toBe(false);
+        });
+
+        it('marks the query as complete if there is no server request and the client payload is final with `null` payload', () => {
+          const initialSnapshot = environment.lookup(selector);
+          const callback = jest.fn<[Snapshot], void>();
+          environment.subscribe(initialSnapshot, callback);
+
+          environment
+            .execute({operation: resolverOperation})
+            .subscribe(callbacks);
+
+          const extensionsPayload: GraphQLResponse = {
+            data: null,
+            extensions: {
+              is_normalized: true,
+              is_final: true,
+              is_client_only: true,
+            } as PayloadExtensions,
+          };
+
+          dataSource.next(extensionsPayload);
           expect(
             environment
               .getOperationTracker()
@@ -922,7 +1155,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         environment.subscribe(initialSnapshot, callback);
 
         environment.execute({operation}).subscribe(callbacks);
-        const payload = {
+        const payload: GraphQLResponse = {
           data: {
             node: {
               id: '1',
@@ -932,7 +1165,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           },
           extensions: {
             is_final: true,
-          },
+          } as PayloadExtensions,
         };
         expectToWarn(
           'RelayModernEnvironment: Operation `RelayModernEnvironmentExecuteWithDeferTestUserQuery` contains @defer/@stream ' +
@@ -997,7 +1230,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         environment.subscribe(initialSnapshot, callback);
 
         environment.execute({operation}).subscribe(callbacks);
-        const payload = {
+        const payload: GraphQLResponse = {
           data: {
             node: {
               id: '1',
@@ -1008,7 +1241,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           },
           extensions: {
             is_final: true,
-          },
+          } as PayloadExtensions,
         };
 
         expectToWarnMany(

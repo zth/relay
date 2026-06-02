@@ -48,10 +48,7 @@ impl WatchmanFileSource {
         })?;
         let resolved_root = client.resolve_root(canonical_root).await?;
         perf_logger_event.stop(connect_timer);
-        debug!(
-            "WatchmanFileSource::connect(...) resolved_root = {:?}",
-            resolved_root
-        );
+        debug!("WatchmanFileSource::connect(...) resolved_root = {resolved_root:?}");
         Ok(Self {
             client: Arc::new(client),
             config: config.clone(),
@@ -122,8 +119,7 @@ impl WatchmanFileSource {
                     perf_logger_event
                         .string("try_saved_state_result", saved_state_failure.to_owned());
                     warn!(
-                        "Unable to load saved state, falling back to full build: {}",
-                        saved_state_failure
+                        "Unable to load saved state, falling back to full build: {saved_state_failure}"
                     );
                 }
             }
@@ -167,7 +163,7 @@ impl WatchmanFileSource {
         perf_logger: &impl PerfLogger,
     ) -> Result<(CompilerState, WatchmanFileSourceSubscription)> {
         let timer = perf_logger_event.start("file_source_subscribe_time");
-        let compiler_state = self.query(perf_logger_event, perf_logger).await?;
+        let mut compiler_state = self.query(perf_logger_event, perf_logger).await?;
 
         let expression = get_watchman_expr(&self.config);
 
@@ -181,6 +177,7 @@ impl WatchmanFileSource {
         )
         .await?;
         perf_logger_event.stop(query_timer);
+        compiler_state.clock = file_source_result.clock();
 
         let query_timer = perf_logger_event.start("watchman_query_time_subscribe");
         let (subscription, _initial) = self
@@ -280,7 +277,7 @@ impl WatchmanFileSource {
             })
             .map_err(|err| {
                 let error_event = perf_logger.create_event("saved_state_loader_error");
-                error_event.string("error", format!("Failed to deserialize: {}", err));
+                error_event.string("error", format!("Failed to deserialize: {err}"));
                 error_event.complete();
                 "failed to deserialize"
             })?;
@@ -375,58 +372,128 @@ async fn query_file_result(
     debug_query_results(&query_result, "graphql");
 
     let files = query_result.files.ok_or(Error::EmptyQueryResult)?;
-    Ok(FileSourceResult::Watchman(WatchmanFileSourceResult {
+    Ok(FileSourceResult::Watchman(Box::new(
+        WatchmanFileSourceResult {
+            files,
+            resolved_root: resolved_root.clone(),
+            clock: query_result.clock,
+            saved_state_info: query_result.saved_state_info,
+        },
+    )))
+}
+
+/// Raw result of a Watchman `since` query against the compiler's expression.
+///
+/// Callers interpret these fields to decide what to do:
+/// - `is_fresh_instance == true` means the incremental answer is untrustworthy
+///   and the caller must reset state.
+/// - `files == Some(..)` carries the changed files for an incremental build.
+/// - `files == None` means no relevant files changed.
+#[derive(Debug)]
+pub struct ChangesSinceQuery {
+    pub files: Option<FileSourceResult>,
+    pub clock: Clock,
+    pub is_fresh_instance: bool,
+}
+
+/// Query watchman for file changes since the given clock.
+///
+/// Opens a short-lived watchman connection and checks if any files
+/// matching the compiler's watchman expression have changed since
+/// `since_clock`. Returns the raw [`ChangesSinceQuery`] for the caller
+/// to interpret.
+pub async fn query_changes_since(
+    config: &Arc<Config>,
+    since_clock: Clock,
+) -> Result<ChangesSinceQuery> {
+    let client = Connector::new().connect().await?;
+    let canonical_root =
+        CanonicalPath::canonicalize(&config.root_dir).map_err(|err| Error::CanonicalizeRoot {
+            root: config.root_dir.clone(),
+            source: err,
+        })?;
+    let resolved_root = client.resolve_root(canonical_root).await?;
+
+    let expression = get_watchman_expr(config);
+
+    let request = QueryRequestCommon {
+        expression: Some(expression),
+        since: Some(since_clock),
+        ..Default::default()
+    };
+
+    let query_result = client
+        .query::<WatchmanFile>(&resolved_root, request)
+        .await?;
+
+    let clock = query_result.clock;
+    let is_fresh_instance = query_result.is_fresh_instance;
+
+    let files = query_result.files.unwrap_or_default();
+    let files = if files.is_empty() {
+        None
+    } else {
+        Some(FileSourceResult::Watchman(Box::new(
+            WatchmanFileSourceResult {
+                files,
+                resolved_root,
+                clock: clock.clone(),
+                saved_state_info: query_result.saved_state_info,
+            },
+        )))
+    };
+
+    Ok(ChangesSinceQuery {
         files,
-        resolved_root: resolved_root.clone(),
-        clock: query_result.clock,
-        saved_state_info: query_result.saved_state_info,
-    }))
+        clock,
+        is_fresh_instance,
+    })
 }
 
 fn debug_query_results(query_result: &QueryResult<WatchmanFile>, extension_filter: &str) {
-    if let Ok(rust_log) = std::env::var("RUST_LOG") {
-        if rust_log == *"debug" {
+    if let Ok(rust_log) = std::env::var("RUST_LOG")
+        && rust_log == *"debug"
+    {
+        debug!(
+            "WatchmanFileSource::query_file_result(...) query_result.version = {:?}",
+            query_result.version
+        );
+        debug!(
+            "WatchmanFileSource::query_file_result(...) query_result.clock = {:?}",
+            query_result.clock
+        );
+        debug!(
+            "WatchmanFileSource::query_file_result(...) query_result.is_fresh_instance = {:?}",
+            query_result.is_fresh_instance
+        );
+        debug!(
+            "WatchmanFileSource::query_file_result(...) query_result.saved_state_info = {:?}",
+            query_result.saved_state_info
+        );
+        debug!(
+            "WatchmanFileSource::query_file_result(...) query_result.state_metadata = {:?}",
+            query_result.state_metadata
+        );
+        if let Some(files) = &query_result.files {
             debug!(
-                "WatchmanFileSource::query_file_result(...) query_result.version = {:?}",
-                query_result.version
+                "WatchmanFileSource::query_file_result(...) query_result.files(only=*.{}) = \n{}",
+                extension_filter,
+                files
+                    .iter()
+                    .filter_map(|file| {
+                        if file.name.extension().is_some()
+                            && file.name.extension().unwrap() == extension_filter
+                        {
+                            Some(format!("name: {:?}, exists: {}", *file.name, *file.exists))
+                        } else {
+                            None
+                        }
+                    })
+                    .collect::<Vec<String>>()
+                    .join("\n")
             );
-            debug!(
-                "WatchmanFileSource::query_file_result(...) query_result.clock = {:?}",
-                query_result.clock
-            );
-            debug!(
-                "WatchmanFileSource::query_file_result(...) query_result.is_fresh_instance = {:?}",
-                query_result.is_fresh_instance
-            );
-            debug!(
-                "WatchmanFileSource::query_file_result(...) query_result.saved_state_info = {:?}",
-                query_result.saved_state_info
-            );
-            debug!(
-                "WatchmanFileSource::query_file_result(...) query_result.state_metadata = {:?}",
-                query_result.state_metadata
-            );
-            if let Some(files) = &query_result.files {
-                debug!(
-                    "WatchmanFileSource::query_file_result(...) query_result.files(only=*.{}) = \n{}",
-                    extension_filter,
-                    files
-                        .iter()
-                        .filter_map(|file| {
-                            if file.name.extension().is_some()
-                                && file.name.extension().unwrap() == extension_filter
-                            {
-                                Some(format!("name: {:?}, exists: {}", *file.name, *file.exists))
-                            } else {
-                                None
-                            }
-                        })
-                        .collect::<Vec<String>>()
-                        .join("\n")
-                );
-            } else {
-                debug!("WatchmanFileSource::query_file_result(...): no files found");
-            }
+        } else {
+            debug!("WatchmanFileSource::query_file_result(...): no files found");
         }
     }
 }

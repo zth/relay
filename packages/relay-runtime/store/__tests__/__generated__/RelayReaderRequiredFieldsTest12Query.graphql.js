@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e55f3ce3e260fe7c432a9f991df3f96d>>
+ * @generated SignedSource<<9a5993f4ebc50f85a383f5a3661377c0>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,16 +17,16 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayReaderRequiredFieldsTest12Query$variables = {||};
-export type RelayReaderRequiredFieldsTest12Query$data = {|
-  +maybeNodeInterface: ?{|
-    +name?: string,
-  |},
-|};
-export type RelayReaderRequiredFieldsTest12Query = {|
+export type RelayReaderRequiredFieldsTest12Query$variables = {};
+export type RelayReaderRequiredFieldsTest12Query$data = {
+  readonly maybeNodeInterface: ?{
+    readonly name?: string,
+  },
+};
+export type RelayReaderRequiredFieldsTest12Query = {
   response: RelayReaderRequiredFieldsTest12Query$data,
   variables: RelayReaderRequiredFieldsTest12Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -58,7 +57,7 @@ return {
             "selections": [
               {
                 "kind": "RequiredField",
-                "field": (v0/*: any*/),
+                "field": (v0/*:: as any*/),
                 "action": "LOG"
               }
             ],
@@ -96,7 +95,7 @@ return {
           {
             "kind": "InlineFragment",
             "selections": [
-              (v0/*: any*/)
+              (v0/*:: as any*/)
             ],
             "type": "NonNodeNoID",
             "abstractKey": null
@@ -132,10 +131,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "0f4f82089cbe09323a0ea5925a8a4051";
+  (node/*:: as any*/).hash = "0f4f82089cbe09323a0ea5925a8a4051";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderRequiredFieldsTest12Query$variables,
   RelayReaderRequiredFieldsTest12Query$data,
 >*/);

@@ -6,12 +6,12 @@
  */
 
 /**
- * @RelayResolver User.age: Int
+ * @relayField User.age: Int
  */
-function age(_: mixed, context: { age: number }): number {
-    return context.age;
+function age(_: unknown, context: {age: number}): number {
+  return context.age;
 }
 
 module.exports = {
-    age,
+  age,
 };

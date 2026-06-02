@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5eca2a10e99142f6f4e5d99b02421ad1>>
+ * @generated SignedSource<<a835561c7aa4a3206acb3b4b36e310f0>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,16 +18,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { waitForFragmentDataTestOkPluralFragment$fragmentType } from "./waitForFragmentDataTestOkPluralFragment.graphql";
-export type waitForFragmentDataTestOkPluralQuery$variables = {||};
-export type waitForFragmentDataTestOkPluralQuery$data = {|
-  +nodes: ?$ReadOnlyArray<?{|
-    +$fragmentSpreads: waitForFragmentDataTestOkPluralFragment$fragmentType,
-  |}>,
-|};
-export type waitForFragmentDataTestOkPluralQuery = {|
+export type waitForFragmentDataTestOkPluralQuery$variables = {};
+export type waitForFragmentDataTestOkPluralQuery$data = {
+  readonly nodes: ?ReadonlyArray<?{
+    readonly $fragmentSpreads: waitForFragmentDataTestOkPluralFragment$fragmentType,
+  }>,
+};
+export type waitForFragmentDataTestOkPluralQuery = {
   response: waitForFragmentDataTestOkPluralQuery$data,
   variables: waitForFragmentDataTestOkPluralQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -51,7 +50,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "nodes",
@@ -77,7 +76,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "nodes",
@@ -128,10 +127,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "139b32cebe816906461147bcb6b1db45";
+  (node/*:: as any*/).hash = "139b32cebe816906461147bcb6b1db45";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   waitForFragmentDataTestOkPluralQuery$variables,
   waitForFragmentDataTestOkPluralQuery$data,
 >*/);

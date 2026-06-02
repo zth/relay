@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8d61aba9c2803ccffc22664aae234ef1>>
+ * @generated SignedSource<<f45de2536af3a6103dde2b026e93aaae>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,21 +20,21 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment$fragmentType } from "./ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$fragmentType: FragmentType;
-export type ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$data = {|
-  +friends: ?{|
-    +edges: ?$ReadOnlyArray<?{|
-      +node: ?{|
-        +id: string,
-        +$fragmentSpreads: ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment$fragmentType,
-      |},
-    |}>,
-  |},
-  +id: string,
-  +$fragmentType: ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$fragmentType,
-|};
+export type ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$data = {
+  readonly friends: ?{
+    readonly edges: ?ReadonlyArray<?{
+      readonly node: ?{
+        readonly id: string,
+        readonly $fragmentSpreads: ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment$fragmentType,
+      },
+    }>,
+  },
+  readonly id: string,
+  readonly $fragmentType: ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$fragmentType,
+};
 export type ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$key = {
-  +$data?: ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$data,
-  +$fragmentSpreads: ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$fragmentType,
+  readonly $data?: ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$data,
+  readonly $fragmentSpreads: ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$fragmentType,
   ...
 };
 */
@@ -84,7 +83,7 @@ return {
   },
   "name": "ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment",
   "selections": [
-    (v0/*: any*/),
+    (v0/*:: as any*/),
     {
       "alias": "friends",
       "args": [
@@ -120,7 +119,7 @@ return {
               "name": "node",
               "plural": false,
               "selections": [
-                (v0/*: any*/),
+                (v0/*:: as any*/),
                 {
                   "args": [
                     {
@@ -187,10 +186,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "25074f275d8cdaa1298ea0d300df1a98";
+  (node/*:: as any*/).hash = "25074f275d8cdaa1298ea0d300df1a98";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$fragmentType,
   ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$data,
 >*/);

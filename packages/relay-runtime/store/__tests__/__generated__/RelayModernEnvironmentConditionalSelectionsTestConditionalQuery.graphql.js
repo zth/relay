@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f4f7411bf6118438bc993dace9f408b7>>
+ * @generated SignedSource<<1cef8d508c1af8bd8d7f31729fa627ef>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,16 +18,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$fragmentType } from "./RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment.graphql";
-export type RelayModernEnvironmentConditionalSelectionsTestConditionalQuery$variables = {|
+export type RelayModernEnvironmentConditionalSelectionsTestConditionalQuery$variables = {
   condition: boolean,
-|};
-export type RelayModernEnvironmentConditionalSelectionsTestConditionalQuery$data = {|
-  +$fragmentSpreads: RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$fragmentType,
-|};
-export type RelayModernEnvironmentConditionalSelectionsTestConditionalQuery = {|
+};
+export type RelayModernEnvironmentConditionalSelectionsTestConditionalQuery$data = {
+  readonly $fragmentSpreads: RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$fragmentType,
+};
+export type RelayModernEnvironmentConditionalSelectionsTestConditionalQuery = {
   response: RelayModernEnvironmentConditionalSelectionsTestConditionalQuery$data,
   variables: RelayModernEnvironmentConditionalSelectionsTestConditionalQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -55,7 +54,7 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentConditionalSelectionsTestConditionalQuery",
@@ -71,7 +70,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentConditionalSelectionsTestConditionalQuery",
     "selections": [
@@ -103,8 +102,8 @@ return {
                     "name": "__typename",
                     "storageKey": null
                   },
-                  (v1/*: any*/),
-                  (v2/*: any*/)
+                  (v1/*:: as any*/),
+                  (v2/*:: as any*/)
                 ],
                 "storageKey": null
               }
@@ -126,8 +125,8 @@ return {
             "name": "me",
             "plural": false,
             "selections": [
-              (v1/*: any*/),
-              (v2/*: any*/)
+              (v1/*:: as any*/),
+              (v2/*:: as any*/)
             ],
             "storageKey": null
           }
@@ -147,10 +146,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "15714f8d0ab41a192fe8a7946b71437f";
+  (node/*:: as any*/).hash = "15714f8d0ab41a192fe8a7946b71437f";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentConditionalSelectionsTestConditionalQuery$variables,
   RelayModernEnvironmentConditionalSelectionsTestConditionalQuery$data,
 >*/);

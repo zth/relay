@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<98df57edbbcd1fc2e7c6e6e10f01867b>>
+ * @generated SignedSource<<0e40b92b2a9698ea784c36158c156418>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,19 +23,19 @@ import {Cat as catRelayModelInstanceResolverType} from "../CatResolvers.js";
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `catRelayModelInstanceResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(catRelayModelInstanceResolverType: (
+(catRelayModelInstanceResolverType as (
   id: Cat__id$data['id'],
   args: void,
   context: TestResolverContextType,
-) => mixed);
+) => unknown);
 declare export opaque type Cat____relay_model_instance$fragmentType: FragmentType;
-export type Cat____relay_model_instance$data = {|
-  +__relay_model_instance: $NonMaybeType<ReturnType<typeof catRelayModelInstanceResolverType>>,
-  +$fragmentType: Cat____relay_model_instance$fragmentType,
-|};
+export type Cat____relay_model_instance$data = {
+  readonly __relay_model_instance: NonNullable<ReturnType<typeof catRelayModelInstanceResolverType>>,
+  readonly $fragmentType: Cat____relay_model_instance$fragmentType,
+};
 export type Cat____relay_model_instance$key = {
-  +$data?: Cat____relay_model_instance$data,
-  +$fragmentSpreads: Cat____relay_model_instance$fragmentType,
+  readonly $data?: Cat____relay_model_instance$data,
+  readonly $fragmentSpreads: Cat____relay_model_instance$fragmentType,
   ...
 };
 */
@@ -65,7 +64,7 @@ var node/*: ReaderFragment*/ = {
   "abstractKey": null
 };
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   Cat____relay_model_instance$fragmentType,
   Cat____relay_model_instance$data,
 >*/);

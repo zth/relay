@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<25aea7751a908926dee43bf71f9aed93>>
+ * @generated SignedSource<<817bfdfa05c3bdbd0d4e24237b9d73b7>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,18 +18,18 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { readInlineDataTestFragmentVariables$fragmentType } from "./readInlineDataTestFragmentVariables.graphql";
-export type readInlineDataTestFragmentVariablesQuery$variables = {|
+export type readInlineDataTestFragmentVariablesQuery$variables = {
   scale?: ?number,
-|};
-export type readInlineDataTestFragmentVariablesQuery$data = {|
-  +me: ?{|
-    +$fragmentSpreads: readInlineDataTestFragmentVariables$fragmentType,
-  |},
-|};
-export type readInlineDataTestFragmentVariablesQuery = {|
+};
+export type readInlineDataTestFragmentVariablesQuery$data = {
+  readonly me: ?{
+    readonly $fragmentSpreads: readInlineDataTestFragmentVariables$fragmentType,
+  },
+};
+export type readInlineDataTestFragmentVariablesQuery = {
   response: readInlineDataTestFragmentVariablesQuery$data,
   variables: readInlineDataTestFragmentVariablesQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -52,7 +51,7 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "readInlineDataTestFragmentVariablesQuery",
@@ -82,7 +81,7 @@ return {
                 "kind": "LinkedField",
                 "name": "profile_picture",
                 "plural": false,
-                "selections": (v1/*: any*/),
+                "selections": (v1/*:: as any*/),
                 "storageKey": null
               }
             ],
@@ -110,7 +109,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "readInlineDataTestFragmentVariablesQuery",
     "selections": [
@@ -135,7 +134,7 @@ return {
             "kind": "LinkedField",
             "name": "profile_picture",
             "plural": false,
-            "selections": (v1/*: any*/),
+            "selections": (v1/*:: as any*/),
             "storageKey": null
           },
           {
@@ -162,10 +161,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "cff614ecb857c3bd9cfc99f00f1e5471";
+  (node/*:: as any*/).hash = "cff614ecb857c3bd9cfc99f00f1e5471";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   readInlineDataTestFragmentVariablesQuery$variables,
   readInlineDataTestFragmentVariablesQuery$data,
 >*/);

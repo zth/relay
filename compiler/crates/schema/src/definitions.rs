@@ -46,7 +46,17 @@ pub(crate) type TypeMap = HashMap<StringKey, Type>;
 
 macro_rules! type_id {
     ($name:ident, $type:ident) => {
-        #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, serde::Serialize)]
+        #[derive(
+            Copy,
+            Clone,
+            Eq,
+            PartialEq,
+            Ord,
+            PartialOrd,
+            Hash,
+            serde::Serialize,
+            serde::Deserialize
+        )]
         pub struct $name(pub $type);
         impl $name {
             pub(crate) fn as_usize(&self) -> usize {
@@ -76,7 +86,17 @@ type_id!(ScalarID, u32);
 type_id!(UnionID, u32);
 type_id!(FieldID, u32);
 
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, serde::Serialize)]
+#[derive(
+    Copy,
+    Clone,
+    Eq,
+    PartialEq,
+    Ord,
+    PartialOrd,
+    Hash,
+    serde::Serialize,
+    serde::Deserialize
+)]
 pub enum Type {
     Enum(EnumID),
     InputObject(InputObjectID),
@@ -202,7 +222,17 @@ impl Type {
     }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, serde::Serialize)]
+#[derive(
+    Clone,
+    Debug,
+    Eq,
+    PartialEq,
+    Ord,
+    PartialOrd,
+    Hash,
+    serde::Serialize,
+    serde::Deserialize
+)]
 pub enum TypeReference<T> {
     Named(T),
     NonNull(Box<TypeReference<T>>),
@@ -234,7 +264,7 @@ impl<T: Copy> TypeReference<T> {
                 if level == 0 {
                     self.non_null()
                 } else {
-                    panic!("Invalid level {} for Named type", level)
+                    panic!("Invalid level {level} for Named type")
                 }
             }
             TypeReference::List(of) => {
@@ -246,7 +276,7 @@ impl<T: Copy> TypeReference<T> {
             }
             TypeReference::NonNull(of) => {
                 if level == 0 {
-                    panic!("Invalid level {} for NonNull type", level)
+                    panic!("Invalid level {level} for NonNull type")
                 } else {
                     TypeReference::NonNull(Box::new(of.with_non_null_level(level)))
                 }
@@ -364,7 +394,7 @@ impl<T> TypeReference<T> {
     }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct Directive {
     pub name: WithLocation<DirectiveName>,
     pub arguments: ArgumentDefinitions,
@@ -382,7 +412,7 @@ impl Named for Directive {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct Scalar {
     pub name: WithLocation<ScalarName>,
     pub is_extension: bool,
@@ -391,7 +421,15 @@ pub struct Scalar {
     pub hack_source: Option<StringKey>,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Hash)]
+#[derive(
+    Clone,
+    Debug,
+    Eq,
+    PartialEq,
+    Hash,
+    serde::Serialize,
+    serde::Deserialize
+)]
 pub struct Object {
     pub name: WithLocation<ObjectName>,
     pub is_extension: bool,
@@ -411,7 +449,15 @@ impl Object {
     }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Hash)]
+#[derive(
+    Clone,
+    Debug,
+    Eq,
+    PartialEq,
+    Hash,
+    serde::Serialize,
+    serde::Deserialize
+)]
 pub struct InputObject {
     pub name: WithLocation<InputObjectName>,
     pub fields: ArgumentDefinitions,
@@ -420,7 +466,15 @@ pub struct InputObject {
     pub hack_source: Option<StringKey>,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Hash)]
+#[derive(
+    Clone,
+    Debug,
+    Eq,
+    PartialEq,
+    Hash,
+    serde::Serialize,
+    serde::Deserialize
+)]
 pub struct Enum {
     pub name: WithLocation<EnumName>,
     pub is_extension: bool,
@@ -430,7 +484,15 @@ pub struct Enum {
     pub hack_source: Option<StringKey>,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Hash)]
+#[derive(
+    Clone,
+    Debug,
+    Eq,
+    PartialEq,
+    Hash,
+    serde::Serialize,
+    serde::Deserialize
+)]
 pub struct Union {
     pub name: WithLocation<UnionName>,
     pub is_extension: bool,
@@ -440,7 +502,15 @@ pub struct Union {
     pub hack_source: Option<StringKey>,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Hash)]
+#[derive(
+    Clone,
+    Debug,
+    Eq,
+    PartialEq,
+    Hash,
+    serde::Serialize,
+    serde::Deserialize
+)]
 pub struct Field {
     pub name: WithLocation<StringKey>,
     pub is_extension: bool,
@@ -503,7 +573,17 @@ impl Field {
     }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(
+    Clone,
+    Debug,
+    Eq,
+    PartialEq,
+    Ord,
+    PartialOrd,
+    Hash,
+    serde::Serialize,
+    serde::Deserialize
+)]
 pub struct Argument {
     pub name: WithLocation<ArgumentName>,
     pub type_: TypeReference<Type>,
@@ -532,7 +612,17 @@ impl Named for Argument {
     }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Hash, Ord, PartialOrd)]
+#[derive(
+    Clone,
+    Debug,
+    Eq,
+    PartialEq,
+    Hash,
+    Ord,
+    PartialOrd,
+    serde::Serialize,
+    serde::Deserialize
+)]
 pub struct ArgumentValue {
     pub name: ArgumentName,
     pub value: ConstantValue,
@@ -551,7 +641,7 @@ impl ArgumentValue {
     /// Panics if the value is not a constant string literal.
     pub fn expect_string_literal(&self) -> StringKey {
         self.get_string_literal().unwrap_or_else(|| {
-            panic!("expected a string literal, got {:?}", self);
+            panic!("expected a string literal, got {self:?}");
         })
     }
     /// Return the constant string literal of this value.
@@ -564,29 +654,70 @@ impl ArgumentValue {
                     if let ConstantValue::Int(int) = item {
                         int.value
                     } else {
-                        panic!("expected a int literal, got {:?}", item);
+                        panic!("expected a int literal, got {item:?}");
                     }
                 })
                 .collect()
         } else {
-            panic!("expected a list, got {:?}", self);
+            panic!("expected a list, got {self:?}");
         }
     }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Hash, Ord, PartialOrd)]
+#[derive(
+    Clone,
+    Debug,
+    Eq,
+    PartialEq,
+    Hash,
+    Ord,
+    PartialOrd,
+    serde::Serialize,
+    serde::Deserialize
+)]
 pub struct DirectiveValue {
     pub name: DirectiveName,
     pub arguments: Vec<ArgumentValue>,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Hash)]
+#[derive(
+    Clone,
+    Debug,
+    Eq,
+    PartialEq,
+    Hash,
+    serde::Serialize,
+    serde::Deserialize
+)]
 pub struct EnumValue {
     pub value: StringKey,
     pub directives: Vec<DirectiveValue>,
+    pub description: Option<StringKey>,
 }
 
-#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
+impl EnumValue {
+    pub fn deprecated(&self) -> Option<Deprecation> {
+        self.directives
+            .named(*DIRECTIVE_DEPRECATED)
+            .map(|directive| Deprecation {
+                reason: directive
+                    .arguments
+                    .named(*ARGUMENT_REASON)
+                    .and_then(|reason| reason.value.get_string_literal()),
+            })
+    }
+}
+
+#[derive(
+    Clone,
+    Eq,
+    PartialEq,
+    Ord,
+    PartialOrd,
+    Hash,
+    serde::Serialize,
+    serde::Deserialize
+)]
 pub struct ArgumentDefinitions(pub(crate) Vec<Argument>);
 
 impl ArgumentDefinitions {
@@ -608,6 +739,10 @@ impl ArgumentDefinitions {
 
     pub fn is_empty(&self) -> bool {
         self.0.is_empty()
+    }
+
+    pub fn len(&self) -> usize {
+        self.0.len()
     }
 }
 

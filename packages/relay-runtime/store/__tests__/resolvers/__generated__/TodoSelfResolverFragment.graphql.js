@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4b174066ba6c9e45b37a14ff57c55ec4>>
+ * @generated SignedSource<<4f4f16c4c6950dd123030657bd73ee03>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,13 +19,13 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type TodoSelfResolverFragment$fragmentType: FragmentType;
-export type TodoSelfResolverFragment$data = {|
-  +todo_id: string,
-  +$fragmentType: TodoSelfResolverFragment$fragmentType,
-|};
+export type TodoSelfResolverFragment$data = {
+  readonly todo_id: string,
+  readonly $fragmentType: TodoSelfResolverFragment$fragmentType,
+};
 export type TodoSelfResolverFragment$key = {
-  +$data?: TodoSelfResolverFragment$data,
-  +$fragmentSpreads: TodoSelfResolverFragment$fragmentType,
+  readonly $data?: TodoSelfResolverFragment$data,
+  readonly $fragmentSpreads: TodoSelfResolverFragment$fragmentType,
   ...
 };
 */
@@ -55,10 +54,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "f249ac02d6f0f54d64db9d7c57d028bf";
+  (node/*:: as any*/).hash = "f249ac02d6f0f54d64db9d7c57d028bf";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   TodoSelfResolverFragment$fragmentType,
   TodoSelfResolverFragment$data,
 >*/);

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e0698393bf7e05e0d5e3c4cae2c4ac74>>
+ * @generated SignedSource<<edb52d727c0232dbfb5177774c060e97>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,17 +18,17 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 export type Environment = "MOBILE" | "WEB" | "%future added value";
-export type RelayMockPayloadGeneratorTest42Query$variables = {||};
-export type RelayMockPayloadGeneratorTest42Query$data = {|
-  +node: ?{|
-    +environment?: ?Environment,
-    +id?: string,
-  |},
-|};
-export type RelayMockPayloadGeneratorTest42Query = {|
+export type RelayMockPayloadGeneratorTest42Query$variables = {};
+export type RelayMockPayloadGeneratorTest42Query$data = {
+  readonly node: ?{
+    readonly environment?: ?Environment,
+    readonly id?: string,
+  },
+};
+export type RelayMockPayloadGeneratorTest42Query = {
   response: RelayMockPayloadGeneratorTest42Query$data,
   variables: RelayMockPayloadGeneratorTest42Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -63,7 +62,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -72,8 +71,8 @@ return {
           {
             "kind": "InlineFragment",
             "selections": [
-              (v1/*: any*/),
-              (v2/*: any*/)
+              (v1/*:: as any*/),
+              (v2/*:: as any*/)
             ],
             "type": "User",
             "abstractKey": null
@@ -93,7 +92,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -106,11 +105,11 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v1/*: any*/),
+          (v1/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
-              (v2/*: any*/)
+              (v2/*:: as any*/)
             ],
             "type": "User",
             "abstractKey": null
@@ -162,10 +161,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "ffc1e2d564379020e67b59609933c5ba";
+  (node/*:: as any*/).hash = "ffc1e2d564379020e67b59609933c5ba";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayMockPayloadGeneratorTest42Query$variables,
   RelayMockPayloadGeneratorTest42Query$data,
 >*/);

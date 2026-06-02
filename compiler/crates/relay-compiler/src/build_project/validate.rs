@@ -12,6 +12,7 @@ use common::WithDiagnostics;
 use common::escalate_and_check;
 use errors::try_all;
 use graphql_ir::Program;
+use relay_config::JsModuleFormat;
 use relay_config::ProjectConfig;
 use relay_transforms::ValidateVariablesOptions;
 use relay_transforms::disallow_circular_no_inline_fragments;
@@ -24,7 +25,6 @@ use relay_transforms::validate_client_schema_extensions_use_catch;
 use relay_transforms::validate_connections;
 use relay_transforms::validate_fragment_alias_conflict;
 use relay_transforms::validate_global_variable_names;
-use relay_transforms::validate_exhaustive_directive;
 use relay_transforms::validate_module_names;
 use relay_transforms::validate_no_double_underscore_alias;
 use relay_transforms::validate_no_inline_fragments_with_raw_response_type;
@@ -77,8 +77,15 @@ pub fn validate(
         validate_connections(program, &project_config.schema_config.connection_interface),
         validate_relay_directives(program),
         validate_global_variable_names(program),
-        validate_module_names(program),
-        validate_exhaustive_directive(program, project_config),
+        if matches!(project_config.js_module_format, JsModuleFormat::Haste)
+            || project_config
+                .feature_flags
+                .enforce_module_name_prefix_for_non_haste
+        {
+            validate_module_names(program)
+        } else {
+            Ok(())
+        },
         validate_client_schema_extensions_use_catch(program),
         validate_no_inline_fragments_with_raw_response_type(program),
         disallow_typename_on_root(program),
@@ -92,7 +99,6 @@ pub fn validate(
         validate_updatable_directive(program),
         validate_updatable_fragment_spread(program),
         validate_assignable_directive(program),
-        relay_transforms::rescript_relay_disallow_invalid_names(program),
         validate_resolver_fragments(program),
         disallow_readtime_features_in_mutations(
             program,

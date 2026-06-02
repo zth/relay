@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a47f584d8426a7253d04194f107d16fc>>
+ * @generated SignedSource<<660672fa815e33c816416732d43244e5>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,19 +17,19 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayExperimentalGraphResponseTransformTestInlineFragmentAbstractTypeQuery$variables = {||};
-export type RelayExperimentalGraphResponseTransformTestInlineFragmentAbstractTypeQuery$data = {|
-  +node: ?{|
-    +author?: ?{|
-      +__typename: "User",
-    |},
-    +name?: ?string,
-  |},
-|};
-export type RelayExperimentalGraphResponseTransformTestInlineFragmentAbstractTypeQuery = {|
+export type RelayExperimentalGraphResponseTransformTestInlineFragmentAbstractTypeQuery$variables = {};
+export type RelayExperimentalGraphResponseTransformTestInlineFragmentAbstractTypeQuery$data = {
+  readonly node: ?{
+    readonly author?: ?{
+      readonly __typename: "User",
+    },
+    readonly name?: ?string,
+  },
+};
+export type RelayExperimentalGraphResponseTransformTestInlineFragmentAbstractTypeQuery = {
   response: RelayExperimentalGraphResponseTransformTestInlineFragmentAbstractTypeQuery$data,
   variables: RelayExperimentalGraphResponseTransformTestInlineFragmentAbstractTypeQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -78,13 +77,13 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v1/*: any*/),
+          (v1/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
@@ -96,7 +95,7 @@ return {
                 "name": "author",
                 "plural": false,
                 "selections": [
-                  (v2/*: any*/)
+                  (v2/*:: as any*/)
                 ],
                 "storageKey": null
               }
@@ -119,14 +118,14 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
-          (v1/*: any*/),
+          (v2/*:: as any*/),
+          (v1/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
@@ -138,8 +137,8 @@ return {
                 "name": "author",
                 "plural": false,
                 "selections": [
-                  (v2/*: any*/),
-                  (v3/*: any*/)
+                  (v2/*:: as any*/),
+                  (v3/*:: as any*/)
                 ],
                 "storageKey": null
               }
@@ -147,7 +146,7 @@ return {
             "type": "Comment",
             "abstractKey": null
           },
-          (v3/*: any*/)
+          (v3/*:: as any*/)
         ],
         "storageKey": "node(id:\"10\")"
       }
@@ -165,10 +164,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "fcc4ced618c2fe637b1fdab45f33fd95";
+  (node/*:: as any*/).hash = "fcc4ced618c2fe637b1fdab45f33fd95";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayExperimentalGraphResponseTransformTestInlineFragmentAbstractTypeQuery$variables,
   RelayExperimentalGraphResponseTransformTestInlineFragmentAbstractTypeQuery$data,
 >*/);

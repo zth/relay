@@ -32,9 +32,9 @@ const {createReaderSelector} = require('../store/RelayModernSelector');
 const warning = require('warning');
 
 export type SubscriptionParameters = {
-  +response: {...},
-  +variables: {...},
-  +rawResponse?: {...},
+  readonly response: {...},
+  readonly variables: {...},
+  readonly rawResponse?: {...},
 };
 
 /**
@@ -42,18 +42,18 @@ export type SubscriptionParameters = {
  * type information.
  */
 export type GraphQLSubscriptionConfig<TVariables, TData, TRawResponse> =
-  $ReadOnly<{
+  Readonly<{
     configs?: Array<DeclarativeMutationConfig>,
     cacheConfig?: CacheConfig,
     subscription: GraphQLSubscription<TVariables, TData, TRawResponse>,
-    variables: TVariables,
+    variables: NoInfer<TVariables>,
     onCompleted?: ?() => void,
     onError?: ?(error: Error) => void,
     onNext?: ?(response: ?TData) => void,
     updater?: ?SelectorStoreUpdater<TData>,
   }>;
 
-function requestSubscription<TVariables: Variables, TData, TRawResponse>(
+function requestSubscription<TVariables extends Variables, TData, TRawResponse>(
   environment: IEnvironment,
   config: GraphQLSubscriptionConfig<TVariables, TData, TRawResponse>,
 ): Disposable {
@@ -89,6 +89,8 @@ function requestSubscription<TVariables: Variables, TData, TRawResponse>(
       updater,
     })
     .subscribe({
+      complete: onCompleted,
+      error: onError,
       next: responses => {
         if (onNext != null) {
           let selector = operation.fragment;
@@ -107,12 +109,10 @@ function requestSubscription<TVariables: Variables, TData, TRawResponse>(
             );
           }
           const data = environment.lookup(selector).data;
-          // $FlowFixMe[incompatible-cast]
-          onNext((data: TData));
+          // $FlowFixMe[incompatible-type]
+          onNext(data as TData);
         }
       },
-      error: onError,
-      complete: onCompleted,
     });
   return {
     dispose: sub.unsubscribe,

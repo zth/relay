@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<02cb2d2d39e4dc014fbd31a92ad39b59>>
+ * @generated SignedSource<<72adabcb6a580a3adc53f0afdc94ccb7>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,19 +23,19 @@ import {live_counter_with_possible_missing_fragment_data as queryLiveCounterWith
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryLiveCounterWithPossibleMissingFragmentDataResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryLiveCounterWithPossibleMissingFragmentDataResolverType: (
+(queryLiveCounterWithPossibleMissingFragmentDataResolverType as (
   rootKey: LiveCounterWithPossibleMissingFragmentDataResolverFragment$key,
   args: void,
   context: TestResolverContextType,
 ) => LiveState<?number>);
-export type LiveResolversTestWithGCQuery$variables = {||};
-export type LiveResolversTestWithGCQuery$data = {|
-  +live_counter_with_possible_missing_fragment_data: ?number,
-|};
-export type LiveResolversTestWithGCQuery = {|
+export type LiveResolversTestWithGCQuery$variables = {};
+export type LiveResolversTestWithGCQuery$data = {
+  readonly live_counter_with_possible_missing_fragment_data: ?number,
+};
+export type LiveResolversTestWithGCQuery = {
   response: LiveResolversTestWithGCQuery$data,
   variables: LiveResolversTestWithGCQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {
@@ -114,10 +113,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "e0069f7ccf8ba4baa2b3bfeaa62199fa";
+  (node/*:: as any*/).hash = "e0069f7ccf8ba4baa2b3bfeaa62199fa";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   LiveResolversTestWithGCQuery$variables,
   LiveResolversTestWithGCQuery$data,
 >*/);

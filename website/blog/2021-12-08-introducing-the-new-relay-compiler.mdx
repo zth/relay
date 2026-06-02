@@ -71,7 +71,7 @@ For example, the new compiler ships with support for the new `@required` directi
 
 :::note And with `@required`:
 
-<Image src={require('./images/2021-12-08-introducing-the-new-relay-compiler-post-required.png')} title="A component will less null-checking boilerplate, due to the use of the `@required` directive"/>
+<Image src={require('./images/2021-12-08-introducing-the-new-relay-compiler-post-required.png')} title="A component with less null-checking boilerplate, due to the use of the `@required` directive"/>
 
 :::
 
@@ -97,7 +97,7 @@ We tried a number of strategies to keep up:
 * We had made the compiler incremental. In response to a change, it only recompiled the dependencies that were affected by that change.
 * We had identified which transforms were slow (namely, flatten), and made the algorithmic improvements we could (such as adding memoization).
 * The official `graphql` npm package's GraphQL schema representation took multiple gigabytes of memory to represent our schema, so we replaced it with a custom fork.
-* We made profiler-guided micro-optimizations in our hottest code paths. For example, we stopped using the `...` operator to clone and modify objects, instead preferring to explicitly list out the properties of objects when copying them. This preserved the object's hidden class, and enabled the code to better JIT-optimized.
+* We made profiler-guided micro-optimizations in our hottest code paths. For example, we stopped using the `...` operator to clone and modify objects, instead preferring to explicitly list out the properties of objects when copying them. This preserved the object's hidden class, and enabled the code to be better JIT-optimized.
 * We restructured the compiler to shell out to multiple workers, with each worker handling a single schema. Projects with multiple schemas are uncommon outside of Meta, so even with this, most users would have been using a single-threaded compiler.
 
 These optimizations weren't enough to keep pace with the rapid internal adoption of Relay.

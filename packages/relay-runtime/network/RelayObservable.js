@@ -18,14 +18,14 @@ const isPromise = require('../util/isPromise');
  * unsubscribed or checked to see if the resulting subscription has closed.
  */
 export type Subscription = {
-  +unsubscribe: () => void,
-  +closed: boolean,
+  readonly unsubscribe: () => void,
+  readonly closed: boolean,
 };
 
 type SubscriptionFn = {
-  (): mixed,
-  +unsubscribe?: void,
-  +closed?: void,
+  (): unknown,
+  readonly unsubscribe?: void,
+  readonly closed?: void,
   ...
 };
 
@@ -33,12 +33,12 @@ type SubscriptionFn = {
  * An Observer is an object of optional callback functions provided to
  * .subscribe(). Each callback function is invoked when that event occurs.
  */
-export type Observer<-T> = {
-  +start?: ?(Subscription) => mixed,
-  +next?: ?(T) => mixed,
-  +error?: ?(Error) => mixed,
-  +complete?: ?() => mixed,
-  +unsubscribe?: ?(Subscription) => mixed,
+export type Observer<in T> = {
+  readonly start?: ?(Subscription) => unknown,
+  readonly next?: ?(T) => unknown,
+  readonly error?: ?(Error) => unknown,
+  readonly complete?: ?() => unknown,
+  readonly unsubscribe?: ?(Subscription) => unknown,
 };
 
 /**
@@ -46,11 +46,11 @@ export type Observer<-T> = {
  * The methods are to be called to trigger each event. It also contains a closed
  * field to see if the resulting subscription has closed.
  */
-export type Sink<-T> = {
-  +next: T => void,
-  +error: (Error, isUncaughtThrownError?: boolean) => void,
-  +complete: () => void,
-  +closed: boolean,
+export type Sink<in T> = {
+  readonly next: T => void,
+  readonly error: (Error, isUncaughtThrownError?: boolean) => void,
+  readonly complete: () => void,
+  readonly closed: boolean,
 };
 
 /**
@@ -59,7 +59,7 @@ export type Sink<-T> = {
  * and may return either a cleanup function or a Subscription instance (for use
  * when composing Observables).
  */
-export type Source<+T> = (Sink<T>) => void | Subscription | SubscriptionFn;
+export type Source<out T> = (Sink<T>) => void | Subscription | SubscriptionFn;
 
 /**
  * A Subscribable is an interface describing any object which can be subscribed.
@@ -67,14 +67,14 @@ export type Source<+T> = (Sink<T>) => void | Subscription | SubscriptionFn;
  * Note: A sink may be passed directly to .subscribe() as its observer,
  * allowing for easily composing Subscribables.
  */
-export interface Subscribable<+T> {
+export interface Subscribable<out T> {
   subscribe(observer: Observer<T> | Sink<T>): Subscription;
 }
 
-export type ObservableFromValue<+T> = Subscribable<T> | Promise<T> | T;
+export type ObservableFromValue<out T> = Subscribable<T> | Promise<T> | T;
 
 let hostReportError:
-  | ((Error, isUncaughtThrownError: boolean) => mixed)
+  | ((Error, isUncaughtThrownError: boolean) => unknown)
   | ((_error: Error, _isUncaughtThrownError: boolean) => void) = swallowError;
 
 /**
@@ -88,11 +88,11 @@ let hostReportError:
  *
  * ESObservable: https://github.com/tc39/proposal-observable
  */
-class RelayObservable<+T> implements Subscribable<T> {
-  +_source: Source<T>;
+class RelayObservable<out T> implements Subscribable<T> {
+  readonly _source: Source<T>;
 
   static create<V>(source: Source<V>): RelayObservable<V> {
-    return new RelayObservable((source: any));
+    return new RelayObservable(source as any);
   }
 
   // Use RelayObservable.create()
@@ -103,7 +103,7 @@ class RelayObservable<+T> implements Subscribable<T> {
         throw new Error('Source must be a Function: ' + String(source));
       }
     }
-    (this: any)._source = source;
+    (this as any)._source = source;
   }
 
   /**
@@ -132,7 +132,7 @@ class RelayObservable<+T> implements Subscribable<T> {
    *    stack traces.
    */
   static onUnhandledError(
-    callback: (Error, isUncaughtThrownError: boolean) => mixed,
+    callback: (Error, isUncaughtThrownError: boolean) => unknown,
   ): void {
     hostReportError = callback;
   }
@@ -247,7 +247,7 @@ class RelayObservable<+T> implements Subscribable<T> {
    *
    * This is useful for cleanup such as resource finalization.
    */
-  finally(fn: () => mixed): RelayObservable<T> {
+  finally(fn: () => unknown): RelayObservable<T> {
     return RelayObservable.create(sink => {
       const subscription = this.subscribe(sink);
       return () => {
@@ -351,6 +351,8 @@ class RelayObservable<+T> implements Subscribable<T> {
       }
 
       function complete(this: ObservableContext) {
+        /* $FlowFixMe[incompatible-type] Error exposed after improved typing of
+         * Array.{includes,indexOf,lastIndexOf} */
         subscriptions.splice(subscriptions.indexOf(this._sub), 1);
         if (subscriptions.length === 0) {
           sink.complete();
@@ -445,9 +447,9 @@ class RelayObservable<+T> implements Subscribable<T> {
 }
 
 // Use declarations to teach Flow how to check isObservable.
-declare function isObservable<T>(obj: mixed): obj is Subscribable<T>;
+declare function isObservable<T>(obj: unknown): obj is Subscribable<T>;
 
-function isObservable(obj: mixed) {
+function isObservable(obj: unknown) {
   return (
     typeof obj === 'object' &&
     obj !== null &&
@@ -489,8 +491,8 @@ function subscribe<T>(
   // Subscription objects below, however not all flow environments we expect
   // Relay to be used within will support property getters, and many minifier
   // tools still do not support ES5 syntax. Instead, we can use defineProperty.
-  const withClosed: <O>(obj: O) => {...O, +closed: boolean} = (obj =>
-    Object.defineProperty(obj, 'closed', ({get: () => closed}: any)): any);
+  const withClosed: <O>(obj: O) => {...O, readonly closed: boolean} = (obj =>
+    Object.defineProperty(obj, 'closed', {get: () => closed} as any)) as any;
 
   function doCleanup() {
     if (cleanup) {

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<61f14b1b968a27f9d2a11fe0f702c0ea>>
+ * @generated SignedSource<<ba10c54682527b4e1c5b13180e4b975d>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,20 +17,20 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type ReactRelayTestMockerTestNestedQuery$variables = {||};
-export type ReactRelayTestMockerTestNestedQuery$data = {|
-  +viewer: ?{|
-    +actor: ?{|
-      +birthdate: ?{|
-        +month: ?number,
-      |},
-    |},
-  |},
-|};
-export type ReactRelayTestMockerTestNestedQuery = {|
+export type ReactRelayTestMockerTestNestedQuery$variables = {};
+export type ReactRelayTestMockerTestNestedQuery$data = {
+  readonly viewer: ?{
+    readonly actor: ?{
+      readonly birthdate: ?{
+        readonly month: ?number,
+      },
+    },
+  },
+};
+export type ReactRelayTestMockerTestNestedQuery = {
   response: ReactRelayTestMockerTestNestedQuery$data,
   variables: ReactRelayTestMockerTestNestedQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -76,7 +75,7 @@ return {
             "name": "actor",
             "plural": false,
             "selections": [
-              (v0/*: any*/)
+              (v0/*:: as any*/)
             ],
             "storageKey": null
           }
@@ -116,7 +115,7 @@ return {
                 "name": "__typename",
                 "storageKey": null
               },
-              (v0/*: any*/),
+              (v0/*:: as any*/),
               {
                 "alias": null,
                 "args": null,
@@ -144,10 +143,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "a6b9d9e49bf7ac7ae36777450d1ec30b";
+  (node/*:: as any*/).hash = "a6b9d9e49bf7ac7ae36777450d1ec30b";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ReactRelayTestMockerTestNestedQuery$variables,
   ReactRelayTestMockerTestNestedQuery$data,
 >*/);

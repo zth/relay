@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d1cacf95c8fda1da9298e6fa5809c354>>
+ * @generated SignedSource<<b98ac8d81db21c71ed9be0f95fc5b489>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,14 +18,14 @@
 /*::
 import type { UpdatableQuery, ConcreteUpdatableQuery } from 'relay-runtime';
 import type { OpaqueScalarType } from "../OpaqueScalarType";
-export type readUpdatableQueryTest1Query$variables = {||};
-export type readUpdatableQueryTest1Query$data = {|
+export type readUpdatableQueryTest1Query$variables = {};
+export type readUpdatableQueryTest1Query$data = {
   updatable_scalar_field: ?OpaqueScalarType,
-|};
-export type readUpdatableQueryTest1Query = {|
+};
+export type readUpdatableQueryTest1Query = {
   response: readUpdatableQueryTest1Query$data,
   variables: readUpdatableQueryTest1Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteUpdatableQuery*/ = {
@@ -56,10 +55,10 @@ var node/*: ConcreteUpdatableQuery*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "67121b98c8a52240b7a99d3c4d26a509";
+  (node/*:: as any*/).hash = "67121b98c8a52240b7a99d3c4d26a509";
 }
 
-module.exports = ((node/*: any*/)/*: UpdatableQuery<
+module.exports = ((node/*:: as any*/)/*:: as UpdatableQuery<
   readUpdatableQueryTest1Query$variables,
   readUpdatableQueryTest1Query$data,
 >*/);

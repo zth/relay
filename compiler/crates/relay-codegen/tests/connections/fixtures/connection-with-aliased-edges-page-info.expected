@@ -104,7 +104,7 @@ v5 = [
     "name": "pageInfo",
     "plural": false,
     "selections": [
-      (v4/*: any*/)
+      (v4/*:: as any*/)
     ],
     "storageKey": null
   },
@@ -169,7 +169,7 @@ v5 = [
             "name": "endCursor",
             "storageKey": null
           },
-          (v4/*: any*/)
+          (v4/*:: as any*/)
         ],
         "type": "PageInfo",
         "abstractKey": null
@@ -180,31 +180,31 @@ v5 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "NodeQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
               {
                 "alias": "comments",
-                "args": (v3/*: any*/),
+                "args": (v3/*:: as any*/),
                 "concreteType": "CommentsConnection",
                 "kind": "LinkedField",
                 "name": "__NodeQuery_comments_connection",
                 "plural": false,
-                "selections": (v5/*: any*/),
+                "selections": (v5/*:: as any*/),
                 "storageKey": "__NodeQuery_comments_connection(first:10)"
               }
             ],
@@ -220,35 +220,35 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "NodeQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
               {
                 "alias": null,
-                "args": (v3/*: any*/),
+                "args": (v3/*:: as any*/),
                 "concreteType": "CommentsConnection",
                 "kind": "LinkedField",
                 "name": "comments",
                 "plural": false,
-                "selections": (v5/*: any*/),
+                "selections": (v5/*:: as any*/),
                 "storageKey": "comments(first:10)"
               },
               {
                 "alias": null,
-                "args": (v3/*: any*/),
+                "args": (v3/*:: as any*/),
                 "filters": null,
                 "handle": "connection",
                 "key": "NodeQuery_comments",

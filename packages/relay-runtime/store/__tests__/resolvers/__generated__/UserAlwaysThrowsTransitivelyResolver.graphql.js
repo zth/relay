@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8208626e87f520ef9ec13f8b00139491>>
+ * @generated SignedSource<<41e8cf275f2b36e6e0b577506cb6ce57>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,19 +23,19 @@ import {always_throws as userAlwaysThrowsResolverType} from "../UserAlwaysThrows
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userAlwaysThrowsResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userAlwaysThrowsResolverType: (
+(userAlwaysThrowsResolverType as (
   rootKey: UserAlwaysThrowsResolver$key,
   args: void,
   context: TestResolverContextType,
 ) => ?string);
 declare export opaque type UserAlwaysThrowsTransitivelyResolver$fragmentType: FragmentType;
-export type UserAlwaysThrowsTransitivelyResolver$data = {|
-  +always_throws: ?string,
-  +$fragmentType: UserAlwaysThrowsTransitivelyResolver$fragmentType,
-|};
+export type UserAlwaysThrowsTransitivelyResolver$data = {
+  readonly always_throws: ?string,
+  readonly $fragmentType: UserAlwaysThrowsTransitivelyResolver$fragmentType,
+};
 export type UserAlwaysThrowsTransitivelyResolver$key = {
-  +$data?: UserAlwaysThrowsTransitivelyResolver$data,
-  +$fragmentSpreads: UserAlwaysThrowsTransitivelyResolver$fragmentType,
+  readonly $data?: UserAlwaysThrowsTransitivelyResolver$data,
+  readonly $fragmentSpreads: UserAlwaysThrowsTransitivelyResolver$fragmentType,
   ...
 };
 */
@@ -66,10 +65,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "46889babda2ee3ea422d710cb059c7e7";
+  (node/*:: as any*/).hash = "46889babda2ee3ea422d710cb059c7e7";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   UserAlwaysThrowsTransitivelyResolver$fragmentType,
   UserAlwaysThrowsTransitivelyResolver$data,
 >*/);

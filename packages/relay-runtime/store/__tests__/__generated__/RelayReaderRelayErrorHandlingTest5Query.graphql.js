@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<88410745e66537fa4174c9fe5183f8e8>>
+ * @generated SignedSource<<259f59c58035e81d6de5bf379d8d60fe>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -23,21 +22,21 @@ import {last_name_throw_on_field_error as userLastNameThrowOnFieldErrorResolverT
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userLastNameThrowOnFieldErrorResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userLastNameThrowOnFieldErrorResolverType: (
+(userLastNameThrowOnFieldErrorResolverType as (
   rootKey: UserLastNameThrowOnFieldErrorResolver$key,
   args: void,
   context: TestResolverContextType,
 ) => ?string);
-export type RelayReaderRelayErrorHandlingTest5Query$variables = {||};
-export type RelayReaderRelayErrorHandlingTest5Query$data = {|
-  +me: ?{|
-    +last_name_throw_on_field_error: ?string,
-  |},
-|};
-export type RelayReaderRelayErrorHandlingTest5Query = {|
+export type RelayReaderRelayErrorHandlingTest5Query$variables = {};
+export type RelayReaderRelayErrorHandlingTest5Query$data = {
+  readonly me: ?{
+    readonly last_name_throw_on_field_error: ?string,
+  },
+};
+export type RelayReaderRelayErrorHandlingTest5Query = {
   response: RelayReaderRelayErrorHandlingTest5Query$data,
   variables: RelayReaderRelayErrorHandlingTest5Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {
@@ -135,10 +134,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "c43a45aef66b2d0282889bad58ad0196";
+  (node/*:: as any*/).hash = "c43a45aef66b2d0282889bad58ad0196";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderRelayErrorHandlingTest5Query$variables,
   RelayReaderRelayErrorHandlingTest5Query$data,
 >*/);

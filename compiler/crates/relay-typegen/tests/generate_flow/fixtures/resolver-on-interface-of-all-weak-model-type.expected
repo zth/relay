@@ -25,16 +25,16 @@ import type { FragmentType } from "relay-runtime";
 import catDescriptionResolverType from "CatResolver";
 // Type assertion validating that `catDescriptionResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(catDescriptionResolverType: (
+(catDescriptionResolverType as (
   model: Persian____relay_model_instance$data['__relay_model_instance'] | Tabby____relay_model_instance$data['__relay_model_instance'],
-) => ?mixed);
+) => ?unknown);
 declare export opaque type resolverOnInterfaceOfAllWeakModelTypeFragment$fragmentType: FragmentType;
-export type resolverOnInterfaceOfAllWeakModelTypeFragment$data = {|
-  +description: ?ReturnType<typeof catDescriptionResolverType>,
-  +$fragmentType: resolverOnInterfaceOfAllWeakModelTypeFragment$fragmentType,
-|};
+export type resolverOnInterfaceOfAllWeakModelTypeFragment$data = {
+  readonly description: ?ReturnType<typeof catDescriptionResolverType>,
+  readonly $fragmentType: resolverOnInterfaceOfAllWeakModelTypeFragment$fragmentType,
+};
 export type resolverOnInterfaceOfAllWeakModelTypeFragment$key = {
-  +$data?: resolverOnInterfaceOfAllWeakModelTypeFragment$data,
-  +$fragmentSpreads: resolverOnInterfaceOfAllWeakModelTypeFragment$fragmentType,
+  readonly $data?: resolverOnInterfaceOfAllWeakModelTypeFragment$data,
+  readonly $fragmentSpreads: resolverOnInterfaceOfAllWeakModelTypeFragment$fragmentType,
   ...
 };

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1b9cd4b4e3f5731a7f403eb88a70d3c4>>
+ * @generated SignedSource<<058681a2e8fda3d8e8018d5c3c6a8420>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,19 +18,19 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { useFragmentNodeTestUserFragment$fragmentType } from "./useFragmentNodeTestUserFragment.graphql";
-export type useFragmentNodeTestUserQuery$variables = {|
+export type useFragmentNodeTestUserQuery$variables = {
   id: string,
   scale: number,
-|};
-export type useFragmentNodeTestUserQuery$data = {|
-  +node: ?{|
-    +$fragmentSpreads: useFragmentNodeTestUserFragment$fragmentType,
-  |},
-|};
-export type useFragmentNodeTestUserQuery = {|
+};
+export type useFragmentNodeTestUserQuery$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: useFragmentNodeTestUserFragment$fragmentType,
+  },
+};
+export type useFragmentNodeTestUserQuery = {
   response: useFragmentNodeTestUserQuery$data,
   variables: useFragmentNodeTestUserQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -56,14 +55,14 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "useFragmentNodeTestUserQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -83,13 +82,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "useFragmentNodeTestUserQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -171,10 +170,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "1445e0037c0bb573c2ca3f35d1f84cf7";
+  (node/*:: as any*/).hash = "1445e0037c0bb573c2ca3f35d1f84cf7";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   useFragmentNodeTestUserQuery$variables,
   useFragmentNodeTestUserQuery$data,
 >*/);

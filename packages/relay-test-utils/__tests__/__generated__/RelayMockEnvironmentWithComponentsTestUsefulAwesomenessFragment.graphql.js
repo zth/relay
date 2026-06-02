@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1e6161f4f9156ce13402bb1c24502067>>
+ * @generated SignedSource<<1852c9da0a30558b8c38a8e630245072>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,15 +19,15 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$fragmentType: FragmentType;
-export type RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$data = {|
-  +id: string,
-  +name: ?string,
-  +websites: ?$ReadOnlyArray<?string>,
-  +$fragmentType: RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$fragmentType,
-|};
+export type RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$data = {
+  readonly id: string,
+  readonly name: ?string,
+  readonly websites: ?ReadonlyArray<?string>,
+  readonly $fragmentType: RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$fragmentType,
+};
 export type RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$key = {
-  +$data?: RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$data,
-  +$fragmentSpreads: RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$fragmentType,
+  readonly $data?: RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$data,
+  readonly $fragmentSpreads: RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$fragmentType,
   ...
 };
 */
@@ -66,10 +65,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "432b0a19d5c7d27b270eff399b9bea47";
+  (node/*:: as any*/).hash = "432b0a19d5c7d27b270eff399b9bea47";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$fragmentType,
   RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$data,
 >*/);

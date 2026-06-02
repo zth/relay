@@ -51,7 +51,7 @@ React 19 is now a valid peer dependency of Relay (#4944) by Krzysztof Karol ([co
 ## Breaking Changes
 
 - Relay now defaults to generating ES module imports in its generated js files. You can add `"eagerEsModules": false` in your `relay.config.json` to opt back into the old behavior. ([commit](https://github.com/facebook/relay/commit/bd321a231397))
-- Relay's NPM modules nolonger include a pre-bundled module. (#4935) by Iha Shin ([commit](https://github.com/facebook/relay/commit/cc4cf767dd44))
+- Relay's NPM modules no longer include a pre-bundled module. (#4935) by Iha Shin ([commit](https://github.com/facebook/relay/commit/cc4cf767dd44))
 
 ## Improvements
 - Avoid duplication in config JSON Schema by Jordan Eldredge ([commit](https://github.com/facebook/relay/commit/1e4b1646c334))
@@ -65,7 +65,7 @@ React 19 is now a valid peer dependency of Relay (#4944) by Krzysztof Karol ([co
 - Allow @dangerously_unaliased_fixme on updatable fragment spreads by Jordan Eldredge ([commit](https://github.com/facebook/relay/commit/837d4ab00f54))
 - Add a feature flag to throw on nested updates in dev by Tianyu Yao ([commit](https://github.com/facebook/relay/commit/0ea5dfbbd836))
 - Do not emit union type for __typename selection on non-abstract type (#4923) by tobias-tengler ([commit](https://github.com/facebook/relay/commit/d9967e8fc676))
-- Reenable warning if fetchQuery is called in render (using new unsatable React APIs) by Jordan Eldredge ([commit](https://github.com/facebook/relay/commit/9f7fb21578c0))
+- Reenable warning if fetchQuery is called in render (using new unstable React APIs) by Jordan Eldredge ([commit](https://github.com/facebook/relay/commit/9f7fb21578c0))
 - Log ID collisions in production by Monica Tang ([commit](https://github.com/facebook/relay/commit/65b9b9a6124a))
 - Add log events by Monica Tang ([commit](https://github.com/facebook/relay/commit/c640e2ef97c5))
 - Pass operation availability to the network layer for loadQuery by Tianyu Yao ([commit](https://github.com/facebook/relay/commit/ab3b117680c5))
@@ -100,8 +100,8 @@ React 19 is now a valid peer dependency of Relay (#4944) by Krzysztof Karol ([co
 - Fix `observeFragment` triggering unhandled rejections on network error (#4885) by Iha Shin ([commit](https://github.com/facebook/relay/commit/10073c88f8ec))
 - Checked for missed updates in effect create phase by Jack Pope ([commit](https://github.com/facebook/relay/commit/616508125a8e))
 - Avoid writing to stdout in LSP by Jordan Eldredge ([commit](https://github.com/facebook/relay/commit/51fac5d3c9a6))
-- Run requried transform on IR before validating @required on semantic non null fields in LSP by Jordan Eldredge ([commit](https://github.com/facebook/relay/commit/911e0831f77f))
-- Fix: Don't report @required on field that can be null due to @required bubbling as unnessesary by Jordan Eldredge ([commit](https://github.com/facebook/relay/commit/f11501758ab7))
+- Run required transform on IR before validating @required on semantic non null fields in LSP by Jordan Eldredge ([commit](https://github.com/facebook/relay/commit/911e0831f77f))
+- Fix: Don't report @required on field that can be null due to @required bubbling as unnecessary by Jordan Eldredge ([commit](https://github.com/facebook/relay/commit/f11501758ab7))
 - Unbreak LiveState unsub when references.size === 0 (#4832) by Tom Aylott ([commit](https://github.com/facebook/relay/commit/1e60e4716a5e))
 - Remove PointerAddress from generate_typename by Gordy French ([commit](https://github.com/facebook/relay/commit/d0da5251e8cb))
 - Context not properly provided through data injector and subscriptions (#4846) by Mark Polak ([commit](https://github.com/facebook/relay/commit/2211ac6c529b))
@@ -120,7 +120,7 @@ React 19 is now a valid peer dependency of Relay (#4944) by Krzysztof Karol ([co
 - Quick Start: Add note about watchman by Jordan Eldredge ([commit](https://github.com/facebook/relay/commit/66550c3399a0))
 - Remove "TBD" sections from the docs by Evan Yeung ([commit](https://github.com/facebook/relay/commit/0470769e8235))
 - Rework onboarding flow by Jordan Eldredge ([commit](https://github.com/facebook/relay/commit/2784dfc48f68))
-- Remove migration and compatability pages by Jordan Eldredge ([commit](https://github.com/facebook/relay/commit/479fde84fcc4))
+- Remove migration and compatibility pages by Jordan Eldredge ([commit](https://github.com/facebook/relay/commit/479fde84fcc4))
 - Make footer logo smaller by Monica Tang ([commit](https://github.com/facebook/relay/commit/010b8e1e75b8))
 - Delete some pages by Monica Tang ([commit](https://github.com/facebook/relay/commit/ce0b8c3396aa))
 - Remove orphaned page "workflow" by Jordan Eldredge ([commit](https://github.com/facebook/relay/commit/7bf190f14fd9))

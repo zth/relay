@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8e6c9a64b2d02bc018f3af54839ad5fa>>
+ * @generated SignedSource<<daa88bd91712ed9b3a7fe84fe6078bd5>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -23,20 +22,20 @@ import {age as userAgeResolverType} from "../resolvers/UserAgeResolvers.js";
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userAgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userAgeResolverType: (
+(userAgeResolverType as (
   args: void,
   context: TestResolverContextType,
 ) => ?number);
 declare export opaque type RelayModernEnvironmentSubscriptionWithResolverContextTestUserFragment$fragmentType: FragmentType;
-export type RelayModernEnvironmentSubscriptionWithResolverContextTestUserFragment$data = {|
-  +age: ?number,
-  +id: string,
-  +name: ?string,
-  +$fragmentType: RelayModernEnvironmentSubscriptionWithResolverContextTestUserFragment$fragmentType,
-|};
+export type RelayModernEnvironmentSubscriptionWithResolverContextTestUserFragment$data = {
+  readonly age: ?number,
+  readonly id: string,
+  readonly name: ?string,
+  readonly $fragmentType: RelayModernEnvironmentSubscriptionWithResolverContextTestUserFragment$fragmentType,
+};
 export type RelayModernEnvironmentSubscriptionWithResolverContextTestUserFragment$key = {
-  +$data?: RelayModernEnvironmentSubscriptionWithResolverContextTestUserFragment$data,
-  +$fragmentSpreads: RelayModernEnvironmentSubscriptionWithResolverContextTestUserFragment$fragmentType,
+  readonly $data?: RelayModernEnvironmentSubscriptionWithResolverContextTestUserFragment$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentSubscriptionWithResolverContextTestUserFragment$fragmentType,
   ...
 };
 */
@@ -81,10 +80,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "66a7aeaa5486c95229787503c12b1aa0";
+  (node/*:: as any*/).hash = "66a7aeaa5486c95229787503c12b1aa0";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayModernEnvironmentSubscriptionWithResolverContextTestUserFragment$fragmentType,
   RelayModernEnvironmentSubscriptionWithResolverContextTestUserFragment$data,
 >*/);

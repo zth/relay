@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e8caa8681021706578a3370563abefe1>>
+ * @generated SignedSource<<b2b41c5ae677ceacc9ae70d6300bcaee>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,16 +18,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { observeFragmentTestPluralThrowOnFieldErrorFragment$fragmentType } from "./observeFragmentTestPluralThrowOnFieldErrorFragment.graphql";
-export type observeFragmentTestPluralThrowOnFieldErrorQuery$variables = {||};
-export type observeFragmentTestPluralThrowOnFieldErrorQuery$data = {|
-  +nodes: ?$ReadOnlyArray<?{|
-    +$fragmentSpreads: observeFragmentTestPluralThrowOnFieldErrorFragment$fragmentType,
-  |}>,
-|};
-export type observeFragmentTestPluralThrowOnFieldErrorQuery = {|
+export type observeFragmentTestPluralThrowOnFieldErrorQuery$variables = {};
+export type observeFragmentTestPluralThrowOnFieldErrorQuery$data = {
+  readonly nodes: ?ReadonlyArray<?{
+    readonly $fragmentSpreads: observeFragmentTestPluralThrowOnFieldErrorFragment$fragmentType,
+  }>,
+};
+export type observeFragmentTestPluralThrowOnFieldErrorQuery = {
   response: observeFragmentTestPluralThrowOnFieldErrorQuery$data,
   variables: observeFragmentTestPluralThrowOnFieldErrorQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -51,7 +50,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "nodes",
@@ -77,7 +76,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "nodes",
@@ -128,10 +127,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "36cd146fd2db4ac80dfe226a3e20dd3e";
+  (node/*:: as any*/).hash = "36cd146fd2db4ac80dfe226a3e20dd3e";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   observeFragmentTestPluralThrowOnFieldErrorQuery$variables,
   observeFragmentTestPluralThrowOnFieldErrorQuery$data,
 >*/);

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<aa212a472f7fab74afe823170c4b4620>>
+ * @generated SignedSource<<a374d37417774d5a4f84350a1a494e22>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,19 +17,19 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayResponseNormalizerTest17Query$variables = {||};
-export type RelayResponseNormalizerTest17Query$data = {|
-  +me: ?{|
-    +author: ?{|
-      +id: string,
-      +name: ?string,
-    |},
-  |},
-|};
-export type RelayResponseNormalizerTest17Query = {|
+export type RelayResponseNormalizerTest17Query$variables = {};
+export type RelayResponseNormalizerTest17Query$data = {
+  readonly me: ?{
+    readonly author: ?{
+      readonly id: string,
+      readonly name: ?string,
+    },
+  },
+};
+export type RelayResponseNormalizerTest17Query = {
   response: RelayResponseNormalizerTest17Query$data,
   variables: RelayResponseNormalizerTest17Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -49,7 +48,7 @@ v1 = {
   "name": "author",
   "plural": false,
   "selections": [
-    (v0/*: any*/),
+    (v0/*:: as any*/),
     {
       "alias": null,
       "args": null,
@@ -75,7 +74,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v1/*: any*/)
+          (v1/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -97,8 +96,8 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v1/*: any*/),
-          (v0/*: any*/)
+          (v1/*:: as any*/),
+          (v0/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -116,10 +115,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "70e6bedd542c48fcc64931cdb574f489";
+  (node/*:: as any*/).hash = "70e6bedd542c48fcc64931cdb574f489";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayResponseNormalizerTest17Query$variables,
   RelayResponseNormalizerTest17Query$data,
 >*/);

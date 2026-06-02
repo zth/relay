@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6983558fc7ee772d8e56d5b22396f263>>
+ * @generated SignedSource<<0a041ef63da1c0659578e0fa3475002d>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -23,22 +22,22 @@ import {edge_to_server_object_does_not_exist as queryEdgeToServerObjectDoesNotEx
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryEdgeToServerObjectDoesNotExistResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryEdgeToServerObjectDoesNotExistResolverType: (
+(queryEdgeToServerObjectDoesNotExistResolverType as (
   args: void,
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
-export type RelayResolverNullableModelClientEdgeTest_ServerObjectReadOnlyId_Query$variables = {||};
-export type RelayResolverNullableModelClientEdgeTest_ServerObjectReadOnlyId_Query$data = {|
-  +edge_to_server_object_does_not_exist: ?{|
-    +id: string,
-  |},
-|};
-export type RelayResolverNullableModelClientEdgeTest_ServerObjectReadOnlyId_Query = {|
+) => ?{
+  readonly id: DataID,
+});
+export type RelayResolverNullableModelClientEdgeTest_ServerObjectReadOnlyId_Query$variables = {};
+export type RelayResolverNullableModelClientEdgeTest_ServerObjectReadOnlyId_Query$data = {
+  readonly edge_to_server_object_does_not_exist: ?{
+    readonly id: string,
+  },
+};
+export type RelayResolverNullableModelClientEdgeTest_ServerObjectReadOnlyId_Query = {
   response: RelayResolverNullableModelClientEdgeTest_ServerObjectReadOnlyId_Query$data,
   variables: RelayResolverNullableModelClientEdgeTest_ServerObjectReadOnlyId_Query$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = {
@@ -112,10 +111,10 @@ var node/*: ClientRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "6e6fc82ab5969e84d7c748516d16686b";
+  (node/*:: as any*/).hash = "6e6fc82ab5969e84d7c748516d16686b";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   RelayResolverNullableModelClientEdgeTest_ServerObjectReadOnlyId_Query$variables,
   RelayResolverNullableModelClientEdgeTest_ServerObjectReadOnlyId_Query$data,
 >*/);

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a753ce97a5dec4082d8071bbd6261471>>
+ * @generated SignedSource<<d37609cbcbc774905eee4fe6114a3b49>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,33 +18,33 @@
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
 import type { validateMutationTestNodeFragement$fragmentType } from "./validateMutationTestNodeFragement.graphql";
-export type FeedbackLikeInput = {|
+export type FeedbackLikeInput = {
   feedbackId?: ?string,
-|};
-export type validateMutationTestIsNodeSpreadMutation$variables = {|
+};
+export type validateMutationTestIsNodeSpreadMutation$variables = {
   input?: ?FeedbackLikeInput,
-|};
-export type validateMutationTestIsNodeSpreadMutation$data = {|
-  +feedbackLike: ?{|
-    +feedback: ?{|
-      +$fragmentSpreads: validateMutationTestNodeFragement$fragmentType,
-    |},
-  |},
-|};
-export type validateMutationTestIsNodeSpreadMutation$rawResponse = {|
-  +feedbackLike: ?{|
-    +feedback: ?{|
-      +__isNode: "Feedback",
-      +id: string,
-      +name: ?string,
-    |},
-  |},
-|};
-export type validateMutationTestIsNodeSpreadMutation = {|
+};
+export type validateMutationTestIsNodeSpreadMutation$data = {
+  readonly feedbackLike: ?{
+    readonly feedback: ?{
+      readonly $fragmentSpreads: validateMutationTestNodeFragement$fragmentType,
+    },
+  },
+};
+export type validateMutationTestIsNodeSpreadMutation$rawResponse = {
+  readonly feedbackLike: ?{
+    readonly feedback: ?{
+      readonly __isNode: "Feedback",
+      readonly id: string,
+      readonly name: ?string,
+    },
+  },
+};
+export type validateMutationTestIsNodeSpreadMutation = {
   rawResponse: validateMutationTestIsNodeSpreadMutation$rawResponse,
   response: validateMutationTestIsNodeSpreadMutation$data,
   variables: validateMutationTestIsNodeSpreadMutation$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -65,14 +64,14 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "validateMutationTestIsNodeSpreadMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "FeedbackLikeResponsePayload",
         "kind": "LinkedField",
         "name": "feedbackLike",
@@ -103,13 +102,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "validateMutationTestIsNodeSpreadMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "FeedbackLikeResponsePayload",
         "kind": "LinkedField",
         "name": "feedbackLike",
@@ -164,10 +163,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "8d533cf7894c4cce1eb6b30d79549d19";
+  (node/*:: as any*/).hash = "8d533cf7894c4cce1eb6b30d79549d19";
 }
 
-module.exports = ((node/*: any*/)/*: Mutation<
+module.exports = ((node/*:: as any*/)/*:: as Mutation<
   validateMutationTestIsNodeSpreadMutation$variables,
   validateMutationTestIsNodeSpreadMutation$data,
   validateMutationTestIsNodeSpreadMutation$rawResponse,

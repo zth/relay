@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<43c5e6c65877e8515df6f1159e0a7691>>
+ * @generated SignedSource<<96bdc3da047236b93b49b7399c1d95dd>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,24 +17,24 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayResponseNormalizerTest39Query$variables = {|
+export type RelayResponseNormalizerTest39Query$variables = {
   id: string,
-|};
-export type RelayResponseNormalizerTest39Query$data = {|
-  +node: ?{|
-    +__typename: string,
-    +friends?: ?{|
-      +edges: ?$ReadOnlyArray<?{|
-        +cursor: ?string,
-      |}>,
-    |},
-    +id: string,
-  |},
-|};
-export type RelayResponseNormalizerTest39Query = {|
+};
+export type RelayResponseNormalizerTest39Query$data = {
+  readonly node: ?{
+    readonly __typename: string,
+    readonly friends?: ?{
+      readonly edges: ?ReadonlyArray<?{
+        readonly cursor: ?string,
+      }>,
+    },
+    readonly id: string,
+  },
+};
+export type RelayResponseNormalizerTest39Query = {
   response: RelayResponseNormalizerTest39Query$data,
   variables: RelayResponseNormalizerTest39Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -123,20 +122,20 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayResponseNormalizerTest39Query",
-    "selections": (v1/*: any*/),
+    "selections": (v1/*:: as any*/),
     "type": "Query",
     "abstractKey": null
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayResponseNormalizerTest39Query",
-    "selections": (v1/*: any*/)
+    "selections": (v1/*:: as any*/)
   },
   "params": {
     "cacheID": "4158a032a3742fe3c0f645ef08ce05f1",
@@ -150,10 +149,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "0e32876eb5bb0104d7af6e38d33c30fe";
+  (node/*:: as any*/).hash = "0e32876eb5bb0104d7af6e38d33c30fe";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayResponseNormalizerTest39Query$variables,
   RelayResponseNormalizerTest39Query$data,
 >*/);

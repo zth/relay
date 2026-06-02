@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<27690c8483c2a49310d170d26040ece0>>
+ * @generated SignedSource<<b60b5d56e975f89f8b248c73a4bd7069>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,15 +19,15 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type CounterSuspendsWhenOdd$fragmentType: FragmentType;
-export type CounterSuspendsWhenOdd$data = {|
-  +me: ?{|
-    +__id: string,
-  |},
-  +$fragmentType: CounterSuspendsWhenOdd$fragmentType,
-|};
+export type CounterSuspendsWhenOdd$data = {
+  readonly me: ?{
+    readonly __id: string,
+  },
+  readonly $fragmentType: CounterSuspendsWhenOdd$fragmentType,
+};
 export type CounterSuspendsWhenOdd$key = {
-  +$data?: CounterSuspendsWhenOdd$data,
-  +$fragmentSpreads: CounterSuspendsWhenOdd$fragmentType,
+  readonly $data?: CounterSuspendsWhenOdd$data,
+  readonly $fragmentSpreads: CounterSuspendsWhenOdd$fragmentType,
   ...
 };
 */
@@ -68,10 +67,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "65f0df52ffa3d489390597f9fae96d4d";
+  (node/*:: as any*/).hash = "65f0df52ffa3d489390597f9fae96d4d";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   CounterSuspendsWhenOdd$fragmentType,
   CounterSuspendsWhenOdd$data,
 >*/);

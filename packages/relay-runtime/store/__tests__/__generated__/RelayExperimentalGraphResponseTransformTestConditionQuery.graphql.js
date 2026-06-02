@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9eccd1713096134c15cd489f9e9fe697>>
+ * @generated SignedSource<<6f4a0769b3911d0301673d01259e010e>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,19 +18,19 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayExperimentalGraphResponseTransformTest_condition$fragmentType } from "./RelayExperimentalGraphResponseTransformTest_condition.graphql";
-export type RelayExperimentalGraphResponseTransformTestConditionQuery$variables = {|
+export type RelayExperimentalGraphResponseTransformTestConditionQuery$variables = {
   enableDefer: boolean,
   id: string,
-|};
-export type RelayExperimentalGraphResponseTransformTestConditionQuery$data = {|
-  +node: ?{|
-    +$fragmentSpreads: RelayExperimentalGraphResponseTransformTest_condition$fragmentType,
-  |},
-|};
-export type RelayExperimentalGraphResponseTransformTestConditionQuery = {|
+};
+export type RelayExperimentalGraphResponseTransformTestConditionQuery$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: RelayExperimentalGraphResponseTransformTest_condition$fragmentType,
+  },
+};
+export type RelayExperimentalGraphResponseTransformTestConditionQuery = {
   response: RelayExperimentalGraphResponseTransformTestConditionQuery$data,
   variables: RelayExperimentalGraphResponseTransformTestConditionQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -55,8 +54,8 @@ v2 = [
 return {
   "fragment": {
     "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/)
+      (v0/*:: as any*/),
+      (v1/*:: as any*/)
     ],
     "kind": "Fragment",
     "metadata": null,
@@ -64,7 +63,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v2/*: any*/),
+        "args": (v2/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -90,15 +89,15 @@ return {
   "kind": "Request",
   "operation": {
     "argumentDefinitions": [
-      (v1/*: any*/),
-      (v0/*: any*/)
+      (v1/*:: as any*/),
+      (v0/*:: as any*/)
     ],
     "kind": "Operation",
     "name": "RelayExperimentalGraphResponseTransformTestConditionQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v2/*: any*/),
+        "args": (v2/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -156,10 +155,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "43f766e8c0e9e4f2e6f15baa96299bd7";
+  (node/*:: as any*/).hash = "43f766e8c0e9e4f2e6f15baa96299bd7";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayExperimentalGraphResponseTransformTestConditionQuery$variables,
   RelayExperimentalGraphResponseTransformTestConditionQuery$data,
 >*/);

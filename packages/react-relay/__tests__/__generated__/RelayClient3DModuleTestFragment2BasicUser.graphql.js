@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b02938a2c92a92281b656db7309a3d4b>>
+ * @generated SignedSource<<b3cca929c9f70e40ecf1daa974154e92>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,17 +23,17 @@ import type { RelayClient3DModuleTestFragmentClientUser_data$fragmentType } from
 import type { RelayClient3DModuleTestFragmentSpecialUser_data$fragmentType } from "./RelayClient3DModuleTestFragmentSpecialUser_data.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayClient3DModuleTestFragment2BasicUser$fragmentType: FragmentType;
-export type RelayClient3DModuleTestFragment2BasicUser$data = {|
-  +basicUser: ?{|
-    +__fragmentPropName?: ?string,
-    +__module_component?: ?string,
-    +$fragmentSpreads: RelayClient3DModuleTestFragmentClientUser_data$fragmentType & RelayClient3DModuleTestFragmentSpecialUser_data$fragmentType,
-  |},
-  +$fragmentType: RelayClient3DModuleTestFragment2BasicUser$fragmentType,
-|};
+export type RelayClient3DModuleTestFragment2BasicUser$data = {
+  readonly basicUser: ?{
+    readonly __fragmentPropName?: ?string,
+    readonly __module_component?: ?string,
+    readonly $fragmentSpreads: RelayClient3DModuleTestFragmentClientUser_data$fragmentType & RelayClient3DModuleTestFragmentSpecialUser_data$fragmentType,
+  },
+  readonly $fragmentType: RelayClient3DModuleTestFragment2BasicUser$fragmentType,
+};
 export type RelayClient3DModuleTestFragment2BasicUser$key = {
-  +$data?: RelayClient3DModuleTestFragment2BasicUser$data,
-  +$fragmentSpreads: RelayClient3DModuleTestFragment2BasicUser$fragmentType,
+  readonly $data?: RelayClient3DModuleTestFragment2BasicUser$data,
+  readonly $fragmentSpreads: RelayClient3DModuleTestFragment2BasicUser$fragmentType,
   ...
 };
 */
@@ -97,10 +96,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "184cda21aa0baef6ed005c5bc2e07c07";
+  (node/*:: as any*/).hash = "184cda21aa0baef6ed005c5bc2e07c07";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayClient3DModuleTestFragment2BasicUser$fragmentType,
   RelayClient3DModuleTestFragment2BasicUser$data,
 >*/);

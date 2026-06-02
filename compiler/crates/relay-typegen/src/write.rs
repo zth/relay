@@ -35,7 +35,6 @@ use relay_transforms::RefetchableMetadata;
 use relay_transforms::RelayDirective;
 use schema::Schema;
 
-use crate::ACTOR_CHANGE_POINT;
 use crate::FUTURE_ENUM_VALUE;
 use crate::KEY_CLIENTID;
 use crate::KEY_DATA;
@@ -46,10 +45,8 @@ use crate::KEY_TYPENAME;
 use crate::KEY_UPDATABLE_FRAGMENT_SPREADS;
 use crate::MaskStatus;
 use crate::RAW_RESPONSE_TYPE_DIRECTIVE_NAME;
-use crate::REACT_RELAY_MULTI_ACTOR;
 use crate::TypegenContext;
 use crate::VALIDATOR_EXPORT_NAME;
-use crate::typegen_state::ActorChangeStatus;
 use crate::typegen_state::EncounteredEnums;
 use crate::typegen_state::EncounteredFragment;
 use crate::typegen_state::EncounteredFragments;
@@ -97,7 +94,6 @@ pub(crate) fn write_operation_type_exports_section(
     let mut encountered_enums = Default::default();
     let mut encountered_fragments = Default::default();
     let mut imported_resolvers = Default::default();
-    let mut actor_change_status = ActorChangeStatus::NoActorChange;
     let mut runtime_imports = RuntimeImports::default();
     let mut custom_error_import = None;
     let mut custom_scalars = CustomScalarsImports::default();
@@ -122,7 +118,6 @@ pub(crate) fn write_operation_type_exports_section(
         &mut imported_raw_response_types,
         &mut encountered_fragments,
         &mut imported_resolvers,
-        &mut actor_change_status,
         &mut custom_scalars,
         &mut runtime_imports,
         &mut custom_error_import,
@@ -158,7 +153,7 @@ pub(crate) fn write_operation_type_exports_section(
         match make_custom_error_import(typegen_context, &mut custom_error_import) {
             Ok(_) => {}
             Err(e) => {
-                panic!("Error while generating custom error type: {}", e);
+                panic!("Error while generating custom error type: {e}");
             }
         }
     }
@@ -168,6 +163,7 @@ pub(crate) fn write_operation_type_exports_section(
             let mut match_fields = Default::default();
             let raw_response_selections = raw_response_visit_selections(
                 typegen_context,
+                normalization_operation.name.item,
                 &normalization_operation.selections,
                 &mut encountered_enums,
                 &mut match_fields,
@@ -181,6 +177,7 @@ pub(crate) fn write_operation_type_exports_section(
             Some((
                 raw_response_selections_to_babel(
                     typegen_context,
+                    normalization_operation.name.item,
                     raw_response_selections.into_iter(),
                     None,
                     &mut encountered_enums,
@@ -206,7 +203,6 @@ pub(crate) fn write_operation_type_exports_section(
         runtime_imports.generic_fragment_type = true;
     }
 
-    write_import_actor_change_point(actor_change_status, writer)?;
     runtime_imports.write_runtime_imports(writer)?;
     write_fragment_imports(typegen_context, None, encountered_fragments, writer)?;
     if custom_error_import.is_some() {
@@ -324,6 +320,7 @@ pub(crate) fn write_split_operation_type_exports_section(
 
     let raw_response_selections = raw_response_visit_selections(
         typegen_context,
+        normalization_operation.name.item,
         &normalization_operation.selections,
         &mut encountered_enums,
         &mut match_fields,
@@ -336,6 +333,7 @@ pub(crate) fn write_split_operation_type_exports_section(
     );
     let raw_response_type = raw_response_selections_to_babel(
         typegen_context,
+        normalization_operation.name.item,
         raw_response_selections.into_iter(),
         None,
         &mut encountered_enums,
@@ -382,7 +380,6 @@ pub(crate) fn write_fragment_type_exports_section(
     let mut encountered_enums = Default::default();
     let mut encountered_fragments = Default::default();
     let mut imported_resolvers = Default::default();
-    let mut actor_change_status = ActorChangeStatus::NoActorChange;
     let mut custom_scalars = CustomScalarsImports::default();
     let mut input_object_types = Default::default();
     let mut runtime_imports = RuntimeImports {
@@ -400,7 +397,6 @@ pub(crate) fn write_fragment_type_exports_section(
         &mut imported_raw_response_types,
         &mut encountered_fragments,
         &mut imported_resolvers,
-        &mut actor_change_status,
         &mut custom_scalars,
         &mut runtime_imports,
         &mut custom_error_import,
@@ -420,7 +416,7 @@ pub(crate) fn write_fragment_type_exports_section(
     }
 
     let data_type = fragment_definition.name.item;
-    let data_type_name = format!("{}$data", data_type);
+    let data_type_name = format!("{data_type}$data");
 
     let ref_type_data_property = Prop::KeyValuePair(KeyValuePairProp {
         key: *KEY_DATA,
@@ -485,12 +481,11 @@ pub(crate) fn write_fragment_type_exports_section(
         match make_custom_error_import(typegen_context, &mut custom_error_import) {
             Ok(_) => {}
             Err(e) => {
-                panic!("Error while generating custom error type: {}", e);
+                panic!("Error while generating custom error type: {e}");
             }
         }
     }
 
-    write_import_actor_change_point(actor_change_status, writer)?;
     let input_object_types = input_object_types
         .into_iter()
         .map(|(key, val)| (key, val.unwrap_resolved_type()));
@@ -512,7 +507,7 @@ pub(crate) fn write_fragment_type_exports_section(
     write_relay_resolver_imports(imported_resolvers, writer)?;
 
     let refetchable_metadata = RefetchableMetadata::find(&fragment_definition.directives);
-    let fragment_type_name = format!("{}$fragmentType", fragment_name);
+    let fragment_type_name = format!("{fragment_name}$fragmentType");
     writer.write_export_fragment_type(&fragment_type_name)?;
     if let Some(refetchable_metadata) = refetchable_metadata {
         let variables_name = format!("{}$variables", refetchable_metadata.operation_name);
@@ -534,14 +529,14 @@ pub(crate) fn write_fragment_type_exports_section(
                 )?;
             }
         }
-        let edges_name = format!("{}__edges$data", fragment_name);
+        let edges_name = format!("{fragment_name}__edges$data");
         if refetchable_metadata.is_prefetchable_pagination {
             match typegen_context.project_config.js_module_format {
                 JsModuleFormat::CommonJS => {
                     if typegen_context.has_unified_output {
                         writer.write_import_fragment_type(
                             &[&edges_name],
-                            &format!("./{}__edges.graphql", fragment_name),
+                            &format!("./{fragment_name}__edges.graphql"),
                         )?;
                     } else {
                         writer.write_any_type_definition(&edges_name)?;
@@ -550,7 +545,7 @@ pub(crate) fn write_fragment_type_exports_section(
                 JsModuleFormat::Haste => {
                     writer.write_import_fragment_type(
                         &[&edges_name],
-                        &format!("{}__edges.graphql", fragment_name),
+                        &format!("{fragment_name}__edges.graphql"),
                     )?;
                 }
             }
@@ -597,15 +592,15 @@ fn write_fragment_imports(
         let (current_referenced_fragment, fragment_type_name) = match current_referenced_fragment {
             EncounteredFragment::Key(current_referenced_fragment) => (
                 current_referenced_fragment,
-                format!("{}$key", current_referenced_fragment),
+                format!("{current_referenced_fragment}$key"),
             ),
             EncounteredFragment::Spread(current_referenced_fragment) => (
                 current_referenced_fragment,
-                format!("{}$fragmentType", current_referenced_fragment),
+                format!("{current_referenced_fragment}$fragmentType"),
             ),
             EncounteredFragment::Data(current_referenced_fragment) => (
                 current_referenced_fragment,
-                format!("{}$data", current_referenced_fragment),
+                format!("{current_referenced_fragment}$data"),
             ),
         };
 
@@ -620,17 +615,14 @@ fn write_fragment_imports(
                 if typegen_context.has_unified_output {
                     writer.write_import_fragment_type(
                         &[&fragment_type_name],
-                        &format!("./{}.graphql", current_referenced_fragment),
+                        &format!("./{current_referenced_fragment}.graphql"),
                     )?;
                 } else {
                     let fragment_location = typegen_context
                         .fragment_locations
                         .location(&current_referenced_fragment)
                         .unwrap_or_else(|| {
-                            panic!(
-                                "Expected location for fragment {}.",
-                                current_referenced_fragment
-                            )
+                            panic!("Expected location for fragment {current_referenced_fragment}.")
                         });
 
                     let fragment_import_path =
@@ -646,30 +638,19 @@ fn write_fragment_imports(
 
                     writer.write_import_fragment_type(
                         &[&fragment_type_name],
-                        &format!("./{}.graphql", fragment_import_path),
+                        &format!("./{fragment_import_path}.graphql"),
                     )?;
                 }
             }
             JsModuleFormat::Haste => {
                 writer.write_import_fragment_type(
                     &[&fragment_type_name],
-                    &format!("{}.graphql", current_referenced_fragment),
+                    &format!("{current_referenced_fragment}.graphql"),
                 )?;
             }
         }
     }
     Ok(())
-}
-
-fn write_import_actor_change_point(
-    actor_change_status: ActorChangeStatus,
-    writer: &mut Box<dyn Writer>,
-) -> FmtResult {
-    if matches!(actor_change_status, ActorChangeStatus::HasActorChange) {
-        writer.write_import_type(&[ACTOR_CHANGE_POINT], REACT_RELAY_MULTI_ACTOR)
-    } else {
-        Ok(())
-    }
 }
 
 fn write_relay_resolver_imports(
@@ -695,20 +676,20 @@ fn write_relay_resolver_imports(
             }
         }
 
-        if let Some(ref live_resolver_context_import) = resolver.context_import {
-            if !live_resolver_context_import_written {
-                writer.write_import_type(
-                    &[live_resolver_context_import.name.lookup()],
-                    live_resolver_context_import.import_path.lookup(),
-                )?;
-                live_resolver_context_import_written = true;
-            }
+        if let Some(ref live_resolver_context_import) = resolver.context_import
+            && !live_resolver_context_import_written
+        {
+            writer.write_import_type(
+                &[live_resolver_context_import.name.lookup()],
+                live_resolver_context_import.import_path.lookup(),
+            )?;
+            live_resolver_context_import_written = true;
         }
 
-        if let Some(resolver_type) = &resolver.resolver_type {
-            if let AST::AssertFunctionType(_) = resolver_type {
-                writer.write(resolver_type)?;
-            }
+        if let Some(resolver_type) = &resolver.resolver_type
+            && let AST::AssertFunctionType(_) = resolver_type
+        {
+            writer.write(resolver_type)?;
         }
     }
     Ok(())
@@ -732,7 +713,7 @@ fn write_split_raw_response_type_imports(
                 if typegen_context.has_unified_output {
                     writer.write_import_fragment_type(
                         &[imported_raw_response_type.lookup()],
-                        &format!("./{}.graphql", imported_raw_response_type),
+                        &format!("./{imported_raw_response_type}.graphql"),
                     )?;
                 } else if let Some(imported_raw_response_document_location) =
                     imported_raw_response_document_location
@@ -750,7 +731,7 @@ fn write_split_raw_response_type_imports(
 
                     writer.write_import_fragment_type(
                         &[imported_raw_response_type.lookup()],
-                        &format!("./{}.graphql", artifact_import_path),
+                        &format!("./{artifact_import_path}.graphql"),
                     )?;
                 } else {
                     writer.write_any_type_definition(imported_raw_response_type.lookup())?;
@@ -759,7 +740,7 @@ fn write_split_raw_response_type_imports(
             JsModuleFormat::Haste => {
                 writer.write_import_fragment_type(
                     &[imported_raw_response_type.lookup()],
-                    &format!("{}.graphql", imported_raw_response_type),
+                    &format!("{imported_raw_response_type}.graphql"),
                 )?;
             }
         }
@@ -865,11 +846,11 @@ fn generate_provided_variables_type(
 }
 
 fn write_input_object_types(
-    input_object_types: impl Iterator<Item = (InputObjectName, ExactObject)>,
+    input_object_types: impl Iterator<Item = (InputObjectName, AST)>,
     writer: &mut Box<dyn Writer>,
 ) -> FmtResult {
     for (type_identifier, input_object_type) in input_object_types {
-        writer.write_export_type(type_identifier.lookup(), &input_object_type.into())?;
+        writer.write_export_type(type_identifier.lookup(), &input_object_type)?;
     }
     Ok(())
 }
@@ -883,13 +864,13 @@ fn write_input_object_types(
 ///
 /// - For fragments whose type condition is abstract:
 ///   ({ __id: string, __isFragmentName: ?string, $fragmentSpreads: FragmentRefType }) =>
-///     ({ __id: string, __isFragmentName: string, $fragmentSpreads: FragmentRefType })
-///     | false
+///   ({ __id: string, __isFragmentName: string, $fragmentSpreads: FragmentRefType })
+///   | false
 ///
 /// - For fragments whose type condition is concrete:
 ///   ({ __id: string, __typename: string, $fragmentSpreads: FragmentRefType }) =>
-///     ({ __id: string, __typename: FragmentType, $fragmentSpreads: FragmentRefType })
-///     | false
+///   ({ __id: string, __typename: FragmentType, $fragmentSpreads: FragmentRefType })
+///   | false
 ///
 /// Validators' runtime behavior checks for the presence of the __isFragmentName marker
 /// (for abstract fragment types) or a matching concrete type (for concrete fragment
@@ -932,7 +913,7 @@ fn write_abstract_validator_function(
     writer: &mut Box<dyn Writer>,
 ) -> FmtResult {
     let fragment_name = fragment_definition.name.item.0.lookup();
-    let abstract_fragment_spread_marker = format!("__is{}", fragment_name).intern();
+    let abstract_fragment_spread_marker = format!("__is{fragment_name}").intern();
     let id_prop = Prop::KeyValuePair(KeyValuePairProp {
         key: *KEY_CLIENTID,
         value: AST::String,
@@ -995,7 +976,7 @@ fn write_abstract_validator_function(
 
     match language {
         TypegenLanguage::Flow | TypegenLanguage::JavaScript => {
-            write!(writer, "(value{}: ", &open_comment)?;
+            write!(writer, "(value{}:: as ", &open_comment)?;
             writer.write(&AST::Any)?;
             write!(writer, "{}) ", &close_comment)?;
         }
@@ -1021,7 +1002,7 @@ fn write_abstract_validator_function(
 ///   +__typename: 'User',
 ///   ...
 /// } | false)*/ {
-///   return value.__typename === 'User' ? (value/*: any*/) : null
+///   return value.__typename === 'User' ? (value/*:: as any*/) : null
 /// };
 fn write_concrete_validator_function(
     typegen_context: &'_ TypegenContext<'_>,
@@ -1095,7 +1076,7 @@ fn write_concrete_validator_function(
 
     match typegen_language {
         TypegenLanguage::Flow | TypegenLanguage::JavaScript => {
-            write!(writer, "(value{}: ", &open_comment)?;
+            write!(writer, "(value{}:: as ", &open_comment)?;
             writer.write(&AST::Any)?;
             write!(writer, "{}) ", &close_comment)?;
         }

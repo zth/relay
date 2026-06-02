@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4ea47aea3efd370c3a8321792c54990d>>
+ * @generated SignedSource<<4da0bd090d5b463ef3d45b39fbc2d5eb>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,27 +19,27 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { withProvidedVariablesTest4Fragment1$fragmentType } from "./withProvidedVariablesTest4Fragment1.graphql";
 import type { withProvidedVariablesTest4Fragment2$fragmentType } from "./withProvidedVariablesTest4Fragment2.graphql";
-export type withProvidedVariablesTest4Query$variables = {||};
-export type withProvidedVariablesTest4Query$data = {|
-  +node: ?{|
-    +$fragmentSpreads: withProvidedVariablesTest4Fragment1$fragmentType & withProvidedVariablesTest4Fragment2$fragmentType,
-  |},
-|};
-export type withProvidedVariablesTest4Query = {|
+export type withProvidedVariablesTest4Query$variables = {};
+export type withProvidedVariablesTest4Query$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: withProvidedVariablesTest4Fragment1$fragmentType & withProvidedVariablesTest4Fragment2$fragmentType,
+  },
+};
+export type withProvidedVariablesTest4Query = {
   response: withProvidedVariablesTest4Query$data,
   variables: withProvidedVariablesTest4Query$variables,
-|};
+};
 ({
   "__relay_internal__pv__provideNumberOfFriendsrelayprovider": require('../provideNumberOfFriends.relayprovider'),
   "__relay_internal__pv__provideIncludeUserNamesrelayprovider": require('../provideIncludeUserNames.relayprovider')
-}: {|
-  +__relay_internal__pv__provideIncludeUserNamesrelayprovider: {|
-    +get: () => boolean,
-  |},
-  +__relay_internal__pv__provideNumberOfFriendsrelayprovider: {|
-    +get: () => number,
-  |},
-|});
+} as {
+  readonly __relay_internal__pv__provideIncludeUserNamesrelayprovider: {
+    readonly get: () => boolean,
+  },
+  readonly __relay_internal__pv__provideNumberOfFriendsrelayprovider: {
+    readonly get: () => number,
+  },
+});
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -81,7 +80,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -123,7 +122,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -176,8 +175,8 @@ return {
                         "name": "node",
                         "plural": false,
                         "selections": [
-                          (v1/*: any*/),
-                          (v2/*: any*/)
+                          (v1/*:: as any*/),
+                          (v2/*:: as any*/)
                         ],
                         "storageKey": null
                       }
@@ -187,12 +186,12 @@ return {
                 ],
                 "storageKey": null
               },
-              (v1/*: any*/)
+              (v1/*:: as any*/)
             ],
             "type": "User",
             "abstractKey": null
           },
-          (v2/*: any*/)
+          (v2/*:: as any*/)
         ],
         "storageKey": "node(id:4)"
       }
@@ -214,10 +213,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "b5809a8936443db3f6696119fe66e3ed";
+  (node/*:: as any*/).hash = "b5809a8936443db3f6696119fe66e3ed";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   withProvidedVariablesTest4Query$variables,
   withProvidedVariablesTest4Query$data,
 >*/);

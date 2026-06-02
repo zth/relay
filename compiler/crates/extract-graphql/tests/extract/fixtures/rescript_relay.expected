@@ -1,0 +1,14 @@
+==================================== INPUT ====================================
+module User = %relay(`
+  fragment User_user on User {
+    id
+    name
+  }
+`)
+==================================== OUTPUT ===================================
+graphql - line: 0, column: 22, text: <
+  fragment User_user on User {
+    id
+    name
+  }
+>

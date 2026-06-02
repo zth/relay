@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a130679b5e328f4e39739326c1648689>>
+ * @generated SignedSource<<3884d96be916af2ee0f24ccc0b10e01d>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,21 +23,21 @@ import {greeting as userGreetingResolverType} from "../UserGreetingResolver.js";
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userGreetingResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userGreetingResolverType: (
+(userGreetingResolverType as (
   rootKey: UserGreetingResolver$key,
   args: void,
   context: TestResolverContextType,
 ) => ?string);
 declare export opaque type ResolverTest2Fragment$fragmentType: FragmentType;
 type ResolverTest1FragmentRefetchableQuery$variables = any;
-export type ResolverTest2Fragment$data = {|
-  +greeting: ?string,
-  +id: string,
-  +$fragmentType: ResolverTest2Fragment$fragmentType,
-|};
+export type ResolverTest2Fragment$data = {
+  readonly greeting: ?string,
+  readonly id: string,
+  readonly $fragmentType: ResolverTest2Fragment$fragmentType,
+};
 export type ResolverTest2Fragment$key = {
-  +$data?: ResolverTest2Fragment$data,
-  +$fragmentSpreads: ResolverTest2Fragment$fragmentType,
+  readonly $data?: ResolverTest2Fragment$data,
+  readonly $fragmentSpreads: ResolverTest2Fragment$fragmentType,
   ...
 };
 */
@@ -87,10 +86,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "9064332782abe615b663971d3f85a3ea";
+  (node/*:: as any*/).hash = "9064332782abe615b663971d3f85a3ea";
 }
 
-module.exports = ((node/*: any*/)/*: RefetchableFragment<
+module.exports = ((node/*:: as any*/)/*:: as RefetchableFragment<
   ResolverTest2Fragment$fragmentType,
   ResolverTest2Fragment$data,
   ResolverTest1FragmentRefetchableQuery$variables,

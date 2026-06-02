@@ -21,15 +21,19 @@ const {
 
 export opaque type Local3DPayload<
   // eslint-disable-next-line no-unused-vars
-  +DocumentName: string,
-  +Response: {...},
+  out DocumentName extends string,
+  out Response extends {...},
 > = Response;
 
-// $FlowFixMe[unsupported-variance-annotation]
-function createPayloadFor3DField<+DocumentName: string, +Response: {...}>(
+function createPayloadFor3DField<
+  // $FlowFixMe[unsupported-variance-annotation]
+  out DocumentName extends string,
+  // $FlowFixMe[unsupported-variance-annotation]
+  out Response extends {...},
+>(
   name: DocumentName,
   operation: JSResourceReference<NormalizationSplitOperation>,
-  component: JSResourceReference<mixed>,
+  component: JSResourceReference<unknown>,
   response: Response,
 ): Local3DPayload<DocumentName, Response> {
   const data = {

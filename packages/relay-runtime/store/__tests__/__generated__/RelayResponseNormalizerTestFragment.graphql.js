@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ba042d9f6f8a77c1b8c44bdfe307e266>>
+ * @generated SignedSource<<42761d98b71435a8896aa381bdcf6dc1>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,18 +23,18 @@ import type { RelayResponseNormalizerTestMarkdownUserNameRenderer_name$fragmentT
 import type { RelayResponseNormalizerTestPlainUserNameRenderer_name$fragmentType } from "./RelayResponseNormalizerTestPlainUserNameRenderer_name.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayResponseNormalizerTestFragment$fragmentType: FragmentType;
-export type RelayResponseNormalizerTestFragment$data = {|
-  +id: string,
-  +nameRenderer: ?{|
-    +__fragmentPropName?: ?string,
-    +__module_component?: ?string,
-    +$fragmentSpreads: RelayResponseNormalizerTestMarkdownUserNameRenderer_name$fragmentType & RelayResponseNormalizerTestPlainUserNameRenderer_name$fragmentType,
-  |},
-  +$fragmentType: RelayResponseNormalizerTestFragment$fragmentType,
-|};
+export type RelayResponseNormalizerTestFragment$data = {
+  readonly id: string,
+  readonly nameRenderer: ?{
+    readonly __fragmentPropName?: ?string,
+    readonly __module_component?: ?string,
+    readonly $fragmentSpreads: RelayResponseNormalizerTestMarkdownUserNameRenderer_name$fragmentType & RelayResponseNormalizerTestPlainUserNameRenderer_name$fragmentType,
+  },
+  readonly $fragmentType: RelayResponseNormalizerTestFragment$fragmentType,
+};
 export type RelayResponseNormalizerTestFragment$key = {
-  +$data?: RelayResponseNormalizerTestFragment$data,
-  +$fragmentSpreads: RelayResponseNormalizerTestFragment$fragmentType,
+  readonly $data?: RelayResponseNormalizerTestFragment$data,
+  readonly $fragmentSpreads: RelayResponseNormalizerTestFragment$fragmentType,
   ...
 };
 */
@@ -104,10 +103,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "59a69fffc6df53f032474b10299424b4";
+  (node/*:: as any*/).hash = "59a69fffc6df53f032474b10299424b4";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayResponseNormalizerTestFragment$fragmentType,
   RelayResponseNormalizerTestFragment$data,
 >*/);

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<598862f418688311ac0e87f3bd2b5655>>
+ * @generated SignedSource<<f5e42411c30d42d07d5c2c00afaa4fba>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,21 +19,21 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayReaderTestReadsHandleFieldsForFragmentsUserFriends$fragmentType: FragmentType;
-export type RelayReaderTestReadsHandleFieldsForFragmentsUserFriends$data = {|
-  +friends: ?{|
-    +edges: ?$ReadOnlyArray<?{|
-      +cursor: ?string,
-      +node: ?{|
-        +id: string,
-        +name: ?string,
-      |},
-    |}>,
-  |},
-  +$fragmentType: RelayReaderTestReadsHandleFieldsForFragmentsUserFriends$fragmentType,
-|};
+export type RelayReaderTestReadsHandleFieldsForFragmentsUserFriends$data = {
+  readonly friends: ?{
+    readonly edges: ?ReadonlyArray<?{
+      readonly cursor: ?string,
+      readonly node: ?{
+        readonly id: string,
+        readonly name: ?string,
+      },
+    }>,
+  },
+  readonly $fragmentType: RelayReaderTestReadsHandleFieldsForFragmentsUserFriends$fragmentType,
+};
 export type RelayReaderTestReadsHandleFieldsForFragmentsUserFriends$key = {
-  +$data?: RelayReaderTestReadsHandleFieldsForFragmentsUserFriends$data,
-  +$fragmentSpreads: RelayReaderTestReadsHandleFieldsForFragmentsUserFriends$fragmentType,
+  readonly $data?: RelayReaderTestReadsHandleFieldsForFragmentsUserFriends$data,
+  readonly $fragmentSpreads: RelayReaderTestReadsHandleFieldsForFragmentsUserFriends$fragmentType,
   ...
 };
 */
@@ -105,10 +104,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "e45a7509609fa1b14dd78b33161d82f0";
+  (node/*:: as any*/).hash = "e45a7509609fa1b14dd78b33161d82f0";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayReaderTestReadsHandleFieldsForFragmentsUserFriends$fragmentType,
   RelayReaderTestReadsHandleFieldsForFragmentsUserFriends$data,
 >*/);

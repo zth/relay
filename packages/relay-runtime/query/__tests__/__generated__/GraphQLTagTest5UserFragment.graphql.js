@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7b5a78643acce4af8a23edc051d9a7d3>>
+ * @generated SignedSource<<6c8c5c81a4e5427c09cf6d97af83c003>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,14 +20,14 @@ import type { ReaderFragment, RefetchableFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type GraphQLTagTest5UserFragment$fragmentType: FragmentType;
 type GraphQLTagTestUserFragment3RefetchQuery$variables = any;
-export type GraphQLTagTest5UserFragment$data = {|
-  +id: string,
-  +name: ?string,
-  +$fragmentType: GraphQLTagTest5UserFragment$fragmentType,
-|};
+export type GraphQLTagTest5UserFragment$data = {
+  readonly id: string,
+  readonly name: ?string,
+  readonly $fragmentType: GraphQLTagTest5UserFragment$fragmentType,
+};
 export type GraphQLTagTest5UserFragment$key = {
-  +$data?: GraphQLTagTest5UserFragment$data,
-  +$fragmentSpreads: GraphQLTagTest5UserFragment$fragmentType,
+  readonly $data?: GraphQLTagTest5UserFragment$data,
+  readonly $fragmentSpreads: GraphQLTagTest5UserFragment$fragmentType,
   ...
 };
 */
@@ -71,10 +70,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "8c6f16917d7019fa1e958f35d43ef8f5";
+  (node/*:: as any*/).hash = "8c6f16917d7019fa1e958f35d43ef8f5";
 }
 
-module.exports = ((node/*: any*/)/*: RefetchableFragment<
+module.exports = ((node/*:: as any*/)/*:: as RefetchableFragment<
   GraphQLTagTest5UserFragment$fragmentType,
   GraphQLTagTest5UserFragment$data,
   GraphQLTagTestUserFragment3RefetchQuery$variables,

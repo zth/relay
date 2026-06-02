@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<71cdcd8295cde1dc1c5aef9ad02a201a>>
+ * @generated SignedSource<<2fb55e9d96bf4c93d81b67054c2ac8ce>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,32 +17,32 @@
 
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
-export type CommentCreateInput = {|
+export type CommentCreateInput = {
   feedback?: ?CommentfeedbackFeedback,
   feedbackId?: ?string,
-|};
-export type CommentfeedbackFeedback = {|
+};
+export type CommentfeedbackFeedback = {
   comment?: ?FeedbackcommentComment,
-|};
-export type FeedbackcommentComment = {|
+};
+export type FeedbackcommentComment = {
   feedback?: ?CommentfeedbackFeedback,
-|};
-export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendCommentMutation$variables = {|
-  connections: $ReadOnlyArray<string>,
+};
+export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendCommentMutation$variables = {
+  connections: ReadonlyArray<string>,
   edgeTypeName: string,
   input?: ?CommentCreateInput,
-|};
-export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendCommentMutation$data = {|
-  +commentCreate: ?{|
-    +comment: ?{|
-      +id: string,
-    |},
-  |},
-|};
-export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendCommentMutation = {|
+};
+export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendCommentMutation$data = {
+  readonly commentCreate: ?{
+    readonly comment: ?{
+      readonly id: string,
+    },
+  },
+};
+export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendCommentMutation = {
   response: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendCommentMutation$data,
   variables: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendCommentMutation$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -91,20 +90,20 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendCommentMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "CommentCreateResponsePayload",
         "kind": "LinkedField",
         "name": "commentCreate",
         "plural": false,
         "selections": [
-          (v2/*: any*/)
+          (v2/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -114,19 +113,19 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendCommentMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "CommentCreateResponsePayload",
         "kind": "LinkedField",
         "name": "commentCreate",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -165,10 +164,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "505cc37a555b53ab612fd196f0902846";
+  (node/*:: as any*/).hash = "505cc37a555b53ab612fd196f0902846";
 }
 
-module.exports = ((node/*: any*/)/*: Mutation<
+module.exports = ((node/*:: as any*/)/*:: as Mutation<
   RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendCommentMutation$variables,
   RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendCommentMutation$data,
 >*/);

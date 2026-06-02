@@ -27,13 +27,13 @@ injectPromisePolyfill__DEPRECATED();
 let loadedEntryPoint;
 let instance;
 let entryPointLoaderCallback: (params: {...}) => void;
-let dispose: ?JestMockFn<$ReadOnlyArray<mixed>, mixed>;
+let dispose: ?JestMockFn<ReadonlyArray<unknown>, unknown>;
 let loadEntryPointLastReturnValue;
 let disposeEntryPoint;
 
 let renderCount: ?number;
 let environment: IEnvironment;
-let defaultEnvironmentProvider: $ReadOnly<{
+let defaultEnvironmentProvider: Readonly<{
   getEnvironment: (options: ?EnvironmentProviderOptions) => IEnvironment,
 }>;
 let render;
@@ -43,7 +43,7 @@ let defaultEntryPoint: any;
 const loadEntryPoint = jest
   /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
    * enabling Flow LTI mode */
-  .fn<_, {dispose: JestMockFn<$ReadOnlyArray<mixed>, mixed>}>()
+  .fn<_, {dispose: JestMockFn<ReadonlyArray<unknown>, unknown>}>()
   .mockImplementation(() => {
     dispose = jest.fn();
     return (loadEntryPointLastReturnValue = {
@@ -77,9 +77,9 @@ beforeEach(() => {
   Container = function ({
     entryPoint,
     environmentProvider,
-  }: $ReadOnly<{
+  }: Readonly<{
     entryPoint: any,
-    environmentProvider: $ReadOnly<{
+    environmentProvider: Readonly<{
       getEnvironment: (options: ?EnvironmentProviderOptions) => IEnvironment,
     }>,
   }>) {
@@ -195,8 +195,8 @@ it('does not dispose the entry point before the new component tree unsuspends in
         {},
         {...},
         {...},
-        mixed,
-        EntryPointComponent<{}, {...}, {...}, mixed>,
+        unknown,
+        EntryPointComponent<{}, {...}, {...}, unknown>,
         _,
       >(defaultEnvironmentProvider, defaultEntryPoint);
       return null;
@@ -206,7 +206,7 @@ it('does not dispose the entry point before the new component tree unsuspends in
       ReactTestRenderer.act(() => {
         instance = ReactTestRenderer.create(
           <ConcurrentWrapper />,
-          // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
+          // $FlowFixMe[incompatible-type] - error revealed when flow-typing ReactTestRenderer
           {unstable_isConcurrent: true},
         );
       });
@@ -277,7 +277,7 @@ it('disposes entry point references associated with previous suspensions when mu
       ReactTestRenderer.act(() => {
         instance = ReactTestRenderer.create(
           <ConcurrentWrapper />,
-          // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
+          // $FlowFixMe[incompatible-type] - error revealed when flow-typing ReactTestRenderer
           {unstable_isConcurrent: true},
         );
       });
@@ -306,8 +306,8 @@ it('disposes entry point references associated with previous suspensions when mu
         {},
         {...},
         {...},
-        mixed,
-        EntryPointComponent<{}, {...}, {...}, mixed>,
+        unknown,
+        EntryPointComponent<{}, {...}, {...}, unknown>,
         _,
       >(defaultEnvironmentProvider, defaultEntryPoint);
       if (
@@ -380,7 +380,7 @@ it('disposes entry point references associated with subsequent suspensions when 
       ReactTestRenderer.act(() => {
         instance = ReactTestRenderer.create(
           <ConcurrentWrapper />,
-          // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
+          // $FlowFixMe[incompatible-type] - error revealed when flow-typing ReactTestRenderer
           {unstable_isConcurrent: true},
         );
       });
@@ -410,8 +410,8 @@ it('disposes entry point references associated with subsequent suspensions when 
         {},
         {...},
         {...},
-        mixed,
-        EntryPointComponent<{}, {...}, {...}, mixed>,
+        unknown,
+        EntryPointComponent<{}, {...}, {...}, unknown>,
         _,
       >(defaultEnvironmentProvider, defaultEntryPoint);
       if (

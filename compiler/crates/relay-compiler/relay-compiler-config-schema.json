@@ -158,6 +158,11 @@
           "type": "boolean",
           "default": false
         },
+        "oneOfType": {
+          "description": "How to generate a type for an input object marked as @oneOf.\nDefaults to \"strict\", which is to generate a union type which\npermits only a single property being set at a time. \"ignore\"\ngenerates the type as if the @oneOf annotation does not exist.",
+          "$ref": "#/$defs/OneOfGeneration",
+          "default": "strict"
+        },
         "optionalInputFields": {
           "title": "For Flow type generation",
           "description": "When set, generated input types will have the listed fields optional\neven if the schema defines them as required.",
@@ -243,6 +248,12 @@
             "null"
           ]
         },
+        "schemaCompact": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
         "schemaConfig": {
           "description": "Extra configuration for the GraphQL schema itself.",
           "$ref": "#/$defs/SchemaConfig",
@@ -279,7 +290,7 @@
           ]
         },
         "schemaExtensions": {
-          "description": "Directory containing *.graphql files with schema extensions.",
+          "description": "File or directory containing *.graphql files with schema extensions.",
           "type": "array",
           "default": [],
           "items": {
@@ -339,7 +350,7 @@
       "additionalProperties": false
     },
     "ConnectionInterface": {
-      "description": "Configuration where Relay should expect some fields in the schema.",
+      "description": "Configuration where Relay should expect some fields in the schema.\n\n**Important**: When you configure this option in the compiler, you must also configure\nthe Relay runtime to match by calling `ConnectionInterface.inject()` with the same values.\nSee: <https://relay.dev/docs/api-reference/runtime-config/#connectioninterface>",
       "type": "object",
       "properties": {
         "cursor": {
@@ -586,7 +597,8 @@
     "FeatureFlags": {
       "type": "object",
       "properties": {
-        "actor_change_support": {
+        "allow_legacy_relay_resolver_tag": {
+          "description": "When enabled for a given name, allows `@RelayResolver` as a legacy\nalias for `@relayType` / `@relayField`.",
           "$ref": "#/$defs/FeatureFlag",
           "default": {
             "kind": "disabled"
@@ -648,6 +660,13 @@
             "kind": "disabled"
           }
         },
+        "disable_more_precise_abstract_selection_raw_response_type": {
+          "description": "Disable the generation of a more precise raw response type\nfor selections on abstract types.",
+          "$ref": "#/$defs/FeatureFlag",
+          "default": {
+            "kind": "disabled"
+          }
+        },
         "disable_resolver_reader_ast": {
           "description": "Mirror of `enable_resolver_normalization_ast`\nexcludes resolver metadata from reader ast",
           "type": "boolean",
@@ -657,6 +676,20 @@
           "description": "Disable validating the composite schema (server, client schema\nextensions, Relay Resolvers) after its built.",
           "type": "boolean",
           "default": false
+        },
+        "disallow_required_action_throw_on_semantically_nullable_fields": {
+          "description": "Disallow @required action THROW on semantically nullable fields.\nWhen enabled, this will prevent the use of THROW action on fields\nthat are semantically nullable (e.g., fields that can legitimately\nbe null in normal operation).",
+          "$ref": "#/$defs/FeatureFlag",
+          "default": {
+            "kind": "disabled"
+          }
+        },
+        "emit_nogrep_annotation": {
+          "description": "When enabled, the `@nogrep` annotation is included in the docblock\nheader of generated artifacts. This annotation was historically always\nemitted but is no longer needed. This flag allows incremental removal\nacross projects using the rollout variant keyed on the artifact name.",
+          "$ref": "#/$defs/FeatureFlag",
+          "default": {
+            "kind": "disabled"
+          }
         },
         "enable_3d_branch_arg_generation": {
           "type": "boolean",
@@ -682,6 +715,13 @@
           "type": "boolean",
           "default": false
         },
+        "enable_shadow_resolvers": {
+          "description": "Enable experimental support for shadow resolvers. Shadow resolvers allow\ndefining a Relay Resolver that \"shadows\" an existing server field,\nproviding an alternative implementation that can be used during\nmigration or for client-side overrides.",
+          "$ref": "#/$defs/FeatureFlag",
+          "default": {
+            "kind": "disabled"
+          }
+        },
         "enable_strict_custom_scalars": {
           "description": "Perform strict validations when custom scalar types are used",
           "type": "boolean",
@@ -692,6 +732,18 @@
           "$ref": "#/$defs/FeatureFlag",
           "default": {
             "kind": "enabled"
+          }
+        },
+        "enforce_module_name_prefix_for_non_haste": {
+          "description": "Enforce that GraphQL operation and fragment names start with the file\nname. Haste projects have this enforcement automatically; this flag\nis only needed for non-Haste projects that want the same validation.",
+          "type": "boolean",
+          "default": false
+        },
+        "flow_modern_syntax": {
+          "description": "Use modern Flow syntax for generated object types.\nThis enables gradual rollout of exact object type syntax and readonly\nproperties across files.",
+          "$ref": "#/$defs/FeatureFlag",
+          "default": {
+            "kind": "disabled"
           }
         },
         "legacy_include_path_in_required_reader_nodes": {
@@ -722,6 +774,13 @@
         },
         "relay_resolver_enable_interface_output_type": {
           "description": "Enable returning interfaces from Relay Resolvers without @outputType",
+          "$ref": "#/$defs/FeatureFlag",
+          "default": {
+            "kind": "disabled"
+          }
+        },
+        "shard_extra_artifacts": {
+          "description": "Shard generated extra artifacts into subdirectories under\n`extraArtifactsOutput` that mirror the source file's relative path,\nhonoring `shardOutput` / `shardStripRegex`.",
           "$ref": "#/$defs/FeatureFlag",
           "default": {
             "kind": "disabled"
@@ -905,7 +964,7 @@
           "description": "Enable and disable experimental or legacy behaviors.\nWARNING! These are not stable and may change at any time.",
           "$ref": "#/$defs/FeatureFlags",
           "default": {
-            "actor_change_support": {
+            "allow_legacy_relay_resolver_tag": {
               "kind": "disabled"
             },
             "allow_output_type_resolvers": {
@@ -932,15 +991,31 @@
             "disable_full_argument_type_validation": {
               "kind": "disabled"
             },
+            "disable_more_precise_abstract_selection_raw_response_type": {
+              "kind": "disabled"
+            },
             "disable_resolver_reader_ast": false,
             "disable_schema_validation": false,
+            "disallow_required_action_throw_on_semantically_nullable_fields": {
+              "kind": "disabled"
+            },
+            "emit_nogrep_annotation": {
+              "kind": "disabled"
+            },
             "enable_3d_branch_arg_generation": false,
             "enable_exec_time_resolvers_directive": false,
             "enable_fragment_argument_transform": false,
             "enable_relay_resolver_mutations": false,
             "enable_resolver_normalization_ast": false,
+            "enable_shadow_resolvers": {
+              "kind": "disabled"
+            },
             "enable_strict_custom_scalars": false,
             "enforce_fragment_alias_where_ambiguous": {
+              "kind": "enabled"
+            },
+            "enforce_module_name_prefix_for_non_haste": false,
+            "flow_modern_syntax": {
               "kind": "disabled"
             },
             "legacy_include_path_in_required_reader_nodes": {
@@ -954,6 +1029,9 @@
             },
             "prefer_fetchable_in_refetch_queries": false,
             "relay_resolver_enable_interface_output_type": {
+              "kind": "disabled"
+            },
+            "shard_extra_artifacts": {
               "kind": "disabled"
             },
             "skip_printing_nulls": {
@@ -1058,6 +1136,20 @@
         }
       },
       "additionalProperties": false
+    },
+    "OneOfGeneration": {
+      "oneOf": [
+        {
+          "description": "Will generate a union type, which can have only a single property set",
+          "type": "string",
+          "const": "strict"
+        },
+        {
+          "description": "Will exhibit previous behaviour, where @oneOf types would generate a\npermissive object type that may include all, none, or some of the\nproperties set",
+          "type": "string",
+          "const": "ignore"
+        }
+      ]
     },
     "PersistConfig": {
       "description": "Configuration for how the Relay Compiler should persist GraphQL queries.",
@@ -1201,7 +1293,7 @@
       ]
     },
     "ResolversSchemaModuleConfig": {
-      "description": "Configuration for resolvers_schema_module generation",
+      "description": "Configuration for resolvers_schema_module generation.\n\nWhen `path` is provided, a monolithic resolver map file is generated at that\npath. When `path` is omitted, the map file is not generated but root\nfragment normalization split operations are still produced.",
       "type": "object",
       "properties": {
         "applyToNormalizationAst": {
@@ -1209,8 +1301,11 @@
           "default": false
         },
         "path": {
-          "type": "string",
-          "default": ""
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
         }
       },
       "additionalProperties": false
@@ -1270,6 +1365,7 @@
       "type": "object",
       "properties": {
         "connectionInterface": {
+          "description": "Configuration for connection field names in the schema.\n\n**Important**: When you configure this option in the compiler, you must also configure\nthe Relay runtime to match by calling `ConnectionInterface.inject()` with the same values.\nSee: <https://relay.dev/docs/api-reference/runtime-config/#connectioninterface>",
           "$ref": "#/$defs/ConnectionInterface",
           "default": {
             "cursor": "cursor",
@@ -1504,6 +1600,11 @@
           ],
           "default": null
         },
+        "oneOfType": {
+          "description": "How to generate a type for an input object marked as @oneOf.\nDefaults to \"strict\", which is to generate a union type which\npermits only a single property being set at a time. \"ignore\"\ngenerates the type as if the @oneOf annotation does not exist.",
+          "$ref": "#/$defs/OneOfGeneration",
+          "default": "strict"
+        },
         "optionalInputFields": {
           "title": "For Flow type generation",
           "description": "When set, generated input types will have the listed fields optional\neven if the schema defines them as required.",
@@ -1605,7 +1706,7 @@
           }
         },
         "schemaExtensions": {
-          "description": "List of directories with schema extensions.",
+          "description": "List of files or directories with schema extensions.",
           "type": "array",
           "default": [],
           "items": {

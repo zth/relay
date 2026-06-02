@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c2254683e66cf16f01ec58133719c4ec>>
+ * @generated SignedSource<<75d5c4ca81966036d1114722ebd928b8>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,23 +17,23 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type commitMutationTest1Query$variables = {||};
-export type commitMutationTest1Query$data = {|
-  +node: ?{|
-    +topLevelComments?: ?{|
-      +count: ?number,
-      +edges: ?$ReadOnlyArray<?{|
-        +node: ?{|
-          +id: string,
-        |},
-      |}>,
-    |},
-  |},
-|};
-export type commitMutationTest1Query = {|
+export type commitMutationTest1Query$variables = {};
+export type commitMutationTest1Query$data = {
+  readonly node: ?{
+    readonly topLevelComments?: ?{
+      readonly count: ?number,
+      readonly edges: ?ReadonlyArray<?{
+        readonly node: ?{
+          readonly id: string,
+        },
+      }>,
+    },
+  },
+};
+export type commitMutationTest1Query = {
   response: commitMutationTest1Query$data,
   variables: commitMutationTest1Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -92,7 +91,7 @@ v2 = {
               "name": "node",
               "plural": false,
               "selections": [
-                (v1/*: any*/)
+                (v1/*:: as any*/)
               ],
               "storageKey": null
             }
@@ -115,13 +114,13 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/)
+          (v2/*:: as any*/)
         ],
         "storageKey": "node(id:\"feedback123\")"
       }
@@ -137,7 +136,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -150,8 +149,8 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v2/*: any*/),
-          (v1/*: any*/)
+          (v2/*:: as any*/),
+          (v1/*:: as any*/)
         ],
         "storageKey": "node(id:\"feedback123\")"
       }
@@ -169,10 +168,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "57da559c7efe4ad6791cf298e57f2192";
+  (node/*:: as any*/).hash = "57da559c7efe4ad6791cf298e57f2192";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   commitMutationTest1Query$variables,
   commitMutationTest1Query$data,
 >*/);

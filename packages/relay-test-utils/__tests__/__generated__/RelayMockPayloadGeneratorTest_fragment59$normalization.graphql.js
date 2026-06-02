@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4cdda03c548724371f4b5575c7ac4495>>
+ * @generated SignedSource<<478e41a151f0a4279308fc01aa2a9244>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,10 +18,10 @@
 /*::
 import type { NormalizationSplitOperation } from 'relay-runtime';
 
-export type RelayMockPayloadGeneratorTest_fragment59$normalization = {|
-  +id: string,
-  +name?: ?string,
-|};
+export type RelayMockPayloadGeneratorTest_fragment59$normalization = {
+  readonly id: string,
+  readonly name?: ?string,
+};
 
 */
 
@@ -63,7 +62,7 @@ var node/*: NormalizationSplitOperation*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "efeafd8b46bc5e1d5e9deb6e69637ccc";
+  (node/*:: as any*/).hash = "efeafd8b46bc5e1d5e9deb6e69637ccc";
 }
 
 module.exports = node;

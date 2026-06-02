@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<501bd0a3f240f2792d8cd8cdabbd09cd>>
+ * @generated SignedSource<<7d7fbbc8a4dfa660fd8c2254b0e0bbd7>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -23,23 +22,23 @@ import type { RelayMockPayloadGeneratorTest18Fragment$fragmentType } from "./Rel
 import type { RelayMockPayloadGeneratorTest19Fragment$fragmentType } from "./RelayMockPayloadGeneratorTest19Fragment.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayMockPayloadGeneratorTest20Fragment$fragmentType: FragmentType;
-export type RelayMockPayloadGeneratorTest20Fragment$data = {|
-  +actor: ?{|
-    +id: string,
-    +name: ?string,
-  |},
-  +body: ?{|
-    +text: ?string,
-  |},
-  +myActor: ?{|
-    +$fragmentSpreads: RelayMockPayloadGeneratorTest17Fragment$fragmentType,
-  |},
-  +$fragmentSpreads: RelayMockPayloadGeneratorTest18Fragment$fragmentType & RelayMockPayloadGeneratorTest19Fragment$fragmentType,
-  +$fragmentType: RelayMockPayloadGeneratorTest20Fragment$fragmentType,
-|};
+export type RelayMockPayloadGeneratorTest20Fragment$data = {
+  readonly actor: ?{
+    readonly id: string,
+    readonly name: ?string,
+  },
+  readonly body: ?{
+    readonly text: ?string,
+  },
+  readonly myActor: ?{
+    readonly $fragmentSpreads: RelayMockPayloadGeneratorTest17Fragment$fragmentType,
+  },
+  readonly $fragmentSpreads: RelayMockPayloadGeneratorTest18Fragment$fragmentType & RelayMockPayloadGeneratorTest19Fragment$fragmentType,
+  readonly $fragmentType: RelayMockPayloadGeneratorTest20Fragment$fragmentType,
+};
 export type RelayMockPayloadGeneratorTest20Fragment$key = {
-  +$data?: RelayMockPayloadGeneratorTest20Fragment$data,
-  +$fragmentSpreads: RelayMockPayloadGeneratorTest20Fragment$fragmentType,
+  readonly $data?: RelayMockPayloadGeneratorTest20Fragment$data,
+  readonly $fragmentSpreads: RelayMockPayloadGeneratorTest20Fragment$fragmentType,
   ...
 };
 */
@@ -125,10 +124,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "2e12e553476613cfd4087dc1f1407096";
+  (node/*:: as any*/).hash = "2e12e553476613cfd4087dc1f1407096";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayMockPayloadGeneratorTest20Fragment$fragmentType,
   RelayMockPayloadGeneratorTest20Fragment$data,
 >*/);

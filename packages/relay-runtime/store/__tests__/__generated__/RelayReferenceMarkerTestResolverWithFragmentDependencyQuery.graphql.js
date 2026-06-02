@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b11f6d9c9d37c75c6a3184e3492076d4>>
+ * @generated SignedSource<<1516fa329c23b448e28e189e5c75ee44>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,19 +23,19 @@ import {counter as queryCounterResolverType} from "../resolvers/LiveCounterResol
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryCounterResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryCounterResolverType: (
+(queryCounterResolverType as (
   rootKey: LiveCounterResolver$key,
   args: void,
   context: TestResolverContextType,
 ) => LiveState<?number>);
-export type RelayReferenceMarkerTestResolverWithFragmentDependencyQuery$variables = {||};
-export type RelayReferenceMarkerTestResolverWithFragmentDependencyQuery$data = {|
-  +counter: ?number,
-|};
-export type RelayReferenceMarkerTestResolverWithFragmentDependencyQuery = {|
+export type RelayReferenceMarkerTestResolverWithFragmentDependencyQuery$variables = {};
+export type RelayReferenceMarkerTestResolverWithFragmentDependencyQuery$data = {
+  readonly counter: ?number,
+};
+export type RelayReferenceMarkerTestResolverWithFragmentDependencyQuery = {
   response: RelayReferenceMarkerTestResolverWithFragmentDependencyQuery$data,
   variables: RelayReferenceMarkerTestResolverWithFragmentDependencyQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {
@@ -126,10 +125,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "7767fab563f2411651b1b4bf2273b512";
+  (node/*:: as any*/).hash = "7767fab563f2411651b1b4bf2273b512";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReferenceMarkerTestResolverWithFragmentDependencyQuery$variables,
   RelayReferenceMarkerTestResolverWithFragmentDependencyQuery$data,
 >*/);

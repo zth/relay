@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8a82aca988d4e53a1cdbe4abdb1c09d2>>
+ * @generated SignedSource<<ac12289ed6c214d2b8519cc33a9a1547>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,22 +23,22 @@ import {counter_suspends_when_odd as queryCounterSuspendsWhenOddResolverType} fr
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryCounterSuspendsWhenOddResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryCounterSuspendsWhenOddResolverType: (
+(queryCounterSuspendsWhenOddResolverType as (
   rootKey: CounterSuspendsWhenOdd$key,
   args: void,
   context: TestResolverContextType,
 ) => LiveState<?number>);
 declare export opaque type UserNameAndCounterSuspendsWhenOdd$fragmentType: FragmentType;
-export type UserNameAndCounterSuspendsWhenOdd$data = {|
-  +counter_suspends_when_odd: ?number,
-  +me: ?{|
-    +name: ?string,
-  |},
-  +$fragmentType: UserNameAndCounterSuspendsWhenOdd$fragmentType,
-|};
+export type UserNameAndCounterSuspendsWhenOdd$data = {
+  readonly counter_suspends_when_odd: ?number,
+  readonly me: ?{
+    readonly name: ?string,
+  },
+  readonly $fragmentType: UserNameAndCounterSuspendsWhenOdd$fragmentType,
+};
 export type UserNameAndCounterSuspendsWhenOdd$key = {
-  +$data?: UserNameAndCounterSuspendsWhenOdd$data,
-  +$fragmentSpreads: UserNameAndCounterSuspendsWhenOdd$fragmentType,
+  readonly $data?: UserNameAndCounterSuspendsWhenOdd$data,
+  readonly $fragmentSpreads: UserNameAndCounterSuspendsWhenOdd$fragmentType,
   ...
 };
 */
@@ -87,10 +86,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "1a64e6e5a1ce87aa12f684231ab0da09";
+  (node/*:: as any*/).hash = "1a64e6e5a1ce87aa12f684231ab0da09";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   UserNameAndCounterSuspendsWhenOdd$fragmentType,
   UserNameAndCounterSuspendsWhenOdd$data,
 >*/);

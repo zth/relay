@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2305e9de2c013f48bf2d4b2e3d222bce>>
+ * @generated SignedSource<<aedc409bb0e18c22dd1180ac24e2abf8>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -25,7 +24,7 @@ import {name as astrologicalSignNameResolverType} from "../resolvers/Astrologica
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `astrologicalSignNameResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(astrologicalSignNameResolverType: (
+(astrologicalSignNameResolverType as (
   rootKey: AstrologicalSignNameResolver$key,
   args: void,
   context: TestResolverContextType,
@@ -33,27 +32,27 @@ import type { TestResolverContextType } from "../../../mutations/__tests__/TestR
 import {astrological_sign as userAstrologicalSignResolverType} from "../resolvers/UserAstrologicalSignResolver.js";
 // Type assertion validating that `userAstrologicalSignResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userAstrologicalSignResolverType: (
+(userAstrologicalSignResolverType as (
   rootKey: UserAstrologicalSignResolver$key,
   args: void,
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
-export type ClientEdgeToClientObjectTest3Query$variables = {||};
-export type ClientEdgeToClientObjectTest3Query$data = {|
-  +me: ?{|
-    +astrological_sign: ?{|
-      +__id: string,
-      +name: ?string,
-      +notes: ?string,
-    |},
-  |},
-|};
-export type ClientEdgeToClientObjectTest3Query = {|
+) => ?{
+  readonly id: DataID,
+});
+export type ClientEdgeToClientObjectTest3Query$variables = {};
+export type ClientEdgeToClientObjectTest3Query$data = {
+  readonly me: ?{
+    readonly astrological_sign: ?{
+      readonly __id: string,
+      readonly name: ?string,
+      readonly notes: ?string,
+    },
+  },
+};
+export type ClientEdgeToClientObjectTest3Query = {
   response: ClientEdgeToClientObjectTest3Query$data,
   variables: ClientEdgeToClientObjectTest3Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -99,6 +98,7 @@ return {
             "kind": "ClientEdgeToClientObject",
             "concreteType": "AstrologicalSign",
             "modelResolvers": null,
+            "serverObjectOperations": null,
             "backingField": {
               "alias": null,
               "args": null,
@@ -120,7 +120,7 @@ return {
               "name": "astrological_sign",
               "plural": false,
               "selections": [
-                (v0/*: any*/),
+                (v0/*:: as any*/),
                 {
                   "alias": null,
                   "args": null,
@@ -134,7 +134,7 @@ return {
                   "resolverModule": require('../resolvers/AstrologicalSignNameResolver').name,
                   "path": "me.astrological_sign.name"
                 },
-                (v1/*: any*/)
+                (v1/*:: as any*/)
               ],
               "storageKey": null
             }
@@ -209,7 +209,7 @@ return {
               "name": "astrological_sign",
               "plural": false,
               "selections": [
-                (v0/*: any*/),
+                (v0/*:: as any*/),
                 {
                   "name": "name",
                   "args": null,
@@ -222,7 +222,7 @@ return {
                         "fragment": {
                           "kind": "InlineFragment",
                           "selections": [
-                            (v2/*: any*/)
+                            (v2/*:: as any*/)
                           ],
                           "type": "AstrologicalSign",
                           "abstractKey": null
@@ -239,13 +239,13 @@ return {
                   "storageKey": null,
                   "isOutputType": true
                 },
-                (v1/*: any*/),
-                (v2/*: any*/)
+                (v1/*:: as any*/),
+                (v2/*:: as any*/)
               ],
               "storageKey": null
             }
           },
-          (v2/*: any*/)
+          (v2/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -263,10 +263,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "c0bf4abbfd5f064e3fa3f5da531b725c";
+  (node/*:: as any*/).hash = "c0bf4abbfd5f064e3fa3f5da531b725c";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ClientEdgeToClientObjectTest3Query$variables,
   ClientEdgeToClientObjectTest3Query$data,
 >*/);

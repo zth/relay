@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d42ad82db9e1d2e7b56509ffc22d3bf4>>
+ * @generated SignedSource<<6f8f4a6d5170cad7fd5f77f679a840ed>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,35 +17,35 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayModernEnvironmentLookupTestQuery$variables = {|
+export type RelayModernEnvironmentLookupTestQuery$variables = {
   id: string,
-|};
-export type RelayModernEnvironmentLookupTestQuery$data = {|
-  +__id: string,
-  +me: ?{|
-    +__typename: "User",
-    +__id: string,
-    +id: string,
-  |},
-  +node: ?{|
-    +__typename: string,
-    +__id: string,
-    +commentBody?: ?{|
-      +__typename: string,
-      +__id: string,
-      +text?: ?{|
-        +__typename: "Text",
-        +__id: string,
-        +text: ?string,
-      |},
-    |},
-    +id: string,
-  |},
-|};
-export type RelayModernEnvironmentLookupTestQuery = {|
+};
+export type RelayModernEnvironmentLookupTestQuery$data = {
+  readonly __id: string,
+  readonly me: ?{
+    readonly __typename: "User",
+    readonly __id: string,
+    readonly id: string,
+  },
+  readonly node: ?{
+    readonly __typename: string,
+    readonly __id: string,
+    readonly commentBody?: ?{
+      readonly __typename: string,
+      readonly __id: string,
+      readonly text?: ?{
+        readonly __typename: "Text",
+        readonly __id: string,
+        readonly text: ?string,
+      },
+    },
+    readonly id: string,
+  },
+};
+export type RelayModernEnvironmentLookupTestQuery = {
   response: RelayModernEnvironmentLookupTestQuery$data,
   variables: RelayModernEnvironmentLookupTestQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -92,9 +91,9 @@ v4 = [
     "name": "me",
     "plural": false,
     "selections": [
-      (v1/*: any*/),
-      (v2/*: any*/),
-      (v3/*: any*/)
+      (v1/*:: as any*/),
+      (v2/*:: as any*/),
+      (v3/*:: as any*/)
     ],
     "storageKey": null
   },
@@ -112,8 +111,8 @@ v4 = [
     "name": "node",
     "plural": false,
     "selections": [
-      (v1/*: any*/),
-      (v2/*: any*/),
+      (v1/*:: as any*/),
+      (v2/*:: as any*/),
       {
         "kind": "InlineFragment",
         "selections": [
@@ -131,7 +130,7 @@ v4 = [
             "name": "commentBody",
             "plural": false,
             "selections": [
-              (v1/*: any*/),
+              (v1/*:: as any*/),
               {
                 "kind": "InlineFragment",
                 "selections": [
@@ -143,7 +142,7 @@ v4 = [
                     "name": "text",
                     "plural": false,
                     "selections": [
-                      (v1/*: any*/),
+                      (v1/*:: as any*/),
                       {
                         "alias": null,
                         "args": null,
@@ -151,16 +150,16 @@ v4 = [
                         "name": "text",
                         "storageKey": null
                       },
-                      (v3/*: any*/)
+                      (v3/*:: as any*/)
                     ],
                     "storageKey": null
                   },
-                  (v3/*: any*/)
+                  (v3/*:: as any*/)
                 ],
                 "type": "PlainCommentBody",
                 "abstractKey": null
               },
-              (v3/*: any*/)
+              (v3/*:: as any*/)
             ],
             "storageKey": "commentBody(supported:\"2Rll6p\")"
           }
@@ -168,28 +167,28 @@ v4 = [
         "type": "Comment",
         "abstractKey": null
       },
-      (v3/*: any*/)
+      (v3/*:: as any*/)
     ],
     "storageKey": null
   },
-  (v3/*: any*/)
+  (v3/*:: as any*/)
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentLookupTestQuery",
-    "selections": (v4/*: any*/),
+    "selections": (v4/*:: as any*/),
     "type": "Query",
     "abstractKey": null
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentLookupTestQuery",
-    "selections": (v4/*: any*/)
+    "selections": (v4/*:: as any*/)
   },
   "params": {
     "cacheID": "200d36d0a47ffc528a3c4df53b03401f",
@@ -203,10 +202,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "bea49102c3069567ca430f28d38ba916";
+  (node/*:: as any*/).hash = "bea49102c3069567ca430f28d38ba916";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentLookupTestQuery$variables,
   RelayModernEnvironmentLookupTestQuery$data,
 >*/);

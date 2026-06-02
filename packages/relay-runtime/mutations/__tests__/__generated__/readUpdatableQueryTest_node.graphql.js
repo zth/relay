@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3d2291db4ba78ef6b4b4c6638c9e5bef>>
+ * @generated SignedSource<<46008d426edbff1e37d872fc2fe667f9>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,21 +23,21 @@ declare export opaque type readUpdatableQueryTest_node$fragmentType: FragmentTyp
 var node/*: any*/ = {};
 
 if (__DEV__) {
-  (node/*: any*/).hash = "1e10d6074f00480fc34548623674b3da";
+  (node/*:: as any*/).hash = "1e10d6074f00480fc34548623674b3da";
 }
 
 module.exports = node;
 
 module.exports.validate = function validate(value/*: {
-  +__id: string,
-  +__isreadUpdatableQueryTest_node?: string,
-  +$fragmentSpreads: readUpdatableQueryTest_node$fragmentType,
+  readonly __id: string,
+  readonly __isreadUpdatableQueryTest_node?: string,
+  readonly $fragmentSpreads: readUpdatableQueryTest_node$fragmentType,
   ...
 }*/)/*: false | {
-  +__id: string,
-  +__isreadUpdatableQueryTest_node: string,
-  +$fragmentSpreads: readUpdatableQueryTest_node$fragmentType,
+  readonly __id: string,
+  readonly __isreadUpdatableQueryTest_node: string,
+  readonly $fragmentSpreads: readUpdatableQueryTest_node$fragmentType,
   ...
 }*/ {
-  return value.__isreadUpdatableQueryTest_node != null ? (value/*: any*/) : false;
+  return value.__isreadUpdatableQueryTest_node != null ? (value/*:: as any*/) : false;
 };

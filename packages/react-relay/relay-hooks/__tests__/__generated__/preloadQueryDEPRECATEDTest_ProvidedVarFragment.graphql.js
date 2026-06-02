@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<305cf18eabafd51aaa45012f1657fc79>>
+ * @generated SignedSource<<11e5ff1674c2138360420ae930c14df8>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,16 +19,16 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type preloadQueryDEPRECATEDTest_ProvidedVarFragment$fragmentType: FragmentType;
-export type preloadQueryDEPRECATEDTest_ProvidedVarFragment$data = {|
-  +firstName?: ?string,
-  +lastName?: ?string,
-  +name?: ?string,
-  +username?: ?string,
-  +$fragmentType: preloadQueryDEPRECATEDTest_ProvidedVarFragment$fragmentType,
-|};
+export type preloadQueryDEPRECATEDTest_ProvidedVarFragment$data = {
+  readonly firstName?: ?string,
+  readonly lastName?: ?string,
+  readonly name?: ?string,
+  readonly username?: ?string,
+  readonly $fragmentType: preloadQueryDEPRECATEDTest_ProvidedVarFragment$fragmentType,
+};
 export type preloadQueryDEPRECATEDTest_ProvidedVarFragment$key = {
-  +$data?: preloadQueryDEPRECATEDTest_ProvidedVarFragment$data,
-  +$fragmentSpreads: preloadQueryDEPRECATEDTest_ProvidedVarFragment$fragmentType,
+  readonly $data?: preloadQueryDEPRECATEDTest_ProvidedVarFragment$data,
+  readonly $fragmentSpreads: preloadQueryDEPRECATEDTest_ProvidedVarFragment$fragmentType,
   ...
 };
 */
@@ -45,10 +44,10 @@ v1 = {
 };
 return {
   "argumentDefinitions": [
-    (v0/*: any*/),
-    (v0/*: any*/),
-    (v1/*: any*/),
-    (v1/*: any*/)
+    (v0/*:: as any*/),
+    (v0/*:: as any*/),
+    (v1/*:: as any*/),
+    (v1/*:: as any*/)
   ],
   "kind": "Fragment",
   "metadata": null,
@@ -117,10 +116,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "0b5ab718bbd12644cbddad9b845135e3";
+  (node/*:: as any*/).hash = "0b5ab718bbd12644cbddad9b845135e3";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   preloadQueryDEPRECATEDTest_ProvidedVarFragment$fragmentType,
   preloadQueryDEPRECATEDTest_ProvidedVarFragment$data,
 >*/);

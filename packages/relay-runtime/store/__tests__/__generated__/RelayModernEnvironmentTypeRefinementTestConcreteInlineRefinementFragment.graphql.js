@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c4fd5fe02f22e44fc99986d346160dc8>>
+ * @generated SignedSource<<75f391ffa7a89c1e18a51af59f50f39a>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,15 +19,15 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment$fragmentType: FragmentType;
-export type RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment$data = {|
-  +id?: string,
-  +missing?: ?string,
-  +name?: ?string,
-  +$fragmentType: RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment$fragmentType,
-|};
+export type RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment$data = {
+  readonly id?: string,
+  readonly missing?: ?string,
+  readonly name?: ?string,
+  readonly $fragmentType: RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment$fragmentType,
+};
 export type RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment$key = {
-  +$data?: RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment$data,
-  +$fragmentSpreads: RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment$fragmentType,
+  readonly $data?: RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment$fragmentType,
   ...
 };
 */
@@ -73,10 +72,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "61f7a1b9bf6a73ec71be2d279a3caea1";
+  (node/*:: as any*/).hash = "61f7a1b9bf6a73ec71be2d279a3caea1";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment$fragmentType,
   RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment$data,
 >*/);

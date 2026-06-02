@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<43b1e678169a4cde5a3a2312c2dca669>>
+ * @generated SignedSource<<2825ec930de8edc2bc9bbece07dd872e>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,14 +20,14 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { RelayModernFlowtest_user$fragmentType } from "./RelayModernFlowtest_user.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernFlowtest_notref$fragmentType: FragmentType;
-export type RelayModernFlowtest_notref$data = {|
-  +id: string,
-  +$fragmentSpreads: RelayModernFlowtest_user$fragmentType,
-  +$fragmentType: RelayModernFlowtest_notref$fragmentType,
-|};
+export type RelayModernFlowtest_notref$data = {
+  readonly id: string,
+  readonly $fragmentSpreads: RelayModernFlowtest_user$fragmentType,
+  readonly $fragmentType: RelayModernFlowtest_notref$fragmentType,
+};
 export type RelayModernFlowtest_notref$key = {
-  +$data?: RelayModernFlowtest_notref$data,
-  +$fragmentSpreads: RelayModernFlowtest_notref$fragmentType,
+  readonly $data?: RelayModernFlowtest_notref$data,
+  readonly $fragmentSpreads: RelayModernFlowtest_notref$fragmentType,
   ...
 };
 */
@@ -57,10 +56,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "d61c43d07b2fe8f623c9b84fcdf70ac8";
+  (node/*:: as any*/).hash = "d61c43d07b2fe8f623c9b84fcdf70ac8";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayModernFlowtest_notref$fragmentType,
   RelayModernFlowtest_notref$data,
 >*/);

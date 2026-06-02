@@ -40,23 +40,23 @@ const RelayRecordSource = require('./RelayRecordSource');
 const invariant = require('invariant');
 const warning = require('warning');
 
-type PendingCommit<TMutation: MutationParameters> =
+type PendingCommit<TMutation extends MutationParameters> =
   | PendingRelayPayload<TMutation>
   | PendingRecordSource
   | PendingUpdater;
-type PendingRelayPayload<TMutation: MutationParameters> = {
-  +kind: 'payload',
-  +operation: OperationDescriptor,
-  +payload: RelayResponsePayload,
-  +updater: ?SelectorStoreUpdater<TMutation['response']>,
+type PendingRelayPayload<TMutation extends MutationParameters> = {
+  readonly kind: 'payload',
+  readonly operation: OperationDescriptor,
+  readonly payload: RelayResponsePayload,
+  readonly updater: ?SelectorStoreUpdater<TMutation['response']>,
 };
 type PendingRecordSource = {
-  +kind: 'source',
-  +source: RecordSource,
+  readonly kind: 'source',
+  readonly source: RecordSource,
 };
 type PendingUpdater = {
-  +kind: 'updater',
-  +updater: StoreUpdater,
+  readonly kind: 'updater',
+  readonly updater: StoreUpdater,
 };
 
 const _global: typeof global | $FlowFixMe =
@@ -86,7 +86,7 @@ const applyWithGuard =
 class RelayPublishQueue implements PublishQueue {
   _store: Store;
   _handlerProvider: ?HandlerProvider;
-  _missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>;
+  _missingFieldHandlers: ReadonlyArray<MissingFieldHandler>;
   _getDataID: GetDataID;
   _log: ?LogFunction;
 
@@ -116,7 +116,7 @@ class RelayPublishQueue implements PublishQueue {
     store: Store,
     handlerProvider?: ?HandlerProvider,
     getDataID: GetDataID,
-    missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>,
+    missingFieldHandlers: ReadonlyArray<MissingFieldHandler>,
     log: LogFunction,
   ) {
     this._hasStoreSnapshot = false;
@@ -135,7 +135,7 @@ class RelayPublishQueue implements PublishQueue {
   /**
    * Schedule applying an optimistic updates on the next `run()`.
    */
-  applyUpdate<TMutation: MutationParameters>(
+  applyUpdate<TMutation extends MutationParameters>(
     updater: OptimisticUpdate<TMutation>,
   ): void {
     invariant(
@@ -150,7 +150,7 @@ class RelayPublishQueue implements PublishQueue {
   /**
    * Schedule reverting an optimistic updates on the next `run()`.
    */
-  revertUpdate<TMutation: MutationParameters>(
+  revertUpdate<TMutation extends MutationParameters>(
     updater: OptimisticUpdate<TMutation>,
   ): void {
     if (this._pendingOptimisticUpdates.has(updater)) {
@@ -174,7 +174,7 @@ class RelayPublishQueue implements PublishQueue {
   /**
    * Schedule applying a payload to the store on the next `run()`.
    */
-  commitPayload<TMutation: MutationParameters>(
+  commitPayload<TMutation extends MutationParameters>(
     operation: OperationDescriptor,
     payload: RelayResponsePayload,
     updater?: ?SelectorStoreUpdater<TMutation['response']>,
@@ -213,11 +213,11 @@ class RelayPublishQueue implements PublishQueue {
   /**
    * Execute all queued up operations from the other public methods.
    */
-  run(
-    sourceOperation?: OperationDescriptor,
-  ): $ReadOnlyArray<RequestDescriptor> {
+  run(sourceOperation?: OperationDescriptor): ReadonlyArray<RequestDescriptor> {
     const runWillClearGcHold =
       // $FlowFixMe[incompatible-type]
+      /* $FlowFixMe[invalid-compare] Error discovered during Constant Condition
+       * roll out. See https://fburl.com/workplace/4oq3zi07. */
       this._appliedOptimisticUpdates === 0 && !!this._gcHold;
     const runIsANoop =
       // this._pendingBackupRebase is true if an applied optimistic
@@ -286,7 +286,7 @@ class RelayPublishQueue implements PublishQueue {
    * _publishSourceFromPayload will return a boolean indicating if the
    * publish caused the store to be globally invalidated.
    */
-  _publishSourceFromPayload<TMutation: MutationParameters>(
+  _publishSourceFromPayload<TMutation extends MutationParameters>(
     pendingPayload: PendingRelayPayload<TMutation>,
   ): boolean {
     const {payload, operation, updater} = pendingPayload;
@@ -462,7 +462,16 @@ function lookupSelector(
   source: RecordSource,
   selector: SingularReaderSelector,
 ): ?SelectorData {
-  const selectorData = RelayReader.read(source, selector).data;
+  const selectorData = RelayReader.read(
+    source,
+    selector,
+    // The reader here is used to read the selector data for the updater.
+    // It is normal to not use all data in the update, so we don't pass
+    // the logger to skip tracking usages.
+    null,
+    undefined,
+    undefined,
+  ).data;
   if (__DEV__) {
     const deepFreeze = require('../util/deepFreeze');
     if (selectorData) {

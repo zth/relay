@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<aecd4c1c4d0737bbd6fac1115d4b9a10>>
+ * @generated SignedSource<<1a296dc45168d1c7c3298ba01240dd60>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,19 +18,19 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { useRefetchableFragmentNodeTestUserFragmentWithArgs$fragmentType } from "./useRefetchableFragmentNodeTestUserFragmentWithArgs.graphql";
-export type useRefetchableFragmentNodeTestUserQueryWithArgsQuery$variables = {|
+export type useRefetchableFragmentNodeTestUserQueryWithArgsQuery$variables = {
   id: string,
   scale: number,
-|};
-export type useRefetchableFragmentNodeTestUserQueryWithArgsQuery$data = {|
-  +node: ?{|
-    +$fragmentSpreads: useRefetchableFragmentNodeTestUserFragmentWithArgs$fragmentType,
-  |},
-|};
-export type useRefetchableFragmentNodeTestUserQueryWithArgsQuery = {|
+};
+export type useRefetchableFragmentNodeTestUserQueryWithArgsQuery$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: useRefetchableFragmentNodeTestUserFragmentWithArgs$fragmentType,
+  },
+};
+export type useRefetchableFragmentNodeTestUserQueryWithArgsQuery = {
   response: useRefetchableFragmentNodeTestUserQueryWithArgsQuery$data,
   variables: useRefetchableFragmentNodeTestUserQueryWithArgsQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -56,14 +55,14 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "useRefetchableFragmentNodeTestUserQueryWithArgsQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -89,13 +88,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "useRefetchableFragmentNodeTestUserQueryWithArgsQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -177,10 +176,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "f21abe6662fcea801ab93fb27b9844cc";
+  (node/*:: as any*/).hash = "f21abe6662fcea801ab93fb27b9844cc";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   useRefetchableFragmentNodeTestUserQueryWithArgsQuery$variables,
   useRefetchableFragmentNodeTestUserQueryWithArgsQuery$data,
 >*/);

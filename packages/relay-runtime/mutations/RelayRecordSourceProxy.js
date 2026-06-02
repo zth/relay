@@ -53,14 +53,14 @@ class RelayRecordSourceProxy implements RecordSourceProxy {
   _getDataID: GetDataID;
   _invalidatedStore: boolean;
   _idsMarkedForInvalidation: DataIDSet;
-  _missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>;
+  _missingFieldHandlers: ReadonlyArray<MissingFieldHandler>;
   _log: LogFunction;
 
   constructor(
     mutator: RelayRecordSourceMutator,
     getDataID: GetDataID,
     handlerProvider?: ?HandlerProvider,
-    missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>,
+    missingFieldHandlers: ReadonlyArray<MissingFieldHandler>,
     log: ?LogFunction,
   ) {
     this.__mutator = mutator;
@@ -176,7 +176,7 @@ class RelayRecordSourceProxy implements RecordSourceProxy {
     return this._idsMarkedForInvalidation;
   }
 
-  readUpdatableQuery<TVariables: Variables, TData>(
+  readUpdatableQuery<TVariables extends Variables, TData>(
     query: UpdatableQuery<TVariables, TData>,
     variables: TVariables,
   ): UpdatableData<TData> {
@@ -188,7 +188,7 @@ class RelayRecordSourceProxy implements RecordSourceProxy {
     );
   }
 
-  readUpdatableFragment<TFragmentType: FragmentType, TData>(
+  readUpdatableFragment<TFragmentType extends FragmentType, TData>(
     fragment: UpdatableFragment<TFragmentType, TData>,
     fragmentReference: HasUpdatableSpread<TFragmentType>,
   ): UpdatableData<TData> {

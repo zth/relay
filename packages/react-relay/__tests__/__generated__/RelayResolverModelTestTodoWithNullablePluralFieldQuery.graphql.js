@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f334c1f71245ad142c64d77144ed3b84>>
+ * @generated SignedSource<<da64a2d5a087766dc4ed1fbfa87a9401>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -25,18 +24,18 @@ import {todo_model as queryTodoModelResolverType} from "../../../relay-runtime/s
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryTodoModelResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryTodoModelResolverType: (
-  args: {|
+(queryTodoModelResolverType as (
+  args: {
     todoID: string,
-  |},
+  },
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
+) => ?{
+  readonly id: DataID,
+});
 import {text as todoDescriptionTextResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
 // Type assertion validating that `todoDescriptionTextResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(todoDescriptionTextResolverType: (
+(todoDescriptionTextResolverType as (
   __relay_model_instance: TodoDescription____relay_model_instance$data['__relay_model_instance'],
   args: void,
   context: TestResolverContextType,
@@ -44,26 +43,26 @@ import {text as todoDescriptionTextResolverType} from "../../../relay-runtime/st
 import {many_fancy_descriptions_but_some_are_null as todoModelManyFancyDescriptionsButSomeAreNullResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoModel.js";
 // Type assertion validating that `todoModelManyFancyDescriptionsButSomeAreNullResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(todoModelManyFancyDescriptionsButSomeAreNullResolverType: (
+(todoModelManyFancyDescriptionsButSomeAreNullResolverType as (
   __relay_model_instance: TodoModel____relay_model_instance$data['__relay_model_instance'],
   args: void,
   context: TestResolverContextType,
-) => ?$ReadOnlyArray<?TodoDescription>);
+) => ?ReadonlyArray<?TodoDescription>);
 import type { TodoDescription } from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
-export type RelayResolverModelTestTodoWithNullablePluralFieldQuery$variables = {|
+export type RelayResolverModelTestTodoWithNullablePluralFieldQuery$variables = {
   id: string,
-|};
-export type RelayResolverModelTestTodoWithNullablePluralFieldQuery$data = {|
-  +todo_model: ?{|
-    +many_fancy_descriptions_but_some_are_null: ?$ReadOnlyArray<?{|
-      +text: ?string,
-    |}>,
-  |},
-|};
-export type RelayResolverModelTestTodoWithNullablePluralFieldQuery = {|
+};
+export type RelayResolverModelTestTodoWithNullablePluralFieldQuery$data = {
+  readonly todo_model: ?{
+    readonly many_fancy_descriptions_but_some_are_null: ?ReadonlyArray<?{
+      readonly text: ?string,
+    }>,
+  },
+};
+export type RelayResolverModelTestTodoWithNullablePluralFieldQuery = {
   response: RelayResolverModelTestTodoWithNullablePluralFieldQuery$data,
   variables: RelayResolverModelTestTodoWithNullablePluralFieldQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){
@@ -90,7 +89,7 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": {
       "hasClientEdges": true
@@ -115,9 +114,10 @@ return {
             "path": "todo_model.__relay_model_instance"
           }
         },
+        "serverObjectOperations": null,
         "backingField": {
           "alias": null,
-          "args": (v1/*: any*/),
+          "args": (v1/*:: as any*/),
           "fragment": null,
           "kind": "RelayResolver",
           "name": "todo_model",
@@ -126,7 +126,7 @@ return {
         },
         "linkedField": {
           "alias": null,
-          "args": (v1/*: any*/),
+          "args": (v1/*:: as any*/),
           "concreteType": "TodoModel",
           "kind": "LinkedField",
           "name": "todo_model",
@@ -136,6 +136,7 @@ return {
               "kind": "ClientEdgeToClientObject",
               "concreteType": "TodoDescription",
               "modelResolvers": null,
+              "serverObjectOperations": null,
               "backingField": {
                 "alias": null,
                 "args": null,
@@ -189,7 +190,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayResolverModelTestTodoWithNullablePluralFieldQuery",
     "selections": [
@@ -197,7 +198,7 @@ return {
         "kind": "ClientEdgeToClientObject",
         "backingField": {
           "name": "todo_model",
-          "args": (v1/*: any*/),
+          "args": (v1/*:: as any*/),
           "fragment": null,
           "kind": "RelayResolver",
           "storageKey": null,
@@ -205,7 +206,7 @@ return {
         },
         "linkedField": {
           "alias": null,
-          "args": (v1/*: any*/),
+          "args": (v1/*:: as any*/),
           "concreteType": "TodoModel",
           "kind": "LinkedField",
           "name": "todo_model",
@@ -225,7 +226,7 @@ return {
                       "fragment": {
                         "kind": "InlineFragment",
                         "selections": [
-                          (v2/*: any*/)
+                          (v2/*:: as any*/)
                         ],
                         "type": "TodoModel",
                         "abstractKey": null
@@ -275,7 +276,7 @@ return {
                 "storageKey": null
               }
             },
-            (v2/*: any*/)
+            (v2/*:: as any*/)
           ],
           "storageKey": null
         }
@@ -294,10 +295,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "d015c8ed1077211af8500b2437094101";
+  (node/*:: as any*/).hash = "d015c8ed1077211af8500b2437094101";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   RelayResolverModelTestTodoWithNullablePluralFieldQuery$variables,
   RelayResolverModelTestTodoWithNullablePluralFieldQuery$data,
 >*/);

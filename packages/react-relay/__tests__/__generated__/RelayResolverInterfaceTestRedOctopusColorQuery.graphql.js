@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2f492cc11d674dd4831f2b377f5feae0>>
+ * @generated SignedSource<<85a2ea77c1ffe6011d2ce03044d48c87>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -23,21 +22,21 @@ import {red_octopus as queryRedOctopusResolverType} from "../../../relay-runtime
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryRedOctopusResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryRedOctopusResolverType: (
+(queryRedOctopusResolverType as (
   args: void,
   context: TestResolverContextType,
 ) => ?RedOctopus);
 import type { RedOctopus } from "../../../relay-runtime/store/__tests__/resolvers/RedOctopusResolvers.js";
-export type RelayResolverInterfaceTestRedOctopusColorQuery$variables = {||};
-export type RelayResolverInterfaceTestRedOctopusColorQuery$data = {|
-  +red_octopus: ?{|
-    +$fragmentSpreads: RelayResolverInterfaceTestWeakAnimalColorFragment$fragmentType,
-  |},
-|};
-export type RelayResolverInterfaceTestRedOctopusColorQuery = {|
+export type RelayResolverInterfaceTestRedOctopusColorQuery$variables = {};
+export type RelayResolverInterfaceTestRedOctopusColorQuery$data = {
+  readonly red_octopus: ?{
+    readonly $fragmentSpreads: RelayResolverInterfaceTestWeakAnimalColorFragment$fragmentType,
+  },
+};
+export type RelayResolverInterfaceTestRedOctopusColorQuery = {
   response: RelayResolverInterfaceTestRedOctopusColorQuery$data,
   variables: RelayResolverInterfaceTestRedOctopusColorQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){
@@ -63,6 +62,7 @@ return {
         "kind": "ClientEdgeToClientObject",
         "concreteType": "RedOctopus",
         "modelResolvers": null,
+        "serverObjectOperations": null,
         "backingField": {
           "alias": null,
           "args": null,
@@ -133,7 +133,7 @@ return {
                       "args": null,
                       "fragment": {
                         "kind": "InlineFragment",
-                        "selections": (v0/*: any*/),
+                        "selections": (v0/*:: as any*/),
                         "type": "PurpleOctopus",
                         "abstractKey": null
                       },
@@ -153,7 +153,7 @@ return {
                       "args": null,
                       "fragment": {
                         "kind": "InlineFragment",
-                        "selections": (v0/*: any*/),
+                        "selections": (v0/*:: as any*/),
                         "type": "RedOctopus",
                         "abstractKey": null
                       },
@@ -193,10 +193,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "ffbde5e537add11a8fa22b95fcd6c23c";
+  (node/*:: as any*/).hash = "ffbde5e537add11a8fa22b95fcd6c23c";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   RelayResolverInterfaceTestRedOctopusColorQuery$variables,
   RelayResolverInterfaceTestRedOctopusColorQuery$data,
 >*/);

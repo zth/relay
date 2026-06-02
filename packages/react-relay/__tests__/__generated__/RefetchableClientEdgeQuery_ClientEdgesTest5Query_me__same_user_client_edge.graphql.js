@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9a375d2a5621a15ba4c2a1f71de1afc2>>
+ * @generated SignedSource<<bd7b9b32b554176ba77db0d0c32c2a41>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -22,14 +21,14 @@ import type { ClientEdgesTest5Query_user$fragmentType } from "./ClientEdgesTest5
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RefetchableClientEdgeQuery_ClientEdgesTest5Query_me__same_user_client_edge$fragmentType: FragmentType;
 type ClientEdgeQuery_ClientEdgesTest5Query_me__same_user_client_edge$variables = any;
-export type RefetchableClientEdgeQuery_ClientEdgesTest5Query_me__same_user_client_edge$data = {|
-  +id: string,
-  +$fragmentSpreads: ClientEdgesTest5Query_user$fragmentType,
-  +$fragmentType: RefetchableClientEdgeQuery_ClientEdgesTest5Query_me__same_user_client_edge$fragmentType,
-|};
+export type RefetchableClientEdgeQuery_ClientEdgesTest5Query_me__same_user_client_edge$data = {
+  readonly id: string,
+  readonly $fragmentSpreads: ClientEdgesTest5Query_user$fragmentType,
+  readonly $fragmentType: RefetchableClientEdgeQuery_ClientEdgesTest5Query_me__same_user_client_edge$fragmentType,
+};
 export type RefetchableClientEdgeQuery_ClientEdgesTest5Query_me__same_user_client_edge$key = {
-  +$data?: RefetchableClientEdgeQuery_ClientEdgesTest5Query_me__same_user_client_edge$data,
-  +$fragmentSpreads: RefetchableClientEdgeQuery_ClientEdgesTest5Query_me__same_user_client_edge$fragmentType,
+  readonly $data?: RefetchableClientEdgeQuery_ClientEdgesTest5Query_me__same_user_client_edge$data,
+  readonly $fragmentSpreads: RefetchableClientEdgeQuery_ClientEdgesTest5Query_me__same_user_client_edge$fragmentType,
   ...
 };
 */
@@ -70,10 +69,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "8274337dee7283631e4c2d3992c0add6";
+  (node/*:: as any*/).hash = "8274337dee7283631e4c2d3992c0add6";
 }
 
-module.exports = ((node/*: any*/)/*: RefetchableFragment<
+module.exports = ((node/*:: as any*/)/*:: as RefetchableFragment<
   RefetchableClientEdgeQuery_ClientEdgesTest5Query_me__same_user_client_edge$fragmentType,
   RefetchableClientEdgeQuery_ClientEdgesTest5Query_me__same_user_client_edge$data,
   ClientEdgeQuery_ClientEdgesTest5Query_me__same_user_client_edge$variables,

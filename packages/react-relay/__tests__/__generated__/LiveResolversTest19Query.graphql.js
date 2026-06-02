@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<efd4ae490e197632e59a4dba8ecbbf07>>
+ * @generated SignedSource<<9437fc4e366285db466ac9a3589d2452>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -23,18 +22,18 @@ import {live_resolver_return_undefined as queryLiveResolverReturnUndefinedResolv
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryLiveResolverReturnUndefinedResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryLiveResolverReturnUndefinedResolverType: (
+(queryLiveResolverReturnUndefinedResolverType as (
   args: void,
   context: TestResolverContextType,
-) => LiveState<?mixed>);
-export type LiveResolversTest19Query$variables = {||};
-export type LiveResolversTest19Query$data = {|
-  +live_resolver_return_undefined: ?ReturnType<ReturnType<typeof queryLiveResolverReturnUndefinedResolverType>["read"]>,
-|};
-export type LiveResolversTest19Query = {|
+) => LiveState<?unknown>);
+export type LiveResolversTest19Query$variables = {};
+export type LiveResolversTest19Query$data = {
+  readonly live_resolver_return_undefined: ?ReturnType<ReturnType<typeof queryLiveResolverReturnUndefinedResolverType>["read"]>,
+};
+export type LiveResolversTest19Query = {
   response: LiveResolversTest19Query$data,
   variables: LiveResolversTest19Query$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = {
@@ -94,10 +93,10 @@ var node/*: ClientRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "a826f5308e33432b1204c11b9f224675";
+  (node/*:: as any*/).hash = "a826f5308e33432b1204c11b9f224675";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   LiveResolversTest19Query$variables,
   LiveResolversTest19Query$data,
 >*/);

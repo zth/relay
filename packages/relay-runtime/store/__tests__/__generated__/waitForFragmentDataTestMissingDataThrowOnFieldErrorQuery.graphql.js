@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ab8d3ad3deb9e238952fcb54f3bc9d4e>>
+ * @generated SignedSource<<94f50e2bf4ae6157aa379aedcb0c1941>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,14 +18,14 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { waitForFragmentDataTestMissingDataThrowOnFieldErrorFragment$fragmentType } from "./waitForFragmentDataTestMissingDataThrowOnFieldErrorFragment.graphql";
-export type waitForFragmentDataTestMissingDataThrowOnFieldErrorQuery$variables = {||};
-export type waitForFragmentDataTestMissingDataThrowOnFieldErrorQuery$data = {|
-  +$fragmentSpreads: waitForFragmentDataTestMissingDataThrowOnFieldErrorFragment$fragmentType,
-|};
-export type waitForFragmentDataTestMissingDataThrowOnFieldErrorQuery = {|
+export type waitForFragmentDataTestMissingDataThrowOnFieldErrorQuery$variables = {};
+export type waitForFragmentDataTestMissingDataThrowOnFieldErrorQuery$data = {
+  readonly $fragmentSpreads: waitForFragmentDataTestMissingDataThrowOnFieldErrorFragment$fragmentType,
+};
+export type waitForFragmentDataTestMissingDataThrowOnFieldErrorQuery = {
   response: waitForFragmentDataTestMissingDataThrowOnFieldErrorQuery$data,
   variables: waitForFragmentDataTestMissingDataThrowOnFieldErrorQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {
@@ -89,10 +88,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "03987518a418d771fb8e0701b50a8275";
+  (node/*:: as any*/).hash = "03987518a418d771fb8e0701b50a8275";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   waitForFragmentDataTestMissingDataThrowOnFieldErrorQuery$variables,
   waitForFragmentDataTestMissingDataThrowOnFieldErrorQuery$data,
 >*/);

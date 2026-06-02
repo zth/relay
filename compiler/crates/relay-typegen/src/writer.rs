@@ -51,11 +51,12 @@ pub enum AST {
     Callable(Box<AST>),
     Any,
     Mixed,
+    /// aka. `never` in Typescript. `!` in Rust. `Never` in Swift. The bottom type.
+    Empty,
     FragmentReference(SortedStringKeyList),
     FragmentReferenceType(StringKey),
     ReturnTypeOfFunctionWithName(StringKey),
     ReturnTypeOfMethodCall(Box<AST>, StringKey),
-    ActorChangePoint(Box<AST>),
     AssertFunctionType(FunctionTypeAssertion),
     GenericType {
         outer: StringKey,
@@ -396,7 +397,8 @@ pub trait Writer: Write {
 pub(crate) fn new_writer_from_config(
     config: &TypegenConfig,
     typegen_opts: &TypegenContext<'_>,
-    typegen_definition: DefinitionType
+    typegen_definition: DefinitionType,
+    use_flow_modern_syntax: bool,
 ) -> Box<dyn Writer> {
     match config.language {
         TypegenLanguage::ReScript => {
@@ -409,7 +411,7 @@ pub(crate) fn new_writer_from_config(
             });
 
             Box::new(rescript::ReScriptPrinter::new(
-            rescript_utils::get_rescript_relay_meta_data(
+                rescript_utils::get_rescript_relay_meta_data(
                     &typegen_opts.schema,
                     &typegen_definition,
                     &config,
@@ -421,7 +423,7 @@ pub(crate) fn new_writer_from_config(
             ))
         },
         TypegenLanguage::JavaScript => Box::<JavaScriptPrinter>::default(),
-        TypegenLanguage::Flow => Box::new(FlowPrinter::new()),
+        TypegenLanguage::Flow => Box::new(FlowPrinter::new(use_flow_modern_syntax)),
         TypegenLanguage::TypeScript => Box::new(TypeScriptPrinter::new(config)),
     }
 }

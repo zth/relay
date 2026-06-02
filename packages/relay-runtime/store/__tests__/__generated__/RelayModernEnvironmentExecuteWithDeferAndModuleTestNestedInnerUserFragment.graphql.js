@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<abb48480cc0d7edcff4dadf1463c3ac6>>
+ * @generated SignedSource<<9f55eb0e6f956af36edb8807a615d982>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,14 +20,14 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedInner2UserFragment$fragmentType } from "./RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedInner2UserFragment.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedInnerUserFragment$fragmentType: FragmentType;
-export type RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedInnerUserFragment$data = {|
-  +name: ?string,
-  +$fragmentSpreads: RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedInner2UserFragment$fragmentType,
-  +$fragmentType: RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedInnerUserFragment$fragmentType,
-|};
+export type RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedInnerUserFragment$data = {
+  readonly name: ?string,
+  readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedInner2UserFragment$fragmentType,
+  readonly $fragmentType: RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedInnerUserFragment$fragmentType,
+};
 export type RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedInnerUserFragment$key = {
-  +$data?: RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedInnerUserFragment$data,
-  +$fragmentSpreads: RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedInnerUserFragment$fragmentType,
+  readonly $data?: RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedInnerUserFragment$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedInnerUserFragment$fragmentType,
   ...
 };
 */
@@ -62,10 +61,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "5bc0a65c0dd61e3b1be27f59fcd9bb36";
+  (node/*:: as any*/).hash = "5bc0a65c0dd61e3b1be27f59fcd9bb36";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedInnerUserFragment$fragmentType,
   RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedInnerUserFragment$data,
 >*/);

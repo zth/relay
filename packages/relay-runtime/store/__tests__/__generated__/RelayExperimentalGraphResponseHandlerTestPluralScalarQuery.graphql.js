@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<531e86a638a45fb324ad7d662c7f9d14>>
+ * @generated SignedSource<<ff795e004b8228d149ca5c23471cf5f0>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,16 +17,16 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayExperimentalGraphResponseHandlerTestPluralScalarQuery$variables = {||};
-export type RelayExperimentalGraphResponseHandlerTestPluralScalarQuery$data = {|
-  +me: ?{|
-    +emailAddresses: ?$ReadOnlyArray<?string>,
-  |},
-|};
-export type RelayExperimentalGraphResponseHandlerTestPluralScalarQuery = {|
+export type RelayExperimentalGraphResponseHandlerTestPluralScalarQuery$variables = {};
+export type RelayExperimentalGraphResponseHandlerTestPluralScalarQuery$data = {
+  readonly me: ?{
+    readonly emailAddresses: ?ReadonlyArray<?string>,
+  },
+};
+export type RelayExperimentalGraphResponseHandlerTestPluralScalarQuery = {
   response: RelayExperimentalGraphResponseHandlerTestPluralScalarQuery$data,
   variables: RelayExperimentalGraphResponseHandlerTestPluralScalarQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -53,7 +52,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/)
+          (v0/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -75,7 +74,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
+          (v0/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -100,10 +99,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "5a8e3902858c91e8036db2efd5dc6576";
+  (node/*:: as any*/).hash = "5a8e3902858c91e8036db2efd5dc6576";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayExperimentalGraphResponseHandlerTestPluralScalarQuery$variables,
   RelayExperimentalGraphResponseHandlerTestPluralScalarQuery$data,
 >*/);

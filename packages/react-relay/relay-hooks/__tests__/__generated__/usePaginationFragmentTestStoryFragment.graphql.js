@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2e4ae25f68052d1b3f1d5a0327a06554>>
+ * @generated SignedSource<<5b3a97468358d7f49f81dbe4de4ee3cc>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,20 +20,20 @@ import type { ReaderFragment, RefetchableFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type usePaginationFragmentTestStoryFragment$fragmentType: FragmentType;
 type usePaginationFragmentTestStoryFragmentRefetchQuery$variables = any;
-export type usePaginationFragmentTestStoryFragment$data = {|
-  +comments: ?{|
-    +edges: ?$ReadOnlyArray<?{|
-      +node: ?{|
-        +id: string,
-      |},
-    |}>,
-  |},
-  +fetch_id: string,
-  +$fragmentType: usePaginationFragmentTestStoryFragment$fragmentType,
-|};
+export type usePaginationFragmentTestStoryFragment$data = {
+  readonly comments: ?{
+    readonly edges: ?ReadonlyArray<?{
+      readonly node: ?{
+        readonly id: string,
+      },
+    }>,
+  },
+  readonly fetch_id: string,
+  readonly $fragmentType: usePaginationFragmentTestStoryFragment$fragmentType,
+};
 export type usePaginationFragmentTestStoryFragment$key = {
-  +$data?: usePaginationFragmentTestStoryFragment$data,
-  +$fragmentSpreads: usePaginationFragmentTestStoryFragment$fragmentType,
+  readonly $data?: usePaginationFragmentTestStoryFragment$data,
+  readonly $fragmentSpreads: usePaginationFragmentTestStoryFragment$fragmentType,
   ...
 };
 */
@@ -63,7 +62,7 @@ return {
         "count": "count",
         "cursor": "cursor",
         "direction": "forward",
-        "path": (v0/*: any*/)
+        "path": (v0/*:: as any*/)
       }
     ],
     "refetch": {
@@ -73,7 +72,7 @@ return {
           "cursor": "cursor"
         },
         "backward": null,
-        "path": (v0/*: any*/)
+        "path": (v0/*:: as any*/)
       },
       "fragmentPathInResult": [
         "fetch__NonNodeStory"
@@ -180,10 +179,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "f32695b1b41c05ed8de7a6abfa8583a0";
+  (node/*:: as any*/).hash = "f32695b1b41c05ed8de7a6abfa8583a0";
 }
 
-module.exports = ((node/*: any*/)/*: RefetchableFragment<
+module.exports = ((node/*:: as any*/)/*:: as RefetchableFragment<
   usePaginationFragmentTestStoryFragment$fragmentType,
   usePaginationFragmentTestStoryFragment$data,
   usePaginationFragmentTestStoryFragmentRefetchQuery$variables,

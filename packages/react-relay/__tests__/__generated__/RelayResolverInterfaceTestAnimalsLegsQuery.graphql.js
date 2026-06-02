@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<612fe59fa71f3f27797f79399a765e7f>>
+ * @generated SignedSource<<a8cd32470e146562cdf94d177111ec1d>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,32 +23,32 @@ import {animals as queryAnimalsResolverType} from "../../../relay-runtime/store/
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryAnimalsResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryAnimalsResolverType: (
-  args: {|
-    requests: $ReadOnlyArray<AnimalRequest>,
-  |},
+(queryAnimalsResolverType as (
+  args: {
+    requests: ReadonlyArray<AnimalRequest>,
+  },
   context: TestResolverContextType,
-) => ?$ReadOnlyArray<?{|
-  +__typename: "Cat" | "Chicken" | "Fish",
-  +id: DataID,
-|}>);
-export type AnimalRequest = {|
+) => ?ReadonlyArray<?{
+  readonly __typename: "Cat" | "Chicken" | "Fish",
+  readonly id: DataID,
+}>);
+export type AnimalRequest = {
   ofType: string,
   returnValidID: boolean,
-|};
-export type RelayResolverInterfaceTestAnimalsLegsQuery$variables = {|
-  requests: $ReadOnlyArray<AnimalRequest>,
-|};
-export type RelayResolverInterfaceTestAnimalsLegsQuery$data = {|
-  +animals: ?$ReadOnlyArray<?{|
-    +id: string,
-    +$fragmentSpreads: RelayResolverInterfaceTestAnimalLegsFragment$fragmentType,
-  |}>,
-|};
-export type RelayResolverInterfaceTestAnimalsLegsQuery = {|
+};
+export type RelayResolverInterfaceTestAnimalsLegsQuery$variables = {
+  requests: ReadonlyArray<AnimalRequest>,
+};
+export type RelayResolverInterfaceTestAnimalsLegsQuery$data = {
+  readonly animals: ?ReadonlyArray<?{
+    readonly id: string,
+    readonly $fragmentSpreads: RelayResolverInterfaceTestAnimalLegsFragment$fragmentType,
+  }>,
+};
+export type RelayResolverInterfaceTestAnimalsLegsQuery = {
   response: RelayResolverInterfaceTestAnimalsLegsQuery$data,
   variables: RelayResolverInterfaceTestAnimalsLegsQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){
@@ -75,11 +74,23 @@ v2 = {
   "storageKey": null
 },
 v3 = [
-  (v2/*: any*/)
-];
+  (v2/*:: as any*/)
+],
+v4 = {
+  "kind": "InlineFragment",
+  "selections": (v3/*:: as any*/),
+  "type": "Cat",
+  "abstractKey": null
+},
+v5 = {
+  "kind": "InlineFragment",
+  "selections": (v3/*:: as any*/),
+  "type": "Fish",
+  "abstractKey": null
+};
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": {
       "hasClientEdges": true
@@ -117,9 +128,10 @@ return {
             "path": "animals.__relay_model_instance"
           }
         },
+        "serverObjectOperations": null,
         "backingField": {
           "alias": null,
-          "args": (v1/*: any*/),
+          "args": (v1/*:: as any*/),
           "fragment": null,
           "kind": "RelayResolver",
           "name": "animals",
@@ -128,18 +140,25 @@ return {
         },
         "linkedField": {
           "alias": null,
-          "args": (v1/*: any*/),
+          "args": (v1/*:: as any*/),
           "concreteType": null,
           "kind": "LinkedField",
           "name": "animals",
           "plural": true,
           "selections": [
-            (v2/*: any*/),
             {
               "args": null,
               "kind": "FragmentSpread",
               "name": "RelayResolverInterfaceTestAnimalLegsFragment"
-            }
+            },
+            {
+              "kind": "InlineFragment",
+              "selections": (v3/*:: as any*/),
+              "type": "Chicken",
+              "abstractKey": null
+            },
+            (v4/*:: as any*/),
+            (v5/*:: as any*/)
           ],
           "storageKey": null
         }
@@ -150,7 +169,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayResolverInterfaceTestAnimalsLegsQuery",
     "selections": [
@@ -158,7 +177,7 @@ return {
         "kind": "ClientEdgeToClientObject",
         "backingField": {
           "name": "animals",
-          "args": (v1/*: any*/),
+          "args": (v1/*:: as any*/),
           "fragment": null,
           "kind": "RelayResolver",
           "storageKey": null,
@@ -166,7 +185,7 @@ return {
         },
         "linkedField": {
           "alias": null,
-          "args": (v1/*: any*/),
+          "args": (v1/*:: as any*/),
           "concreteType": null,
           "kind": "LinkedField",
           "name": "animals",
@@ -179,7 +198,7 @@ return {
               "name": "__typename",
               "storageKey": null
             },
-            (v2/*: any*/),
+            (v2/*:: as any*/),
             {
               "kind": "InlineFragment",
               "selections": [
@@ -206,12 +225,7 @@ return {
                       {
                         "name": "__relay_model_instance",
                         "args": null,
-                        "fragment": {
-                          "kind": "InlineFragment",
-                          "selections": (v3/*: any*/),
-                          "type": "Cat",
-                          "abstractKey": null
-                        },
+                        "fragment": (v4/*:: as any*/),
                         "kind": "RelayResolver",
                         "storageKey": null,
                         "isOutputType": false
@@ -240,12 +254,7 @@ return {
                       {
                         "name": "__relay_model_instance",
                         "args": null,
-                        "fragment": {
-                          "kind": "InlineFragment",
-                          "selections": (v3/*: any*/),
-                          "type": "Fish",
-                          "abstractKey": null
-                        },
+                        "fragment": (v5/*:: as any*/),
                         "kind": "RelayResolver",
                         "storageKey": null,
                         "isOutputType": false
@@ -287,10 +296,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "04bfa405c479917657a2d15f6b8b3780";
+  (node/*:: as any*/).hash = "04bfa405c479917657a2d15f6b8b3780";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   RelayResolverInterfaceTestAnimalsLegsQuery$variables,
   RelayResolverInterfaceTestAnimalsLegsQuery$data,
 >*/);

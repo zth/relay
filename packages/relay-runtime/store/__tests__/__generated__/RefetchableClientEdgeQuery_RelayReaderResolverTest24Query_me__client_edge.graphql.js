@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d6575c721ddaf2401cd0ccdc953f1b00>>
+ * @generated SignedSource<<a44e33d0fb5a0cb607defb5b54024d32>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,14 +20,14 @@ import type { ReaderFragment, RefetchableFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RefetchableClientEdgeQuery_RelayReaderResolverTest24Query_me__client_edge$fragmentType: FragmentType;
 type ClientEdgeQuery_RelayReaderResolverTest24Query_me__client_edge$variables = any;
-export type RefetchableClientEdgeQuery_RelayReaderResolverTest24Query_me__client_edge$data = {|
-  +__typename: "User",
-  +id: string,
-  +$fragmentType: RefetchableClientEdgeQuery_RelayReaderResolverTest24Query_me__client_edge$fragmentType,
-|};
+export type RefetchableClientEdgeQuery_RelayReaderResolverTest24Query_me__client_edge$data = {
+  readonly __typename: "User",
+  readonly id: string,
+  readonly $fragmentType: RefetchableClientEdgeQuery_RelayReaderResolverTest24Query_me__client_edge$fragmentType,
+};
 export type RefetchableClientEdgeQuery_RelayReaderResolverTest24Query_me__client_edge$key = {
-  +$data?: RefetchableClientEdgeQuery_RelayReaderResolverTest24Query_me__client_edge$data,
-  +$fragmentSpreads: RefetchableClientEdgeQuery_RelayReaderResolverTest24Query_me__client_edge$fragmentType,
+  readonly $data?: RefetchableClientEdgeQuery_RelayReaderResolverTest24Query_me__client_edge$data,
+  readonly $fragmentSpreads: RefetchableClientEdgeQuery_RelayReaderResolverTest24Query_me__client_edge$fragmentType,
   ...
 };
 */
@@ -71,10 +70,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "8635cde1528b69cd8dd3828aadb768bb";
+  (node/*:: as any*/).hash = "8635cde1528b69cd8dd3828aadb768bb";
 }
 
-module.exports = ((node/*: any*/)/*: RefetchableFragment<
+module.exports = ((node/*:: as any*/)/*:: as RefetchableFragment<
   RefetchableClientEdgeQuery_RelayReaderResolverTest24Query_me__client_edge$fragmentType,
   RefetchableClientEdgeQuery_RelayReaderResolverTest24Query_me__client_edge$data,
   ClientEdgeQuery_RelayReaderResolverTest24Query_me__client_edge$variables,

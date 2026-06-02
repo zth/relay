@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8449eea2ea4af32a0baf88ba1ea33cf8>>
+ * @generated SignedSource<<eadbee953dd183245a72ae85b8eb9fc2>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,23 +23,23 @@ import {all_astrological_signs as queryAllAstrologicalSignsResolverType} from ".
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryAllAstrologicalSignsResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryAllAstrologicalSignsResolverType: (
+(queryAllAstrologicalSignsResolverType as (
   rootKey: QueryAllAstrologicalSignsResolver$key,
   args: void,
   context: TestResolverContextType,
-) => ?$ReadOnlyArray<{|
-  +id: DataID,
-|}>);
-export type ResolverGCTestResolverClientEdgeToPluralClientQuery$variables = {||};
-export type ResolverGCTestResolverClientEdgeToPluralClientQuery$data = {|
-  +all_astrological_signs: ?$ReadOnlyArray<{|
-    +__id: string,
-  |}>,
-|};
-export type ResolverGCTestResolverClientEdgeToPluralClientQuery = {|
+) => ?ReadonlyArray<{
+  readonly id: DataID,
+}>);
+export type ResolverGCTestResolverClientEdgeToPluralClientQuery$variables = {};
+export type ResolverGCTestResolverClientEdgeToPluralClientQuery$data = {
+  readonly all_astrological_signs: ?ReadonlyArray<{
+    readonly __id: string,
+  }>,
+};
+export type ResolverGCTestResolverClientEdgeToPluralClientQuery = {
   response: ResolverGCTestResolverClientEdgeToPluralClientQuery$data,
   variables: ResolverGCTestResolverClientEdgeToPluralClientQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -71,6 +70,7 @@ return {
         "kind": "ClientEdgeToClientObject",
         "concreteType": "AstrologicalSign",
         "modelResolvers": null,
+        "serverObjectOperations": null,
         "backingField": {
           "alias": null,
           "args": null,
@@ -92,7 +92,7 @@ return {
           "name": "all_astrological_signs",
           "plural": true,
           "selections": [
-            (v0/*: any*/)
+            (v0/*:: as any*/)
           ],
           "storageKey": null
         }
@@ -130,7 +130,7 @@ return {
                     "name": "__typename",
                     "storageKey": null
                   },
-                  (v1/*: any*/)
+                  (v1/*:: as any*/)
                 ],
                 "storageKey": null
               }
@@ -150,8 +150,8 @@ return {
           "name": "all_astrological_signs",
           "plural": true,
           "selections": [
-            (v0/*: any*/),
-            (v1/*: any*/)
+            (v0/*:: as any*/),
+            (v1/*:: as any*/)
           ],
           "storageKey": null
         }
@@ -170,10 +170,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "036bd92cbd98ae61be666414bbc2d707";
+  (node/*:: as any*/).hash = "036bd92cbd98ae61be666414bbc2d707";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ResolverGCTestResolverClientEdgeToPluralClientQuery$variables,
   ResolverGCTestResolverClientEdgeToPluralClientQuery$data,
 >*/);

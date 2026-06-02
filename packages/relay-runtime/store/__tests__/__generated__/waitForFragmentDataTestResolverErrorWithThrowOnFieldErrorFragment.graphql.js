@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b4d60393f1b4e1b4677b36695ffb1e72>>
+ * @generated SignedSource<<96297fff257fd17970db22b6a9dc3eec>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,19 +23,19 @@ import {always_throws as userAlwaysThrowsResolverType} from "../resolvers/UserAl
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userAlwaysThrowsResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userAlwaysThrowsResolverType: (
+(userAlwaysThrowsResolverType as (
   rootKey: UserAlwaysThrowsResolver$key,
   args: void,
   context: TestResolverContextType,
 ) => ?string);
 declare export opaque type waitForFragmentDataTestResolverErrorWithThrowOnFieldErrorFragment$fragmentType: FragmentType;
-export type waitForFragmentDataTestResolverErrorWithThrowOnFieldErrorFragment$data = {|
-  +always_throws: ?string,
-  +$fragmentType: waitForFragmentDataTestResolverErrorWithThrowOnFieldErrorFragment$fragmentType,
-|};
+export type waitForFragmentDataTestResolverErrorWithThrowOnFieldErrorFragment$data = {
+  readonly always_throws: ?string,
+  readonly $fragmentType: waitForFragmentDataTestResolverErrorWithThrowOnFieldErrorFragment$fragmentType,
+};
 export type waitForFragmentDataTestResolverErrorWithThrowOnFieldErrorFragment$key = {
-  +$data?: waitForFragmentDataTestResolverErrorWithThrowOnFieldErrorFragment$data,
-  +$fragmentSpreads: waitForFragmentDataTestResolverErrorWithThrowOnFieldErrorFragment$fragmentType,
+  readonly $data?: waitForFragmentDataTestResolverErrorWithThrowOnFieldErrorFragment$data,
+  readonly $fragmentSpreads: waitForFragmentDataTestResolverErrorWithThrowOnFieldErrorFragment$fragmentType,
   ...
 };
 */
@@ -68,10 +67,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "f11b5197bd977bdd6b5b7b85e954ea08";
+  (node/*:: as any*/).hash = "f11b5197bd977bdd6b5b7b85e954ea08";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   waitForFragmentDataTestResolverErrorWithThrowOnFieldErrorFragment$fragmentType,
   waitForFragmentDataTestResolverErrorWithThrowOnFieldErrorFragment$data,
 >*/);

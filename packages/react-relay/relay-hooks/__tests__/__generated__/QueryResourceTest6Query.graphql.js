@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b4c12d333dfebf40ace34bc8cff20e9a>>
+ * @generated SignedSource<<763ed01f7edffc1d32c88d1ddef8fb95>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,19 +18,19 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { QueryResourceTest4Fragment$fragmentType } from "./QueryResourceTest4Fragment.graphql";
-export type QueryResourceTest6Query$variables = {|
+export type QueryResourceTest6Query$variables = {
   id: string,
-|};
-export type QueryResourceTest6Query$data = {|
-  +node: ?{|
-    +__typename: string,
-    +$fragmentSpreads: QueryResourceTest4Fragment$fragmentType,
-  |},
-|};
-export type QueryResourceTest6Query = {|
+};
+export type QueryResourceTest6Query$data = {
+  readonly node: ?{
+    readonly __typename: string,
+    readonly $fragmentSpreads: QueryResourceTest4Fragment$fragmentType,
+  },
+};
+export type QueryResourceTest6Query = {
   response: QueryResourceTest6Query$data,
   variables: QueryResourceTest6Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -58,20 +57,20 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "QueryResourceTest6Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "args": null,
             "kind": "FragmentSpread",
@@ -86,19 +85,19 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "QueryResourceTest6Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -123,10 +122,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "19bc0d618b5dced35c705f3ba789fdd6";
+  (node/*:: as any*/).hash = "19bc0d618b5dced35c705f3ba789fdd6";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   QueryResourceTest6Query$variables,
   QueryResourceTest6Query$data,
 >*/);

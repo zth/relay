@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<aed107568294cd96400709d8870f8b8b>>
+ * @generated SignedSource<<35b989bb3c2732a023f586e68d46634a>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -22,18 +21,18 @@ import type { useRefetchableFragmentNodeTestNestedUserFragment$fragmentType } fr
 import type { FragmentType } from "relay-runtime";
 declare export opaque type useRefetchableFragmentNodeTestUserFragment$fragmentType: FragmentType;
 type useRefetchableFragmentNodeTestUserFragmentRefetchQuery$variables = any;
-export type useRefetchableFragmentNodeTestUserFragment$data = {|
-  +id: string,
-  +name: ?string,
-  +profile_picture: ?{|
-    +uri: ?string,
-  |},
-  +$fragmentSpreads: useRefetchableFragmentNodeTestNestedUserFragment$fragmentType,
-  +$fragmentType: useRefetchableFragmentNodeTestUserFragment$fragmentType,
-|};
+export type useRefetchableFragmentNodeTestUserFragment$data = {
+  readonly id: string,
+  readonly name: ?string,
+  readonly profile_picture: ?{
+    readonly uri: ?string,
+  },
+  readonly $fragmentSpreads: useRefetchableFragmentNodeTestNestedUserFragment$fragmentType,
+  readonly $fragmentType: useRefetchableFragmentNodeTestUserFragment$fragmentType,
+};
 export type useRefetchableFragmentNodeTestUserFragment$key = {
-  +$data?: useRefetchableFragmentNodeTestUserFragment$data,
-  +$fragmentSpreads: useRefetchableFragmentNodeTestUserFragment$fragmentType,
+  readonly $data?: useRefetchableFragmentNodeTestUserFragment$data,
+  readonly $fragmentSpreads: useRefetchableFragmentNodeTestUserFragment$fragmentType,
   ...
 };
 */
@@ -110,10 +109,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "05ecfc568de9d9914217013ff67f7014";
+  (node/*:: as any*/).hash = "05ecfc568de9d9914217013ff67f7014";
 }
 
-module.exports = ((node/*: any*/)/*: RefetchableFragment<
+module.exports = ((node/*:: as any*/)/*:: as RefetchableFragment<
   useRefetchableFragmentNodeTestUserFragment$fragmentType,
   useRefetchableFragmentNodeTestUserFragment$data,
   useRefetchableFragmentNodeTestUserFragmentRefetchQuery$variables,

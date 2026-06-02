@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2cff16ba28615a46e0243f5f23a8da64>>
+ * @generated SignedSource<<f6ab60c765748bb3cf4acb041793413c>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,19 +23,19 @@ import {counter_suspends_when_odd as queryCounterSuspendsWhenOddResolverType} fr
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryCounterSuspendsWhenOddResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryCounterSuspendsWhenOddResolverType: (
+(queryCounterSuspendsWhenOddResolverType as (
   rootKey: CounterSuspendsWhenOdd$key,
   args: void,
   context: TestResolverContextType,
 ) => LiveState<?number>);
 declare export opaque type LiveResolversTestDeferFragment$fragmentType: FragmentType;
-export type LiveResolversTestDeferFragment$data = {|
-  +counter_suspends_when_odd: ?number,
-  +$fragmentType: LiveResolversTestDeferFragment$fragmentType,
-|};
+export type LiveResolversTestDeferFragment$data = {
+  readonly counter_suspends_when_odd: ?number,
+  readonly $fragmentType: LiveResolversTestDeferFragment$fragmentType,
+};
 export type LiveResolversTestDeferFragment$key = {
-  +$data?: LiveResolversTestDeferFragment$data,
-  +$fragmentSpreads: LiveResolversTestDeferFragment$fragmentType,
+  readonly $data?: LiveResolversTestDeferFragment$data,
+  readonly $fragmentSpreads: LiveResolversTestDeferFragment$fragmentType,
   ...
 };
 */
@@ -66,10 +65,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "b0021654a94dd7cd7005caf576f7ba36";
+  (node/*:: as any*/).hash = "b0021654a94dd7cd7005caf576f7ba36";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   LiveResolversTestDeferFragment$fragmentType,
   LiveResolversTestDeferFragment$data,
 >*/);

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<dab6b298953a9fa6f3d72fd6bad37bdc>>
+ * @generated SignedSource<<51e8bfc7882fe0c7c1a92158e8b2e202>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,18 +17,18 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayModernEnvironmentViewerTestQuery$variables = {||};
-export type RelayModernEnvironmentViewerTestQuery$data = {|
-  +viewer: ?{|
-    +marketplace_settings: ?{|
-      +categories: ?$ReadOnlyArray<?string>,
-    |},
-  |},
-|};
-export type RelayModernEnvironmentViewerTestQuery = {|
+export type RelayModernEnvironmentViewerTestQuery$variables = {};
+export type RelayModernEnvironmentViewerTestQuery$data = {
+  readonly viewer: ?{
+    readonly marketplace_settings: ?{
+      readonly categories: ?ReadonlyArray<?string>,
+    },
+  },
+};
+export type RelayModernEnvironmentViewerTestQuery = {
   response: RelayModernEnvironmentViewerTestQuery$data,
   variables: RelayModernEnvironmentViewerTestQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -70,7 +69,7 @@ return {
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentViewerTestQuery",
-    "selections": (v0/*: any*/),
+    "selections": (v0/*:: as any*/),
     "type": "Query",
     "abstractKey": null
   },
@@ -79,7 +78,7 @@ return {
     "argumentDefinitions": [],
     "kind": "Operation",
     "name": "RelayModernEnvironmentViewerTestQuery",
-    "selections": (v0/*: any*/)
+    "selections": (v0/*:: as any*/)
   },
   "params": {
     "cacheID": "d472c65ccec7c0489dff8fcf03362d4e",
@@ -93,10 +92,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "2d8f31179e51dbb804c2c7db7bb1d972";
+  (node/*:: as any*/).hash = "2d8f31179e51dbb804c2c7db7bb1d972";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentViewerTestQuery$variables,
   RelayModernEnvironmentViewerTestQuery$data,
 >*/);

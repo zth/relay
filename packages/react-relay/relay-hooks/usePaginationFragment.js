@@ -32,11 +32,16 @@ const {
   getPaginationMetadata,
 } = require('relay-runtime');
 
-type RefetchVariables<TVariables, TKey: ?{+$fragmentSpreads: mixed, ...}> =
+type RefetchVariables<
+  TVariables,
+  TKey extends ?{readonly $fragmentSpreads: unknown, ...},
+> =
   // NOTE: This type ensures that the type of the returned variables is either:
   //   - nullable if the provided ref type is nullable
   //   - non-nullable if the provided ref type is non-nullable
-  [+key: TKey] extends [+key: {+$fragmentSpreads: mixed, ...}]
+  [readonly key: TKey] extends [
+    readonly key: {readonly $fragmentSpreads: unknown, ...},
+  ]
     ? Partial<TVariables>
     : TVariables;
 
@@ -54,7 +59,9 @@ export type ReturnType<TVariables, TData, TKey> = {
   // NOTE: This type ensures that the type of the returned data is either:
   //   - nullable if the provided ref type is nullable
   //   - non-nullable if the provided ref type is non-nullable
-  data: [+key: TKey] extends [+key: {+$fragmentSpreads: mixed, ...}]
+  data: [readonly key: TKey] extends [
+    readonly key: {readonly $fragmentSpreads: unknown, ...},
+  ]
     ? TData
     : ?TData,
   loadNext: LoadMoreFn<TVariables>,
@@ -70,20 +77,20 @@ export type ReturnType<TVariables, TData, TKey> = {
 // a separate hooks implementation in ./HooksImplementation -- it can
 // be removed after we stop doing that.
 export type UsePaginationFragmentType = <
-  TFragmentType: FragmentType,
-  TVariables: Variables,
+  TFragmentType extends FragmentType,
+  TVariables extends Variables,
   TData,
-  TKey: ?{+$fragmentSpreads: TFragmentType, ...},
+  TKey extends ?{readonly $fragmentSpreads: TFragmentType, ...},
 >(
   fragmentInput: RefetchableFragment<TFragmentType, TData, TVariables>,
   parentFragmentRef: TKey,
 ) => ReturnType<TVariables, TData, TKey>;
 
 hook usePaginationFragment<
-  TFragmentType: FragmentType,
-  TVariables: Variables,
+  TFragmentType extends FragmentType,
+  TVariables extends Variables,
   TData,
-  TKey: ?{+$fragmentSpreads: TFragmentType, ...},
+  TKey extends ?{readonly $fragmentSpreads: TFragmentType, ...},
 >(
   fragmentInput: RefetchableFragment<TFragmentType, TData, TVariables>,
   parentFragmentRef: TKey,
@@ -155,7 +162,7 @@ hook usePaginationFragment<
     });
   }
   return {
-    // $FlowFixMe[incompatible-return]
+    // $FlowFixMe[incompatible-type]
     data: fragmentData,
     loadNext,
     loadPrevious,
@@ -163,11 +170,12 @@ hook usePaginationFragment<
     hasPrevious,
     isLoadingNext,
     isLoadingPrevious,
+    // $FlowFixMe[incompatible-type]
     refetch: refetchPagination,
   };
 }
 
-hook useLoadMore<TVariables: Variables>(
+hook useLoadMore<TVariables extends Variables>(
   args: Omit<UseLoadMoreFunctionArgs, 'observer' | 'onReset'>,
 ): [LoadMoreFn<TVariables>, boolean, boolean, () => void] {
   const environment = useRelayEnvironment();

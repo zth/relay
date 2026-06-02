@@ -41,7 +41,7 @@ describe('RelayReader @catch', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data, fieldErrors} = read(source, operation.fragment);
+    const {data, fieldErrors} = read(source, operation.fragment, null);
     expect(fieldErrors).toEqual(null);
     expect(data).toEqual({me: {lastName: null}});
   });
@@ -77,7 +77,7 @@ describe('RelayReader @catch', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data, fieldErrors} = read(source, operation.fragment);
+    const {data, fieldErrors} = read(source, operation.fragment, null);
     expect(data).toEqual({
       me: {
         lastName: {
@@ -136,7 +136,7 @@ describe('RelayReader @catch', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data, fieldErrors} = read(source, operation.fragment);
+    const {data, fieldErrors} = read(source, operation.fragment, null);
     expect(data).toEqual({
       me: {
         lastName: null,
@@ -191,7 +191,7 @@ describe('RelayReader @catch', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data, fieldErrors} = read(source, operation.fragment);
+    const {data, fieldErrors} = read(source, operation.fragment, null);
     expect(data).toEqual({
       alsoMe: null,
       me: {
@@ -243,7 +243,7 @@ describe('RelayReader @catch', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data, fieldErrors} = read(source, operation.fragment);
+    const {data, fieldErrors} = read(source, operation.fragment, null);
     expect(data).toEqual({
       me: null,
     });
@@ -281,7 +281,11 @@ describe('RelayReader @catch', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data, fieldErrors, isMissingData} = read(source, operation.fragment);
+    const {data, fieldErrors, isMissingData} = read(
+      source,
+      operation.fragment,
+      null,
+    );
 
     expect(data).toEqual({me: null});
 
@@ -321,7 +325,11 @@ describe('RelayReader @catch', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {});
-    const {data, fieldErrors, isMissingData} = read(source, operation.fragment);
+    const {data, fieldErrors, isMissingData} = read(
+      source,
+      operation.fragment,
+      null,
+    );
 
     expect(data).toEqual(null);
 
@@ -361,7 +369,11 @@ describe('RelayReader @catch', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {});
-    const {data, fieldErrors, isMissingData} = read(source, operation.fragment);
+    const {data, fieldErrors, isMissingData} = read(
+      source,
+      operation.fragment,
+      null,
+    );
 
     expect(data).toEqual({errors: [{path: ['me', 'firstName']}], ok: false});
 
@@ -500,7 +512,11 @@ describe('RelayReader @catch', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {});
-    const {data, fieldErrors, isMissingData} = read(source, operation.fragment);
+    const {data, fieldErrors, isMissingData} = read(
+      source,
+      operation.fragment,
+      null,
+    );
 
     expect(data).toEqual({me: {myAlias: null}});
 
@@ -542,7 +558,11 @@ describe('RelayReader @catch', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {});
-    const {data, fieldErrors, isMissingData} = read(source, operation.fragment);
+    const {data, fieldErrors, isMissingData} = read(
+      source,
+      operation.fragment,
+      null,
+    );
 
     expect(data).toEqual({
       me: {myAlias: {ok: false, errors: [{path: ['myAlias', 'firstName']}]}},
@@ -559,6 +579,157 @@ describe('RelayReader @catch', () => {
           'RelayReaderCatchFieldsTestCatchMissingInInlineFragmentToResultErrorQuery',
       },
     ]);
+  });
+
+  it('@catch(to: RESULT) on aliased inline fragment with field error returns error', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        lastName: null,
+        __errors: {
+          lastName: [
+            {
+              message: 'There was an error!',
+              path: ['me', 'lastName'],
+            },
+          ],
+        },
+      },
+    });
+
+    const FooQuery = graphql`
+      query RelayReaderCatchFieldsTestCatchErrorInAliasedInlineFragmentToResultQuery {
+        me {
+          ... @catch(to: RESULT) @alias(as: "myAlias") {
+            lastName
+          }
+        }
+      }
+    `;
+    const operation = createOperationDescriptor(FooQuery, {});
+    const {data, fieldErrors} = read(source, operation.fragment, null);
+    expect(data).toEqual({
+      me: {
+        myAlias: {
+          ok: false,
+          errors: [
+            {
+              path: ['me', 'lastName'],
+            },
+          ],
+        },
+      },
+    });
+
+    expect(fieldErrors).toEqual([
+      {
+        error: {message: 'There was an error!', path: ['me', 'lastName']},
+        fieldPath: 'me.lastName',
+        handled: true,
+        kind: 'relay_field_payload.error',
+        owner:
+          'RelayReaderCatchFieldsTestCatchErrorInAliasedInlineFragmentToResultQuery',
+        shouldThrow: false,
+      },
+    ]);
+  });
+
+  it('@catch(to: NULL) on aliased inline fragment with field error returns null', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        lastName: null,
+        __errors: {
+          lastName: [
+            {
+              message: 'There was an error!',
+              path: ['me', 'lastName'],
+            },
+          ],
+        },
+      },
+    });
+
+    const FooQuery = graphql`
+      query RelayReaderCatchFieldsTestCatchErrorInAliasedInlineFragmentToNullQuery {
+        me {
+          ... @catch(to: NULL) @alias(as: "myAlias") {
+            lastName
+          }
+        }
+      }
+    `;
+    const operation = createOperationDescriptor(FooQuery, {});
+    const {data, fieldErrors} = read(source, operation.fragment, null);
+    expect(data).toEqual({
+      me: {myAlias: null},
+    });
+
+    expect(fieldErrors).toEqual([
+      {
+        error: {message: 'There was an error!', path: ['me', 'lastName']},
+        fieldPath: 'me.lastName',
+        handled: true,
+        kind: 'relay_field_payload.error',
+        owner:
+          'RelayReaderCatchFieldsTestCatchErrorInAliasedInlineFragmentToNullQuery',
+        shouldThrow: false,
+      },
+    ]);
+  });
+
+  it('@catch(to: RESULT) on aliased inline fragment with no error returns ok result', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        lastName: 'Big Bird',
+      },
+    });
+
+    const FooQuery = graphql`
+      query RelayReaderCatchFieldsTestCatchOkInAliasedInlineFragmentToResultQuery {
+        me {
+          ... @catch(to: RESULT) @alias(as: "myAlias") {
+            lastName
+          }
+        }
+      }
+    `;
+    const operation = createOperationDescriptor(FooQuery, {});
+    const {data, fieldErrors} = read(source, operation.fragment, null);
+    expect(data).toEqual({
+      me: {
+        myAlias: {
+          ok: true,
+          value: {
+            lastName: 'Big Bird',
+          },
+        },
+      },
+    });
+
+    expect(fieldErrors).toBeNull();
   });
 
   it('if scalar has catch to RESULT - but no error, response should reflect', () => {
@@ -584,7 +755,7 @@ describe('RelayReader @catch', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data, fieldErrors} = read(source, operation.fragment);
+    const {data, fieldErrors} = read(source, operation.fragment, null);
     expect(data).toEqual({
       me: {
         lastName: {
@@ -620,7 +791,7 @@ describe('RelayReader @catch', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data, fieldErrors} = read(source, operation.fragment);
+    const {data, fieldErrors} = read(source, operation.fragment, null);
     expect(data).toEqual({
       me: {
         ok: true,
@@ -664,7 +835,7 @@ describe('RelayReader @catch', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data, fieldErrors} = read(source, operation.fragment);
+    const {data, fieldErrors} = read(source, operation.fragment, null);
     expect(data).toEqual({
       me: {
         ok: false,
@@ -711,7 +882,7 @@ describe('RelayReader @catch', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data, fieldErrors} = read(source, operation.fragment);
+    const {data, fieldErrors} = read(source, operation.fragment, null);
     expect(data).toEqual({
       me: {
         errors: [

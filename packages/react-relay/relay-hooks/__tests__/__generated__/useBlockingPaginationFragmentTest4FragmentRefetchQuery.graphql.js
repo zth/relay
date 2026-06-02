@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<80dba3b9be348a4607bf52e6c107eef7>>
+ * @generated SignedSource<<b72a51613c8087b137a1988a56ce9f5f>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,18 +19,18 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 import type { useBlockingPaginationFragmentTest4Fragment$fragmentType } from "./useBlockingPaginationFragmentTest4Fragment.graphql";
-export type useBlockingPaginationFragmentTest4FragmentRefetchQuery$variables = {|
+export type useBlockingPaginationFragmentTest4FragmentRefetchQuery$variables = {
   id: string,
-|};
-export type useBlockingPaginationFragmentTest4FragmentRefetchQuery$data = {|
-  +node: ?{|
-    +$fragmentSpreads: useBlockingPaginationFragmentTest4Fragment$fragmentType,
-  |},
-|};
-export type useBlockingPaginationFragmentTest4FragmentRefetchQuery = {|
+};
+export type useBlockingPaginationFragmentTest4FragmentRefetchQuery$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: useBlockingPaginationFragmentTest4Fragment$fragmentType,
+  },
+};
+export type useBlockingPaginationFragmentTest4FragmentRefetchQuery = {
   response: useBlockingPaginationFragmentTest4FragmentRefetchQuery$data,
   variables: useBlockingPaginationFragmentTest4FragmentRefetchQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -51,14 +50,14 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "useBlockingPaginationFragmentTest4FragmentRefetchQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -78,13 +77,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "useBlockingPaginationFragmentTest4FragmentRefetchQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -121,10 +120,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "43246af9f06d0dfe5df218b7d05f131c";
+  (node/*:: as any*/).hash = "43246af9f06d0dfe5df218b7d05f131c";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   useBlockingPaginationFragmentTest4FragmentRefetchQuery$variables,
   useBlockingPaginationFragmentTest4FragmentRefetchQuery$data,
 >*/);

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4fb34165dede66ddb437d42c65b266b0>>
+ * @generated SignedSource<<cc4b70085d4acc8c957c71517545ee8a>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,23 +17,23 @@
 
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
-export type ActorNameChangeInput = {|
+export type ActorNameChangeInput = {
   newName?: ?string,
-|};
-export type validateMutationTest2ChangeNameMutation$variables = {|
+};
+export type validateMutationTest2ChangeNameMutation$variables = {
   input: ActorNameChangeInput,
-|};
-export type validateMutationTest2ChangeNameMutation$data = {|
-  +actorNameChange: ?{|
-    +actor: ?{|
-      +name: ?string,
-    |},
-  |},
-|};
-export type validateMutationTest2ChangeNameMutation = {|
+};
+export type validateMutationTest2ChangeNameMutation$data = {
+  readonly actorNameChange: ?{
+    readonly actor: ?{
+      readonly name: ?string,
+    },
+  },
+};
+export type validateMutationTest2ChangeNameMutation = {
   response: validateMutationTest2ChangeNameMutation$data,
   variables: validateMutationTest2ChangeNameMutation$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -61,14 +60,14 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "validateMutationTest2ChangeNameMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "ActorNameChangePayload",
         "kind": "LinkedField",
         "name": "actorNameChange",
@@ -82,7 +81,7 @@ return {
             "name": "actor",
             "plural": false,
             "selections": [
-              (v2/*: any*/)
+              (v2/*:: as any*/)
             ],
             "storageKey": null
           }
@@ -95,13 +94,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "validateMutationTest2ChangeNameMutation",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "ActorNameChangePayload",
         "kind": "LinkedField",
         "name": "actorNameChange",
@@ -122,7 +121,7 @@ return {
                 "name": "__typename",
                 "storageKey": null
               },
-              (v2/*: any*/),
+              (v2/*:: as any*/),
               {
                 "alias": null,
                 "args": null,
@@ -150,10 +149,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "b253eaee773f43048515e1ded4ee72aa";
+  (node/*:: as any*/).hash = "b253eaee773f43048515e1ded4ee72aa";
 }
 
-module.exports = ((node/*: any*/)/*: Mutation<
+module.exports = ((node/*:: as any*/)/*:: as Mutation<
   validateMutationTest2ChangeNameMutation$variables,
   validateMutationTest2ChangeNameMutation$data,
 >*/);

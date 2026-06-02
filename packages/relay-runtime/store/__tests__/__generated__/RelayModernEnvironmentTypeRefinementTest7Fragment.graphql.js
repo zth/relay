@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5d9b1e532e05d3932efe5bdd0d000922>>
+ * @generated SignedSource<<d9933e944501ee8f37a1e72921d3c2ea>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,15 +20,15 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { RelayModernEnvironmentTypeRefinementTest8Fragment$fragmentType } from "./RelayModernEnvironmentTypeRefinementTest8Fragment.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentTypeRefinementTest7Fragment$fragmentType: FragmentType;
-export type RelayModernEnvironmentTypeRefinementTest7Fragment$data = {|
-  +id?: string,
-  +lastName?: ?string,
-  +$fragmentSpreads: RelayModernEnvironmentTypeRefinementTest8Fragment$fragmentType,
-  +$fragmentType: RelayModernEnvironmentTypeRefinementTest7Fragment$fragmentType,
-|};
+export type RelayModernEnvironmentTypeRefinementTest7Fragment$data = {
+  readonly id?: string,
+  readonly lastName?: ?string,
+  readonly $fragmentSpreads: RelayModernEnvironmentTypeRefinementTest8Fragment$fragmentType,
+  readonly $fragmentType: RelayModernEnvironmentTypeRefinementTest7Fragment$fragmentType,
+};
 export type RelayModernEnvironmentTypeRefinementTest7Fragment$key = {
-  +$data?: RelayModernEnvironmentTypeRefinementTest7Fragment$data,
-  +$fragmentSpreads: RelayModernEnvironmentTypeRefinementTest7Fragment$fragmentType,
+  readonly $data?: RelayModernEnvironmentTypeRefinementTest7Fragment$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentTypeRefinementTest7Fragment$fragmentType,
   ...
 };
 */
@@ -72,10 +71,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "03c0b49779e3e92b0186c5aea133afa8";
+  (node/*:: as any*/).hash = "03c0b49779e3e92b0186c5aea133afa8";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayModernEnvironmentTypeRefinementTest7Fragment$fragmentType,
   RelayModernEnvironmentTypeRefinementTest7Fragment$data,
 >*/);

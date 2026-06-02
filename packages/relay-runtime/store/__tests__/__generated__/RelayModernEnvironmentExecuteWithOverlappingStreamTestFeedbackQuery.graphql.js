@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ea64f9683cbb2c3886031ded67f421f5>>
+ * @generated SignedSource<<fedbde6dd5ebf96b00e412cbb54c44cf>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,19 +18,19 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$fragmentType } from "./RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment.graphql";
-export type RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQuery$variables = {|
+export type RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQuery$variables = {
   enableStream: boolean,
   id: string,
-|};
-export type RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQuery$data = {|
-  +node: ?{|
-    +$fragmentSpreads: RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$fragmentType,
-  |},
-|};
-export type RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQuery = {|
+};
+export type RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQuery$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$fragmentType,
+  },
+};
+export type RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQuery = {
   response: RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQuery$data,
   variables: RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -67,7 +66,7 @@ v4 = {
   "storageKey": null
 },
 v5 = [
-  (v3/*: any*/),
+  (v3/*:: as any*/),
   {
     "alias": null,
     "args": null,
@@ -84,13 +83,13 @@ v5 = [
     "kind": "ScalarHandle",
     "name": "name"
   },
-  (v4/*: any*/)
+  (v4/*:: as any*/)
 ];
 return {
   "fragment": {
     "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/)
+      (v0/*:: as any*/),
+      (v1/*:: as any*/)
     ],
     "kind": "Fragment",
     "metadata": null,
@@ -98,7 +97,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v2/*: any*/),
+        "args": (v2/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -119,22 +118,22 @@ return {
   "kind": "Request",
   "operation": {
     "argumentDefinitions": [
-      (v1/*: any*/),
-      (v0/*: any*/)
+      (v1/*:: as any*/),
+      (v0/*:: as any*/)
     ],
     "kind": "Operation",
     "name": "RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v2/*: any*/),
+        "args": (v2/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v3/*: any*/),
-          (v4/*: any*/),
+          (v3/*:: as any*/),
+          (v4/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
@@ -150,7 +149,7 @@ return {
                     "kind": "LinkedField",
                     "name": "actors",
                     "plural": true,
-                    "selections": (v5/*: any*/),
+                    "selections": (v5/*:: as any*/),
                     "storageKey": null
                   },
                   {
@@ -181,7 +180,7 @@ return {
                         "kind": "LinkedField",
                         "name": "viewedBy",
                         "plural": true,
-                        "selections": (v5/*: any*/),
+                        "selections": (v5/*:: as any*/),
                         "storageKey": null
                       },
                       {
@@ -218,10 +217,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "06b066155ac2bffd6466e49b3836ff99";
+  (node/*:: as any*/).hash = "06b066155ac2bffd6466e49b3836ff99";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQuery$variables,
   RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQuery$data,
 >*/);

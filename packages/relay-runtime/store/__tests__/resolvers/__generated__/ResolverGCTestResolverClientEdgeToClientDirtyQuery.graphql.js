@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9f64372a6da65518e08738d9995a0961>>
+ * @generated SignedSource<<a2249736fe3a18d2847748d92f79f034>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -25,7 +24,7 @@ import {name as astrologicalSignNameResolverType} from "../AstrologicalSignNameR
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `astrologicalSignNameResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(astrologicalSignNameResolverType: (
+(astrologicalSignNameResolverType as (
   rootKey: AstrologicalSignNameResolver$key,
   args: void,
   context: TestResolverContextType,
@@ -33,25 +32,25 @@ import type { TestResolverContextType } from "../../../../mutations/__tests__/Te
 import {astrological_sign as userAstrologicalSignResolverType} from "../UserAstrologicalSignResolver.js";
 // Type assertion validating that `userAstrologicalSignResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userAstrologicalSignResolverType: (
+(userAstrologicalSignResolverType as (
   rootKey: UserAstrologicalSignResolver$key,
   args: void,
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
-export type ResolverGCTestResolverClientEdgeToClientDirtyQuery$variables = {||};
-export type ResolverGCTestResolverClientEdgeToClientDirtyQuery$data = {|
-  +me: ?{|
-    +astrological_sign: ?{|
-      +name: ?string,
-    |},
-  |},
-|};
-export type ResolverGCTestResolverClientEdgeToClientDirtyQuery = {|
+) => ?{
+  readonly id: DataID,
+});
+export type ResolverGCTestResolverClientEdgeToClientDirtyQuery$variables = {};
+export type ResolverGCTestResolverClientEdgeToClientDirtyQuery$data = {
+  readonly me: ?{
+    readonly astrological_sign: ?{
+      readonly name: ?string,
+    },
+  },
+};
+export type ResolverGCTestResolverClientEdgeToClientDirtyQuery = {
   response: ResolverGCTestResolverClientEdgeToClientDirtyQuery$data,
   variables: ResolverGCTestResolverClientEdgeToClientDirtyQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -83,6 +82,7 @@ return {
             "kind": "ClientEdgeToClientObject",
             "concreteType": "AstrologicalSign",
             "modelResolvers": null,
+            "serverObjectOperations": null,
             "backingField": {
               "alias": null,
               "args": null,
@@ -203,7 +203,7 @@ return {
                         "fragment": {
                           "kind": "InlineFragment",
                           "selections": [
-                            (v0/*: any*/)
+                            (v0/*:: as any*/)
                           ],
                           "type": "AstrologicalSign",
                           "abstractKey": null
@@ -220,12 +220,12 @@ return {
                   "storageKey": null,
                   "isOutputType": true
                 },
-                (v0/*: any*/)
+                (v0/*:: as any*/)
               ],
               "storageKey": null
             }
           },
-          (v0/*: any*/)
+          (v0/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -243,10 +243,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "d4a8390f4ccdcf6fa11c81b61530e7fe";
+  (node/*:: as any*/).hash = "d4a8390f4ccdcf6fa11c81b61530e7fe";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ResolverGCTestResolverClientEdgeToClientDirtyQuery$variables,
   ResolverGCTestResolverClientEdgeToClientDirtyQuery$data,
 >*/);

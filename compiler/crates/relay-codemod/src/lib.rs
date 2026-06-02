@@ -8,8 +8,11 @@
 #![deny(warnings)]
 #![deny(rust_2018_idioms)]
 #![deny(clippy::all)]
+#![allow(clippy::mutable_key_type)] // lsp_types::Uri
 
 mod codemod;
 
 pub use crate::codemod::AvailableCodemod;
+pub use crate::codemod::fix_diagnostics;
 pub use crate::codemod::run_codemod;
+pub use crate::codemod::run_codemod_impl;

@@ -2,29 +2,23 @@
 
 [package]
 name = "relay"
-version = "20.1.1"
+version = "21.0.1"
 authors = ["Facebook"]
 edition = "2024"
 repository = "https://github.com/facebook/relay"
 license = "MIT"
 
 [dependencies]
-clap = { version = "4.5.42", features = ["derive", "env", "string", "unicode", "wrap_help"] }
+clap = { version = "4.6.0", features = ["derive", "env", "string", "unicode", "wrap_help"] }
 common = { path = "../common" }
+graphql-ir-diff = { path = "../graphql-ir-diff" }
 intern = { path = "../intern" }
-log = { version = "0.4.27", features = ["kv_unstable", "kv_unstable_std"] }
-graphql-ir = { path = "../graphql-ir" }
-graphql-syntax = { path = "../graphql-syntax" }
-lsp-types = "0.94.1"
+log = { version = "0.4.29", features = ["kv_unstable", "kv_unstable_std"] }
 relay-codemod = { path = "../relay-codemod" }
 relay-compiler = { path = "../relay-compiler" }
 relay-lsp = { path = "../relay-lsp" }
-relay-transforms = { path = "../relay-transforms" }
 schema = { path = "../schema" }
 schema-documentation = { path = "../schema-documentation" }
 simplelog = "0.12.2"
-graphql-text-printer = { path = "../graphql-text-printer" }
-serde = { version = "1.0.228", features = ["derive"] }
-serde_json = "1.0.145"
-thiserror = "2.0.12"
-tokio = { version = "1.46.1", features = ["full", "test-util", "tracing"] }
+thiserror = "2.0.18"
+tokio = { version = "1.52.3", features = ["full", "test-util", "tracing"] }

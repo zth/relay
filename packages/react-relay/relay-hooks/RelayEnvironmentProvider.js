@@ -22,7 +22,7 @@ const React = require('react');
 
 const {useMemo} = React;
 
-type Props<TChildren> = $ReadOnly<{
+type Props<TChildren> = Readonly<{
   children: TChildren,
   environment: IEnvironment,
   getEnvironmentForActor?: ?(
@@ -30,7 +30,7 @@ type Props<TChildren> = $ReadOnly<{
   ) => IActorEnvironment,
 }>;
 
-component RelayEnvironmentProvider<TChildren: React.Node>(
+component RelayEnvironmentProvider<TChildren extends React.Node>(
   ...props: Props<TChildren>
 ) renders TChildren {
   const {children, environment, getEnvironmentForActor} = props;

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2bbd0da377c806b10b1f08a2eb5c9e8a>>
+ * @generated SignedSource<<bc97c3495823f34c2b2465ca01c03b7d>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,36 +17,36 @@
 
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
-export type CommentCreateInput = {|
+export type CommentCreateInput = {
   feedback?: ?CommentfeedbackFeedback,
   feedbackId?: ?string,
-|};
-export type CommentfeedbackFeedback = {|
+};
+export type CommentfeedbackFeedback = {
   comment?: ?FeedbackcommentComment,
-|};
-export type FeedbackcommentComment = {|
+};
+export type FeedbackcommentComment = {
   feedback?: ?CommentfeedbackFeedback,
-|};
-export type useMutationFastRefreshTestCommentCreateMutation$variables = {|
+};
+export type useMutationFastRefreshTestCommentCreateMutation$variables = {
   input?: ?CommentCreateInput,
-|};
-export type useMutationFastRefreshTestCommentCreateMutation$data = {|
-  +commentCreate: ?{|
-    +feedbackCommentEdge: ?{|
-      +cursor: ?string,
-      +node: ?{|
-        +body: ?{|
-          +text: ?string,
-        |},
-        +id: string,
-      |},
-    |},
-  |},
-|};
-export type useMutationFastRefreshTestCommentCreateMutation = {|
+};
+export type useMutationFastRefreshTestCommentCreateMutation$data = {
+  readonly commentCreate: ?{
+    readonly feedbackCommentEdge: ?{
+      readonly cursor: ?string,
+      readonly node: ?{
+        readonly body: ?{
+          readonly text: ?string,
+        },
+        readonly id: string,
+      },
+    },
+  },
+};
+export type useMutationFastRefreshTestCommentCreateMutation = {
   response: useMutationFastRefreshTestCommentCreateMutation$data,
   variables: useMutationFastRefreshTestCommentCreateMutation$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -133,20 +132,20 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "useMutationFastRefreshTestCommentCreateMutation",
-    "selections": (v1/*: any*/),
+    "selections": (v1/*:: as any*/),
     "type": "Mutation",
     "abstractKey": null
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "useMutationFastRefreshTestCommentCreateMutation",
-    "selections": (v1/*: any*/)
+    "selections": (v1/*:: as any*/)
   },
   "params": {
     "cacheID": "11f37ac72f53f8fd3c69fa772ca756f9",
@@ -160,10 +159,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "97430a57093eac226b7c8c315e30f400";
+  (node/*:: as any*/).hash = "97430a57093eac226b7c8c315e30f400";
 }
 
-module.exports = ((node/*: any*/)/*: Mutation<
+module.exports = ((node/*:: as any*/)/*:: as Mutation<
   useMutationFastRefreshTestCommentCreateMutation$variables,
   useMutationFastRefreshTestCommentCreateMutation$data,
 >*/);

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<332a4ea90c3e382b4d8230d3cc989e87>>
+ * @generated SignedSource<<5be4f3c15a607b06aea84fc6fe26a23a>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,13 +20,13 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$fragmentType } from "./RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentNoInlineTestDeferredStreamParent$fragmentType: FragmentType;
-export type RelayModernEnvironmentNoInlineTestDeferredStreamParent$data = {|
-  +$fragmentSpreads: RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$fragmentType,
-  +$fragmentType: RelayModernEnvironmentNoInlineTestDeferredStreamParent$fragmentType,
-|};
+export type RelayModernEnvironmentNoInlineTestDeferredStreamParent$data = {
+  readonly $fragmentSpreads: RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$fragmentType,
+  readonly $fragmentType: RelayModernEnvironmentNoInlineTestDeferredStreamParent$fragmentType,
+};
 export type RelayModernEnvironmentNoInlineTestDeferredStreamParent$key = {
-  +$data?: RelayModernEnvironmentNoInlineTestDeferredStreamParent$data,
-  +$fragmentSpreads: RelayModernEnvironmentNoInlineTestDeferredStreamParent$fragmentType,
+  readonly $data?: RelayModernEnvironmentNoInlineTestDeferredStreamParent$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentNoInlineTestDeferredStreamParent$fragmentType,
   ...
 };
 */
@@ -76,10 +75,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "8586d6ae88ead0a1f26e619046f3a398";
+  (node/*:: as any*/).hash = "8586d6ae88ead0a1f26e619046f3a398";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayModernEnvironmentNoInlineTestDeferredStreamParent$fragmentType,
   RelayModernEnvironmentNoInlineTestDeferredStreamParent$data,
 >*/);

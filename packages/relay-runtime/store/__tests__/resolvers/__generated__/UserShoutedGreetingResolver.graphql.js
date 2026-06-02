@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<52aaca3e357241a0800ed6756c6788d4>>
+ * @generated SignedSource<<04d263080a1f748af4242390c0d2b2a5>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,19 +23,19 @@ import {greeting as userGreetingResolverType} from "../UserGreetingResolver.js";
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userGreetingResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userGreetingResolverType: (
+(userGreetingResolverType as (
   rootKey: UserGreetingResolver$key,
   args: void,
   context: TestResolverContextType,
 ) => ?string);
 declare export opaque type UserShoutedGreetingResolver$fragmentType: FragmentType;
-export type UserShoutedGreetingResolver$data = {|
-  +greeting: ?string,
-  +$fragmentType: UserShoutedGreetingResolver$fragmentType,
-|};
+export type UserShoutedGreetingResolver$data = {
+  readonly greeting: ?string,
+  readonly $fragmentType: UserShoutedGreetingResolver$fragmentType,
+};
 export type UserShoutedGreetingResolver$key = {
-  +$data?: UserShoutedGreetingResolver$data,
-  +$fragmentSpreads: UserShoutedGreetingResolver$fragmentType,
+  readonly $data?: UserShoutedGreetingResolver$data,
+  readonly $fragmentSpreads: UserShoutedGreetingResolver$fragmentType,
   ...
 };
 */
@@ -66,10 +65,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "02f95e5e254d019e8c7dfcaaba1c97a0";
+  (node/*:: as any*/).hash = "02f95e5e254d019e8c7dfcaaba1c97a0";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   UserShoutedGreetingResolver$fragmentType,
   UserShoutedGreetingResolver$data,
 >*/);

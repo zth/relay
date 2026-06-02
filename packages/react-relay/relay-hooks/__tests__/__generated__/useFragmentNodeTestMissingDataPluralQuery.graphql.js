@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1643463d82fbfbc51f2060064d662ae5>>
+ * @generated SignedSource<<92049b27e791a622ee503e2bb7d509f1>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,19 +17,19 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type useFragmentNodeTestMissingDataPluralQuery$variables = {|
-  ids: $ReadOnlyArray<string>,
-|};
-export type useFragmentNodeTestMissingDataPluralQuery$data = {|
-  +nodes: ?$ReadOnlyArray<?{|
-    +__typename: string,
-    +id: string,
-  |}>,
-|};
-export type useFragmentNodeTestMissingDataPluralQuery = {|
+export type useFragmentNodeTestMissingDataPluralQuery$variables = {
+  ids: ReadonlyArray<string>,
+};
+export type useFragmentNodeTestMissingDataPluralQuery$data = {
+  readonly nodes: ?ReadonlyArray<?{
+    readonly __typename: string,
+    readonly id: string,
+  }>,
+};
+export type useFragmentNodeTestMissingDataPluralQuery = {
   response: useFragmentNodeTestMissingDataPluralQuery$data,
   variables: useFragmentNodeTestMissingDataPluralQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -76,20 +75,20 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "useFragmentNodeTestMissingDataPluralQuery",
-    "selections": (v1/*: any*/),
+    "selections": (v1/*:: as any*/),
     "type": "Query",
     "abstractKey": null
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "useFragmentNodeTestMissingDataPluralQuery",
-    "selections": (v1/*: any*/)
+    "selections": (v1/*:: as any*/)
   },
   "params": {
     "cacheID": "524f1fe181129da7aac2675d67d5db51",
@@ -103,10 +102,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "006b3d806b873faa5e8f50c5cb9d1ee7";
+  (node/*:: as any*/).hash = "006b3d806b873faa5e8f50c5cb9d1ee7";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   useFragmentNodeTestMissingDataPluralQuery$variables,
   useFragmentNodeTestMissingDataPluralQuery$data,
 >*/);

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<834b1cc235e29a0149d68f66240f01ad>>
+ * @generated SignedSource<<80ba7fa5975b05327892a75c5b06ad05>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,42 +19,42 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { readUpdatableQueryTest_node$fragmentType } from "./readUpdatableQueryTest_node.graphql";
 import type { readUpdatableQueryTest_user$fragmentType } from "./readUpdatableQueryTest_user.graphql";
-export type readUpdatableQueryTestRegularQuery$variables = {||};
-export type readUpdatableQueryTestRegularQuery$data = {|
-  +me: ?{|
-    +__id: string,
-    +__isreadUpdatableQueryTest_node?: "User",
-    +author: ?{|
-      +client_best_friend: ?{|
-        +name: ?string,
-      |},
-      +client_nickname: ?string,
-    |},
-    +id: string,
-    +name: ?string,
-    +$fragmentSpreads: readUpdatableQueryTest_node$fragmentType,
-  |},
-  +node: ?{|
-    +__typename: string,
-    +__id: string,
-    +name?: ?string,
-    +$fragmentSpreads: readUpdatableQueryTest_user$fragmentType,
-  |},
-  +node2: ?{|
-    +name?: ?string,
-    +parents?: $ReadOnlyArray<{|
-      +id: string,
-      +name: ?string,
-      +parents: $ReadOnlyArray<{|
-        +id: string,
-      |}>,
-    |}>,
-  |},
-|};
-export type readUpdatableQueryTestRegularQuery = {|
+export type readUpdatableQueryTestRegularQuery$variables = {};
+export type readUpdatableQueryTestRegularQuery$data = {
+  readonly me: ?{
+    readonly __id: string,
+    readonly __isreadUpdatableQueryTest_node?: "User",
+    readonly author: ?{
+      readonly client_best_friend: ?{
+        readonly name: ?string,
+      },
+      readonly client_nickname: ?string,
+    },
+    readonly id: string,
+    readonly name: ?string,
+    readonly $fragmentSpreads: readUpdatableQueryTest_node$fragmentType,
+  },
+  readonly node: ?{
+    readonly __typename: string,
+    readonly __id: string,
+    readonly name?: ?string,
+    readonly $fragmentSpreads: readUpdatableQueryTest_user$fragmentType,
+  },
+  readonly node2: ?{
+    readonly name?: ?string,
+    readonly parents?: ReadonlyArray<{
+      readonly id: string,
+      readonly name: ?string,
+      readonly parents: ReadonlyArray<{
+        readonly id: string,
+      }>,
+    }>,
+  },
+};
+export type readUpdatableQueryTestRegularQuery = {
   response: readUpdatableQueryTestRegularQuery$data,
   variables: readUpdatableQueryTestRegularQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -81,7 +80,7 @@ v2 = {
   "storageKey": null
 },
 v3 = [
-  (v2/*: any*/)
+  (v2/*:: as any*/)
 ],
 v4 = {
   "alias": null,
@@ -106,7 +105,7 @@ v6 = {
 },
 v7 = {
   "kind": "InlineFragment",
-  "selections": (v3/*: any*/),
+  "selections": (v3/*:: as any*/),
   "type": "User",
   "abstractKey": null
 },
@@ -120,7 +119,7 @@ v8 = [
 v9 = {
   "kind": "InlineFragment",
   "selections": [
-    (v2/*: any*/),
+    (v2/*:: as any*/),
     {
       "alias": null,
       "args": null,
@@ -129,8 +128,8 @@ v9 = {
       "name": "parents",
       "plural": true,
       "selections": [
-        (v1/*: any*/),
-        (v2/*: any*/),
+        (v1/*:: as any*/),
+        (v2/*:: as any*/),
         {
           "alias": null,
           "args": null,
@@ -139,7 +138,7 @@ v9 = {
           "name": "parents",
           "plural": true,
           "selections": [
-            (v1/*: any*/)
+            (v1/*:: as any*/)
           ],
           "storageKey": null
         }
@@ -184,9 +183,9 @@ return {
             "type": "Node",
             "abstractKey": "__isNode"
           },
-          (v0/*: any*/),
-          (v1/*: any*/),
-          (v2/*: any*/),
+          (v0/*:: as any*/),
+          (v1/*:: as any*/),
+          (v2/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -205,10 +204,10 @@ return {
                     "kind": "LinkedField",
                     "name": "client_best_friend",
                     "plural": false,
-                    "selections": (v3/*: any*/),
+                    "selections": (v3/*:: as any*/),
                     "storageKey": null
                   },
-                  (v4/*: any*/)
+                  (v4/*:: as any*/)
                 ]
               }
             ],
@@ -219,7 +218,7 @@ return {
       },
       {
         "alias": null,
-        "args": (v5/*: any*/),
+        "args": (v5/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -230,21 +229,21 @@ return {
             "kind": "FragmentSpread",
             "name": "readUpdatableQueryTest_user"
           },
-          (v6/*: any*/),
-          (v0/*: any*/),
-          (v7/*: any*/)
+          (v6/*:: as any*/),
+          (v0/*:: as any*/),
+          (v7/*:: as any*/)
         ],
         "storageKey": "node(id:\"4\")"
       },
       {
         "alias": "node2",
-        "args": (v8/*: any*/),
+        "args": (v8/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v9/*: any*/)
+          (v9/*:: as any*/)
         ],
         "storageKey": "node(id:\"5\")"
       }
@@ -269,13 +268,13 @@ return {
           {
             "kind": "InlineFragment",
             "selections": [
-              (v6/*: any*/)
+              (v6/*:: as any*/)
             ],
             "type": "Node",
             "abstractKey": "__isNode"
           },
-          (v1/*: any*/),
-          (v2/*: any*/),
+          (v1/*:: as any*/),
+          (v2/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -284,7 +283,7 @@ return {
             "name": "author",
             "plural": false,
             "selections": [
-              (v1/*: any*/),
+              (v1/*:: as any*/),
               {
                 "kind": "ClientExtension",
                 "selections": [
@@ -296,12 +295,12 @@ return {
                     "name": "client_best_friend",
                     "plural": false,
                     "selections": [
-                      (v2/*: any*/),
-                      (v1/*: any*/)
+                      (v2/*:: as any*/),
+                      (v1/*:: as any*/)
                     ],
                     "storageKey": null
                   },
-                  (v4/*: any*/)
+                  (v4/*:: as any*/)
                 ]
               }
             ],
@@ -312,29 +311,29 @@ return {
       },
       {
         "alias": null,
-        "args": (v5/*: any*/),
+        "args": (v5/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v6/*: any*/),
-          (v1/*: any*/),
-          (v7/*: any*/)
+          (v6/*:: as any*/),
+          (v1/*:: as any*/),
+          (v7/*:: as any*/)
         ],
         "storageKey": "node(id:\"4\")"
       },
       {
         "alias": "node2",
-        "args": (v8/*: any*/),
+        "args": (v8/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v6/*: any*/),
-          (v9/*: any*/),
-          (v1/*: any*/)
+          (v6/*:: as any*/),
+          (v9/*:: as any*/),
+          (v1/*:: as any*/)
         ],
         "storageKey": "node(id:\"5\")"
       }
@@ -352,10 +351,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "46eea2f5976dc4bcb1af1d5b7479d9b8";
+  (node/*:: as any*/).hash = "46eea2f5976dc4bcb1af1d5b7479d9b8";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   readUpdatableQueryTestRegularQuery$variables,
   readUpdatableQueryTestRegularQuery$data,
 >*/);

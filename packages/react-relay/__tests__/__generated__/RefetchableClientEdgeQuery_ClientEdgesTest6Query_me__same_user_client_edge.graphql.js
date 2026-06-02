@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8ea39c0a6070c25a68e02cc8a3820ec5>>
+ * @generated SignedSource<<6e91093c830bdee2a6ccedcc9a483f7a>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,21 +23,21 @@ import {upper_name as userUpperNameResolverType} from "../ClientEdges-test.js";
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userUpperNameResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userUpperNameResolverType: (
+(userUpperNameResolverType as (
   rootKey: ClientEdgesTestUpperName$key,
   args: void,
   context: TestResolverContextType,
 ) => ?string);
 declare export opaque type RefetchableClientEdgeQuery_ClientEdgesTest6Query_me__same_user_client_edge$fragmentType: FragmentType;
 type ClientEdgeQuery_ClientEdgesTest6Query_me__same_user_client_edge$variables = any;
-export type RefetchableClientEdgeQuery_ClientEdgesTest6Query_me__same_user_client_edge$data = {|
-  +id: string,
-  +upper_name: ?string,
-  +$fragmentType: RefetchableClientEdgeQuery_ClientEdgesTest6Query_me__same_user_client_edge$fragmentType,
-|};
+export type RefetchableClientEdgeQuery_ClientEdgesTest6Query_me__same_user_client_edge$data = {
+  readonly id: string,
+  readonly upper_name: ?string,
+  readonly $fragmentType: RefetchableClientEdgeQuery_ClientEdgesTest6Query_me__same_user_client_edge$fragmentType,
+};
 export type RefetchableClientEdgeQuery_ClientEdgesTest6Query_me__same_user_client_edge$key = {
-  +$data?: RefetchableClientEdgeQuery_ClientEdgesTest6Query_me__same_user_client_edge$data,
-  +$fragmentSpreads: RefetchableClientEdgeQuery_ClientEdgesTest6Query_me__same_user_client_edge$fragmentType,
+  readonly $data?: RefetchableClientEdgeQuery_ClientEdgesTest6Query_me__same_user_client_edge$data,
+  readonly $fragmentSpreads: RefetchableClientEdgeQuery_ClientEdgesTest6Query_me__same_user_client_edge$fragmentType,
   ...
 };
 */
@@ -87,10 +86,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "330a0878ce30575d8c36e2fdd626c833";
+  (node/*:: as any*/).hash = "330a0878ce30575d8c36e2fdd626c833";
 }
 
-module.exports = ((node/*: any*/)/*: RefetchableFragment<
+module.exports = ((node/*:: as any*/)/*:: as RefetchableFragment<
   RefetchableClientEdgeQuery_ClientEdgesTest6Query_me__same_user_client_edge$fragmentType,
   RefetchableClientEdgeQuery_ClientEdgesTest6Query_me__same_user_client_edge$data,
   ClientEdgeQuery_ClientEdgesTest6Query_me__same_user_client_edge$variables,

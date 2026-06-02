@@ -6,10 +6,12 @@
  */
 
 #![deny(clippy::all)]
+#![allow(clippy::mutable_key_type)] // lsp_types::Uri
 
 mod client;
 pub mod code_action;
 pub mod completion;
+pub mod daemon;
 pub mod diagnostic_reporter;
 mod docblock_resolution_info;
 mod explore_schema_for_type;
@@ -28,8 +30,8 @@ pub mod references;
 pub mod rename;
 mod resolved_types_at_location;
 mod search_schema_items;
-mod server;
-mod shutdown;
+pub mod server;
+pub mod shutdown;
 mod status_reporter;
 pub mod status_updater;
 pub mod text_documents;
@@ -67,6 +69,7 @@ pub use server::LSPState;
 pub use server::Schemas;
 pub use utils::position_to_offset;
 
+#[allow(clippy::large_enum_variant)]
 pub enum Feature {
     ExecutableDocument(ExecutableDocument),
     DocblockIr(DocblockIr),
@@ -98,12 +101,11 @@ where
 {
     let (connection, io_handles) = Connection::stdio();
     debug!("Initialized stdio transport layer");
-    let params = server::initialize(&connection)?;
+    server::initialize(&connection)?;
     debug!("JSON-RPC handshake completed");
     server::run(
         connection,
         config,
-        params,
         perf_logger,
         extra_data_provider,
         schema_documentation_loader,
@@ -144,6 +146,7 @@ mod tests {
     use lsp_server::Connection;
     use lsp_types::ClientCapabilities;
     use lsp_types::InitializeParams;
+    use lsp_types::WorkDoneProgressParams;
 
     use super::client;
     use super::lsp_process_error::LSPProcessResult;
@@ -165,10 +168,12 @@ mod tests {
             workspace_folders: None,
             client_info: None,
             locale: None,
+            work_done_progress_params: WorkDoneProgressParams {
+                work_done_token: None,
+            },
         };
         client::initialize(&client, &init_params, 0);
-        let params = server::initialize(&connection)?;
-        assert_eq!(params, init_params);
+        server::initialize(&connection)?;
         Ok(())
     }
 }

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<121d882061018b32d818400b6e40b218>>
+ * @generated SignedSource<<9704a990dc234f112189c28a0c12ae6a>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,19 +23,19 @@ import {StrongModel as strongModelRelayModelInstanceResolverType} from "../Relay
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `strongModelRelayModelInstanceResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(strongModelRelayModelInstanceResolverType: (
+(strongModelRelayModelInstanceResolverType as (
   id: StrongModel__id$data['id'],
   args: void,
   context: TestResolverContextType,
-) => mixed);
+) => unknown);
 declare export opaque type StrongModel____relay_model_instance$fragmentType: FragmentType;
-export type StrongModel____relay_model_instance$data = {|
-  +__relay_model_instance: $NonMaybeType<ReturnType<typeof strongModelRelayModelInstanceResolverType>>,
-  +$fragmentType: StrongModel____relay_model_instance$fragmentType,
-|};
+export type StrongModel____relay_model_instance$data = {
+  readonly __relay_model_instance: NonNullable<ReturnType<typeof strongModelRelayModelInstanceResolverType>>,
+  readonly $fragmentType: StrongModel____relay_model_instance$fragmentType,
+};
 export type StrongModel____relay_model_instance$key = {
-  +$data?: StrongModel____relay_model_instance$data,
-  +$fragmentSpreads: StrongModel____relay_model_instance$fragmentType,
+  readonly $data?: StrongModel____relay_model_instance$data,
+  readonly $fragmentSpreads: StrongModel____relay_model_instance$fragmentType,
   ...
 };
 */
@@ -65,7 +64,7 @@ var node/*: ReaderFragment*/ = {
   "abstractKey": null
 };
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   StrongModel____relay_model_instance$fragmentType,
   StrongModel____relay_model_instance$data,
 >*/);

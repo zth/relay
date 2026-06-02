@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e3c77db9a9e5653df79b53f704eb568c>>
+ * @generated SignedSource<<de0acd38e4ff7a6befce78028e81c181>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,16 +18,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { Result } from "relay-runtime";
-export type CatchTestRequiredThrowQuery$variables = {||};
-export type CatchTestRequiredThrowQuery$data = {|
-  +me: Result<?{|
-    +name: string,
-  |}, mixed>,
-|};
-export type CatchTestRequiredThrowQuery = {|
+export type CatchTestRequiredThrowQuery$variables = {};
+export type CatchTestRequiredThrowQuery$data = {
+  readonly me: Result<?{
+    readonly name: string,
+  }, unknown>,
+};
+export type CatchTestRequiredThrowQuery = {
   response: CatchTestRequiredThrowQuery$data,
   variables: CatchTestRequiredThrowQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -58,7 +57,7 @@ return {
           "selections": [
             {
               "kind": "RequiredField",
-              "field": (v0/*: any*/),
+              "field": (v0/*:: as any*/),
               "action": "THROW"
             }
           ],
@@ -84,7 +83,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
+          (v0/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -109,10 +108,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "0cd1f80b178868fc4fb8ddb6b5aabc83";
+  (node/*:: as any*/).hash = "0cd1f80b178868fc4fb8ddb6b5aabc83";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   CatchTestRequiredThrowQuery$variables,
   CatchTestRequiredThrowQuery$data,
 >*/);

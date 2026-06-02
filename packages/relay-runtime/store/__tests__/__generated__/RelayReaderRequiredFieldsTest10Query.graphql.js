@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c35b056047dc735ab288ef49b813394c>>
+ * @generated SignedSource<<d6b816ff859698f5c95a5898ee8810ac>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,19 +17,19 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayReaderRequiredFieldsTest10Query$variables = {||};
-export type RelayReaderRequiredFieldsTest10Query$data = {|
-  +me: ?{|
-    +screennames: $ReadOnlyArray<?{|
-      +name: ?string,
-      +service: string,
-    |}>,
-  |},
-|};
-export type RelayReaderRequiredFieldsTest10Query = {|
+export type RelayReaderRequiredFieldsTest10Query$variables = {};
+export type RelayReaderRequiredFieldsTest10Query$data = {
+  readonly me: ?{
+    readonly screennames: ReadonlyArray<?{
+      readonly name: ?string,
+      readonly service: string,
+    }>,
+  },
+};
+export type RelayReaderRequiredFieldsTest10Query = {
   response: RelayReaderRequiredFieldsTest10Query$data,
   variables: RelayReaderRequiredFieldsTest10Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -73,10 +72,10 @@ return {
               "name": "screennames",
               "plural": true,
               "selections": [
-                (v0/*: any*/),
+                (v0/*:: as any*/),
                 {
                   "kind": "RequiredField",
-                  "field": (v1/*: any*/),
+                  "field": (v1/*:: as any*/),
                   "action": "LOG"
                 }
               ],
@@ -113,8 +112,8 @@ return {
             "name": "screennames",
             "plural": true,
             "selections": [
-              (v0/*: any*/),
-              (v1/*: any*/)
+              (v0/*:: as any*/),
+              (v1/*:: as any*/)
             ],
             "storageKey": null
           },
@@ -142,10 +141,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "414e0ad6f131fd6948e5ccfeb6a1d258";
+  (node/*:: as any*/).hash = "414e0ad6f131fd6948e5ccfeb6a1d258";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderRequiredFieldsTest10Query$variables,
   RelayReaderRequiredFieldsTest10Query$data,
 >*/);

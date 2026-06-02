@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f95011d8dff80d1ea583db54ba3896a5>>
+ * @generated SignedSource<<ccab97c7fac482d9a4c7b920f85103a8>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,19 +23,19 @@ import {counter as queryCounterResolverType} from "../LiveCounterResolver.js";
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryCounterResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryCounterResolverType: (
+(queryCounterResolverType as (
   rootKey: LiveCounterResolver$key,
   args: void,
   context: TestResolverContextType,
 ) => LiveState<?number>);
 declare export opaque type CounterPlusOneResolver$fragmentType: FragmentType;
-export type CounterPlusOneResolver$data = {|
-  +counter: $NonMaybeType<?number>,
-  +$fragmentType: CounterPlusOneResolver$fragmentType,
-|};
+export type CounterPlusOneResolver$data = {
+  readonly counter: NonNullable<?number>,
+  readonly $fragmentType: CounterPlusOneResolver$fragmentType,
+};
 export type CounterPlusOneResolver$key = {
-  +$data?: CounterPlusOneResolver$data,
-  +$fragmentSpreads: CounterPlusOneResolver$fragmentType,
+  readonly $data?: CounterPlusOneResolver$data,
+  readonly $fragmentSpreads: CounterPlusOneResolver$fragmentType,
   ...
 };
 */
@@ -70,10 +69,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "5c197a1dfaa6945a727e92cd1996348d";
+  (node/*:: as any*/).hash = "5c197a1dfaa6945a727e92cd1996348d";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   CounterPlusOneResolver$fragmentType,
   CounterPlusOneResolver$data,
 >*/);

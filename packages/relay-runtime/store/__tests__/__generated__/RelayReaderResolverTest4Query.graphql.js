@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<14534e07cee00ca4a0e69b16777a2a44>>
+ * @generated SignedSource<<6120f3f6443e0b0cc20842e8a9dc3d73>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -23,21 +22,21 @@ import {best_friend_greeting as userBestFriendGreetingResolverType} from "../res
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userBestFriendGreetingResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userBestFriendGreetingResolverType: (
+(userBestFriendGreetingResolverType as (
   rootKey: UserBestFriendGreetingResolver$key,
   args: void,
   context: TestResolverContextType,
 ) => ?string);
-export type RelayReaderResolverTest4Query$variables = {||};
-export type RelayReaderResolverTest4Query$data = {|
-  +me: ?{|
-    +best_friend_greeting: ?string,
-  |},
-|};
-export type RelayReaderResolverTest4Query = {|
+export type RelayReaderResolverTest4Query$variables = {};
+export type RelayReaderResolverTest4Query$data = {
+  readonly me: ?{
+    readonly best_friend_greeting: ?string,
+  },
+};
+export type RelayReaderResolverTest4Query = {
   response: RelayReaderResolverTest4Query$data,
   variables: RelayReaderResolverTest4Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -147,7 +146,7 @@ return {
                               "name": "name",
                               "storageKey": null
                             },
-                            (v0/*: any*/)
+                            (v0/*:: as any*/)
                           ],
                           "storageKey": null
                         }
@@ -165,7 +164,7 @@ return {
             "storageKey": null,
             "isOutputType": true
           },
-          (v0/*: any*/)
+          (v0/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -183,10 +182,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "85f26ff589c149207bceb6138ffe3f85";
+  (node/*:: as any*/).hash = "85f26ff589c149207bceb6138ffe3f85";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderResolverTest4Query$variables,
   RelayReaderResolverTest4Query$data,
 >*/);

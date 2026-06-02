@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<be948d33e24f19c49a8e16623f2a0ef8>>
+ * @generated SignedSource<<769545e05b05eee2941ffeda9d0f7ca4>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,18 +18,18 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { useIsParentQueryActiveTestUserFragment$fragmentType } from "./useIsParentQueryActiveTestUserFragment.graphql";
-export type useIsParentQueryActiveTestUserQuery$variables = {|
+export type useIsParentQueryActiveTestUserQuery$variables = {
   id: string,
-|};
-export type useIsParentQueryActiveTestUserQuery$data = {|
-  +node: ?{|
-    +$fragmentSpreads: useIsParentQueryActiveTestUserFragment$fragmentType,
-  |},
-|};
-export type useIsParentQueryActiveTestUserQuery = {|
+};
+export type useIsParentQueryActiveTestUserQuery$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: useIsParentQueryActiveTestUserFragment$fragmentType,
+  },
+};
+export type useIsParentQueryActiveTestUserQuery = {
   response: useIsParentQueryActiveTestUserQuery$data,
   variables: useIsParentQueryActiveTestUserQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -50,14 +49,14 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "useIsParentQueryActiveTestUserQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -77,13 +76,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "useIsParentQueryActiveTestUserQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -134,10 +133,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "6eb3252eb53f89ed77bbdecca56eae94";
+  (node/*:: as any*/).hash = "6eb3252eb53f89ed77bbdecca56eae94";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   useIsParentQueryActiveTestUserQuery$variables,
   useIsParentQueryActiveTestUserQuery$data,
 >*/);

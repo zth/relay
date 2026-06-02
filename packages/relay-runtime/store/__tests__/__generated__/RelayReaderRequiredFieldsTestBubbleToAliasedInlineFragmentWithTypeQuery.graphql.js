@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a8998359fcaf93758be27a502ce02bd0>>
+ * @generated SignedSource<<9f468fcbeae3be5f655d7d33873cfdd0>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,20 +17,20 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayReaderRequiredFieldsTestBubbleToAliasedInlineFragmentWithTypeQuery$variables = {||};
-export type RelayReaderRequiredFieldsTestBubbleToAliasedInlineFragmentWithTypeQuery$data = {|
-  +me: ?{|
-    +requiredFields: ?{|
-      +backgroundImage: {|
-        +uri: string,
-      |},
-    |},
-  |},
-|};
-export type RelayReaderRequiredFieldsTestBubbleToAliasedInlineFragmentWithTypeQuery = {|
+export type RelayReaderRequiredFieldsTestBubbleToAliasedInlineFragmentWithTypeQuery$variables = {};
+export type RelayReaderRequiredFieldsTestBubbleToAliasedInlineFragmentWithTypeQuery$data = {
+  readonly me: ?{
+    readonly requiredFields: ?{
+      readonly backgroundImage: {
+        readonly uri: string,
+      },
+    },
+  },
+};
+export type RelayReaderRequiredFieldsTestBubbleToAliasedInlineFragmentWithTypeQuery = {
   response: RelayReaderRequiredFieldsTestBubbleToAliasedInlineFragmentWithTypeQuery$data,
   variables: RelayReaderRequiredFieldsTestBubbleToAliasedInlineFragmentWithTypeQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -73,7 +72,7 @@ return {
                     "selections": [
                       {
                         "kind": "RequiredField",
-                        "field": (v0/*: any*/),
+                        "field": (v0/*:: as any*/),
                         "action": "LOG"
                       }
                     ],
@@ -117,7 +116,7 @@ return {
             "name": "backgroundImage",
             "plural": false,
             "selections": [
-              (v0/*: any*/)
+              (v0/*:: as any*/)
             ],
             "storageKey": null
           },
@@ -145,10 +144,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "4511503ad7e5191998ea5cb15995a0cc";
+  (node/*:: as any*/).hash = "4511503ad7e5191998ea5cb15995a0cc";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderRequiredFieldsTestBubbleToAliasedInlineFragmentWithTypeQuery$variables,
   RelayReaderRequiredFieldsTestBubbleToAliasedInlineFragmentWithTypeQuery$data,
 >*/);

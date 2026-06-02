@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<934a76bc8eec00bc722a7f844686b32e>>
+ * @generated SignedSource<<bc946418d4119917ba630491fdcc9e3b>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,14 +18,14 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentConditionalSelectionsTestQueryUnconditionalFragment$fragmentType } from "./RelayModernEnvironmentConditionalSelectionsTestQueryUnconditionalFragment.graphql";
-export type RelayModernEnvironmentConditionalSelectionsTestUnconditionalQuery$variables = {||};
-export type RelayModernEnvironmentConditionalSelectionsTestUnconditionalQuery$data = {|
-  +$fragmentSpreads: RelayModernEnvironmentConditionalSelectionsTestQueryUnconditionalFragment$fragmentType,
-|};
-export type RelayModernEnvironmentConditionalSelectionsTestUnconditionalQuery = {|
+export type RelayModernEnvironmentConditionalSelectionsTestUnconditionalQuery$variables = {};
+export type RelayModernEnvironmentConditionalSelectionsTestUnconditionalQuery$data = {
+  readonly $fragmentSpreads: RelayModernEnvironmentConditionalSelectionsTestQueryUnconditionalFragment$fragmentType,
+};
+export type RelayModernEnvironmentConditionalSelectionsTestUnconditionalQuery = {
   response: RelayModernEnvironmentConditionalSelectionsTestUnconditionalQuery$data,
   variables: RelayModernEnvironmentConditionalSelectionsTestUnconditionalQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -89,8 +88,8 @@ return {
                 "name": "__typename",
                 "storageKey": null
               },
-              (v0/*: any*/),
-              (v1/*: any*/)
+              (v0/*:: as any*/),
+              (v1/*:: as any*/)
             ],
             "storageKey": null
           }
@@ -105,8 +104,8 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
-          (v1/*: any*/)
+          (v0/*:: as any*/),
+          (v1/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -124,10 +123,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "3c52fbe71844689c6c28f33c6ff75a9d";
+  (node/*:: as any*/).hash = "3c52fbe71844689c6c28f33c6ff75a9d";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentConditionalSelectionsTestUnconditionalQuery$variables,
   RelayModernEnvironmentConditionalSelectionsTestUnconditionalQuery$data,
 >*/);

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9ee6298ab2ab61c14148a3dcad8bb88f>>
+ * @generated SignedSource<<7fb57ca81b5d5b1ec028110cf291db44>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,7 +23,7 @@ import {account_name as clientAccountAccountNameResolverType} from "../ClientEdg
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `clientAccountAccountNameResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(clientAccountAccountNameResolverType: (
+(clientAccountAccountNameResolverType as (
   rootKey: ClientEdgeToClientObjectTestClientRootNameFragment$key,
   args: void,
   context: TestResolverContextType,
@@ -32,24 +31,24 @@ import type { TestResolverContextType } from "../../../mutations/__tests__/TestR
 import {account as queryAccountResolverType} from "../ClientEdgeToClientObject-test.js";
 // Type assertion validating that `queryAccountResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryAccountResolverType: (
+(queryAccountResolverType as (
   args: void,
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
-export type ClientEdgeToClientObjectTestClientRootFragmentQuery$variables = {||};
-export type ClientEdgeToClientObjectTestClientRootFragmentQuery$data = {|
-  +account: ?{|
-    +__id: string,
-    +account_name: ?string,
-    +id: ?string,
-  |},
-|};
-export type ClientEdgeToClientObjectTestClientRootFragmentQuery = {|
+) => ?{
+  readonly id: DataID,
+});
+export type ClientEdgeToClientObjectTestClientRootFragmentQuery$variables = {};
+export type ClientEdgeToClientObjectTestClientRootFragmentQuery$data = {
+  readonly account: ?{
+    readonly __id: string,
+    readonly account_name: ?string,
+    readonly id: ?string,
+  },
+};
+export type ClientEdgeToClientObjectTestClientRootFragmentQuery = {
   response: ClientEdgeToClientObjectTestClientRootFragmentQuery$data,
   variables: ClientEdgeToClientObjectTestClientRootFragmentQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){
@@ -80,6 +79,7 @@ return {
         "kind": "ClientEdgeToClientObject",
         "concreteType": "ClientAccount",
         "modelResolvers": null,
+        "serverObjectOperations": null,
         "backingField": {
           "alias": null,
           "args": null,
@@ -97,8 +97,8 @@ return {
           "name": "account",
           "plural": false,
           "selections": [
-            (v0/*: any*/),
-            (v1/*: any*/),
+            (v0/*:: as any*/),
+            (v1/*:: as any*/),
             {
               "alias": null,
               "args": null,
@@ -144,8 +144,8 @@ return {
           "name": "account",
           "plural": false,
           "selections": [
-            (v0/*: any*/),
-            (v1/*: any*/),
+            (v0/*:: as any*/),
+            (v1/*:: as any*/),
             {
               "name": "account_name",
               "args": null,
@@ -158,7 +158,7 @@ return {
                     "fragment": {
                       "kind": "InlineFragment",
                       "selections": [
-                        (v1/*: any*/)
+                        (v1/*:: as any*/)
                       ],
                       "type": "ClientAccount",
                       "abstractKey": null
@@ -193,10 +193,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "c9e60b20e5eac19fb837bd03824b4ff2";
+  (node/*:: as any*/).hash = "c9e60b20e5eac19fb837bd03824b4ff2";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   ClientEdgeToClientObjectTestClientRootFragmentQuery$variables,
   ClientEdgeToClientObjectTestClientRootFragmentQuery$data,
 >*/);

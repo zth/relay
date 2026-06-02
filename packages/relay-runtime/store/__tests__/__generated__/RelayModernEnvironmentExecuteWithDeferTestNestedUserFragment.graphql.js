@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ffe521969074032c47fe8740bc7a603b>>
+ * @generated SignedSource<<60b24bc2cfe85a2bfcd86040b7a47cf6>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,14 +20,14 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { RelayModernEnvironmentExecuteWithDeferTestNestedInnerUserFragment$fragmentType } from "./RelayModernEnvironmentExecuteWithDeferTestNestedInnerUserFragment.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentExecuteWithDeferTestNestedUserFragment$fragmentType: FragmentType;
-export type RelayModernEnvironmentExecuteWithDeferTestNestedUserFragment$data = {|
-  +id: string,
-  +$fragmentSpreads: RelayModernEnvironmentExecuteWithDeferTestNestedInnerUserFragment$fragmentType,
-  +$fragmentType: RelayModernEnvironmentExecuteWithDeferTestNestedUserFragment$fragmentType,
-|};
+export type RelayModernEnvironmentExecuteWithDeferTestNestedUserFragment$data = {
+  readonly id: string,
+  readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithDeferTestNestedInnerUserFragment$fragmentType,
+  readonly $fragmentType: RelayModernEnvironmentExecuteWithDeferTestNestedUserFragment$fragmentType,
+};
 export type RelayModernEnvironmentExecuteWithDeferTestNestedUserFragment$key = {
-  +$data?: RelayModernEnvironmentExecuteWithDeferTestNestedUserFragment$data,
-  +$fragmentSpreads: RelayModernEnvironmentExecuteWithDeferTestNestedUserFragment$fragmentType,
+  readonly $data?: RelayModernEnvironmentExecuteWithDeferTestNestedUserFragment$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithDeferTestNestedUserFragment$fragmentType,
   ...
 };
 */
@@ -62,10 +61,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "c4051f6b233af6bcc5106d1160dac7db";
+  (node/*:: as any*/).hash = "c4051f6b233af6bcc5106d1160dac7db";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayModernEnvironmentExecuteWithDeferTestNestedUserFragment$fragmentType,
   RelayModernEnvironmentExecuteWithDeferTestNestedUserFragment$data,
 >*/);

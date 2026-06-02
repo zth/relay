@@ -100,7 +100,7 @@ pub fn build_operation_variable_definitions(
         .chain(fragment.variable_definitions.iter())
         .cloned()
         .collect();
-    result.sort_unstable_by(|l, r| l.name.item.cmp(&r.name.item));
+    result.sort_unstable_by_key(|l| l.name.item);
     result
 }
 
@@ -148,11 +148,11 @@ pub fn build_fragment_metadata_as_directive(
 }
 
 pub fn uses_prefetchable_pagination_in_connection(fragment: &FragmentDefinition) -> bool {
-    if let Some(metadatas) = extract_connection_metadata_from_directive(&fragment.directives) {
-        if metadatas.len() == 1 {
-            let metadata = &metadatas[0];
-            return metadata.is_prefetchable_pagination;
-        }
+    if let Some(metadatas) = extract_connection_metadata_from_directive(&fragment.directives)
+        && metadatas.len() == 1
+    {
+        let metadata = &metadatas[0];
+        return metadata.is_prefetchable_pagination;
     }
     false
 }

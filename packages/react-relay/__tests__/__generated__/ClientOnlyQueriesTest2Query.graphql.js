@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<30c863335fc36186c9a5448b91b55ce5>>
+ * @generated SignedSource<<1783a7b498305214a71c5e7cc0338c3d>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -22,20 +21,20 @@ import {hello as queryHelloResolverType} from "../../../relay-runtime/store/__te
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryHelloResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryHelloResolverType: (
-  args: {|
+(queryHelloResolverType as (
+  args: {
     world: string,
-  |},
+  },
   context: TestResolverContextType,
 ) => ?string);
-export type ClientOnlyQueriesTest2Query$variables = {||};
-export type ClientOnlyQueriesTest2Query$data = {|
-  +hello: ?string,
-|};
-export type ClientOnlyQueriesTest2Query = {|
+export type ClientOnlyQueriesTest2Query$variables = {};
+export type ClientOnlyQueriesTest2Query$data = {
+  readonly hello: ?string,
+};
+export type ClientOnlyQueriesTest2Query = {
   response: ClientOnlyQueriesTest2Query$data,
   variables: ClientOnlyQueriesTest2Query$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){
@@ -58,7 +57,7 @@ return {
         "selections": [
           {
             "alias": null,
-            "args": (v0/*: any*/),
+            "args": (v0/*:: as any*/),
             "fragment": null,
             "kind": "RelayResolver",
             "name": "hello",
@@ -82,7 +81,7 @@ return {
         "selections": [
           {
             "name": "hello",
-            "args": (v0/*: any*/),
+            "args": (v0/*:: as any*/),
             "fragment": null,
             "kind": "RelayResolver",
             "storageKey": "hello(world:\"World\")",
@@ -104,10 +103,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "42a67a5a5af91776ffbd2e05505b5001";
+  (node/*:: as any*/).hash = "42a67a5a5af91776ffbd2e05505b5001";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   ClientOnlyQueriesTest2Query$variables,
   ClientOnlyQueriesTest2Query$data,
 >*/);

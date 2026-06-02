@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ae33f4ea5c0717fc08b0a1597597cb9f>>
+ * @generated SignedSource<<028e0d262301416ed30c1cf6fe80058e>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,16 +18,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentSubscriptionWithResolverContextTestUserFragment$fragmentType } from "./RelayModernEnvironmentSubscriptionWithResolverContextTestUserFragment.graphql";
-export type RelayModernEnvironmentSubscriptionWithResolverContextTestParentQuery$variables = {||};
-export type RelayModernEnvironmentSubscriptionWithResolverContextTestParentQuery$data = {|
-  +me: ?{|
-    +$fragmentSpreads: RelayModernEnvironmentSubscriptionWithResolverContextTestUserFragment$fragmentType,
-  |},
-|};
-export type RelayModernEnvironmentSubscriptionWithResolverContextTestParentQuery = {|
+export type RelayModernEnvironmentSubscriptionWithResolverContextTestParentQuery$variables = {};
+export type RelayModernEnvironmentSubscriptionWithResolverContextTestParentQuery$data = {
+  readonly me: ?{
+    readonly $fragmentSpreads: RelayModernEnvironmentSubscriptionWithResolverContextTestUserFragment$fragmentType,
+  },
+};
+export type RelayModernEnvironmentSubscriptionWithResolverContextTestParentQuery = {
   response: RelayModernEnvironmentSubscriptionWithResolverContextTestParentQuery$data,
   variables: RelayModernEnvironmentSubscriptionWithResolverContextTestParentQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {
@@ -115,10 +114,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "51bb39abe5fa87455d7805c59b5def94";
+  (node/*:: as any*/).hash = "51bb39abe5fa87455d7805c59b5def94";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentSubscriptionWithResolverContextTestParentQuery$variables,
   RelayModernEnvironmentSubscriptionWithResolverContextTestParentQuery$data,
 >*/);

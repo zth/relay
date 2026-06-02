@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4ae080c44a4cbfb87c57b90f80c93e7e>>
+ * @generated SignedSource<<dd1eb3fe52b9eb43d2a523510abfa009>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,25 +19,25 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment$fragmentType: FragmentType;
-export type RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment$data = {|
-  +newsFeed: ?{|
-    +edges: ?$ReadOnlyArray<?{|
-      +cursor: ?string,
-      +node: ?{|
-        +feedback: ?{|
-          +actors: ?$ReadOnlyArray<?{|
-            +name: ?string,
-          |}>,
-        |},
-        +id: string,
-      |},
-    |}>,
-  |},
-  +$fragmentType: RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment$fragmentType,
-|};
+export type RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment$data = {
+  readonly newsFeed: ?{
+    readonly edges: ?ReadonlyArray<?{
+      readonly cursor: ?string,
+      readonly node: ?{
+        readonly feedback: ?{
+          readonly actors: ?ReadonlyArray<?{
+            readonly name: ?string,
+          }>,
+        },
+        readonly id: string,
+      },
+    }>,
+  },
+  readonly $fragmentType: RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment$fragmentType,
+};
 export type RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment$key = {
-  +$data?: RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment$data,
-  +$fragmentSpreads: RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment$fragmentType,
+  readonly $data?: RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment$fragmentType,
   ...
 };
 */
@@ -152,10 +151,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "df9a99d9c87fbf7fdf13ebbd6b8390c6";
+  (node/*:: as any*/).hash = "df9a99d9c87fbf7fdf13ebbd6b8390c6";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment$fragmentType,
   RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment$data,
 >*/);

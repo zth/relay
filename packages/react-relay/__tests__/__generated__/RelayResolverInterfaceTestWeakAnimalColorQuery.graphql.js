@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c62068a2f1bce04dac16f723c0d6ff94>>
+ * @generated SignedSource<<a831366f7357c6ccfe0bc2dc61c84c70>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -23,28 +22,28 @@ import {weak_animal as queryWeakAnimalResolverType} from "../../../relay-runtime
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryWeakAnimalResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryWeakAnimalResolverType: (
-  args: {|
+(queryWeakAnimalResolverType as (
+  args: {
     request: WeakAnimalRequest,
-  |},
+  },
   context: TestResolverContextType,
 ) => ?Query__weak_animal$normalization);
 import type { Query__weak_animal$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__weak_animal$normalization.graphql";
-export type WeakAnimalRequest = {|
+export type WeakAnimalRequest = {
   ofType: string,
-|};
-export type RelayResolverInterfaceTestWeakAnimalColorQuery$variables = {|
+};
+export type RelayResolverInterfaceTestWeakAnimalColorQuery$variables = {
   request: WeakAnimalRequest,
-|};
-export type RelayResolverInterfaceTestWeakAnimalColorQuery$data = {|
-  +weak_animal: ?{|
-    +$fragmentSpreads: RelayResolverInterfaceTestWeakAnimalColorFragment$fragmentType,
-  |},
-|};
-export type RelayResolverInterfaceTestWeakAnimalColorQuery = {|
+};
+export type RelayResolverInterfaceTestWeakAnimalColorQuery$data = {
+  readonly weak_animal: ?{
+    readonly $fragmentSpreads: RelayResolverInterfaceTestWeakAnimalColorFragment$fragmentType,
+  },
+};
+export type RelayResolverInterfaceTestWeakAnimalColorQuery = {
   response: RelayResolverInterfaceTestWeakAnimalColorQuery$data,
   variables: RelayResolverInterfaceTestWeakAnimalColorQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){
@@ -73,7 +72,7 @@ v2 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": {
       "hasClientEdges": true
@@ -84,9 +83,10 @@ return {
         "kind": "ClientEdgeToClientObject",
         "concreteType": null,
         "modelResolvers": null,
+        "serverObjectOperations": null,
         "backingField": {
           "alias": null,
-          "args": (v1/*: any*/),
+          "args": (v1/*:: as any*/),
           "fragment": null,
           "kind": "RelayResolver",
           "name": "weak_animal",
@@ -101,7 +101,7 @@ return {
         },
         "linkedField": {
           "alias": null,
-          "args": (v1/*: any*/),
+          "args": (v1/*:: as any*/),
           "concreteType": null,
           "kind": "LinkedField",
           "name": "weak_animal",
@@ -122,7 +122,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayResolverInterfaceTestWeakAnimalColorQuery",
     "selections": [
@@ -130,7 +130,7 @@ return {
         "kind": "ClientEdgeToClientObject",
         "backingField": {
           "name": "weak_animal",
-          "args": (v1/*: any*/),
+          "args": (v1/*:: as any*/),
           "fragment": null,
           "kind": "RelayResolver",
           "storageKey": null,
@@ -138,7 +138,7 @@ return {
         },
         "linkedField": {
           "alias": null,
-          "args": (v1/*: any*/),
+          "args": (v1/*:: as any*/),
           "concreteType": null,
           "kind": "LinkedField",
           "name": "weak_animal",
@@ -159,7 +159,7 @@ return {
                   "args": null,
                   "fragment": {
                     "kind": "InlineFragment",
-                    "selections": (v2/*: any*/),
+                    "selections": (v2/*:: as any*/),
                     "type": "PurpleOctopus",
                     "abstractKey": null
                   },
@@ -179,7 +179,7 @@ return {
                   "args": null,
                   "fragment": {
                     "kind": "InlineFragment",
-                    "selections": (v2/*: any*/),
+                    "selections": (v2/*:: as any*/),
                     "type": "RedOctopus",
                     "abstractKey": null
                   },
@@ -215,10 +215,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "b042ac45639bb10096cef34450b19b77";
+  (node/*:: as any*/).hash = "b042ac45639bb10096cef34450b19b77";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   RelayResolverInterfaceTestWeakAnimalColorQuery$variables,
   RelayResolverInterfaceTestWeakAnimalColorQuery$data,
 >*/);

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b5ca6e688adc4ecf833da4b30e193ad0>>
+ * @generated SignedSource<<278ce04f69eb8a234f510f766611641a>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,20 +19,20 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type ReactRelayPaginationContainerTestUserFragment$fragmentType: FragmentType;
-export type ReactRelayPaginationContainerTestUserFragment$data = {|
-  +friends: ?{|
-    +edges: ?$ReadOnlyArray<?{|
-      +node: ?{|
-        +id: string,
-      |},
-    |}>,
-  |},
-  +id: string,
-  +$fragmentType: ReactRelayPaginationContainerTestUserFragment$fragmentType,
-|};
+export type ReactRelayPaginationContainerTestUserFragment$data = {
+  readonly friends: ?{
+    readonly edges: ?ReadonlyArray<?{
+      readonly node: ?{
+        readonly id: string,
+      },
+    }>,
+  },
+  readonly id: string,
+  readonly $fragmentType: ReactRelayPaginationContainerTestUserFragment$fragmentType,
+};
 export type ReactRelayPaginationContainerTestUserFragment$key = {
-  +$data?: ReactRelayPaginationContainerTestUserFragment$data,
-  +$fragmentSpreads: ReactRelayPaginationContainerTestUserFragment$fragmentType,
+  readonly $data?: ReactRelayPaginationContainerTestUserFragment$data,
+  readonly $fragmentSpreads: ReactRelayPaginationContainerTestUserFragment$fragmentType,
   ...
 };
 */
@@ -82,7 +81,7 @@ return {
   },
   "name": "ReactRelayPaginationContainerTestUserFragment",
   "selections": [
-    (v0/*: any*/),
+    (v0/*:: as any*/),
     {
       "alias": "friends",
       "args": [
@@ -118,7 +117,7 @@ return {
               "name": "node",
               "plural": false,
               "selections": [
-                (v0/*: any*/),
+                (v0/*:: as any*/),
                 {
                   "alias": null,
                   "args": null,
@@ -174,10 +173,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "5a4b52b20fc7018629cb08c0607e6dbc";
+  (node/*:: as any*/).hash = "5a4b52b20fc7018629cb08c0607e6dbc";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   ReactRelayPaginationContainerTestUserFragment$fragmentType,
   ReactRelayPaginationContainerTestUserFragment$data,
 >*/);

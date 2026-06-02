@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a48c53da834b284641e681ca142a2671>>
+ * @generated SignedSource<<19235480adcf6fd6b5ccfecff46f2473>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,20 +18,20 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentCheckWithGlobalInvalidationTestUserFragment$fragmentType } from "./RelayModernEnvironmentCheckWithGlobalInvalidationTestUserFragment.graphql";
-export type RelayModernEnvironmentCheckWithGlobalInvalidationTest2ParentQuery$variables = {|
-  size: $ReadOnlyArray<?number>,
-|};
-export type RelayModernEnvironmentCheckWithGlobalInvalidationTest2ParentQuery$data = {|
-  +me: ?{|
-    +id: string,
-    +name: ?string,
-    +$fragmentSpreads: RelayModernEnvironmentCheckWithGlobalInvalidationTestUserFragment$fragmentType,
-  |},
-|};
-export type RelayModernEnvironmentCheckWithGlobalInvalidationTest2ParentQuery = {|
+export type RelayModernEnvironmentCheckWithGlobalInvalidationTest2ParentQuery$variables = {
+  size: ReadonlyArray<?number>,
+};
+export type RelayModernEnvironmentCheckWithGlobalInvalidationTest2ParentQuery$data = {
+  readonly me: ?{
+    readonly id: string,
+    readonly name: ?string,
+    readonly $fragmentSpreads: RelayModernEnvironmentCheckWithGlobalInvalidationTestUserFragment$fragmentType,
+  },
+};
+export type RelayModernEnvironmentCheckWithGlobalInvalidationTest2ParentQuery = {
   response: RelayModernEnvironmentCheckWithGlobalInvalidationTest2ParentQuery$data,
   variables: RelayModernEnvironmentCheckWithGlobalInvalidationTest2ParentQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -59,7 +58,7 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentCheckWithGlobalInvalidationTest2ParentQuery",
@@ -72,8 +71,8 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v1/*: any*/),
-          (v2/*: any*/),
+          (v1/*:: as any*/),
+          (v2/*:: as any*/),
           {
             "kind": "Defer",
             "selections": [
@@ -93,7 +92,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentCheckWithGlobalInvalidationTest2ParentQuery",
     "selections": [
@@ -105,8 +104,8 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v1/*: any*/),
-          (v2/*: any*/),
+          (v1/*:: as any*/),
+          (v2/*:: as any*/),
           {
             "if": null,
             "kind": "Defer",
@@ -155,10 +154,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "a8ccb92b8e2653a27d1d12558fe72ee4";
+  (node/*:: as any*/).hash = "a8ccb92b8e2653a27d1d12558fe72ee4";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentCheckWithGlobalInvalidationTest2ParentQuery$variables,
   RelayModernEnvironmentCheckWithGlobalInvalidationTest2ParentQuery$data,
 >*/);

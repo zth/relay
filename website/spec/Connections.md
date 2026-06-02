@@ -337,7 +337,7 @@ and `endCursor`, both of which return opaque strings.  The fields
 `startCursor` and `endCursor` can be null if there are no results.
 
 `hasPreviousPage` is used to indicate whether more edges exist prior to the set
-defined by the clients arguments. If the client is paginating with
+defined by the client's arguments. If the client is paginating with
 `last`/`before`, then the server must return {true} if prior edges exist,
 otherwise {false}. If the client is paginating with `first`/`after`, then the
 client may return {true} if edges prior to `after` exist, if it can do so
@@ -352,7 +352,7 @@ HasPreviousPage(allEdges, before, after, first, last):
   * Return {false}.
 
 `hasNextPage` is used to indicate whether more edges exist following the set
-defined by the clients arguments. If the client is paginating with
+defined by the client's arguments. If the client is paginating with
 `first`/`after`, then the server must return {true} if further edges exist,
 otherwise {false}. If the client is paginating with `last`/`before`, then the
 client may return {true} if edges further from `before` exist, if it can do

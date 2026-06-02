@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b4a023508741e0beb78ede6512e04108>>
+ * @generated SignedSource<<ed9d406fe441e35677a07ef1ab68d62b>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,25 +19,25 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { ReactRelayPaginationContainerTestNoConnectionOnFragmentUserFragment$fragmentType } from "./ReactRelayPaginationContainerTestNoConnectionOnFragmentUserFragment.graphql";
 import type { ReactRelayPaginationContainerTestNoConnectionOnFragmentViewerFragment$fragmentType } from "./ReactRelayPaginationContainerTestNoConnectionOnFragmentViewerFragment.graphql";
-export type ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQuery$variables = {|
+export type ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQuery$variables = {
   after?: ?string,
   count: number,
   id: string,
-  orderby?: ?$ReadOnlyArray<?string>,
-|};
-export type ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQuery$data = {|
-  +node: ?{|
-    +id: string,
-    +$fragmentSpreads: ReactRelayPaginationContainerTestNoConnectionOnFragmentUserFragment$fragmentType,
-  |},
-  +viewer: ?{|
-    +$fragmentSpreads: ReactRelayPaginationContainerTestNoConnectionOnFragmentViewerFragment$fragmentType,
-  |},
-|};
-export type ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQuery = {|
+  orderby?: ?ReadonlyArray<?string>,
+};
+export type ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQuery$data = {
+  readonly node: ?{
+    readonly id: string,
+    readonly $fragmentSpreads: ReactRelayPaginationContainerTestNoConnectionOnFragmentUserFragment$fragmentType,
+  },
+  readonly viewer: ?{
+    readonly $fragmentSpreads: ReactRelayPaginationContainerTestNoConnectionOnFragmentViewerFragment$fragmentType,
+  },
+};
+export type ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQuery = {
   response: ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQuery$data,
   variables: ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -104,7 +103,7 @@ v4 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQuery",
@@ -127,13 +126,13 @@ return {
       },
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "args": null,
             "kind": "FragmentSpread",
@@ -148,7 +147,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQuery",
     "selections": [
@@ -168,8 +167,8 @@ return {
             "name": "actor",
             "plural": false,
             "selections": [
-              (v3/*: any*/),
-              (v2/*: any*/)
+              (v3/*:: as any*/),
+              (v2/*:: as any*/)
             ],
             "storageKey": null
           }
@@ -178,20 +177,20 @@ return {
       },
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v3/*: any*/),
-          (v2/*: any*/),
+          (v3/*:: as any*/),
+          (v2/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
               {
                 "alias": null,
-                "args": (v4/*: any*/),
+                "args": (v4/*:: as any*/),
                 "concreteType": "FriendsConnection",
                 "kind": "LinkedField",
                 "name": "friends",
@@ -213,8 +212,8 @@ return {
                         "name": "node",
                         "plural": false,
                         "selections": [
-                          (v2/*: any*/),
-                          (v3/*: any*/)
+                          (v2/*:: as any*/),
+                          (v3/*:: as any*/)
                         ],
                         "storageKey": null
                       },
@@ -258,7 +257,7 @@ return {
               },
               {
                 "alias": null,
-                "args": (v4/*: any*/),
+                "args": (v4/*:: as any*/),
                 "filters": [
                   "orderby"
                 ],
@@ -288,10 +287,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "66bbe4963a808c62bf186f33395775b7";
+  (node/*:: as any*/).hash = "66bbe4963a808c62bf186f33395775b7";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQuery$variables,
   ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQuery$data,
 >*/);

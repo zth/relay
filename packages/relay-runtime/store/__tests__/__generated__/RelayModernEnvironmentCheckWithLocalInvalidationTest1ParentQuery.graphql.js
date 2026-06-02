@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7623b2c743aaf71c0f3096f6b187e897>>
+ * @generated SignedSource<<7d8f5f4142828ee9549e9ea7864ecbe7>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,22 +17,22 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayModernEnvironmentCheckWithLocalInvalidationTest1ParentQuery$variables = {|
-  size: $ReadOnlyArray<?number>,
-|};
-export type RelayModernEnvironmentCheckWithLocalInvalidationTest1ParentQuery$data = {|
-  +me: ?{|
-    +id: string,
-    +name: ?string,
-    +profilePicture: ?{|
-      +uri: ?string,
-    |},
-  |},
-|};
-export type RelayModernEnvironmentCheckWithLocalInvalidationTest1ParentQuery = {|
+export type RelayModernEnvironmentCheckWithLocalInvalidationTest1ParentQuery$variables = {
+  size: ReadonlyArray<?number>,
+};
+export type RelayModernEnvironmentCheckWithLocalInvalidationTest1ParentQuery$data = {
+  readonly me: ?{
+    readonly id: string,
+    readonly name: ?string,
+    readonly profilePicture: ?{
+      readonly uri: ?string,
+    },
+  },
+};
+export type RelayModernEnvironmentCheckWithLocalInvalidationTest1ParentQuery = {
   response: RelayModernEnvironmentCheckWithLocalInvalidationTest1ParentQuery$data,
   variables: RelayModernEnvironmentCheckWithLocalInvalidationTest1ParentQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -97,20 +96,20 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentCheckWithLocalInvalidationTest1ParentQuery",
-    "selections": (v1/*: any*/),
+    "selections": (v1/*:: as any*/),
     "type": "Query",
     "abstractKey": null
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentCheckWithLocalInvalidationTest1ParentQuery",
-    "selections": (v1/*: any*/)
+    "selections": (v1/*:: as any*/)
   },
   "params": {
     "cacheID": "f1351fcb2d3c94223a741d61556ea616",
@@ -124,10 +123,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "77bacd5e539f8002e558736260042f8c";
+  (node/*:: as any*/).hash = "77bacd5e539f8002e558736260042f8c";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentCheckWithLocalInvalidationTest1ParentQuery$variables,
   RelayModernEnvironmentCheckWithLocalInvalidationTest1ParentQuery$data,
 >*/);

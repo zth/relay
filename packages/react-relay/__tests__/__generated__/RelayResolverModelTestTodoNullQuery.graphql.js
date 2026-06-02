@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9edf424e72a960b724f97061f861ceda>>
+ * @generated SignedSource<<5f2b93a3ee3fcc147154dfcfea525c94>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -23,22 +22,22 @@ import {todo_model_null as queryTodoModelNullResolverType} from "../../../relay-
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryTodoModelNullResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryTodoModelNullResolverType: (
+(queryTodoModelNullResolverType as (
   args: void,
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
-export type RelayResolverModelTestTodoNullQuery$variables = {||};
-export type RelayResolverModelTestTodoNullQuery$data = {|
-  +todo_model_null: ?{|
-    +id: string,
-  |},
-|};
-export type RelayResolverModelTestTodoNullQuery = {|
+) => ?{
+  readonly id: DataID,
+});
+export type RelayResolverModelTestTodoNullQuery$variables = {};
+export type RelayResolverModelTestTodoNullQuery$data = {
+  readonly todo_model_null: ?{
+    readonly id: string,
+  },
+};
+export type RelayResolverModelTestTodoNullQuery = {
   response: RelayResolverModelTestTodoNullQuery$data,
   variables: RelayResolverModelTestTodoNullQuery$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){
@@ -87,6 +86,7 @@ return {
             "path": "todo_model_null.__relay_model_instance"
           }
         },
+        "serverObjectOperations": null,
         "backingField": {
           "alias": null,
           "args": null,
@@ -96,7 +96,7 @@ return {
           "resolverModule": require('../../../relay-runtime/store/__tests__/resolvers/TodoModel').todo_model_null,
           "path": "todo_model_null"
         },
-        "linkedField": (v0/*: any*/)
+        "linkedField": (v0/*:: as any*/)
       }
     ],
     "type": "Query",
@@ -118,7 +118,7 @@ return {
           "storageKey": null,
           "isOutputType": false
         },
-        "linkedField": (v0/*: any*/)
+        "linkedField": (v0/*:: as any*/)
       }
     ]
   },
@@ -134,10 +134,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "206392633843e125a92d4daffb6de27d";
+  (node/*:: as any*/).hash = "206392633843e125a92d4daffb6de27d";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   RelayResolverModelTestTodoNullQuery$variables,
   RelayResolverModelTestTodoNullQuery$data,
 >*/);

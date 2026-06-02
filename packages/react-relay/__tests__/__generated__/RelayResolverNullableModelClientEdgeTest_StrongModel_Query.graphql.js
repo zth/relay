@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3387d6019d487ace12a8690a20e2e40e>>
+ * @generated SignedSource<<d93a3a4495a05b2b2c15102945e173c4>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,30 +23,30 @@ import {edge_to_strong_model_does_not_exist as queryEdgeToStrongModelDoesNotExis
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryEdgeToStrongModelDoesNotExistResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryEdgeToStrongModelDoesNotExistResolverType: (
+(queryEdgeToStrongModelDoesNotExistResolverType as (
   args: void,
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
+) => ?{
+  readonly id: DataID,
+});
 import {name as strongModelNameResolverType} from "../RelayResolverNullableModelClientEdge-test.js";
 // Type assertion validating that `strongModelNameResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(strongModelNameResolverType: (
+(strongModelNameResolverType as (
   __relay_model_instance: StrongModel____relay_model_instance$data['__relay_model_instance'],
   args: void,
   context: TestResolverContextType,
 ) => ?string);
-export type RelayResolverNullableModelClientEdgeTest_StrongModel_Query$variables = {||};
-export type RelayResolverNullableModelClientEdgeTest_StrongModel_Query$data = {|
-  +edge_to_strong_model_does_not_exist: ?{|
-    +name: ?string,
-  |},
-|};
-export type RelayResolverNullableModelClientEdgeTest_StrongModel_Query = {|
+export type RelayResolverNullableModelClientEdgeTest_StrongModel_Query$variables = {};
+export type RelayResolverNullableModelClientEdgeTest_StrongModel_Query$data = {
+  readonly edge_to_strong_model_does_not_exist: ?{
+    readonly name: ?string,
+  },
+};
+export type RelayResolverNullableModelClientEdgeTest_StrongModel_Query = {
   response: RelayResolverNullableModelClientEdgeTest_StrongModel_Query$data,
   variables: RelayResolverNullableModelClientEdgeTest_StrongModel_Query$variables,
-|};
+};
 */
 
 var node/*: ClientRequest*/ = (function(){
@@ -85,6 +84,7 @@ return {
             "path": "edge_to_strong_model_does_not_exist.__relay_model_instance"
           }
         },
+        "serverObjectOperations": null,
         "backingField": {
           "alias": null,
           "args": null,
@@ -159,7 +159,7 @@ return {
                     "fragment": {
                       "kind": "InlineFragment",
                       "selections": [
-                        (v0/*: any*/)
+                        (v0/*:: as any*/)
                       ],
                       "type": "StrongModel",
                       "abstractKey": null
@@ -176,7 +176,7 @@ return {
               "storageKey": null,
               "isOutputType": true
             },
-            (v0/*: any*/)
+            (v0/*:: as any*/)
           ],
           "storageKey": null
         }
@@ -195,10 +195,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "22ad42880cde32f3213c37be50f8dadd";
+  (node/*:: as any*/).hash = "22ad42880cde32f3213c37be50f8dadd";
 }
 
-module.exports = ((node/*: any*/)/*: ClientQuery<
+module.exports = ((node/*:: as any*/)/*:: as ClientQuery<
   RelayResolverNullableModelClientEdgeTest_StrongModel_Query$variables,
   RelayResolverNullableModelClientEdgeTest_StrongModel_Query$data,
 >*/);

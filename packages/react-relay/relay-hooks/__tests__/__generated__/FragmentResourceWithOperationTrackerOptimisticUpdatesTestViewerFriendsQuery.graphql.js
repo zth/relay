@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c4c9a80dbbdc9115ab8bb01c1260b1fa>>
+ * @generated SignedSource<<11e08deba00f071399f6009e6eb58559>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,24 +18,24 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { FragmentResourceWithOperationTrackerOptimisticUpdatesTestFragment$fragmentType } from "./FragmentResourceWithOperationTrackerOptimisticUpdatesTestFragment.graphql";
-export type FragmentResourceWithOperationTrackerOptimisticUpdatesTestViewerFriendsQuery$variables = {||};
-export type FragmentResourceWithOperationTrackerOptimisticUpdatesTestViewerFriendsQuery$data = {|
-  +viewer: ?{|
-    +actor: ?{|
-      +friends: ?{|
-        +edges: ?$ReadOnlyArray<?{|
-          +node: ?{|
-            +$fragmentSpreads: FragmentResourceWithOperationTrackerOptimisticUpdatesTestFragment$fragmentType,
-          |},
-        |}>,
-      |},
-    |},
-  |},
-|};
-export type FragmentResourceWithOperationTrackerOptimisticUpdatesTestViewerFriendsQuery = {|
+export type FragmentResourceWithOperationTrackerOptimisticUpdatesTestViewerFriendsQuery$variables = {};
+export type FragmentResourceWithOperationTrackerOptimisticUpdatesTestViewerFriendsQuery$data = {
+  readonly viewer: ?{
+    readonly actor: ?{
+      readonly friends: ?{
+        readonly edges: ?ReadonlyArray<?{
+          readonly node: ?{
+            readonly $fragmentSpreads: FragmentResourceWithOperationTrackerOptimisticUpdatesTestFragment$fragmentType,
+          },
+        }>,
+      },
+    },
+  },
+};
+export type FragmentResourceWithOperationTrackerOptimisticUpdatesTestViewerFriendsQuery = {
   response: FragmentResourceWithOperationTrackerOptimisticUpdatesTestViewerFriendsQuery$data,
   variables: FragmentResourceWithOperationTrackerOptimisticUpdatesTestViewerFriendsQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -145,15 +144,15 @@ return {
                             "kind": "FragmentSpread",
                             "name": "FragmentResourceWithOperationTrackerOptimisticUpdatesTestFragment"
                           },
-                          (v0/*: any*/)
+                          (v0/*:: as any*/)
                         ],
                         "storageKey": null
                       },
-                      (v1/*: any*/)
+                      (v1/*:: as any*/)
                     ],
                     "storageKey": null
                   },
-                  (v2/*: any*/)
+                  (v2/*:: as any*/)
                 ],
                 "storageKey": null
               }
@@ -189,10 +188,10 @@ return {
             "name": "actor",
             "plural": false,
             "selections": [
-              (v0/*: any*/),
+              (v0/*:: as any*/),
               {
                 "alias": null,
-                "args": (v3/*: any*/),
+                "args": (v3/*:: as any*/),
                 "concreteType": "FriendsConnection",
                 "kind": "LinkedField",
                 "name": "friends",
@@ -214,7 +213,7 @@ return {
                         "name": "node",
                         "plural": false,
                         "selections": [
-                          (v4/*: any*/),
+                          (v4/*:: as any*/),
                           {
                             "alias": null,
                             "args": null,
@@ -222,28 +221,28 @@ return {
                             "name": "name",
                             "storageKey": null
                           },
-                          (v0/*: any*/)
+                          (v0/*:: as any*/)
                         ],
                         "storageKey": null
                       },
-                      (v1/*: any*/)
+                      (v1/*:: as any*/)
                     ],
                     "storageKey": null
                   },
-                  (v2/*: any*/)
+                  (v2/*:: as any*/)
                 ],
                 "storageKey": "friends(first:1)"
               },
               {
                 "alias": null,
-                "args": (v3/*: any*/),
+                "args": (v3/*:: as any*/),
                 "filters": null,
                 "handle": "connection",
                 "key": "Viewer_friends",
                 "kind": "LinkedHandle",
                 "name": "friends"
               },
-              (v4/*: any*/)
+              (v4/*:: as any*/)
             ],
             "storageKey": null
           }
@@ -277,10 +276,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "f9b64d236a796cfb14e99418ead325ba";
+  (node/*:: as any*/).hash = "f9b64d236a796cfb14e99418ead325ba";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   FragmentResourceWithOperationTrackerOptimisticUpdatesTestViewerFriendsQuery$variables,
   FragmentResourceWithOperationTrackerOptimisticUpdatesTestViewerFriendsQuery$data,
 >*/);

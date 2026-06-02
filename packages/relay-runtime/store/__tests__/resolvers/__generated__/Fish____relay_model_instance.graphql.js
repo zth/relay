@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<881df56cf9fd645fc89ef6629b8c9180>>
+ * @generated SignedSource<<207fbfc3b509c6db22ba2b966a9ddff1>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,19 +23,19 @@ import {Fish as fishRelayModelInstanceResolverType} from "../FishResolvers.js";
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `fishRelayModelInstanceResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(fishRelayModelInstanceResolverType: (
+(fishRelayModelInstanceResolverType as (
   id: Fish__id$data['id'],
   args: void,
   context: TestResolverContextType,
-) => mixed);
+) => unknown);
 declare export opaque type Fish____relay_model_instance$fragmentType: FragmentType;
-export type Fish____relay_model_instance$data = {|
-  +__relay_model_instance: $NonMaybeType<ReturnType<typeof fishRelayModelInstanceResolverType>>,
-  +$fragmentType: Fish____relay_model_instance$fragmentType,
-|};
+export type Fish____relay_model_instance$data = {
+  readonly __relay_model_instance: NonNullable<ReturnType<typeof fishRelayModelInstanceResolverType>>,
+  readonly $fragmentType: Fish____relay_model_instance$fragmentType,
+};
 export type Fish____relay_model_instance$key = {
-  +$data?: Fish____relay_model_instance$data,
-  +$fragmentSpreads: Fish____relay_model_instance$fragmentType,
+  readonly $data?: Fish____relay_model_instance$data,
+  readonly $fragmentSpreads: Fish____relay_model_instance$fragmentType,
   ...
 };
 */
@@ -65,7 +64,7 @@ var node/*: ReaderFragment*/ = {
   "abstractKey": null
 };
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   Fish____relay_model_instance$fragmentType,
   Fish____relay_model_instance$data,
 >*/);

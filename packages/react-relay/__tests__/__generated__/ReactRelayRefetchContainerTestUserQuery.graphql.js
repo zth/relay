@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<738b3c6ab445a73362b4634006c5e06c>>
+ * @generated SignedSource<<c14268350b790c671d74b77472934ec1>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,18 +18,18 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { ReactRelayRefetchContainerTestUserFragment$fragmentType } from "./ReactRelayRefetchContainerTestUserFragment.graphql";
-export type ReactRelayRefetchContainerTestUserQuery$variables = {|
+export type ReactRelayRefetchContainerTestUserQuery$variables = {
   id: string,
-|};
-export type ReactRelayRefetchContainerTestUserQuery$data = {|
-  +node: ?{|
-    +$fragmentSpreads: ReactRelayRefetchContainerTestUserFragment$fragmentType,
-  |},
-|};
-export type ReactRelayRefetchContainerTestUserQuery = {|
+};
+export type ReactRelayRefetchContainerTestUserQuery$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: ReactRelayRefetchContainerTestUserFragment$fragmentType,
+  },
+};
+export type ReactRelayRefetchContainerTestUserQuery = {
   response: ReactRelayRefetchContainerTestUserQuery$data,
   variables: ReactRelayRefetchContainerTestUserQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -50,14 +49,14 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "ReactRelayRefetchContainerTestUserQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -77,13 +76,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "ReactRelayRefetchContainerTestUserQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -134,10 +133,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "d6a4a7c84fa97970ee4f08e7b3a643b2";
+  (node/*:: as any*/).hash = "d6a4a7c84fa97970ee4f08e7b3a643b2";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ReactRelayRefetchContainerTestUserQuery$variables,
   ReactRelayRefetchContainerTestUserQuery$data,
 >*/);

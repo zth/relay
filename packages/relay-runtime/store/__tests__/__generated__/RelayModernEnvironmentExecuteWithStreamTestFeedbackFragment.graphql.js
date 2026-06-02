@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1e8237a5306183f362502e94f362eaeb>>
+ * @generated SignedSource<<d39dbb07991b7442d44c619947ace0bf>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,16 +19,16 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$fragmentType: FragmentType;
-export type RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$data = {|
-  +actors: ?$ReadOnlyArray<?{|
-    +name: ?string,
-  |}>,
-  +id: string,
-  +$fragmentType: RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$fragmentType,
-|};
+export type RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$data = {
+  readonly actors: ?ReadonlyArray<?{
+    readonly name: ?string,
+  }>,
+  readonly id: string,
+  readonly $fragmentType: RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$fragmentType,
+};
 export type RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$key = {
-  +$data?: RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$data,
-  +$fragmentSpreads: RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$fragmentType,
+  readonly $data?: RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$fragmentType,
   ...
 };
 */
@@ -81,10 +80,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "75614aa8afc63b7f8aa69d720053bded";
+  (node/*:: as any*/).hash = "75614aa8afc63b7f8aa69d720053bded";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$fragmentType,
   RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$data,
 >*/);

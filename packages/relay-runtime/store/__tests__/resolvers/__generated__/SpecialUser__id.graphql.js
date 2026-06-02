@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a61e610ec6552f1b82d9caecf92a0cb6>>
+ * @generated SignedSource<<3c2eb8f12adaad61fbf433b8e7f2568b>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,13 +19,13 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type SpecialUser__id$fragmentType: FragmentType;
-export type SpecialUser__id$data = {|
-  +id: string,
-  +$fragmentType: SpecialUser__id$fragmentType,
-|};
+export type SpecialUser__id$data = {
+  readonly id: string,
+  readonly $fragmentType: SpecialUser__id$fragmentType,
+};
 export type SpecialUser__id$key = {
-  +$data?: SpecialUser__id$data,
-  +$fragmentSpreads: SpecialUser__id$fragmentType,
+  readonly $data?: SpecialUser__id$data,
+  readonly $fragmentSpreads: SpecialUser__id$fragmentType,
   ...
 };
 */
@@ -54,7 +53,7 @@ var node/*: ReaderFragment*/ = {
   "abstractKey": null
 };
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   SpecialUser__id$fragmentType,
   SpecialUser__id$data,
 >*/);

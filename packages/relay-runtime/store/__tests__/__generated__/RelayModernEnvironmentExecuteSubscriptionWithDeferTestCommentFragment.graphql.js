@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<373eb6e5761b0b9ca06583a6d990a5d1>>
+ * @generated SignedSource<<87c8016ab0108e3b28129a4aa78a64a2>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,16 +19,16 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment$fragmentType: FragmentType;
-export type RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment$data = {|
-  +actor: ?{|
-    +name: ?string,
-  |},
-  +id: string,
-  +$fragmentType: RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment$fragmentType,
-|};
+export type RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment$data = {
+  readonly actor: ?{
+    readonly name: ?string,
+  },
+  readonly id: string,
+  readonly $fragmentType: RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment$fragmentType,
+};
 export type RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment$key = {
-  +$data?: RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment$data,
-  +$fragmentSpreads: RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment$fragmentType,
+  readonly $data?: RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment$fragmentType,
   ...
 };
 */
@@ -71,10 +70,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "3f43a3ad199bd0b3f314e82db5533579";
+  (node/*:: as any*/).hash = "3f43a3ad199bd0b3f314e82db5533579";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment$fragmentType,
   RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment$data,
 >*/);

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<596a7e2c42b47845e7f1dbf5b84f2dc1>>
+ * @generated SignedSource<<57a6dd46541e44fa0bafc17a272d907b>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,15 +19,15 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type UserProfilePictureWithDefaultValueResolver$fragmentType: FragmentType;
-export type UserProfilePictureWithDefaultValueResolver$data = {|
-  +profile_picture: ?{|
-    +uri: ?string,
-  |},
-  +$fragmentType: UserProfilePictureWithDefaultValueResolver$fragmentType,
-|};
+export type UserProfilePictureWithDefaultValueResolver$data = {
+  readonly profile_picture: ?{
+    readonly uri: ?string,
+  },
+  readonly $fragmentType: UserProfilePictureWithDefaultValueResolver$fragmentType,
+};
 export type UserProfilePictureWithDefaultValueResolver$key = {
-  +$data?: UserProfilePictureWithDefaultValueResolver$data,
-  +$fragmentSpreads: UserProfilePictureWithDefaultValueResolver$fragmentType,
+  readonly $data?: UserProfilePictureWithDefaultValueResolver$data,
+  readonly $fragmentSpreads: UserProfilePictureWithDefaultValueResolver$fragmentType,
   ...
 };
 */
@@ -75,10 +74,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "e32945ab29746a034431ebecadc8a7b2";
+  (node/*:: as any*/).hash = "e32945ab29746a034431ebecadc8a7b2";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   UserProfilePictureWithDefaultValueResolver$fragmentType,
   UserProfilePictureWithDefaultValueResolver$data,
 >*/);

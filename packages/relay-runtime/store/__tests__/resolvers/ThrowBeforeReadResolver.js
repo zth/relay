@@ -17,12 +17,12 @@ const {graphql} = require('relay-runtime');
 const {readFragment} = require('relay-runtime/store/ResolverFragments');
 
 /**
- * @RelayResolver Query.throw_before_read: RelayResolverValue
+ * @relayField Query.throw_before_read: RelayResolverValue
  * @rootFragment ThrowBeforeReadResolver
  *
  * A resolver that exercises the edge case where a resolver throws before reading.
  */
-function throw_before_read(rootKey: ThrowBeforeReadResolver$key): mixed {
+function throw_before_read(rootKey: ThrowBeforeReadResolver$key): unknown {
   // Trick Flow's unreachable code detection.
   if (true) {
     throw new Error(

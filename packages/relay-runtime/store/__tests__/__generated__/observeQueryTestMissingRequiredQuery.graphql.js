@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f255d09f4048b1e0cf6c285a392c47ef>>
+ * @generated SignedSource<<e8849ff9d715371e433bb7f1a15f5b29>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,16 +17,16 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type observeQueryTestMissingRequiredQuery$variables = {||};
-export type observeQueryTestMissingRequiredQuery$data = {|
-  +me: ?{|
-    +name: string,
-  |},
-|};
-export type observeQueryTestMissingRequiredQuery = {|
+export type observeQueryTestMissingRequiredQuery$variables = {};
+export type observeQueryTestMissingRequiredQuery$data = {
+  readonly me: ?{
+    readonly name: string,
+  },
+};
+export type observeQueryTestMissingRequiredQuery = {
   response: observeQueryTestMissingRequiredQuery$data,
   variables: observeQueryTestMissingRequiredQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -55,7 +54,7 @@ return {
         "selections": [
           {
             "kind": "RequiredField",
-            "field": (v0/*: any*/),
+            "field": (v0/*:: as any*/),
             "action": "THROW"
           }
         ],
@@ -79,7 +78,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
+          (v0/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -104,10 +103,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "b548b7931d8b55a04a57e7b1c1797f4c";
+  (node/*:: as any*/).hash = "b548b7931d8b55a04a57e7b1c1797f4c";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   observeQueryTestMissingRequiredQuery$variables,
   observeQueryTestMissingRequiredQuery$data,
 >*/);

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c6eb84c05699defb1f340f7822cc6f60>>
+ * @generated SignedSource<<d2235db43552c444d146f31e63ab6075>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -26,25 +25,25 @@ import {client_edge as userClientEdgeResolverType} from "../../../relay-runtime/
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userClientEdgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userClientEdgeResolverType: (
+(userClientEdgeResolverType as (
   rootKey: UserClientEdgeResolver$key,
   args: void,
   context: TestResolverContextType,
-) => ?{|
-  +id: DataID,
-|});
-export type QueryResourceClientEdgesTest2Query$variables = {||};
-export type QueryResourceClientEdgesTest2Query$data = {|
-  +me: ?{|
-    +client_edge: ?{|
-      +$fragmentSpreads: QueryResourceClientEdgesTestUser1Fragment$fragmentType & QueryResourceClientEdgesTestUser2Fragment$fragmentType,
-    |},
-  |},
-|};
-export type QueryResourceClientEdgesTest2Query = {|
+) => ?{
+  readonly id: DataID,
+});
+export type QueryResourceClientEdgesTest2Query$variables = {};
+export type QueryResourceClientEdgesTest2Query$data = {
+  readonly me: ?{
+    readonly client_edge: ?{
+      readonly $fragmentSpreads: QueryResourceClientEdgesTestUser1Fragment$fragmentType & QueryResourceClientEdgesTestUser2Fragment$fragmentType,
+    },
+  },
+};
+export type QueryResourceClientEdgesTest2Query = {
   response: QueryResourceClientEdgesTest2Query$data,
   variables: QueryResourceClientEdgesTest2Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {
@@ -167,10 +166,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "0e90f7bbad806fa00859d97367fe56b8";
+  (node/*:: as any*/).hash = "0e90f7bbad806fa00859d97367fe56b8";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   QueryResourceClientEdgesTest2Query$variables,
   QueryResourceClientEdgesTest2Query$data,
 >*/);

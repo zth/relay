@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<55a15f486d0a77f5d41718c1277d9c19>>
+ * @generated SignedSource<<bce4e54921d32f09d7ba6dfd915c7756>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,19 +18,19 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { FragmentResourceTest1Fragment$fragmentType } from "./FragmentResourceTest1Fragment.graphql";
-export type FragmentResourceTest1Query$variables = {|
+export type FragmentResourceTest1Query$variables = {
   id: string,
-|};
-export type FragmentResourceTest1Query$data = {|
-  +node: ?{|
-    +__typename: string,
-    +$fragmentSpreads: FragmentResourceTest1Fragment$fragmentType,
-  |},
-|};
-export type FragmentResourceTest1Query = {|
+};
+export type FragmentResourceTest1Query$data = {
+  readonly node: ?{
+    readonly __typename: string,
+    readonly $fragmentSpreads: FragmentResourceTest1Fragment$fragmentType,
+  },
+};
+export type FragmentResourceTest1Query = {
   response: FragmentResourceTest1Query$data,
   variables: FragmentResourceTest1Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -58,20 +57,20 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "FragmentResourceTest1Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "args": null,
             "kind": "FragmentSpread",
@@ -86,19 +85,19 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "FragmentResourceTest1Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -137,10 +136,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "cc7b893d1f91ada940b65acd486ebdf8";
+  (node/*:: as any*/).hash = "cc7b893d1f91ada940b65acd486ebdf8";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   FragmentResourceTest1Query$variables,
   FragmentResourceTest1Query$data,
 >*/);

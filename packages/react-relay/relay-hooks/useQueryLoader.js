@@ -30,14 +30,14 @@ const useRelayEnvironment = require('./useRelayEnvironment');
 const {useCallback, useEffect, useRef, useState} = require('react');
 const {RelayFeatureFlags, getRequest} = require('relay-runtime');
 
-export type LoaderFn<TQuery: OperationType> = (
+export type LoaderFn<TQuery extends OperationType> = (
   variables: TQuery['variables'],
   options?: UseQueryLoaderLoadQueryOptions,
 ) => void;
 
-export type UseQueryLoaderLoadQueryOptions = $ReadOnly<{
+export type UseQueryLoaderLoadQueryOptions = Readonly<{
   ...LoadQueryOptions,
-  +__environment?: ?IEnvironment,
+  readonly __environment?: ?IEnvironment,
 }>;
 
 // NullQueryReference needs to implement referential equality,
@@ -51,13 +51,13 @@ const initialNullQueryReferenceState: NullQueryReference = {
 };
 
 function requestIsLiveQuery<
-  TVariables: Variables,
+  TVariables extends Variables,
   TData,
-  TRawResponse: ?{...} = void,
-  TQuery: OperationType = {
+  TRawResponse extends ?{...} = void,
+  TQuery extends OperationType = {
     response: TData,
     variables: TVariables,
-    rawResponse?: $NonMaybeType<TRawResponse>,
+    rawResponse?: NonNullable<TRawResponse>,
   },
 >(
   preloadableRequest:
@@ -72,51 +72,55 @@ function requestIsLiveQuery<
 }
 
 export type UseQueryLoaderHookReturnType<
-  TVariables: Variables,
+  TVariables extends Variables,
   TData,
-  TRawResponse: ?{...} = void,
+  TRawResponse extends ?{...} = void,
 > = [
   ?PreloadedQuery<{
     response: TData,
     variables: TVariables,
-    rawResponse?: $NonMaybeType<TRawResponse>,
+    rawResponse?: NonNullable<TRawResponse>,
   }>,
   (variables: TVariables, options?: UseQueryLoaderLoadQueryOptions) => void,
   () => void,
 ];
 
 declare function useQueryLoader<
-  TVariables: Variables,
+  TVariables extends Variables,
   TData,
-  TRawResponse: ?{...} = void,
+  TRawResponse extends ?{...} = void,
 >(
   preloadableRequest: Query<TVariables, TData, TRawResponse>,
 ): UseQueryLoaderHookReturnType<TVariables, TData>;
 
 declare function useQueryLoader<
-  TVariables: Variables,
+  TVariables extends Variables,
   TData,
-  TRawResponse: ?{...} = void,
+  TRawResponse extends ?{...} = void,
 >(
   preloadableRequest: Query<TVariables, TData, TRawResponse>,
   initialQueryReference: ?PreloadedQuery<{
     response: TData,
     variables: TVariables,
-    rawResponse?: $NonMaybeType<TRawResponse>,
+    rawResponse?: NonNullable<TRawResponse>,
   }>,
 ): UseQueryLoaderHookReturnType<TVariables, TData>;
 
-declare function useQueryLoader<TQuery: OperationType>(
+declare function useQueryLoader<TQuery extends OperationType>(
   preloadableRequest: PreloadableConcreteRequest<TQuery>,
   initialQueryReference?: ?PreloadedQuery<TQuery>,
 ): UseQueryLoaderHookReturnType<TQuery['variables'], TQuery['response']>;
 
-hook useQueryLoader<TVariables: Variables, TData, TRawResponse: ?{...} = void>(
+hook useQueryLoader<
+  TVariables extends Variables,
+  TData,
+  TRawResponse extends ?{...} = void,
+>(
   preloadableRequest: Query<TVariables, TData, TRawResponse>,
   initialQueryReference?: ?PreloadedQuery<{
     response: TData,
     variables: TVariables,
-    rawResponse?: $NonMaybeType<TRawResponse>,
+    rawResponse?: NonNullable<TRawResponse>,
   }>,
 ): UseQueryLoaderHookReturnType<TVariables, TData> {
   if (RelayFeatureFlags.ENABLE_ACTIVITY_COMPATIBILITY) {
@@ -133,21 +137,21 @@ hook useQueryLoader<TVariables: Variables, TData, TRawResponse: ?{...} = void>(
 }
 
 hook useQueryLoader_CURRENT<
-  TVariables: Variables,
+  TVariables extends Variables,
   TData,
-  TRawResponse: ?{...} = void,
+  TRawResponse extends ?{...} = void,
 >(
   preloadableRequest: Query<TVariables, TData, TRawResponse>,
   initialQueryReference?: ?PreloadedQuery<{
     response: TData,
     variables: TVariables,
-    rawResponse?: $NonMaybeType<TRawResponse>,
+    rawResponse?: NonNullable<TRawResponse>,
   }>,
 ): UseQueryLoaderHookReturnType<TVariables, TData> {
   type QueryType = {
     response: TData,
     variables: TVariables,
-    rawResponse?: $NonMaybeType<TRawResponse>,
+    rawResponse?: NonNullable<TRawResponse>,
   };
 
   /**
@@ -213,9 +217,9 @@ hook useQueryLoader_CURRENT<
       const mergedOptions: ?UseQueryLoaderLoadQueryOptions =
         options != null && options.hasOwnProperty('__environment')
           ? {
+              __nameForWarning: options.__nameForWarning,
               fetchPolicy: options.fetchPolicy,
               networkCacheConfig: options.networkCacheConfig,
-              __nameForWarning: options.__nameForWarning,
             }
           : options;
       if (isMountedRef.current) {
@@ -223,7 +227,7 @@ hook useQueryLoader_CURRENT<
           options?.__environment ?? environment,
           preloadableRequest,
           variables,
-          (mergedOptions: $FlowFixMe),
+          mergedOptions as $FlowFixMe,
         );
         undisposedQueryReferencesRef.current.add(updatedQueryReference);
         setQueryReference(updatedQueryReference);

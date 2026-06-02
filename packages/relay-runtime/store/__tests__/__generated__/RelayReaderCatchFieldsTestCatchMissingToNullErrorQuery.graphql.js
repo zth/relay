@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<67f563748ffa65c324ce15cd5d8fb5ff>>
+ * @generated SignedSource<<2c39fbb5f1eb1356ec956513728b1f35>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,16 +17,16 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayReaderCatchFieldsTestCatchMissingToNullErrorQuery$variables = {||};
-export type RelayReaderCatchFieldsTestCatchMissingToNullErrorQuery$data = {|
-  +me: ?{|
-    +firstName: ?string,
-  |},
-|};
-export type RelayReaderCatchFieldsTestCatchMissingToNullErrorQuery = {|
+export type RelayReaderCatchFieldsTestCatchMissingToNullErrorQuery$variables = {};
+export type RelayReaderCatchFieldsTestCatchMissingToNullErrorQuery$data = {
+  readonly me: ?{
+    readonly firstName: ?string,
+  },
+};
+export type RelayReaderCatchFieldsTestCatchMissingToNullErrorQuery = {
   response: RelayReaderCatchFieldsTestCatchMissingToNullErrorQuery$data,
   variables: RelayReaderCatchFieldsTestCatchMissingToNullErrorQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -55,7 +54,7 @@ return {
           "name": "me",
           "plural": false,
           "selections": [
-            (v0/*: any*/)
+            (v0/*:: as any*/)
           ],
           "storageKey": null
         },
@@ -79,7 +78,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
+          (v0/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -104,10 +103,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "240f1d3a110a2baa0b0c2a28c485e93d";
+  (node/*:: as any*/).hash = "240f1d3a110a2baa0b0c2a28c485e93d";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderCatchFieldsTestCatchMissingToNullErrorQuery$variables,
   RelayReaderCatchFieldsTestCatchMissingToNullErrorQuery$data,
 >*/);

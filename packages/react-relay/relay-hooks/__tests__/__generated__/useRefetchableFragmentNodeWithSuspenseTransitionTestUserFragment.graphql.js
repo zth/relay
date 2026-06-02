@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<78ea09cf1853f6f29afab6b209aea558>>
+ * @generated SignedSource<<48edf7ce941d7476240b5e44b968a313>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -22,18 +21,18 @@ import type { useRefetchableFragmentNodeWithSuspenseTransitionTestNestedUserFrag
 import type { FragmentType } from "relay-runtime";
 declare export opaque type useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment$fragmentType: FragmentType;
 type useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragmentRefetchQuery$variables = any;
-export type useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment$data = {|
-  +id: string,
-  +name: ?string,
-  +profile_picture: ?{|
-    +uri: ?string,
-  |},
-  +$fragmentSpreads: useRefetchableFragmentNodeWithSuspenseTransitionTestNestedUserFragment$fragmentType,
-  +$fragmentType: useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment$fragmentType,
-|};
+export type useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment$data = {
+  readonly id: string,
+  readonly name: ?string,
+  readonly profile_picture: ?{
+    readonly uri: ?string,
+  },
+  readonly $fragmentSpreads: useRefetchableFragmentNodeWithSuspenseTransitionTestNestedUserFragment$fragmentType,
+  readonly $fragmentType: useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment$fragmentType,
+};
 export type useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment$key = {
-  +$data?: useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment$data,
-  +$fragmentSpreads: useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment$fragmentType,
+  readonly $data?: useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment$data,
+  readonly $fragmentSpreads: useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment$fragmentType,
   ...
 };
 */
@@ -110,10 +109,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "5667a4d9b630416b46fa8e8124d4470c";
+  (node/*:: as any*/).hash = "5667a4d9b630416b46fa8e8124d4470c";
 }
 
-module.exports = ((node/*: any*/)/*: RefetchableFragment<
+module.exports = ((node/*:: as any*/)/*:: as RefetchableFragment<
   useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment$fragmentType,
   useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment$data,
   useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragmentRefetchQuery$variables,

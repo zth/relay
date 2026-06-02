@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<df3090c6517dc324c1c8f20f1decd3cc>>
+ * @generated SignedSource<<57f219aac4af67e7ae3500bf706cdf71>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,81 +19,81 @@
 import type { UpdatableQuery, ConcreteUpdatableQuery } from 'relay-runtime';
 import type { readUpdatableQueryTest_node$fragmentType } from "./readUpdatableQueryTest_node.graphql";
 import type { readUpdatableQueryTest_user$fragmentType } from "./readUpdatableQueryTest_user.graphql";
-export type readUpdatableQueryTestUpdatableQuery$variables = {||};
-export type readUpdatableQueryTestUpdatableQuery$data = {|
-  get me(): ?{|
-    +__typename: "User",
-    +__id: string,
-    +id: string,
+export type readUpdatableQueryTestUpdatableQuery$variables = {};
+export type readUpdatableQueryTestUpdatableQuery$data = {
+  get me(): ?{
+    readonly __typename: "User",
+    readonly __id: string,
+    readonly id: string,
     name: ?string,
-    get author(): ?{|
-      get client_best_friend(): ?{|
+    get author(): ?{
+      get client_best_friend(): ?{
         name: ?string,
-      |},
+      },
       set client_best_friend(value: ?{
-        +__typename: "User",
-        +__id: string,
-        +$fragmentSpreads: readUpdatableQueryTest_user$fragmentType,
+        readonly __typename: "User",
+        readonly __id: string,
+        readonly $fragmentSpreads: readUpdatableQueryTest_user$fragmentType,
         ...
       }): void,
-    |},
+    },
     set author(value: null | void): void,
-    get author2(): ?{|
+    get author2(): ?{
       client_nickname: ?string,
-    |},
+    },
     set author2(value: null | void): void,
-  |},
+  },
   set me(value: ?{
-    +__typename: "User",
-    +__id: string,
-    +$fragmentSpreads: readUpdatableQueryTest_user$fragmentType,
+    readonly __typename: "User",
+    readonly __id: string,
+    readonly $fragmentSpreads: readUpdatableQueryTest_user$fragmentType,
     ...
   }): void,
-  get node(): ?({|
-    +__typename: "User",
+  get node(): ?({
+    readonly __typename: "User",
     name: ?string,
-  |} | {|
+  } | {
     // This will never be '%other', but we need some
     // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
+    readonly __typename: "%other",
+  }),
   set node(value: null | void): void,
-  get node2(): ?({|
-    +__typename: "User",
+  get node2(): ?({
+    readonly __typename: "User",
     name: ?string,
-    get parents(): $ReadOnlyArray<{|
+    get parents(): ReadonlyArray<{
       name: ?string,
-      get parents(): $ReadOnlyArray<{|
+      get parents(): ReadonlyArray<{
         name: ?string,
-      |}>,
+      }>,
       set parents(value: []): void,
-    |}>,
-    set parents(value: $ReadOnlyArray<{
-      +__typename: "User",
-      +__id: string,
-      +$fragmentSpreads: readUpdatableQueryTest_user$fragmentType,
+    }>,
+    set parents(value: ReadonlyArray<{
+      readonly __typename: "User",
+      readonly __id: string,
+      readonly $fragmentSpreads: readUpdatableQueryTest_user$fragmentType,
       ...
     }>): void,
-  |} | {|
+  } | {
     // This will never be '%other', but we need some
     // value in case none of the concrete values match.
-    +__typename: "%other",
-  |}),
+    readonly __typename: "%other",
+  }),
   set node2(value: null | void): void,
-  get node3(): ?{|
-    +id: string,
-  |},
+  get node3(): ?{
+    readonly id: string,
+  },
   set node3(value: ?{
-    +__id: string,
-    +__isreadUpdatableQueryTest_node: string,
-    +$fragmentSpreads: readUpdatableQueryTest_node$fragmentType,
+    readonly __id: string,
+    readonly __isreadUpdatableQueryTest_node: string,
+    readonly $fragmentSpreads: readUpdatableQueryTest_node$fragmentType,
     ...
   }): void,
-|};
-export type readUpdatableQueryTestUpdatableQuery = {|
+};
+export type readUpdatableQueryTestUpdatableQuery = {
   response: readUpdatableQueryTestUpdatableQuery$data,
   variables: readUpdatableQueryTestUpdatableQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteUpdatableQuery*/ = (function(){
@@ -139,9 +138,9 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
-          (v1/*: any*/),
-          (v2/*: any*/),
+          (v0/*:: as any*/),
+          (v1/*:: as any*/),
+          (v2/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -161,8 +160,8 @@ return {
                     "name": "client_best_friend",
                     "plural": false,
                     "selections": [
-                      (v3/*: any*/),
-                      (v2/*: any*/)
+                      (v3/*:: as any*/),
+                      (v2/*:: as any*/)
                     ],
                     "storageKey": null
                   }
@@ -194,7 +193,7 @@ return {
             ],
             "storageKey": null
           },
-          (v3/*: any*/),
+          (v3/*:: as any*/),
           {
             "kind": "ClientExtension",
             "selections": [
@@ -227,8 +226,8 @@ return {
           {
             "kind": "InlineFragment",
             "selections": [
-              (v0/*: any*/),
-              (v2/*: any*/)
+              (v0/*:: as any*/),
+              (v2/*:: as any*/)
             ],
             "type": "User",
             "abstractKey": null
@@ -253,8 +252,8 @@ return {
           {
             "kind": "InlineFragment",
             "selections": [
-              (v0/*: any*/),
-              (v2/*: any*/),
+              (v0/*:: as any*/),
+              (v2/*:: as any*/),
               {
                 "alias": null,
                 "args": null,
@@ -263,8 +262,8 @@ return {
                 "name": "parents",
                 "plural": true,
                 "selections": [
-                  (v3/*: any*/),
-                  (v2/*: any*/),
+                  (v3/*:: as any*/),
+                  (v2/*:: as any*/),
                   {
                     "alias": null,
                     "args": null,
@@ -273,7 +272,7 @@ return {
                     "name": "parents",
                     "plural": true,
                     "selections": [
-                      (v2/*: any*/)
+                      (v2/*:: as any*/)
                     ],
                     "storageKey": null
                   }
@@ -301,7 +300,7 @@ return {
         "name": "node",
         "plural": false,
         "selections": [
-          (v1/*: any*/),
+          (v1/*:: as any*/),
           {
             "args": null,
             "kind": "FragmentSpread",
@@ -319,10 +318,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "ad00b2de468d8a8877260a0cb5a0db06";
+  (node/*:: as any*/).hash = "ad00b2de468d8a8877260a0cb5a0db06";
 }
 
-module.exports = ((node/*: any*/)/*: UpdatableQuery<
+module.exports = ((node/*:: as any*/)/*:: as UpdatableQuery<
   readUpdatableQueryTestUpdatableQuery$variables,
   readUpdatableQueryTestUpdatableQuery$data,
 >*/);

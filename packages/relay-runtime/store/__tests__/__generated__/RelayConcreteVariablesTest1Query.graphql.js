@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<310f11907dd3db1d72e180a6ee4c7d99>>
+ * @generated SignedSource<<4b8d355559afe03b63460cbf431e8adb>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,18 +17,18 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayConcreteVariablesTest1Query$variables = {|
+export type RelayConcreteVariablesTest1Query$variables = {
   id: string,
-|};
-export type RelayConcreteVariablesTest1Query$data = {|
-  +node: ?{|
-    +id: string,
-  |},
-|};
-export type RelayConcreteVariablesTest1Query = {|
+};
+export type RelayConcreteVariablesTest1Query$data = {
+  readonly node: ?{
+    readonly id: string,
+  },
+};
+export type RelayConcreteVariablesTest1Query = {
   response: RelayConcreteVariablesTest1Query$data,
   variables: RelayConcreteVariablesTest1Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -56,20 +55,20 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayConcreteVariablesTest1Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/)
+          (v2/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -79,13 +78,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayConcreteVariablesTest1Query",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -98,7 +97,7 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v2/*: any*/)
+          (v2/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -116,10 +115,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "1e4569204e89dbf37024f9136e6f5004";
+  (node/*:: as any*/).hash = "1e4569204e89dbf37024f9136e6f5004";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayConcreteVariablesTest1Query$variables,
   RelayConcreteVariablesTest1Query$data,
 >*/);

@@ -26,11 +26,13 @@ use relay_compiler::PersistConfig;
 use relay_compiler::ProjectName;
 use relay_compiler::RemotePersister;
 use relay_compiler::build_project::artifact_writer::ArtifactValidationWriter;
+use relay_compiler::build_project::generate_extra_artifacts::default_generate_extra_artifacts_fn;
 use relay_compiler::compiler::Compiler;
 use relay_compiler::config::Config;
 use relay_compiler::config::ConfigFile;
 use relay_compiler::errors::Error as CompilerError;
 use relay_compiler::get_programs;
+use relay_compiler::subschema_extraction::compile_and_extract_subschema;
 use relay_lsp::DummyExtraDataProvider;
 use relay_lsp::FieldDefinitionSourceInfo;
 use relay_lsp::FieldSchemaInfo;
@@ -44,7 +46,6 @@ use simplelog::LevelFilter;
 use simplelog::TermLogger;
 use simplelog::TerminalMode;
 
-mod analyze;
 mod errors;
 
 use errors::Error;
@@ -113,6 +114,11 @@ struct CompileCommand {
     #[clap(long)]
     repersist: bool,
 
+    /// Disable watchman and use directory traversal to find source files.
+    /// Watch mode is not supported without watchman.
+    #[clap(long, conflicts_with = "watch")]
+    no_watchman: bool,
+
     /// Verbosity level
     #[clap(long, value_enum, default_value = "verbose")]
     output: OutputKind,
@@ -121,6 +127,27 @@ struct CompileCommand {
     /// writing to disk
     #[clap(long)]
     validate: bool,
+}
+
+#[derive(Parser)]
+#[clap(
+    rename_all = "camel_case",
+    about = "EXPERIMENTAL! Replaces the currently configured schema file with the portion of the provided --fullSchema that is actually used by this Relay project."
+)]
+struct UpdateSchemaCommand {
+    /// Compile using this config file. If not provided, searches for a config in
+    /// package.json under the `relay` key or `relay.config.json` files among other up
+    /// from the current working directory.
+    #[clap(long)]
+    config: Option<PathBuf>,
+
+    /// Path to the full schema file or directory to use as the source for extracting the used subset
+    #[clap(long)]
+    full_schema: PathBuf,
+
+    /// Verbosity level
+    #[clap(long, value_enum, default_value = "verbose")]
+    output: OutputKind,
 }
 
 #[derive(Parser)]
@@ -148,14 +175,33 @@ struct LspCommand {
 #[clap(about = "Print the Json Schema definition for the Relay compiler config.")]
 struct ConfigJsonSchemaCommand {}
 
+#[derive(Parser)]
+#[clap(
+    rename_all = "camel_case",
+    about = "EXPERIMENTAL! Compare intermediate representations (IR) of documents passed via left and right, outputs selections that exists in left but not in right."
+)]
+struct CompareDocumentIRCommand {
+    /// Document in string, must contain exactly 1 operation.
+    #[clap(long)]
+    left: String,
+
+    /// Document in string, must contain exactly 1 operation.
+    #[clap(long)]
+    right: String,
+
+    /// Path(s) to the full schema file(s) to convert documents to intermediate representation (IR) for comparison.
+    #[clap(long, num_args = 1..)]
+    schema_paths: Vec<String>,
+}
+
 #[derive(clap::Subcommand)]
 enum Commands {
     Compiler(CompileCommand),
     Lsp(LspCommand),
     ConfigJsonSchema(ConfigJsonSchemaCommand),
     Codemod(CodemodCommand),
-    #[clap(name = "tools", alias = "analyze")]
-    Analyze(analyze::AnalyzeCommand),
+    ExperimentalRegenerateSubSchema(UpdateSchemaCommand),
+    ExperimentalCompareDocumentIR(CompareDocumentIRCommand),
 }
 
 #[derive(ValueEnum, Clone, Copy)]
@@ -217,7 +263,12 @@ async fn main() {
             Ok(())
         }
         Commands::Codemod(command) => handle_codemod_command(command).await,
-        Commands::Analyze(command) => analyze::handle_analyze_command(command).await,
+        Commands::ExperimentalRegenerateSubSchema(command) => {
+            handle_regenerate_subschema_command(command).await
+        }
+        Commands::ExperimentalCompareDocumentIR(command) => {
+            handle_compare_document_ir_command(command)
+        }
     };
 
     if let Err(err) = result {
@@ -253,7 +304,7 @@ fn configure_logger(output: OutputKind, terminal_mode: TerminalMode) {
 }
 
 /// Update Config if the `project` flag is set
-fn set_project_flag(config: &mut Config, projects: Vec<String>) -> Result<(), Error> {
+fn set_project_flag(config: &mut Config, projects: &Vec<String>) -> Result<(), Error> {
     if projects.is_empty() {
         return Ok(());
     }
@@ -287,16 +338,54 @@ fn set_project_flag(config: &mut Config, projects: Vec<String>) -> Result<(), Er
 
 async fn handle_codemod_command(command: CodemodCommand) -> Result<(), Error> {
     let mut config = get_config(command.config)?;
-    set_project_flag(&mut config, command.projects)?;
-    let (programs, _, config) = get_programs(config, Arc::new(ConsoleLogger)).await;
-    let programs = programs.values().cloned().collect();
+    let root_dir = config.root_dir.clone();
+    set_project_flag(&mut config, &command.projects)?;
+    let programs = get_programs(config, Arc::new(ConsoleLogger))
+        .await
+        .map(|(programs, _, _)| programs.values().cloned().collect());
 
-    match run_codemod(programs, Arc::clone(&config), command.codemod).await {
+    match run_codemod(programs, root_dir, command.codemod).await {
         Ok(_) => Ok(()),
         Err(e) => Err(Error::CodemodError {
             details: format!("{:?}", e),
         }),
     }
+}
+
+async fn handle_regenerate_subschema_command(command: UpdateSchemaCommand) -> Result<(), Error> {
+    configure_logger(command.output, TerminalMode::Mixed);
+    let config = get_config(command.config)?;
+
+    let result = compile_and_extract_subschema(config, &command.full_schema)
+        .await
+        .map_err(|e| Error::CompilerError {
+            details: format!("{}", e),
+        })?;
+
+    // Write the used schema back to the original schema location
+    std::fs::write(&result.original_schema_path, &result.schema_content).map_err(|e| {
+        Error::ConfigError(CompilerError::ConfigError {
+            details: format!(
+                "Failed to write used schema file to {}: {}",
+                result.original_schema_path.to_string_lossy(),
+                e
+            ),
+        })
+    })
+}
+
+fn handle_compare_document_ir_command(command: CompareDocumentIRCommand) -> Result<(), Error> {
+    configure_logger(OutputKind::Verbose, TerminalMode::Mixed);
+
+    let (_, message) =
+        graphql_ir_diff::compare(command.schema_paths, &command.left, &command.right).map_err(
+            |e| Error::CompilerError {
+                details: format!("{}", e),
+            },
+        )?;
+
+    info!("{}", message);
+    Ok(())
 }
 
 async fn handle_compiler_command(command: CompileCommand) -> Result<(), Error> {
@@ -313,7 +402,7 @@ async fn handle_compiler_command(command: CompileCommand) -> Result<(), Error> {
 
     let mut config = get_config(command.config)?;
 
-    set_project_flag(&mut config, command.projects)?;
+    set_project_flag(&mut config, &command.projects)?;
 
     if command.validate {
         config.artifact_writer = Box::<ArtifactValidationWriter>::default();
@@ -334,7 +423,7 @@ async fn handle_compiler_command(command: CompileCommand) -> Result<(), Error> {
         )
     }));
 
-    config.file_source_config = if should_use_watchman() {
+    config.file_source_config = if should_use_watchman(command.no_watchman) {
         FileSourceKind::Watchman
     } else {
         FileSourceKind::WalkDir
@@ -342,12 +431,18 @@ async fn handle_compiler_command(command: CompileCommand) -> Result<(), Error> {
     config.repersist_operations = command.repersist;
 
     if command.watch && !matches!(&config.file_source_config, FileSourceKind::Watchman) {
-        panic!(
-            "Cannot run relay in watch mode if `watchman` is not available (or explicitly disabled)."
-        );
+        return Err(Error::CompilerError {
+            details: "Cannot run relay in watch mode if `watchman` is not available. Install watchman or remove the --watch flag.".to_string(),
+        });
     }
 
-    // config.generate_extra_artifacts = Some(Box::new(default_generate_extra_artifacts_fn));
+    if !config
+        .projects
+        .values()
+        .any(|project| project.typegen_config.language.to_string() == "ReScript")
+    {
+        config.generate_extra_artifacts = Some(Box::new(default_generate_extra_artifacts_fn));
+    }
 
     let compiler = Compiler::new(Arc::new(config), Arc::new(ConsoleLogger));
 
@@ -454,13 +549,15 @@ async fn handle_lsp_command(command: LspCommand) -> Result<(), Error> {
 }
 
 /// Check if `watchman` is available.
-/// Additionally, this method is checking for an existence of `FORCE_NO_WATCHMAN`
-/// environment variable. If this `FORCE_NO_WATCHMAN` is set, this method will return `false`
-/// and compiler will use non-watchman file finder.
-fn should_use_watchman() -> bool {
-    let check_watchman = Command::new("watchman")
+/// Returns `false` if `no_watchman_flag` is set (via `--noWatchman` CLI flag),
+/// or if the `FORCE_NO_WATCHMAN` environment variable is set,
+/// or if the `watchman` binary is not found on `$PATH`.
+fn should_use_watchman(no_watchman_flag: bool) -> bool {
+    if no_watchman_flag || env::var("FORCE_NO_WATCHMAN").is_ok() {
+        return false;
+    }
+    Command::new("watchman")
         .args(["list-capabilities"])
-        .output();
-
-    check_watchman.is_ok() && env::var("FORCE_NO_WATCHMAN").is_err()
+        .output()
+        .is_ok()
 }

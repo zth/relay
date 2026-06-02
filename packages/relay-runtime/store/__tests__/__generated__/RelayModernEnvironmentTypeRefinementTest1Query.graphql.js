@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9234ec1b5cead19377e59a83f3f063f5>>
+ * @generated SignedSource<<44c2bdb76af2203ad6155b03fab1cca8>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,18 +18,18 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentTypeRefinementTest1Fragment$fragmentType } from "./RelayModernEnvironmentTypeRefinementTest1Fragment.graphql";
-export type RelayModernEnvironmentTypeRefinementTest1Query$variables = {||};
-export type RelayModernEnvironmentTypeRefinementTest1Query$data = {|
-  +viewer: ?{|
-    +actor: ?{|
-      +$fragmentSpreads: RelayModernEnvironmentTypeRefinementTest1Fragment$fragmentType,
-    |},
-  |},
-|};
-export type RelayModernEnvironmentTypeRefinementTest1Query = {|
+export type RelayModernEnvironmentTypeRefinementTest1Query$variables = {};
+export type RelayModernEnvironmentTypeRefinementTest1Query$data = {
+  readonly viewer: ?{
+    readonly actor: ?{
+      readonly $fragmentSpreads: RelayModernEnvironmentTypeRefinementTest1Fragment$fragmentType,
+    },
+  },
+};
+export type RelayModernEnvironmentTypeRefinementTest1Query = {
   response: RelayModernEnvironmentTypeRefinementTest1Query$data,
   variables: RelayModernEnvironmentTypeRefinementTest1Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = {
@@ -144,10 +143,10 @@ var node/*: ConcreteRequest*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "0f830411ec71822a790dddf94b77c10d";
+  (node/*:: as any*/).hash = "0f830411ec71822a790dddf94b77c10d";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentTypeRefinementTest1Query$variables,
   RelayModernEnvironmentTypeRefinementTest1Query$data,
 >*/);

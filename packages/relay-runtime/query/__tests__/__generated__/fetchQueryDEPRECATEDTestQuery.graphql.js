@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1fae75878b1d19ba8dfd4a28fe998039>>
+ * @generated SignedSource<<ffaf1f933439c9a0659608fe20508309>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,21 +17,21 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type fetchQueryDEPRECATEDTestQuery$variables = {|
+export type fetchQueryDEPRECATEDTestQuery$variables = {
   fetchSize: boolean,
-|};
-export type fetchQueryDEPRECATEDTestQuery$data = {|
-  +me: ?{|
-    +name: ?string,
-    +profilePicture?: ?{|
-      +uri: ?string,
-    |},
-  |},
-|};
-export type fetchQueryDEPRECATEDTestQuery = {|
+};
+export type fetchQueryDEPRECATEDTestQuery$data = {
+  readonly me: ?{
+    readonly name: ?string,
+    readonly profilePicture?: ?{
+      readonly uri: ?string,
+    },
+  },
+};
+export type fetchQueryDEPRECATEDTestQuery = {
   response: fetchQueryDEPRECATEDTestQuery$data,
   variables: fetchQueryDEPRECATEDTestQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -83,7 +82,7 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "fetchQueryDEPRECATEDTestQuery",
@@ -96,8 +95,8 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v1/*: any*/),
-          (v2/*: any*/)
+          (v1/*:: as any*/),
+          (v2/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -107,7 +106,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "fetchQueryDEPRECATEDTestQuery",
     "selections": [
@@ -119,8 +118,8 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v1/*: any*/),
-          (v2/*: any*/),
+          (v1/*:: as any*/),
+          (v2/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -145,10 +144,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "515db95313c9905d947802496ec27068";
+  (node/*:: as any*/).hash = "515db95313c9905d947802496ec27068";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   fetchQueryDEPRECATEDTestQuery$variables,
   fetchQueryDEPRECATEDTestQuery$data,
 >*/);

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6bd4ced72110940f96fa94831d0cd04a>>
+ * @generated SignedSource<<045817c5f8ef8af6ccc001f3a51d407a>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,15 +20,15 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { RelayModernEnvironmentTypeRefinementTest4Fragment$fragmentType } from "./RelayModernEnvironmentTypeRefinementTest4Fragment.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentTypeRefinementTest3Fragment$fragmentType: FragmentType;
-export type RelayModernEnvironmentTypeRefinementTest3Fragment$data = {|
-  +id: string,
-  +lastName: ?string,
-  +$fragmentSpreads: RelayModernEnvironmentTypeRefinementTest4Fragment$fragmentType,
-  +$fragmentType: RelayModernEnvironmentTypeRefinementTest3Fragment$fragmentType,
-|};
+export type RelayModernEnvironmentTypeRefinementTest3Fragment$data = {
+  readonly id: string,
+  readonly lastName: ?string,
+  readonly $fragmentSpreads: RelayModernEnvironmentTypeRefinementTest4Fragment$fragmentType,
+  readonly $fragmentType: RelayModernEnvironmentTypeRefinementTest3Fragment$fragmentType,
+};
 export type RelayModernEnvironmentTypeRefinementTest3Fragment$key = {
-  +$data?: RelayModernEnvironmentTypeRefinementTest3Fragment$data,
-  +$fragmentSpreads: RelayModernEnvironmentTypeRefinementTest3Fragment$fragmentType,
+  readonly $data?: RelayModernEnvironmentTypeRefinementTest3Fragment$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentTypeRefinementTest3Fragment$fragmentType,
   ...
 };
 */
@@ -65,10 +64,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "f0bb895c71278e149eba4c305ca1cfcf";
+  (node/*:: as any*/).hash = "f0bb895c71278e149eba4c305ca1cfcf";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayModernEnvironmentTypeRefinementTest3Fragment$fragmentType,
   RelayModernEnvironmentTypeRefinementTest3Fragment$data,
 >*/);

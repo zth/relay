@@ -15,6 +15,30 @@ use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 pub use resolver_source_hash::ResolverSourceHash;
 
+/// Check if a string contains any resolver docblock tag
+/// (`@RelayResolver`, `@relayType`, or `@relayField`).
+///
+/// This performs a single pass over the string, avoiding the cost of
+/// multiple `str::contains` calls which would each iterate the full text.
+pub fn contains_resolver_tag(text: &str) -> bool {
+    let bytes = text.as_bytes();
+    let len = bytes.len();
+    let mut i = 0;
+    while i < len {
+        if bytes[i] == b'@' {
+            let remaining = &text[i + 1..];
+            if remaining.starts_with("RelayResolver")
+                || remaining.starts_with("relayType")
+                || remaining.starts_with("relayField")
+            {
+                return true;
+            }
+        }
+        i += 1;
+    }
+    false
+}
+
 lazy_static! {
     /// Resolver fields and types get their schema definitions annotated with
     /// a directive using this name to signal to the rest of Relay that they are backed by
@@ -33,6 +57,12 @@ lazy_static! {
     /// The name of the docblock tag that Relay looks for to determine if a field is a resolver.
     /// @RelayResolver
     pub static ref RELAY_RESOLVER_FIELD: StringKey = "RelayResolver".intern();
+    /// The name of the docblock tag for defining a Relay Resolver type.
+    /// @relayType
+    pub static ref RELAY_TYPE_FIELD: StringKey = "relayType".intern();
+    /// The name of the docblock tag for defining a Relay Resolver field.
+    /// @relayField
+    pub static ref RELAY_FIELD_FIELD: StringKey = "relayField".intern();
     /// Resolvers let you define "model types" which are backed by a JS model value. These types in the schema
     /// are annotated with a directive using this name to signal to the rest of Relay that they are backed by
     /// a Relay Resolver model.
@@ -73,6 +103,10 @@ lazy_static! {
     /// schema definition indicating if it had the @outputType docblock tag.
     pub static ref HAS_OUTPUT_TYPE_ARGUMENT_NAME: ArgumentName =
         ArgumentName("has_output_type".intern());
+    /// Argument name for the `@relay_resolver` directive attached to resolver's
+    /// schema definition containing the fragment name from the @returnFragment docblock tag.
+    pub static ref RETURN_FRAGMENT_ARGUMENT_NAME: ArgumentName =
+        ArgumentName("return_fragment".intern());
     /// Relay codegen/typegen needs to know how to import a given resolver type
     /// or field. This name is the argument to the `@relay_resolver` directive
     /// attached to the schema definition for resolver types and fields that
@@ -96,18 +130,6 @@ lazy_static! {
     /// is used to hold the name of the generated fragment.
     pub static ref GENERATED_FRAGMENT_ARGUMENT_NAME: ArgumentName =
         ArgumentName("generated_fragment".intern());
-    /// _Legacy resolver syntax_: The name of the docblock tag used to indicate
-    /// the name of the resolver field.
-    pub static ref FIELD_NAME_FIELD: StringKey = "fieldName".intern();
-    /// _Legacy resolver syntax_: The name of the docblock tag used to indicate
-    /// the type on which the resolver field is being defined.
-    pub static ref ON_TYPE_FIELD: StringKey = "onType".intern();
-    /// _Legacy resolver syntax_: The name of the docblock tag used to indicate
-    /// the interface on which the resolver field is being defined.
-    pub static ref ON_INTERFACE_FIELD: StringKey = "onInterface".intern();
-    /// _Legacy resolver syntax_: The name of the docblock tag used to indicate
-    /// that a resolver returns an edge to another GraphQL type.
-    pub static ref EDGE_TO_FIELD: StringKey = "edgeTo".intern();
     /// The name of the docblock tag used to indicate that a resolver is deprecated.
     /// If present, an equivalent `@deprecated` directive will be added to the
     /// resolver field. Note that GraphQL spec does not allow types to be marked
@@ -135,9 +157,9 @@ lazy_static! {
     /// Name of docblock tag used to indicate that a resolver reads data from a
     /// fragment, and what the name of that fragment is.
     pub static ref ROOT_FRAGMENT_FIELD: StringKey = "rootFragment".intern();
-    /// _Legacy resolver syntax_: The name of the docblock tag used to indicate that the resolver returns
-    /// a fully/deeply populated weak type. This feature is deprecated.
-    pub static ref OUTPUT_TYPE_FIELD: StringKey = "outputType".intern();
+    /// Name of docblock tag used to indicate that a shadow resolver returns
+    /// data conforming to a specific fragment's shape.
+    pub static ref RETURN_FRAGMENT_FIELD: StringKey = "returnFragment".intern();
     /// Docblock tag used to indicate that a docblock is defining a "weak" type.
     /// Such docblocks should be followed by a type export which will act as the
     /// Flow/TypeScript type of the backing model for this type.

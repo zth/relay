@@ -20,6 +20,7 @@ use crate::writer::Writer;
 pub struct FlowPrinter {
     result: String,
     indentation: usize,
+    use_flow_modern_syntax: bool,
 }
 
 impl Write for FlowPrinter {
@@ -36,15 +37,16 @@ impl Writer for FlowPrinter {
     fn write(&mut self, ast: &AST) -> FmtResult {
         match ast {
             AST::Any => write!(&mut self.result, "any"),
-            AST::Mixed => write!(&mut self.result, "mixed"),
+            AST::Mixed => write!(&mut self.result, "unknown"),
+            AST::Empty => write!(&mut self.result, "empty"),
             AST::String => write!(&mut self.result, "string"),
             AST::StringLiteral(literal) => self.write_string_literal(**literal),
             AST::OtherTypename => self.write_other_string(),
             AST::Number => write!(&mut self.result, "number"),
             AST::Boolean => write!(&mut self.result, "boolean"),
             AST::Callable(return_type) => self.write_callable(return_type),
-            AST::Identifier(identifier) => write!(&mut self.result, "{}", identifier),
-            AST::RawType(raw) => write!(&mut self.result, "{}", raw),
+            AST::Identifier(identifier) => write!(&mut self.result, "{identifier}"),
+            AST::RawType(raw) => write!(&mut self.result, "{raw}"),
             AST::Union(members) => self.write_union(members),
             AST::ReadOnlyArray(of_type) => self.write_read_only_array(of_type),
             AST::Nullable(of_type) => self.write_nullable(of_type),
@@ -56,7 +58,7 @@ impl Writer for FlowPrinter {
             }
             AST::FragmentReference(fragments) => self.write_fragment_references(fragments),
             AST::FragmentReferenceType(fragment) => {
-                write!(&mut self.result, "{}$fragmentType", fragment)
+                write!(&mut self.result, "{fragment}$fragmentType")
             }
             AST::ReturnTypeOfFunctionWithName(function_name) => {
                 self.write_return_type_of_function_with_name(*function_name)
@@ -64,7 +66,6 @@ impl Writer for FlowPrinter {
             AST::ReturnTypeOfMethodCall(object, method_name) => {
                 self.write_return_type_of_method_call(object, *method_name)
             }
-            AST::ActorChangePoint(selections) => self.write_actor_change_point(selections),
             AST::AssertFunctionType(FunctionTypeAssertion {
                 function_name,
                 arguments,
@@ -76,7 +77,7 @@ impl Writer for FlowPrinter {
                 property_name,
             } => {
                 self.write(type_)?;
-                write!(&mut self.result, "['{}']", property_name)
+                write!(&mut self.result, "['{property_name}']")
             }
         }
     }
@@ -86,19 +87,19 @@ impl Writer for FlowPrinter {
     }
 
     fn write_type_assertion(&mut self, name: &str, value: &AST) -> FmtResult {
-        write!(&mut self.result, "({}: ", name)?;
+        write!(&mut self.result, "({name} as ")?;
         self.write(value)?;
         writeln!(&mut self.result, ");")
     }
 
     fn write_export_type(&mut self, name: &str, value: &AST) -> FmtResult {
-        write!(&mut self.result, "export type {} = ", name)?;
+        write!(&mut self.result, "export type {name} = ")?;
         self.write(value)?;
         writeln!(&mut self.result, ";")
     }
 
     fn write_import_module_default(&mut self, name: &str, from: &str) -> FmtResult {
-        writeln!(&mut self.result, "import {} from \"{}\";", name, from)
+        writeln!(&mut self.result, "import {name} from \"{from}\";")
     }
 
     fn write_import_module_named(
@@ -108,9 +109,9 @@ impl Writer for FlowPrinter {
         from: &str,
     ) -> FmtResult {
         let local_name = if let Some(import_as) = import_as {
-            format!("{{{} as {}}}", name, import_as)
+            format!("{{{name} as {import_as}}}")
         } else {
-            format!("{{{}}}", name)
+            format!("{{{name}}}")
         };
         self.write_import_module_default(&local_name, from)
     }
@@ -131,8 +132,7 @@ impl Writer for FlowPrinter {
     fn write_export_fragment_type(&mut self, name: &str) -> FmtResult {
         writeln!(
             &mut self.result,
-            "declare export opaque type {name}: FragmentType;",
-            name = name
+            "declare export opaque type {name}: FragmentType;"
         )
     }
 
@@ -143,21 +143,21 @@ impl Writer for FlowPrinter {
     ) -> FmtResult {
         writeln!(
             &mut self.result,
-            "export type {{ {}, {} }};",
-            fragment_type_name_1, fragment_type_name_2
+            "export type {{ {fragment_type_name_1}, {fragment_type_name_2} }};"
         )
     }
 
     fn write_any_type_definition(&mut self, name: &str) -> FmtResult {
-        writeln!(&mut self.result, "type {} = any;", name)
+        writeln!(&mut self.result, "type {name} = any;")
     }
 }
 
 impl FlowPrinter {
-    pub fn new() -> Self {
+    pub fn new(use_flow_modern_syntax: bool) -> Self {
         Self {
             result: String::new(),
             indentation: 0,
+            use_flow_modern_syntax,
         }
     }
 
@@ -166,7 +166,7 @@ impl FlowPrinter {
     }
 
     fn write_string_literal(&mut self, literal: StringKey) -> FmtResult {
-        write!(&mut self.result, "\"{}\"", literal)
+        write!(&mut self.result, "\"{literal}\"")
     }
 
     fn write_other_string(&mut self) -> FmtResult {
@@ -194,19 +194,19 @@ impl FlowPrinter {
             } else {
                 write!(&mut self.result, " & ")?;
             }
-            write!(&mut self.result, "{}$fragmentType", fragment)?;
+            write!(&mut self.result, "{fragment}$fragmentType")?;
         }
         Ok(())
     }
 
     fn write_read_only_array(&mut self, of_type: &AST) -> FmtResult {
-        write!(&mut self.result, "$ReadOnlyArray<")?;
+        write!(&mut self.result, "ReadonlyArray<")?;
         self.write(of_type)?;
         write!(&mut self.result, ">")
     }
 
     fn write_non_nullable(&mut self, of_type: &AST) -> FmtResult {
-        write!(&mut self.result, "$NonMaybeType<")?;
+        write!(&mut self.result, "NonNullable<")?;
         self.write(of_type)?;
         write!(&mut self.result, ">")
     }
@@ -228,11 +228,15 @@ impl FlowPrinter {
 
     fn write_object(&mut self, props: &[Prop], exact: bool) -> FmtResult {
         if props.is_empty() && exact {
-            write!(&mut self.result, "{{||}}")?;
+            if self.use_flow_modern_syntax {
+                write!(&mut self.result, "{{}}")?;
+            } else {
+                write!(&mut self.result, "{{||}}")?;
+            }
             return Ok(());
         }
 
-        if exact {
+        if exact && !self.use_flow_modern_syntax {
             writeln!(&mut self.result, "{{|")?;
         } else {
             writeln!(&mut self.result, "{{")?;
@@ -261,7 +265,9 @@ impl FlowPrinter {
                         )?;
                         self.write_indentation()?;
                     }
-                    if key_value_pair.read_only {
+                    if key_value_pair.read_only && self.use_flow_modern_syntax {
+                        write!(&mut self.result, "readonly ")?;
+                    } else if key_value_pair.read_only {
                         write!(&mut self.result, "+")?;
                     }
                     write!(&mut self.result, "{}", key_value_pair.key)?;
@@ -296,7 +302,7 @@ impl FlowPrinter {
         }
         self.indentation -= 1;
         self.write_indentation()?;
-        if exact {
+        if exact && !self.use_flow_modern_syntax {
             write!(&mut self.result, "|}}")?;
         } else {
             write!(&mut self.result, "}}")?;
@@ -305,14 +311,14 @@ impl FlowPrinter {
     }
 
     fn write_local_3d_payload(&mut self, document_name: StringKey, selections: &AST) -> FmtResult {
-        write!(&mut self.result, "Local3DPayload<\"{}\", ", document_name)?;
+        write!(&mut self.result, "Local3DPayload<\"{document_name}\", ")?;
         self.write(selections)?;
         write!(&mut self.result, ">")?;
         Ok(())
     }
 
     fn write_return_type_of_function_with_name(&mut self, function_name: StringKey) -> FmtResult {
-        write!(&mut self.result, "ReturnType<typeof {}>", function_name)
+        write!(&mut self.result, "ReturnType<typeof {function_name}>")
     }
 
     fn write_return_type_of_method_call(
@@ -322,14 +328,7 @@ impl FlowPrinter {
     ) -> FmtResult {
         write!(&mut self.result, "ReturnType<")?;
         self.write(object)?;
-        write!(&mut self.result, "[\"{}\"]>", method_name)
-    }
-
-    fn write_actor_change_point(&mut self, selections: &AST) -> FmtResult {
-        write!(&mut self.result, "ActorChangePoint<")?;
-        self.write(selections)?;
-        write!(&mut self.result, ">")?;
-        Ok(())
+        write!(&mut self.result, "[\"{method_name}\"]>")
     }
 
     fn write_callable(&mut self, return_type: &AST) -> FmtResult {
@@ -345,17 +344,17 @@ impl FlowPrinter {
     ) -> FmtResult {
         writeln!(
             &mut self.result,
-            "// Type assertion validating that `{}` resolver is correctly implemented.",
-            function_name
+            "// Type assertion validating that `{function_name}` resolver is correctly implemented."
         )?;
         writeln!(
             &mut self.result,
             "// A type error here indicates that the type signature of the resolver module is incorrect."
         )?;
+        let cast_op = " as ";
         if arguments.is_empty() {
-            write!(&mut self.result, "({}: (", function_name)?;
+            write!(&mut self.result, "({function_name}{cast_op}(")?;
         } else {
-            writeln!(&mut self.result, "({}: (", function_name)?;
+            writeln!(&mut self.result, "({function_name}{cast_op}(")?;
             self.indentation += 1;
             for argument in arguments.iter() {
                 self.write_indentation()?;
@@ -373,7 +372,7 @@ impl FlowPrinter {
     }
 
     fn write_generic_type(&mut self, outer: StringKey, inner: &[AST]) -> FmtResult {
-        write!(&mut self.result, "{}<", outer)?;
+        write!(&mut self.result, "{outer}<")?;
         for (i, inner_type) in inner.iter().enumerate() {
             if i > 0 {
                 write!(&mut self.result, ", ")?;
@@ -395,7 +394,11 @@ mod tests {
     use crate::writer::SortedASTList;
 
     fn print_type(ast: &AST) -> String {
-        let mut printer = Box::new(FlowPrinter::new());
+        print_type_with_flow_modern_syntax(ast, false)
+    }
+
+    fn print_type_with_flow_modern_syntax(ast: &AST, use_flow_modern_syntax: bool) -> String {
+        let mut printer = Box::new(FlowPrinter::new(use_flow_modern_syntax));
         printer.write(ast).unwrap();
         printer.into_string()
     }
@@ -422,7 +425,7 @@ mod tests {
     fn read_only_array_type() {
         assert_eq!(
             print_type(&AST::ReadOnlyArray(Box::new(AST::String))),
-            "$ReadOnlyArray<string>".to_string()
+            "ReadonlyArray<string>".to_string()
         );
     }
 
@@ -527,6 +530,58 @@ mod tests {
     }
 
     #[test]
+    fn flow_modern_exact_object() {
+        assert_eq!(
+            print_type_with_flow_modern_syntax(
+                &AST::ExactObject(ExactObject::new(Vec::new())),
+                true,
+            ),
+            r"{}".to_string()
+        );
+
+        assert_eq!(
+            print_type_with_flow_modern_syntax(
+                &AST::ExactObject(ExactObject::new(vec![
+                    Prop::KeyValuePair(KeyValuePairProp {
+                        key: intern!("foo"),
+                        optional: true,
+                        read_only: false,
+                        value: AST::ExactObject(ExactObject::new(vec![
+                            Prop::KeyValuePair(KeyValuePairProp {
+                                key: intern!("nested_foo"),
+                                optional: true,
+                                read_only: false,
+                                value: AST::String,
+                            }),
+                            Prop::KeyValuePair(KeyValuePairProp {
+                                key: intern!("nested_foo2"),
+                                optional: false,
+                                read_only: true,
+                                value: AST::Number,
+                            }),
+                        ],)),
+                    }),
+                    Prop::KeyValuePair(KeyValuePairProp {
+                        key: intern!("bar"),
+                        optional: false,
+                        read_only: true,
+                        value: AST::Number,
+                    }),
+                ],)),
+                true,
+            ),
+            r"{
+  readonly bar: number,
+  foo?: {
+    nested_foo?: string,
+    readonly nested_foo2: number,
+  },
+}"
+            .to_string()
+        );
+    }
+
+    #[test]
     fn inexact_object() {
         assert_eq!(
             print_type(&AST::InexactObject(InexactObject::new(Vec::new()))),
@@ -577,6 +632,78 @@ mod tests {
     }
 
     #[test]
+    fn flow_modern_inexact_object_preserves_spread() {
+        assert_eq!(
+            print_type_with_flow_modern_syntax(
+                &AST::InexactObject(InexactObject::new(vec![
+                    Prop::KeyValuePair(KeyValuePairProp {
+                        key: intern!("foo"),
+                        optional: false,
+                        read_only: false,
+                        value: AST::String,
+                    }),
+                    Prop::KeyValuePair(KeyValuePairProp {
+                        key: intern!("bar"),
+                        optional: true,
+                        read_only: true,
+                        value: AST::Number,
+                    })
+                ])),
+                true,
+            ),
+            r"{
+  readonly bar?: number,
+  foo: string,
+  ...
+}"
+            .to_string()
+        );
+    }
+
+    #[test]
+    fn one_of_input_object() {
+        assert_eq!(
+            print_type(&AST::Union(SortedASTList::new(vec![
+                AST::ExactObject(ExactObject::new(vec![
+                    Prop::KeyValuePair(KeyValuePairProp {
+                        key: intern!("foo"),
+                        value: AST::String,
+                        read_only: false,
+                        optional: false
+                    }),
+                    Prop::KeyValuePair(KeyValuePairProp {
+                        key: intern!("bar"),
+                        value: AST::Empty,
+                        read_only: false,
+                        optional: true
+                    })
+                ])),
+                AST::ExactObject(ExactObject::new(vec![
+                    Prop::KeyValuePair(KeyValuePairProp {
+                        key: intern!("foo"),
+                        value: AST::Empty,
+                        read_only: false,
+                        optional: true
+                    }),
+                    Prop::KeyValuePair(KeyValuePairProp {
+                        key: intern!("bar"),
+                        value: AST::String,
+                        read_only: false,
+                        optional: false
+                    })
+                ]))
+            ]))),
+            r"{|
+  bar?: empty,
+  foo: string,
+|} | {|
+  bar: string,
+  foo?: empty,
+|}"
+        );
+    }
+
+    #[test]
     fn other_comment() {
         assert_eq!(
             print_type(&AST::ExactObject(ExactObject::new(vec![
@@ -598,7 +725,7 @@ mod tests {
 
     #[test]
     fn import_type() {
-        let mut printer = Box::new(FlowPrinter::new());
+        let mut printer = Box::new(FlowPrinter::new(false));
         printer.write_import_type(&["A", "B"], "module").unwrap();
         assert_eq!(
             printer.into_string(),
@@ -608,7 +735,7 @@ mod tests {
 
     #[test]
     fn import_module() {
-        let mut printer = Box::new(FlowPrinter::new());
+        let mut printer = Box::new(FlowPrinter::new(false));
         printer.write_import_module_default("A", "module").unwrap();
         assert_eq!(printer.into_string(), "import A from \"module\";\n");
     }

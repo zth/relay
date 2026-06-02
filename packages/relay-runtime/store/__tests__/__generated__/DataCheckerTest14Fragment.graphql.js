@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<03d53b3c0a224c4747a0cd4cc369b6a6>>
+ * @generated SignedSource<<53cb8af2867fdd46790b16734728f8d1>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,42 +19,42 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type DataCheckerTest14Fragment$fragmentType: FragmentType;
-export type DataCheckerTest14Fragment$data = {|
-  +best_friends: ?{|
-    +edges: ?$ReadOnlyArray<?{|
-      +client_friend_edge_field: ?string,
-      +cursor: ?string,
-      +node: ?{|
-        +client_actor_field?: ?string,
-        +client_foo: ?{|
-          +client_name: ?string,
-          +profile_picture: ?{|
-            +uri: ?string,
-          |},
-        |},
-        +id: string,
-        +profilePicture?: ?{|
-          +height: ?number,
-          +uri: ?string,
-          +width: ?number,
-        |},
-      |},
-    |}>,
-  |},
-  +client_actor_field: ?string,
-  +client_foo: ?{|
-    +client_name: ?string,
-    +profile_picture: ?{|
-      +uri: ?string,
-    |},
-  |},
-  +firstName: ?string,
-  +id: string,
-  +$fragmentType: DataCheckerTest14Fragment$fragmentType,
-|};
+export type DataCheckerTest14Fragment$data = {
+  readonly best_friends: ?{
+    readonly edges: ?ReadonlyArray<?{
+      readonly client_friend_edge_field: ?string,
+      readonly cursor: ?string,
+      readonly node: ?{
+        readonly client_actor_field?: ?string,
+        readonly client_foo: ?{
+          readonly client_name: ?string,
+          readonly profile_picture: ?{
+            readonly uri: ?string,
+          },
+        },
+        readonly id: string,
+        readonly profilePicture?: ?{
+          readonly height: ?number,
+          readonly uri: ?string,
+          readonly width: ?number,
+        },
+      },
+    }>,
+  },
+  readonly client_actor_field: ?string,
+  readonly client_foo: ?{
+    readonly client_name: ?string,
+    readonly profile_picture: ?{
+      readonly uri: ?string,
+    },
+  },
+  readonly firstName: ?string,
+  readonly id: string,
+  readonly $fragmentType: DataCheckerTest14Fragment$fragmentType,
+};
 export type DataCheckerTest14Fragment$key = {
-  +$data?: DataCheckerTest14Fragment$data,
-  +$fragmentSpreads: DataCheckerTest14Fragment$fragmentType,
+  readonly $data?: DataCheckerTest14Fragment$data,
+  readonly $fragmentSpreads: DataCheckerTest14Fragment$fragmentType,
   ...
 };
 */
@@ -111,7 +110,7 @@ v3 = {
       "name": "profile_picture",
       "plural": false,
       "selections": [
-        (v2/*: any*/)
+        (v2/*:: as any*/)
       ],
       "storageKey": "profile_picture(scale:2)"
     }
@@ -130,7 +129,7 @@ return {
   "metadata": null,
   "name": "DataCheckerTest14Fragment",
   "selections": [
-    (v0/*: any*/),
+    (v0/*:: as any*/),
     {
       "alias": null,
       "args": null,
@@ -141,8 +140,8 @@ return {
     {
       "kind": "ClientExtension",
       "selections": [
-        (v1/*: any*/),
-        (v3/*: any*/),
+        (v1/*:: as any*/),
+        (v3/*:: as any*/),
         {
           "alias": null,
           "args": null,
@@ -181,12 +180,12 @@ return {
                   "name": "node",
                   "plural": false,
                   "selections": [
-                    (v0/*: any*/),
-                    (v3/*: any*/),
+                    (v0/*:: as any*/),
+                    (v3/*:: as any*/),
                     {
                       "kind": "InlineFragment",
                       "selections": [
-                        (v1/*: any*/),
+                        (v1/*:: as any*/),
                         {
                           "alias": null,
                           "args": [
@@ -201,7 +200,7 @@ return {
                           "name": "profilePicture",
                           "plural": false,
                           "selections": [
-                            (v2/*: any*/),
+                            (v2/*:: as any*/),
                             {
                               "alias": null,
                               "args": null,
@@ -241,10 +240,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "99de1670b248e2c0d7cebc896f86a2fd";
+  (node/*:: as any*/).hash = "99de1670b248e2c0d7cebc896f86a2fd";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   DataCheckerTest14Fragment$fragmentType,
   DataCheckerTest14Fragment$data,
 >*/);

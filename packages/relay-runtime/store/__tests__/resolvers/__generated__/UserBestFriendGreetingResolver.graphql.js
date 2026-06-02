@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3d960d7d9db38a325a728084b82cc638>>
+ * @generated SignedSource<<3cd1cb9f80eddfc2b9e1c2f6a1218625>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,20 +19,20 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type UserBestFriendGreetingResolver$fragmentType: FragmentType;
-export type UserBestFriendGreetingResolver$data = {|
-  +friends: ?{|
-    +edges: ?$ReadOnlyArray<?{|
-      +cursor: ?string,
-      +node: ?{|
-        +name: ?string,
-      |},
-    |}>,
-  |},
-  +$fragmentType: UserBestFriendGreetingResolver$fragmentType,
-|};
+export type UserBestFriendGreetingResolver$data = {
+  readonly friends: ?{
+    readonly edges: ?ReadonlyArray<?{
+      readonly cursor: ?string,
+      readonly node: ?{
+        readonly name: ?string,
+      },
+    }>,
+  },
+  readonly $fragmentType: UserBestFriendGreetingResolver$fragmentType,
+};
 export type UserBestFriendGreetingResolver$key = {
-  +$data?: UserBestFriendGreetingResolver$data,
-  +$fragmentSpreads: UserBestFriendGreetingResolver$fragmentType,
+  readonly $data?: UserBestFriendGreetingResolver$data,
+  readonly $fragmentSpreads: UserBestFriendGreetingResolver$fragmentType,
   ...
 };
 */
@@ -103,10 +102,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "a42ddde1e902b99ed68e5b6adef52956";
+  (node/*:: as any*/).hash = "a42ddde1e902b99ed68e5b6adef52956";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   UserBestFriendGreetingResolver$fragmentType,
   UserBestFriendGreetingResolver$data,
 >*/);

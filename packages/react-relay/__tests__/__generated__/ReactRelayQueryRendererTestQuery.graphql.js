@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<640d3b690af15282d859679fdde281e6>>
+ * @generated SignedSource<<0dbb2b204f64c8741ca287e42449df70>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,19 +18,19 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { ReactRelayQueryRendererTestFragment$fragmentType } from "./ReactRelayQueryRendererTestFragment.graphql";
-export type ReactRelayQueryRendererTestQuery$variables = {|
+export type ReactRelayQueryRendererTestQuery$variables = {
   id?: ?string,
-|};
-export type ReactRelayQueryRendererTestQuery$data = {|
-  +node: ?{|
-    +id: string,
-    +$fragmentSpreads: ReactRelayQueryRendererTestFragment$fragmentType,
-  |},
-|};
-export type ReactRelayQueryRendererTestQuery = {|
+};
+export type ReactRelayQueryRendererTestQuery$data = {
+  readonly node: ?{
+    readonly id: string,
+    readonly $fragmentSpreads: ReactRelayQueryRendererTestFragment$fragmentType,
+  },
+};
+export type ReactRelayQueryRendererTestQuery = {
   response: ReactRelayQueryRendererTestQuery$data,
   variables: ReactRelayQueryRendererTestQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -58,20 +57,20 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "ReactRelayQueryRendererTestQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "args": null,
             "kind": "FragmentSpread",
@@ -86,13 +85,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "ReactRelayQueryRendererTestQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -105,7 +104,7 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
@@ -137,10 +136,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "9fa9b4608e79feda0a43038cfc0fa816";
+  (node/*:: as any*/).hash = "9fa9b4608e79feda0a43038cfc0fa816";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ReactRelayQueryRendererTestQuery$variables,
   ReactRelayQueryRendererTestQuery$data,
 >*/);

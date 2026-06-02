@@ -19,35 +19,35 @@ const {useDebugValue} = require('react');
 const {getFragment} = require('relay-runtime');
 
 type HasSpread<TFragmentType> = {
-  +$fragmentSpreads: TFragmentType,
+  readonly $fragmentSpreads: TFragmentType,
   ...
 };
 
 // if the key is non-nullable, return non-nullable value
-declare hook useFragment<TFragmentType: FragmentType, TData>(
+declare hook useFragment<TFragmentType extends FragmentType, TData>(
   fragment: Fragment<TFragmentType, TData>,
   key: HasSpread<TFragmentType>,
 ): TData;
 
 // if the key is nullable, return nullable value
-declare hook useFragment<TFragmentType: FragmentType, TData>(
+declare hook useFragment<TFragmentType extends FragmentType, TData>(
   fragment: Fragment<TFragmentType, TData>,
   key: ?HasSpread<TFragmentType>,
 ): ?TData;
 
 // if the key is a non-nullable array of keys, return non-nullable array
-declare hook useFragment<TFragmentType: FragmentType, TData>(
+declare hook useFragment<TFragmentType extends FragmentType, TData>(
   fragment: Fragment<TFragmentType, TData>,
-  key: $ReadOnlyArray<HasSpread<TFragmentType>>,
+  key: ReadonlyArray<HasSpread<TFragmentType>>,
 ): TData;
 
 // if the key is a nullable array of keys, return nullable array
-declare hook useFragment<TFragmentType: FragmentType, TData>(
+declare hook useFragment<TFragmentType extends FragmentType, TData>(
   fragment: Fragment<TFragmentType, TData>,
-  key: ?$ReadOnlyArray<HasSpread<TFragmentType>>,
+  key: ?ReadonlyArray<HasSpread<TFragmentType>>,
 ): ?TData;
 
-hook useFragment(fragment: GraphQLTaggedNode, key: mixed): mixed {
+hook useFragment(fragment: GraphQLTaggedNode, key: unknown): unknown {
   const fragmentNode = getFragment(fragment);
   useStaticFragmentNodeWarning(fragmentNode, 'first argument of useFragment()');
   const data = useFragmentInternal(fragmentNode, key, 'useFragment()');

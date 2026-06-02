@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<de03f6f7905ae788761d2f301637512a>>
+ * @generated SignedSource<<361529a16d574c61ceb6958014672906>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,18 +23,18 @@ import type { RelayReferenceMarkerTest2MarkdownUserNameRenderer_name$fragmentTyp
 import type { RelayReferenceMarkerTest2PlainUserNameRenderer_name$fragmentType } from "./RelayReferenceMarkerTest2PlainUserNameRenderer_name.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayReferenceMarkerTest4Fragment$fragmentType: FragmentType;
-export type RelayReferenceMarkerTest4Fragment$data = {|
-  +id: string,
-  +nameRenderer: ?{|
-    +__fragmentPropName?: ?string,
-    +__module_component?: ?string,
-    +$fragmentSpreads: RelayReferenceMarkerTest2MarkdownUserNameRenderer_name$fragmentType & RelayReferenceMarkerTest2PlainUserNameRenderer_name$fragmentType,
-  |},
-  +$fragmentType: RelayReferenceMarkerTest4Fragment$fragmentType,
-|};
+export type RelayReferenceMarkerTest4Fragment$data = {
+  readonly id: string,
+  readonly nameRenderer: ?{
+    readonly __fragmentPropName?: ?string,
+    readonly __module_component?: ?string,
+    readonly $fragmentSpreads: RelayReferenceMarkerTest2MarkdownUserNameRenderer_name$fragmentType & RelayReferenceMarkerTest2PlainUserNameRenderer_name$fragmentType,
+  },
+  readonly $fragmentType: RelayReferenceMarkerTest4Fragment$fragmentType,
+};
 export type RelayReferenceMarkerTest4Fragment$key = {
-  +$data?: RelayReferenceMarkerTest4Fragment$data,
-  +$fragmentSpreads: RelayReferenceMarkerTest4Fragment$fragmentType,
+  readonly $data?: RelayReferenceMarkerTest4Fragment$data,
+  readonly $fragmentSpreads: RelayReferenceMarkerTest4Fragment$fragmentType,
   ...
 };
 */
@@ -98,10 +97,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "3d6e8ff98f9447a17bcc393a14e2a4f7";
+  (node/*:: as any*/).hash = "3d6e8ff98f9447a17bcc393a14e2a4f7";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayReferenceMarkerTest4Fragment$fragmentType,
   RelayReferenceMarkerTest4Fragment$data,
 >*/);

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<60953e8f5be888efc4ef6882def9344f>>
+ * @generated SignedSource<<c0a12497db2dcb5ca52cd576889fd745>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,16 +18,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayExperimentalGraphResponseTransformTest_no_inline_user_name$fragmentType } from "./RelayExperimentalGraphResponseTransformTest_no_inline_user_name.graphql";
-export type RelayExperimentalGraphResponseTransformTestFragmentSpreadNoInlineQuery$variables = {||};
-export type RelayExperimentalGraphResponseTransformTestFragmentSpreadNoInlineQuery$data = {|
-  +node: ?{|
-    +$fragmentSpreads: RelayExperimentalGraphResponseTransformTest_no_inline_user_name$fragmentType,
-  |},
-|};
-export type RelayExperimentalGraphResponseTransformTestFragmentSpreadNoInlineQuery = {|
+export type RelayExperimentalGraphResponseTransformTestFragmentSpreadNoInlineQuery$variables = {};
+export type RelayExperimentalGraphResponseTransformTestFragmentSpreadNoInlineQuery$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: RelayExperimentalGraphResponseTransformTest_no_inline_user_name$fragmentType,
+  },
+};
+export type RelayExperimentalGraphResponseTransformTestFragmentSpreadNoInlineQuery = {
   response: RelayExperimentalGraphResponseTransformTestFragmentSpreadNoInlineQuery$data,
   variables: RelayExperimentalGraphResponseTransformTestFragmentSpreadNoInlineQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -48,7 +47,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -74,7 +73,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -116,10 +115,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "c757231a3cc1f2f44b4d7cee9b204962";
+  (node/*:: as any*/).hash = "c757231a3cc1f2f44b4d7cee9b204962";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayExperimentalGraphResponseTransformTestFragmentSpreadNoInlineQuery$variables,
   RelayExperimentalGraphResponseTransformTestFragmentSpreadNoInlineQuery$data,
 >*/);

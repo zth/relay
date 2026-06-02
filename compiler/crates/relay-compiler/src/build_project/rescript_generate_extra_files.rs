@@ -256,6 +256,101 @@ pub(crate) fn rescript_generate_extra_artifacts(
     }
     });
 
+    schema.input_objects().for_each(|input_obj| {
+        let is_input_union = input_obj
+            .directives
+            .iter()
+            .find(|directive| directive.name.0.eq(&"oneOf".intern()))
+            .is_some();
+
+        let is_input_union = if is_input_union {
+            true
+        } else if project_config.input_unions.is_some()
+            && project_config
+                .input_unions
+                .as_ref()
+                .unwrap()
+                .contains(&input_obj.name.item.0)
+        {
+            input_obj.fields.iter().find(|f| f.type_.is_non_null()).is_none()
+        } else {
+            false
+        };
+
+        if is_input_union {
+            return;
+        }
+
+        writeln!(content, "\n@live\nlet make_{} = (", input_obj.name.item).unwrap();
+        input_obj.fields.iter().for_each(|field| {
+            let (key, _) = get_safe_key(&field.name.item.to_string());
+            match &field.type_ {
+                &TypeReference::NonNull(_) => writeln!(
+                    content,
+                    "  ~{}: {},",
+                    key,
+                    print_type_reference(
+                        &field.type_,
+                        &schema,
+                        &project_config.typegen_config.custom_scalar_types,
+                        false,
+                        false,
+                        &NullabilityMode::Option,
+                        true
+                    )
+                )
+                .unwrap(),
+                _ => writeln!(content, "  ~{}=?,", key).unwrap(),
+            }
+        });
+        writeln!(content, "  (),\n): input_{} => {{", input_obj.name.item).unwrap();
+        input_obj.fields.iter().for_each(|field| {
+            let (key, _) = get_safe_key(&field.name.item.to_string());
+            match &field.type_ {
+                &TypeReference::NonNull(_) => writeln!(content, "  {},", key).unwrap(),
+                _ => writeln!(content, "  {}: ?{},", key, key).unwrap(),
+            }
+        });
+        writeln!(content, "}}").unwrap();
+
+        writeln!(
+            content,
+            "\n@live\nlet make_{}_nullable = (",
+            input_obj.name.item
+        )
+        .unwrap();
+        input_obj.fields.iter().for_each(|field| {
+            let (key, _) = get_safe_key(&field.name.item.to_string());
+            match &field.type_ {
+                &TypeReference::NonNull(_) => writeln!(
+                    content,
+                    "  ~{}: {},",
+                    key,
+                    print_type_reference(
+                        &field.type_,
+                        &schema,
+                        &project_config.typegen_config.custom_scalar_types,
+                        true,
+                        false,
+                        &NullabilityMode::Nullable,
+                        true
+                    )
+                )
+                .unwrap(),
+                _ => writeln!(content, "  ~{}=?,", key).unwrap(),
+            }
+        });
+        writeln!(content, "  (),\n): input_{}_nullable => {{", input_obj.name.item).unwrap();
+        input_obj.fields.iter().for_each(|field| {
+            let (key, _) = get_safe_key(&field.name.item.to_string());
+            match &field.type_ {
+                &TypeReference::NonNull(_) => writeln!(content, "  {},", key).unwrap(),
+                _ => writeln!(content, "  {}: ?{},", key, key).unwrap(),
+            }
+        });
+        writeln!(content, "}}").unwrap();
+    });
+
     let schema_assets_artifact = Artifact {
         artifact_source_keys: vec![],
         path: project_config.create_path_for_artifact(

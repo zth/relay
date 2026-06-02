@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0a5999522e6127ab9a1aab5f7468d7bb>>
+ * @generated SignedSource<<7224b46cdbb1b888390443704cf9f08b>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,19 +18,19 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment$fragmentType } from "./RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment.graphql";
-export type RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentQuery$variables = {|
+export type RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentQuery$variables = {
   id: string,
-|};
-export type RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentQuery$data = {|
-  +node: ?{|
-    +id: string,
-    +$fragmentSpreads: RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment$fragmentType,
-  |},
-|};
-export type RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentQuery = {|
+};
+export type RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentQuery$data = {
+  readonly node: ?{
+    readonly id: string,
+    readonly $fragmentSpreads: RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment$fragmentType,
+  },
+};
+export type RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentQuery = {
   response: RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentQuery$data,
   variables: RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -58,20 +57,20 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "args": null,
             "kind": "FragmentSpread",
@@ -86,13 +85,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -105,7 +104,7 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
@@ -148,10 +147,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "01697c8ccf4980cfb1a655bad4327f7d";
+  (node/*:: as any*/).hash = "01697c8ccf4980cfb1a655bad4327f7d";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentQuery$variables,
   RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentQuery$data,
 >*/);

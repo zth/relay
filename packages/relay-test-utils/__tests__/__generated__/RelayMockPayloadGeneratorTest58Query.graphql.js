@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<fc136e4f5875a8a736690d43da5751db>>
+ * @generated SignedSource<<1152fe886c4be6911ae568c90539f50e>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,16 +18,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayMockPayloadGeneratorTest_fragment59$fragmentType } from "./RelayMockPayloadGeneratorTest_fragment59.graphql";
-export type RelayMockPayloadGeneratorTest58Query$variables = {||};
-export type RelayMockPayloadGeneratorTest58Query$data = {|
-  +node: ?{|
-    +$fragmentSpreads: RelayMockPayloadGeneratorTest_fragment59$fragmentType,
-  |},
-|};
-export type RelayMockPayloadGeneratorTest58Query = {|
+export type RelayMockPayloadGeneratorTest58Query$variables = {};
+export type RelayMockPayloadGeneratorTest58Query$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: RelayMockPayloadGeneratorTest_fragment59$fragmentType,
+  },
+};
+export type RelayMockPayloadGeneratorTest58Query = {
   response: RelayMockPayloadGeneratorTest58Query$data,
   variables: RelayMockPayloadGeneratorTest58Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -48,7 +47,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -80,7 +79,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v0/*: any*/),
+        "args": (v0/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -128,10 +127,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "c0467d664d629e5180ecfc619505654e";
+  (node/*:: as any*/).hash = "c0467d664d629e5180ecfc619505654e";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayMockPayloadGeneratorTest58Query$variables,
   RelayMockPayloadGeneratorTest58Query$data,
 >*/);

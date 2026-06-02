@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a588fcca4644eb6196e91eabc5d9305b>>
+ * @generated SignedSource<<57309d6e26183ae6107ea7158fb5f112>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,21 +17,21 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayReaderRelayErrorHandlingTest4Query$variables = {|
-  size?: ?$ReadOnlyArray<?number>,
-|};
-export type RelayReaderRelayErrorHandlingTest4Query$data = {|
-  +me: ?{|
-    +lastName: ?string,
-    +profilePicture: ?{|
-      +uri: ?string,
-    |},
-  |},
-|};
-export type RelayReaderRelayErrorHandlingTest4Query = {|
+export type RelayReaderRelayErrorHandlingTest4Query$variables = {
+  size?: ?ReadonlyArray<?number>,
+};
+export type RelayReaderRelayErrorHandlingTest4Query$data = {
+  readonly me: ?{
+    readonly lastName: ?string,
+    readonly profilePicture: ?{
+      readonly uri: ?string,
+    },
+  },
+};
+export type RelayReaderRelayErrorHandlingTest4Query = {
   response: RelayReaderRelayErrorHandlingTest4Query$data,
   variables: RelayReaderRelayErrorHandlingTest4Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -76,7 +75,7 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": {
       "throwOnFieldError": true
@@ -91,8 +90,8 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v1/*: any*/),
-          (v2/*: any*/)
+          (v1/*:: as any*/),
+          (v2/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -102,7 +101,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayReaderRelayErrorHandlingTest4Query",
     "selections": [
@@ -114,8 +113,8 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v1/*: any*/),
-          (v2/*: any*/),
+          (v1/*:: as any*/),
+          (v2/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -140,10 +139,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "1ae3c1ad76037701e8a11bdbe47a36e1";
+  (node/*:: as any*/).hash = "1ae3c1ad76037701e8a11bdbe47a36e1";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderRelayErrorHandlingTest4Query$variables,
   RelayReaderRelayErrorHandlingTest4Query$data,
 >*/);

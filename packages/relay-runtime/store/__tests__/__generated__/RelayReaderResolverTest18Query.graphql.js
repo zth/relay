@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<235c5114cf434e58b89746d516a0eae6>>
+ * @generated SignedSource<<0e87002083bdfef6ecfe90d4a8ef2ce8>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -23,23 +22,23 @@ import {user_profile_picture_uri_with_scale_and_default_value as userUserProfile
 import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userUserProfilePictureUriWithScaleAndDefaultValueResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userUserProfilePictureUriWithScaleAndDefaultValueResolverType: (
+(userUserProfilePictureUriWithScaleAndDefaultValueResolverType as (
   rootKey: UserProfilePictureWithDefaultValueResolver$key,
-  args: {|
+  args: {
     scale: ?number,
-  |},
+  },
   context: TestResolverContextType,
 ) => ?string);
-export type RelayReaderResolverTest18Query$variables = {||};
-export type RelayReaderResolverTest18Query$data = {|
-  +me: ?{|
-    +profile_picture2: ?string,
-  |},
-|};
-export type RelayReaderResolverTest18Query = {|
+export type RelayReaderResolverTest18Query$variables = {};
+export type RelayReaderResolverTest18Query$data = {
+  readonly me: ?{
+    readonly profile_picture2: ?string,
+  },
+};
+export type RelayReaderResolverTest18Query = {
   response: RelayReaderResolverTest18Query$data,
   variables: RelayReaderResolverTest18Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -69,7 +68,7 @@ return {
             "alias": "profile_picture2",
             "args": [],
             "fragment": {
-              "args": (v0/*: any*/),
+              "args": (v0/*:: as any*/),
               "kind": "FragmentSpread",
               "name": "UserProfilePictureWithDefaultValueResolver"
             },
@@ -107,7 +106,7 @@ return {
               "selections": [
                 {
                   "alias": null,
-                  "args": (v0/*: any*/),
+                  "args": (v0/*:: as any*/),
                   "concreteType": "Image",
                   "kind": "LinkedField",
                   "name": "profile_picture",
@@ -155,10 +154,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "45885a11a4ed3bfe287a950ff219df00";
+  (node/*:: as any*/).hash = "45885a11a4ed3bfe287a950ff219df00";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderResolverTest18Query$variables,
   RelayReaderResolverTest18Query$data,
 >*/);

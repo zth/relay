@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2a9062913803b91bb4a0fcb64285cc36>>
+ * @generated SignedSource<<9f471863f04d95c2f0228989d26ec561>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,19 +18,19 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { ReactRelayRefetchContainerWithFragmentOwnershipTestUserFragment$fragmentType } from "./ReactRelayRefetchContainerWithFragmentOwnershipTestUserFragment.graphql";
-export type ReactRelayRefetchContainerWithFragmentOwnershipTestUserQuery$variables = {|
+export type ReactRelayRefetchContainerWithFragmentOwnershipTestUserQuery$variables = {
   id: string,
   scale: number,
-|};
-export type ReactRelayRefetchContainerWithFragmentOwnershipTestUserQuery$data = {|
-  +node: ?{|
-    +$fragmentSpreads: ReactRelayRefetchContainerWithFragmentOwnershipTestUserFragment$fragmentType,
-  |},
-|};
-export type ReactRelayRefetchContainerWithFragmentOwnershipTestUserQuery = {|
+};
+export type ReactRelayRefetchContainerWithFragmentOwnershipTestUserQuery$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: ReactRelayRefetchContainerWithFragmentOwnershipTestUserFragment$fragmentType,
+  },
+};
+export type ReactRelayRefetchContainerWithFragmentOwnershipTestUserQuery = {
   response: ReactRelayRefetchContainerWithFragmentOwnershipTestUserQuery$data,
   variables: ReactRelayRefetchContainerWithFragmentOwnershipTestUserQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -56,14 +55,14 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "ReactRelayRefetchContainerWithFragmentOwnershipTestUserQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -83,13 +82,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "ReactRelayRefetchContainerWithFragmentOwnershipTestUserQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -171,10 +170,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "ae463ee1fb5c82b6a7b4574ac78a78ef";
+  (node/*:: as any*/).hash = "ae463ee1fb5c82b6a7b4574ac78a78ef";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   ReactRelayRefetchContainerWithFragmentOwnershipTestUserQuery$variables,
   ReactRelayRefetchContainerWithFragmentOwnershipTestUserQuery$data,
 >*/);

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0c14c3be31c090e2cc855365b75e71a5>>
+ * @generated SignedSource<<cbd9c5aac22b1682cafcbef7742a8cb0>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -23,21 +22,21 @@ import {counter_no_fragment as queryCounterNoFragmentResolverType} from "../../.
 import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryCounterNoFragmentResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryCounterNoFragmentResolverType: (
+(queryCounterNoFragmentResolverType as (
   args: void,
   context: TestResolverContextType,
 ) => LiveState<?number>);
-export type LiveResolversTest14Query$variables = {||};
-export type LiveResolversTest14Query$data = {|
-  +counter_no_fragment: ?number,
-  +me: ?{|
-    +__typename: "User",
-  |},
-|};
-export type LiveResolversTest14Query = {|
+export type LiveResolversTest14Query$variables = {};
+export type LiveResolversTest14Query$data = {
+  readonly counter_no_fragment: ?number,
+  readonly me: ?{
+    readonly __typename: "User",
+  },
+};
+export type LiveResolversTest14Query = {
   response: LiveResolversTest14Query$data,
   variables: LiveResolversTest14Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -63,7 +62,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/)
+          (v0/*:: as any*/)
         ],
         "storageKey": null
       },
@@ -99,7 +98,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
+          (v0/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -137,10 +136,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "1cc4ff0fddbff75fcd6eb15ee5cf3283";
+  (node/*:: as any*/).hash = "1cc4ff0fddbff75fcd6eb15ee5cf3283";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   LiveResolversTest14Query$variables,
   LiveResolversTest14Query$data,
 >*/);

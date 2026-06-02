@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<044e975f172acb4522f2ed35a1bab818>>
+ * @generated SignedSource<<b48e3c44f2a0443c13001098f22f5abc>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,19 +18,19 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment$fragmentType } from "./useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment.graphql";
-export type useRefetchableFragmentNodeWithSuspenseTransitionTestUserQuery$variables = {|
+export type useRefetchableFragmentNodeWithSuspenseTransitionTestUserQuery$variables = {
   id: string,
   scale: number,
-|};
-export type useRefetchableFragmentNodeWithSuspenseTransitionTestUserQuery$data = {|
-  +node: ?{|
-    +$fragmentSpreads: useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment$fragmentType,
-  |},
-|};
-export type useRefetchableFragmentNodeWithSuspenseTransitionTestUserQuery = {|
+};
+export type useRefetchableFragmentNodeWithSuspenseTransitionTestUserQuery$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment$fragmentType,
+  },
+};
+export type useRefetchableFragmentNodeWithSuspenseTransitionTestUserQuery = {
   response: useRefetchableFragmentNodeWithSuspenseTransitionTestUserQuery$data,
   variables: useRefetchableFragmentNodeWithSuspenseTransitionTestUserQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -56,14 +55,14 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "useRefetchableFragmentNodeWithSuspenseTransitionTestUserQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -83,13 +82,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "useRefetchableFragmentNodeWithSuspenseTransitionTestUserQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -171,10 +170,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "293f9ed14d99bd4ecc3eb91ad23351a2";
+  (node/*:: as any*/).hash = "293f9ed14d99bd4ecc3eb91ad23351a2";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   useRefetchableFragmentNodeWithSuspenseTransitionTestUserQuery$variables,
   useRefetchableFragmentNodeWithSuspenseTransitionTestUserQuery$data,
 >*/);

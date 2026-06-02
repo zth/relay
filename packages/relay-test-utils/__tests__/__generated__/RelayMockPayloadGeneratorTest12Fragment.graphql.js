@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<361a28885fd7d9a5528330baa02f1514>>
+ * @generated SignedSource<<4563c7caee0bca5723c3f54af0634b82>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,41 +19,41 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayMockPayloadGeneratorTest12Fragment$fragmentType: FragmentType;
-export type RelayMockPayloadGeneratorTest12Fragment$data = {|
-  +body: ?{|
-    +text: ?string,
-  |},
-  +id: string,
-  +myTown: ?{|
-    +feedback: ?{|
-      +comments: ?{|
-        +edges: ?$ReadOnlyArray<?{|
-          +comment: ?{|
-            +id: string,
-            +likeSentence: ?{|
-              +text: ?string,
-            |},
-            +message: ?{|
-              +text: ?string,
-            |},
-          |},
-          +cursor: ?string,
-        |}>,
-        +pageInfo: ?{|
-          +startCursor: ?string,
-        |},
-      |},
-    |},
-    +id: string,
-    +name: ?string,
-    +url: ?string,
-  |},
-  +name: ?string,
-  +$fragmentType: RelayMockPayloadGeneratorTest12Fragment$fragmentType,
-|};
+export type RelayMockPayloadGeneratorTest12Fragment$data = {
+  readonly body: ?{
+    readonly text: ?string,
+  },
+  readonly id: string,
+  readonly myTown: ?{
+    readonly feedback: ?{
+      readonly comments: ?{
+        readonly edges: ?ReadonlyArray<?{
+          readonly comment: ?{
+            readonly id: string,
+            readonly likeSentence: ?{
+              readonly text: ?string,
+            },
+            readonly message: ?{
+              readonly text: ?string,
+            },
+          },
+          readonly cursor: ?string,
+        }>,
+        readonly pageInfo: ?{
+          readonly startCursor: ?string,
+        },
+      },
+    },
+    readonly id: string,
+    readonly name: ?string,
+    readonly url: ?string,
+  },
+  readonly name: ?string,
+  readonly $fragmentType: RelayMockPayloadGeneratorTest12Fragment$fragmentType,
+};
 export type RelayMockPayloadGeneratorTest12Fragment$key = {
-  +$data?: RelayMockPayloadGeneratorTest12Fragment$data,
-  +$fragmentSpreads: RelayMockPayloadGeneratorTest12Fragment$fragmentType,
+  readonly $data?: RelayMockPayloadGeneratorTest12Fragment$data,
+  readonly $fragmentSpreads: RelayMockPayloadGeneratorTest12Fragment$fragmentType,
   ...
 };
 */
@@ -89,8 +88,8 @@ return {
   "metadata": null,
   "name": "RelayMockPayloadGeneratorTest12Fragment",
   "selections": [
-    (v0/*: any*/),
-    (v1/*: any*/),
+    (v0/*:: as any*/),
+    (v1/*:: as any*/),
     {
       "alias": null,
       "args": null,
@@ -98,7 +97,7 @@ return {
       "kind": "LinkedField",
       "name": "body",
       "plural": false,
-      "selections": (v2/*: any*/),
+      "selections": (v2/*:: as any*/),
       "storageKey": null
     },
     {
@@ -109,8 +108,8 @@ return {
       "name": "hometown",
       "plural": false,
       "selections": [
-        (v0/*: any*/),
-        (v1/*: any*/),
+        (v0/*:: as any*/),
+        (v1/*:: as any*/),
         {
           "alias": null,
           "args": null,
@@ -163,7 +162,7 @@ return {
                       "name": "node",
                       "plural": false,
                       "selections": [
-                        (v0/*: any*/),
+                        (v0/*:: as any*/),
                         {
                           "alias": null,
                           "args": null,
@@ -171,7 +170,7 @@ return {
                           "kind": "LinkedField",
                           "name": "message",
                           "plural": false,
-                          "selections": (v2/*: any*/),
+                          "selections": (v2/*:: as any*/),
                           "storageKey": null
                         },
                         {
@@ -181,7 +180,7 @@ return {
                           "kind": "LinkedField",
                           "name": "likeSentence",
                           "plural": false,
-                          "selections": (v2/*: any*/),
+                          "selections": (v2/*:: as any*/),
                           "storageKey": null
                         }
                       ],
@@ -224,10 +223,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "a7a7b02e898e4af94210f0a1ec5dfa47";
+  (node/*:: as any*/).hash = "a7a7b02e898e4af94210f0a1ec5dfa47";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayMockPayloadGeneratorTest12Fragment$fragmentType,
   RelayMockPayloadGeneratorTest12Fragment$data,
 >*/);

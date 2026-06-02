@@ -282,7 +282,7 @@ macro_rules! string_id {
             $crate::string::Lazy::new(|| $crate::string::intern($value));
         *INSTANCE
     }};
-    ($_:expr_2021) => {
+    ($_:expr) => {
         compile_error!("string_id! macro can only be used with string literals.")
     };
 }
@@ -295,13 +295,20 @@ macro_rules! bytes_id {
             $crate::string::Lazy::new(|| $crate::string::intern_bytes($value as &[u8]));
         *INSTANCE
     }};
-    ($_:expr_2021) => {
+    ($_:expr) => {
         compile_error!("bytes_id! macro can only be used with literals.")
     };
 }
 
 #[cfg(test)]
 mod tests {
+    use std::sync::Arc;
+    use std::sync::atomic::AtomicU32;
+    use std::sync::atomic::Ordering;
+    use std::thread;
+
+    use rand::RngExt as _;
+
     use super::*;
 
     #[test]
@@ -363,27 +370,21 @@ mod tests {
         use crate::intern::DeGuard;
         use crate::intern::SerGuard;
         let original = intern("hello world");
-        let mut encoded = Vec::new();
         let g = SerGuard::default();
-        bincode::serialize_into(&mut encoded, &original).unwrap();
+        let encoded = bincode::serde::encode_to_vec(original, bincode::config::legacy()).unwrap();
         drop(g);
         assert!(encoded.len() > 11);
         let g = DeGuard::default();
-        let decoded: StringId = bincode::deserialize(&encoded).unwrap();
+        let decoded: StringId =
+            bincode::serde::decode_from_slice(&encoded, bincode::config::legacy())
+                .map(|(v, _)| v)
+                .unwrap();
         drop(g);
         assert_eq!(original, decoded);
     }
 
     #[test]
     fn multithreaded() {
-        use std::sync::Arc;
-        use std::sync::atomic::AtomicU32;
-        use std::sync::atomic::Ordering;
-        use std::thread;
-
-        use rand::Rng;
-        use rand::thread_rng;
-
         // Load test lots of threads creating strings, with load
         // gradually getting heavier on later (popular) strings.
         const N: usize = 20_000_000;
@@ -398,9 +399,9 @@ mod tests {
         for k in 0..WRITERS {
             let avail = avail.clone();
             workers.push(thread::spawn(move || {
-                let mut rng = thread_rng();
+                let mut rng = rand::rng();
                 for i in 0..MAX {
-                    let r = if k == 0 { i } else { rng.gen_range(i..MAX) };
+                    let r = if k == 0 { i } else { rng.random_range(i..MAX) };
                     let id = intern(r.to_string());
                     let ix = id.0.index();
                     let av = avail[r].load(Ordering::Relaxed);

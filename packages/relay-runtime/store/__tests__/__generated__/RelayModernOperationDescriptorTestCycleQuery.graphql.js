@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3e2a10f3f692f25c52e6ded7e5df360d>>
+ * @generated SignedSource<<0d1b440bcc4407b9bef3682e9c59f31c>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,18 +17,18 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayModernOperationDescriptorTestCycleQuery$variables = {|
+export type RelayModernOperationDescriptorTestCycleQuery$variables = {
   id: string,
-|};
-export type RelayModernOperationDescriptorTestCycleQuery$data = {|
-  +node: ?{|
-    +__typename: string,
-  |},
-|};
-export type RelayModernOperationDescriptorTestCycleQuery = {|
+};
+export type RelayModernOperationDescriptorTestCycleQuery$data = {
+  readonly node: ?{
+    readonly __typename: string,
+  },
+};
+export type RelayModernOperationDescriptorTestCycleQuery = {
   response: RelayModernOperationDescriptorTestCycleQuery$data,
   variables: RelayModernOperationDescriptorTestCycleQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -56,20 +55,20 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernOperationDescriptorTestCycleQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/)
+          (v2/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -79,19 +78,19 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernOperationDescriptorTestCycleQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -116,10 +115,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "4cc0b085dfd315934b7f2a5d90b2119b";
+  (node/*:: as any*/).hash = "4cc0b085dfd315934b7f2a5d90b2119b";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernOperationDescriptorTestCycleQuery$variables,
   RelayModernOperationDescriptorTestCycleQuery$data,
 >*/);

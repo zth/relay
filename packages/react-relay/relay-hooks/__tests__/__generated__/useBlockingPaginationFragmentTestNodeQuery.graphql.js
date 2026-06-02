@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a86d028a02b4a212b447e116116fcd94>>
+ * @generated SignedSource<<336c560de03d3ef447296257864d03c4>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,18 +17,18 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type useBlockingPaginationFragmentTestNodeQuery$variables = {|
+export type useBlockingPaginationFragmentTestNodeQuery$variables = {
   id: string,
-|};
-export type useBlockingPaginationFragmentTestNodeQuery$data = {|
-  +node: ?{|
-    +name?: ?string,
-  |},
-|};
-export type useBlockingPaginationFragmentTestNodeQuery = {|
+};
+export type useBlockingPaginationFragmentTestNodeQuery$data = {
+  readonly node: ?{
+    readonly name?: ?string,
+  },
+};
+export type useBlockingPaginationFragmentTestNodeQuery = {
   response: useBlockingPaginationFragmentTestNodeQuery$data,
   variables: useBlockingPaginationFragmentTestNodeQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -63,20 +62,20 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "useBlockingPaginationFragmentTestNodeQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/)
+          (v2/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -86,13 +85,13 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "useBlockingPaginationFragmentTestNodeQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -105,7 +104,7 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -130,10 +129,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "38d4d73526c34a28b2e0ac99bcd68f94";
+  (node/*:: as any*/).hash = "38d4d73526c34a28b2e0ac99bcd68f94";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   useBlockingPaginationFragmentTestNodeQuery$variables,
   useBlockingPaginationFragmentTestNodeQuery$data,
 >*/);

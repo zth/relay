@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<eaac3f5f9680dd591a6e45f16b3efea8>>
+ * @generated SignedSource<<0e9e73721960f453091618cc9aaba428>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,17 +17,17 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayModernEnvironmentSubscribeTestParentQuery$variables = {||};
-export type RelayModernEnvironmentSubscribeTestParentQuery$data = {|
-  +me: ?{|
-    +id: string,
-    +name: ?string,
-  |},
-|};
-export type RelayModernEnvironmentSubscribeTestParentQuery = {|
+export type RelayModernEnvironmentSubscribeTestParentQuery$variables = {};
+export type RelayModernEnvironmentSubscribeTestParentQuery$data = {
+  readonly me: ?{
+    readonly id: string,
+    readonly name: ?string,
+  },
+};
+export type RelayModernEnvironmentSubscribeTestParentQuery = {
   response: RelayModernEnvironmentSubscribeTestParentQuery$data,
   variables: RelayModernEnvironmentSubscribeTestParentQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -65,7 +64,7 @@ return {
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentSubscribeTestParentQuery",
-    "selections": (v0/*: any*/),
+    "selections": (v0/*:: as any*/),
     "type": "Query",
     "abstractKey": null
   },
@@ -74,7 +73,7 @@ return {
     "argumentDefinitions": [],
     "kind": "Operation",
     "name": "RelayModernEnvironmentSubscribeTestParentQuery",
-    "selections": (v0/*: any*/)
+    "selections": (v0/*:: as any*/)
   },
   "params": {
     "cacheID": "3c6a4f8ea29c885ac4073e9430c4c8dd",
@@ -88,10 +87,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "05d4bca13d0af57cb676421347016c3e";
+  (node/*:: as any*/).hash = "05d4bca13d0af57cb676421347016c3e";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentSubscribeTestParentQuery$variables,
   RelayModernEnvironmentSubscribeTestParentQuery$data,
 >*/);

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1b41f07ee1caf3c6f4dd52c47d5fc67b>>
+ * @generated SignedSource<<63e54f7bba27ab0c8b058e63e208171c>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,15 +19,15 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$fragmentType: FragmentType;
-export type RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$data = {|
-  +viewedBy: ?$ReadOnlyArray<?{|
-    +name: ?string,
-  |}>,
-  +$fragmentType: RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$fragmentType,
-|};
+export type RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$data = {
+  readonly viewedBy: ?ReadonlyArray<?{
+    readonly name: ?string,
+  }>,
+  readonly $fragmentType: RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$fragmentType,
+};
 export type RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$key = {
-  +$data?: RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$data,
-  +$fragmentSpreads: RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$fragmentType,
+  readonly $data?: RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$data,
+  readonly $fragmentSpreads: RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$fragmentType,
   ...
 };
 */
@@ -73,10 +72,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "8a916d37ab47ea699ca21a1212af0c7f";
+  (node/*:: as any*/).hash = "8a916d37ab47ea699ca21a1212af0c7f";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$fragmentType,
   RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$data,
 >*/);

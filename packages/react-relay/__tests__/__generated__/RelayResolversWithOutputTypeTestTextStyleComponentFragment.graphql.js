@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<829b65ed118d17272f9729571395ec55>>
+ * @generated SignedSource<<1010e7f96a2c0a0cbd6d020bdd475aa0>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -21,16 +20,16 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { RelayResolversWithOutputTypeTestTextColorComponentFragment$fragmentType } from "./RelayResolversWithOutputTypeTestTextColorComponentFragment.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayResolversWithOutputTypeTestTextStyleComponentFragment$fragmentType: FragmentType;
-export type RelayResolversWithOutputTypeTestTextStyleComponentFragment$data = {|
-  +color: ?{|
-    +$fragmentSpreads: RelayResolversWithOutputTypeTestTextColorComponentFragment$fragmentType,
-  |},
-  +font_style: ?string,
-  +$fragmentType: RelayResolversWithOutputTypeTestTextStyleComponentFragment$fragmentType,
-|};
+export type RelayResolversWithOutputTypeTestTextStyleComponentFragment$data = {
+  readonly color: ?{
+    readonly $fragmentSpreads: RelayResolversWithOutputTypeTestTextColorComponentFragment$fragmentType,
+  },
+  readonly font_style: ?string,
+  readonly $fragmentType: RelayResolversWithOutputTypeTestTextStyleComponentFragment$fragmentType,
+};
 export type RelayResolversWithOutputTypeTestTextStyleComponentFragment$key = {
-  +$data?: RelayResolversWithOutputTypeTestTextStyleComponentFragment$data,
-  +$fragmentSpreads: RelayResolversWithOutputTypeTestTextStyleComponentFragment$fragmentType,
+  readonly $data?: RelayResolversWithOutputTypeTestTextStyleComponentFragment$data,
+  readonly $fragmentSpreads: RelayResolversWithOutputTypeTestTextStyleComponentFragment$fragmentType,
   ...
 };
 */
@@ -75,10 +74,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "9f15dca0d6df64fa652a4dc5b48244fa";
+  (node/*:: as any*/).hash = "9f15dca0d6df64fa652a4dc5b48244fa";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   RelayResolversWithOutputTypeTestTextStyleComponentFragment$fragmentType,
   RelayResolversWithOutputTypeTestTextStyleComponentFragment$data,
 >*/);

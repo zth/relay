@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<fd6256ffaa9c870fae77abd2866a67c2>>
+ * @generated SignedSource<<e8a6ee9cb631c31f0983d7853ae74af7>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -24,19 +23,19 @@ import {self as astrologicalSignSelfResolverType} from "../AstrologicalSignSelfR
 import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `astrologicalSignSelfResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(astrologicalSignSelfResolverType: (
+(astrologicalSignSelfResolverType as (
   rootKey: AstrologicalSignSelfResolver$key,
   args: void,
   context: TestResolverContextType,
-) => ?mixed);
+) => ?unknown);
 declare export opaque type AstrologicalSignOppositeResolver$fragmentType: FragmentType;
-export type AstrologicalSignOppositeResolver$data = {|
-  +self: ?ReturnType<typeof astrologicalSignSelfResolverType>,
-  +$fragmentType: AstrologicalSignOppositeResolver$fragmentType,
-|};
+export type AstrologicalSignOppositeResolver$data = {
+  readonly self: ?ReturnType<typeof astrologicalSignSelfResolverType>,
+  readonly $fragmentType: AstrologicalSignOppositeResolver$fragmentType,
+};
 export type AstrologicalSignOppositeResolver$key = {
-  +$data?: AstrologicalSignOppositeResolver$data,
-  +$fragmentSpreads: AstrologicalSignOppositeResolver$fragmentType,
+  readonly $data?: AstrologicalSignOppositeResolver$data,
+  readonly $fragmentSpreads: AstrologicalSignOppositeResolver$fragmentType,
   ...
 };
 */
@@ -66,10 +65,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "af597379ec145e8c2cb304b0e30821fb";
+  (node/*:: as any*/).hash = "af597379ec145e8c2cb304b0e30821fb";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   AstrologicalSignOppositeResolver$fragmentType,
   AstrologicalSignOppositeResolver$data,
 >*/);

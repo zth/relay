@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e8557147b547ebbf2ac205ebc4b95017>>
+ * @generated SignedSource<<cb1adeadf030cb087cc7ae1ecd7e25a7>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,21 +18,21 @@
 /*::
 import type { NormalizationSplitOperation } from 'relay-runtime';
 
-export type Query__todos$normalization = {|
-  +count: number,
-  +edges: ?$ReadOnlyArray<?{|
-    +cursor: ?string,
-    +node: ?{|
-      +todo_id: string,
-    |},
-  |}>,
-  +pageInfo: {|
-    +endCursor: ?string,
-    +hasNextPage: boolean,
-    +hasPreviousPage: boolean,
-    +startCursor: ?string,
-  |},
-|};
+export type Query__todos$normalization = {
+  readonly count: number,
+  readonly edges: ?ReadonlyArray<?{
+    readonly cursor: ?string,
+    readonly node: ?{
+      readonly todo_id: string,
+    },
+  }>,
+  readonly pageInfo: {
+    readonly endCursor: ?string,
+    readonly hasNextPage: boolean,
+    readonly hasPreviousPage: boolean,
+    readonly startCursor: ?string,
+  },
+};
 
 */
 

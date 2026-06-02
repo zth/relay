@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<724839ac735cfc3ad120b88196bc7a5d>>
+ * @generated SignedSource<<e6b776affc3e5719b94acbf04804687f>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,26 +18,26 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { usePaginationFragmentTestUserFragment$fragmentType } from "./usePaginationFragmentTestUserFragment.graphql";
-export type usePaginationFragmentTestUserQueryNestedFragmentQuery$variables = {|
+export type usePaginationFragmentTestUserQueryNestedFragmentQuery$variables = {
   after?: ?string,
   before?: ?string,
   first?: ?number,
   id: string,
   isViewerFriend?: ?boolean,
   last?: ?number,
-  orderby?: ?$ReadOnlyArray<?string>,
-|};
-export type usePaginationFragmentTestUserQueryNestedFragmentQuery$data = {|
-  +node: ?{|
-    +actor: ?{|
-      +$fragmentSpreads: usePaginationFragmentTestUserFragment$fragmentType,
-    |},
-  |},
-|};
-export type usePaginationFragmentTestUserQueryNestedFragmentQuery = {|
+  orderby?: ?ReadonlyArray<?string>,
+};
+export type usePaginationFragmentTestUserQueryNestedFragmentQuery$data = {
+  readonly node: ?{
+    readonly actor: ?{
+      readonly $fragmentSpreads: usePaginationFragmentTestUserFragment$fragmentType,
+    },
+  },
+};
+export type usePaginationFragmentTestUserQueryNestedFragmentQuery = {
   response: usePaginationFragmentTestUserQueryNestedFragmentQuery$data,
   variables: usePaginationFragmentTestUserQueryNestedFragmentQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -136,18 +135,18 @@ v12 = [
     "name": "last",
     "variableName": "last"
   },
-  (v8/*: any*/)
+  (v8/*:: as any*/)
 ];
 return {
   "fragment": {
     "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/),
-      (v2/*: any*/),
-      (v3/*: any*/),
-      (v4/*: any*/),
-      (v5/*: any*/),
-      (v6/*: any*/)
+      (v0/*:: as any*/),
+      (v1/*:: as any*/),
+      (v2/*:: as any*/),
+      (v3/*:: as any*/),
+      (v4/*:: as any*/),
+      (v5/*:: as any*/),
+      (v6/*:: as any*/)
     ],
     "kind": "Fragment",
     "metadata": null,
@@ -155,7 +154,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v7/*: any*/),
+        "args": (v7/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -176,7 +175,7 @@ return {
                     "name": "isViewerFriendLocal",
                     "variableName": "isViewerFriend"
                   },
-                  (v8/*: any*/)
+                  (v8/*:: as any*/)
                 ],
                 "kind": "FragmentSpread",
                 "name": "usePaginationFragmentTestUserFragment"
@@ -194,26 +193,26 @@ return {
   "kind": "Request",
   "operation": {
     "argumentDefinitions": [
-      (v3/*: any*/),
-      (v0/*: any*/),
-      (v2/*: any*/),
-      (v1/*: any*/),
-      (v5/*: any*/),
-      (v6/*: any*/),
-      (v4/*: any*/)
+      (v3/*:: as any*/),
+      (v0/*:: as any*/),
+      (v2/*:: as any*/),
+      (v1/*:: as any*/),
+      (v5/*:: as any*/),
+      (v6/*:: as any*/),
+      (v4/*:: as any*/)
     ],
     "kind": "Operation",
     "name": "usePaginationFragmentTestUserQueryNestedFragmentQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v7/*: any*/),
+        "args": (v7/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v9/*: any*/),
+          (v9/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -222,15 +221,15 @@ return {
             "name": "actor",
             "plural": false,
             "selections": [
-              (v9/*: any*/),
-              (v10/*: any*/),
+              (v9/*:: as any*/),
+              (v10/*:: as any*/),
               {
                 "kind": "InlineFragment",
                 "selections": [
-                  (v11/*: any*/),
+                  (v11/*:: as any*/),
                   {
                     "alias": null,
-                    "args": (v12/*: any*/),
+                    "args": (v12/*:: as any*/),
                     "concreteType": "FriendsConnection",
                     "kind": "LinkedField",
                     "name": "friends",
@@ -252,8 +251,8 @@ return {
                             "name": "node",
                             "plural": false,
                             "selections": [
-                              (v10/*: any*/),
-                              (v11/*: any*/),
+                              (v10/*:: as any*/),
+                              (v11/*:: as any*/),
                               {
                                 "alias": null,
                                 "args": null,
@@ -261,7 +260,7 @@ return {
                                 "name": "username",
                                 "storageKey": null
                               },
-                              (v9/*: any*/)
+                              (v9/*:: as any*/)
                             ],
                             "storageKey": null
                           },
@@ -319,7 +318,7 @@ return {
                   },
                   {
                     "alias": null,
-                    "args": (v12/*: any*/),
+                    "args": (v12/*:: as any*/),
                     "filters": [
                       "orderby",
                       "isViewerFriend"
@@ -336,7 +335,7 @@ return {
             ],
             "storageKey": null
           },
-          (v10/*: any*/)
+          (v10/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -354,10 +353,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "458b4f5da9c3a7ab5f8a37261fa8b23f";
+  (node/*:: as any*/).hash = "458b4f5da9c3a7ab5f8a37261fa8b23f";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   usePaginationFragmentTestUserQueryNestedFragmentQuery$variables,
   usePaginationFragmentTestUserQueryNestedFragmentQuery$data,
 >*/);

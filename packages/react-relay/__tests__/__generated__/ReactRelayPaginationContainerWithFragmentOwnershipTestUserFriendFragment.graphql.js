@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<178be67a190cd610ba530731064956fe>>
+ * @generated SignedSource<<7291b8c25b4648b62165b2cedeff7ee3>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -20,14 +19,14 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment$fragmentType: FragmentType;
-export type ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment$data = {|
-  +id: string,
-  +name?: ?string,
-  +$fragmentType: ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment$fragmentType,
-|};
+export type ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment$data = {
+  readonly id: string,
+  readonly name?: ?string,
+  readonly $fragmentType: ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment$fragmentType,
+};
 export type ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment$key = {
-  +$data?: ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment$data,
-  +$fragmentSpreads: ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment$fragmentType,
+  readonly $data?: ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment$data,
+  readonly $fragmentSpreads: ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment$fragmentType,
   ...
 };
 */
@@ -71,10 +70,10 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "3c7b2ad9c88055de7baca8e5cec24574";
+  (node/*:: as any*/).hash = "3c7b2ad9c88055de7baca8e5cec24574";
 }
 
-module.exports = ((node/*: any*/)/*: Fragment<
+module.exports = ((node/*:: as any*/)/*:: as Fragment<
   ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment$fragmentType,
   ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment$data,
 >*/);

@@ -17,12 +17,12 @@ const {graphql} = require('relay-runtime');
 const {readFragment} = require('relay-runtime/store/ResolverFragments');
 
 /**
- * @RelayResolver User.user_profile_picture_uri_with_scale_and_additional_argument(name: String): String
+ * @relayField User.user_profile_picture_uri_with_scale_and_additional_argument(name: String): String
  * @rootFragment UserProfilePictureWithRuntimeArgumentResolver
  */
 function user_profile_picture_uri_with_scale_and_additional_argument(
   rootKey: UserProfilePictureWithRuntimeArgumentResolver$key,
-  args: mixed,
+  args: unknown,
 ): ?string {
   const {name} = args != null && typeof args === 'object' ? args : {};
 

@@ -34,7 +34,6 @@ use graphql_syntax::Token;
 use graphql_syntax::TokenKind;
 use graphql_syntax::TypeAnnotation;
 use graphql_syntax::parse_field_definition;
-use graphql_syntax::parse_field_definition_stub;
 use graphql_syntax::parse_identifier;
 use graphql_syntax::parse_identifier_and_implements_interfaces;
 use graphql_syntax::parse_type;
@@ -43,8 +42,6 @@ use intern::string_key::Intern;
 use relay_config::ProjectName;
 
 use crate::DocblockIr;
-use crate::LegacyVerboseResolverIr;
-use crate::On;
 use crate::ParseOptions;
 use crate::ResolverFieldDocblockIr;
 use crate::ResolverTypeDocblockIr;
@@ -52,7 +49,6 @@ use crate::errors::ErrorMessagesWithData;
 use crate::errors::IrParsingErrorMessages;
 use crate::ir::Argument;
 use crate::ir::IrField;
-use crate::ir::OutputType;
 use crate::ir::PopulatedIrField;
 use crate::ir::StrongObjectIr;
 use crate::ir::TerseRelayResolverIr;
@@ -60,6 +56,14 @@ use crate::ir::UnpopulatedIrField;
 use crate::ir::WeakObjectIr;
 use crate::untyped_representation::AllowedFieldName;
 use crate::untyped_representation::UntypedDocblockRepresentation;
+
+/// Tracks which docblock tag was used by the author.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum UsedTag {
+    RelayResolver,
+    RelayType,
+    RelayField,
+}
 
 pub(crate) fn parse_docblock_ir(
     project_name: &ProjectName,
@@ -70,49 +74,69 @@ pub(crate) fn parse_docblock_ir(
     // "this field is missing".
     docblock_location: Location,
 ) -> DiagnosticsResult<Option<DocblockIr>> {
-    // Categorization:
-    // - If there is no @RelayResolver field, return Ok(None)
-    // - If there is an unpopulated @RelayResolver field, parse a RelayResolverIr
-    // - If there is a populated @RelayResolver field and its value contains a '.'
-    //   (dot character), parse a TerseRelayResolver
-    // - If there is a populated @RelayResolver field and a populated @weak field,
-    //   emit an error.
-    // - If there is a populated @RelayResolver field and an unpopulated @weak field,
-    //   parse a WeakResolverIr
-    // - Otherwise, if there is a populated @RelayResolver field and no @weak field,
-    //   parse a StrongResolverIr
-    //
-    // Categorization is infallible (except as detailed above); we assume that the user
-    // got that part right and surface errors accordingly, even though it might be better
-    // (for example) if a user includes multiple strong-only fields *and* a @weak field to
-    // suggest the the user removes the @weak field. But we don't do that.
-
     let UntypedDocblockRepresentation {
         description,
         mut fields,
         source_hash,
     } = untyped_representation;
 
-    let resolver_field = match fields.remove(&AllowedFieldName::RelayResolverField) {
-        Some(resolver_field) => resolver_field,
-        None => return Ok(None),
-    };
-    let parsed_docblock_ir = match resolver_field {
-        IrField::UnpopulatedIrField(unpopulated_ir_field) => {
-            let legacy_verbose_resolver = parse_relay_resolver_ir(
-                &mut fields,
-                definitions_in_file,
-                description,
-                None, // This might be necessary for field hack source links
-                docblock_location,
-                unpopulated_ir_field,
-                source_hash,
-            )?;
+    // Extract all three possible resolver tags
+    let relay_resolver_field = fields.remove(&AllowedFieldName::RelayResolverField);
+    let relay_type_field = fields.remove(&AllowedFieldName::RelayTypeField);
+    let relay_field_field = fields.remove(&AllowedFieldName::RelayFieldField);
 
-            DocblockIr::Field(ResolverFieldDocblockIr::LegacyVerboseResolver(
-                legacy_verbose_resolver,
-            ))
-        }
+    // Determine which single tag was used (error if multiple)
+    let (used_tag, resolver_field) =
+        match (relay_resolver_field, relay_type_field, relay_field_field) {
+            (None, None, None) => return Ok(None),
+            (Some(field), None, None) => (UsedTag::RelayResolver, field),
+            (None, Some(field), None) => (UsedTag::RelayType, field),
+            (None, None, Some(field)) => (UsedTag::RelayField, field),
+            // Multiple tags present - error
+            (a, b, c) => {
+                // Find the location of the first present tag for the error
+                let first_location = [&a, &b, &c]
+                    .iter()
+                    .filter_map(|f| f.as_ref())
+                    .map(|f| f.key_location())
+                    .next()
+                    .expect("at least one tag must be present in this match arm");
+                return Err(vec![Diagnostic::error(
+                    IrParsingErrorMessages::MultipleResolverTags,
+                    first_location,
+                )]);
+            }
+        };
+
+    // All three tags use the same inference logic: the dot in the value
+    // determines whether this is a type or field definition.
+    // Tag-specific errors (wrong tag for the inferred kind) are checked
+    // after parsing in check_resolver_tag_validity.
+    let parsed_docblock_ir = match resolver_field {
+        IrField::UnpopulatedIrField(unpopulated_ir_field) => match used_tag {
+            UsedTag::RelayResolver => {
+                return Err(vec![Diagnostic::error(
+                    IrParsingErrorMessages::LegacyVerboseSyntaxDeprecated,
+                    unpopulated_ir_field.key_location,
+                )]);
+            }
+            UsedTag::RelayType => {
+                return Err(vec![Diagnostic::error(
+                    IrParsingErrorMessages::FieldWithMissingData {
+                        field_name: AllowedFieldName::RelayTypeField,
+                    },
+                    unpopulated_ir_field.key_location,
+                )]);
+            }
+            UsedTag::RelayField => {
+                return Err(vec![Diagnostic::error(
+                    IrParsingErrorMessages::FieldWithMissingData {
+                        field_name: AllowedFieldName::RelayFieldField,
+                    },
+                    unpopulated_ir_field.key_location,
+                )]);
+            }
+        },
         IrField::PopulatedIrField(populated_ir_field) => {
             if populated_ir_field.value.item.lookup().contains('.') {
                 DocblockIr::Field(ResolverFieldDocblockIr::TerseRelayResolver(
@@ -135,7 +159,7 @@ pub(crate) fn parse_docblock_ir(
                         parse_weak_object_ir(
                             &mut fields,
                             description,
-                            None, // This might be necessary for field hack source links
+                            None,
                             docblock_location,
                             populated_ir_field,
                             weak_field,
@@ -164,77 +188,74 @@ pub(crate) fn parse_docblock_ir(
         parsed_docblock_ir.get_variant_name(),
     )?;
 
+    // After parsing, check feature flag and tag correctness
+    check_resolver_tag_validity(
+        used_tag,
+        &parsed_docblock_ir,
+        parse_options,
+        resolver_field.key_location(),
+    )?;
+
     Ok(Some(parsed_docblock_ir))
 }
 
-fn parse_relay_resolver_ir(
-    fields: &mut HashMap<AllowedFieldName, IrField>,
-    definitions_in_file: Option<&Vec<ExecutableDefinition>>,
-    description: Option<WithLocation<StringKey>>,
-    hack_source: Option<WithLocation<StringKey>>,
-    location: Location,
-    _resolver_field: UnpopulatedIrField,
-    source_hash: ResolverSourceHash,
-) -> DiagnosticsResult<LegacyVerboseResolverIr> {
-    let root_fragment =
-        get_optional_populated_field_named(fields, AllowedFieldName::RootFragmentField)?;
-    let field_name =
-        get_required_populated_field_named(fields, AllowedFieldName::FieldNameField, location)?;
-    let field_string = field_name.value;
-    let field_string_offset = field_string.location.span().start;
-    let field_definition_stub = parse_field_definition_stub(
-        field_string.item.lookup(),
-        field_string.location.source_location(),
-        field_string_offset,
-    )?;
-    let (fragment_type_condition, fragment_arguments) = parse_fragment_definition(
-        root_fragment,
-        field_name.value.location.source_location(),
-        &field_definition_stub.arguments,
-        definitions_in_file,
-    )?;
+/// After successfully parsing the docblock IR, validate that the tag used
+/// is consistent with the feature flag and the kind of definition parsed.
+fn check_resolver_tag_validity(
+    used_tag: UsedTag,
+    parsed_ir: &DocblockIr,
+    parse_options: &ParseOptions<'_>,
+    tag_location: Location,
+) -> DiagnosticsResult<()> {
+    let is_type = matches!(parsed_ir, DocblockIr::Type(_));
 
-    let edge_to_opt = get_optional_populated_field_named(fields, AllowedFieldName::EdgeToField)?;
-    let output_type_opt =
-        get_optional_populated_field_named(fields, AllowedFieldName::OutputTypeField)?;
+    // Extract the name to check against the feature flag
+    let name = match parsed_ir {
+        DocblockIr::Type(ResolverTypeDocblockIr::StrongObjectResolver(ir)) => ir.type_name.value,
+        DocblockIr::Type(ResolverTypeDocblockIr::WeakObjectType(ir)) => ir.type_name.value,
+        DocblockIr::Field(ResolverFieldDocblockIr::TerseRelayResolver(ir)) => ir.field.name.value,
+    };
 
-    if let Some(output_type) = output_type_opt {
-        return Err(vec![Diagnostic::error(
-            IrParsingErrorMessages::UnexpectedOutputType {
-                field_name: field_definition_stub.name.value,
-            },
-            output_type.key_location,
-        )]);
+    let legacy_tag_allowed = parse_options
+        .allow_legacy_relay_resolver_tag
+        .is_enabled_for(name);
+
+    match used_tag {
+        UsedTag::RelayResolver => {
+            if !legacy_tag_allowed {
+                // Legacy tag not allowed - suggest the correct new tag
+                if is_type {
+                    return Err(vec![Diagnostic::error_with_data(
+                        ErrorMessagesWithData::UseRelayTypeTag,
+                        tag_location,
+                    )]);
+                } else {
+                    return Err(vec![Diagnostic::error_with_data(
+                        ErrorMessagesWithData::UseRelayFieldTag,
+                        tag_location,
+                    )]);
+                }
+            }
+        }
+        UsedTag::RelayType => {
+            if !is_type {
+                return Err(vec![Diagnostic::error_with_data(
+                    ErrorMessagesWithData::RelayTypeTagUsedForField,
+                    tag_location,
+                )]);
+            }
+        }
+        UsedTag::RelayField => {
+            if is_type {
+                return Err(vec![Diagnostic::error_with_data(
+                    ErrorMessagesWithData::RelayFieldTagUsedForType,
+                    tag_location,
+                )]);
+            }
+        }
     }
 
-    let output_type = combine_edge_to_and_output_type(edge_to_opt, output_type_opt)?;
-
-    let on_type_opt = fields.remove(&AllowedFieldName::OnTypeField);
-    let on_interface_opt = fields.remove(&AllowedFieldName::OnInterfaceField);
-    let on = combine_on_type_on_interface_fields(
-        on_type_opt,
-        on_interface_opt,
-        location,
-        &fragment_type_condition,
-    )?;
-
-    validate_field_arguments(&field_definition_stub.arguments, location.source_location())?;
-
-    Ok(LegacyVerboseResolverIr {
-        live: get_optional_unpopulated_field_named(fields, AllowedFieldName::LiveField)?,
-        on,
-        root_fragment: root_fragment
-            .map(|root_fragment| root_fragment.value.map(FragmentDefinitionName)),
-        description,
-        hack_source,
-        deprecated: fields.remove(&AllowedFieldName::DeprecatedField),
-        location,
-        field: field_definition_stub,
-        output_type,
-        fragment_arguments,
-        source_hash,
-        semantic_non_null: None,
-    })
+    Ok(())
 }
 
 fn parse_strong_object_ir(
@@ -282,7 +303,7 @@ fn parse_weak_object_ir(
     source_hash: ResolverSourceHash,
     parse_options: &ParseOptions<'_>,
 ) -> DiagnosticsResult<WeakObjectIr> {
-    // Validate that the right hand side of the @RelayResolver field is a valid identifier
+    // Validate that the right hand side of the resolver tag is a valid identifier
     let (identifier, implements_interfaces) = if parse_options
         .enable_interface_output_type
         .is_fully_enabled()
@@ -321,9 +342,11 @@ fn parse_terse_relay_resolver_ir(
 ) -> DiagnosticsResult<TerseRelayResolverIr> {
     let root_fragment =
         get_optional_populated_field_named(fields, AllowedFieldName::RootFragmentField)?;
+    let return_fragment =
+        get_optional_populated_field_named(fields, AllowedFieldName::ReturnFragmentField)?;
     let type_str: WithLocation<StringKey> = relay_resolver_field.value;
 
-    // Validate that the right hand side of the @RelayResolver field is a valid identifier
+    // Validate that the right hand side of the resolver tag is a valid identifier
     let type_name = extract_identifier(relay_resolver_field)?;
 
     let (start, end) = type_name.span.as_usize();
@@ -397,6 +420,8 @@ fn parse_terse_relay_resolver_ir(
         type_: WithLocation::new(type_str.location.with_span(type_name.span), type_name.value),
         root_fragment: root_fragment
             .map(|root_fragment| root_fragment.value.map(FragmentDefinitionName)),
+        return_fragment: return_fragment
+            .map(|return_fragment| return_fragment.value.map(FragmentDefinitionName)),
         location,
         deprecated: fields.remove(&AllowedFieldName::DeprecatedField),
         live: get_optional_unpopulated_field_named(fields, AllowedFieldName::LiveField)?,
@@ -406,148 +431,6 @@ fn parse_terse_relay_resolver_ir(
         type_confirmed: false,
         property_lookup_name: None,
     })
-}
-
-fn combine_on_type_on_interface_fields(
-    on_type_opt: Option<IrField>,
-    on_interface_opt: Option<IrField>,
-    location: Location,
-    fragment_type_condition: &Option<WithLocation<StringKey>>,
-) -> Result<On, Diagnostic> {
-    match (on_type_opt, on_interface_opt) {
-        (None, None) => Err(Diagnostic::error(
-            IrParsingErrorMessages::ExpectedOneOrTheOther {
-                field_1: AllowedFieldName::OnTypeField,
-                field_2: AllowedFieldName::OnInterfaceField,
-            },
-            location,
-        )),
-        (Some(on_type), None) => {
-            let on_type: PopulatedIrField = on_type.try_into().map_err(|_| {
-                Diagnostic::error(
-                    IrParsingErrorMessages::MissingFieldValue {
-                        field_name: AllowedFieldName::OnTypeField,
-                    },
-                    on_type.key_location(),
-                )
-            })?;
-            match fragment_type_condition {
-                Some(fragment_type_condition) => {
-                    if on_type.value.item == fragment_type_condition.item {
-                        Ok(On::Type(on_type))
-                    } else {
-                        Err(Diagnostic::error(
-                            IrParsingErrorMessages::MismatchRootFragmentTypeCondition {
-                                fragment_type_condition: fragment_type_condition.item,
-                                on_field_value: on_type.value.item,
-                                on_field_name: AllowedFieldName::OnTypeField,
-                            },
-                            on_type.value.location,
-                        )
-                        .annotate(
-                            "with fragment type condition",
-                            fragment_type_condition.location,
-                        ))
-                    }
-                }
-                None => Ok(On::Type(on_type)),
-            }
-        }
-        (None, Some(on_interface)) => {
-            let on_interface: PopulatedIrField = on_interface.try_into().map_err(|_| {
-                Diagnostic::error(
-                    IrParsingErrorMessages::MissingFieldValue {
-                        field_name: AllowedFieldName::OnInterfaceField,
-                    },
-                    on_interface.key_location(),
-                )
-            })?;
-            match fragment_type_condition {
-                Some(fragment_type_condition) => {
-                    if on_interface.value.item == fragment_type_condition.item {
-                        Ok(On::Interface(on_interface))
-                    } else {
-                        Err(Diagnostic::error(
-                            IrParsingErrorMessages::MismatchRootFragmentTypeCondition {
-                                fragment_type_condition: fragment_type_condition.item,
-                                on_field_value: on_interface.value.item,
-                                on_field_name: AllowedFieldName::OnInterfaceField,
-                            },
-                            on_interface.value.location,
-                        )
-                        .annotate(
-                            "with fragment type condition",
-                            fragment_type_condition.location,
-                        ))
-                    }
-                }
-                None => Ok(On::Interface(on_interface)),
-            }
-        }
-        (Some(on_type), Some(on_interface)) => Err(Diagnostic::error(
-            IrParsingErrorMessages::IncompatibleFields {
-                field_1: AllowedFieldName::OnTypeField,
-                field_2: AllowedFieldName::OnInterfaceField,
-            },
-            on_type.key_location(),
-        )
-        .annotate("@onInterface", on_interface.key_location())),
-    }
-}
-
-fn combine_edge_to_and_output_type(
-    edge_to_opt: Option<PopulatedIrField>,
-    output_type_opt: Option<PopulatedIrField>,
-) -> DiagnosticsResult<Option<OutputType>> {
-    match (edge_to_opt, output_type_opt) {
-        (None, None) => Ok(None),
-        (Some(edge_to), None) => {
-            parse_type_annotation(edge_to.value).map(|val| Some(OutputType::EdgeTo(val)))
-        }
-        (None, Some(output_type)) => {
-            parse_type_annotation(output_type.value).map(|val| Some(OutputType::Output(val)))
-        }
-        (Some(edge_to), Some(output_type)) => Err(vec![
-            Diagnostic::error(
-                IrParsingErrorMessages::IncompatibleFields {
-                    field_1: AllowedFieldName::EdgeToField,
-                    field_2: AllowedFieldName::OutputTypeField,
-                },
-                edge_to.key_location,
-            )
-            .annotate("@outputType", output_type.key_location),
-        ]),
-    }
-}
-
-fn parse_type_annotation(
-    value: WithLocation<StringKey>,
-) -> DiagnosticsResult<WithLocation<TypeAnnotation>> {
-    let type_annotation = parse_type(
-        value.item.lookup(),
-        value.location.source_location(),
-        value.location.span().start,
-    )?;
-
-    let valid_type_annotation = match &type_annotation {
-        TypeAnnotation::Named(_) => type_annotation,
-        TypeAnnotation::List(item_type) => match &item_type.type_ {
-            TypeAnnotation::NonNull(_) => {
-                return Err(vec![Diagnostic::error(
-                    IrParsingErrorMessages::UnexpectedNonNullableItemInListEdgeTo {},
-                    value.location,
-                )]);
-            }
-            _ => type_annotation,
-        },
-        TypeAnnotation::NonNull(_) => {
-            return Err(vec![Diagnostic::error(
-                IrParsingErrorMessages::UnexpectedNonNullableEdgeTo {},
-                value.location,
-            )]);
-        }
-    };
-    Ok(WithLocation::new(value.location, valid_type_annotation))
 }
 
 fn get_optional_unpopulated_field_named(
@@ -568,21 +451,6 @@ fn get_optional_populated_field_named(
         .remove(&field_name)
         .map(|field_value| try_into_populated_field(field_name, field_value))
         .transpose()
-}
-
-fn get_required_populated_field_named(
-    fields: &mut HashMap<AllowedFieldName, IrField>,
-    field_name: AllowedFieldName,
-    location: Location,
-) -> Result<PopulatedIrField, Diagnostic> {
-    get_optional_populated_field_named(fields, field_name).and_then(|e| {
-        e.ok_or_else(|| {
-            Diagnostic::error(
-                IrParsingErrorMessages::MissingField { field_name },
-                location,
-            )
-        })
-    })
 }
 
 fn try_into_unpopulated_field(

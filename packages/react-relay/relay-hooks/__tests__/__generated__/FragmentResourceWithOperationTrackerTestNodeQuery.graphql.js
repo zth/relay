@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<19fc9778d41a62d22c998b391918e9b3>>
+ * @generated SignedSource<<7e785f2cded77780b5e91870f3f6de0a>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -22,18 +21,18 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { FragmentResourceWithOperationTrackerTestUserFragment$fragmentType } from "./FragmentResourceWithOperationTrackerTestUserFragment.graphql";
-export type FragmentResourceWithOperationTrackerTestNodeQuery$variables = {|
+export type FragmentResourceWithOperationTrackerTestNodeQuery$variables = {
   id: string,
-|};
-export type FragmentResourceWithOperationTrackerTestNodeQuery$data = {|
-  +node: ?{|
-    +$fragmentSpreads: FragmentResourceWithOperationTrackerTestUserFragment$fragmentType,
-  |},
-|};
-export type FragmentResourceWithOperationTrackerTestNodeQuery = {|
+};
+export type FragmentResourceWithOperationTrackerTestNodeQuery$data = {
+  readonly node: ?{
+    readonly $fragmentSpreads: FragmentResourceWithOperationTrackerTestUserFragment$fragmentType,
+  },
+};
+export type FragmentResourceWithOperationTrackerTestNodeQuery = {
   response: FragmentResourceWithOperationTrackerTestNodeQuery$data,
   variables: FragmentResourceWithOperationTrackerTestNodeQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -60,14 +59,14 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "FragmentResourceWithOperationTrackerTestNodeQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
@@ -87,19 +86,19 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "FragmentResourceWithOperationTrackerTestNodeQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
+          (v2/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -131,7 +130,7 @@ return {
                 "name": "nameRenderer",
                 "plural": false,
                 "selections": [
-                  (v2/*: any*/),
+                  (v2/*:: as any*/),
                   {
                     "kind": "InlineFragment",
                     "selections": [
@@ -177,7 +176,7 @@ return {
                 "name": "nameRenderer",
                 "plural": false,
                 "selections": [
-                  (v2/*: any*/),
+                  (v2/*:: as any*/),
                   {
                     "kind": "InlineFragment",
                     "selections": [
@@ -216,10 +215,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "43da25d82b333c14f0570f553ebc8631";
+  (node/*:: as any*/).hash = "43da25d82b333c14f0570f553ebc8631";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   FragmentResourceWithOperationTrackerTestNodeQuery$variables,
   FragmentResourceWithOperationTrackerTestNodeQuery$data,
 >*/);

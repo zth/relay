@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<417e169a6201cdf9a305076b14a46cdc>>
+ * @generated SignedSource<<4a8e585a8d96c70deaae3cb8a4977b33>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -19,16 +18,16 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { Result } from "relay-runtime";
-export type CatchTest1Query$variables = {||};
-export type CatchTest1Query$data = {|
-  +me: {|
-    +name: Result<?string, mixed>,
-  |},
-|};
-export type CatchTest1Query = {|
+export type CatchTest1Query$variables = {};
+export type CatchTest1Query$data = {
+  readonly me: {
+    readonly name: Result<?string, unknown>,
+  },
+};
+export type CatchTest1Query = {
   response: CatchTest1Query$data,
   variables: CatchTest1Query$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -58,7 +57,7 @@ return {
           "selections": [
             {
               "kind": "CatchField",
-              "field": (v0/*: any*/),
+              "field": (v0/*:: as any*/),
               "to": "RESULT"
             }
           ],
@@ -84,7 +83,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
+          (v0/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -109,10 +108,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "caace83ff2eba5055c065fd58e31aa3b";
+  (node/*:: as any*/).hash = "caace83ff2eba5055c065fd58e31aa3b";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   CatchTest1Query$variables,
   CatchTest1Query$data,
 >*/);

@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8cf7294b895ed5e987a60f96b0b16515>>
+ * @generated SignedSource<<774928c63e7c08d022ebf13983763ac9>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,16 +17,16 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayModernEnvironmentCommitPayloadTestActorQuery$variables = {||};
-export type RelayModernEnvironmentCommitPayloadTestActorQuery$data = {|
-  +me: ?{|
-    +name: ?string,
-  |},
-|};
-export type RelayModernEnvironmentCommitPayloadTestActorQuery = {|
+export type RelayModernEnvironmentCommitPayloadTestActorQuery$variables = {};
+export type RelayModernEnvironmentCommitPayloadTestActorQuery$data = {
+  readonly me: ?{
+    readonly name: ?string,
+  },
+};
+export type RelayModernEnvironmentCommitPayloadTestActorQuery = {
   response: RelayModernEnvironmentCommitPayloadTestActorQuery$data,
   variables: RelayModernEnvironmentCommitPayloadTestActorQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -53,7 +52,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/)
+          (v0/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -75,7 +74,7 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
+          (v0/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -100,10 +99,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "7f92ebf6ec98bfacd4bbd941e09a0cc6";
+  (node/*:: as any*/).hash = "7f92ebf6ec98bfacd4bbd941e09a0cc6";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayModernEnvironmentCommitPayloadTestActorQuery$variables,
   RelayModernEnvironmentCommitPayloadTestActorQuery$data,
 >*/);

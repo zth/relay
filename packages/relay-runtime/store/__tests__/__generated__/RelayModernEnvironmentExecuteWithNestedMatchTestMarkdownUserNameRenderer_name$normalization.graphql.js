@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2d52cbc03adc3b93cb6d157bf0ddddb2>>
+ * @generated SignedSource<<95071fae4b30719e64d07a63e41abe74>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -41,7 +40,7 @@ return {
   "metadata": {},
   "name": "RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$normalization",
   "selections": [
-    (v0/*: any*/),
+    (v0/*:: as any*/),
     {
       "alias": null,
       "args": null,
@@ -73,7 +72,7 @@ return {
           "kind": "ScalarHandle",
           "name": "markup"
         },
-        (v1/*: any*/)
+        (v1/*:: as any*/)
       ],
       "storageKey": null
     },
@@ -99,7 +98,7 @@ return {
           "name": "nameRenderer",
           "plural": false,
           "selections": [
-            (v0/*: any*/),
+            (v0/*:: as any*/),
             {
               "kind": "InlineFragment",
               "selections": [
@@ -117,7 +116,7 @@ return {
           ],
           "storageKey": "nameRenderer(supported:\"1AwQS7\")"
         },
-        (v1/*: any*/)
+        (v1/*:: as any*/)
       ],
       "storageKey": null
     }
@@ -126,7 +125,7 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "44c58e2b7f52b082c9fbb6fc18edbfa3";
+  (node/*:: as any*/).hash = "44c58e2b7f52b082c9fbb6fc18edbfa3";
 }
 
 module.exports = node;

@@ -9,7 +9,7 @@ import Image from '@site/components/Image';
 
 :::tip Guest Post
 
-This is a guest post written by Ernie Turner, a Staff Engineer at Coinbase. Coinbase has thoroughly adopted Relay in their applications and is a strong ally of the Relay Team. Last year they helped co-develop the [Relay VSCode extension](https://marketplace.visualstudio.com/items?itemName=meta.relay). Ernie has agreed to share this internal enginnering blog post with us.
+This is a guest post written by Ernie Turner, a Staff Engineer at Coinbase. Coinbase has thoroughly adopted Relay in their applications and is a strong ally of the Relay Team. Last year they helped co-develop the [Relay VSCode extension](https://marketplace.visualstudio.com/items?itemName=meta.relay). Ernie has agreed to share this internal engineering blog post with us.
 
 :::
 
@@ -55,7 +55,7 @@ This image also demonstrates how ErrorBoundaries can be too prevalent. The entir
 
 <Image src={require('./images/2023-01-03-resilient-relay-apps-empty-fallbacks.png')} width="35%" title="Empty Fallbacks" />
 
-The UI above is just as bad as the example prior, In this case, our ErrorBoundaries fall back to empty content. For certain UI elements, this makes sense. The missing Share button next to the watchlist isn't critical for this UI, so omitting it makes sense. However, hiding the current price of bitcoin, the price history graph, and the Trade button makes the UI unusable and even somewhat misleading. Even users who don't use the app every day would know that something is off. We also aren't giving the user any option to retry any failures —the user just sees empty content with no way to recover.
+The UI above is just as bad as the example prior. In this case, our ErrorBoundaries fall back to empty content. For certain UI elements, this makes sense. The missing Share button next to the watchlist isn't critical for this UI, so omitting it makes sense. However, hiding the current price of bitcoin, the price history graph, and the Trade button makes the UI unusable and even somewhat misleading. Even users who don't use the app every day would know that something is off. We also aren't giving the user any option to retry any failures —the user just sees empty content with no way to recover.
 
 ### What should the user see instead?
 
@@ -323,7 +323,7 @@ A couple of guidelines of when to provide a fallback value:
 - Fallback values for boolean fields should be used with caution.
   - The first choice for a fallback for boolean fields is usually to set the field to false. Depending on what the boolean field represents, falling back to false can create a worse customer experience than showing the user an error. Falling back to false for a field like `isEligibleForOffer` is probably acceptable because that is likely showing Optional content. Falling back to false for a field like `hasCoinbaseOneSubscription` would not be acceptable because for a user who is a CoinbaseOne subscriber the content is Expected and the user is going to be confused about why that UI is missing in the app
 - Falling back to an empty array for array fields should be used with caution.
-  - If you're showing the user their list of Coinbase Card transactions, falling back to an empty array is a bad idea, but if you're showing the user a list of recently added assets, it's probably okay to fallback to an empty array to omit the UI from displaying since the component is already doing to have to deal with the case of the array being empty.
+  - If you're showing the user their list of Coinbase Card transactions, falling back to an empty array is a bad idea, but if you're showing the user a list of recently added assets, it's probably okay to fallback to an empty array to omit the UI from displaying since the component is already going to have to deal with the case of the array being empty.
 - String fields should usually just deal with null instead.
   - In some cases, you might want to fallback to an empty string for string fields that are returned as null, but usually this creates the same code path if you just leave the field as null. Most string fields in a schema aren't expected to be empty so falling back to an empty string can create negative user experiences where the user will be shown an empty string instead of actual content.
 

@@ -40,6 +40,7 @@ const {
   assertInternalActorIdentifier,
 } = require('../multi-actor-environment/ActorIdentifier');
 const deepFreeze = require('../util/deepFreeze');
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const resolveImmediate = require('../util/resolveImmediate');
 const DataChecker = require('./DataChecker');
 const defaultGetDataID = require('./defaultGetDataID');
@@ -54,17 +55,27 @@ const RelayReader = require('./RelayReader');
 const RelayReferenceMarker = require('./RelayReferenceMarker');
 const RelayStoreSubscriptions = require('./RelayStoreSubscriptions');
 const RelayStoreUtils = require('./RelayStoreUtils');
-const {ROOT_ID, ROOT_TYPE} = require('./RelayStoreUtils');
+const {
+  FIELD_GRANULAR_NOTIFICATIONS_KEY,
+  ROOT_ID,
+  ROOT_TYPE,
+  getFieldNotificationKey,
+} = require('./RelayStoreUtils');
 const invariant = require('invariant');
 
 export opaque type InvalidationState = {
-  dataIDs: $ReadOnlyArray<DataID>,
+  dataIDs: ReadonlyArray<DataID>,
   invalidations: Map<DataID, ?number>,
 };
 
 type InvalidationSubscription = {
   callback: () => void,
   invalidationState: InvalidationState,
+};
+
+type Batch = {
+  sourceOperations: Array<OperationDescriptor>,
+  invalidateStore: boolean,
 };
 
 const DEFAULT_RELEASE_BUFFER_SIZE = 10;
@@ -115,6 +126,8 @@ class RelayModernStore implements Store {
   _resolverContext: ?ResolverContext;
   _actorIdentifier: ?ActorIdentifier;
   _treatMissingFieldsAsNull: boolean;
+  _deferDeduplicatedFields: boolean;
+  _batch: Batch | null;
 
   constructor(
     source: MutableRecordSource,
@@ -134,6 +147,7 @@ class RelayModernStore implements Store {
       // These additional config options are only used if the experimental
       // @outputType resolver feature is used
       treatMissingFieldsAsNull?: ?boolean,
+      deferDeduplicatedFields?: ?boolean,
       actorIdentifier?: ?ActorIdentifier,
     },
   ) {
@@ -182,7 +196,9 @@ class RelayModernStore implements Store {
       options?.shouldProcessClientComponents ?? false;
 
     this._treatMissingFieldsAsNull = options?.treatMissingFieldsAsNull ?? false;
+    this._deferDeduplicatedFields = options?.deferDeduplicatedFields ?? false;
     this._actorIdentifier = options?.actorIdentifier;
+    this._batch = null;
 
     initializeRecordSource(this._recordSource);
   }
@@ -233,6 +249,60 @@ class RelayModernStore implements Store {
         this.__log({name: 'liveresolver.batch.end'});
       }
     }
+  }
+
+  /**
+   * Batch multiple store updates into a single notification pass.
+   *
+   * Fragments will still correctly Suspend on their own parent query during
+   * a batch. However, cross-operation Suspense (a fragment suspending on a
+   * *different* in-flight operation) may not work correctly for operations
+   * that complete during the batch.
+   */
+  experimental_batchUpdates(callback: () => void): void {
+    if (this._batch != null) {
+      throw new Error(
+        'RelayModernStore: Cannot batch updates while already batching updates.',
+      );
+    }
+    const log = this.__log;
+    if (log != null) {
+      log({name: 'store.batch.start'});
+    }
+    const batch: Batch = {sourceOperations: [], invalidateStore: false};
+    this._batch = batch;
+    try {
+      callback();
+    } finally {
+      this._batch = null;
+      this.notify(undefined, batch.invalidateStore);
+      for (const sourceOperation of batch.sourceOperations) {
+        this._recordSourceOperation(sourceOperation);
+      }
+      if (log != null) {
+        log({
+          name: 'store.batch.complete',
+          sourceOperations: batch.sourceOperations,
+          invalidateStore: batch.invalidateStore,
+        });
+      }
+    }
+  }
+
+  batchLiveStateUpdatesWithoutNotify(callback: () => void): boolean {
+    if (this.__log != null) {
+      this.__log({name: 'liveresolver.batch.start'});
+    }
+    let hasPublished = false;
+    try {
+      hasPublished =
+        this._resolverCache.batchLiveStateUpdatesWithoutNotify(callback);
+    } finally {
+      if (this.__log != null) {
+        this.__log({name: 'liveresolver.batch.end'});
+      }
+    }
+    return hasPublished;
   }
 
   check(
@@ -341,7 +411,7 @@ class RelayModernStore implements Store {
           if (this._releaseBuffer.length > this._gcReleaseBufferSize) {
             const _id = this._releaseBuffer.shift();
             if (!this._shouldRetainWithinTTL_EXPERIMENTAL) {
-              // $FlowFixMe[incompatible-call]
+              // $FlowFixMe[incompatible-type]
               this._roots.delete(_id);
             }
             this.scheduleGC();
@@ -385,6 +455,7 @@ class RelayModernStore implements Store {
     const snapshot = RelayReader.read(
       source,
       selector,
+      log,
       this._resolverCache,
       this._resolverContext,
     );
@@ -404,7 +475,22 @@ class RelayModernStore implements Store {
   notify(
     sourceOperation?: OperationDescriptor,
     invalidateStore?: boolean,
-  ): $ReadOnlyArray<RequestDescriptor> {
+  ): ReadonlyArray<RequestDescriptor> {
+    // If we're inside a batchUpdates() call, defer notification.
+    const batch = this._batch;
+    if (batch != null) {
+      if (sourceOperation != null) {
+        batch.sourceOperations.push(sourceOperation);
+      }
+      if (invalidateStore === true) {
+        batch.invalidateStore = true;
+      }
+      // Returning [] here means the OperationExecutor's _updateOperationTracker
+      // will be a no-op for this call, since it relies on notify() returning
+      // the list of affected owners. See the experimental_batchUpdates JSDoc.
+      return [];
+    }
+
     const log = this.__log;
     if (log != null) {
       log({
@@ -413,67 +499,76 @@ class RelayModernStore implements Store {
       });
     }
 
-    // Increment the current write when notifying after executing
-    // a set of changes to the store.
-    this._currentWriteEpoch++;
+    if (!RelayFeatureFlags.OPTIMIZE_NOTIFY) {
+      // Increment the current write when notifying after executing
+      // a set of changes to the store.
+      this._currentWriteEpoch++;
 
-    if (invalidateStore === true) {
-      this._globalInvalidationEpoch = this._currentWriteEpoch;
+      if (invalidateStore === true) {
+        this._globalInvalidationEpoch = this._currentWriteEpoch;
+      }
     }
 
     // When a record is updated, we need to also handle records that depend on it,
     // specifically Relay Resolver result records containing results based on the
     // updated records. This both adds to updatedRecordIDs and invalidates any
     // cached data as needed.
-    this._resolverCache.invalidateDataIDs(this._updatedRecordIDs);
+    if (!RelayFeatureFlags.OPTIMIZE_NOTIFY || this._updatedRecordIDs.size > 0) {
+      this._resolverCache.invalidateDataIDs(this._updatedRecordIDs);
+    }
 
     const source = this.getSource();
     const updatedOwners: Array<RequestDescriptor> = [];
-    this._storeSubscriptions.updateSubscriptions(
-      source,
-      this._updatedRecordIDs,
-      updatedOwners,
-      sourceOperation,
-    );
-    this._invalidationSubscriptions.forEach(subscription => {
-      this._updateInvalidationSubscription(
-        subscription,
-        invalidateStore === true,
+    if (!RelayFeatureFlags.OPTIMIZE_NOTIFY || this._updatedRecordIDs.size > 0) {
+      this._storeSubscriptions.updateSubscriptions(
+        source,
+        this._updatedRecordIDs,
+        updatedOwners,
+        sourceOperation,
       );
-    });
+    } else {
+      // If no record is updated, we still need to traverse stale subscriptions for
+      // subscriptions that were using values from optimistic updates
+      this._storeSubscriptions.updateStaleSubscriptions(
+        source,
+        this._updatedRecordIDs,
+        updatedOwners,
+        sourceOperation,
+      );
+    }
 
-    // If a source operation was provided (indicating the operation
-    // that produced this update to the store), record the current epoch
-    // at which this operation was written.
-    if (sourceOperation != null) {
-      // We only track the epoch at which the operation was written if
-      // it was previously retained, to keep the size of our operation
-      // epoch map bounded. If a query wasn't retained, we assume it can
-      // may be deleted at any moment and thus is not relevant for us to track
-      // for the purposes of invalidation.
-      const id = sourceOperation.request.identifier;
-      const rootEntry = this._roots.get(id);
-      if (rootEntry != null) {
-        rootEntry.epoch = this._currentWriteEpoch;
-        rootEntry.fetchTime = Date.now();
-      } else if (
-        sourceOperation.request.node.params.operationKind === 'query' &&
-        this._gcReleaseBufferSize > 0 &&
-        this._releaseBuffer.length < this._gcReleaseBufferSize
-      ) {
-        // The operation isn't retained but there is space in the release buffer:
-        // temporarily track this operation in case the data can be reused soon.
-        const temporaryRootEntry = {
-          operation: sourceOperation,
-          refCount: 0,
-          epoch: this._currentWriteEpoch,
-          fetchTime: Date.now(),
-        };
-        this._releaseBuffer.push(id);
-        /* $FlowFixMe[incompatible-call] Natural Inference rollout. See
-         * https://fburl.com/gdoc/y8dn025u */
-        this._roots.set(id, temporaryRootEntry);
+    if (
+      RelayFeatureFlags.OPTIMIZE_NOTIFY &&
+      (this._updatedRecordIDs.size > 0 ||
+        updatedOwners.length > 0 ||
+        this._invalidatedRecordIDs.size > 0 ||
+        invalidateStore === true ||
+        this._globalInvalidationEpoch === this._currentWriteEpoch)
+    ) {
+      // Increment the current write when notifying after executing
+      // a set of changes to the store.
+      this._currentWriteEpoch++;
+
+      if (invalidateStore === true) {
+        this._globalInvalidationEpoch = this._currentWriteEpoch;
       }
+    }
+
+    if (
+      !RelayFeatureFlags.OPTIMIZE_NOTIFY ||
+      this._invalidatedRecordIDs.size > 0 ||
+      invalidateStore === true
+    ) {
+      this._invalidationSubscriptions.forEach(subscription => {
+        this._updateInvalidationSubscription(
+          subscription,
+          invalidateStore === true,
+        );
+      });
+    }
+
+    if (sourceOperation != null) {
+      this._recordSourceOperation(sourceOperation);
     }
 
     if (log != null) {
@@ -491,6 +586,40 @@ class RelayModernStore implements Store {
     this._invalidatedRecordIDs.clear();
 
     return updatedOwners;
+  }
+
+  /**
+   * Record that a source operation was written at the current epoch.
+   * We only track the epoch at which the operation was written if
+   * it was previously retained, to keep the size of our operation
+   * epoch map bounded. If a query wasn't retained, we assume it can
+   * be deleted at any moment and thus is not relevant for us to track
+   * for the purposes of invalidation.
+   */
+  _recordSourceOperation(sourceOperation: OperationDescriptor): void {
+    const id = sourceOperation.request.identifier;
+    const rootEntry = this._roots.get(id);
+    if (rootEntry != null) {
+      rootEntry.epoch = this._currentWriteEpoch;
+      rootEntry.fetchTime = Date.now();
+    } else if (
+      sourceOperation.request.node.params.operationKind === 'query' &&
+      this._gcReleaseBufferSize > 0 &&
+      this._releaseBuffer.length < this._gcReleaseBufferSize
+    ) {
+      // The operation isn't retained but there is space in the release buffer:
+      // temporarily track this operation in case the data can be reused soon.
+      const temporaryRootEntry = {
+        operation: sourceOperation,
+        refCount: 0,
+        epoch: this._currentWriteEpoch,
+        fetchTime: Date.now(),
+      };
+      this._releaseBuffer.push(id);
+      /* $FlowFixMe[incompatible-type] Natural Inference rollout. See
+       * https://fburl.com/gdoc/y8dn025u */
+      this._roots.set(id, temporaryRootEntry);
+    }
   }
 
   publish(source: RecordSource, idsMarkedForInvalidation?: DataIDSet): void {
@@ -543,7 +672,7 @@ class RelayModernStore implements Store {
     return {dispose};
   }
 
-  toJSON(): mixed {
+  toJSON(): unknown {
     return 'RelayModernStore()';
   }
 
@@ -556,7 +685,7 @@ class RelayModernStore implements Store {
     return this._updatedRecordIDs;
   }
 
-  lookupInvalidationState(dataIDs: $ReadOnlyArray<DataID>): InvalidationState {
+  lookupInvalidationState(dataIDs: ReadonlyArray<DataID>): InvalidationState {
     const invalidations = new Map<DataID, ?number>();
     dataIDs.forEach(dataID => {
       const record = this.getSource().get(dataID);
@@ -795,7 +924,7 @@ class RelayModernStore implements Store {
               RELAY_RESOLVER_LIVE_STATE_SUBSCRIPTION_KEY,
             );
             if (maybeResolverSubscription != null) {
-              // $FlowFixMe - this value if it is not null, it is a function
+              // $FlowFixMe[not-a-function] - this value if it is not null, it is a function
               maybeResolverSubscription();
             }
           }
@@ -819,14 +948,13 @@ class RelayModernStore implements Store {
   }
 
   // Internal API for normalizing @outputType payloads in LiveResolverCache.
-  __getNormalizationOptions(
-    path: $ReadOnlyArray<string>,
-  ): NormalizationOptions {
+  __getNormalizationOptions(path: ReadonlyArray<string>): NormalizationOptions {
     return {
       path,
       getDataID: this._getDataID,
       log: this.__log,
       treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
+      deferDeduplicatedFields: this._deferDeduplicatedFields,
       shouldProcessClientComponents: this._shouldProcessClientComponents,
       actorIdentifier: this._actorIdentifier,
     };
@@ -846,6 +974,13 @@ class RelayModernStore implements Store {
 function initializeRecordSource(target: MutableRecordSource) {
   if (!target.has(ROOT_ID)) {
     const rootRecord = RelayModernRecord.create(ROOT_ID, ROOT_TYPE);
+    if (RelayFeatureFlags.ENABLE_FIELD_GRANULAR_NOTIFICATIONS) {
+      RelayModernRecord.setValue(
+        rootRecord,
+        FIELD_GRANULAR_NOTIFICATIONS_KEY,
+        true,
+      );
+    }
     target.set(ROOT_ID, rootRecord);
   }
 }
@@ -930,6 +1065,32 @@ function updateTargetFromSource(
         }
         updatedRecordIDs.add(dataID);
         target.set(dataID, nextRecord);
+
+        // Add per-field notification keys for field-granular records
+        if (
+          RelayModernRecord.getValue(
+            nextRecord,
+            FIELD_GRANULAR_NOTIFICATIONS_KEY,
+          )
+        ) {
+          const fields = RelayModernRecord.getFields(nextRecord);
+          for (let jj = 0; jj < fields.length; jj++) {
+            const storageKey = fields[jj];
+            // Skip internal metadata keys (all start with '__')
+            if (storageKey.startsWith('__')) {
+              continue;
+            }
+            if (
+              RelayModernRecord.hasFieldChanged(
+                targetRecord,
+                nextRecord,
+                storageKey,
+              )
+            ) {
+              updatedRecordIDs.add(getFieldNotificationKey(dataID, storageKey));
+            }
+          }
+        }
       }
     } else if (sourceRecord === null) {
       target.delete(dataID);

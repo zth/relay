@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0952e46c01e925f5f9d6d46a37b10f66>>
+ * @generated SignedSource<<4c9d9971ad0309f855c7cfc8af2cabc5>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,21 +17,21 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayReaderRelayErrorHandlingTestMissingPluralQuery$variables = {|
-  size?: ?$ReadOnlyArray<?number>,
-|};
-export type RelayReaderRelayErrorHandlingTestMissingPluralQuery$data = {|
-  +nodes: ?$ReadOnlyArray<?{|
-    +lastName: ?string,
-    +profilePicture: ?{|
-      +uri: ?string,
-    |},
-  |}>,
-|};
-export type RelayReaderRelayErrorHandlingTestMissingPluralQuery = {|
+export type RelayReaderRelayErrorHandlingTestMissingPluralQuery$variables = {
+  size?: ?ReadonlyArray<?number>,
+};
+export type RelayReaderRelayErrorHandlingTestMissingPluralQuery$data = {
+  readonly nodes: ?ReadonlyArray<?{
+    readonly lastName: ?string,
+    readonly profilePicture: ?{
+      readonly uri: ?string,
+    },
+  }>,
+};
+export type RelayReaderRelayErrorHandlingTestMissingPluralQuery = {
   response: RelayReaderRelayErrorHandlingTestMissingPluralQuery$data,
   variables: RelayReaderRelayErrorHandlingTestMissingPluralQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -76,7 +75,7 @@ v2 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": {
       "throwOnFieldError": true
@@ -91,8 +90,8 @@ return {
         "name": "nodes",
         "plural": true,
         "selections": [
-          (v1/*: any*/),
-          (v2/*: any*/)
+          (v1/*:: as any*/),
+          (v2/*:: as any*/)
         ],
         "storageKey": null
       }
@@ -102,7 +101,7 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayReaderRelayErrorHandlingTestMissingPluralQuery",
     "selections": [
@@ -121,8 +120,8 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v1/*: any*/),
-          (v2/*: any*/),
+          (v1/*:: as any*/),
+          (v2/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -147,10 +146,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "9e91ce9da23ac341e9d3815c9f9cf2f2";
+  (node/*:: as any*/).hash = "9e91ce9da23ac341e9d3815c9f9cf2f2";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayReaderRelayErrorHandlingTestMissingPluralQuery$variables,
   RelayReaderRelayErrorHandlingTestMissingPluralQuery$data,
 >*/);

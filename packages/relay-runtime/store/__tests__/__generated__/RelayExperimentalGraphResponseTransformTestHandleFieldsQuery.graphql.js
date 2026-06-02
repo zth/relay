@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<55511e2b78a1a66a2b5aa018bc57126e>>
+ * @generated SignedSource<<14424c745640a2f1a7bef8d4d75f78a5>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,28 +17,28 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayExperimentalGraphResponseTransformTestHandleFieldsQuery$variables = {|
+export type RelayExperimentalGraphResponseTransformTestHandleFieldsQuery$variables = {
   id: string,
-|};
-export type RelayExperimentalGraphResponseTransformTestHandleFieldsQuery$data = {|
-  +node: ?{|
-    +__typename: string,
-    +friends?: ?{|
-      +edges: ?$ReadOnlyArray<?{|
-        +cursor: ?string,
-        +node: ?{|
-          +id: string,
-          +name: ?string,
-        |},
-      |}>,
-    |},
-    +id: string,
-  |},
-|};
-export type RelayExperimentalGraphResponseTransformTestHandleFieldsQuery = {|
+};
+export type RelayExperimentalGraphResponseTransformTestHandleFieldsQuery$data = {
+  readonly node: ?{
+    readonly __typename: string,
+    readonly friends?: ?{
+      readonly edges: ?ReadonlyArray<?{
+        readonly cursor: ?string,
+        readonly node: ?{
+          readonly id: string,
+          readonly name: ?string,
+        },
+      }>,
+    },
+    readonly id: string,
+  },
+};
+export type RelayExperimentalGraphResponseTransformTestHandleFieldsQuery = {
   response: RelayExperimentalGraphResponseTransformTestHandleFieldsQuery$data,
   variables: RelayExperimentalGraphResponseTransformTestHandleFieldsQuery$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -87,21 +86,21 @@ v5 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayExperimentalGraphResponseTransformTestHandleFieldsQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
-          (v3/*: any*/),
+          (v2/*:: as any*/),
+          (v3/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
@@ -121,7 +120,7 @@ return {
                     "name": "edges",
                     "plural": true,
                     "selections": [
-                      (v4/*: any*/),
+                      (v4/*:: as any*/),
                       {
                         "alias": null,
                         "args": null,
@@ -130,7 +129,7 @@ return {
                         "name": "node",
                         "plural": false,
                         "selections": [
-                          (v2/*: any*/),
+                          (v2/*:: as any*/),
                           {
                             "alias": "name",
                             "args": null,
@@ -160,26 +159,26 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayExperimentalGraphResponseTransformTestHandleFieldsQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
-          (v3/*: any*/),
+          (v2/*:: as any*/),
+          (v3/*:: as any*/),
           {
             "kind": "InlineFragment",
             "selections": [
               {
                 "alias": null,
-                "args": (v5/*: any*/),
+                "args": (v5/*:: as any*/),
                 "concreteType": "FriendsConnection",
                 "kind": "LinkedField",
                 "name": "friends",
@@ -193,7 +192,7 @@ return {
                     "name": "edges",
                     "plural": true,
                     "selections": [
-                      (v4/*: any*/),
+                      (v4/*:: as any*/),
                       {
                         "alias": null,
                         "args": null,
@@ -202,7 +201,7 @@ return {
                         "name": "node",
                         "plural": false,
                         "selections": [
-                          (v2/*: any*/),
+                          (v2/*:: as any*/),
                           {
                             "alias": null,
                             "args": null,
@@ -230,7 +229,7 @@ return {
               },
               {
                 "alias": null,
-                "args": (v5/*: any*/),
+                "args": (v5/*:: as any*/),
                 "filters": null,
                 "handle": "bestFriends",
                 "key": "",
@@ -258,10 +257,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "be07c716d6112586edbf22aab54d5262";
+  (node/*:: as any*/).hash = "be07c716d6112586edbf22aab54d5262";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*:: as any*/)/*:: as Query<
   RelayExperimentalGraphResponseTransformTestHandleFieldsQuery$variables,
   RelayExperimentalGraphResponseTransformTestHandleFieldsQuery$data,
 >*/);

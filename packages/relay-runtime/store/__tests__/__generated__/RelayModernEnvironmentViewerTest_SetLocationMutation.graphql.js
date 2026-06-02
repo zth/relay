@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<45bcb001df2301f4b973d426f9b0a5dc>>
+ * @generated SignedSource<<cec44eb9455dd52343f968493c964b33>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,29 +17,29 @@
 
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
-export type LocationInput = {|
+export type LocationInput = {
   latitude?: ?number,
   longitude?: ?number,
-|};
-export type RelayModernEnvironmentViewerTest_SetLocationMutation$variables = {|
+};
+export type RelayModernEnvironmentViewerTest_SetLocationMutation$variables = {
   input: LocationInput,
-|};
-export type RelayModernEnvironmentViewerTest_SetLocationMutation$data = {|
-  +setLocation: ?{|
-    +viewer: ?{|
-      +marketplace_settings: ?{|
-        +location: ?{|
-          +latitude: ?number,
-          +longitude: ?number,
-        |},
-      |},
-    |},
-  |},
-|};
-export type RelayModernEnvironmentViewerTest_SetLocationMutation = {|
+};
+export type RelayModernEnvironmentViewerTest_SetLocationMutation$data = {
+  readonly setLocation: ?{
+    readonly viewer: ?{
+      readonly marketplace_settings: ?{
+        readonly location: ?{
+          readonly latitude: ?number,
+          readonly longitude: ?number,
+        },
+      },
+    },
+  },
+};
+export type RelayModernEnvironmentViewerTest_SetLocationMutation = {
   response: RelayModernEnvironmentViewerTest_SetLocationMutation$data,
   variables: RelayModernEnvironmentViewerTest_SetLocationMutation$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -119,20 +118,20 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentViewerTest_SetLocationMutation",
-    "selections": (v1/*: any*/),
+    "selections": (v1/*:: as any*/),
     "type": "Mutation",
     "abstractKey": null
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentViewerTest_SetLocationMutation",
-    "selections": (v1/*: any*/)
+    "selections": (v1/*:: as any*/)
   },
   "params": {
     "cacheID": "9914988669278d6412b22158ffc20501",
@@ -146,10 +145,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "eb0479436163e3d7e09b56e7a65fe412";
+  (node/*:: as any*/).hash = "eb0479436163e3d7e09b56e7a65fe412";
 }
 
-module.exports = ((node/*: any*/)/*: Mutation<
+module.exports = ((node/*:: as any*/)/*:: as Mutation<
   RelayModernEnvironmentViewerTest_SetLocationMutation$variables,
   RelayModernEnvironmentViewerTest_SetLocationMutation$data,
 >*/);

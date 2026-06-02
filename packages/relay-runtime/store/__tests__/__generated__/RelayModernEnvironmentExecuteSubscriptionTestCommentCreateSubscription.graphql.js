@@ -6,10 +6,9 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7503f87eb10e8a9200453de7b92a386e>>
+ * @generated SignedSource<<ab110e98bf63b484993faf5e5aee4db2>>
  * @flow
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* eslint-disable */
@@ -18,27 +17,27 @@
 
 /*::
 import type { ConcreteRequest, GraphQLSubscription } from 'relay-runtime';
-export type CommentCreateSubscriptionInput = {|
+export type CommentCreateSubscriptionInput = {
   feedbackId?: ?string,
   text?: ?string,
-|};
-export type RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscription$variables = {|
+};
+export type RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscription$variables = {
   input: CommentCreateSubscriptionInput,
-|};
-export type RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscription$data = {|
-  +commentCreateSubscribe: ?{|
-    +comment: ?{|
-      +body: ?{|
-        +text: ?string,
-      |},
-      +id: string,
-    |},
-  |},
-|};
-export type RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscription = {|
+};
+export type RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscription$data = {
+  readonly commentCreateSubscribe: ?{
+    readonly comment: ?{
+      readonly body: ?{
+        readonly text: ?string,
+      },
+      readonly id: string,
+    },
+  },
+};
+export type RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscription = {
   response: RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscription$data,
   variables: RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscription$variables,
-|};
+};
 */
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -106,20 +105,20 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscription",
-    "selections": (v1/*: any*/),
+    "selections": (v1/*:: as any*/),
     "type": "Subscription",
     "abstractKey": null
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscription",
-    "selections": (v1/*: any*/)
+    "selections": (v1/*:: as any*/)
   },
   "params": {
     "cacheID": "8fd8fcebf3ed6c8b5627532fceaa00d4",
@@ -133,10 +132,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "3e6ba24bf317bd29cad3c6f53895fd9f";
+  (node/*:: as any*/).hash = "3e6ba24bf317bd29cad3c6f53895fd9f";
 }
 
-module.exports = ((node/*: any*/)/*: GraphQLSubscription<
+module.exports = ((node/*:: as any*/)/*:: as GraphQLSubscription<
   RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscription$variables,
   RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscription$data,
 >*/);
