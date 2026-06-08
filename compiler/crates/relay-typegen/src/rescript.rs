@@ -8,6 +8,7 @@
 use std::fmt::Result;
 use std::fmt::Write;
 
+use common::NamedItem;
 use common::rescript_utils::get_module_name_from_file_path;
 use fnv::FnvHashMap;
 use fnv::FnvHashSet;
@@ -18,6 +19,7 @@ use intern::string_key::Intern;
 use itertools::Itertools;
 use log::debug;
 use log::warn;
+use relay_transforms::INLINE_DIRECTIVE_NAME;
 
 use crate::rescript_ast::*;
 use crate::rescript_relay_visitor::RescriptRelayFragmentDirective;
@@ -2836,6 +2838,10 @@ impl Writer for ReScriptPrinter {
                     .unwrap();
                 } else {
                     let plural = is_plural(fragment_definition);
+                    let inline = fragment_definition
+                        .directives
+                        .named(*INLINE_DIRECTIVE_NAME)
+                        .is_some();
 
                     write_indentation(&mut generated_types, indentation).unwrap();
                     writeln!(
@@ -2852,6 +2858,19 @@ impl Writer for ReScriptPrinter {
                         if plural { ">" } else { "" }
                     )
                     .unwrap();
+
+                    if !inline {
+                        write_indentation(&mut generated_types, indentation).unwrap();
+                        writeln!(
+                            generated_types,
+                            "module Test = {{\n  let fromData = (data: Types.fragment): {}RescriptRelay.fragmentRefs<[> | #{}]>{} =>\n    RescriptRelay_TestFragmentRef.make(\"{}\", data)\n}}\n",
+                            if plural { "array<" } else { "" },
+                            fragment_definition.name.item,
+                            if plural { ">" } else { "" },
+                            fragment_definition.name.item
+                        )
+                        .unwrap();
+                    }
                 }
             }
             DefinitionType::Operation(_) => {
