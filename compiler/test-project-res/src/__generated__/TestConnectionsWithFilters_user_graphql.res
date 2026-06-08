@@ -40,6 +40,11 @@ type fragmentRef
 external getFragmentRef:
   RescriptRelay.fragmentRefs<[> | #TestConnectionsWithFilters_user]> => fragmentRef = "%identity"
 
+module Test = {
+  let fromData = (data: Types.fragment): RescriptRelay.fragmentRefs<[> | #TestConnectionsWithFilters_user]> =>
+    RescriptRelay_TestFragmentRef.make("TestConnectionsWithFilters_user", data)
+}
+
 @live
 @inline
 let connectionKey = "TestConnectionsWithFilters_user_friendsConnection"
