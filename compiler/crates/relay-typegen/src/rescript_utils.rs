@@ -357,6 +357,7 @@ pub fn get_safe_key(original_key: &String) -> (String, Option<String>) {
 
 pub fn instruction_to_key_value_pair(instruction: &ConverterInstructions) -> (String, String) {
     match &instruction {
+        &ConverterInstructions::ListDepth(depth) => (String::from("list"), depth.to_string()),
         &ConverterInstructions::ConvertUnion(union_record_name) => {
             (String::from("u"), union_record_name.to_string())
         }

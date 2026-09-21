@@ -9,7 +9,6 @@ use std::fmt::Result;
 use std::fmt::Write;
 
 use common::rescript_utils::get_module_name_from_file_path;
-use fnv::FnvHashMap;
 use fnv::FnvHashSet;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::OperationDefinition;
@@ -144,7 +143,7 @@ fn ast_to_prop_value(
     key: &String,
     optional: bool,
     found_in_union: bool,
-    found_in_array: bool,
+    list_depth: usize,
     context: &Context,
     is_from_result: bool,
 ) -> Option<PropValue> {
@@ -174,7 +173,7 @@ fn ast_to_prop_value(
     // in its underlying form, a data id. So, this little weird thing
     // handles that.
     if context == &Context::Variables
-        && found_in_array
+        && list_depth > 0
         && current_path.len() == 1 // Path length on 1 means that we're on the top level
         && state
             .operation_meta_data
@@ -202,7 +201,7 @@ fn ast_to_prop_value(
                     key,
                     is_nullable,
                     found_in_union,
-                    found_in_array,
+                    list_depth,
                     context,
                     true,
                 );
@@ -260,6 +259,11 @@ fn ast_to_prop_value(
             prop_type: Box::new(PropType::StringLiteral(literal.to_string())),
         }),
         AST::ReadOnlyArray(ast) => {
+            state.conversion_instructions.push(InstructionContainer {
+                context: context.clone(),
+                at_path: new_at_path.clone(),
+                instruction: ConverterInstructions::ListDepth(list_depth + 1),
+            });
             // We know that this is a list, and we know
             // if it's nullable or not. Time to figure
             // out what it contains!
@@ -273,7 +277,7 @@ fn ast_to_prop_value(
                 // or not.
                 false,
                 found_in_union,
-                true,
+                list_depth + 1,
                 context,
                 is_from_result,
             ) {
@@ -406,7 +410,7 @@ fn ast_to_prop_value(
                                 at_path: new_at_path,
                                 instruction: ConverterInstructions::ConvertCustomField(
                                     identifier.to_string(),
-                                    found_in_array,
+                                    list_depth > 0,
                                 ),
                             });
                             is_custom_scalar_that_needs_conversion = true;
@@ -421,7 +425,7 @@ fn ast_to_prop_value(
                                     context: context.clone(),
                                     at_path: new_at_path,
                                     instruction: ConverterInstructions::BlockTraversal(
-                                        found_in_array,
+                                        list_depth > 0,
                                     ),
                                 });
                             }
@@ -596,7 +600,7 @@ fn get_object_props(
                     &key,
                     false,
                     found_in_union,
-                    false,
+                    0,
                     context,
                     false,
                 )
@@ -678,7 +682,7 @@ fn get_object_props(
                                 &key,
                                 key_value_pair.optional,
                                 found_in_union,
-                                false,
+                                0,
                                 context,
                                 false,
                             )
@@ -870,7 +874,12 @@ fn write_suppress_dead_code_warning_annotation(str: &mut String, indentation: us
     writeln!(str, "@live")
 }
 
-fn write_enum_util_functions(state: &ReScriptPrinter, str: &mut String, indentation: usize, full_enum: &FullEnum) -> Result {
+fn write_enum_util_functions(
+    state: &ReScriptPrinter,
+    str: &mut String,
+    indentation: usize,
+    full_enum: &FullEnum,
+) -> Result {
     let name_uncapitalized = uncapitalize_string(&full_enum.name);
     // First, we write toString functions, that are essentially type casts. This
     // is fine because we're sure the underlying type is a string, if it made it
@@ -1031,143 +1040,29 @@ fn write_union_definition(
     Ok(())
 }
 
-fn write_instruction_json_object(
-    str: &mut String,
-    key: &String,
-    instructions: &Vec<&InstructionContainer>,
-) -> Result {
-    write!(str, "\"{}\":{{", key).unwrap();
-
-    // Move all instructions into a hash map by path.
-    let mut by_path = FnvHashMap::default();
-
-    instructions.iter().for_each(|instruction_container| {
-        let path_name = conversion_instruction_path_to_name(&instruction_container.at_path);
-        match by_path.get_mut(&path_name) {
-            None => {
-                by_path.insert(
-                    conversion_instruction_path_to_name(&instruction_container.at_path),
-                    vec![instruction_container.instruction.clone()],
-                );
-                ()
-            }
-            Some(existing_instructions) => {
-                existing_instructions.push(instruction_container.instruction.clone())
-            }
-        }
-    });
-
-    let num_by_path = by_path.len();
-
-    by_path
-        .iter()
-        .sorted_by(|(path_a, _), (path_b, _)| path_b.cmp(&path_a))
-        .enumerate()
-        .for_each(|(index, (path_name, instructions))| {
-            write!(str, "\"{}\":{{", path_name).unwrap();
-
-            let mut has_printed_keys = FnvHashSet::default();
-
-            let num_instructions = instructions.len();
-
-            instructions
-                .iter()
-                .sorted_by(|instr_a, instr_b| {
-                    let (key_a, _) = instruction_to_key_value_pair(&instr_a);
-                    let (key_b, _) = instruction_to_key_value_pair(&instr_b);
-
-                    key_b.cmp(&key_a)
-                })
-                .enumerate()
-                .for_each(|(index, instruction)| {
-                    let (key, value) = instruction_to_key_value_pair(&instruction);
-
-                    if has_printed_keys.contains(&key) {
-                        return;
-                    }
-
-                    write!(str, "\"{}\":\"{}\"", key, value).unwrap();
-
-                    if num_instructions != index + 1 {
-                        write!(str, ",").unwrap();
-                    }
-
-                    has_printed_keys.insert(key);
-                });
-
-            // Close this instruction
-            write!(str, "}}").unwrap();
-
-            if num_by_path != index + 1 {
-                write!(str, ",").unwrap();
-            }
-        });
-
-    // Close this instruction
-    write!(str, "}}").unwrap();
-
-    Ok(())
-}
-
-// This produces the conversion instructions JSON object.
+// Preserve field boundaries and list depth; preparation happens at module load.
 fn get_conversion_instructions(
     state: &Box<ReScriptPrinter>,
     conversion_instructions: &Vec<&InstructionContainer>,
     root_object_names: Vec<&String>,
     root_name: &String,
 ) -> String {
-    if conversion_instructions.len() == 0 {
-        String::from("{}")
-    } else {
-        let mut str = String::from("{");
-
-        // Print any root objects
-        root_object_names.iter().for_each(|name| {
-            write_instruction_json_object(
-                &mut str,
-                name,
-                &state
-                    .conversion_instructions
-                    .iter()
-                    .filter(
-                        |instruction_container| match &instruction_container.context {
-                            Context::RootObject(root_object_name) => {
-                                root_object_name.to_string() == name.to_string()
-                            }
-                            _ => false,
-                        },
-                    )
-                    .collect_vec(),
-            )
-            .unwrap();
-            write!(str, ",").unwrap();
-        });
-
-        // Write the root itself
-        write_instruction_json_object(
-            &mut str,
-            &String::from("__root"),
-            // The conversion instructions might contain root objects in
-            // addition to the top level, so we need to get rid of everything
-            // that doesn't the top level path prefix we're after.
-            &conversion_instructions
-                .into_iter()
-                .filter_map(|instruction_container| {
-                    if instruction_container.at_path[0] == root_name.as_str() {
-                        Some(instruction_container.to_owned())
-                    } else {
-                        None
-                    }
-                })
-                .collect_vec(),
-        )
-        .unwrap();
-
-        // Close full obj
-        write!(str, "}}").unwrap();
-
-        str
+    let mut roots = vec![];
+    for name in root_object_names {
+        let instructions = state.conversion_instructions.iter().filter(|instruction| {
+            matches!(&instruction.context, Context::RootObject(root) if root == name)
+        }).collect_vec();
+        roots.push((name.to_string(), instructions));
     }
+    roots.push((
+        String::from("__root"),
+        conversion_instructions
+            .iter()
+            .filter(|instruction| &instruction.at_path[0] == root_name)
+            .copied()
+            .collect_vec(),
+    ));
+    crate::rescript_conversion::write_plan(roots)
 }
 
 // This writes the converter map, used to convert things like custom scalars and
@@ -1286,12 +1181,7 @@ fn write_internal_assets(
 
     write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
     write_indentation(str, indentation).unwrap();
-    writeln!(
-        str,
-        "let {}Converter: dict<dict<dict<string>>> = %raw(",
-        name
-    )
-    .unwrap();
+    writeln!(str, "let {}Converter: JSON.t = %raw(", name).unwrap();
 
     write_indentation(str, indentation + 1).unwrap();
 
@@ -1365,7 +1255,7 @@ fn write_internal_assets(
     write_indentation(str, indentation).unwrap();
     writeln!(
         str,
-        "let convert{} = v => v->RescriptRelay.convertObj(",
+        "let prepared{}Converter = RescriptRelay.prepareConversion(",
         uppercase_first_letter(name.as_str())
     )
     .unwrap();
@@ -1387,6 +1277,15 @@ fn write_internal_assets(
     write_indentation(str, indentation).unwrap();
     writeln!(str, ")").unwrap();
 
+    write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
+    write_indentation(str, indentation).unwrap();
+    writeln!(
+        str,
+        "let convert{} = value => RescriptRelay.runConversion(prepared{}Converter, value)",
+        uppercase_first_letter(name.as_str()),
+        uppercase_first_letter(name.as_str())
+    )
+    .unwrap();
     Ok(())
 }
 
@@ -2057,8 +1956,7 @@ fn write_get_connection_nodes_function(
                 None => {
                     warn!(
                         "Could not find edges object with type name '{}' for connection '{}'",
-                        edges_obj_type_name,
-                        connection_field_name
+                        edges_obj_type_name, connection_field_name
                     );
                 }
                 Some(edges_object) => {
@@ -2067,28 +1965,28 @@ fn write_get_connection_nodes_function(
                         None => {
                             warn!(
                                 "Could not find 'node' field in edges object '{}' for connection '{}'",
-                                edges_obj_type_name,
-                                connection_field_name
+                                edges_obj_type_name, connection_field_name
                             );
                         }
                         Some(prop_value) => {
-                            let (node_nullable, node_type_name) =
-                                match &prop_value.prop_type.as_ref() {
-                                    PropType::RecordReference(node_record_reference) => {
-                                        (prop_value.nullable, node_record_reference.to_string())
-                                    }
-                                    PropType::UnionReference(node_union_reference) => {
-                                        (prop_value.nullable, node_union_reference.to_string())
-                                    }
-                                    other_type => {
-                                        warn!(
-                                            "Unexpected node type in connection '{}': expected RecordReference or UnionReference, got {:?}",
-                                            connection_field_name,
-                                            other_type
-                                        );
-                                        (prop_value.nullable, String::from("invalid_node_type"))
-                                    }
-                                };
+                            let (node_nullable, node_type_name) = match &prop_value
+                                .prop_type
+                                .as_ref()
+                            {
+                                PropType::RecordReference(node_record_reference) => {
+                                    (prop_value.nullable, node_record_reference.to_string())
+                                }
+                                PropType::UnionReference(node_union_reference) => {
+                                    (prop_value.nullable, node_union_reference.to_string())
+                                }
+                                other_type => {
+                                    warn!(
+                                        "Unexpected node type in connection '{}': expected RecordReference or UnionReference, got {:?}",
+                                        connection_field_name, other_type
+                                    );
+                                    (prop_value.nullable, String::from("invalid_node_type"))
+                                }
+                            };
 
                             // We've got all we need, let's print the function itself
                             writeln!(str, "").unwrap();
@@ -2970,8 +2868,13 @@ impl Writer for ReScriptPrinter {
                         .iter()
                         .unique_by(|full_enum| &full_enum.name)
                         .for_each(|full_enum| {
-                            write_enum_util_functions(&self, &mut generated_types, indentation, &full_enum)
-                                .unwrap()
+                            write_enum_util_functions(
+                                &self,
+                                &mut generated_types,
+                                indentation,
+                                &full_enum,
+                            )
+                            .unwrap()
                         });
                 }
             }
@@ -3499,6 +3402,15 @@ impl Writer for ReScriptPrinter {
                                     ),
                                     needs_conversion: needs_conversion.clone(),
                                 });
+
+                                let list_depth = crate::rescript_conversion::list_depth(return_type_ast);
+                                if needs_conversion.is_some() && list_depth > 0 {
+                                    self.conversion_instructions.push(InstructionContainer {
+                                        context: Context::Variables,
+                                        at_path: vec![String::from("variables"), key_value_pair_key.to_string()],
+                                        instruction: ConverterInstructions::ListDepth(list_depth),
+                                    });
+                                }
 
                                 // Make sure we note any provided
                                 // variable that needs runtime
