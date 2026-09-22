@@ -1704,13 +1704,13 @@ fn write_fragment_definition(
             if nullable {
                 writeln!(
                     str,
-                    "type fragment = RescriptRelay.CatchResult.t<array<option<fragment_t>>>"
+                    "type fragment = array<RescriptRelay.CatchResult.t<option<fragment_t>>>"
                 )
                 .unwrap()
             } else {
                 writeln!(
                     str,
-                    "type fragment = RescriptRelay.CatchResult.t<array<fragment_t>>"
+                    "type fragment = array<RescriptRelay.CatchResult.t<fragment_t>>"
                 )
                 .unwrap()
             }
@@ -3051,8 +3051,10 @@ impl Writer for ReScriptPrinter {
                         _ => Context::Response,
                     };
 
+                    // Relay reads plural fragments one item at a time, so @catch
+                    // wraps each item, even when typegen's AST wraps the array.
                     let is_result = match cto {
-                        Some((_, ClassifiedTopLevelObjectType::Result(_))) => true,
+                        Some((_, ClassifiedTopLevelObjectType::ArrayWithResult(_))) => true,
                         _ => false,
                     };
 
@@ -3525,6 +3527,49 @@ mod tests {
             FnvHashSet::default(),
             no_future_proof_enums,
         )
+    }
+
+    #[test]
+    fn plural_catch_wraps_each_fragment_and_converts_inside_value() {
+        let object = AST::ExactObject(crate::writer::ExactObject::new(vec![]));
+        // Relay typegen can represent the catch wrapper outside the array;
+        // useFragment actually returns one catch result per fragment reference.
+        let shapes = [
+            AST::GenericType {
+                outer: "Result".intern(),
+                inner: vec![AST::ReadOnlyArray(Box::new(object.clone()))],
+            },
+            AST::ReadOnlyArray(Box::new(AST::GenericType {
+                outer: "Result".intern(),
+                inner: vec![object],
+            })),
+        ];
+        for shape in shapes {
+            let mut state = Box::new(make_printer(false));
+            state.write_export_type("TestFragment$data", &shape).unwrap();
+            let (nullable, fragment) = state.fragment.as_ref().unwrap();
+            match fragment {
+                TopLevelFragmentType::ArrayWithResult(object) => {
+                    assert_eq!(object.at_path, vec!["fragment", "value"]);
+                }
+                other => panic!("Expected plural results, got {:?}", other),
+            }
+            let mut output = String::new();
+            write_fragment_definition(
+                &state,
+                &mut output,
+                0,
+                fragment,
+                &Context::Fragment,
+                *nullable,
+            )
+            .unwrap();
+            assert!(
+                output.contains("type fragment = array<RescriptRelay.CatchResult.t<fragment_t>>"),
+                "{}",
+                output
+            );
+        }
     }
 
     #[test]
