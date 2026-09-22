@@ -68,73 +68,23 @@ module Types = {
 
 module Internal = {
   @live
-  let variablesConverter: dict<dict<dict<string>>> = %raw(
-    json`{}`
-  )
-  @live
-  let variablesConverterMap = ()
-  @live
-  let convertVariables = v => v->RescriptRelay.convertObj(
-    variablesConverter,
-    variablesConverterMap,
-    None
-  )
+  let convertVariables = value => RescriptRelay.convertWithoutPlan(value, None)
   @live
   type wrapResponseRaw
   @live
-  let wrapResponseConverter: dict<dict<dict<string>>> = %raw(
-    json`{}`
-  )
-  @live
-  let wrapResponseConverterMap = ()
-  @live
-  let convertWrapResponse = v => v->RescriptRelay.convertObj(
-    wrapResponseConverter,
-    wrapResponseConverterMap,
-    null
-  )
+  let convertWrapResponse = value => RescriptRelay.convertWithoutPlan(value, null)
   @live
   type responseRaw
   @live
-  let responseConverter: dict<dict<dict<string>>> = %raw(
-    json`{}`
-  )
-  @live
-  let responseConverterMap = ()
-  @live
-  let convertResponse = v => v->RescriptRelay.convertObj(
-    responseConverter,
-    responseConverterMap,
-    None
-  )
+  let convertResponse = value => RescriptRelay.convertWithoutPlan(value, None)
   @live
   type wrapRawResponseRaw
   @live
-  let wrapRawResponseConverter: dict<dict<dict<string>>> = %raw(
-    json`{}`
-  )
-  @live
-  let wrapRawResponseConverterMap = ()
-  @live
-  let convertWrapRawResponse = v => v->RescriptRelay.convertObj(
-    wrapRawResponseConverter,
-    wrapRawResponseConverterMap,
-    null
-  )
+  let convertWrapRawResponse = value => RescriptRelay.convertWithoutPlan(value, null)
   @live
   type rawResponseRaw
   @live
-  let rawResponseConverter: dict<dict<dict<string>>> = %raw(
-    json`{}`
-  )
-  @live
-  let rawResponseConverterMap = ()
-  @live
-  let convertRawResponse = v => v->RescriptRelay.convertObj(
-    rawResponseConverter,
-    rawResponseConverterMap,
-    None
-  )
+  let convertRawResponse = value => RescriptRelay.convertWithoutPlan(value, None)
 }
 module Utils = {
   @@warning("-33")

@@ -28,12 +28,12 @@ module Types = {
   }
   @live
   type refetchVariables = {
-    status: option<option<RelaySchemaAssets_graphql.enum_OnlineStatus_input>>,
+    status?: option<RelaySchemaAssets_graphql.enum_OnlineStatus_input>,
   }
   @live let makeRefetchVariables = (
     ~status=?,
   ): refetchVariables => {
-    status: status
+    status: ?status
   }
 
 }
@@ -43,45 +43,15 @@ type queryRef
 
 module Internal = {
   @live
-  let variablesConverter: dict<dict<dict<string>>> = %raw(
-    json`{}`
-  )
-  @live
-  let variablesConverterMap = ()
-  @live
-  let convertVariables = v => v->RescriptRelay.convertObj(
-    variablesConverter,
-    variablesConverterMap,
-    None
-  )
+  let convertVariables = value => RescriptRelay.convertWithoutPlan(value, None)
   @live
   type wrapResponseRaw
   @live
-  let wrapResponseConverter: dict<dict<dict<string>>> = %raw(
-    json`{}`
-  )
-  @live
-  let wrapResponseConverterMap = ()
-  @live
-  let convertWrapResponse = v => v->RescriptRelay.convertObj(
-    wrapResponseConverter,
-    wrapResponseConverterMap,
-    null
-  )
+  let convertWrapResponse = value => RescriptRelay.convertWithoutPlan(value, null)
   @live
   type responseRaw
   @live
-  let responseConverter: dict<dict<dict<string>>> = %raw(
-    json`{}`
-  )
-  @live
-  let responseConverterMap = ()
-  @live
-  let convertResponse = v => v->RescriptRelay.convertObj(
-    responseConverter,
-    responseConverterMap,
-    None
-  )
+  let convertResponse = value => RescriptRelay.convertWithoutPlan(value, None)
   type wrapRawResponseRaw = wrapResponseRaw
   @live
   let convertWrapRawResponse = convertWrapResponse

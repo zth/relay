@@ -15,20 +15,22 @@ module Types = {
 }
 
 module Internal = {
+  %%private(
   @live
-  let variablesConverter: dict<dict<dict<string>>> = %raw(
-    json`{"someInput":{"recursive":{"r":"someInput"},"datetime":{"c":"SomeModule.Datetime"}},"inputA":{"usingB":{"r":"inputB"},"timestamps":{"b":"a"},"timestamp":{"b":""},"time":{"c":"SomeModule.Datetime"},"recursiveA":{"r":"inputA"}},"inputB":{"usingA":{"r":"inputA"},"time":{"c":"SomeModule.Datetime"}},"__root":{"__relay_internal__pv__TestProvidedVariablesSomeInput":{"r":"someInput"},"__relay_internal__pv__TestProvidedVariablesInputB":{"r":"inputB"},"__relay_internal__pv__TestProvidedVariablesDatetimes":{"ca":"SomeModule.Datetime"},"__relay_internal__pv__TestProvidedVariablesDatetime":{"c":"SomeModule.Datetime"}}}`
-  )
+  let variablesConverter: JSON.t = %raw(json`{"roots":{"__root":[{"path":["__relay_internal__pv__TestProvidedVariablesDatetime"],"scalar":"0"},{"list":1,"path":["__relay_internal__pv__TestProvidedVariablesDatetimes"],"scalar":"0"},{"path":["__relay_internal__pv__TestProvidedVariablesInputB"],"reference":"inputB"},{"path":["__relay_internal__pv__TestProvidedVariablesSomeInput"],"reference":"someInput"}],"inputA":[{"path":["recursiveA"],"reference":"inputA"},{"path":["time"],"scalar":"0"},{"opaque":true,"path":["timestamp"]},{"list":1,"opaque":true,"path":["timestamps"]},{"path":["usingB"],"reference":"inputB"}],"inputB":[{"path":["time"],"scalar":"0"},{"path":["usingA"],"reference":"inputA"}],"someInput":[{"path":["datetime"],"scalar":"0"},{"path":["recursive"],"reference":"someInput"}]},"version":2}`)
   @live
-  let variablesConverterMap = {
-    "SomeModule.Datetime": SomeModule.Datetime.serialize,
+  let variablesCallbacks = {
+    "0": SomeModule.Datetime.serialize,
   }
   @live
-  let convertVariables = v => v->RescriptRelay.convertObj(
+  let preparedVariablesConverter = RescriptRelay.prepareConversion(
     variablesConverter,
-    variablesConverterMap,
+    variablesCallbacks,
     None
   )
+  )
+  @live
+  let convertVariables = value => RescriptRelay.runConversion(preparedVariablesConverter, value)
 }
 module Utils = {
   @@warning("-33")

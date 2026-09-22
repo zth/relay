@@ -35,12 +35,12 @@ module Types = {
   }
   @live
   type refetchVariables = {
-    status: option<option<RelaySchemaAssets_graphql.enum_OnlineStatus_input>>,
+    status?: option<RelaySchemaAssets_graphql.enum_OnlineStatus_input>,
   }
   @live let makeRefetchVariables = (
     ~status=?,
   ): refetchVariables => {
-    status: status
+    status: ?status
   }
 
 }
@@ -49,48 +49,54 @@ module Types = {
 type queryRef
 
 module Internal = {
+  %%private(
   @live
-  let variablesConverter: dict<dict<dict<string>>> = %raw(
-    json`{"someInput":{"recursive":{"r":"someInput"},"datetime":{"c":"SomeModule.Datetime"}},"inputA":{"usingB":{"r":"inputB"},"timestamps":{"b":"a"},"timestamp":{"b":""},"time":{"c":"SomeModule.Datetime"},"recursiveA":{"r":"inputA"}},"inputB":{"usingA":{"r":"inputA"},"time":{"c":"SomeModule.Datetime"}},"__root":{"__relay_internal__pv__TestProvidedVariablesSomeInput":{"r":"someInput"},"__relay_internal__pv__TestProvidedVariablesInputB":{"r":"inputB"},"__relay_internal__pv__TestProvidedVariablesDatetimes":{"ca":"SomeModule.Datetime"},"__relay_internal__pv__TestProvidedVariablesDatetime":{"c":"SomeModule.Datetime"}}}`
-  )
+  let variablesConverter: JSON.t = %raw(json`{"roots":{"__root":[{"path":["__relay_internal__pv__TestProvidedVariablesDatetime"],"scalar":"0"},{"list":1,"path":["__relay_internal__pv__TestProvidedVariablesDatetimes"],"scalar":"0"},{"path":["__relay_internal__pv__TestProvidedVariablesInputB"],"reference":"inputB"},{"path":["__relay_internal__pv__TestProvidedVariablesSomeInput"],"reference":"someInput"}],"inputA":[{"path":["recursiveA"],"reference":"inputA"},{"path":["time"],"scalar":"0"},{"opaque":true,"path":["timestamp"]},{"list":1,"opaque":true,"path":["timestamps"]},{"path":["usingB"],"reference":"inputB"}],"inputB":[{"path":["time"],"scalar":"0"},{"path":["usingA"],"reference":"inputA"}],"someInput":[{"path":["datetime"],"scalar":"0"},{"path":["recursive"],"reference":"someInput"}]},"version":2}`)
   @live
-  let variablesConverterMap = {
-    "SomeModule.Datetime": SomeModule.Datetime.serialize,
+  let variablesCallbacks = {
+    "0": SomeModule.Datetime.serialize,
   }
   @live
-  let convertVariables = v => v->RescriptRelay.convertObj(
+  let preparedVariablesConverter = RescriptRelay.prepareConversion(
     variablesConverter,
-    variablesConverterMap,
+    variablesCallbacks,
     None
   )
+  )
+  @live
+  let convertVariables = value => RescriptRelay.runConversion(preparedVariablesConverter, value)
   @live
   type wrapResponseRaw
+  %%private(
   @live
-  let wrapResponseConverter: dict<dict<dict<string>>> = %raw(
-    json`{"__root":{"loggedInUser":{"f":""}}}`
-  )
+  let wrapResponseConverter: JSON.t = %raw(json`{"roots":{"__root":[{"fragments":true,"path":["loggedInUser"]}]},"version":2}`)
   @live
-  let wrapResponseConverterMap = ()
+  let wrapResponseCallbacks = ()
   @live
-  let convertWrapResponse = v => v->RescriptRelay.convertObj(
+  let preparedWrapResponseConverter = RescriptRelay.prepareConversion(
     wrapResponseConverter,
-    wrapResponseConverterMap,
+    wrapResponseCallbacks,
     null
   )
+  )
+  @live
+  let convertWrapResponse = value => RescriptRelay.runConversion(preparedWrapResponseConverter, value)
   @live
   type responseRaw
+  %%private(
   @live
-  let responseConverter: dict<dict<dict<string>>> = %raw(
-    json`{"__root":{"loggedInUser":{"f":""}}}`
-  )
+  let responseConverter = wrapResponseConverter
   @live
-  let responseConverterMap = ()
+  let responseCallbacks = ()
   @live
-  let convertResponse = v => v->RescriptRelay.convertObj(
+  let preparedResponseConverter = RescriptRelay.prepareConversion(
     responseConverter,
-    responseConverterMap,
+    responseCallbacks,
     None
   )
+  )
+  @live
+  let convertResponse = value => RescriptRelay.runConversion(preparedResponseConverter, value)
   type wrapRawResponseRaw = wrapResponseRaw
   @live
   let convertWrapRawResponse = convertWrapResponse
