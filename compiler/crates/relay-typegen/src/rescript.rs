@@ -1046,6 +1046,7 @@ fn get_conversion_instructions(
     conversion_instructions: &Vec<&InstructionContainer>,
     root_object_names: Vec<&String>,
     root_name: &String,
+    callbacks: &crate::rescript_conversion::CallbackSlots,
 ) -> String {
     let mut roots = vec![];
     for name in root_object_names {
@@ -1062,98 +1063,50 @@ fn get_conversion_instructions(
             .copied()
             .collect_vec(),
     ));
-    crate::rescript_conversion::write_plan(roots)
+    crate::rescript_conversion::write_plan(roots, callbacks)
 }
 
-// This writes the converter map, used to convert things like custom scalars and
-// unions.
-fn write_converter_map(
+// Write the callback table indexed by the IDs stored in the conversion plan.
+fn write_callbacks(
     str: &mut String,
     indentation: usize,
-    instructions: &Vec<&InstructionContainer>,
+    callbacks: &crate::rescript_conversion::CallbackSlots,
     name: &String,
     direction: ConversionDirection,
 ) -> Result {
+    use crate::rescript_conversion::Callback;
     write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
-
     write_indentation(str, indentation).unwrap();
-    write!(str, "let {}ConverterMap = ", name).unwrap();
-
-    let mut has_instructions = false;
-    let mut printed_instruction_keys = vec![];
-
-    instructions.iter().for_each(|instruction_container| {
-        match &instruction_container.instruction {
-            ConverterInstructions::ConvertUnion(union_name) => {
-                if !has_instructions {
-                    has_instructions = true;
-                    writeln!(str, "{{").unwrap();
-                }
-
-                if printed_instruction_keys.contains(union_name) {
-                    return;
-                } else {
-                    printed_instruction_keys.push(union_name.to_string());
-                }
-
-                write_indentation(str, indentation + 1).unwrap();
-                writeln!(
-                    str,
-                    "\"{}\": {},",
-                    union_name,
-                    format!(
-                        "{}_{}",
-                        match direction {
-                            ConversionDirection::Wrap => "wrap",
-                            ConversionDirection::Unwrap => "unwrap",
-                        },
-                        union_name,
-                    ),
-                )
-                .unwrap();
-            }
-            ConverterInstructions::ConvertCustomField(custom_field_name, _) => {
-                if !has_instructions {
-                    has_instructions = true;
-                    writeln!(str, "{{").unwrap();
-                }
-
-                if printed_instruction_keys.contains(custom_field_name) {
-                    return;
-                } else {
-                    printed_instruction_keys.push(custom_field_name.to_string());
-                }
-
-                write_indentation(str, indentation + 1).unwrap();
-                writeln!(
-                    str,
-                    "\"{}\": {},",
-                    custom_field_name,
-                    match classify_rescript_value_string(&custom_field_name) {
-                        RescriptCustomTypeValue::Type => custom_field_name.to_string(),
-                        RescriptCustomTypeValue::Module => format!(
-                            "{}.{}",
-                            custom_field_name,
-                            match direction {
-                                ConversionDirection::Wrap => "serialize",
-                                ConversionDirection::Unwrap => "parse",
-                            }
-                        ),
+    write!(str, "let {}Callbacks = ", name).unwrap();
+    if callbacks.is_empty() {
+        writeln!(str, "()").unwrap();
+    } else {
+        writeln!(str, "{{").unwrap();
+        for (callback, slot) in callbacks {
+            let function = match callback {
+                Callback::Scalar(module) => format!(
+                    "{}.{}",
+                    module,
+                    match direction {
+                        ConversionDirection::Wrap => "serialize",
+                        ConversionDirection::Unwrap => "parse",
+                    }
+                ),
+                Callback::Union(name) => format!(
+                    "{}_{}",
+                    match direction {
+                        ConversionDirection::Wrap => "wrap",
+                        ConversionDirection::Unwrap => "unwrap",
                     },
-                )
-                .unwrap();
-            }
-            _ => (),
-        };
-    });
-
-    if has_instructions {
+                    name
+                ),
+            };
+            write_indentation(str, indentation + 1).unwrap();
+            writeln!(str, "\"{}\": {},", slot, function).unwrap();
+        }
         write_indentation(str, indentation).unwrap();
         writeln!(str, "}}").unwrap();
-    } else {
-        writeln!(str, "()").unwrap()
     }
-
     Ok(())
 }
 
@@ -1231,11 +1184,13 @@ fn write_internal_assets(
     writeln!(str, "%%private(").unwrap();
     write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
     write_indentation(str, indentation).unwrap();
+    let callbacks = crate::rescript_conversion::callback_slots(&target_conversion_instructions);
     let plan = get_conversion_instructions(
         state,
         &target_conversion_instructions,
         root_objects.into_iter().collect_vec(),
         &root_name,
+        &callbacks,
     );
     // Read and write directions share immutable metadata, but retain distinct
     // callback maps and prepared converters. Share only within this artifact.
@@ -1246,27 +1201,7 @@ fn write_internal_assets(
         shared_plans.insert(plan, name.clone());
     }
 
-    // Converters are either unions (that needs to be wrapped/unwrapped), or
-    // custom scalars _that are ReScript modules_, and therefore should be
-    // autoconverted.
-    let converters: Vec<&InstructionContainer> = target_conversion_instructions
-        .into_iter()
-        .filter(|instruction_container| {
-            match &instruction_container.instruction {
-                ConverterInstructions::ConvertCustomField(field_name, _) => {
-                    // Try and infer what type of ReScript value this is
-                    match classify_rescript_value_string(&field_name) {
-                        RescriptCustomTypeValue::Type => false,
-                        RescriptCustomTypeValue::Module => true,
-                    }
-                }
-                ConverterInstructions::ConvertUnion(_) => true,
-                _ => false,
-            }
-        })
-        .collect();
-
-    write_converter_map(str, indentation, &converters, &name, direction).unwrap();
+    write_callbacks(str, indentation, &callbacks, &name, direction).unwrap();
 
     write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
     write_indentation(str, indentation).unwrap();
@@ -1280,7 +1215,7 @@ fn write_internal_assets(
     write_indentation(str, indentation + 1).unwrap();
     writeln!(str, "{}Converter,", name).unwrap();
     write_indentation(str, indentation + 1).unwrap();
-    writeln!(str, "{}ConverterMap,", name).unwrap();
+    writeln!(str, "{}Callbacks,", name).unwrap();
     write_indentation(str, indentation + 1).unwrap();
     writeln!(
         str,

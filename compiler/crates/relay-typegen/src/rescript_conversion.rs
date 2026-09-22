@@ -20,7 +20,37 @@ pub(crate) fn list_depth(ast: &crate::writer::AST) -> usize {
     }
 }
 
-pub(crate) fn write_plan(roots: Vec<(String, Vec<&InstructionContainer>)>) -> String {
+// Slots are local to one conversion context. Names remain in the generated
+// callback table, but repeated plan entries only need the short slot ID.
+#[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
+pub(crate) enum Callback {
+    Scalar(String),
+    Union(String),
+}
+
+pub(crate) type CallbackSlots = BTreeMap<Callback, usize>;
+
+pub(crate) fn callback_slots(instructions: &[&InstructionContainer]) -> CallbackSlots {
+    instructions
+        .iter()
+        .filter_map(|instruction| match &instruction.instruction {
+            ConverterInstructions::ConvertCustomField(name, _) => {
+                Some(Callback::Scalar(name.clone()))
+            }
+            ConverterInstructions::ConvertUnion(name) => Some(Callback::Union(name.clone())),
+            _ => None,
+        })
+        .collect::<std::collections::BTreeSet<_>>()
+        .into_iter()
+        .enumerate()
+        .map(|(id, callback)| (callback, id))
+        .collect()
+}
+
+pub(crate) fn write_plan(
+    roots: Vec<(String, Vec<&InstructionContainer>)>,
+    callbacks: &CallbackSlots,
+) -> String {
     let mut output = BTreeMap::new();
     for (name, instructions) in roots {
         let mut entries: BTreeMap<Vec<String>, Map<String, Value>> = BTreeMap::new();
@@ -34,7 +64,10 @@ pub(crate) fn write_plan(roots: Vec<(String, Vec<&InstructionContainer>)>) -> St
                     if *array {
                         entry.entry("list").or_insert(json!(1));
                     }
-                    ("scalar", json!(name))
+                    (
+                        "scalar",
+                        json!(callbacks[&Callback::Scalar(name.clone())].to_string()),
+                    )
                 }
                 ConverterInstructions::BlockTraversal(array) => {
                     if *array {
@@ -42,7 +75,10 @@ pub(crate) fn write_plan(roots: Vec<(String, Vec<&InstructionContainer>)>) -> St
                     }
                     ("opaque", json!(true))
                 }
-                ConverterInstructions::ConvertUnion(name) => ("union", json!(name)),
+                ConverterInstructions::ConvertUnion(name) => (
+                    "union",
+                    json!(callbacks[&Callback::Union(name.clone())].to_string()),
+                ),
                 ConverterInstructions::RootObject(name) => ("reference", json!(name)),
                 ConverterInstructions::HasFragments => ("fragments", json!(true)),
             };
@@ -80,6 +116,14 @@ mod tests {
             instruction,
         }
     }
+    fn render(roots: Vec<(String, Vec<&InstructionContainer>)>) -> String {
+        let instructions = roots
+            .iter()
+            .flat_map(|(_, entries)| entries.iter().copied())
+            .collect::<Vec<_>>();
+        let slots = callback_slots(&instructions);
+        write_plan(roots, &slots)
+    }
     #[test]
     fn provided_variable_depth_keeps_nullable_wrappers() {
         use crate::writer::AST;
@@ -107,7 +151,7 @@ mod tests {
                 ConverterInstructions::ConvertCustomField("ArrayScalar".into(), true),
             ),
         ];
-        let value: Value = serde_json::from_str(&write_plan(vec![(
+        let value: Value = serde_json::from_str(&render(vec![(
             "__root".into(),
             instructions.iter().collect(),
         )]))
@@ -115,9 +159,9 @@ mod tests {
         assert_eq!(
             value,
             json!({"version":2,"roots":{"__root":[
-                {"path":["a","b"],"scalar":"B"},
-                {"path":["a_b"],"scalar":"A"},
-                {"path":["items"],"list":2,"scalar":"ArrayScalar"}
+                {"path":["a","b"],"scalar":"2"},
+                {"path":["a_b"],"scalar":"0"},
+                {"path":["items"],"list":2,"scalar":"1"}
             ]}})
         );
     }
@@ -135,13 +179,65 @@ mod tests {
                 ConverterInstructions::BlockTraversal(true),
             ),
         ];
-        let first = write_plan(vec![("__root".into(), instructions.iter().collect())]);
+        let first = render(vec![("__root".into(), instructions.iter().collect())]);
         instructions.reverse();
         assert_eq!(
             first,
-            write_plan(vec![("__root".into(), instructions.iter().collect())])
+            render(vec![("__root".into(), instructions.iter().collect())])
         );
         let value: Value = serde_json::from_str(&first).unwrap();
         assert_eq!(value["roots"]["__root"][0]["list"], 3);
+    }
+    #[test]
+    fn callback_slots_are_stable_deduplicated_and_kind_specific() {
+        let mut instructions = vec![
+            at(
+                &["response", "a"],
+                ConverterInstructions::ConvertUnion("Same".into()),
+            ),
+            at(
+                &["response", "b"],
+                ConverterInstructions::ConvertCustomField("Same".into(), false),
+            ),
+            at(
+                &["response", "c"],
+                ConverterInstructions::ConvertCustomField("Same".into(), true),
+            ),
+        ];
+        for i in 0..12 {
+            instructions.push(at(
+                &["Input", &format!("f{i}")],
+                ConverterInstructions::ConvertCustomField(format!("Scalar{i}"), false),
+            ));
+        }
+        let refs = instructions.iter().collect::<Vec<_>>();
+        let slots = callback_slots(&refs);
+        assert_eq!(slots.len(), 14);
+        assert_ne!(
+            slots[&Callback::Scalar("Same".into())],
+            slots[&Callback::Union("Same".into())]
+        );
+        let output: Value =
+            serde_json::from_str(&write_plan(vec![("__root".into(), refs)], &slots)).unwrap();
+        let entries = output["roots"]["__root"].as_array().unwrap();
+        for instruction in &instructions {
+            let (key, callback) = match &instruction.instruction {
+                ConverterInstructions::ConvertCustomField(name, _) => {
+                    ("scalar", Callback::Scalar(name.clone()))
+                }
+                ConverterInstructions::ConvertUnion(name) => {
+                    ("union", Callback::Union(name.clone()))
+                }
+                _ => unreachable!(),
+            };
+            let path = json!(instruction.at_path[1..]);
+            let entry = entries.iter().find(|entry| entry["path"] == path).unwrap();
+            assert_eq!(entry[key], json!(slots[&callback].to_string()));
+        }
+        instructions.reverse();
+        assert_eq!(
+            slots,
+            callback_slots(&instructions.iter().collect::<Vec<_>>())
+        );
     }
 }
