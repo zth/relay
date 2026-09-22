@@ -40,6 +40,7 @@ pub enum TopLevelFragmentType {
     ResultWithUnion(Union),
     ArrayWithObject(Object),
     ArrayWithResult(Object),
+    ArrayWithResultUnion(Union),
     ArrayWithUnion(Union),
 }
 
@@ -1742,39 +1743,36 @@ fn write_fragment_definition(
                 .unwrap();
             }
         }
-        &TopLevelFragmentType::ResultWithUnion(union) => {
-            if nullable {
-                write_union_definition(
-                    state,
-                    str,
-                    &context,
-                    indentation,
-                    &union,
-                    Some(String::from("fragment_t")),
-                    &ObjectPrintMode::Standalone,
-                )
-                .unwrap();
-                write_indentation(str, indentation).unwrap();
+        &TopLevelFragmentType::ResultWithUnion(union)
+        | &TopLevelFragmentType::ArrayWithResultUnion(union) => {
+            write_union_definition(
+                state,
+                str,
+                &context,
+                indentation,
+                union,
+                Some(String::from("fragment_t")),
+                &ObjectPrintMode::Standalone,
+            )
+            .unwrap();
+            write_indentation(str, indentation).unwrap();
+            let value_type = if nullable {
+                "option<fragment_t>"
+            } else {
+                "fragment_t"
+            };
+            if matches!(fragment, TopLevelFragmentType::ArrayWithResultUnion(_)) {
                 writeln!(
                     str,
-                    "type fragment = RescriptRelay.CatchResult.t<option<fragment_t>>"
+                    "type fragment = array<RescriptRelay.CatchResult.t<{}>>",
+                    value_type
                 )
                 .unwrap()
             } else {
-                write_union_definition(
-                    state,
-                    str,
-                    &context,
-                    indentation,
-                    &union,
-                    Some(String::from("fragment_t")),
-                    &ObjectPrintMode::Standalone,
-                )
-                .unwrap();
-                write_indentation(str, indentation).unwrap();
                 writeln!(
                     str,
-                    "type fragment = RescriptRelay.CatchResult.t<fragment_t>"
+                    "type fragment = RescriptRelay.CatchResult.t<{}>",
+                    value_type
                 )
                 .unwrap()
             }
@@ -2436,6 +2434,7 @@ impl Writer for ReScriptPrinter {
                 _,
                 TopLevelFragmentType::Union(fragment_union)
                 | TopLevelFragmentType::ResultWithUnion(fragment_union)
+                | TopLevelFragmentType::ArrayWithResultUnion(fragment_union)
                 | TopLevelFragmentType::ArrayWithUnion(fragment_union),
             )) => {
                 write_union_converters(&mut generated_types, indentation, &fragment_union).unwrap();
@@ -3110,7 +3109,11 @@ impl Writer for ReScriptPrinter {
                         Some((nullable, TopLevelFragmentType::Union(fragment_union_type)));
                     Ok(())
                 }
-                Some((nullable, ClassifiedTopLevelObjectType::ResultWithUnion(members_raw))) => {
+                Some((
+                    nullable,
+                    ClassifiedTopLevelObjectType::ResultWithUnion(members_raw)
+                    | ClassifiedTopLevelObjectType::ArrayWithResultUnion(members_raw),
+                )) => {
                     let context = Context::Fragment;
 
                     let mut current_path = vec![root_name_from_context(&context)];
@@ -3136,7 +3139,14 @@ impl Writer for ReScriptPrinter {
 
                     self.fragment = Some((
                         nullable,
-                        TopLevelFragmentType::ResultWithUnion(fragment_union_type),
+                        if matches!(
+                            cto,
+                            Some((_, ClassifiedTopLevelObjectType::ArrayWithResultUnion(_)))
+                        ) {
+                            TopLevelFragmentType::ArrayWithResultUnion(fragment_union_type)
+                        } else {
+                            TopLevelFragmentType::ResultWithUnion(fragment_union_type)
+                        },
                     ));
                     Ok(())
                 }
@@ -3529,28 +3539,43 @@ mod tests {
         )
     }
 
-    #[test]
-    fn plural_catch_wraps_each_fragment_and_converts_inside_value() {
-        let object = AST::ExactObject(crate::writer::ExactObject::new(vec![]));
-        // Relay typegen can represent the catch wrapper outside the array;
-        // useFragment actually returns one catch result per fragment reference.
+    fn assert_plural_catch_shape(payload: AST, nullable: bool, is_union: bool) {
+        let payload = if nullable {
+            AST::Nullable(Box::new(payload))
+        } else {
+            payload
+        };
+        // Relay typegen can wrap the array; useFragment wraps each item.
         let shapes = [
             AST::GenericType {
                 outer: "Result".intern(),
-                inner: vec![AST::ReadOnlyArray(Box::new(object.clone()))],
+                inner: vec![AST::ReadOnlyArray(Box::new(payload.clone()))],
             },
             AST::ReadOnlyArray(Box::new(AST::GenericType {
                 outer: "Result".intern(),
-                inner: vec![object],
+                inner: vec![payload],
             })),
         ];
         for shape in shapes {
             let mut state = Box::new(make_printer(false));
-            state.write_export_type("TestFragment$data", &shape).unwrap();
-            let (nullable, fragment) = state.fragment.as_ref().unwrap();
+            state
+                .write_export_type("TestFragment$data", &shape)
+                .unwrap();
+            let (actual_nullable, fragment) = state.fragment.as_ref().unwrap();
+            assert_eq!(*actual_nullable, nullable);
             match fragment {
-                TopLevelFragmentType::ArrayWithResult(object) => {
+                TopLevelFragmentType::ArrayWithResult(object) if !is_union => {
                     assert_eq!(object.at_path, vec!["fragment", "value"]);
+                }
+                TopLevelFragmentType::ArrayWithResultUnion(union) if is_union => {
+                    assert_eq!(union.at_path, vec!["fragment", "value"]);
+                    assert!(state.conversion_instructions.iter().any(|instruction| {
+                        instruction.at_path == vec!["fragment", "value"]
+                            && matches!(
+                                instruction.instruction,
+                                ConverterInstructions::ConvertUnion(_)
+                            )
+                    }));
                 }
                 other => panic!("Expected plural results, got {:?}", other),
             }
@@ -3561,14 +3586,54 @@ mod tests {
                 0,
                 fragment,
                 &Context::Fragment,
-                *nullable,
+                nullable,
             )
             .unwrap();
+            let value_type = if nullable {
+                "option<fragment_t>"
+            } else {
+                "fragment_t"
+            };
             assert!(
-                output.contains("type fragment = array<RescriptRelay.CatchResult.t<fragment_t>>"),
+                output.contains(&format!(
+                    "type fragment = array<RescriptRelay.CatchResult.t<{}>>",
+                    value_type
+                )),
                 "{}",
                 output
             );
+        }
+    }
+
+    #[test]
+    fn plural_catch_wraps_each_fragment_and_converts_inside_value() {
+        for nullable in [false, true] {
+            assert_plural_catch_shape(
+                AST::ExactObject(crate::writer::ExactObject::new(vec![])),
+                nullable,
+                false,
+            );
+        }
+    }
+
+    #[test]
+    fn plural_catch_preserves_abstract_payloads_and_nullability() {
+        let members = ["User", "Group"]
+            .iter()
+            .map(|name| {
+                AST::ExactObject(crate::writer::ExactObject::new(vec![Prop::KeyValuePair(
+                    KeyValuePairProp {
+                        key: "__typename".intern(),
+                        value: AST::StringLiteral(crate::writer::StringLiteral(name.intern())),
+                        read_only: true,
+                        optional: false,
+                    },
+                )]))
+            })
+            .collect();
+        let union = AST::Union(crate::writer::SortedASTList::new(members));
+        for nullable in [false, true] {
+            assert_plural_catch_shape(union.clone(), nullable, true);
         }
     }
 
