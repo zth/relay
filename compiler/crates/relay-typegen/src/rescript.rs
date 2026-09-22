@@ -1170,6 +1170,7 @@ fn write_internal_assets(
     include_raw: bool,
     direction: ConversionDirection,
     nullable_type: NullableType,
+    shared_plans: &mut std::collections::BTreeMap<String, String>,
 ) -> Result {
     let root_name = root_name_from_context(&target_context);
 
@@ -1178,12 +1179,6 @@ fn write_internal_assets(
         write_indentation(str, indentation).unwrap();
         writeln!(str, "type {}Raw", name).unwrap();
     }
-
-    write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
-    write_indentation(str, indentation).unwrap();
-    writeln!(str, "let {}Converter: JSON.t = %raw(", name).unwrap();
-
-    write_indentation(str, indentation + 1).unwrap();
 
     // Map out all root objects (ie input objects) used in this conversion
     // setup. This is because they are recursive, and thus needs to be treated
@@ -1214,20 +1209,42 @@ fn write_internal_assets(
         })
         .collect();
 
-    writeln!(
-        str,
-        "json`{}`",
-        get_conversion_instructions(
-            state,
-            &target_conversion_instructions,
-            root_objects.into_iter().collect_vec(),
-            &root_name
+    // Most artifacts need only nullable normalization. Reuse the runtime's
+    // generic converter instead of allocating a plan and handle per direction.
+    if target_conversion_instructions.is_empty() {
+        write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
+        write_indentation(str, indentation).unwrap();
+        writeln!(
+            str,
+            "let convert{} = value => RescriptRelay.convertWithoutPlan(value, {})",
+            uppercase_first_letter(name.as_str()),
+            match nullable_type {
+                NullableType::Undefined => "None",
+                NullableType::Null => "null",
+            },
         )
-    )
-    .unwrap();
+        .unwrap();
+        return Ok(());
+    }
 
     write_indentation(str, indentation).unwrap();
-    writeln!(str, ")").unwrap();
+    writeln!(str, "%%private(").unwrap();
+    write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
+    write_indentation(str, indentation).unwrap();
+    let plan = get_conversion_instructions(
+        state,
+        &target_conversion_instructions,
+        root_objects.into_iter().collect_vec(),
+        &root_name,
+    );
+    // Read and write directions share immutable metadata, but retain distinct
+    // callback maps and prepared converters. Share only within this artifact.
+    if let Some(previous) = shared_plans.get(&plan) {
+        writeln!(str, "let {}Converter = {}Converter", name, previous).unwrap();
+    } else {
+        writeln!(str, "let {}Converter: JSON.t = %raw(json`{}`)", name, plan).unwrap();
+        shared_plans.insert(plan, name.clone());
+    }
 
     // Converters are either unions (that needs to be wrapped/unwrapped), or
     // custom scalars _that are ReScript modules_, and therefore should be
@@ -1274,6 +1291,9 @@ fn write_internal_assets(
         }
     )
     .unwrap();
+    write_indentation(str, indentation).unwrap();
+    writeln!(str, ")").unwrap();
+
     write_indentation(str, indentation).unwrap();
     writeln!(str, ")").unwrap();
 
@@ -2526,6 +2546,8 @@ impl Writer for ReScriptPrinter {
             }
         }
 
+        let mut shared_conversion_plans = std::collections::BTreeMap::new();
+
         // Print internal module. This module holds a bunch of things needed for
         // conversions etc, but that we want to keep in its own module. Mostly
         // just to reiterate that things found in here are indeed internal, and
@@ -2546,6 +2568,7 @@ impl Writer for ReScriptPrinter {
                         true,
                         ConversionDirection::Unwrap,
                         NullableType::Undefined,
+                        &mut shared_conversion_plans,
                     )
                     .unwrap();
                 }
@@ -2572,6 +2595,7 @@ impl Writer for ReScriptPrinter {
                     } else {
                         NullableType::Undefined
                     },
+                    &mut shared_conversion_plans,
                 )
                 .unwrap();
             }
@@ -2601,6 +2625,7 @@ impl Writer for ReScriptPrinter {
                                 true,
                                 ConversionDirection::Wrap,
                                 NullableType::Null,
+                                &mut shared_conversion_plans,
                             )
                             .unwrap();
                         }
@@ -2618,6 +2643,7 @@ impl Writer for ReScriptPrinter {
                         true,
                         ConversionDirection::Unwrap,
                         NullableType::Undefined,
+                        &mut shared_conversion_plans,
                     )
                     .unwrap();
                 }
@@ -2645,6 +2671,7 @@ impl Writer for ReScriptPrinter {
                                 true,
                                 ConversionDirection::Wrap,
                                 NullableType::Null,
+                                &mut shared_conversion_plans,
                             )
                             .unwrap();
                         }
@@ -2662,6 +2689,7 @@ impl Writer for ReScriptPrinter {
                         true,
                         ConversionDirection::Unwrap,
                         NullableType::Undefined,
+                        &mut shared_conversion_plans,
                     )
                     .unwrap();
                 }
@@ -3403,11 +3431,15 @@ impl Writer for ReScriptPrinter {
                                     needs_conversion: needs_conversion.clone(),
                                 });
 
-                                let list_depth = crate::rescript_conversion::list_depth(return_type_ast);
+                                let list_depth =
+                                    crate::rescript_conversion::list_depth(return_type_ast);
                                 if needs_conversion.is_some() && list_depth > 0 {
                                     self.conversion_instructions.push(InstructionContainer {
                                         context: Context::Variables,
-                                        at_path: vec![String::from("variables"), key_value_pair_key.to_string()],
+                                        at_path: vec![
+                                            String::from("variables"),
+                                            key_value_pair_key.to_string(),
+                                        ],
                                         instruction: ConverterInstructions::ListDepth(list_depth),
                                     });
                                 }
