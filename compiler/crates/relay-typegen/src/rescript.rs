@@ -1047,7 +1047,7 @@ fn get_conversion_instructions(
     root_object_names: Vec<&String>,
     root_name: &String,
     callbacks: &crate::rescript_conversion::CallbackSlots,
-) -> String {
+) -> crate::rescript_conversion::ConversionPlan {
     let mut roots = vec![];
     for name in root_object_names {
         let instructions = state.conversion_instructions.iter().filter(|instruction| {
@@ -1162,9 +1162,18 @@ fn write_internal_assets(
         })
         .collect();
 
+    let callbacks = crate::rescript_conversion::callback_slots(&target_conversion_instructions);
+    let plan = get_conversion_instructions(
+        state,
+        &target_conversion_instructions,
+        root_objects.into_iter().collect_vec(),
+        &root_name,
+        &callbacks,
+    );
+
     // Most artifacts need only nullable normalization. Reuse the runtime's
     // generic converter instead of allocating a plan and handle per direction.
-    if target_conversion_instructions.is_empty() {
+    if plan.is_empty {
         write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
         write_indentation(str, indentation).unwrap();
         writeln!(
@@ -1184,14 +1193,7 @@ fn write_internal_assets(
     writeln!(str, "%%private(").unwrap();
     write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
     write_indentation(str, indentation).unwrap();
-    let callbacks = crate::rescript_conversion::callback_slots(&target_conversion_instructions);
-    let plan = get_conversion_instructions(
-        state,
-        &target_conversion_instructions,
-        root_objects.into_iter().collect_vec(),
-        &root_name,
-        &callbacks,
-    );
+    let plan = plan.json;
     // Read and write directions share immutable metadata, but retain distinct
     // callback maps and prepared converters. Share only within this artifact.
     if let Some(previous) = shared_plans.get(&plan) {

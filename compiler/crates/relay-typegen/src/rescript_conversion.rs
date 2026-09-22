@@ -47,10 +47,15 @@ pub(crate) fn callback_slots(instructions: &[&InstructionContainer]) -> Callback
         .collect()
 }
 
+pub(crate) struct ConversionPlan {
+    pub json: String,
+    pub is_empty: bool,
+}
+
 pub(crate) fn write_plan(
     roots: Vec<(String, Vec<&InstructionContainer>)>,
     callbacks: &CallbackSlots,
-) -> String {
+) -> ConversionPlan {
     let mut output = BTreeMap::new();
     for (name, instructions) in roots {
         let mut entries: BTreeMap<Vec<String>, Map<String, Value>> = BTreeMap::new();
@@ -93,6 +98,20 @@ pub(crate) fn write_plan(
                 entry.insert(key.to_string(), value);
             }
         }
+        // Generic nullable traversal already handles lists recursively. Explicit
+        // depth is needed only at/above scalar, union, reference, opaque or
+        // fragment operations. Keep those boundaries, omit plain-data hints.
+        let mut needed_lists = std::collections::BTreeSet::new();
+        for (path, entry) in &entries {
+            if entry.keys().any(|key| key != "list") {
+                for depth in 0..path.len() {
+                    needed_lists.insert(path[..depth].to_vec());
+                }
+            }
+        }
+        entries.retain(|path, entry| {
+            entry.len() != 1 || !entry.contains_key("list") || needed_lists.contains(path)
+        });
         let entries = entries
             .into_iter()
             .map(|(path, mut entry)| {
@@ -102,7 +121,11 @@ pub(crate) fn write_plan(
             .collect::<Vec<_>>();
         output.insert(name, entries);
     }
-    json!({"version": 2, "roots": output}).to_string()
+    let is_empty = output.len() == 1 && output.get("__root").is_some_and(Vec::is_empty);
+    ConversionPlan {
+        json: json!({"version": 2, "roots": output}).to_string(),
+        is_empty,
+    }
 }
 
 #[cfg(test)]
@@ -122,7 +145,7 @@ mod tests {
             .flat_map(|(_, entries)| entries.iter().copied())
             .collect::<Vec<_>>();
         let slots = callback_slots(&instructions);
-        write_plan(roots, &slots)
+        write_plan(roots, &slots).json
     }
     #[test]
     fn provided_variable_depth_keeps_nullable_wrappers() {
@@ -218,7 +241,7 @@ mod tests {
             slots[&Callback::Union("Same".into())]
         );
         let output: Value =
-            serde_json::from_str(&write_plan(vec![("__root".into(), refs)], &slots)).unwrap();
+            serde_json::from_str(&write_plan(vec![("__root".into(), refs)], &slots).json).unwrap();
         let entries = output["roots"]["__root"].as_array().unwrap();
         for instruction in &instructions {
             let (key, callback) = match &instruction.instruction {
@@ -239,5 +262,68 @@ mod tests {
             slots,
             callback_slots(&instructions.iter().collect::<Vec<_>>())
         );
+    }
+    #[test]
+    fn plain_list_hints_collapse_to_the_shared_converter() {
+        let instructions = [
+            at(&["response"], ConverterInstructions::ListDepth(2)),
+            at(&["response", "items"], ConverterInstructions::ListDepth(1)),
+            at(
+                &["response", "items", "values"],
+                ConverterInstructions::ListDepth(3),
+            ),
+        ];
+        let plan = write_plan(
+            vec![("__root".into(), instructions.iter().collect())],
+            &CallbackSlots::new(),
+        );
+        assert!(plan.is_empty);
+        assert_eq!(
+            serde_json::from_str::<Value>(&plan.json).unwrap(),
+            json!({"version":2,"roots":{"__root":[]}})
+        );
+    }
+
+    #[test]
+    fn list_hints_keep_every_required_operation_boundary() {
+        let operations = [
+            ConverterInstructions::ConvertCustomField("Scalar".into(), true),
+            ConverterInstructions::ConvertUnion("Union".into()),
+            ConverterInstructions::RootObject("Input".into()),
+            ConverterInstructions::BlockTraversal(true),
+            ConverterInstructions::HasFragments,
+        ];
+        for operation in operations {
+            let instructions = [
+                at(&["response", "items"], ConverterInstructions::ListDepth(2)),
+                at(
+                    &["response", "items", "child"],
+                    ConverterInstructions::ListDepth(3),
+                ),
+                at(&["response", "items", "child"], operation),
+                at(
+                    &["response", "items_child"],
+                    ConverterInstructions::ListDepth(1),
+                ),
+                at(&["response", "unused"], ConverterInstructions::ListDepth(1)),
+                at(
+                    &["response", "unused", "values"],
+                    ConverterInstructions::ListDepth(2),
+                ),
+            ];
+            let refs = instructions.iter().collect::<Vec<_>>();
+            let slots = callback_slots(&refs);
+            let plan = write_plan(
+                vec![("__root".into(), refs), ("Input".into(), vec![])],
+                &slots,
+            );
+            assert!(!plan.is_empty);
+            let value: Value = serde_json::from_str(&plan.json).unwrap();
+            let entries = value["roots"]["__root"].as_array().unwrap();
+            assert_eq!(entries.len(), 2);
+            assert_eq!(entries[0], json!({"path":["items"],"list":2}));
+            assert_eq!(entries[1]["path"], json!(["items", "child"]));
+            assert_eq!(entries[1]["list"], 3);
+        }
     }
 }
