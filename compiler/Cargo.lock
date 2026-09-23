@@ -2159,6 +2159,7 @@ dependencies = [
  "relay-test-schema",
  "relay-transforms",
  "schema",
+ "serde_json",
  "tokio",
 ]
 

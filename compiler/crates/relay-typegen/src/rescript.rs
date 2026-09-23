@@ -9,7 +9,6 @@ use std::fmt::Result;
 use std::fmt::Write;
 
 use common::rescript_utils::get_module_name_from_file_path;
-use fnv::FnvHashMap;
 use fnv::FnvHashSet;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::OperationDefinition;
@@ -41,6 +40,7 @@ pub enum TopLevelFragmentType {
     ResultWithUnion(Union),
     ArrayWithObject(Object),
     ArrayWithResult(Object),
+    ArrayWithResultUnion(Union),
     ArrayWithUnion(Union),
 }
 
@@ -144,7 +144,7 @@ fn ast_to_prop_value(
     key: &String,
     optional: bool,
     found_in_union: bool,
-    found_in_array: bool,
+    list_depth: usize,
     context: &Context,
     is_from_result: bool,
 ) -> Option<PropValue> {
@@ -174,7 +174,7 @@ fn ast_to_prop_value(
     // in its underlying form, a data id. So, this little weird thing
     // handles that.
     if context == &Context::Variables
-        && found_in_array
+        && list_depth > 0
         && current_path.len() == 1 // Path length on 1 means that we're on the top level
         && state
             .operation_meta_data
@@ -202,7 +202,7 @@ fn ast_to_prop_value(
                     key,
                     is_nullable,
                     found_in_union,
-                    found_in_array,
+                    list_depth,
                     context,
                     true,
                 );
@@ -260,6 +260,11 @@ fn ast_to_prop_value(
             prop_type: Box::new(PropType::StringLiteral(literal.to_string())),
         }),
         AST::ReadOnlyArray(ast) => {
+            state.conversion_instructions.push(InstructionContainer {
+                context: context.clone(),
+                at_path: new_at_path.clone(),
+                instruction: ConverterInstructions::ListDepth(list_depth + 1),
+            });
             // We know that this is a list, and we know
             // if it's nullable or not. Time to figure
             // out what it contains!
@@ -273,7 +278,7 @@ fn ast_to_prop_value(
                 // or not.
                 false,
                 found_in_union,
-                true,
+                list_depth + 1,
                 context,
                 is_from_result,
             ) {
@@ -406,7 +411,7 @@ fn ast_to_prop_value(
                                 at_path: new_at_path,
                                 instruction: ConverterInstructions::ConvertCustomField(
                                     identifier.to_string(),
-                                    found_in_array,
+                                    list_depth > 0,
                                 ),
                             });
                             is_custom_scalar_that_needs_conversion = true;
@@ -421,7 +426,7 @@ fn ast_to_prop_value(
                                     context: context.clone(),
                                     at_path: new_at_path,
                                     instruction: ConverterInstructions::BlockTraversal(
-                                        found_in_array,
+                                        list_depth > 0,
                                     ),
                                 });
                             }
@@ -596,7 +601,7 @@ fn get_object_props(
                     &key,
                     false,
                     found_in_union,
-                    false,
+                    0,
                     context,
                     false,
                 )
@@ -678,7 +683,7 @@ fn get_object_props(
                                 &key,
                                 key_value_pair.optional,
                                 found_in_union,
-                                false,
+                                0,
                                 context,
                                 false,
                             )
@@ -870,7 +875,12 @@ fn write_suppress_dead_code_warning_annotation(str: &mut String, indentation: us
     writeln!(str, "@live")
 }
 
-fn write_enum_util_functions(state: &ReScriptPrinter, str: &mut String, indentation: usize, full_enum: &FullEnum) -> Result {
+fn write_enum_util_functions(
+    state: &ReScriptPrinter,
+    str: &mut String,
+    indentation: usize,
+    full_enum: &FullEnum,
+) -> Result {
     let name_uncapitalized = uncapitalize_string(&full_enum.name);
     // First, we write toString functions, that are essentially type casts. This
     // is fine because we're sure the underlying type is a string, if it made it
@@ -1031,234 +1041,73 @@ fn write_union_definition(
     Ok(())
 }
 
-fn write_instruction_json_object(
-    str: &mut String,
-    key: &String,
-    instructions: &Vec<&InstructionContainer>,
-) -> Result {
-    write!(str, "\"{}\":{{", key).unwrap();
-
-    // Move all instructions into a hash map by path.
-    let mut by_path = FnvHashMap::default();
-
-    instructions.iter().for_each(|instruction_container| {
-        let path_name = conversion_instruction_path_to_name(&instruction_container.at_path);
-        match by_path.get_mut(&path_name) {
-            None => {
-                by_path.insert(
-                    conversion_instruction_path_to_name(&instruction_container.at_path),
-                    vec![instruction_container.instruction.clone()],
-                );
-                ()
-            }
-            Some(existing_instructions) => {
-                existing_instructions.push(instruction_container.instruction.clone())
-            }
-        }
-    });
-
-    let num_by_path = by_path.len();
-
-    by_path
-        .iter()
-        .sorted_by(|(path_a, _), (path_b, _)| path_b.cmp(&path_a))
-        .enumerate()
-        .for_each(|(index, (path_name, instructions))| {
-            write!(str, "\"{}\":{{", path_name).unwrap();
-
-            let mut has_printed_keys = FnvHashSet::default();
-
-            let num_instructions = instructions.len();
-
-            instructions
-                .iter()
-                .sorted_by(|instr_a, instr_b| {
-                    let (key_a, _) = instruction_to_key_value_pair(&instr_a);
-                    let (key_b, _) = instruction_to_key_value_pair(&instr_b);
-
-                    key_b.cmp(&key_a)
-                })
-                .enumerate()
-                .for_each(|(index, instruction)| {
-                    let (key, value) = instruction_to_key_value_pair(&instruction);
-
-                    if has_printed_keys.contains(&key) {
-                        return;
-                    }
-
-                    write!(str, "\"{}\":\"{}\"", key, value).unwrap();
-
-                    if num_instructions != index + 1 {
-                        write!(str, ",").unwrap();
-                    }
-
-                    has_printed_keys.insert(key);
-                });
-
-            // Close this instruction
-            write!(str, "}}").unwrap();
-
-            if num_by_path != index + 1 {
-                write!(str, ",").unwrap();
-            }
-        });
-
-    // Close this instruction
-    write!(str, "}}").unwrap();
-
-    Ok(())
-}
-
-// This produces the conversion instructions JSON object.
+// Preserve field boundaries and list depth; preparation happens at module load.
 fn get_conversion_instructions(
     state: &Box<ReScriptPrinter>,
     conversion_instructions: &Vec<&InstructionContainer>,
     root_object_names: Vec<&String>,
     root_name: &String,
-) -> String {
-    if conversion_instructions.len() == 0 {
-        String::from("{}")
-    } else {
-        let mut str = String::from("{");
-
-        // Print any root objects
-        root_object_names.iter().for_each(|name| {
-            write_instruction_json_object(
-                &mut str,
-                name,
-                &state
-                    .conversion_instructions
-                    .iter()
-                    .filter(
-                        |instruction_container| match &instruction_container.context {
-                            Context::RootObject(root_object_name) => {
-                                root_object_name.to_string() == name.to_string()
-                            }
-                            _ => false,
-                        },
-                    )
-                    .collect_vec(),
-            )
-            .unwrap();
-            write!(str, ",").unwrap();
-        });
-
-        // Write the root itself
-        write_instruction_json_object(
-            &mut str,
-            &String::from("__root"),
-            // The conversion instructions might contain root objects in
-            // addition to the top level, so we need to get rid of everything
-            // that doesn't the top level path prefix we're after.
-            &conversion_instructions
-                .into_iter()
-                .filter_map(|instruction_container| {
-                    if instruction_container.at_path[0] == root_name.as_str() {
-                        Some(instruction_container.to_owned())
-                    } else {
-                        None
-                    }
-                })
-                .collect_vec(),
-        )
-        .unwrap();
-
-        // Close full obj
-        write!(str, "}}").unwrap();
-
-        str
+    callbacks: &crate::rescript_conversion::CallbackSlots,
+) -> crate::rescript_conversion::ConversionPlan {
+    let mut roots = vec![];
+    for name in root_object_names {
+        let instructions = state.conversion_instructions.iter().filter(|instruction| {
+            matches!(&instruction.context, Context::RootObject(root) if root == name)
+        }).collect_vec();
+        roots.push((name.to_string(), instructions));
     }
+    roots.push((
+        String::from("__root"),
+        conversion_instructions
+            .iter()
+            .filter(|instruction| &instruction.at_path[0] == root_name)
+            .copied()
+            .collect_vec(),
+    ));
+    crate::rescript_conversion::write_plan(roots, callbacks)
 }
 
-// This writes the converter map, used to convert things like custom scalars and
-// unions.
-fn write_converter_map(
+// Write the callback table indexed by the IDs stored in the conversion plan.
+fn write_callbacks(
     str: &mut String,
     indentation: usize,
-    instructions: &Vec<&InstructionContainer>,
+    callbacks: &crate::rescript_conversion::CallbackSlots,
     name: &String,
     direction: ConversionDirection,
 ) -> Result {
+    use crate::rescript_conversion::Callback;
     write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
-
     write_indentation(str, indentation).unwrap();
-    write!(str, "let {}ConverterMap = ", name).unwrap();
-
-    let mut has_instructions = false;
-    let mut printed_instruction_keys = vec![];
-
-    instructions.iter().for_each(|instruction_container| {
-        match &instruction_container.instruction {
-            ConverterInstructions::ConvertUnion(union_name) => {
-                if !has_instructions {
-                    has_instructions = true;
-                    writeln!(str, "{{").unwrap();
-                }
-
-                if printed_instruction_keys.contains(union_name) {
-                    return;
-                } else {
-                    printed_instruction_keys.push(union_name.to_string());
-                }
-
-                write_indentation(str, indentation + 1).unwrap();
-                writeln!(
-                    str,
-                    "\"{}\": {},",
-                    union_name,
-                    format!(
-                        "{}_{}",
-                        match direction {
-                            ConversionDirection::Wrap => "wrap",
-                            ConversionDirection::Unwrap => "unwrap",
-                        },
-                        union_name,
-                    ),
-                )
-                .unwrap();
-            }
-            ConverterInstructions::ConvertCustomField(custom_field_name, _) => {
-                if !has_instructions {
-                    has_instructions = true;
-                    writeln!(str, "{{").unwrap();
-                }
-
-                if printed_instruction_keys.contains(custom_field_name) {
-                    return;
-                } else {
-                    printed_instruction_keys.push(custom_field_name.to_string());
-                }
-
-                write_indentation(str, indentation + 1).unwrap();
-                writeln!(
-                    str,
-                    "\"{}\": {},",
-                    custom_field_name,
-                    match classify_rescript_value_string(&custom_field_name) {
-                        RescriptCustomTypeValue::Type => custom_field_name.to_string(),
-                        RescriptCustomTypeValue::Module => format!(
-                            "{}.{}",
-                            custom_field_name,
-                            match direction {
-                                ConversionDirection::Wrap => "serialize",
-                                ConversionDirection::Unwrap => "parse",
-                            }
-                        ),
+    write!(str, "let {}Callbacks = ", name).unwrap();
+    if callbacks.is_empty() {
+        writeln!(str, "()").unwrap();
+    } else {
+        writeln!(str, "{{").unwrap();
+        for (callback, slot) in callbacks {
+            let function = match callback {
+                Callback::Scalar(module) => format!(
+                    "{}.{}",
+                    module,
+                    match direction {
+                        ConversionDirection::Wrap => "serialize",
+                        ConversionDirection::Unwrap => "parse",
+                    }
+                ),
+                Callback::Union(name) => format!(
+                    "{}_{}",
+                    match direction {
+                        ConversionDirection::Wrap => "wrap",
+                        ConversionDirection::Unwrap => "unwrap",
                     },
-                )
-                .unwrap();
-            }
-            _ => (),
-        };
-    });
-
-    if has_instructions {
+                    name
+                ),
+            };
+            write_indentation(str, indentation + 1).unwrap();
+            writeln!(str, "\"{}\": {},", slot, function).unwrap();
+        }
         write_indentation(str, indentation).unwrap();
         writeln!(str, "}}").unwrap();
-    } else {
-        writeln!(str, "()").unwrap()
     }
-
     Ok(())
 }
 
@@ -1275,6 +1124,7 @@ fn write_internal_assets(
     include_raw: bool,
     direction: ConversionDirection,
     nullable_type: NullableType,
+    shared_plans: &mut std::collections::BTreeMap<String, String>,
 ) -> Result {
     let root_name = root_name_from_context(&target_context);
 
@@ -1283,17 +1133,6 @@ fn write_internal_assets(
         write_indentation(str, indentation).unwrap();
         writeln!(str, "type {}Raw", name).unwrap();
     }
-
-    write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
-    write_indentation(str, indentation).unwrap();
-    writeln!(
-        str,
-        "let {}Converter: dict<dict<dict<string>>> = %raw(",
-        name
-    )
-    .unwrap();
-
-    write_indentation(str, indentation + 1).unwrap();
 
     // Map out all root objects (ie input objects) used in this conversion
     // setup. This is because they are recursive, and thus needs to be treated
@@ -1324,48 +1163,54 @@ fn write_internal_assets(
         })
         .collect();
 
-    writeln!(
-        str,
-        "json`{}`",
-        get_conversion_instructions(
-            state,
-            &target_conversion_instructions,
-            root_objects.into_iter().collect_vec(),
-            &root_name
+    let callbacks = crate::rescript_conversion::callback_slots(&target_conversion_instructions);
+    let plan = get_conversion_instructions(
+        state,
+        &target_conversion_instructions,
+        root_objects.into_iter().collect_vec(),
+        &root_name,
+        &callbacks,
+    );
+
+    // Most artifacts need only nullable normalization. Reuse the runtime's
+    // generic converter instead of allocating a plan and handle per direction.
+    if plan.is_empty {
+        write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
+        write_indentation(str, indentation).unwrap();
+        writeln!(
+            str,
+            "let convert{} = value => RescriptRelay.convertWithoutPlan(value, {})",
+            uppercase_first_letter(name.as_str()),
+            match nullable_type {
+                NullableType::Undefined => "None",
+                NullableType::Null => "null",
+            },
         )
-    )
-    .unwrap();
+        .unwrap();
+        return Ok(());
+    }
 
     write_indentation(str, indentation).unwrap();
-    writeln!(str, ")").unwrap();
+    writeln!(str, "%%private(").unwrap();
+    write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
+    write_indentation(str, indentation).unwrap();
+    let plan = plan.json;
+    // Read and write directions share immutable metadata, but retain distinct
+    // callback maps and prepared converters. Share only within this artifact.
+    if let Some(previous) = shared_plans.get(&plan) {
+        writeln!(str, "let {}Converter = {}Converter", name, previous).unwrap();
+    } else {
+        writeln!(str, "let {}Converter: JSON.t = %raw(json`{}`)", name, plan).unwrap();
+        shared_plans.insert(plan, name.clone());
+    }
 
-    // Converters are either unions (that needs to be wrapped/unwrapped), or
-    // custom scalars _that are ReScript modules_, and therefore should be
-    // autoconverted.
-    let converters: Vec<&InstructionContainer> = target_conversion_instructions
-        .into_iter()
-        .filter(|instruction_container| {
-            match &instruction_container.instruction {
-                ConverterInstructions::ConvertCustomField(field_name, _) => {
-                    // Try and infer what type of ReScript value this is
-                    match classify_rescript_value_string(&field_name) {
-                        RescriptCustomTypeValue::Type => false,
-                        RescriptCustomTypeValue::Module => true,
-                    }
-                }
-                ConverterInstructions::ConvertUnion(_) => true,
-                _ => false,
-            }
-        })
-        .collect();
-
-    write_converter_map(str, indentation, &converters, &name, direction).unwrap();
+    write_callbacks(str, indentation, &callbacks, &name, direction).unwrap();
 
     write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
     write_indentation(str, indentation).unwrap();
     writeln!(
         str,
-        "let convert{} = v => v->RescriptRelay.convertObj(",
+        "let prepared{}Converter = RescriptRelay.prepareConversion(",
         uppercase_first_letter(name.as_str())
     )
     .unwrap();
@@ -1373,7 +1218,7 @@ fn write_internal_assets(
     write_indentation(str, indentation + 1).unwrap();
     writeln!(str, "{}Converter,", name).unwrap();
     write_indentation(str, indentation + 1).unwrap();
-    writeln!(str, "{}ConverterMap,", name).unwrap();
+    writeln!(str, "{}Callbacks,", name).unwrap();
     write_indentation(str, indentation + 1).unwrap();
     writeln!(
         str,
@@ -1387,6 +1232,18 @@ fn write_internal_assets(
     write_indentation(str, indentation).unwrap();
     writeln!(str, ")").unwrap();
 
+    write_indentation(str, indentation).unwrap();
+    writeln!(str, ")").unwrap();
+
+    write_suppress_dead_code_warning_annotation(str, indentation).unwrap();
+    write_indentation(str, indentation).unwrap();
+    writeln!(
+        str,
+        "let convert{} = value => RescriptRelay.runConversion(prepared{}Converter, value)",
+        uppercase_first_letter(name.as_str()),
+        uppercase_first_letter(name.as_str())
+    )
+    .unwrap();
     Ok(())
 }
 
@@ -1848,13 +1705,13 @@ fn write_fragment_definition(
             if nullable {
                 writeln!(
                     str,
-                    "type fragment = RescriptRelay.CatchResult.t<array<option<fragment_t>>>"
+                    "type fragment = array<RescriptRelay.CatchResult.t<option<fragment_t>>>"
                 )
                 .unwrap()
             } else {
                 writeln!(
                     str,
-                    "type fragment = RescriptRelay.CatchResult.t<array<fragment_t>>"
+                    "type fragment = array<RescriptRelay.CatchResult.t<fragment_t>>"
                 )
                 .unwrap()
             }
@@ -1886,39 +1743,36 @@ fn write_fragment_definition(
                 .unwrap();
             }
         }
-        &TopLevelFragmentType::ResultWithUnion(union) => {
-            if nullable {
-                write_union_definition(
-                    state,
-                    str,
-                    &context,
-                    indentation,
-                    &union,
-                    Some(String::from("fragment_t")),
-                    &ObjectPrintMode::Standalone,
-                )
-                .unwrap();
-                write_indentation(str, indentation).unwrap();
+        &TopLevelFragmentType::ResultWithUnion(union)
+        | &TopLevelFragmentType::ArrayWithResultUnion(union) => {
+            write_union_definition(
+                state,
+                str,
+                &context,
+                indentation,
+                union,
+                Some(String::from("fragment_t")),
+                &ObjectPrintMode::Standalone,
+            )
+            .unwrap();
+            write_indentation(str, indentation).unwrap();
+            let value_type = if nullable {
+                "option<fragment_t>"
+            } else {
+                "fragment_t"
+            };
+            if matches!(fragment, TopLevelFragmentType::ArrayWithResultUnion(_)) {
                 writeln!(
                     str,
-                    "type fragment = RescriptRelay.CatchResult.t<option<fragment_t>>"
+                    "type fragment = array<RescriptRelay.CatchResult.t<{}>>",
+                    value_type
                 )
                 .unwrap()
             } else {
-                write_union_definition(
-                    state,
-                    str,
-                    &context,
-                    indentation,
-                    &union,
-                    Some(String::from("fragment_t")),
-                    &ObjectPrintMode::Standalone,
-                )
-                .unwrap();
-                write_indentation(str, indentation).unwrap();
                 writeln!(
                     str,
-                    "type fragment = RescriptRelay.CatchResult.t<fragment_t>"
+                    "type fragment = RescriptRelay.CatchResult.t<{}>",
+                    value_type
                 )
                 .unwrap()
             }
@@ -2057,8 +1911,7 @@ fn write_get_connection_nodes_function(
                 None => {
                     warn!(
                         "Could not find edges object with type name '{}' for connection '{}'",
-                        edges_obj_type_name,
-                        connection_field_name
+                        edges_obj_type_name, connection_field_name
                     );
                 }
                 Some(edges_object) => {
@@ -2067,28 +1920,28 @@ fn write_get_connection_nodes_function(
                         None => {
                             warn!(
                                 "Could not find 'node' field in edges object '{}' for connection '{}'",
-                                edges_obj_type_name,
-                                connection_field_name
+                                edges_obj_type_name, connection_field_name
                             );
                         }
                         Some(prop_value) => {
-                            let (node_nullable, node_type_name) =
-                                match &prop_value.prop_type.as_ref() {
-                                    PropType::RecordReference(node_record_reference) => {
-                                        (prop_value.nullable, node_record_reference.to_string())
-                                    }
-                                    PropType::UnionReference(node_union_reference) => {
-                                        (prop_value.nullable, node_union_reference.to_string())
-                                    }
-                                    other_type => {
-                                        warn!(
-                                            "Unexpected node type in connection '{}': expected RecordReference or UnionReference, got {:?}",
-                                            connection_field_name,
-                                            other_type
-                                        );
-                                        (prop_value.nullable, String::from("invalid_node_type"))
-                                    }
-                                };
+                            let (node_nullable, node_type_name) = match &prop_value
+                                .prop_type
+                                .as_ref()
+                            {
+                                PropType::RecordReference(node_record_reference) => {
+                                    (prop_value.nullable, node_record_reference.to_string())
+                                }
+                                PropType::UnionReference(node_union_reference) => {
+                                    (prop_value.nullable, node_union_reference.to_string())
+                                }
+                                other_type => {
+                                    warn!(
+                                        "Unexpected node type in connection '{}': expected RecordReference or UnionReference, got {:?}",
+                                        connection_field_name, other_type
+                                    );
+                                    (prop_value.nullable, String::from("invalid_node_type"))
+                                }
+                            };
 
                             // We've got all we need, let's print the function itself
                             writeln!(str, "").unwrap();
@@ -2581,6 +2434,7 @@ impl Writer for ReScriptPrinter {
                 _,
                 TopLevelFragmentType::Union(fragment_union)
                 | TopLevelFragmentType::ResultWithUnion(fragment_union)
+                | TopLevelFragmentType::ArrayWithResultUnion(fragment_union)
                 | TopLevelFragmentType::ArrayWithUnion(fragment_union),
             )) => {
                 write_union_converters(&mut generated_types, indentation, &fragment_union).unwrap();
@@ -2628,6 +2482,8 @@ impl Writer for ReScriptPrinter {
             }
         }
 
+        let mut shared_conversion_plans = std::collections::BTreeMap::new();
+
         // Print internal module. This module holds a bunch of things needed for
         // conversions etc, but that we want to keep in its own module. Mostly
         // just to reiterate that things found in here are indeed internal, and
@@ -2648,6 +2504,7 @@ impl Writer for ReScriptPrinter {
                         true,
                         ConversionDirection::Unwrap,
                         NullableType::Undefined,
+                        &mut shared_conversion_plans,
                     )
                     .unwrap();
                 }
@@ -2674,6 +2531,7 @@ impl Writer for ReScriptPrinter {
                     } else {
                         NullableType::Undefined
                     },
+                    &mut shared_conversion_plans,
                 )
                 .unwrap();
             }
@@ -2703,6 +2561,7 @@ impl Writer for ReScriptPrinter {
                                 true,
                                 ConversionDirection::Wrap,
                                 NullableType::Null,
+                                &mut shared_conversion_plans,
                             )
                             .unwrap();
                         }
@@ -2720,6 +2579,7 @@ impl Writer for ReScriptPrinter {
                         true,
                         ConversionDirection::Unwrap,
                         NullableType::Undefined,
+                        &mut shared_conversion_plans,
                     )
                     .unwrap();
                 }
@@ -2747,6 +2607,7 @@ impl Writer for ReScriptPrinter {
                                 true,
                                 ConversionDirection::Wrap,
                                 NullableType::Null,
+                                &mut shared_conversion_plans,
                             )
                             .unwrap();
                         }
@@ -2764,6 +2625,7 @@ impl Writer for ReScriptPrinter {
                         true,
                         ConversionDirection::Unwrap,
                         NullableType::Undefined,
+                        &mut shared_conversion_plans,
                     )
                     .unwrap();
                 }
@@ -2970,8 +2832,13 @@ impl Writer for ReScriptPrinter {
                         .iter()
                         .unique_by(|full_enum| &full_enum.name)
                         .for_each(|full_enum| {
-                            write_enum_util_functions(&self, &mut generated_types, indentation, &full_enum)
-                                .unwrap()
+                            write_enum_util_functions(
+                                &self,
+                                &mut generated_types,
+                                indentation,
+                                &full_enum,
+                            )
+                            .unwrap()
                         });
                 }
             }
@@ -3183,8 +3050,10 @@ impl Writer for ReScriptPrinter {
                         _ => Context::Response,
                     };
 
+                    // Relay reads plural fragments one item at a time, so @catch
+                    // wraps each item, even when typegen's AST wraps the array.
                     let is_result = match cto {
-                        Some((_, ClassifiedTopLevelObjectType::Result(_))) => true,
+                        Some((_, ClassifiedTopLevelObjectType::ArrayWithResult(_))) => true,
                         _ => false,
                     };
 
@@ -3240,7 +3109,11 @@ impl Writer for ReScriptPrinter {
                         Some((nullable, TopLevelFragmentType::Union(fragment_union_type)));
                     Ok(())
                 }
-                Some((nullable, ClassifiedTopLevelObjectType::ResultWithUnion(members_raw))) => {
+                Some((
+                    nullable,
+                    ClassifiedTopLevelObjectType::ResultWithUnion(members_raw)
+                    | ClassifiedTopLevelObjectType::ArrayWithResultUnion(members_raw),
+                )) => {
                     let context = Context::Fragment;
 
                     let mut current_path = vec![root_name_from_context(&context)];
@@ -3266,7 +3139,14 @@ impl Writer for ReScriptPrinter {
 
                     self.fragment = Some((
                         nullable,
-                        TopLevelFragmentType::ResultWithUnion(fragment_union_type),
+                        if matches!(
+                            cto,
+                            Some((_, ClassifiedTopLevelObjectType::ArrayWithResultUnion(_)))
+                        ) {
+                            TopLevelFragmentType::ArrayWithResultUnion(fragment_union_type)
+                        } else {
+                            TopLevelFragmentType::ResultWithUnion(fragment_union_type)
+                        },
                     ));
                     Ok(())
                 }
@@ -3500,6 +3380,19 @@ impl Writer for ReScriptPrinter {
                                     needs_conversion: needs_conversion.clone(),
                                 });
 
+                                let list_depth =
+                                    crate::rescript_conversion::list_depth(return_type_ast);
+                                if needs_conversion.is_some() && list_depth > 0 {
+                                    self.conversion_instructions.push(InstructionContainer {
+                                        context: Context::Variables,
+                                        at_path: vec![
+                                            String::from("variables"),
+                                            key_value_pair_key.to_string(),
+                                        ],
+                                        instruction: ConverterInstructions::ListDepth(list_depth),
+                                    });
+                                }
+
                                 // Make sure we note any provided
                                 // variable that needs runtime
                                 // conversion for input objects or
@@ -3644,6 +3537,104 @@ mod tests {
             FnvHashSet::default(),
             no_future_proof_enums,
         )
+    }
+
+    fn assert_plural_catch_shape(payload: AST, nullable: bool, is_union: bool) {
+        let payload = if nullable {
+            AST::Nullable(Box::new(payload))
+        } else {
+            payload
+        };
+        // Relay typegen can wrap the array; useFragment wraps each item.
+        let shapes = [
+            AST::GenericType {
+                outer: "Result".intern(),
+                inner: vec![AST::ReadOnlyArray(Box::new(payload.clone()))],
+            },
+            AST::ReadOnlyArray(Box::new(AST::GenericType {
+                outer: "Result".intern(),
+                inner: vec![payload],
+            })),
+        ];
+        for shape in shapes {
+            let mut state = Box::new(make_printer(false));
+            state
+                .write_export_type("TestFragment$data", &shape)
+                .unwrap();
+            let (actual_nullable, fragment) = state.fragment.as_ref().unwrap();
+            assert_eq!(*actual_nullable, nullable);
+            match fragment {
+                TopLevelFragmentType::ArrayWithResult(object) if !is_union => {
+                    assert_eq!(object.at_path, vec!["fragment", "value"]);
+                }
+                TopLevelFragmentType::ArrayWithResultUnion(union) if is_union => {
+                    assert_eq!(union.at_path, vec!["fragment", "value"]);
+                    assert!(state.conversion_instructions.iter().any(|instruction| {
+                        instruction.at_path == vec!["fragment", "value"]
+                            && matches!(
+                                instruction.instruction,
+                                ConverterInstructions::ConvertUnion(_)
+                            )
+                    }));
+                }
+                other => panic!("Expected plural results, got {:?}", other),
+            }
+            let mut output = String::new();
+            write_fragment_definition(
+                &state,
+                &mut output,
+                0,
+                fragment,
+                &Context::Fragment,
+                nullable,
+            )
+            .unwrap();
+            let value_type = if nullable {
+                "option<fragment_t>"
+            } else {
+                "fragment_t"
+            };
+            assert!(
+                output.contains(&format!(
+                    "type fragment = array<RescriptRelay.CatchResult.t<{}>>",
+                    value_type
+                )),
+                "{}",
+                output
+            );
+        }
+    }
+
+    #[test]
+    fn plural_catch_wraps_each_fragment_and_converts_inside_value() {
+        for nullable in [false, true] {
+            assert_plural_catch_shape(
+                AST::ExactObject(crate::writer::ExactObject::new(vec![])),
+                nullable,
+                false,
+            );
+        }
+    }
+
+    #[test]
+    fn plural_catch_preserves_abstract_payloads_and_nullability() {
+        let members = ["User", "Group"]
+            .iter()
+            .map(|name| {
+                AST::ExactObject(crate::writer::ExactObject::new(vec![Prop::KeyValuePair(
+                    KeyValuePairProp {
+                        key: "__typename".intern(),
+                        value: AST::StringLiteral(crate::writer::StringLiteral(name.intern())),
+                        read_only: true,
+                        optional: false,
+                    },
+                )]))
+            })
+            .collect();
+        let union = AST::Union(crate::writer::SortedASTList::new(members));
+        for nullable in [false, true] {
+            assert_plural_catch_shape(union.clone(), nullable, true);
+        }
     }
 
     #[test]

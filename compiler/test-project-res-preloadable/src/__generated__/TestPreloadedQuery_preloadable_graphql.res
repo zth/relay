@@ -13,17 +13,7 @@ module Types = {
 
 module Internal = {
   @live
-  let variablesConverter: dict<dict<dict<string>>> = %raw(
-    json`{}`
-  )
-  @live
-  let variablesConverterMap = ()
-  @live
-  let convertVariables = v => v->RescriptRelay.convertObj(
-    variablesConverter,
-    variablesConverterMap,
-    None
-  )
+  let convertVariables = value => RescriptRelay.convertWithoutPlan(value, None)
 }
 module Utils = {
   @@warning("-33")

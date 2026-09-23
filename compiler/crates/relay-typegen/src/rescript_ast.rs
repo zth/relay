@@ -98,6 +98,7 @@ pub struct FullEnum {
 // and apply them accordingly.
 #[derive(Debug, Clone)]
 pub enum ConverterInstructions {
+    ListDepth(usize),
     ConvertUnion(String),
     ConvertCustomField(String, bool),
     HasFragments,

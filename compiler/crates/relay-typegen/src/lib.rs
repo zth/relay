@@ -348,3 +348,5 @@ struct TypegenOptions {
     // Some extra artifacts require special type generation
     is_extra_artifact_branch_module: bool,
 }
+
+mod rescript_conversion;

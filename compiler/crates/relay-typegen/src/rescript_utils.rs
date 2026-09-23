@@ -133,6 +133,7 @@ pub enum ClassifiedTopLevelObjectType<'a> {
     ArrayWithObject(&'a Vec<Prop>),
     ArrayWithUnion(&'a Vec<AST>),
     ArrayWithResult(&'a Vec<Prop>),
+    ArrayWithResultUnion(&'a Vec<AST>),
 }
 
 // This classifies top level object types, meaning anything that comes in the
@@ -170,25 +171,40 @@ pub fn classify_top_level_object_type_ast(
                     array_item_nullable,
                     ClassifiedTopLevelObjectType::ArrayWithResult(&ast),
                 )),
+                Some((item_nullable, ClassifiedTopLevelObjectType::ResultWithUnion(members))) => {
+                    Some((
+                        item_nullable,
+                        ClassifiedTopLevelObjectType::ArrayWithResultUnion(members),
+                    ))
+                }
                 _ => None,
             }
         }
         &AST::GenericType { outer, inner } => {
             if outer.eq(&"Result".intern()) {
-                let ok_ast = inner.get(0).unwrap();
-                match &ok_ast {
-                    &AST::ExactObject(props) => {
-                        Some((nullable, ClassifiedTopLevelObjectType::Result(&props)))
-                    }
-                    &AST::Union(members) => Some((
-                        nullable,
-                        ClassifiedTopLevelObjectType::ResultWithUnion(&members),
+                let (payload_nullable, ok_ast) = unwrap_ast(inner.first()?);
+                match ok_ast {
+                    AST::ExactObject(props) => Some((
+                        nullable || payload_nullable,
+                        ClassifiedTopLevelObjectType::Result(props),
                     )),
-                    &AST::ReadOnlyArray(inner_ast) => match &inner_ast.as_ref() {
-                        &AST::ExactObject(props) => Some((
-                            nullable,
-                            ClassifiedTopLevelObjectType::ArrayWithResult(&props),
-                        )),
+                    AST::Union(members) => Some((
+                        nullable || payload_nullable,
+                        ClassifiedTopLevelObjectType::ResultWithUnion(members),
+                    )),
+                    AST::ReadOnlyArray(item) => match classify_top_level_object_type_ast(item) {
+                        Some((item_nullable, ClassifiedTopLevelObjectType::Object(props))) => {
+                            Some((
+                                item_nullable,
+                                ClassifiedTopLevelObjectType::ArrayWithResult(props),
+                            ))
+                        }
+                        Some((item_nullable, ClassifiedTopLevelObjectType::Union(members))) => {
+                            Some((
+                                item_nullable,
+                                ClassifiedTopLevelObjectType::ArrayWithResultUnion(members),
+                            ))
+                        }
                         _ => None,
                     },
                     _ => None,
@@ -357,6 +373,7 @@ pub fn get_safe_key(original_key: &String) -> (String, Option<String>) {
 
 pub fn instruction_to_key_value_pair(instruction: &ConverterInstructions) -> (String, String) {
     match &instruction {
+        &ConverterInstructions::ListDepth(depth) => (String::from("list"), depth.to_string()),
         &ConverterInstructions::ConvertUnion(union_record_name) => {
             (String::from("u"), union_record_name.to_string())
         }
