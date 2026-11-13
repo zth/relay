@@ -1167,7 +1167,7 @@ fn write_internal_assets(
     let plan = get_conversion_instructions(
         state,
         &target_conversion_instructions,
-        root_objects.into_iter().collect_vec(),
+        root_objects.into_iter().sorted().collect_vec(),
         &root_name,
         &callbacks,
     );
